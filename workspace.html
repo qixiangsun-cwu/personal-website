@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>工作台 · 孙琪翔</title>
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* 工作台专属样式 */
+        .workspace-lock {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .lock-card {
+            max-width: 420px;
+            width: 100%;
+            padding: 3rem 2.5rem;
+            text-align: center;
+        }
+
+        .lock-icon {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .lock-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .lock-desc {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+        }
+
+        .lock-input {
+            width: 100%;
+            padding: 0.85rem 1.25rem;
+            background: rgba(255, 255, 255, 0.5);
+            border: 1px solid var(--glass-border);
+            border-radius: 100px;
+            font-size: 0.95rem;
+            font-family: inherit;
+            color: var(--text-primary);
+            outline: none;
+            transition: var(--transition);
+            text-align: center;
+            letter-spacing: 0.1em;
+            margin-bottom: 1rem;
+        }
+
+        .lock-input:focus {
+            background: rgba(255, 255, 255, 0.7);
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .lock-btn {
+            width: 100%;
+            padding: 0.85rem;
+            background: var(--gradient-hero);
+            color: var(--text-on-accent);
+            border: none;
+            border-radius: 100px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            font-family: inherit;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: 0 4px 14px rgba(99, 102, 241, 0.3);
+        }
+
+        .lock-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+        }
+
+        .lock-error {
+            color: #ef4444;
+            font-size: 0.85rem;
+            margin-top: 1rem;
+            display: none;
+        }
+
+        .lock-error.show {
+            display: block;
+            animation: shake 0.4s ease;
+        }
+
+        .lock-back {
+            display: inline-block;
+            margin-top: 1.5rem;
+            font-size: 0.85rem;
+            color: var(--text-tertiary);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .lock-back:hover {
+            color: var(--accent-primary);
+        }
+
+        /* 工作台内容 */
+        .workspace-content {
+            display: none;
+            min-height: 100vh;
+            padding: 6rem 2rem 4rem;
+        }
+
+        .workspace-content.show {
+            display: block;
+        }
+
+        .workspace-header {
+            max-width: 1200px;
+            margin: 0 auto 3rem;
+            text-align: center;
+        }
+
+        .workspace-grid {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+        }
+
+        .ws-card {
+            padding: 2rem;
+        }
+
+        .ws-card h3 {
+            font-size: 1.15rem;
+            font-weight: 600;
+            margin-bottom: 1.25rem;
+            color: var(--text-primary);
+        }
+
+        .ws-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+        }
+
+        .ws-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.85rem 1.25rem;
+            background: rgba(255, 255, 255, 0.4);
+            border-radius: var(--radius-sm);
+            transition: var(--transition);
+        }
+
+        .ws-item:hover {
+            background: rgba(255, 255, 255, 0.6);
+        }
+
+        .ws-item-name {
+            font-size: 0.9rem;
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .ws-item-status {
+            font-size: 0.78rem;
+            padding: 0.25rem 0.65rem;
+            border-radius: 100px;
+            font-weight: 600;
+        }
+
+        .status-active { background: rgba(16, 185, 129, 0.15); color: #059669; }
+        .status-pending { background: rgba(245, 158, 11, 0.15); color: #d97706; }
+        .status-done { background: rgba(99, 102, 241, 0.15); color: #4f46e5; }
+        .status-abandoned { background: rgba(107, 114, 128, 0.15); color: #6b7280; }
+
+        @media (max-width: 768px) {
+            .workspace-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-gradient">
+        <div class="bg-blob blob-1"></div>
+        <div class="bg-blob blob-2"></div>
+        <div class="bg-blob blob-3"></div>
+    </div>
+
+    <!-- 锁屏页 -->
+    <div class="workspace-lock" id="lockScreen">
+        <div class="glass-card lock-card">
+            <div class="lock-icon">🔒</div>
+            <h1 class="lock-title">私有工作台</h1>
+            <p class="lock-desc">此区域仅限本人访问，请输入密码</p>
+            <input type="password" class="lock-input" id="passwordInput" placeholder="输入密码" autocomplete="off">
+            <button class="lock-btn" id="unlockBtn">进入工作台</button>
+            <p class="lock-error" id="lockError">密码错误，请重试</p>
+            <a href="index.html" class="lock-back">← 返回公开页</a>
+        </div>
+    </div>
+
+    <!-- 工作台内容 -->
+    <div class="workspace-content" id="workspaceContent">
+        <div class="workspace-header">
+            <span class="section-tag">WORKSPACE</span>
+            <h2 class="section-title">工作台</h2>
+            <p style="margin-top: 0.5rem;">
+                <a href="index.html" style="color: var(--text-tertiary); font-size: 0.85rem; text-decoration: none;">← 返回公开页</a>
+            </p>
+        </div>
+
+        <div class="workspace-grid">
+            <!-- 在研项目进度 -->
+            <div class="glass-card ws-card">
+                <h3>📋 在研项目进度</h3>
+                <div class="ws-list">
+                    <div class="ws-item">
+                        <span class="ws-item-name">国自然青年科学基金申报书</span>
+                        <span class="ws-item-status status-pending">等结果</span>
+                    </div>
+                    <div class="ws-item">
+                        <span class="ws-item-name">北京教育科学规划课题</span>
+                        <span class="ws-item-status status-active">进行中</span>
+                    </div>
+                    <div class="ws-item">
+                        <span class="ws-item-name">援外研修班</span>
+                        <span class="ws-item-status status-active">持续</span>
+                    </div>
+                    <div class="ws-item">
+                        <span class="ws-item-name">前端图形学实用技术课程材料</span>
+                        <span class="ws-item-status status-active">准备中</span>
+                    </div>
+                    <div class="ws-item">
+                        <span class="ws-item-name">干训部数字平台建设</span>
+                        <span class="ws-item-status status-pending">询价中</span>
+                    </div>
+                    <div class="ws-item">
+                        <span class="ws-item-name">华为微认证</span>
+                        <span class="ws-item-status status-done">3科完成</span>
+                    </div>
+                    <div class="ws-item">
+                        <span class="ws-item-name">内蒙古新闻日报自动化</span>
+                        <span class="ws-item-status status-abandoned">已废弃</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 每日工作汇总 -->
+            <div class="glass-card ws-card">
+                <h3>📊 每日工作汇总</h3>
+                <div class="ws-list">
+                    <div class="ws-item">
+                        <span class="ws-item-name">来源：每日日志</span>
+                        <span class="ws-item-status status-active">自动</span>
+                    </div>
+                    <div class="ws-item">
+                        <span class="ws-item-name">板块：工作记录 / 身体状况 / 备注</span>
+                        <span class="ws-item-status status-done">规范</span>
+                    </div>
+                </div>
+                <p style="margin-top: 1rem; font-size: 0.85rem; color: var(--text-tertiary);">复用每日工作汇总工作区内容</p>
+            </div>
+
+            <!-- 援外研修班资料库 -->
+            <div class="glass-card ws-card">
+                <h3>🌍 援外研修班资料库</h3>
+                <div class="ws-list">
+                    <div class="ws-item">
+                        <span class="ws-item-name">存放：2026年援外班材料/</span>
+                        <span class="ws-item-status status-done">7 docx + 1 pdf</span>
+                    </div>
+                    <div class="ws-item">
+                        <span class="ws-item-name">内容：方案、课件、学员材料</span>
+                        <span class="ws-item-status status-pending">待补充索引</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 讲座备课库 -->
+            <div class="glass-card ws-card">
+                <h3>🎓 讲座备课库</h3>
+                <div class="ws-list">
+                    <div class="ws-item">
+                        <span class="ws-item-name">WorkBuddy / Vibe Coding</span>
+                        <span class="ws-item-status status-done">已有</span>
+                    </div>
+                    <div class="ws-item">
+                        <span class="ws-item-name">她力量 × AI赋能</span>
+                        <span class="ws-item-status status-done">已有</span>
+                    </div>
+                    <div class="ws-item">
+                        <span class="ws-item-name">甘肃两县 AI 赋能</span>
+                        <span class="ws-item-status status-done">已有</span>
+                    </div>
+                    <div class="ws-item">
+                        <span class="ws-item-name">模板：8段式结构</span>
+                        <span class="ws-item-status status-active">可用</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 个人待办 / 灵感 -->
+            <div class="glass-card ws-card" style="grid-column: span 2;">
+                <h3>💡 个人待办 / 灵感</h3>
+                <div class="ws-list">
+                    <div class="ws-item">
+                        <span class="ws-item-name">网站内容持续补充项（讲座BV号、下载文件、B站space链接等）</span>
+                        <span class="ws-item-status status-pending">待补充</span>
+                    </div>
+                    <div class="ws-item">
+                        <span class="ws-item-name">新讲座选题、新课程方向</span>
+                        <span class="ws-item-status status-active">构思中</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 工作台密码验证
+        const WORKSPACE_PASSWORD = 'myworkspace2026';
+
+        document.getElementById('unlockBtn').addEventListener('click', function() {
+            checkPassword();
+        });
+
+        document.getElementById('passwordInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                checkPassword();
+            }
+        });
+
+        function checkPassword() {
+            const input = document.getElementById('passwordInput').value;
+            const error = document.getElementById('lockError');
+            const lockScreen = document.getElementById('lockScreen');
+            const content = document.getElementById('workspaceContent');
+
+            if (input === WORKSPACE_PASSWORD) {
+                lockScreen.style.display = 'none';
+                content.classList.add('show');
+            } else {
+                error.classList.add('show');
+                document.getElementById('passwordInput').value = '';
+                setTimeout(() => {
+                    error.classList.remove('show');
+                }, 3000);
+            }
+        }
+    </script>
+</body>
+</html>
