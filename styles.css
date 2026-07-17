@@ -11,27 +11,27 @@
 }
 
 :root {
-    /* 色彩体系 - 鲜活渐变底色 */
-    --bg-base: #e8eaf0;
-    --blob-1: #6366f1;
-    --blob-2: #ec4899;
-    --blob-3: #10b981;
-    --blob-4: #f59e0b;
+    /* 色彩体系 - 柔和渐变底色 */
+    --bg-base: #f0f1f5;
+    --blob-1: #a5b4fc;
+    --blob-2: #f9a8d4;
+    --blob-3: #6ee7b7;
+    --blob-4: #fdba74;
 
-    /* 毛玻璃卡片 - 强透明感 */
-    --glass-bg: rgba(255, 255, 255, 0.15);
-    --glass-bg-hover: rgba(255, 255, 255, 0.25);
-    --glass-border: rgba(255, 255, 255, 0.35);
-    --glass-shadow: 0 8px 32px rgba(31, 38, 135, 0.2);
-    --glass-shadow-hover: 0 12px 40px rgba(31, 38, 135, 0.28);
-    --glass-blur: 40px;
+    /* 毛玻璃卡片 - 保证文字可读 */
+    --glass-bg: rgba(255, 255, 255, 0.55);
+    --glass-bg-hover: rgba(255, 255, 255, 0.65);
+    --glass-border: rgba(255, 255, 255, 0.6);
+    --glass-shadow: 0 8px 32px rgba(31, 38, 135, 0.12);
+    --glass-shadow-hover: 0 12px 40px rgba(31, 38, 135, 0.18);
+    --glass-blur: 20px;
 
     /* 文字色 */
     --text-primary: #1d1d1f;
     --text-secondary: #6e6e73;
     --text-tertiary: #86868b;
     --text-on-accent: #ffffff;
-    --text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1), 0 0 8px rgba(255, 255, 255, 0.5);
+    --text-shadow: none;
 
     /* 强调色 */
     --accent-primary: #6366f1;
@@ -85,8 +85,8 @@ body {
 .bg-blob {
     position: absolute;
     border-radius: 50%;
-    filter: blur(45px);
-    opacity: 0.9;
+    filter: blur(80px);
+    opacity: 0.6;
     animation: float 20s ease-in-out infinite;
 }
 
