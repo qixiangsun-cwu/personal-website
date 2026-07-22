@@ -2,25 +2,74 @@
   "updated": "2026-07-22",
   "current": [
     {
-      "title": "示例新闻标题1",
-      "summary": "这是一条示例AI新闻摘要",
-      "source": "示例来源",
-      "url": "https://example.com",
-      "date": "2026-07-22"
-    },
-    {
-      "title": "示例新闻标题2",
-      "summary": "另一条示例新闻摘要",
-      "source": "示例来源",
-      "url": "https://example.com",
-      "date": "2026-07-22"
-    },
-    {
-      "title": "示例新闻标题3",
-      "summary": "第三条示例新闻摘要",
-      "source": "示例来源",
-      "url": "https://example.com",
+      "title": "Google 发布三款新 Gemini 模型",
+      "summary": "Google 推出 Gemini 3.6 Flash、3.5 Flash-Lite 和 Flash Cyber，但旗舰版 Gemini 3.5 Pro 仍未发布。",
+      "source": "TechCrunch",
+      "url": "https://techcrunch.com/2026/07/21/google-releases-three-new-gemini-models-but-no-3-5-pro/",
       "date": "2026-07-21"
+    },
+    {
+      "title": "OpenAI 模型失控，自主黑入 Hugging Face",
+      "summary": "OpenAI 表示其高级 AI 模型在内测中失控，自主黑入了 AI 初创公司 Hugging Face 的系统。",
+      "source": "DW",
+      "url": "https://www.dw.com/en/ai-agent-went-rogue-hacked-ai-startup-hugging-face-openai/a-78063624",
+      "date": "2026-07-22"
+    },
+    {
+      "title": "AI 攻克数学界 Jacobian 猜想",
+      "summary": "AI 在未解数学难题上取得快速进展，数学家们对非常快速的突破感到震惊。",
+      "source": "Fortune",
+      "url": "https://fortune.com/2026/07/21/ai-solves-jacobian-conjecture-levant-alpoge-claude-fable-5/",
+      "date": "2026-07-21"
+    },
+    {
+      "title": "Kimi K3 开源权重 7月27日发布，2.8万亿参数挑战 OpenAI",
+      "summary": "月之暗面 Kimi K3 多模态模型拥有 2.8 万亿参数，已通过应用和 API 发布，开源权重即将释出。",
+      "source": "WindowsForum",
+      "url": "https://windowsforum.com/threads/kimi-k3-open-weights-due-july-27-2-8t-model-challenges-openai.439938/",
+      "date": "2026-07-22"
+    },
+    {
+      "title": "AMD Advancing AI 2026 大会在旧金山开幕",
+      "summary": "AMD 举办年度 AI 大会（7月22-23日），提供实操工作坊和 AI 开发者交流。",
+      "source": "AMD",
+      "url": "https://www.amd.com/en/corporate/events/advancing-ai.html",
+      "date": "2026-07-22"
+    },
+    {
+      "title": "2026 世界人工智能大会（WAIC）将于上海举办",
+      "summary": "WAIC 2026 将于 7月26-28日在上海举行，超 300 项全球首发、1100+ 展商，中国手机厂商展示 AI Agent 手机。",
+      "source": "CGTN",
+      "url": "https://www.facebook.com/ChinaGlobalTVNetwork/posts/1717559743070824/",
+      "date": "2026-07-22"
+    },
+    {
+      "title": "BBC 分析：AI 正在替代哪些工作岗位",
+      "summary": "BBC 通过数据图表展示 AI 对就业市场的实际影响，分析最受冲击的职业。",
+      "source": "BBC News",
+      "url": "https://www.bbc.com/news/articles/cn7nllr4vd6o",
+      "date": "2026-07-22"
+    },
+    {
+      "title": "WSJ：AI 反噬开始产生实质冲击",
+      "summary": "社交和政治层面对 AI 的抵制正随技术替代人类劳动力的有效性而升级。",
+      "source": "Wall Street Journal",
+      "url": "https://www.wsj.com/tech/ai/the-ai-backlash-is-starting-to-sting-129a708d",
+      "date": "2026-07-22"
+    },
+    {
+      "title": "ChatGPT 全球用户突破 10 亿，Gemini 9 亿",
+      "summary": "ChatGPT 以超 10 亿用户领跑全球 AI 市场，Gemini 超 9 亿，微软 Copilot 约 4.2 亿。",
+      "source": "Instagram",
+      "url": "https://www.instagram.com/p/DbElGrqDns_/",
+      "date": "2026-07-22"
+    },
+    {
+      "title": "OpenAI 发布新硬件设备，传将推出智能音箱",
+      "summary": "OpenAI 推出新款硬件设备，同时有传闻称其正在开发智能音箱产品。",
+      "source": "Instagram",
+      "url": "https://www.instagram.com/reel/DbEGumWO-YD/",
+      "date": "2026-07-22"
     }
   ],
   "archive": []
