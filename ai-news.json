@@ -1,0 +1,27 @@
+{
+  "updated": "2026-07-22",
+  "current": [
+    {
+      "title": "示例新闻标题1",
+      "summary": "这是一条示例AI新闻摘要",
+      "source": "示例来源",
+      "url": "https://example.com",
+      "date": "2026-07-22"
+    },
+    {
+      "title": "示例新闻标题2",
+      "summary": "另一条示例新闻摘要",
+      "source": "示例来源",
+      "url": "https://example.com",
+      "date": "2026-07-22"
+    },
+    {
+      "title": "示例新闻标题3",
+      "summary": "第三条示例新闻摘要",
+      "source": "示例来源",
+      "url": "https://example.com",
+      "date": "2026-07-21"
+    }
+  ],
+  "archive": []
+}

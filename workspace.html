@@ -323,12 +323,20 @@
                     </div>
                 </div>
             </div>
+
+            <!-- 访问流量统计 -->
+            <div class="glass-card ws-card" style="grid-column: span 2;">
+                <h3>📈 网站访问流量</h3>
+                <div id="visitStats">
+                    <p style="font-size: 0.85rem; color: var(--text-tertiary);">正在加载统计数据...</p>
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
         // 工作台密码验证
-        const WORKSPACE_PASSWORD = 'myworkspace2026';
+        const WORKSPACE_PASSWORD = 'Sqx15973@';
 
         document.getElementById('unlockBtn').addEventListener('click', function() {
             checkPassword();
@@ -349,12 +357,60 @@
             if (input === WORKSPACE_PASSWORD) {
                 lockScreen.style.display = 'none';
                 content.classList.add('show');
+                renderVisitStats();
             } else {
                 error.classList.add('show');
                 document.getElementById('passwordInput').value = '';
                 setTimeout(() => {
                     error.classList.remove('show');
                 }, 3000);
+            }
+        }
+
+        function renderVisitStats() {
+            try {
+                const visits = JSON.parse(localStorage.getItem('site_visits') || '{}');
+                const dates = Object.keys(visits).sort().reverse();
+                const statsEl = document.getElementById('visitStats');
+
+                if (dates.length === 0) {
+                    statsEl.innerHTML = '<p style="font-size: 0.85rem; color: var(--text-tertiary);">暂无访问数据（基于本地统计，仅记录本机访问）。</p>';
+                    return;
+                }
+
+                let totalPV = 0, totalUV = 0;
+                let html = '<div class="ws-list">';
+                
+                // 最近7天数据
+                const recentDates = dates.slice(0, 7);
+                recentDates.forEach(date => {
+                    const data = visits[date];
+                    const pv = data.count || 0;
+                    const uv = data.unique ? data.unique.split(',').filter(Boolean).length : 0;
+                    totalPV += pv;
+                    totalUV += uv;
+                    html += `
+                        <div class="ws-item">
+                            <span class="ws-item-name">${date}</span>
+                            <div style="display:flex; gap:0.75rem;">
+                                <span class="ws-item-status status-active">PV ${pv}</span>
+                                <span class="ws-item-status status-done">UV ${uv}</span>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                html += '</div>';
+                html += `<div style="margin-top:1rem; padding:0.85rem 1.25rem; background:rgba(99,102,241,0.1); border-radius:12px; display:flex; justify-content:space-around; text-align:center;">
+                    <div><div style="font-size:1.5rem; font-weight:700; color:var(--accent-primary);">${totalPV}</div><div style="font-size:0.78rem; color:var(--text-tertiary);">总 PV</div></div>
+                    <div><div style="font-size:1.5rem; font-weight:700; color:var(--accent-secondary);">${totalUV}</div><div style="font-size:0.78rem; color:var(--text-tertiary);">总 UV</div></div>
+                    <div><div style="font-size:1.5rem; font-weight:700; color:var(--accent-tertiary);">${dates.length}</div><div style="font-size:0.78rem; color:var(--text-tertiary);">记录天数</div></div>
+                </div>`;
+                html += '<p style="margin-top:0.75rem; font-size:0.75rem; color:var(--text-tertiary);">基于 localStorage 的本地统计，仅记录当前浏览器访问。</p>';
+
+                statsEl.innerHTML = html;
+            } catch (e) {
+                document.getElementById('visitStats').innerHTML = '<p style="font-size:0.85rem; color:var(--text-tertiary);">统计数据加载失败。</p>';
             }
         }
     </script>

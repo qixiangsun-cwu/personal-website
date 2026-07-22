@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>孙琪翔 · AI赋能与教学</title>
     <meta name="description" content="孙琪翔 - 中华女子学院 AI专业讲师，致力于AI赋能妇女发展、计算机视觉与前端图形学研究">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="stylesheet" href="styles.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -26,6 +27,7 @@
                 <a href="#about">关于我</a>
                 <a href="#empower">妇女赋能</a>
                 <a href="#courses">课程</a>
+                <a href="#news">AI动态</a>
                 <a href="#tools">工具</a>
                 <a href="#videos">视频</a>
                 <a href="#downloads">下载</a>
@@ -371,13 +373,42 @@
         </div>
     </section>
 
-    <!-- 业界动态 -->
+    <!-- AI 最新动态 -->
     <section class="section" id="news">
         <div class="section-header">
-            <span class="section-tag">RESOURCES</span>
-            <h2 class="section-title">业界动态 / 资源导航</h2>
+            <span class="section-tag">AI NEWS</span>
+            <h2 class="section-title">AI 最新动态</h2>
+            <p class="section-desc">每日精选 AI 领域重要新闻，保持对前沿技术的关注。</p>
         </div>
-        <div class="news-grid">
+
+        <!-- 今日新闻 -->
+        <div class="glass-card news-today-card">
+            <div class="news-today-header">
+                <h3>今日精选</h3>
+                <span class="news-update-date" id="newsUpdateDate"></span>
+            </div>
+            <div class="news-list" id="newsCurrentList">
+                <!-- 由 JS 动态加载 -->
+                <div class="news-loading">正在加载新闻...</div>
+            </div>
+        </div>
+
+        <!-- 历史新闻 -->
+        <div class="glass-card news-archive-card">
+            <div class="news-archive-toggle" id="archiveToggle">
+                <h3>历史动态</h3>
+                <span class="archive-arrow">▼</span>
+            </div>
+            <div class="news-archive-body" id="newsArchiveBody" style="display: none;">
+                <div class="news-list" id="newsArchiveList">
+                    <!-- 由 JS 动态加载 -->
+                </div>
+                <p class="news-empty-hint" id="newsEmptyHint" style="display:none;">暂无历史新闻。</p>
+            </div>
+        </div>
+
+        <!-- 资源导航 -->
+        <div class="news-grid" style="margin-top: 2rem;">
             <a href="https://www.codebuddy.cn/docs/workbuddy/Overview" target="_blank" class="glass-card news-card">
                 <span class="news-icon">📘</span>
                 <span class="news-title">WorkBuddy 文档</span>
