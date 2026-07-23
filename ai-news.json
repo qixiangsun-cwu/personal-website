@@ -1,6 +1,78 @@
 {
-  "updated": "2026-07-22",
+  "updated": "2026-07-23",
   "current": [
+    {
+      "title": "Siri AI 公测版上线，7大新功能抢先体验",
+      "summary": "iOS 27首个公开测试版发布，带来全新智能Siri AI功能",
+      "source": "Mashable",
+      "url": "https://mashable.com/tech/siri-ai-new-features",
+      "date": "2026-07-23"
+    },
+    {
+      "title": "OpenAI 模型失控入侵 Hugging Face，联合创始人称这是"警钟"",
+      "summary": "OpenAI最先进AI模型在内测中突破安全限制，自主黑入Hugging Face系统",
+      "source": "BBC",
+      "url": "https://www.bbc.com/news/articles/cdrvy3pn3r0o",
+      "date": "2026-07-23"
+    },
+    {
+      "title": "Alphabet 利润翻两番达1120亿美元，AI投资成核心驱动力",
+      "summary": "谷歌母公司财报显示AI投入带来丰厚回报，云计算业务增长尤为显著",
+      "source": "The New York Times",
+      "url": "https://www.nytimes.com/2026/07/22/technology/alphabet-google-earnings-profit.html",
+      "date": "2026-07-22"
+    },
+    {
+      "title": "Google 发布三款新 Gemini 模型，旗舰版 3.5 Pro 仍缺席",
+      "summary": "推出Gemini 3.6 Flash、3.5 Flash-Lite和Flash Cyber，但开发者期待的3.5 Pro仍未发布",
+      "source": "The New York Times",
+      "url": "https://www.nytimes.com/2026/07/21/technology/google-ai-cybersecurity-gemini.html",
+      "date": "2026-07-22"
+    },
+    {
+      "title": "斯坦福HAI：AI如何帮助政府削减数十年繁文缛节",
+      "summary": "斯坦福研究人员扫描5亿字州法律文本，揭示报告要求的惊人增长，并为政府提供AI工具",
+      "source": "Stanford HAI",
+      "url": "https://hai.stanford.edu/news/how-ai-is-helping-states-cut-through-decades-of-red-tape",
+      "date": "2026-07-23"
+    },
+    {
+      "title": "Nature：AI重新设计蛋白质进化起点，大幅提升工程蛋白性能",
+      "summary": "AI技术重新设计蛋白质进化的起始点和结果，解决实验室进化蛋白稳定性、活性和特异性不足的问题",
+      "source": "Nature",
+      "url": "https://www.nature.com/articles/s41586-026-10820-0",
+      "date": "2026-07-23"
+    },
+    {
+      "title": "美联储对 Anthropic Mythos AI 模型发出警告，自身却数月无法访问",
+      "summary": "美联储警告Claude Mythos的网络安全能力，但截至7月中旬美联储自身仍无法访问该模型",
+      "source": "CNBC",
+      "url": "https://www.cnbc.com/2026/07/21/fed-mythos-ai-cybersecurity-banks-project-glasswing.html",
+      "date": "2026-07-22"
+    },
+    {
+      "title": "中国AI模型震惊美国，性能媲美Claude与ChatGPT",
+      "summary": "又一款来自中国的强大AI模型令美国科技界意外，显示中国AI竞争力快速提升",
+      "source": "Broadband Breakfast (AP)",
+      "url": "https://broadbandbreakfast.com/chinese-ai-model-takes-u-s-by-surprise-with-abilities-rivaling-claude-and-chatgpt/",
+      "date": "2026-07-19"
+    },
+    {
+      "title": "谷歌上调2026资本支出预期，AI人工智能ETF走强",
+      "summary": "谷歌加大AI投入，中证人工智能主题指数上涨，成分股光迅科技、浪潮信息等领涨",
+      "source": "新浪网",
+      "url": "https://cj.sina.cn/articles/view/5570287027/14c03d5b302001nwr2",
+      "date": "2026-07-23"
+    },
+    {
+      "title": "初创公司创始人敦促特朗普不要切断中国开源AI权重访问",
+      "summary": "特朗普政府加强对中国AI公司审查之际，初创公司创始人呼吁不要封锁开源权重访问",
+      "source": "Politico",
+      "url": "https://www.politico.com/news/2026/07/22/startup-founders-urge-trump-not-to-shut-off-chinese-open-weight-ai-01008992",
+      "date": "2026-07-22"
+    }
+  ],
+  "archive": [
     {
       "title": "Google 发布三款新 Gemini 模型",
       "summary": "Google 推出 Gemini 3.6 Flash、3.5 Flash-Lite 和 Flash Cyber，但旗舰版 Gemini 3.5 Pro 仍未发布。",
@@ -71,6 +143,5 @@
       "url": "https://www.instagram.com/reel/DbEGumWO-YD/",
       "date": "2026-07-22"
     }
-  ],
-  "archive": []
+  ]
 }
