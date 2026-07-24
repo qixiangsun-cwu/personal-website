@@ -56,15 +56,15 @@
 
 html {
     scroll-behavior: smooth;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+    -webkit-font-smoothing: auto;
+    -moz-osx-font-smoothing: auto;
 }
 
 body {
-    font-family: 'Inter', 'Noto Sans SC', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-family: 'Times New Roman', 'Noto Serif SC', 'SimSun', 'STSong', 'FangSong', serif;
     background: var(--bg-base);
     color: var(--text-primary);
-    line-height: 1.6;
+    line-height: 1.75;
     overflow-x: hidden;
     min-height: 100vh;
     position: relative;
@@ -220,7 +220,7 @@ body {
     font-weight: 600;
     color: var(--text-primary);
     text-decoration: none;
-    letter-spacing: -0.02em;
+    letter-spacing: 0.05em;
 }
 
 .nav-links {
@@ -230,7 +230,7 @@ body {
 }
 
 .nav-links a {
-    font-size: 0.9rem;
+    font-size: 0.95rem;
     color: var(--text-secondary);
     text-decoration: none;
     font-weight: 400;
@@ -297,19 +297,19 @@ body {
 }
 
 .hero-tag {
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     color: var(--accent-primary);
-    font-weight: 500;
-    letter-spacing: 0.08em;
+    font-weight: 600;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
     margin-bottom: 1.5rem;
 }
 
 .hero-title {
-    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-size: clamp(2.4rem, 5.5vw, 4rem);
     font-weight: 700;
-    line-height: 1.2;
-    letter-spacing: -0.03em;
+    line-height: 1.25;
+    letter-spacing: 0.02em;
     color: var(--text-primary);
     margin-bottom: 1.5rem;
     text-shadow: var(--text-shadow);
@@ -323,11 +323,11 @@ body {
 }
 
 .hero-subtitle {
-    font-size: 1.05rem;
+    font-size: 1.15rem;
     color: var(--text-secondary);
-    line-height: 1.7;
+    line-height: 1.8;
     margin-bottom: 2.5rem;
-    font-weight: 300;
+    font-weight: 400;
     text-shadow: var(--text-shadow);
 }
 
@@ -349,19 +349,19 @@ body {
 }
 
 .stat-num {
-    font-size: 2rem;
+    font-size: 2.2rem;
     font-weight: 700;
     background: var(--gradient-hero);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    letter-spacing: -0.02em;
+    letter-spacing: 0;
 }
 
 .stat-label {
-    font-size: 0.8rem;
+    font-size: 0.78rem;
     color: var(--text-tertiary);
-    margin-top: 0.25rem;
+    margin-top: 0.3rem;
 }
 
 .stat-divider {
@@ -396,7 +396,7 @@ body {
 .section {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 6rem 2rem;
+    padding: 4.5rem 2rem;
 }
 
 .section-accent {
@@ -416,33 +416,33 @@ body {
 
 .section-header {
     text-align: center;
-    margin-bottom: 3.5rem;
+    margin-bottom: 3rem;
 }
 
 .section-tag {
     display: inline-block;
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     color: var(--accent-primary);
     font-weight: 600;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.15em;
     margin-bottom: 0.75rem;
 }
 
 .section-title {
-    font-size: clamp(1.75rem, 4vw, 2.5rem);
+    font-size: clamp(1.8rem, 4vw, 2.6rem);
     font-weight: 700;
-    letter-spacing: -0.02em;
+    letter-spacing: 0.01em;
     color: var(--text-primary);
     text-shadow: var(--text-shadow);
 }
 
 .section-desc {
-    font-size: 1.05rem;
+    font-size: 1.1rem;
     color: var(--text-secondary);
     max-width: 640px;
     margin: 1rem auto 0;
-    line-height: 1.7;
-    font-weight: 300;
+    line-height: 1.8;
+    font-weight: 400;
 }
 
 /* ---------- 关于我 ---------- */
@@ -488,13 +488,14 @@ body {
 }
 
 .info-label {
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     color: var(--text-tertiary);
     font-weight: 500;
+    letter-spacing: 0.05em;
 }
 
 .info-value {
-    font-size: 0.95rem;
+    font-size: 1rem;
     color: var(--text-primary);
     font-weight: 400;
 }
@@ -511,7 +512,7 @@ body {
     background: rgba(99, 102, 241, 0.1);
     color: var(--accent-primary);
     border-radius: 100px;
-    font-size: 0.82rem;
+    font-size: 0.85rem;
     font-weight: 500;
 }
 
@@ -523,11 +524,11 @@ body {
 }
 
 .achievement-list li {
-    font-size: 0.92rem;
+    font-size: 0.95rem;
     color: var(--text-secondary);
     padding-left: 1.25rem;
     position: relative;
-    line-height: 1.6;
+    line-height: 1.7;
 }
 
 .achievement-list li::before {
@@ -577,7 +578,7 @@ body {
 }
 
 .timeline-card h3 {
-    font-size: 1.2rem;
+    font-size: 1.25rem;
     font-weight: 600;
     margin-bottom: 2rem;
     color: var(--text-primary);
@@ -627,23 +628,23 @@ body {
 }
 
 .timeline-date {
-    font-size: 0.8rem;
+    font-size: 0.78rem;
     font-weight: 600;
     color: var(--accent-primary);
     letter-spacing: 0.05em;
 }
 
 .timeline-content h4 {
-    font-size: 1rem;
+    font-size: 1.05rem;
     font-weight: 600;
     color: var(--text-primary);
     margin: 0.3rem 0 0.35rem;
 }
 
 .timeline-content p {
-    font-size: 0.88rem;
+    font-size: 0.9rem;
     color: var(--text-secondary);
-    line-height: 1.5;
+    line-height: 1.7;
 }
 
 .module-grid {
@@ -664,16 +665,16 @@ body {
 }
 
 .module-card h4 {
-    font-size: 1rem;
+    font-size: 1.05rem;
     font-weight: 600;
     color: var(--text-primary);
     margin-bottom: 0.6rem;
 }
 
 .module-card p {
-    font-size: 0.85rem;
+    font-size: 0.88rem;
     color: var(--text-secondary);
-    line-height: 1.55;
+    line-height: 1.65;
 }
 
 .benefit-card {
@@ -681,7 +682,7 @@ body {
 }
 
 .benefit-card h3 {
-    font-size: 1.15rem;
+    font-size: 1.2rem;
     font-weight: 600;
     margin-bottom: 1.5rem;
     color: var(--text-primary);
@@ -690,14 +691,14 @@ body {
 .benefit-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 1.5rem;
+    gap: 1.25rem;
 }
 
 .benefit-item {
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    padding: 1.25rem;
+    padding: 1.1rem 1.25rem;
     background: rgba(255, 255, 255, 0.4);
     border-radius: var(--radius-md);
     transition: var(--transition);
@@ -708,13 +709,13 @@ body {
 }
 
 .benefit-emoji {
-    font-size: 1.75rem;
+    font-size: 1.6rem;
 }
 
 .benefit-item span:last-child {
-    font-size: 0.9rem;
+    font-size: 0.92rem;
     color: var(--text-primary);
-    font-weight: 500;
+    font-weight: 400;
 }
 
 /* ---------- 课程 ---------- */
@@ -732,10 +733,10 @@ body {
     display: inline-block;
     padding: 0.3rem 0.8rem;
     border-radius: 100px;
-    font-size: 0.75rem;
+    font-size: 0.72rem;
     font-weight: 600;
     margin-bottom: 1rem;
-    letter-spacing: 0.03em;
+    letter-spacing: 0.05em;
 }
 
 .type-empower { background: rgba(236, 72, 153, 0.15); color: #db2777; }
@@ -752,16 +753,16 @@ body {
 }
 
 .course-card p {
-    font-size: 0.9rem;
+    font-size: 0.92rem;
     color: var(--text-secondary);
-    line-height: 1.55;
+    line-height: 1.65;
     margin-bottom: 1rem;
 }
 
 .course-meta {
-    font-size: 0.82rem;
+    font-size: 0.8rem;
     color: var(--text-tertiary);
-    font-weight: 500;
+    font-weight: 400;
 }
 
 /* ---------- 工具 ---------- */
@@ -790,8 +791,9 @@ body {
 .tool-badge {
     padding: 0.25rem 0.65rem;
     border-radius: 100px;
-    font-size: 0.72rem;
+    font-size: 0.7rem;
     font-weight: 600;
+    letter-spacing: 0.03em;
 }
 
 .badge-pro { background: rgba(99, 102, 241, 0.15); color: #4f46e5; }
@@ -801,7 +803,7 @@ body {
 .tool-cat {
     font-size: 0.75rem;
     color: var(--text-tertiary);
-    font-weight: 500;
+    font-weight: 400;
 }
 
 .tool-card h4 {
@@ -812,9 +814,9 @@ body {
 }
 
 .tool-card p {
-    font-size: 0.85rem;
+    font-size: 0.88rem;
     color: var(--text-secondary);
-    line-height: 1.5;
+    line-height: 1.6;
     margin-bottom: 1rem;
     flex-grow: 1;
 }
@@ -822,7 +824,7 @@ body {
 .tool-link {
     font-size: 0.82rem;
     color: var(--accent-primary);
-    font-weight: 500;
+    font-weight: 400;
 }
 
 .tool-link-pending {
@@ -834,7 +836,7 @@ body {
 }
 
 .resource-nav h4 {
-    font-size: 1.1rem;
+    font-size: 1.15rem;
     font-weight: 600;
     margin-bottom: 1.25rem;
 }
@@ -842,27 +844,27 @@ body {
 .resource-levels {
     display: flex;
     flex-direction: column;
-    gap: 0.85rem;
+    gap: 0.75rem;
 }
 
 .resource-level {
     display: flex;
     align-items: center;
     gap: 1rem;
-    padding: 0.85rem 1.25rem;
+    padding: 0.8rem 1.25rem;
     background: rgba(255, 255, 255, 0.4);
     border-radius: var(--radius-sm);
 }
 
 .level-label {
-    font-size: 0.82rem;
+    font-size: 0.8rem;
     font-weight: 600;
     color: var(--accent-primary);
     min-width: 60px;
 }
 
 .level-content {
-    font-size: 0.88rem;
+    font-size: 0.9rem;
     color: var(--text-secondary);
 }
 
@@ -897,7 +899,7 @@ body {
 
 .video-coming p {
     color: var(--text-secondary);
-    font-size: 1rem;
+    font-size: 1.05rem;
 }
 
 .video-coming-sub {
@@ -923,7 +925,7 @@ body {
 }
 
 .download-icon {
-    font-size: 2.25rem;
+    font-size: 2rem;
     margin-bottom: 1rem;
 }
 
@@ -936,9 +938,9 @@ body {
 }
 
 .download-card p {
-    font-size: 0.82rem;
+    font-size: 0.85rem;
     color: var(--text-secondary);
-    line-height: 1.5;
+    line-height: 1.6;
     margin-bottom: 1.25rem;
     flex-grow: 1;
 }
@@ -948,7 +950,7 @@ body {
     border: none;
     border-radius: 100px;
     font-size: 0.85rem;
-    font-weight: 500;
+    font-weight: 400;
     cursor: pointer;
     transition: var(--transition);
     font-family: inherit;
@@ -975,15 +977,15 @@ body {
 }
 
 .ppt-spec-card h4 {
-    font-size: 1.1rem;
+    font-size: 1.15rem;
     font-weight: 600;
     margin-bottom: 0.75rem;
 }
 
 .ppt-spec-text {
-    font-size: 0.9rem;
+    font-size: 0.92rem;
     color: var(--text-secondary);
-    line-height: 1.7;
+    line-height: 1.75;
 }
 
 /* ---------- AI 动态新闻 ---------- */
@@ -1000,21 +1002,21 @@ body {
 }
 
 .news-today-header h3 {
-    font-size: 1.15rem;
+    font-size: 1.2rem;
     font-weight: 600;
     color: var(--text-primary);
 }
 
 .news-update-date {
-    font-size: 0.82rem;
+    font-size: 0.8rem;
     color: var(--text-tertiary);
-    font-weight: 500;
+    font-weight: 400;
 }
 
 .news-list {
     display: flex;
     flex-direction: column;
-    gap: 0.85rem;
+    gap: 0.75rem;
 }
 
 .news-item {
@@ -1022,7 +1024,7 @@ body {
     justify-content: space-between;
     align-items: flex-start;
     gap: 1.5rem;
-    padding: 1.15rem 1.5rem;
+    padding: 1.1rem 1.5rem;
     background: rgba(255, 255, 255, 0.45);
     border-radius: var(--radius-md);
     text-decoration: none;
@@ -1047,7 +1049,7 @@ body {
     font-weight: 600;
     color: var(--text-primary);
     margin-bottom: 0.35rem;
-    line-height: 1.4;
+    line-height: 1.45;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
@@ -1055,9 +1057,9 @@ body {
 }
 
 .news-item-summary {
-    font-size: 0.82rem;
+    font-size: 0.85rem;
     color: var(--text-secondary);
-    line-height: 1.55;
+    line-height: 1.6;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
@@ -1144,12 +1146,12 @@ body {
 }
 
 .news-icon {
-    font-size: 2rem;
+    font-size: 1.8rem;
 }
 
 .news-title {
     font-size: 0.92rem;
-    font-weight: 500;
+    font-weight: 400;
     color: var(--text-primary);
 }
 
@@ -1196,21 +1198,22 @@ body {
 }
 
 .contact-icon {
-    font-size: 1.75rem;
+    font-size: 1.6rem;
 }
 
 .contact-label {
     display: block;
-    font-size: 0.78rem;
+    font-size: 0.75rem;
     color: var(--text-tertiary);
     margin-bottom: 0.15rem;
+    letter-spacing: 0.05em;
 }
 
 .contact-value {
     display: block;
-    font-size: 0.9rem;
+    font-size: 0.95rem;
     color: var(--text-primary);
-    font-weight: 500;
+    font-weight: 400;
 }
 
 .contact-pending {
