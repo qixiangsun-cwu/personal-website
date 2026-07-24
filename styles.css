@@ -766,6 +766,34 @@ body {
 }
 
 /* ---------- 工具 ---------- */
+.tool-category-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 2rem 0 1.25rem;
+    padding-bottom: 0.6rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.tool-category-header:first-of-type {
+    margin-top: 0;
+}
+
+.tool-category-header h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.tool-category-count {
+    font-size: 0.75rem;
+    color: var(--text-tertiary);
+    font-weight: 400;
+    background: rgba(0, 0, 0, 0.04);
+    padding: 0.15rem 0.6rem;
+    border-radius: 100px;
+}
+
 .tool-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
