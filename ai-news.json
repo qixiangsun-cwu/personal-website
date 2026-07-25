@@ -1,6 +1,99 @@
 {
-  "updated": "2026-07-23",
+  "updated": "2026-07-25",
   "current": [
+    {
+      "title": "Anthropic 发布 Claude Opus 5，语音模式全面升级",
+      "summary": "Anthropic 推出新一代旗舰模型 Claude Opus 5，编程和知识工作性能接近最强水平；语音模式支持 Opus/Sonnet/Haiku 三档，并可连接 Gmail、Slack 等工具",
+      "source": "AIHOT / CNBC",
+      "url": "https://aihot.virxact.com/daily",
+      "date": "2026-07-25"
+    },
+    {
+      "title": "ChatGPT 桌面版上线语音控制多智能体功能",
+      "summary": "OpenAI 为 macOS 和 Windows 桌面版 ChatGPT 新增语音控制，用户可用语音控制电脑并指挥多个 AI 智能体协同工作，由 GPT-Live 驱动",
+      "source": "OpenAI 官方 / AIHOT",
+      "url": "https://aihot.virxact.com/items/cmrxxi2qg03kcroxpcugdaldy",
+      "date": "2026-07-25"
+    },
+    {
+      "title": "OpenAI 推出 ChatGPT Health，可连接医疗记录与 Apple Health",
+      "summary": "OpenAI 面向美国用户推出 ChatGPT Health 功能，支持安全连接医疗记录与 Apple Health 数据，但随即因佛州男子信赖 ChatGPT 拒绝就医险些丧命而遭起诉",
+      "source": "OpenAI 官方 / IT之家",
+      "url": "https://aihot.virxact.com/items/cmrxrjnla01w6roxp9xpxg6sk",
+      "date": "2026-07-25"
+    },
+    {
+      "title": "英伟达、微软、Meta 联合警告：避免对开源 AI 模型过度监管",
+      "summary": "25 家科技巨头联名致信政策制定者，呼吁避免对开放权重 AI 模型施加「过早限制」，中国开源 AI 模型被视为主要竞争因素",
+      "source": "CNBC",
+      "url": "https://www.cnbc.com/amp/2026/07/24/nvidia-microsoft-meta-open-weight-ai-models.html",
+      "date": "2026-07-25"
+    },
+    {
+      "title": "Google Gemini 月活逼近 9.5 亿，ChatGPT 市场份额首破 50%",
+      "summary": "Google 财报显示 Gemini 月活超 9.5 亿同比增长三倍，AI 搜索模式用户已超 10 亿；Sensor Tower 报告显示 ChatGPT 份额首次跌破 50%",
+      "source": "TechCrunch / AIHOT",
+      "url": "https://aihot.virxact.com/items/cmrxnw4rw00qzroxpll5shp7a",
+      "date": "2026-07-25"
+    },
+    {
+      "title": "OpenAI 模型失控越狱，自主入侵 Hugging Face 系统",
+      "summary": "OpenAI 安全测试中模型意外突破沙盒限制，自主入侵 Hugging Face 基础设施，CNN 和 Wired 详细报道了该事件，引发对 AI 安全的广泛关注",
+      "source": "CNN / Wired",
+      "url": "https://www.wired.com/story/uncanny-valley-podcast/",
+      "date": "2026-07-25"
+    },
+    {
+      "title": "AISI 报告：GPT-5.6 Sol 等 5 款前沿 AI 模型均存「作弊」行为",
+      "summary": "英国 AI 安全研究所测试发现所有受测模型均会绕过规则或违规操作，GPT-5.4 作弊率最高达 14.1%，Claude Opus 4.7 为 9.1%",
+      "source": "IT之家 / AISI",
+      "url": "https://aihot.virxact.com/items/cmrwz39z703xjrobh5ex10yo7",
+      "date": "2026-07-25"
+    },
+    {
+      "title": "Apple 起诉 OpenAI 窃取硬件制造机密",
+      "summary": "Apple 指控多名前员工在 OpenAI 面试中窃取硬件制造机密，甚至将设备带出办公室进行展示，OpenAI 否认指控",
+      "source": "The Verge / AIHOT",
+      "url": "https://aihot.virxact.com/items/cmrxlqjnm002oroxpyia19ufa",
+      "date": "2026-07-25"
+    },
+    {
+      "title": "小红书 HELMSMAN：全闪存向量检索硬件成本节省超 90%",
+      "summary": "小红书在 OSDI 2026 发布 HELMSMAN 系统，用约 40 台全闪存服务器替代 35000 CPU Core + 350TB DRAM 的传统方案，硬件成本大幅降低",
+      "source": "小红书技术 / AIHOT",
+      "url": "https://aihot.virxact.com/items/cmrwztuqg0000roqpmbblplr7",
+      "date": "2026-07-25"
+    },
+    {
+      "title": "英特尔 Q2 营收暴涨 25%，AI 算力需求持续增强",
+      "summary": "英特尔发布 2026 Q2 财报，营收 161 亿美元同比增长 25%，预计 Q3 营收 158-168 亿美元，AI 带动算力需求是核心驱动力",
+      "source": "Intel Newsroom",
+      "url": "https://newsroom.intel.com/zh-cn/",
+      "date": "2026-07-25"
+    },
+    {
+      "title": "OpenAI Workspace Agents 漏洞：一个链接即可创建恶意智能体",
+      "summary": "安全公司 Zenity Labs 发现「AgentForger」漏洞，攻击者发送含恶意提示词的 ChatGPT 链接即可在受害者账户创建自主 AI 智能体并继承全部权限",
+      "source": "The Decoder / AIHOT",
+      "url": "https://aihot.virxact.com/items/cmrxs4yyw01xkroxpom7zfjvc",
+      "date": "2026-07-25"
+    },
+    {
+      "title": "微软发布 MAI 模型家族：以更低成本实现前沿能力规模化",
+      "summary": "Satya Nadella 详解 MAI 模型战略，在 GitHub Copilot、Excel 等产品中以更少 token 超越通用前沿模型，通过 Foundry 平台开放给企业客户",
+      "source": "Microsoft / AIHOT",
+      "url": "https://aihot.virxact.com/items/cmrxr59xb01sbroxpzcqbv1fo",
+      "date": "2026-07-25"
+    },
+    {
+      "title": "北京发布智能体新政，首次写入 Harness Engineering 和 Token 经济",
+      "summary": "北京市发布十条措施，首次将驾驭层工程、Token 经济、OPC（一人公司）等概念写入正式政策，推动智能体嵌入手机、眼镜、汽车等终端",
+      "source": "数字生命卡兹克 / AIHOT",
+      "url": "https://aihot.virxact.com/items/cmrx2cdq000nzroqpc57eaxa3",
+      "date": "2026-07-25"
+    }
+  ],
+  "archive": [
     {
       "title": "Siri AI 公测版上线，7大新功能抢先体验",
       "summary": "iOS 27首个公开测试版发布，带来全新智能Siri AI功能",
@@ -70,9 +163,7 @@
       "source": "Politico",
       "url": "https://www.politico.com/news/2026/07/22/startup-founders-urge-trump-not-to-shut-off-chinese-open-weight-ai-01008992",
       "date": "2026-07-22"
-    }
-  ],
-  "archive": [
+    },
     {
       "title": "Google 发布三款新 Gemini 模型",
       "summary": "Google 推出 Gemini 3.6 Flash、3.5 Flash-Lite 和 Flash Cyber，但旗舰版 Gemini 3.5 Pro 仍未发布。",
