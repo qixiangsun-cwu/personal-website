@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="zh"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>🤖 提示词技巧与安全须知 - AI赋能妇女发展实操讲义</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--cream:#F5F0E6;--turquoise:#7ECDC0;--softpink:#F7C8D4;--butter:#FDE68A;--mint:#A8E6CF;--lavender:#D4A5E8;--peach:#FFCBA4;--coral:#F8635F;--border:#2D2D2D;--bg:#FFFDF5;--text:#2D2D2D;--muted:#666;}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:'Times New Roman','Noto Serif SC','SimSun','STSong','FangSong',serif;background:var(--bg);color:var(--text);}
+.slide{min-height:100vh;width:100vw;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:22px 30px;scroll-snap-align:start;position:relative;overflow-x:hidden;}
+.navdots{position:fixed;right:14px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:7px;z-index:999;}
+.navdot{width:10px;height:10px;border-radius:50%;background:rgba(45,45,45,.25);cursor:pointer;transition:all .25s;border:2px solid transparent;}
+.navdot.active{background:var(--coral);transform:scale(1.3);}
+.slidecounter{position:fixed;bottom:14px;right:20px;z-index:999;background:rgba(45,45,45,.7);color:#fff;padding:4px 12px;border-radius:18px;font-size:.82rem;font-weight:700;}
+.card{background:#fff;border:2.5px solid var(--border);border-radius:14px;padding:14px 18px;box-shadow:4px 4px 0 var(--border);}
+.badge{display:inline-block;padding:5px 14px;border-radius:20px;font-size:.82rem;font-weight:700;}
+.codeblock{background:#1e1e1e;color:#d4d4d4;border-radius:8px;padding:10px 14px;font-family:'Courier New',monospace;font-size:.82rem;line-height:1.5;white-space:pre-wrap;}
+.promptbox{background:#1a1a2e;color:#e0e0ff;border-radius:8px;padding:10px 14px;font-family:'Courier New',monospace;font-size:.82rem;line-height:1.5;white-space:pre-wrap;border-left:4px solid var(--lavender);}
+.tipbox{background:var(--cream);border:2px solid var(--border);border-radius:10px;padding:10px 14px;font-size:.88rem;font-weight:600;line-height:1.5;}
+.checklist{list-style:none;padding-left:0;display:flex;flex-direction:column;gap:5px;}
+.checklist li{font-size:.88rem;font-weight:600;line-height:1.5;padding-left:22px;position:relative;}
+.checklist li::before{content:"✅";position:absolute;left:0;font-size:.82rem;}
+.twocol{display:grid;grid-template-columns:1fr 1fr;gap:14px;width:100%;max-width:1100px;}
+.threecol{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;width:100%;max-width:1100px;}
+.steplist{list-style:none;padding:0;display:flex;flex-direction:column;gap:6px;}
+.steplist li{background:var(--cream);border:2px solid var(--border);border-radius:8px;padding:7px 12px;font-size:.88rem;font-weight:600;line-height:1.5;}
+</style>
+<style>
+/* 顶部/底部导航栏的 slide 内边距补偿 */
+.slide { padding-top: 60px; padding-bottom: 70px; }
+</style>
+</head><body style="margin:0;">
+
+<div style="position:fixed;top:0;left:0;right:0;z-index:1000;background:rgba(255,253,245,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);padding:10px 20px;display:flex;align-items:center;justify-content:space-between;font-family:'Times New Roman','Noto Serif SC','SimSun',serif;">
+  <a href="ai-empower-xihe.html" style="color:var(--coral);text-decoration:none;font-weight:700;font-size:.95rem;">← 返回讲义首页</a>
+  <span style="font-size:.85rem;color:var(--muted);font-weight:600;">🤖 提示词技巧与安全须知</span>
+  <span style="font-size:.82rem;color:var(--muted);">第 7/7 模块</span>
+</div>
+<div style="height:50px;"></div>
+
+<section class="slide" id="slide-1" style="background:var(--butter)"><div style="width:100%;max-width:1100px;z-index:2;position:relative;">
+<h2 style="text-align:center;margin-bottom:14px;">🤖 提示词①：怎么写出让AI"秒懂"的提示词？</h2>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+  <div style="background:#fff;border:2.5px solid var(--border);border-radius:14px;padding:16px 20px;">
+    <h4 style="color:var(--turquoise);margin-bottom:8px;">🎭 技巧1：设定角色（Role）</h4>
+    <p style="font-size:.86rem;font-weight:600;line-height:1.6;margin:0 0 8px 0;">告诉AI它是谁，输出质量立刻提升！</p>
+    <div style="background:#f0f8ff;border:1.5px solid #b0c4de;border-radius:8px;padding:10px 14px;font-size:.84rem;font-weight:600;line-height:1.6;margin-bottom:8px;">
+      <b>❌ 不好的提示词：</b><br>"帮我写一份活动通知"
+    </div>
+    <div style="background:#f0fff0;border:1.5px solid #90ee90;border-radius:8px;padding:10px 14px;font-size:.84rem;font-weight:600;line-height:1.6;">
+      <b>✅ 好的提示词：</b><br>"【角色】你是一位基层妇联干部，熟悉公文写作格式。【任务】写一份关于举办妇女健康讲座的通知。..."
+    </div>
+    <p style="font-size:.82rem;font-weight:600;color:#555;margin:8px 0 0 0;">💡 常用角色：妇联干部、心理咨询师、文案策划、数据分析师、法律顾问</p>
+  </div>
+  <div style="background:#fff;border:2.5px solid var(--border);border-radius:14px;padding:16px 20px;">
+    <h4 style="color:var(--coral);margin-bottom:8px;">🎯 技巧2：明确任务（Task）</h4>
+    <p style="font-size:.86rem;font-weight:600;line-height:1.6;margin:0 0 8px 0;">说清楚要做什么，越具体越好！</p>
+    <div style="background:#f0f8ff;border:1.5px solid #b0c4de;border-radius:8px;padding:10px 14px;font-size:.84rem;font-weight:600;line-height:1.6;margin-bottom:8px;">
+      <b>❌ 模糊的任务描述：</b><br>"帮我分析一下活动数据"
+    </div>
+    <div style="background:#f0fff0;border:1.5px solid #90ee90;border-radius:8px;padding:10px 14px;font-size:.84rem;font-weight:600;line-height:1.6;">
+      <b>✅ 具体的任务描述：</b><br>"请分析2025年第一季度妇女之家活动台账（Excel表格），统计：①各类型活动次数；②平均参与人数；③经费使用最多的活动类型。用表格形式输出分析结果。"
+    </div>
+    <p style="font-size:.82rem;font-weight:600;color:#555;margin:8px 0 0 0;">💡 任务描述要包含：做什么、用什么数据、输出什么格式</p>
+  </div>
+</div>
+</div></section>
+<section class="slide" id="slide-2" style="background:var(--mint)"><div style="width:100%;max-width:1100px;z-index:2;position:relative;">
+<h2 style="color:#fff;text-align:center;text-shadow:3px 3px 0 rgba(0,0,0,.15);margin-bottom:14px;">
+  🤖 提示词②：格式要求+输出示例
+</h2>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+  <div style="background:#fff;border:2.5px solid var(--border);border-radius:14px;padding:16px 20px;">
+    <h4 style="color:var(--turquoise);margin-bottom:8px;">📋 技巧3：指定格式（Format）</h4>
+    <p style="font-size:.86rem;font-weight:600;line-height:1.6;margin:0 0 8px 0;">告诉AI输出什么格式，直接能用！</p>
+    <ul style="font-size:.84rem;font-weight:600;line-height:1.7;display:flex;flex-direction:column;gap:5px;list-style:none;padding-left:0;">
+      <li>✅ <b>表格格式：</b>"用Markdown表格输出，包含3列..."</li>
+      <li>✅ <b>PPT大纲：</b>"输出为PPT大纲格式，每页一个主题..."</li>
+      <li>✅ <b>Excel公式：</b>"输出为Excel公式，可以直接复制粘贴..."</li>
+      <li>✅ <b>代码格式：</b>"输出为Python代码，包含注释..."</li>
+      <li>✅ <b>Word格式：</b>"输出为可以直接复制到Word的格式..."</li>
+    </ul>
+  </div>
+  <div style="background:#fff;border:2.5px solid var(--border);border-radius:14px;padding:16px 20px;">
+    <h4 style="color:var(--coral);margin-bottom:8px;">📝 技巧4：给示例（Few-shot）</h4>
+    <p style="font-size:.86rem;font-weight:600;line-height:1.6;margin:0 0 8px 0;">给AI一个例子，它就懂你的风格了！</p>
+    <div style="background:#f8f8ff;border:1.5px solid var(--border);border-radius:8px;padding:10px 14px;font-size:.82rem;font-weight:600;line-height:1.6;">
+      <b>示例：</b><br>
+      "【示例1】输入：活动名称=健康讲座，类型=健康，人数=50 → 输出：'XH-2025-001 健康讲座（50人）'<br>
+      【示例2】输入：活动名称=直播培训，类型=技能，人数=40 → 输出：'XH-2025-002 直播培训（40人）'<br>
+      请按照这个格式，处理下面10条活动记录..."
+    </div>
+    <p style="font-size:.82rem;font-weight:600;color:#555;margin:8px 0 0 0;">💡 给1-3个示例，AI就能学会你的格式偏好</p>
+  </div>
+</div>
+<div style="margin-top:14px;background:var(--cream);border:2px solid var(--border);border-radius:10px;padding:12px 16px;font-size:.88rem;font-weight:600;line-height:1.5;">
+  💡 <b>万能提示词公式：</b>【角色】+【任务】+【要求】（背景信息、输出格式、字数限制）+【示例】（可选）= <b>高质量AI输出</b>
+</div>
+</div></section>
+<section class="slide" id="slide-3" style="background:var(--cream)"><div style="width:100%;max-width:1100px;z-index:2;position:relative;">
+<h2 style="text-align:center;margin-bottom:14px;">🔒 安全①：AI使用中的数据安全——3个原则</h2>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+  <div style="background:#fff;border:2.5px solid var(--border);border-radius:14px;padding:16px 20px;">
+    <h4 style="color:var(--turquoise);margin-bottom:8px;">⚠️ 原则1：敏感信息不上传</h4>
+    <ul style="font-size:.86rem;font-weight:600;line-height:1.7;display:flex;flex-direction:column;gap:5px;list-style:none;padding-left:0;">
+      <li>❌ <b>不要上传：</b>妇女个人信息（姓名+电话）、家庭矛盾细节、未公开的案件信息</li>
+      <li>❌ <b>不要输入：</b>身份证号、银行卡号、账号密码</li>
+      <li>✅ <b>可以上传：</b>脱敏后的案例（"某村一位40岁妇女..."）、公开的政策文件、通用模板</li>
+      <li>💡 <b>脱敏方法：</b>把真实姓名改成"张女士"，把具体地址改成"某村"</li>
+    </ul>
+  </div>
+  <div style="background:#fff;border:2.5px solid var(--border);border-radius:14px;padding:16px 20px;">
+    <h4 style="color:var(--coral);margin-bottom:8px;">⚠️ 原则2：任务隔离</h4>
+    <ul style="font-size:.86rem;font-weight:600;line-height:1.7;display:flex;flex-direction:column;gap:5px;list-style:none;padding-left:0;">
+      <li>✅ <b>一个对话框 = 一个任务</b>（不要混着用）</li>
+      <li>✅ 处理敏感案件 → 开<b>新对话</b>（避免上下文泄露）</li>
+      <li>✅ 用不同AI工具处理不同任务（豆包做文案，WPS做文档）</li>
+      <li>💡 <b>定期清理对话历史</b>：豆包 → 长按对话 → 删除</li>
+    </ul>
+  </div>
+</div>
+<div style="background:var(--soft-pink);border:2.5px solid var(--border);border-radius:10px;padding:12px 16px;margin-top:14px;">
+  <h4 style="color:var(--coral);margin-bottom:6px;">⚠️ 原则3：输出内容要人工审核</h4>
+  <ul style="font-size:.86rem;font-weight:600;line-height:1.7;display:flex;flex-direction:row;gap:18px;flex-wrap:wrap;list-style:none;padding-left:0;margin:0;">
+    <li>✅ AI生成的法律条款 → <b>核对原文</b></li>
+    <li>✅ AI生成的名单/数字 → <b>人工复核</b></li>
+    <li>✅ AI生成的health建议 → <b>不替代医生</b></li>
+    <li>✅ AI生成的财经内容 → <b>不替代专业会计</b></li>
+  </ul>
+</div>
+</div></section>
+<section class="slide" id="slide-4" style="background:var(--lavender)"><div style="width:100%;max-width:1100px;z-index:2;position:relative;">
+<h2 style="text-align:center;margin-bottom:14px;">✅ 安全②：AI生成内容的人工审核——要点清单</h2>
+<div style="background:#fff;border:2.5px solid var(--border);border-radius:14px;padding:18px 22px;">
+  <h4 style="color:var(--turquoise);margin-bottom:8px;">📋 发布前审核清单（打钩确认）</h4>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+    <div>
+      <p style="font-size:.86rem;font-weight:700;margin:0 0 6px 0;">✅ 文字审核</p>
+      <ul style="font-size:.84rem;font-weight:600;line-height:1.6;display:flex;flex-direction:column;gap:4px;list-style:none;padding-left:0;">
+        <li>□ 人名、地名、日期是否正确？</li>
+        <li>□ 有没有错别字、语病？</li>
+        <li>□ 语气是否合适（不要太官方）？</li>
+        <li>□ 有没有敏感词（政治、宗教等）？</li>
+      </ul>
+    </div>
+    <div>
+      <p style="font-size:.86rem;font-weight:700;margin:0 0 6px 0;">✅ 图片/视频审核</p>
+      <ul style="font-size:.84rem;font-weight:600;line-height:1.6;display:flex;flex-direction:column;gap:4px;list-style:none;padding-left:0;">
+        <li>□ 图片上有没有人脸（需要授权）？</li>
+        <li>□ 背景里有没有敏感物品/文字？</li>
+        <li>□ 视频字幕是否和语音同步？</li>
+        <li>□ 背景音乐是否有版权？</li>
+      </ul>
+    </div>
+    <div>
+      <p style="font-size:.86rem;font-weight:700;margin:0 0 6px 0;">✅ 法律合规审核</p>
+      <ul style="font-size:.84rem;font-weight:600;line-height:1.6;display:flex;flex-direction:column;gap:4px;list-style:none;padding-left:0;">
+        <li>□ 宣传的功效是否有依据（不能瞎编）？</li>
+        <li>□ 引用的法律条款是否准确？</li>
+        <li>□ 价格/优惠信息是否真实？</li>
+        <li>□ 是否有"最高级"用词（"最优秀"→违规）？</li>
+      </ul>
+    </div>
+    <div>
+      <p style="font-size:.86rem;font-weight:700;margin:0 0 6px 0;">✅ 隐私审核</p>
+      <ul style="font-size:.84rem;font-weight:600;line-height:1.6;display:flex;flex-direction:column;gap:4px;list-style:none;padding-left:0;">
+        <li>□ 是否泄露了个人信息？</li>
+        <li>□ 案例中是否用了真实姓名？</li>
+        <li>□ 照片是否经过了当事人同意？</li>
+        <li>□ 发布的平台是否设置了隐私权限？</li>
+      </ul>
+    </div>
+  </div>
+</div>
+</div></section>
+<section class="slide" id="slide-5" style="background:var(--butter)"><div style="width:100%;max-width:1100px;z-index:2;position:relative;">
+<h2 style="text-align:center;margin-bottom:14px;">❓ Q&A：学员常见问题解答</h2>
+<div style="display:flex;flex-direction:column;gap:14px;">
+  <div style="background:#fff;border:2.5px solid var(--border);border-radius:14px;padding:16px 20px;">
+    <p style="font-size:.92rem;font-weight:700;color:var(--turquoise);margin:0 0 6px 0;">Q1：我们年纪大了，学不会AI怎么办？</p>
+    <p style="font-size:.88rem;font-weight:600;line-height:1.6;margin:0;color:#333;">A：AI是给<b>所有人</b>用的，不是只给年轻人！从最简单的开始：用豆包问一个问题，用剪映剪一段视频。每学会一个功能，就是进步。课程结束后，我们建一个微信群，随时提问！</p>
+  </div>
+  <div style="background:#fff;border:2.5px solid var(--border);border-radius:14px;padding:16px 20px;">
+    <p style="font-size:.92rem;font-weight:700;color:var(--coral);margin:0 0 6px 0;">Q2：AI生成的内容会不会有错误？</p>
+    <p style="font-size:.88rem;font-weight:600;line-height:1.6;margin:0;color:#333;">A：<b>会有！</b>所以一定要人工审核。AI是助手，不是专家。特别是法律条款、health建议、财经数据，一定要核对原文或咨询专业人士。</p>
+  </div>
+  <div style="background:#fff;border:2.5px solid var(--border);border-radius:14px;padding:16px 20px;">
+    <p style="font-size:.92rem;font-weight:700;color:var(--turquoise);margin:0 0 6px 0;">Q3：这些AI工具要收费吗？我们乡镇经费有限。</p>
+    <p style="font-size:.88rem;font-weight:600;line-height:1.6;margin:0;color:#333;">A：今天讲的<b>基本都免费</b>！豆包免费、剪映基础功能免费、WPS AI有免费额度、即梦AI每天免费生成20次。先把这些免费的用熟，再考虑付费功能。</p>
+  </div>
+  <div style="background:#fff;border:2.5px solid var(--border);border-radius:14px;padding:16px 20px;">
+    <p style="font-size:.92rem;font-weight:700;color:var(--coral);margin:0 0 6px 0;">Q4：学完后，工作中遇到问题找谁咨询？</p>
+    <p style="font-size:.88rem;font-weight:600;line-height:1.6;margin:0;color:#333;">A：①课程微信群随时提问；②西和县妇联会定期组织"AI互助小组"；③遇到复杂问题，可以拨打<b>县妇联办公室电话：0939-XXXXXXX</b>。</p>
+  </div>
+</div>
+</div></section>
+<section class="slide" id="slide-6" style="background:var(--mint)"><div style="width:100%;max-width:1100px;z-index:2;position:relative;">
+<h2 style="color:#fff;text-align:center;text-shadow:3px 3px 0 rgba(0,0,0,.15);margin-bottom:14px;">
+  📋 课程总结：今天学了什么？
+</h2>
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
+  <div style="background:#fff;border:2.5px solid var(--border);border-radius:14px;padding:14px 18px;">
+    <h4 style="color:var(--turquoise);margin-bottom:8px;">📚 模块1：普法宣传</h4>
+    <ul style="font-size:.82rem;font-weight:600;line-height:1.6;display:flex;flex-direction:column;gap:4px;list-style:none;padding-left:0;">
+      <li>✅ 用即梦AI生成普法海报</li>
+      <li>✅ 提示词：角色+任务+要求+格式</li>
+      <li>✅ 反家暴、未成年人保护海报设计</li>
+    </ul>
+  </div>
+  <div style="background:#fff;border:2.5px solid var(--border);border-radius:14px;padding:14px 18px;">
+    <h4 style="color:var(--coral);margin-bottom:8px;">🧠 模块2：心理调解</h4>
+    <ul style="font-size:.82rem;font-weight:600;line-height:1.6;display:flex;flex-direction:column;gap:4px;list-style:none;padding-left:0;">
+      <li>✅ 倾听比建议更重要</li>
+      <li>✅ 用AI准备调解话术</li>
+      <li>✅ 老年人沟通：方言+多听+肢体接触</li>
+    </ul>
+  </div>
+  <div style="background:#fff;border:2.5px solid var(--border);border-radius:14px;padding:14px 18px;">
+    <h4 style="color:var(--turquoise);margin-bottom:8px;">📊 模块3：Excel台账</h4>
+    <ul style="font-size:.82rem;font-weight:600;line-height:1.6;display:flex;flex-direction:column;gap:4px;list-style:none;padding-left:0;">
+      <li>✅ 17字段台账设计</li>
+      <li>✅ 数据验证（下拉菜单）</li>
+      <li>✅ 公式自动统计 + 透视表分析</li>
+    </ul>
+  </div>
+  <div style="background:#fff;border:2.5px solid var(--border);border-radius:14px;padding:14px 18px;">
+    <h4 style="color:var(--coral);margin-bottom:8px;">🎬 模块4：宣传视频</h4>
+    <ul style="font-size:.82rem;font-weight:600;line-height:1.6;display:flex;flex-direction:column;gap:4px;list-style:none;padding-left:0;">
+      <li>✅ 剪映剪辑步骤（1-8步）</li>
+      <li>✅ 即梦AI生成视频</li>
+      <li>✅ 西和特产宣传视频脚本</li>
+    </ul>
+  </div>
+  <div style="background:#fff;border:2.5px solid var(--border);border-radius:14px;padding:14px 18px;">
+    <h4 style="color:var(--turquoise);margin-bottom:8px;">🌿 模块5：特产推广</h4>
+    <ul style="font-size:.82rem;font-weight:600;line-height:1.6;display:flex;flex-direction:column;gap:4px;list-style:none;padding-left:0;">
+      <li>✅ 半夏/花椒/八盘梨推广文案</li>
+      <li>✅ 直播话术脚本（3分钟版）</li>
+      <li>✅ 微信公众号文章撰写</li>
+    </ul>
+  </div>
+  <div style="background:#fff;border:2.5px solid var(--border);border-radius:14px;padding:14px 18px;">
+    <h4 style="color:var(--coral);margin-bottom:8px;">🤖 模块6：提示词技巧</h4>
+    <ul style="font-size:.82rem;font-weight:600;line-height:1.6;display:flex;flex-direction:column;gap:4px;list-style:none;padding-left:0;">
+      <li>✅ 万能公式：角色+任务+要求+格式</li>
+      <li>✅ 给示例让AI更快学会</li>
+      <li>✅ 数据安全3原则</li>
+    </ul>
+  </div>
+</div>
+</div></section>
+<section class="slide" id="slide-7" style="background:var(--cream)"><div style="width:100%;max-width:1100px;z-index:2;position:relative;">
+<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;text-align:center;padding:40px 0;">
+  <div style="font-size:4.5rem;margin-bottom:20px;">🎉</div>
+  <h2 style="color:var(--coral);margin-bottom:16px;font-size:1.8rem;">谢谢大家！</h2>
+  <p style="font-size:1.1rem;font-weight:600;line-height:1.8;max-width:700px;margin:0 auto 24px auto;color:#333;">
+    今天是开始，不是结束。<br>
+    AI是工具，<b>你们才是主角</b>。<br>
+    希望每位学员都能用AI，<br>
+    让西和县的妇女工作更出彩！
+  </p>
+  <div style="background:var(--butter);border:2.5px solid var(--border);border-radius:14px;padding:16px 28px;display:inline-block;font-size:1rem;font-weight:700;color:var(--coral);margin-bottom:20px;">
+    📱 课程微信群：扫码加入（现场展示二维码）
+  </div>
+  <p style="font-size:.92rem;font-weight:600;color:#888;">Q & A 环节 —— 欢迎提问！</p>
+</div>
+</div></section>
+<div style="height:40px;"></div><div style="position:fixed;bottom:0;left:0;right:0;z-index:1000;background:rgba(255,253,245,.92);backdrop-filter:blur(10px);border-top:1px solid var(--border);padding:8px 20px;display:flex;align-items:center;justify-content:space-between;font-family:'Times New Roman','Noto Serif SC','SimSun',serif;"><a href="xihe-module6.html" style="color:var(--coral);text-decoration:none;font-weight:700;font-size:.9rem;">← 特产推广与日常办公</a><a href="ai-empower-xihe.html" style="color:var(--muted);text-decoration:none;font-weight:600;font-size:.85rem;">目录</a><span></span></div>
+<div class="navdots">
+  <div class="navdot active" data-slide="1"></div>
+  <div class="navdot" data-slide="2"></div>
+  <div class="navdot" data-slide="3"></div>
+  <div class="navdot" data-slide="4"></div>
+  <div class="navdot" data-slide="5"></div>
+  <div class="navdot" data-slide="6"></div>
+  <div class="navdot" data-slide="7"></div>
+</div>
+<div class="slidecounter"><span id="currentPage">1</span> / 7</div>
+<script>
+// 导航点点击
+document.querySelectorAll('.navdot').forEach(dot => {
+    dot.addEventListener('click', () => {
+        const target = document.getElementById('slide-' + dot.dataset.slide);
+        if (target) target.scrollIntoView({ behavior: 'smooth' });
+    });
+});
+// 滚动计数
+const counter = document.getElementById('currentPage');
+const allSlides = document.querySelectorAll('.slide');
+const allDots = document.querySelectorAll('.navdot');
+const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+        if (e.isIntersecting) {
+            const id = e.target.id;
+            const num = id.replace('slide-', '');
+            counter.textContent = num;
+            allDots.forEach(d => d.classList.toggle('active', d.dataset.slide === num));
+        });
+    });
+}, { threshold: 0.5 });
+allSlides.forEach(s => obs.observe(s));
+</script>
+</body></html>

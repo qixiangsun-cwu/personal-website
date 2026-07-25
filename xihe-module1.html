@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="zh"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>🚀 AI基础与工具介绍 - AI赋能妇女发展实操讲义</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--cream:#F5F0E6;--turquoise:#7ECDC0;--softpink:#F7C8D4;--butter:#FDE68A;--mint:#A8E6CF;--lavender:#D4A5E8;--peach:#FFCBA4;--coral:#F8635F;--border:#2D2D2D;--bg:#FFFDF5;--text:#2D2D2D;--muted:#666;}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:'Times New Roman','Noto Serif SC','SimSun','STSong','FangSong',serif;background:var(--bg);color:var(--text);}
+.slide{min-height:100vh;width:100vw;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:22px 30px;scroll-snap-align:start;position:relative;overflow-x:hidden;}
+.navdots{position:fixed;right:14px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:7px;z-index:999;}
+.navdot{width:10px;height:10px;border-radius:50%;background:rgba(45,45,45,.25);cursor:pointer;transition:all .25s;border:2px solid transparent;}
+.navdot.active{background:var(--coral);transform:scale(1.3);}
+.slidecounter{position:fixed;bottom:14px;right:20px;z-index:999;background:rgba(45,45,45,.7);color:#fff;padding:4px 12px;border-radius:18px;font-size:.82rem;font-weight:700;}
+.card{background:#fff;border:2.5px solid var(--border);border-radius:14px;padding:14px 18px;box-shadow:4px 4px 0 var(--border);}
+.badge{display:inline-block;padding:5px 14px;border-radius:20px;font-size:.82rem;font-weight:700;}
+.codeblock{background:#1e1e1e;color:#d4d4d4;border-radius:8px;padding:10px 14px;font-family:'Courier New',monospace;font-size:.82rem;line-height:1.5;white-space:pre-wrap;}
+.promptbox{background:#1a1a2e;color:#e0e0ff;border-radius:8px;padding:10px 14px;font-family:'Courier New',monospace;font-size:.82rem;line-height:1.5;white-space:pre-wrap;border-left:4px solid var(--lavender);}
+.tipbox{background:var(--cream);border:2px solid var(--border);border-radius:10px;padding:10px 14px;font-size:.88rem;font-weight:600;line-height:1.5;}
+.checklist{list-style:none;padding-left:0;display:flex;flex-direction:column;gap:5px;}
+.checklist li{font-size:.88rem;font-weight:600;line-height:1.5;padding-left:22px;position:relative;}
+.checklist li::before{content:"✅";position:absolute;left:0;font-size:.82rem;}
+.twocol{display:grid;grid-template-columns:1fr 1fr;gap:14px;width:100%;max-width:1100px;}
+.threecol{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;width:100%;max-width:1100px;}
+.steplist{list-style:none;padding:0;display:flex;flex-direction:column;gap:6px;}
+.steplist li{background:var(--cream);border:2px solid var(--border);border-radius:8px;padding:7px 12px;font-size:.88rem;font-weight:600;line-height:1.5;}
+</style>
+<style>
+/* 顶部/底部导航栏的 slide 内边距补偿 */
+.slide { padding-top: 60px; padding-bottom: 70px; }
+</style>
+</head><body style="margin:0;">
+
+<div style="position:fixed;top:0;left:0;right:0;z-index:1000;background:rgba(255,253,245,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);padding:10px 20px;display:flex;align-items:center;justify-content:space-between;font-family:'Times New Roman','Noto Serif SC','SimSun',serif;">
+  <a href="ai-empower-xihe.html" style="color:var(--coral);text-decoration:none;font-weight:700;font-size:.95rem;">← 返回讲义首页</a>
+  <span style="font-size:.85rem;color:var(--muted);font-weight:600;">🚀 AI基础与工具介绍</span>
+  <span style="font-size:.82rem;color:var(--muted);">第 1/7 模块</span>
+</div>
+<div style="height:50px;"></div>
+
+<section class="slide" id="slide-1" style="background:var(--coral)"><div style="width:100%;max-width:1100px;z-index:2;position:relative;">
+<div style="text-align:center;">
+<div style="font-size:3.5rem;margin-bottom:16px;">🤖</div>
+<h1 style="font-family:'Times New Roman','Noto Serif SC','SimSun','STSong','FangSong',serif;font-size:clamp(1.8rem,4vw,3rem);color:#fff;text-shadow:2px 2px 0 rgba(0,0,0,.2);line-height:1.3;margin-bottom:14px;">
+  AI赋能妇女发展<br>实操讲义（完整版）
+</h1>
+<p style="color:var(--butter);font-size:clamp(.9rem,1.6vw,1.1rem);font-weight:700;margin:12px 0 24px;">
+  面向基层妇联干部的AI实用技能培训
+</p>
+<div style="display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin-bottom:24px;">
+  <span class="badge" style="background:var(--turquoise);color:#fff;">📍 甘肃西和县委党校</span>
+  <span class="badge" style="background:var(--butter);color:var(--text);">📅 2026年6月25日</span>
+  <span class="badge" style="background:var(--lavender);color:#fff;">👩‍🏫 主讲：孙琪翔</span>
+</div>
+<div style="background:rgba(255,255,255,.18);border-radius:14px;padding:12px 20px;font-size:.9rem;font-weight:600;color:#fff;line-height:1.6;max-width:700px;margin:0 auto;">
+  💡 涵盖<b>法律维权·心理调节·Excel台账·日常办公·宣传推广·特产推广</b>六大模块<br>
+  每页含具体提示词、软件名称和实操步骤，学完就能用！
+</div>
+</div>
+</div></section>
+<section class="slide" id="slide-2" style="background:var(--cream)"><div style="width:100%;max-width:1100px;z-index:2;position:relative;">
+<h2 style="text-align:center;margin-bottom:20px;">🗺️ 课程导览（58页完整版）</h2>
+<div class="twocol">
+  <div class="card" style="border-left:6px solid var(--turquoise);"><h4 style="color:var(--turquoise);margin-bottom:6px;">📘 模块一：AI基础（2页）</h4><div style="font-size:.88rem;font-weight:600;line-height:1.5;">AI是什么？大白话解释<br>主流AI工具介绍</div></div>
+  <div class="card" style="border-left:6px solid var(--coral);"><h4 style="color:var(--coral);margin-bottom:6px;">📗 模块二：法律维权（6页）</h4><div style="font-size:.88rem;font-weight:600;line-height:1.5;">查法条、写法律文书<br>普法海报+视频制作</div></div>
+  <div class="card" style="border-left:6px solid var(--lavender);"><h4 style="color:var(--lavender);margin-bottom:6px;">📙 模块三：心理调节（5页）</h4><div style="font-size:.88rem;font-weight:600;line-height:1.5;">调解话术、疏导方法<br>老年人心理沟通</div></div>
+  <div class="card" style="border-left:6px solid var(--mint);"><h4 style="color:var(--mint);margin-bottom:6px;">📊 模块四：Excel台账（9页）</h4><div style="font-size:.88rem;font-weight:600;line-height:1.5;">表头设计、公式函数<br>数据透视表、可视化</div></div>
+  <div class="card" style="border-left:6px solid var(--peach);"><h4 style="color:var(--peach);margin-bottom:6px;">📕 模块五：日常办公（6页）</h4><div style="font-size:.88rem;font-weight:600;line-height:1.5;">写材料、做PPT<br>证件照生成</div></div>
+  <div class="card" style="border-left:6px solid var(--butter);"><h4 style="color:var(--coral);margin-bottom:6px;">📒 模块六：宣传+特产（14页）</h4><div style="font-size:.88rem;font-weight:600;line-height:1.5;">宣传海报、视频制作<br>西和特产推广</div></div>
+</div>
+<div style="margin-top:14px;text-align:center;"><span class="badge" style="background:var(--coral);color:#fff;">✅ 每页均有具体提示词 + 软件名称 + 操作步骤</span></div>
+</div></section>
+<section class="slide" id="slide-3" style="background:var(--softpink)"><div style="width:100%;max-width:1100px;z-index:2;position:relative;">
+<h2 style="color:#fff;text-align:center;text-shadow:3px 3px 0 rgba(0,0,0,.12);margin-bottom:20px;">🛠️ 主流AI工具介绍（用什么软件？）</h2>
+<div class="twocol" style="gap:12px;">
+  <div class="card" style="padding:14px 18px;border-left:5px solid var(--turquoise);"><h4 style="color:var(--turquoise);">📱 豆包（推荐日常用）</h4><div style="font-size:.86rem;font-weight:600;line-height:1.5;">费用：免费（每天有Token限额，够用）<br>怎么用：手机下载App / 电脑打开 doubao.com<br>擅长：写材料、会议记录、长文档总结<br>推荐：日常办公首选，中文理解最好</div></div>
+  <div class="card" style="padding:14px 18px;border-left:5px solid var(--lavender);"><h4 style="color:var(--lavender);">🧠 DeepSeek（推荐深度分析）</h4><div style="font-size:.86rem;font-weight:600;line-height:1.5;">费用：免费<br>怎么用：打开 deepseek.com 或下载App<br>擅长：逻辑推理、写代码、分析数据<br>推荐：需要深度思考的任务，选"深度思考"模式</div></div>
+  <div class="card" style="padding:14px 18px;border-left:5px solid var(--mint);"><h4 style="color:var(--mint);">🤖 WorkBuddy（推荐复杂任务）</h4><div style="font-size:.86rem;font-weight:600;line-height:1.5;">费用：按Token计费（复杂任务才用）<br>怎么用：电脑端使用，功能最强大<br>擅长：做PPT、生成海报、处理文件<br>推荐：需要生成文件/PPT/图片时使用</div></div>
+  <div class="card" style="padding:14px 18px;border-left:5px solid var(--peach);"><h4 style="color:var(--peach);">🎨 即梦AI（推荐做图/视频）</h4><div style="font-size:.86rem;font-weight:600;line-height:1.5;">费用：每天免费生成一定数量<br>怎么用：打开 jimeng.jianying.com<br>擅长：生成海报、宣传图、短视频<br>推荐：做宣传海报、特产推广图</div></div>
+</div>
+<div class="tipbox" style="margin-top:14px;background:var(--butter);"><b>💡 软件选择建议：</b>日常写材料→豆包 | 深度分析→DeepSeek | 生成文件/PPT→WorkBuddy | 做海报/视频→即梦AI/剪映</div>
+</div></section>
+<div style="height:40px;"></div><div style="position:fixed;bottom:0;left:0;right:0;z-index:1000;background:rgba(255,253,245,.92);backdrop-filter:blur(10px);border-top:1px solid var(--border);padding:8px 20px;display:flex;align-items:center;justify-content:space-between;font-family:'Times New Roman','Noto Serif SC','SimSun',serif;"><span></span><a href="ai-empower-xihe.html" style="color:var(--muted);text-decoration:none;font-weight:600;font-size:.85rem;">目录</a><a href="xihe-module2.html" style="color:var(--coral);text-decoration:none;font-weight:700;font-size:.9rem;">法律维权实操 →</a></div>
+<div class="navdots">
+  <div class="navdot active" data-slide="1"></div>
+  <div class="navdot" data-slide="2"></div>
+  <div class="navdot" data-slide="3"></div>
+</div>
+<div class="slidecounter"><span id="currentPage">1</span> / 3</div>
+<script>
+// 导航点点击
+document.querySelectorAll('.navdot').forEach(dot => {
+    dot.addEventListener('click', () => {
+        const target = document.getElementById('slide-' + dot.dataset.slide);
+        if (target) target.scrollIntoView({ behavior: 'smooth' });
+    });
+});
+// 滚动计数
+const counter = document.getElementById('currentPage');
+const allSlides = document.querySelectorAll('.slide');
+const allDots = document.querySelectorAll('.navdot');
+const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+        if (e.isIntersecting) {
+            const id = e.target.id;
+            const num = id.replace('slide-', '');
+            counter.textContent = num;
+            allDots.forEach(d => d.classList.toggle('active', d.dataset.slide === num));
+        });
+    });
+}, { threshold: 0.5 });
+allSlides.forEach(s => obs.observe(s));
+</script>
+</body></html>

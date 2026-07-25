@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="zh"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>📊 Excel台账设计 - AI赋能妇女发展实操讲义</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--cream:#F5F0E6;--turquoise:#7ECDC0;--softpink:#F7C8D4;--butter:#FDE68A;--mint:#A8E6CF;--lavender:#D4A5E8;--peach:#FFCBA4;--coral:#F8635F;--border:#2D2D2D;--bg:#FFFDF5;--text:#2D2D2D;--muted:#666;}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:'Times New Roman','Noto Serif SC','SimSun','STSong','FangSong',serif;background:var(--bg);color:var(--text);}
+.slide{min-height:100vh;width:100vw;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:22px 30px;scroll-snap-align:start;position:relative;overflow-x:hidden;}
+.navdots{position:fixed;right:14px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:7px;z-index:999;}
+.navdot{width:10px;height:10px;border-radius:50%;background:rgba(45,45,45,.25);cursor:pointer;transition:all .25s;border:2px solid transparent;}
+.navdot.active{background:var(--coral);transform:scale(1.3);}
+.slidecounter{position:fixed;bottom:14px;right:20px;z-index:999;background:rgba(45,45,45,.7);color:#fff;padding:4px 12px;border-radius:18px;font-size:.82rem;font-weight:700;}
+.card{background:#fff;border:2.5px solid var(--border);border-radius:14px;padding:14px 18px;box-shadow:4px 4px 0 var(--border);}
+.badge{display:inline-block;padding:5px 14px;border-radius:20px;font-size:.82rem;font-weight:700;}
+.codeblock{background:#1e1e1e;color:#d4d4d4;border-radius:8px;padding:10px 14px;font-family:'Courier New',monospace;font-size:.82rem;line-height:1.5;white-space:pre-wrap;}
+.promptbox{background:#1a1a2e;color:#e0e0ff;border-radius:8px;padding:10px 14px;font-family:'Courier New',monospace;font-size:.82rem;line-height:1.5;white-space:pre-wrap;border-left:4px solid var(--lavender);}
+.tipbox{background:var(--cream);border:2px solid var(--border);border-radius:10px;padding:10px 14px;font-size:.88rem;font-weight:600;line-height:1.5;}
+.checklist{list-style:none;padding-left:0;display:flex;flex-direction:column;gap:5px;}
+.checklist li{font-size:.88rem;font-weight:600;line-height:1.5;padding-left:22px;position:relative;}
+.checklist li::before{content:"✅";position:absolute;left:0;font-size:.82rem;}
+.twocol{display:grid;grid-template-columns:1fr 1fr;gap:14px;width:100%;max-width:1100px;}
+.threecol{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;width:100%;max-width:1100px;}
+.steplist{list-style:none;padding:0;display:flex;flex-direction:column;gap:6px;}
+.steplist li{background:var(--cream);border:2px solid var(--border);border-radius:8px;padding:7px 12px;font-size:.88rem;font-weight:600;line-height:1.5;}
+</style>
+<style>
+/* 顶部/底部导航栏的 slide 内边距补偿 */
+.slide { padding-top: 60px; padding-bottom: 70px; }
+</style>
+</head><body style="margin:0;">
+
+<div style="position:fixed;top:0;left:0;right:0;z-index:1000;background:rgba(255,253,245,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);padding:10px 20px;display:flex;align-items:center;justify-content:space-between;font-family:'Times New Roman','Noto Serif SC','SimSun',serif;">
+  <a href="ai-empower-xihe.html" style="color:var(--coral);text-decoration:none;font-weight:700;font-size:.95rem;">← 返回讲义首页</a>
+  <span style="font-size:.85rem;color:var(--muted);font-weight:600;">📊 Excel台账设计</span>
+  <span style="font-size:.82rem;color:var(--muted);">第 4/7 模块</span>
+</div>
+<div style="height:50px;"></div>
+
+<section class="slide" id="slide-1" style="background:var(--mint)"><div style="width:100%;max-width:1100px;z-index:2;position:relative;">
+<h2 style="color:#fff;text-align:center;text-shadow:3px 3px 0 rgba(0,0,0,.15);margin-bottom:16px;">📊 模块四：Excel台账设计与使用（妇联必备）</h2>
+<div class="card" style="background:#fff;padding:16px 20px;margin-bottom:14px;"><h4 style="color:var(--mint);margin-bottom:8px;">📋 Excel台账完整表头设计（字段1-9，共17个字段）</h4><div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:.82rem;font-weight:600;"><tr style="background:var(--mint);color:#fff;"><th style="padding:6px 8px;border:2px solid var(--border);">#</th><th style="padding:6px 8px;border:2px solid var(--border);">字段名</th><th style="padding:6px 8px;border:2px solid var(--border);">数据类型</th><th style="padding:6px 8px;border:2px solid var(--border);">填写说明</th></tr>
+<tr><td style="padding:6px 8px;border:2px solid var(--border);background:#fff;">1</td><td style="padding:6px 8px;border:2px solid var(--border);background:#fff;">编号</td><td style="padding:6px 8px;border:2px solid var(--border);background:#fff;">自动编号</td><td style="padding:6px 8px;border:2px solid var(--border);background:#fff;">格式：2026-XH-001（年份-镇名-序号）</td></tr>
+<tr><td style="padding:6px 8px;border:2px solid var(--border);background:var(--cream);">2</td><td style="padding:6px 8px;border:2px solid var(--border);background:var(--cream);">来访日期</td><td style="padding:6px 8px;border:2px solid var(--border);background:var(--cream);">日期</td><td style="padding:6px 8px;border:2px solid var(--border);background:var(--cream);">格式：2026/6/24</td></tr>
+<tr><td style="padding:6px 8px;border:2px solid var(--border);background:#fff;">3</td><td style="padding:6px 8px;border:2px solid var(--border);background:#fff;">来访人姓名</td><td style="padding:6px 8px;border:2px solid var(--border);background:#fff;">文本</td><td style="padding:6px 8px;border:2px solid var(--border);background:#fff;">必填，如涉及隐私可用"张某"</td></tr>
+<tr><td style="padding:6px 8px;border:2px solid var(--border);background:var(--cream);">4</td><td style="padding:6px 8px;border:2px solid var(--border);background:var(--cream);">联系电话</td><td style="padding:6px 8px;border:2px solid var(--border);background:var(--cream);">文本</td><td style="padding:6px 8px;border:2px solid var(--border);background:var(--cream);">可不填（尊重对方意愿）</td></tr>
+<tr><td style="padding:6px 8px;border:2px solid var(--border);background:#fff;">5</td><td style="padding:6px 8px;border:2px solid var(--border);background:#fff;">年龄</td><td style="padding:6px 8px;border:2px solid var(--border);background:#fff;">数字</td><td style="padding:6px 8px;border:2px solid var(--border);background:#fff;">填数字即可，用于统计分析</td></tr>
+<tr><td style="padding:6px 8px;border:2px solid var(--border);background:var(--cream);">6</td><td style="padding:6px 8px;border:2px solid var(--border);background:var(--cream);">所在村/社区</td><td style="padding:6px 8px;border:2px solid var(--border);background:var(--cream);">下拉菜单</td><td style="padding:6px 8px;border:2px solid var(--border);background:var(--cream);">提前录入所有村名，避免手写错误</td></tr>
+<tr><td style="padding:6px 8px;border:2px solid var(--border);background:#fff;">7</td><td style="padding:6px 8px;border:2px solid var(--border);background:#fff;">问题类型</td><td style="padding:6px 8px;border:2px solid var(--border);background:#fff;">下拉菜单</td><td style="padding:6px 8px;border:2px solid var(--border);background:#fff;">家暴/婚姻纠纷/土地承包/劳动报酬/遗产继承/其他</td></tr>
+<tr><td style="padding:6px 8px;border:2px solid var(--border);background:var(--cream);">8</td><td style="padding:6px 8px;border:2px solid var(--border);background:var(--cream);">具体情况</td><td style="padding:6px 8px;border:2px solid var(--border);background:var(--cream);">文本</td><td style="padding:6px 8px;border:2px solid var(--border);background:var(--cream);">简要描述（可用AI帮忙整理口语化描述）</td></tr>
+<tr><td style="padding:6px 8px;border:2px solid var(--border);background:#fff;">9</td><td style="padding:6px 8px;border:2px solid var(--border);background:#fff;">紧急程度</td><td style="padding:6px 8px;border:2px solid var(--border);background:#fff;">下拉菜单</td><td style="padding:6px 8px;border:2px solid var(--border);background:#fff;">紧急/一般/可延后（用于优先级排序）</td></tr>
+</table></div></div>
+<div style="text-align:center;margin-top:10px;"><span class="badge" style="background:var(--coral);color:#fff;">👇 下页继续看字段10-17 + 数据验证设置方法</span></div>
+</div></section>
+<section class="slide" id="slide-2" style="background:var(--cream)"><div style="width:100%;max-width:1100px;z-index:2;position:relative;">
+<h2 style="text-align:center;margin-bottom:16px;">📊 Excel台账②：完整表头（字段10-17）</h2>
+<div style="background:#fff;border:2.5px solid var(--border);border-radius:14px;padding:14px 18px;margin-bottom:14px;overflow-x:auto;">
+<table style="width:100%;border-collapse:collapse;font-size:.82rem;font-weight:600;">
+<tr style="background:var(--mint);color:#fff;"><th style="padding:6px 8px;border:2px solid var(--border);">#</th><th style="padding:6px 8px;border:2px solid var(--border);">字段名</th><th style="padding:6px 8px;border:2px solid var(--border);">数据类型</th><th style="padding:6px 8px;border:2px solid var(--border);">填写说明</th></tr>
+<tr><td style="padding:6px 8px;border:2px solid var(--border);background:var(--cream);">10</td><td style="padding:6px 8px;border:2px solid var(--border);background:var(--cream);">处理结果</td><td style="padding:6px 8px;border:2px solid var(--border);background:var(--cream);">下拉菜单</td><td style="padding:6px 8px;border:2px solid var(--border);background:var(--cream);">调解成功/引导诉讼/转介其他部门/跟进中</td></tr>
+<tr><td style="padding:6px 8px;border:2px solid var(--border);">11</td><td style="padding:6px 8px;border:2px solid var(--border);">是否办结</td><td style="padding:6px 8px;border:2px solid var(--border);">是/否</td><td style="padding:6px 8px;border:2px solid var(--border);">办结后记得填办结日期</td></tr>
+<tr><td style="padding:6px 8px;border:2px solid var(--border);background:var(--cream);">12</td><td style="padding:6px 8px;border:2px solid var(--border);background:var(--cream);">办结日期</td><td style="padding:6px 8px;border:2px solid var(--border);background:var(--cream);">日期</td><td style="padding:6px 8px;border:2px solid var(--border);background:var(--cream);">格式：2026/6/24（未办结留空）</td></tr>
+<tr><td style="padding:6px 8px;border:2px solid var(--border);">13</td><td style="padding:6px 8px;border:2px solid var(--border);">处理天数</td><td style="padding:6px 8px;border:2px solid var(--border);">数字（公式自动算）</td><td style="padding:6px 8px;border:2px solid var(--border);">用DATEDIF公式自动计算（见下页）</td></tr>
+<tr><td style="padding:6px 8px;border:2px solid var(--border);background:var(--cream);">14</td><td style="padding:6px 8px;border:2px solid var(--border);background:var(--cream);">承办人</td><td style="padding:6px 8px;border:2px solid var(--border);background:var(--cream);">文本</td><td style="padding:6px 8px;border:2px solid var(--border);background:var(--cream);">填妇联干部姓名（用于统计工作量）</td></tr>
+<tr><td style="padding:6px 8px;border:2px solid var(--border);">15</td><td style="padding:6px 8px;border:2px solid var(--border);">后续跟进</td><td style="padding:6px 8px;border:2px solid var(--border);">文本</td><td style="padding:6px 8px;border:2px solid var(--border);">计划下次跟进日期或"无需跟进"</td></tr>
+<tr><td style="padding:6px 8px;border:2px solid var(--border);background:var(--cream);">16</td><td style="padding:6px 8px;border:2px solid var(--border);background:var(--cream);">备注</td><td style="padding:6px 8px;border:2px solid var(--border);background:var(--cream);">文本</td><td style="padding:6px 8px;border:2px solid var(--border);background:var(--cream);">特殊情况说明（如"当事人要求保密"）</td></tr>
+<tr><td style="padding:6px 8px;border:2px solid var(--border);">17</td><td style="padding:6px 8px;border:2px solid var(--border);">录入人</td><td style="padding:6px 8px;border:2px solid var(--border);">文本</td><td style="padding:6px 8px;border:2px solid var(--border);">自动填（用WPS的"用户信息"功能）</td></tr>
+</table></div>
+<div style="background:var(--butter);border:2px solid var(--border);border-radius:10px;padding:12px 16px;font-size:.88rem;font-weight:600;line-height:1.5;margin-top:10px;">
+  💡 <b>数据验证设置方法（Excel/WPS通用）：</b>选中整列 → 点击菜单栏"数据" → "数据验证" → 允许：序列 → 来源：输入选项（用逗号分隔，如"家暴,婚姻纠纷,土地承包"）→ 确定。这样这列就只能选，不能乱填！
+</div>
+</div></section>
+<section class="slide" id="slide-3" style="background:var(--butter)"><div style="width:100%;max-width:1100px;z-index:2;position:relative;">
+<h2 style="text-align:center;margin-bottom:16px;">🧮 Excel台账③：公式与函数实操</h2>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+  <div style="background:#fff;border:2.5px solid var(--border);border-radius:14px;padding:14px 18px;">
+    <h4 style="color:var(--turquoise);margin-bottom:8px;">📊 COUNTIF：统计各类问题数量</h4>
+    <div style="background:#1e1e1e;color:#d4d4d4;border-radius:8px;padding:10px 14px;font-family:'Courier New',monospace;font-size:.82rem;line-height:1.5;white-space:pre-wrap;margin-bottom:8px;">=COUNTIF(H:H,"家暴")
+→ 统计H列（问题类型）中"家暴"出现的次数
+
+=COUNTIFS(H:H,"家暴",N:N,"是")
+→ 统计"家暴"且"已办结"的数量</div>
+    <div style="font-size:.85rem;color:var(--text-muted);font-weight:600;">💡 用途：年度汇报"今年处理了XX起家暴案件"</div>
+  </div>
+  <div style="background:#fff;border:2.5px solid var(--border);border-radius:14px;padding:14px 18px;">
+    <h4 style="color:var(--coral);margin-bottom:8px;">📅 DATEDIF：计算处理时长</h4>
+    <div style="background:#1e1e1e;color:#d4d4d4;border-radius:8px;padding:10px 14px;font-family:'Courier New',monospace;font-size:.82rem;line-height:1.5;white-space:pre-wrap;margin-bottom:8px;">=DATEDIF(B2,O2,"D")
+→ 计算B列（来访日期）到O列（办结日期）的天数差
+
+=IF(O2="","未办结",DATEDIF(B2,O2,"D"))
+→ 如果还没办结，显示"未办结"</div>
+    <div style="font-size:.85rem;color:var(--text-muted);font-weight:600;">💡 用途：统计"平均处理天数"，改进工作效率</div>
+  </div>
+  <div style="background:#fff;border:2.5px solid var(--border);border-radius:14px;padding:14px 18px;">
+    <h4 style="color:var(--lavender);margin-bottom:8px;">🔍 VLOOKUP：查找重复来访</h4>
+    <div style="background:#1e1e1e;color:#d4d4d4;border-radius:8px;padding:10px 14px;font-family:'Courier New',monospace;font-size:.82rem;line-height:1.5;white-space:pre-wrap;margin-bottom:8px;">=IF(COUNTIF(C:C,C2)>1,"重复来访","首次")
+→ 在C列（姓名）中查找是否出现超过1次
+
+=VLOOKUP(C2,台账!C:O,13,FALSE)
+→ 从另一个工作表"台账"中查找该人的处理结果</div>
+    <div style="font-size:.85rem;color:var(--text-muted);font-weight:600;">💡 用途：发现"反复求助"的人员，可能需要深度介入</div>
+  </div>
+  <div style="background:#fff;border:2.5px solid var(--border);border-radius:14px;padding:14px 18px;">
+    <h4 style="color:var(--peach);margin-bottom:8px;">🤖 用AI帮你写Excel公式</h4>
+    <div style="background:#1a1a2e;color:#e0e0ff;border-radius:8px;padding:10px 14px;font-family:'Courier New',monospace;font-size:.82rem;line-height:1.5;white-space:pre-wrap;border-left:4px solid var(--lavender);">你是一位Excel公式专家。
+我的台账表格有这些列：
+B列=来访日期，H列=问题类型，N列=是否办结，O列=办结日期
+请帮我写一个公式：
+统计"2026年6月"的来访案件中，"家暴"类型且"已办结"的数量。
+请解释公式每个部分的含义，并告诉我如果报错怎么办。</div>
+    <div style="font-size:.85rem;color:var(--text-muted);font-weight:600;margin-top:8px;">✅ AI会返回正确公式 + 详细解释 + 排错方法</div>
+  </div>
+</div>
+</div></section>
+<section class="slide" id="slide-4" style="background:var(--mint)"><div style="width:100%;max-width:1100px;z-index:2;position:relative;">
+<h2 style="color:#fff;text-align:center;text-shadow:3px 3px 0 rgba(0,0,0,.15);margin-bottom:18px;">
+  📈 Excel台账④：数据透视表入门
+</h2>
+<div style="background:#fff;border:2.5px solid var(--border);border-radius:14px;padding:18px 22px;margin-bottom:14px;">
+  <h4 style="color:var(--turquoise);margin-bottom:10px;">🎯 数据透视表能做什么？</h4>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:.9rem;font-weight:600;line-height:1.5;">
+    <div>📊 按<b>问题类型</b>统计案件数量（自动分类汇总）</div>
+    <div>📅 按<b>月份</b>统计来访趋势（哪个月最忙？）</div>
+    <div>👩 按<b>承办人</b>统计工作量（谁处理得最多？）</div>
+    <div>⏱️ 计算<b>平均处理天数</b>（效率如何？）</div>
+  </div>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+  <div style="background:#fff;border:2.5px solid var(--border);border-radius:14px;padding:16px 20px;">
+    <h4 style="color:var(--coral);margin-bottom:8px;">🛠️ 操作步骤（Excel/WPS通用）</h4>
+    <ol style="font-size:.88rem;font-weight:600;line-height:1.8;padding-left:20px;display:flex;flex-direction:column;gap:4px;">
+      <li>选中整个台账数据区域（包括表头）</li>
+      <li>点击菜单栏<b>"插入"</b> → <b>"数据透视表"</b></li>
+      <li>选择"新工作表" → 确定</li>
+      <li>在右侧面板中：把"问题类型"拖到<b>"行"</b>区域</li>
+      <li>把"编号"拖到<b>"值"</b>区域（会自动计数）</li>
+      <li>就得到了"各类型案件数量统计表"！</li>
+    </ol>
+  </div>
+  <div style="background:#fff;border:2.5px solid var(--border);border-radius:14px;padding:16px 20px;">
+    <h4 style="color:var(--lavender);margin-bottom:8px;">📋 常用透视表布局</h4>
+    <div style="font-size:.85rem;font-weight:600;line-height:1.6;display:flex;flex-direction:column;gap:6px;">
+      <div>📌 <b>布局1：</b>行=问题类型，值=计数（各类型案件数）</div>
+      <div>📌 <b>布局2：</b>行=月份，列=问题类型，值=计数（交叉分析）</div>
+      <div>📌 <b>布局3：</b>行=承办人，值=计数（工作量统计）</div>
+      <div>📌 <b>布局4：</b>行=所在村，值=计数（哪村案件多？）</div>
+      <div style="margin-top:6px;padding:8px;background:var(--cream);border-radius:8px;font-size:.82rem;">💡 透视表会自动更新！每次数据变了，右键点击透视表 → "刷新"即可</div>
+    </div>
+  </div>
+</div>
+</div></section>
+<section class="slide" id="slide-5" style="background:var(--cream)"><div style="width:100%;max-width:1100px;z-index:2;position:relative;">
+<h2 style="text-align:center;margin-bottom:16px;">📋 Excel台账⑤：台账整理完整方案</h2>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
+  <div style="background:#fff;border:2.5px solid var(--border);border-radius:14px;padding:16px 20px;border-left:6px solid var(--mint);">
+    <h4 style="color:var(--mint);margin-bottom:8px;">📥 第一步：收集</h4>
+    <ul style="font-size:.88rem;font-weight:600;line-height:1.5;display:flex;flex-direction:column;gap:5px;list-style:none;padding-left:0;">
+      <li>✅ 每次来访当场填台账（别事后补，容易忘）</li>
+      <li>✅ 用手机也能填（WPS移动版/腾讯文档在线表格）</li>
+      <li>✅ 如果当事人不会写字，你代填后让她按手印确认</li>
+    </ul>
+  </div>
+  <div style="background:#fff;border:2.5px solid var(--border);border-radius:14px;padding:16px 20px;border-left:6px solid var(--butter);">
+    <h4 style="color:var(--coral);margin-bottom:8px;">⌨️ 第二步：录入</h4>
+    <ul style="font-size:.88rem;font-weight:600;line-height:1.5;display:flex;flex-direction:column;gap:5px;list-style:none;padding-left:0;">
+      <li>✅ 每天下班前把当天的纸质记录录入Excel</li>
+      <li>✅ 用<b>数据验证</b>（下拉菜单）减少录入错误</li>
+      <li>✅ 必填字段用<b>条件格式</b>标红提醒</li>
+    </ul>
+  </div>
+  <div style="background:#fff;border:2.5px solid var(--border);border-radius:14px;padding:16px 20px;border-left:6px solid var(--turquoise);">
+    <h4 style="color:var(--turquoise);margin-bottom:8px;">🔍 第三步：核对</h4>
+    <ul style="font-size:.88rem;font-weight:600;line-height:1.5;display:flex;flex-direction:column;gap:5px;list-style:none;padding-left:0;">
+      <li>✅ 每周五下午核对本周台账（编号是否连续？有无漏填？）</li>
+      <li>✅ 用<b>筛选功能</b>找"是否办结=否"的案件，跟进处理</li>
+      <li>✅ 用AI帮忙<b>整理"具体情况"</b>（把口语化描述转成规范文字）</li>
+    </ul>
+  </div>
+  <div style="background:#fff;border:2.5px solid var(--border);border-radius:14px;padding:16px 20px;border-left:6px solid var(--lavender);">
+    <h4 style="color:var(--lavender);margin-bottom:8px;">📊 第四步：分析</h4>
+    <ul style="font-size:.88rem;font-weight:600;line-height:1.5;display:flex;flex-direction:column;gap:5px;list-style:none;padding-left:0;">
+      <li>✅ 每月用<b>数据透视表</b>做一次统计分析</li>
+      <li>✅ 找出"高发问题类型""高发村庄""平均处理天数"</li>
+      <li>✅ 用AI帮你<b>写分析报告</b>（提示词见下页）</li>
+    </ul>
+  </div>
+</div>
+<div style="background:var(--butter);border:2.5px solid var(--border);border-radius:10px;padding:14px 18px;">
+  <h4 style="color:var(--coral);margin-bottom:8px;">🤖 用AI写月度分析报告（提示词）</h4>
+  <div style="background:#1a1a2e;color:#e0e0ff;border-radius:8px;padding:10px 14px;font-family:'Courier New',monospace;font-size:.82rem;line-height:1.5;white-space:pre-wrap;border-left:4px solid var(--lavender);">你是一位妇联工作数据分析师。
+我提供某月台账的统计数据（复制粘贴透视表结果），请帮我写一份"月度信访分析报告"。
+要求：
+1. 开头用1段话总结本月整体情况（案件总数、办结率）
+2. 分析"问题类型分布"（哪类最多？为什么？）
+3. 分析"村庄分布"（哪几个村案件多？是否需要重点进驻？）
+4. 给出3条改进建议（要具体可行，结合西和县实际）
+5. 语言风格：正式报告，可用于上报县委</div>
+</div>
+</div></section>
+<section class="slide" id="slide-6" style="background:var(--soft-pink)"><div style="width:100%;max-width:1100px;z-index:2;position:relative;">
+<h2 style="color:#fff;text-align:center;text-shadow:3px 3px 0 rgba(0,0,0,.12);margin-bottom:16px;">
+  🔧 Excel台账⑥：常见问题与解决
+</h2>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+  <div style="background:#fff;border:2.5px solid var(--border);border-radius:14px;padding:14px 18px;">
+    <h4 style="color:var(--coral);margin-bottom:6px;">❌ 问题1：#N/A错误（VLOOKUP找不到）</h4>
+    <div style="font-size:.88rem;font-weight:600;line-height:1.55;">
+      <div>💡 <b>原因：</b>查找值不在查找区域中（可能姓名有空格/错别字）</div>
+      <div style="margin-top:6px;">✅ <b>解决：</b>用TRIM()函数去除空格，或改用COUNTIF先检查是否存在</div>
+      <div style="margin-top:6px;background:var(--cream);padding:7px 10px;border-radius:6px;font-family:'Courier New',monospace;font-size:.82rem;">=TRIM(C2)  → 清除C2单元格的首尾空格</div>
+    </div>
+  </div>
+  <div style="background:#fff;border:2.5px solid var(--border);border-radius:14px;padding:14px 18px;">
+    <h4 style="color:var(--turquoise);margin-bottom:6px;">❌ 问题2：日期格式混乱</h4>
+    <div style="font-size:.88rem;font-weight:600;line-height:1.55;">
+      <div>💡 <b>原因：</b>有人写"6月24"，有人写"2026.6.24"，Excel不认</div>
+      <div style="margin-top:6px;">✅ <b>解决：</b>全选日期列 → 右键"设置单元格格式"→ 选"日期"→ 确定</div>
+    </div>
+  </div>
+  <div style="background:#fff;border:2.5px solid var(--border);border-radius:14px;padding:14px 18px;">
+    <h4 style="color:var(--lavender);margin-bottom:6px;">❌ 问题3：数据透视表不更新</h4>
+    <div style="font-size:.88rem;font-weight:600;line-height:1.55;">
+      <div>💡 <b>原因：</b>透视表的数据源范围是固定的，新增行没包含进去</div>
+      <div style="margin-top:6px;">✅ <b>解决：</b>把数据源设为"表格"（Ctrl+T），透视表会自动扩展。或右键 → "刷新数据"</div>
+    </div>
+  </div>
+  <div style="background:#fff;border:2.5px solid var(--border);border-radius:14px;padding:14px 18px;">
+    <h4 style="color:var(--peach);margin-bottom:6px;">❌ 问题4：文件太大打不开</h4>
+    <div style="font-size:.88rem;font-weight:600;line-height:1.55;">
+      <div>💡 <b>原因：</b>几年数据都在一个文件里，超过Excel行数限制或文件过大</div>
+      <div style="margin-top:6px;">✅ <b>解决：</b>按年份分成不同文件，或用"腾讯文档"在线表格（不限行数）</div>
+    </div>
+  </div>
+</div>
+<div style="text-align:center;margin-top:12px;">
+  <span style="background:var(--mint);color:#fff;font-size:.9rem;padding:8px 20px;border-radius:20px;font-weight:700;">💡 遇到解决不了的问题，把错误截图发给AI，它会告诉你怎么办！</span>
+</div>
+</div></section>
+<section class="slide" id="slide-7" style="background:var(--lavender)"><div style="width:100%;max-width:1100px;z-index:2;position:relative;">
+<h2 style="color:#fff;text-align:center;text-shadow:3px 3px 0 rgba(0,0,0,.15);margin-bottom:16px;">
+  📊 Excel台账⑦：数据可视化（图表制作）
+</h2>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+  <div style="background:#fff;border:2.5px solid var(--border);border-radius:14px;padding:16px 20px;">
+    <h4 style="color:var(--coral);margin-bottom:8px;">📊 柱状图：各类型案件数量对比</h4>
+    <div style="font-size:.88rem;font-weight:600;line-height:1.55;">
+      <div>🛠️ <b>操作步骤：</b></div>
+      <div>1. 用透视表得到"问题类型-案件数"统计</div>
+      <div>2. 选中这两列 → 插入 → 柱状图</div>
+      <div>3. 标题改为"2026年上半年案件类型分布"</div>
+      <div style="margin-top:8px;background:var(--cream);padding:7px 10px;border-radius:6px;font-size:.82rem;">💡 用来向领导汇报：哪类问题最突出，需要重点投入资源</div>
+    </div>
+  </div>
+  <div style="background:#fff;border:2.5px solid var(--border);border-radius:14px;padding:16px 20px;">
+    <h4 style="color:var(--turquoise);margin-bottom:8px;">📈 折线图：月度趋势分析</h4>
+    <div style="font-size:.88rem;font-weight:600;line-height:1.55;">
+      <div>🛠️ <b>操作步骤：</b></div>
+      <div>1. 用透视表：行=月份，值=计数</div>
+      <div>2. 选中数据 → 插入 → 折线图</div>
+      <div>3. 观察趋势：哪个月案件突然增多？</div>
+      <div style="margin-top:8px;background:var(--cream);padding:7px 10px;border-radius:6px;font-size:.82rem;">💡 如果3月突然增多，回想：是不是春节后返乡人员多了？</div>
+    </div>
+  </div>
+  <div style="background:#fff;border:2.5px solid var(--border);border-radius:14px;padding:16px 20px;">
+    <h4 style="color:var(--lavender);margin-bottom:8px;">🥧 饼图：办结率展示</h4>
+    <div style="font-size:.88rem;font-weight:600;line-height:1.55;">
+      <div>🛠️ <b>操作步骤：</b></div>
+      <div>1. 统计"是否办结"中"是"和"否"的数量</div>
+      <div>2. 选中数据 → 插入 → 饼图</div>
+      <div>3. 显示百分比：右键 → 添加数据标签 → 勾选"百分比"</div>
+      <div style="margin-top:8px;background:var(--cream);padding:7px 10px;border-radius:6px;font-size:.82rem;">💡 办结率低？说明有些案件卡住了，要重点跟进！</div>
+    </div>
+  </div>
+  <div style="background:#fff;border:2.5px solid var(--border);border-radius:14px;padding:16px 20px;">
+    <h4 style="color:var(--peach);margin-bottom:8px;">🤖 AI帮你选图表类型</h4>
+    <div style="background:#1a1a2e;color:#e0e0ff;border-radius:8px;padding:10px 14px;font-family:'Courier New',monospace;font-size:.82rem;line-height:1.5;white-space:pre-wrap;border-left:4px solid var(--lavender);">你是一位数据可视化专家。
+我有以下数据：
+- 各村庄的案件数量（汉源镇12起、石堡镇8起...）
+- 各问题类型的案件数量（家暴23起、婚姻纠纷18起...）
+- 每月的案件数量（1月5起、2月3起...）
+请告诉我：
+1. 每组数据最适合用什么图表展示？
+2. 如何在Excel中制作这个图表（详细步骤）？</div>
+  </div>
+</div>
+</div></section>
+<section class="slide" id="slide-8" style="background:var(--butter)"><div style="width:100%;max-width:1100px;z-index:2;position:relative;">
+<h2 style="text-align:center;margin-bottom:16px;">🎯 Excel台账⑧：实操演练</h2>
+<div style="background:#fff;border:2.5px solid var(--border);border-radius:14px;padding:20px 24px;">
+  <h4 style="color:var(--coral);margin-bottom:12px;">📋 演练任务：建立一份"月度走访台账"</h4>
+  <div style="background:var(--cream);padding:14px 18px;border-radius:10px;font-size:.92rem;font-weight:500;line-height:1.6;margin-bottom:16px;">
+    <b>背景：</b>你是西和县XX镇妇联主席，需要建立一份"2026年6月走访台账"，记录本月走访的困难妇女家庭情况。表格需要包含：走访日期、家庭住址、户主姓名、家庭人口、主要困难、已提供帮助、下次跟进日期。
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+    <div style="background:var(--mint);padding:14px 18px;border-radius:10px;border:2px solid var(--border);">
+      <h4 style="font-size:1rem;margin-bottom:8px;color:#fff;text-shadow:1px 1px 0 rgba(0,0,0,.2);">🤖 用AI设计表格结构</h4>
+      <div style="background:#1a1a2e;color:#e0e0ff;border-radius:8px;padding:10px 14px;font-family:'Courier New',monospace;font-size:.8rem;line-height:1.5;white-space:pre-wrap;border-left:4px solid var(--lavender);">你是一位基层妇联台账设计专家。
+请为"月度走访台账"设计表格结构，包含：
+1. 必要的字段（列名）
+2. 每个字段的数据类型（日期/文本/数字/下拉菜单）
+3. 填写规范（比如"主要困难"应该从哪些选项中选？）
+4. 用表格形式输出，并说明哪些列需要设置数据验证
+
+注意：这是给镇妇联干部用的，不要太复杂，要实用。</div>
+    </div>
+    <div style="background:var(--lavender);padding:14px 18px;border-radius:10px;border:2px solid var(--border);">
+      <h4 style="font-size:1rem;margin-bottom:8px;color:#fff;text-shadow:1px 1px 0 rgba(0,0,0,.2);">👩‍🏫 实操步骤</h4>
+      <ol style="font-size:.88rem;font-weight:600;line-height:1.7;padding-left:18px;">
+        <li>打开Excel/WPS，新建工作表</li>
+        <li>根据AI给的表头，在第一行输入列名</li>
+        <li>设置"主要困难"列为下拉菜单（贫困/疾病/家暴/单亲/其他）</li>
+        <li>输入3条模拟数据（自己编）</li>
+        <li>选中所有数据 → Ctrl+T（转为表格格式）</li>
+        <li>插入数据透视表，按"主要困难"统计户数</li>
+        <li>截图发群里，老师点评！</li>
+      </ol>
+    </div>
+  </div>
+  <div style="text-align:center;"><span style="background:var(--coral);color:#fff;font-size:.9rem;padding:8px 20px;border-radius:20px;font-weight:700;">⏱️ 限时15分钟，开始操作！</span></div>
+</div>
+</div></section>
+<section class="slide" id="slide-9" style="background:var(--butter)"><div style="width:100%;max-width:1100px;z-index:2;position:relative;">
+<h2 style="text-align:center;margin-bottom:14px;">📊 台账①：妇女之家活动Excel台账——17个字段设计</h2>
+<div style="background:#fff;border:2.5px solid var(--border);border-radius:14px;padding:16px 20px;margin-bottom:14px;">
+  <h4 style="color:var(--turquoise);margin-bottom:8px;">📋 完整字段列表（A列到Q列）</h4>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+    <div>
+      <p style="font-size:.84rem;font-weight:700;margin:0 0 6px 0;">A列：活动编号</p>
+      <p style="font-size:.8rem;font-weight:600;margin:0 0 8px 0;color:#555;">格式：XH-2025-001（XH=西和），自动编号</p>
+      <p style="font-size:.84rem;font-weight:700;margin:0 0 6px 0;">B列：活动名称</p>
+      <p style="font-size:.8rem;font-weight:600;margin:0 0 8px 0;color:#555;">文字，不超过20字，如"春季妇女健康讲座"</p>
+      <p style="font-size:.84rem;font-weight:700;margin:0 0 6px 0;">C列：活动类型</p>
+      <p style="font-size:.8rem;font-weight:600;margin:0 0 8px 0;color:#555;">下拉选择：健康讲座/技能培训/文娱活动/维权服务</p>
+      <p style="font-size:.84rem;font-weight:700;margin:0 0 6px 0;">D列：活动日期</p>
+      <p style="font-size:.8rem;font-weight:600;margin:0 0 8px 0;color:#555;">日期格式：2025-03-15（用Excel日期格式）</p>
+      <p style="font-size:.84rem;font-weight:700;margin:0 0 6px 0;">E列：开始时间</p>
+      <p style="font-size:.8rem;font-weight:600;margin:0 0 8px 0;color:#555;">时间格式：14:30（用Excel时间格式）</p>
+      <p style="font-size:.84rem;font-weight:700;margin:0 0 6px 0;">F列：活动地点</p>
+      <p style="font-size:.8rem;font-weight:600;margin:0 0 8px 0;color:#555;">文字，如"XX村妇女之家活动室"</p>
+      <p style="font-size:.84rem;font-weight:700;margin:0 0 6px 0;">G列：负责人</p>
+      <p style="font-size:.8rem;font-weight:600;margin:0 0 8px 0;color:#555;">姓名，如"张三"，设置数据验证避免重复录入</p>
+      <p style="font-size:.84rem;font-weight:700;margin:0 0 6px 0;">H列：参与人数（计划）</h4>
+      <p style="font-size:.8rem;font-weight:600;margin:0 0 8px 0;color:#555;">数字，预估参加人数</p>
+    </div>
+    <div>
+      <p style="font-size:.84rem;font-weight:700;margin:0 0 6px 0;">I列：实际参与人数</p>
+      <p style="font-size:.8rem;font-weight:600;margin:0 0 8px 0;color:#555;">数字，活动结束后填写</p>
+      <p style="font-size:.84rem;font-weight:700;margin:0 0 6px 0;">J列：主要参会人群</p>
+      <p style="font-size:.8rem;font-weight:600;margin:0 0 8px 0;color:#555;">下拉选择：留守妇女/新业态女性/老年妇女/青年女性</p>
+      <p style="font-size:.84rem;font-weight:700;margin:0 0 6px 0;">K列：活动经费（元）</p>
+      <p style="font-size:.8rem;font-weight:600;margin:0 0 8px 0;color:#555;">数字，保留两位小数</p>
+      <p style="font-size:.84rem;font-weight:700;margin:0 0 6px 0;">L列：活动总结（链接）</p>
+      <p style="font-size:.8rem;font-weight:600;margin:0 0 8px 0;color:#555;">文字，填写总结文档的文件名或链接</p>
+      <p style="font-size:.84rem;font-weight:700;margin:0 0 6px 0;">M列：妇女满意度评分</p>
+      <p style="font-size:.8rem;font-weight:600;margin:0 0 8px 0;color:#555;">1-5分，活动后问卷打分</p>
+      <p style="font-size:.84rem;font-weight:700;margin:0 0 6px 0;">N列：发现问题</p>
+      <p style="font-size:.8rem;font-weight:600;margin:0 0 8px 0;color:#555;">文字，活动中发现的需要跟进的问题</p>
+      <p style="font-size:.84rem;font-weight:700;margin:0 0 6px 0;">O列：跟进状态</p>
+      <p style="font-size:.8rem;font-weight:600;margin:0 0 8px 0;color:#555;">下拉选择：未开始/进行中/已完成/无需跟进</p>
+      <p style="font-size:.84rem;font-weight:700;margin:0 0 6px 0;">P列：记录人</p>
+      <p style="font-size:.8rem;font-weight:600;margin:0 0 8px 0;color:#555;">姓名，谁录入的这条记录</p>
+      <p style="font-size:.84rem;font-weight:700;margin:0 0 6px 0;">Q列：录入日期</p>
+      <p style="font-size:.8rem;font-weight:600;margin:0;color:#555;">自动生成：=TODAY() 或 Ctrl+;</p>
+    </div>
+  </div>
+</div>
+</div></section>
+<section class="slide" id="slide-10" style="background:var(--cream)"><div style="width:100%;max-width:1100px;z-index:2;position:relative;">
+<h2 style="text-align:center;margin-bottom:14px;">📊 台账②：Excel数据验证和格式设置（详细步骤）</h2>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+  <div style="background:#fff;border:2.5px solid var(--border);border-radius:14px;padding:16px 20px;">
+    <h4 style="color:var(--turquoise);margin-bottom:8px;">🛠️ 设置下拉菜单（活动类型列）</h4>
+    <ol style="font-size:.84rem;font-weight:600;line-height:1.7;padding-left:18px;display:flex;flex-direction:column;gap:4px;">
+      <li>选中C列（活动类型）→ 点击菜单<b>"数据"</b> → <b>"数据验证"</b></li>
+      <li>在"允许"下拉框选<b>"序列"</b></li>
+      <li>在"来源"输入：<b>健康讲座,技能培训,文娱活动,维权服务,心理辅导</b></li>
+      <li>点"确定" → C列每个单元格右下角会出现<b>下拉箭头</b></li>
+      <li>同理设置J列（主要参会人群）和O列（跟进状态）</li>
+    </ol>
+  </div>
+  <div style="background:#fff;border:2.5px solid var(--border);border-radius:14px;padding:16px 20px;">
+    <h4 style="color:var(--coral);margin-bottom:8px;">🛠️ 设置日期格式（活动日期列）</h4>
+    <ol style="font-size:.84rem;font-weight:600;line-height:1.7;padding-left:18px;display:flex;flex-direction:column;gap:4px;">
+      <li>选中D列（活动日期）→ 右键 → <b>"设置单元格格式"</b></li>
+      <li>在"分类"选<b>"日期"</b> → 在"类型"选<b>"2023-03-14"</b>格式</li>
+      <li>点"确定" → 输入日期时会自动格式化为"2025-03-15"</li>
+      <li><b>小技巧：</b>输入日期快捷键：<b>Ctrl+;</b>（分号）→ 自动填入今天日期</li>
+      <li>同样设置E列（开始时间）为时间格式<b>"13:30"</b></li>
+    </ol>
+  </div>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px;">
+  <div style="background:var(--soft-pink);border:2.5px solid var(--border);border-radius:10px;padding:12px 16px;">
+    <h4 style="color:var(--coral);margin-bottom:6px;">🛠️ 设置数字格式（经费列）</h4>
+    <ol style="font-size:.84rem;font-weight:600;line-height:1.6;padding-left:18px;display:flex;flex-direction:column;gap:4px;">
+      <li>选中K列（活动经费）→ 右键 → "设置单元格格式"</li>
+      <li>选"分类"= <b>"货币"</b> → "小数位数"= <b>2</b></li>
+      <li>选"货币符号"= <b>"¥"</b> → 点"确定"</li>
+      <li>输入数字时会自动显示"¥1,200.00"格式</li>
+    </ol>
+  </div>
+  <div style="background:var(--butter);border:2.5px solid var(--border);border-radius:10px;padding:12px 16px;">
+    <h4 style="color:var(--coral);margin-bottom:6px;">🛡️ 保护工作表（防止误删）</h4>
+    <ol style="font-size:.84rem;font-weight:600;line-height:1.6;padding-left:18px;display:flex;flex-direction:column;gap:4px;">
+      <li>点击菜单<b>"审阅"</b> → <b>"保护工作表"</b></li>
+      <li>设置密码（可选，记住密码！）→ 勾选"选定未锁定的单元格"</li>
+      <li>点"确定" → 此时<b>表头行（第2行）不能被改</b></li>
+      <li>如需修改 → "审阅" → "撤销工作表保护" → 输入密码</li>
+    </ol>
+  </div>
+</div>
+</div></section>
+<section class="slide" id="slide-11" style="background:var(--mint)"><div style="width:100%;max-width:1100px;z-index:2;position:relative;">
+<h2 style="color:#fff;text-align:center;text-shadow:3px 3px 0 rgba(0,0,0,.15);margin-bottom:14px;">
+  📊 台账③：Excel公式设计——自动统计活动数据
+</h2>
+<div style="background:#fff;border:2.5px solid var(--border);border-radius:14px;padding:18px 22px;">
+  <h4 style="color:var(--turquoise);margin-bottom:8px;">📝 在台账旁边（如S列起）建"统计面板"</h4>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+    <div>
+      <p style="font-size:.86rem;font-weight:700;margin:0 0 6px 0;">📊 统计今年活动总数</p>
+      <div style="background:#1a1a2e;color:#a0ffa0;font-family:'Courier New',monospace;font-size:.8rem;padding:8px 12px;border-radius:6px;">=COUNTIF(D:D,">=2025-01-01")</div>
+      <p style="font-size:.78rem;font-weight:600;color:#555;margin:4px 0 8px 0;">说明：D列日期≥2025年1月1日的行数</p>
+      <p style="font-size:.86rem;font-weight:700;margin:0 0 6px 0;">📊 统计"健康讲座"类活动数</p>
+      <div style="background:#1a1a2e;color:#a0ffa0;font-family:'Courier New',monospace;font-size:.8rem;padding:8px 12px;border-radius:6px;">=COUNTIF(C:C,"健康讲座")</div>
+      <p style="font-size:.78rem;font-weight:600;color:#555;margin:4px 0 8px 0;">说明：C列等于"健康讲座"的行数</p>
+    </div>
+    <div>
+      <p style="font-size:.86rem;font-weight:700;margin:0 0 6px 0;">📊 计算平均参与人数</p>
+      <div style="background:#1a1a2e;color:#a0ffa0;font-family:'Courier New',monospace;font-size:.8rem;padding:8px 12px;border-radius:6px;">=AVERAGE(I:I)</div>
+      <p style="font-size:.78rem;font-weight:600;color:#555;margin:4px 0 8px 0;">说明：I列实际参与人数的平均值</p>
+      <p style="font-size:.86rem;font-weight:700;margin:0 0 6px 0;">📊 统计待跟进问题数</p>
+      <div style="background:#1a1a2e;color:#a0ffa0;font-family:'Courier New',monospace;font-size:.8rem;padding:8px 12px;border-radius:6px;">=COUNTIF(O:O,"进行中")</div>
+      <p style="font-size:.78rem;font-weight:600;color:#555;margin:4px 0 0 0;">说明：O列等于"进行中"的行数</p>
+    </div>
+  </div>
+</div>
+<div style="background:var(--lavender);border:2px solid var(--border);border-radius:10px;padding:12px 16px;margin-top:14px;">
+  <h4 style="color:var(--coral);margin-bottom:6px;">💡 更多实用公式</h4>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
+    <div style="background:#fff;border-radius:8px;padding:8px 12px;font-size:.8rem;font-weight:600;line-height:1.5;">
+      <b>总和：</b>=SUM(K:K)<br>（总经费）
+    </div>
+    <div style="background:#fff;border-radius:8px;padding:8px 12px;font-size:.8rem;font-weight:600;line-height:1.5;">
+      <b>最大：</b>=MAX(I:I)<br>（最高参与人数）
+    </div>
+    <div style="background:#fff;border-radius:8px;padding:8px 12px;font-size:.8rem;font-weight:600;line-height:1.5;">
+      <b>条件计数：</b>=COUNTIFS(C:C,"健康讲座",O:O,"已完成")<br>（已完成的健康讲座数）
+    </div>
+  </div>
+</div>
+</div></section>
+<section class="slide" id="slide-12" style="background:var(--lavender)"><div style="width:100%;max-width:1100px;z-index:2;position:relative;">
+<h2 style="text-align:center;margin-bottom:14px;">📊 台账④：用透视表自动分析活动数据</h2>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+  <div style="background:#fff;border:2.5px solid var(--border);border-radius:14px;padding:16px 20px;">
+    <h4 style="color:var(--turquoise);margin-bottom:8px;">🛠️ 创建透视表步骤</h4>
+    <ol style="font-size:.84rem;font-weight:600;line-height:1.7;padding-left:18px;display:flex;flex-direction:column;gap:4px;">
+      <li>选中台账所有数据（Ctrl+A）→ 点击菜单<b>"插入"</b> → <b>"透视表"</b></li>
+      <li>在"创建透视表"对话框点<b>"确定"</b>（新工作表）</li>
+      <li>在右侧"透视表字段"面板：
+        <ul style="margin:4px 0 0 16px;font-size:.82rem;font-weight:600;">
+          <li>把<b>"活动类型"</b>拖到"行"区域</li>
+          <li>把<b>"活动编号"</b>拖到"值"区域（自动变成"计数"）</li>
+          <li>把<b>"录入日期"</b>拖到"列"区域（按月份统计）</li>
+        </ul>
+      </li>
+      <li>透视表自动生成：每行=活动类型，每列=月份，数值=活动次数</li>
+      <li>可以插入<b>柱状图</b>：点击透视表 → "插入" → "柱状图"</li>
+    </ol>
+  </div>
+  <div style="background:#fff;border:2.5px solid var(--border);border-radius:14px;padding:16px 20px;">
+    <h4 style="color:var(--coral);margin-bottom:8px;">📈 常用分析图表</h4>
+    <ul style="font-size:.84rem;font-weight:600;line-height:1.7;display:flex;flex-direction:column;gap:5px;list-style:none;padding-left:0;">
+      <li>📊 <b>活动类型分布图</b>：饼图（看哪类活动最受欢迎）</li>
+      <li>📈 <b>月度活动趋势图</b>：折线图（看活动频率变化）</li>
+      <li>📉 <b>参与人数对比图</b>：柱状图（对比不同类型活动人气）</li>
+      <li>🗺️ <b>村/社区活动分布</b>：条形图（看哪些村活动最多）</li>
+    </ul>
+    <div style="background:var(--butter);border:1.5px solid var(--border);border-radius:8px;padding:8px 12px;margin-top:8px;font-size:.82rem;font-weight:600;line-height:1.5;">
+      💡 <b>图表配色建议：</b>用妇联主题色（红色#E70033、粉色#FFB6C1、金色#FFD700）体现品牌一致性
+    </div>
+  </div>
+</div>
+</div></section>
+<section class="slide" id="slide-13" style="background:var(--cream)"><div style="width:100%;max-width:1100px;z-index:2;position:relative;">
+<h2 style="text-align:center;margin-bottom:14px;">📋 台账⑤：实际案例演练——某妇女之家活动台账</h2>
+<div style="background:#fff;border:2.5px solid var(--border);border-radius:14px;padding:18px 22px;">
+  <h4 style="color:var(--turquoise);margin-bottom:8px;">📋 案例：XX村妇女之家2025年第一季度活动台账（节选3条）</h4>
+  <table style="width:100%;border-collapse:collapse;font-size:.82rem;font-weight:600;">
+    <thead>
+      <tr style="background:var(--turquoise);color:#fff;">
+        <th style="padding:8px 10px;border:1.5px solid #ccc;text-align:center;">编号</th>
+        <th style="padding:8px 10px;border:1.5px solid #ccc;text-align:center;">活动名称</th>
+        <th style="padding:8px 10px;border:1.5px solid #ccc;text-align:center;">类型</th>
+        <th style="padding:8px 10px;border:1.5px solid #ccc;text-align:center;">日期</th>
+        <th style="padding:8px 10px;border:1.5px solid #ccc;text-align:center;">地点</th>
+        <th style="padding:8px 10px;border:1.5px solid #ccc;text-align:center;">计划人数</th>
+        <th style="padding:8px 10px;border:1.5px solid #ccc;text-align:center;">实际人数</th>
+        <th style="padding:8px 10px;border:1.5px solid #ccc;text-align:center;">经费</th>
+        <th style="padding:8px 10px;border:1.5px solid #ccc;text-align:center;">满意度</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="padding:7px 10px;border:1.5px solid #ccc;">XH-2025-001</td>
+        <td style="padding:7px 10px;border:1.5px solid #ccc;">春季妇女健康讲座</td>
+        <td style="padding:7px 10px;border:1.5px solid #ccc;">健康讲座</td>
+        <td style="padding:7px 10px;border:1.5px solid #ccc;">2025-03-08</td>
+        <td style="padding:7px 10px;border:1.5px solid #ccc;">村活动室</td>
+        <td style="padding:7px 10px;border:1.5px solid #ccc;text-align:center;">50</td>
+        <td style="padding:7px 10px;border:1.5px solid #ccc;text-align:center;">62</td>
+        <td style="padding:7px 10px;border:1.5px solid #ccc;text-align:right;">¥800.00</td>
+        <td style="padding:7px 10px;border:1.5px solid #ccc;text-align:center;">4.5</td>
+      </tr>
+      <tr>
+        <td style="padding:7px 10px;border:1.5px solid #ccc;">XH-2025-002</td>
+        <td style="padding:7px 10px;border:1.5px solid #ccc;">电商直播技能培训</td>
+        <td style="padding:7px 10px;border:1.5px solid #ccc;">技能培训</td>
+        <td style="padding:7px 10px;border:1.5px solid #ccc;">2025-03-22</td>
+        <td style="padding:7px 10px;border:1.5px solid #ccc;">镇文化站</td>
+        <td style="padding:7px 10px;border:1.5px solid #ccc;text-align:center;">40</td>
+        <td style="padding:7px 10px;border:1.5px solid #ccc;text-align:center;">35</td>
+        <td style="padding:7px 10px;border:1.5px solid #ccc;text-align:right;">¥1,200.00</td>
+        <td style="padding:7px 10px;border:1.5px solid #ccc;text-align:center;">4.8</td>
+      </tr>
+      <tr>
+        <td style="padding:7px 10px;border:1.5px solid #ccc;">XH-2025-003</td>
+        <td style="padding:7px 10px;border:1.5px solid #ccc;">妇女节文娱联谊活动</td>
+        <td style="padding:7px 10px;border:1.5px solid #ccc;">文娱活动</td>
+        <td style="padding:7px 10px;border:1.5px solid #ccc;">2025-03-28</td>
+        <td style="padding:7px 10px;border:1.5px solid #ccc;">村广场</td>
+        <td style="padding:7px 10px;border:1.5px solid #ccc;text-align:center;">100</td>
+        <td style="padding:7px 10px;border:1.5px solid #ccc;text-align:center;">128</td>
+        <td style="padding:7px 10px;border:1.5px solid #ccc;text-align:right;">¥2,500.00</td>
+        <td style="padding:7px 10px;border:1.5px solid #ccc;text-align:center;">4.9</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+<div style="margin-top:12px;background:var(--butter);border:2px solid var(--border);border-radius:10px;padding:11px 16px;font-size:.86rem;font-weight:600;line-height:1.5;">
+  💡 <b>从这条案例可以做什么分析？</b> ①健康讲座超额完成（62>50）；②技能培训参与率偏低（35/40=87.5%），需改进；③文娱活动最受欢迎（128人）；④平均满意度4.7分，整体不错。
+</div>
+</div></section>
+<section class="slide" id="slide-14" style="background:var(--mint)"><div style="width:100%;max-width:1100px;z-index:2;position:relative;">
+<h2 style="color:#fff;text-align:center;text-shadow:3px 3px 0 rgba(0,0,0,.15);margin-bottom:14px;">
+  📝 办公①：用WPS AI写通知公告（详细步骤）
+</h2>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+  <div style="background:#fff;border:2.5px solid var(--border);border-radius:14px;padding:16px 20px;">
+    <h4 style="color:var(--turquoise);margin-bottom:8px;">🛠️ WPS AI操作步骤</h4>
+    <ol style="font-size:.84rem;font-weight:600;line-height:1.7;padding-left:18px;display:flex;flex-direction:column;gap:4px;">
+      <li>打开<b>WPS Office</b>（电脑版）→ 新建<b>文字文档</b></li>
+      <li>点击顶部<b>"WPS AI"</b>按钮（闪电图标）→ 选择<b>"AI写作"</b></li>
+      <li>在输入框写要求（提示词，见右侧模板）→ 点击<b>"发送"</b></li>
+      <li>AI生成初稿 → 检查内容是否准确（时间、地点、人名）</li>
+      <li>点击<b>"插入文档"</b> → AI生成内容进入正文</li>
+      <li>人工修改细节（加上联系人、电话、盖章提示）→ 完成</li>
+    </ol>
+  </div>
+  <div style="background:#fff;border:2.5px solid var(--border);border-radius:14px;padding:16px 20px;">
+    <h4 style="color:var(--coral);margin-bottom:8px;">🤖 提示词模板（直接复制）</h4>
+    <div style="background:#1a1a2e;color:#e0e0ff;border-radius:8px;padding:10px 14px;font-family:'Courier New',monospace;font-size:.8rem;line-height:1.5;white-space:pre-wrap;border-left:4px solid var(--lavender);">【角色】你是一位基层妇联干部，熟悉公文写作格式。
+【任务】写一份关于举办"妇女健康知识讲座"的通知。
+【通知要素】
+- 主办单位：西和县妇联
+- 活动时间：2025年4月15日（星期二）下午2:30
+- 活动地点：西和县文化馆三楼会议室
+- 参加人员：各乡镇妇联主席、村妇女之家负责人
+- 活动内容：邀请县医院妇产科主任讲解女性常见病预防
+- 报名方式：4月10日前报县妇联办公室（电话：0939-XXXXXXX）
+【格式要求】正式通知格式，包含标题、主送单位、正文、落款（西和县妇联，2025年4月1日）</div>
+  </div>
+</div>
+<div style="margin-top:14px;background:var(--soft-pink);border:2px solid var(--border);border-radius:10px;padding:12px 16px;font-size:.86rem;font-weight:600;line-height:1.5;">
+  💡 <b>没有WPS AI怎么办？</b> 用豆包App（免费）→ 文本框输入同样提示词 → 复制生成结果到Word → 手动调整格式。效果一样好！
+</div>
+</div></section>
+<div style="height:40px;"></div><div style="position:fixed;bottom:0;left:0;right:0;z-index:1000;background:rgba(255,253,245,.92);backdrop-filter:blur(10px);border-top:1px solid var(--border);padding:8px 20px;display:flex;align-items:center;justify-content:space-between;font-family:'Times New Roman','Noto Serif SC','SimSun',serif;"><a href="xihe-module3.html" style="color:var(--coral);text-decoration:none;font-weight:700;font-size:.9rem;">← 心理调节与沟通技巧</a><a href="ai-empower-xihe.html" style="color:var(--muted);text-decoration:none;font-weight:600;font-size:.85rem;">目录</a><a href="xihe-module5.html" style="color:var(--coral);text-decoration:none;font-weight:700;font-size:.9rem;">宣传设计与视频制作 →</a></div>
+<div class="navdots">
+  <div class="navdot active" data-slide="1"></div>
+  <div class="navdot" data-slide="2"></div>
+  <div class="navdot" data-slide="3"></div>
+  <div class="navdot" data-slide="4"></div>
+  <div class="navdot" data-slide="5"></div>
+  <div class="navdot" data-slide="6"></div>
+  <div class="navdot" data-slide="7"></div>
+  <div class="navdot" data-slide="8"></div>
+  <div class="navdot" data-slide="9"></div>
+  <div class="navdot" data-slide="10"></div>
+  <div class="navdot" data-slide="11"></div>
+  <div class="navdot" data-slide="12"></div>
+  <div class="navdot" data-slide="13"></div>
+  <div class="navdot" data-slide="14"></div>
+</div>
+<div class="slidecounter"><span id="currentPage">1</span> / 14</div>
+<script>
+// 导航点点击
+document.querySelectorAll('.navdot').forEach(dot => {
+    dot.addEventListener('click', () => {
+        const target = document.getElementById('slide-' + dot.dataset.slide);
+        if (target) target.scrollIntoView({ behavior: 'smooth' });
+    });
+});
+// 滚动计数
+const counter = document.getElementById('currentPage');
+const allSlides = document.querySelectorAll('.slide');
+const allDots = document.querySelectorAll('.navdot');
+const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+        if (e.isIntersecting) {
+            const id = e.target.id;
+            const num = id.replace('slide-', '');
+            counter.textContent = num;
+            allDots.forEach(d => d.classList.toggle('active', d.dataset.slide === num));
+        });
+    });
+}, { threshold: 0.5 });
+allSlides.forEach(s => obs.observe(s));
+</script>
+</body></html>

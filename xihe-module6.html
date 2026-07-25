@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="zh"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>🌿 特产推广与日常办公 - AI赋能妇女发展实操讲义</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--cream:#F5F0E6;--turquoise:#7ECDC0;--softpink:#F7C8D4;--butter:#FDE68A;--mint:#A8E6CF;--lavender:#D4A5E8;--peach:#FFCBA4;--coral:#F8635F;--border:#2D2D2D;--bg:#FFFDF5;--text:#2D2D2D;--muted:#666;}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:'Times New Roman','Noto Serif SC','SimSun','STSong','FangSong',serif;background:var(--bg);color:var(--text);}
+.slide{min-height:100vh;width:100vw;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:22px 30px;scroll-snap-align:start;position:relative;overflow-x:hidden;}
+.navdots{position:fixed;right:14px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:7px;z-index:999;}
+.navdot{width:10px;height:10px;border-radius:50%;background:rgba(45,45,45,.25);cursor:pointer;transition:all .25s;border:2px solid transparent;}
+.navdot.active{background:var(--coral);transform:scale(1.3);}
+.slidecounter{position:fixed;bottom:14px;right:20px;z-index:999;background:rgba(45,45,45,.7);color:#fff;padding:4px 12px;border-radius:18px;font-size:.82rem;font-weight:700;}
+.card{background:#fff;border:2.5px solid var(--border);border-radius:14px;padding:14px 18px;box-shadow:4px 4px 0 var(--border);}
+.badge{display:inline-block;padding:5px 14px;border-radius:20px;font-size:.82rem;font-weight:700;}
+.codeblock{background:#1e1e1e;color:#d4d4d4;border-radius:8px;padding:10px 14px;font-family:'Courier New',monospace;font-size:.82rem;line-height:1.5;white-space:pre-wrap;}
+.promptbox{background:#1a1a2e;color:#e0e0ff;border-radius:8px;padding:10px 14px;font-family:'Courier New',monospace;font-size:.82rem;line-height:1.5;white-space:pre-wrap;border-left:4px solid var(--lavender);}
+.tipbox{background:var(--cream);border:2px solid var(--border);border-radius:10px;padding:10px 14px;font-size:.88rem;font-weight:600;line-height:1.5;}
+.checklist{list-style:none;padding-left:0;display:flex;flex-direction:column;gap:5px;}
+.checklist li{font-size:.88rem;font-weight:600;line-height:1.5;padding-left:22px;position:relative;}
+.checklist li::before{content:"✅";position:absolute;left:0;font-size:.82rem;}
+.twocol{display:grid;grid-template-columns:1fr 1fr;gap:14px;width:100%;max-width:1100px;}
+.threecol{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;width:100%;max-width:1100px;}
+.steplist{list-style:none;padding:0;display:flex;flex-direction:column;gap:6px;}
+.steplist li{background:var(--cream);border:2px solid var(--border);border-radius:8px;padding:7px 12px;font-size:.88rem;font-weight:600;line-height:1.5;}
+</style>
+<style>
+/* 顶部/底部导航栏的 slide 内边距补偿 */
+.slide { padding-top: 60px; padding-bottom: 70px; }
+</style>
+</head><body style="margin:0;">
+
+<div style="position:fixed;top:0;left:0;right:0;z-index:1000;background:rgba(255,253,245,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);padding:10px 20px;display:flex;align-items:center;justify-content:space-between;font-family:'Times New Roman','Noto Serif SC','SimSun',serif;">
+  <a href="ai-empower-xihe.html" style="color:var(--coral);text-decoration:none;font-weight:700;font-size:.95rem;">← 返回讲义首页</a>
+  <span style="font-size:.85rem;color:var(--muted);font-weight:600;">🌿 特产推广与日常办公</span>
+  <span style="font-size:.82rem;color:var(--muted);">第 6/7 模块</span>
+</div>
+<div style="height:50px;"></div>
+
+<section class="slide" id="slide-1" style="background:var(--lavender)"><div style="width:100%;max-width:1100px;z-index:2;position:relative;">
+<h2 style="text-align:center;margin-bottom:14px;">📝 办公②：用豆包整理会议记录（详细步骤）</h2>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+  <div style="background:#fff;border:2.5px solid var(--border);border-radius:14px;padding:16px 20px;">
+    <h4 style="color:var(--turquoise);margin-bottom:8px;">📱 豆包App操作步骤</h4>
+    <ol style="font-size:.84rem;font-weight:600;line-height:1.7;padding-left:18px;display:flex;flex-direction:column;gap:4px;">
+      <li>打开<b>豆包App</b>（手机/电脑版都可以）</li>
+      <li>点击底部<b>"+"</b> → 选择<b>"语音转文字"</b>（实时录音转写）</li>
+      <li>开会时把手机放在桌上 → 豆包自动把说话内容转成文字</li>
+      <li>会议结束后 → 点击<b>"保存"</b> → 转写文字保存在豆包"历史"里</li>
+      <li>复制转写文字 → 发给豆包（或直接用豆包"AI写作"功能）</li>
+      <li>输入提示词："请把下面的会议记录整理成规范格式" → 发送</li>
+      <li>豆包输出结构化会议纪要 → 复制到Word保存</li>
+    </ol>
+  </div>
+  <div style="background:#fff;border:2.5px solid var(--border);border-radius:14px;padding:16px 20px;">
+    <h4 style="color:var(--coral);margin-bottom:8px;">🤖 提示词模板（整理会议记录）</h4>
+    <div style="background:#1a1a2e;color:#e0e0ff;border-radius:8px;padding:10px 14px;font-family:'Courier New',monospace;font-size:.8rem;line-height:1.5;white-space:pre-wrap;border-left:4px solid var(--lavender);">【角色】你是一位专业的会议纪要整理员。
+【任务】把下面的会议录音转写文字整理成规范的会议纪要。
+【格式要求】
+1. 标题：XX会议纪要
+2. 会议时间、地点、参会人员、主持人、记录人
+3. 会议议题（分点列出）
+4. 讨论内容（每个议题的讨论要点）
+5. 决议事项（明确谁、做什么、什么时候完成）
+6. 下一步行动
+【语言要求】正式、简洁、客观，把口语转成书面语。
+【特别注意】人名、数字、日期要准确，不要瞎编。</div>
+  </div>
+</div>
+</div></section>
+<section class="slide" id="slide-2" style="background:var(--cream)"><div style="width:100%;max-width:1100px;z-index:2;position:relative;">
+<h2 style="text-align:center;margin-bottom:14px;">🌿 特产①：西和半夏——推广文案+直播话术（完整版）</h2>
+<div style="background:#fff;border:2.5px solid var(--border);border-radius:14px;padding:18px 22px;margin-bottom:14px;">
+  <h4 style="color:var(--turquoise);margin-bottom:8px;">📱 微信朋友圈/视频号文案（直接复制用）</h4>
+  <div style="background:#f8f8ff;border:1.5px solid var(--border);border-radius:8px;padding:12px 16px;font-size:.88rem;font-weight:600;line-height:1.7;white-space:pre-wrap;">🌿【西和半夏 地道药材】
+在西和县，海拔1800米的黄土高原上，种出了全国最好的半夏。
+✅ 颗粒饱满，粉性足，药效显著
+✅ 国家地理标志保护产品
+✅ 人工筛选，无硫熏，放心使用
+📦 包邮到家，支持货到付款
+📞 订购热线：XXXX-XXXXXXX（微信同号）
+#西和半夏 #地道药材 #甘肃特产</div>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+  <div style="background:var(--soft-pink);border:2.5px solid var(--border);border-radius:10px;padding:14px 18px;">
+    <h4 style="color:var(--coral);margin-bottom:8px;">🎙️ 直播话术脚本（3分钟版）</h4>
+    <div style="font-size:.84rem;font-weight:600;line-height:1.7;">
+      <p style="margin:0 0 6px 0;"><b>0-30秒（开场）：</b>"家人们好！今天给大家带来一款地道药材——西和半夏。西和县你们知道吗？海拔1800米，黄土深厚，种出来的半夏全国最好！"</p>
+      <p style="margin:0 0 6px 0;"><b>30-90秒（介绍）：</b>"半夏是什么？燥湿化痰、降逆止呕，家家户户用得上。我们的半夏，颗粒这么大（手势），白色，粉性足，药店老板都夸好！"</p>
+      <p style="margin:0 0 6px 0;"><b>90-150秒（促销）：</b>"今天直播间特价！平时XX元/斤，今天只要XX元！还包邮！只限今天，只限前50单！"</p>
+      <p style="margin:0;"><b>150-180秒（收尾）：</b>"想要的打'想要'！客服会给你们发链接。记得关注主播，下次带来更多西和好物！"</p>
+    </div>
+  </div>
+  <div style="background:var(--butter);border:2.5px solid var(--border);border-radius:10px;padding:14px 18px;">
+    <h4 style="color:var(--coral);margin-bottom:8px;">💡 直播注意事项</h4>
+    <ul style="font-size:.84rem;font-weight:600;line-height:1.6;display:flex;flex-direction:column;gap:4px;list-style:none;padding-left:0;">
+      <li>✅ 展示实物：拿几粒半夏在手里，让观众看到品质</li>
+      <li>✅ 讲产地故事：西和县、黄土高原、农户种植，增加信任感</li>
+      <li>✅ 限时优惠：制造紧迫感（"前50单特价"）</li>
+      <li>✅ 互动：问观众"想要吗？"引导评论区互动</li>
+      <li>⚠️ 不要夸大功效：不能说"包治百病"，合规第一！</li>
+    </ul>
+  </div>
+</div>
+</div></section>
+<section class="slide" id="slide-3" style="background:var(--mint)"><div style="width:100%;max-width:1100px;z-index:2;position:relative;">
+<h2 style="color:#fff;text-align:center;text-shadow:3px 3px 0 rgba(0,0,0,.15);margin-bottom:14px;">
+  🌶️ 特产②：西和花椒——推广文案+直播话术
+</h2>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+  <div style="background:#fff;border:2.5px solid var(--border);border-radius:14px;padding:16px 20px;">
+    <h4 style="color:var(--turquoise);margin-bottom:8px;">📱 花椒推广文案（朋友圈用）</h4>
+    <div style="background:#f8f8ff;border:1.5px solid var(--border);border-radius:8px;padding:12px 16px;font-size:.88rem;font-weight:600;line-height:1.7;white-space:pre-wrap;">🌶️【西和花椒 麻香天下】
+西和县种花椒，有上百年历史了。这里的花椒，颗粒大、开口率高、麻味正！
+✅ 精选大红袍花椒，无杂质、无梗
+✅ 真空包装，锁住麻香
+✅ 炖肉、炒菜、做火锅，放一小把就够香
+📦 5斤包邮，支持尝鲜装（1斤装）
+📞 订购热线：XXXX-XXXXXXX
+#西和花椒 #麻辣鲜香 #甘肃特产</div>
+  </div>
+  <div style="background:#fff;border:2.5px solid var(--border);border-radius:14px;padding:16px 20px;">
+    <h4 style="color:var(--coral);margin-bottom:8px;">🎙️ 花椒直播话术要点</h4>
+    <ul style="font-size:.84rem;font-weight:600;line-height:1.7;display:flex;flex-direction:column;gap:5px;list-style:none;padding-left:0;">
+      <li>✅ <b>看实物：</b>拿花椒在手里，让观众看到"开口率高"（好花椒的标志）</li>
+      <li>✅ <b>闻香味：</b>现场搓几下花椒，凑近镜头让观众"闻"到香味</li>
+      <li>✅ <b>讲用法：</b>"炖肉放10粒，整锅飘香"、"做火锅底料必备"</li>
+      <li>✅ <b>比价格：</b>"超市卖XX元/斤，今天直播间XX元，还包邮！"</li>
+      <li>✅ <b>试吃环节：</b>如果允许，现场嚼一粒（很麻的那种），观众会印象深刻</li>
+    </ul>
+  </div>
+</div>
+</div></section>
+<section class="slide" id="slide-4" style="background:var(--cream)"><div style="width:100%;max-width:1100px;z-index:2;position:relative;">
+<h2 style="text-align:center;margin-bottom:14px;">🍐 特产③：西和八盘梨——推广文案+直播话术</h2>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+  <div style="background:#fff;border:2.5px solid var(--border);border-radius:14px;padding:16px 20px;">
+    <h4 style="color:var(--turquoise);margin-bottom:8px;">📱 八盘梨推广文案</h4>
+    <div style="background:#f8f8ff;border:1.5px solid var(--border);border-radius:8px;padding:12px 16px;font-size:.88rem;font-weight:600;line-height:1.7;white-space:pre-wrap;">🍐【西和八盘梨 甜蜜到家】
+海拔1800米的高山梨，日照足、温差大，种出来的梨甜度爆表！
+✅ 果皮薄，果肉细嫩，汁水多
+✅ 自然成熟，不催熟、不打蜡
+✅ 礼盒装，送人大方
+📦 现货发售，顺丰冷链包邮
+📞 订购：XXXX-XXXXXXX（微信同号）
+#西和八盘梨 #高山梨 #甜蜜暴击</div>
+  </div>
+  <div style="background:#fff;border:2.5px solid var(--border);border-radius:14px;padding:16px 20px;">
+    <h4 style="color:var(--coral);margin-bottom:8px;">🎙️ 八盘梨直播话术要点</h4>
+    <ul style="font-size:.84rem;font-weight:600;line-height:1.7;display:flex;flex-direction:column;gap:5px;list-style:none;padding-left:0;">
+      <li>✅ <b>现场切梨：</b>刀切开，让观众看到果肉多汁（提前准备纸巾擦手）</li>
+      <li>✅ <b>尝梨：</b>咬一口，说"你们听这个声音"（脆梨的声音很诱人）</li>
+      <li>✅ <b>讲产地：</b>"海拔1800米，昼夜温差大，糖分积累多，所以特别甜"</li>
+      <li>✅ <b>限时优惠：</b>"今天下单，明天发货，后天就能吃到最新鲜的八盘梨！"</li>
+    </ul>
+  </div>
+</div>
+<div style="margin-top:14px;background:var(--butter);border:2px solid var(--border);border-radius:10px;padding:12px 16px;font-size:.86rem;font-weight:600;line-height:1.5;">
+  💡 <b>三款特产推广节奏建议：</b>半夏（主打"地道药材"，面向药店/中医院采购）→ 花椒（主打"家常必备"，面向家庭主妇）→ 八盘梨（主打"时令水果"，面向年轻消费者）
+</div>
+</div></section>
+<section class="slide" id="slide-5" style="background:var(--lavender)"><div style="width:100%;max-width:1100px;z-index:2;position:relative;">
+<h2 style="text-align:center;margin-bottom:14px;">📝 办公③：微信公众号文章撰写——提示词+模板</h2>
+<div style="background:#fff;border:2.5px solid var(--border);border-radius:14px;padding:18px 22px;">
+  <h4 style="color:var(--turquoise);margin-bottom:8px;">🤖 提示词模板（用豆包/WPS AI生成初稿）</h4>
+  <div style="background:#1a1a2e;color:#e0e0ff;border-radius:8px;padding:12px 16px;font-family:'Courier New',monospace;font-size:.82rem;line-height:1.6;white-space:pre-wrap;border-left:4px solid var(--lavender);">【角色】你是一位妇联宣传干事，熟悉基层妇女工作，文字温暖有力。
+【任务】写一篇微信公众号文章，宣传"西和县妇女电商培训"活动。
+【文章要求】
+- 标题：吸引人，不超过20字（如"她们，在西和学会了直播带货！"）
+- 结构：开头（引出活动）→ 主体（活动过程、学员反馈）→ 结尾（意义+展望）
+- 语言：温暖、接地气，不要太官方
+- 长度：800-1000字
+- 配图建议：开头放活动大合影，中间放学员操作手机的照片，结尾放优秀学员的直播截图
+【关键信息】
+- 活动时间：2025年3月10-12日
+- 地点：西和县电商中心
+- 参加人数：56人（留守妇女为主）
+- 学员反馈：张大姐说"我终于会开直播了！"
+【输出】完整的公众号文章，包含标题、正文、配图说明</div>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px;">
+  <div style="background:var(--soft-pink);border:2px solid var(--border);border-radius:10px;padding:12px 16px;">
+    <h4 style="color:var(--coral);margin-bottom:6px;">📋 公众号文章结构模板</h4>
+    <ol style="font-size:.84rem;font-weight:600;line-height:1.6;padding-left:18px;display:flex;flex-direction:column;gap:4px;">
+      <li><b>标题：</b>吸引人，带数字/故事性</li>
+      <li><b>导语：</b>100字，概括活动意义</li>
+      <li><b>正文：</b>分3-4段，每段200-300字</li>
+      <li><b>学员故事：</b>1-2个具体案例（增加真实感）</li>
+      <li><b>结尾：</b>总结+预告下次活动</li>
+    </ol>
+  </div>
+  <div style="background:var(--butter);border:2px solid var(--border);border-radius:10px;padding:12px 16px;">
+    <h4 style="color:var(--coral);margin-bottom:6px;">💡 排版建议</h4>
+    <ul style="font-size:.84rem;font-weight:600;line-height:1.6;display:flex;flex-direction:column;gap:4px;list-style:none;padding-left:0;">
+      <li>✅ 每段不超过150字（手机阅读友好）</li>
+      <li>✅ 重要的话用<b>加粗</b>或标红</li>
+      <li>✅ 插入3-5张图片（图文并茂）</li>
+      <li>✅ 结尾加<b>"关注我们"</b>引导语</li>
+    </ul>
+  </div>
+</div>
+</div></section>
+<div style="height:40px;"></div><div style="position:fixed;bottom:0;left:0;right:0;z-index:1000;background:rgba(255,253,245,.92);backdrop-filter:blur(10px);border-top:1px solid var(--border);padding:8px 20px;display:flex;align-items:center;justify-content:space-between;font-family:'Times New Roman','Noto Serif SC','SimSun',serif;"><a href="xihe-module5.html" style="color:var(--coral);text-decoration:none;font-weight:700;font-size:.9rem;">← 宣传设计与视频制作</a><a href="ai-empower-xihe.html" style="color:var(--muted);text-decoration:none;font-weight:600;font-size:.85rem;">目录</a><a href="xihe-module7.html" style="color:var(--coral);text-decoration:none;font-weight:700;font-size:.9rem;">提示词技巧与安全须知 →</a></div>
+<div class="navdots">
+  <div class="navdot active" data-slide="1"></div>
+  <div class="navdot" data-slide="2"></div>
+  <div class="navdot" data-slide="3"></div>
+  <div class="navdot" data-slide="4"></div>
+  <div class="navdot" data-slide="5"></div>
+</div>
+<div class="slidecounter"><span id="currentPage">1</span> / 5</div>
+<script>
+// 导航点点击
+document.querySelectorAll('.navdot').forEach(dot => {
+    dot.addEventListener('click', () => {
+        const target = document.getElementById('slide-' + dot.dataset.slide);
+        if (target) target.scrollIntoView({ behavior: 'smooth' });
+    });
+});
+// 滚动计数
+const counter = document.getElementById('currentPage');
+const allSlides = document.querySelectorAll('.slide');
+const allDots = document.querySelectorAll('.navdot');
+const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+        if (e.isIntersecting) {
+            const id = e.target.id;
+            const num = id.replace('slide-', '');
+            counter.textContent = num;
+            allDots.forEach(d => d.classList.toggle('active', d.dataset.slide === num));
+        });
+    });
+}, { threshold: 0.5 });
+allSlides.forEach(s => obs.observe(s));
+</script>
+</body></html>
