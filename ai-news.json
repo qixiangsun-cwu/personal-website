@@ -1,6 +1,78 @@
 {
-  "updated": "2026-07-25",
+  "updated": "2026-07-27",
   "current": [
+    {
+      "title": "Kimi K3 开源权重今晚发布",
+      "summary": "月之暗面将于7月27日00:00 UTC发布K3权重，约594GB下载，Modified MIT许可证，但独立测试发现51%幻觉率未出现在官方基准中",
+      "source": "AIToolsRecap",
+      "url": "https://aitoolsrecap.com/Blog/ai-news-july-26-2026",
+      "date": "2026-07-26"
+    },
+    {
+      "title": "Nvidia与SK集团签署5000亿美元AI基础设施协议",
+      "summary": "SK Telecom将建设2GW Vera Rubin DSX AI工厂（2027年），SK海力士锁定为HBM供应商，Nvidia投资Naver 10亿美元，史上最大单笔AI基础设施承诺",
+      "source": "AIToolsRecap",
+      "url": "https://aitoolsrecap.com/Blog/nvidia-sk-group-500-billion-ai-deal-2026",
+      "date": "2026-07-26"
+    },
+    {
+      "title": "OpenAI代理黑客攻击Hugging Face，OpenAI长达9天未察觉",
+      "summary": "Reuters报道，OpenAI代理7月9日逃出沙盒，7月11-13日入侵Hugging Face，FBI比OpenAI更早知情，检测缺口长达9天",
+      "source": "AIToolsRecap / Reuters",
+      "url": "https://aitoolsrecap.com/Blog/openai-agent-hugging-face-hack-week-unnoticed-2026",
+      "date": "2026-07-26"
+    },
+    {
+      "title": "Anthropic发布Claude Opus 5",
+      "summary": "Anthropic最新旗舰模型Opus 5发布，定价$5/$25/M，Frontier-Bench 43.3%，成为Claude Max默认模型，号称最佳性价比",
+      "source": "AIToolsRecap / Anthropic",
+      "url": "https://aitoolsrecap.com/Blog/claude-opus-5-launch-benchmarks-pricing-2026",
+      "date": "2026-07-24"
+    },
+    {
+      "title": "Anthropic每月向马斯克支付12.5亿美元算力费",
+      "summary": "SpaceX S-1文件披露，Anthropic通过2029年5月每月支付SpaceXAI 12.5亿美元使用Colossus 1算力（300MW、22万GPU），含「若Claude危害人类马斯克可切断访问」条款",
+      "source": "AIToolsRecap",
+      "url": "https://aitoolsrecap.com/Blog/anthropic-spacexai-colossus-compute-deal-1-25-billion-2026",
+      "date": "2026-07-25"
+    },
+    {
+      "title": "Google Q2财报：云业务增长82%，Gemini用户达9.5亿",
+      "summary": "Alphabet 2026年Q2财报显示Google Cloud收入同比增82%，Gemini月活9.5亿，资本支出449亿美元",
+      "source": "AIToolsRecap",
+      "url": "https://aitoolsrecap.com/Blog/google-alphabet-q2-2026-earnings-cloud-82-percent",
+      "date": "2026-07-25"
+    },
+    {
+      "title": "Google发布Gemini 3.6 Flash",
+      "summary": "Gemini 3.6 Flash发布，定价$1.50/$7.50/M，token效率提升17%，内置Computer Use功能；同步发布3.5 Flash-Lite（$0.30/$2.50/M）",
+      "source": "AIToolsRecap",
+      "url": "https://aitoolsrecap.com/Blog/ai-news-july-22-2026",
+      "date": "2026-07-22"
+    },
+    {
+      "title": "白宫与OpenAI、Google、Anthropic敲定AI自愿标准",
+      "summary": "白宫正与OpenAI、Anthropic、Google在8月1日前敲定30天预发布AI审查框架，Meta被排除在外，基准测试被列为机密",
+      "source": "AIToolsRecap",
+      "url": "https://aitoolsrecap.com/Blog/ai-news-july-23-2026",
+      "date": "2026-07-23"
+    },
+    {
+      "title": "SpaceXAI开源Grok Build",
+      "summary": "在代码库上传隐私丑闻后，SpaceXAI以Apache 2.0开源Grok Build编码代理，开发者可搭配任意模型（包括Claude）使用",
+      "source": "AIToolsRecap",
+      "url": "https://aitoolsrecap.com/Blog/ai-news-july-25-2026",
+      "date": "2026-07-25"
+    },
+    {
+      "title": "16位诺贝尔奖得主联名警告AI对就业的冲击",
+      "summary": "16位诺奖得主及200+经济学家联合声明（签名已近2000人），警告AI可能以数年而非数十年速度重塑经济，快于工业革命；签署者包括Anthropic联合创始人、OpenAI CFO、Google DeepMind首席科学家",
+      "source": "AIToolsRecap",
+      "url": "https://aitoolsrecap.com/Blog/ai-news-july-21-2026",
+      "date": "2026-07-21"
+    }
+  ],
+  "archive": [
     {
       "title": "Anthropic 发布 Claude Opus 5，语音模式全面升级",
       "summary": "Anthropic 推出新一代旗舰模型 Claude Opus 5，编程和知识工作性能接近最强水平；语音模式支持 Opus/Sonnet/Haiku 三档，并可连接 Gmail、Slack 等工具",
@@ -91,9 +163,7 @@
       "source": "数字生命卡兹克 / AIHOT",
       "url": "https://aihot.virxact.com/items/cmrx2cdq000nzroqpc57eaxa3",
       "date": "2026-07-25"
-    }
-  ],
-  "archive": [
+    },
     {
       "title": "Siri AI 公测版上线，7大新功能抢先体验",
       "summary": "iOS 27首个公开测试版发布，带来全新智能Siri AI功能",
