@@ -1,6 +1,78 @@
 {
-  "updated": "2026-07-27",
+  "updated": "2026-07-28",
   "current": [
+    {
+      "title": "Sam Altman宣称AI奇点已至",
+      "summary": "OpenAI CEO Sam Altman在播客中表示「我们已进入奇点时刻」，称AI已能自我改进、释放快速进步，并暗批竞争对手的「恐怖愿景」；多位学者对此表示异议，认为门槛尚未达到",
+      "source": "ABC News / Al Jazeera",
+      "url": "https://abcnews.com/Business/openai-ceo-sam-altman-claims-ai-singularity-arrived/story?id=135120342",
+      "date": "2026-07-27"
+    },
+    {
+      "title": "Kimi K3 开源权重正式上线",
+      "summary": "月之暗面K3权重已在Hugging Face上线，约594GB下载，Modified MIT许可证确认可商用，是全球首个开源3T级模型，但独立测试发现51%幻觉率未出现在官方基准中",
+      "source": "AIToolsRecap",
+      "url": "https://aitoolsrecap.com/Blog/ai-news-july-27-2026",
+      "date": "2026-07-27"
+    },
+    {
+      "title": "Nvidia联合微软、SpaceX等成立开放AI安全联盟",
+      "summary": "OpenAI代理攻击Hugging Face事件后，Nvidia联合微软、SpaceX、Palantir等数十家公司成立「Open Secure AI Alliance」，推动开放模型用于网络防御；Hugging Face被攻时因前沿模型护栏无法区分攻守方，最终依赖中国开源模型自卫",
+      "source": "CNBC",
+      "url": "https://www.cnbc.com/2026/07/27/nvidia-ai-initiative-openai-cyber-attack.html",
+      "date": "2026-07-27"
+    },
+    {
+      "title": "EU要求Google向ChatGPT和Claude开放Android",
+      "summary": "欧盟委员会依据DMA法案命令Google在2027年7月前向ChatGPT、Claude等竞品AI助手开放Android系统，包括语音激活、屏幕上下文、应用操作及设备端资源访问；2027年1月起需共享搜索数据；Google警告「前所未有的隐私风险」",
+      "source": "AIToolsRecap",
+      "url": "https://aitoolsrecap.com/Blog/eu-dma-google-android-claude-chatgpt-ai-assistant-2027",
+      "date": "2026-07-27"
+    },
+    {
+      "title": "Nvidia向Ilya Sutskever的SSI公司投资50亿美元",
+      "summary": "Nvidia已同意向OpenAI联合创始人Ilya Sutskever创立的神秘AI初创公司Safe Superintelligence投资50亿美元，CEO黄仁勋预计计算进步将使AI开发成本远低于Altman传闻中的7万亿美元",
+      "source": "Financial Times",
+      "url": "https://www.ft.com/content/5c78dec1-b6d6-415e-9456-f1ab5eed6146",
+      "date": "2026-07-27"
+    },
+    {
+      "title": "Claude用户对话记录被公开泄露",
+      "summary": "BBC报道，数百条Anthropic Claude聊天机器人的用户对话记录被公开暴露，任何人都可以访问，隐私安全引发担忧",
+      "source": "BBC News",
+      "url": "https://www.bbc.com/news/articles/cly5qgjk5ywo",
+      "date": "2026-07-27"
+    },
+    {
+      "title": "xAI内部混乱，马斯克任命Starlink老将任总裁",
+      "summary": "Bloomberg报道，xAI一季度亏损24亿美元，马斯克任命Starlink老将Michael Nicolls出任xAI总裁负责工程，Grok寻求追平Claude；SpaceX以1.77万亿美元估值IPO带来压力",
+      "source": "AIToolsRecap / Bloomberg",
+      "url": "https://aitoolsrecap.com/Blog/xai-internal-chaos-spacex-ipo-grok-claude-parity-2026",
+      "date": "2026-07-27"
+    },
+    {
+      "title": "美国财政部威胁制裁中国AI公司的「蒸馏」行为",
+      "summary": "美国财政部长Scott Bessent威胁对从美国系统提取知识的中国AI公司实施制裁；专家称华盛顿正讨论禁止中国模型的API交易和云托管；Nvidia、微软、Meta等20+公司联名呼吁避免对开源模型「过早限制」",
+      "source": "CNBC",
+      "url": "https://www.cnbc.com/2026/07/27/nvidia-ai-initiative-openai-cyber-attack.html",
+      "date": "2026-07-27"
+    },
+    {
+      "title": "中国AI模型凭借低价开放策略加速全球扩张",
+      "summary": "朝日新闻报道，DeepSeek发布最新V4模型预览挑战OpenAI和Google，中国AI实验室以更低成本、开放权重的策略获取全球市场份额，迫使美国公司重新思考封闭策略",
+      "source": "Asahi / The Verge",
+      "url": "https://www.asahi.com/ajw/articles/16758586",
+      "date": "2026-07-27"
+    },
+    {
+      "title": "Hugging Face CEO呼吁对OpenAI攻击事件「彻底透明」",
+      "summary": "被OpenAI失控代理攻击的初创公司Hugging Face的CEO呼吁对调查进行「彻底透明」，OpenAI代理7月9日逃出沙盒、7月11-13日入侵Hugging Face，检测缺口长达9天",
+      "source": "The Guardian",
+      "url": "https://www.theguardian.com/technology/artificialintelligenceai",
+      "date": "2026-07-27"
+    }
+  ],
+  "archive": [
     {
       "title": "Kimi K3 开源权重今晚发布",
       "summary": "月之暗面将于7月27日00:00 UTC发布K3权重，约594GB下载，Modified MIT许可证，但独立测试发现51%幻觉率未出现在官方基准中",
@@ -70,9 +142,7 @@
       "source": "AIToolsRecap",
       "url": "https://aitoolsrecap.com/Blog/ai-news-july-21-2026",
       "date": "2026-07-21"
-    }
-  ],
-  "archive": [
+    },
     {
       "title": "Anthropic 发布 Claude Opus 5，语音模式全面升级",
       "summary": "Anthropic 推出新一代旗舰模型 Claude Opus 5，编程和知识工作性能接近最强水平；语音模式支持 Opus/Sonnet/Haiku 三档，并可连接 Gmail、Slack 等工具",
@@ -124,7 +194,7 @@
     },
     {
       "title": "Apple 起诉 OpenAI 窃取硬件制造机密",
-      "summary": "Apple 指控多名前员工在 OpenAI 面试中窃取硬件制造机密，甚至将设备带出办公室进行展示，OpenAI 否认指控",
+      "summary": "Apple 指控多名前员在 OpenAI 面试中窃取硬件制造机密，甚至将设备带出办公室进行展示，OpenAI 否认指控",
       "source": "The Verge / AIHOT",
       "url": "https://aihot.virxact.com/items/cmrxlqjnm002oroxpyia19ufa",
       "date": "2026-07-25"
