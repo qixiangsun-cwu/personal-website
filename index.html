@@ -24,10 +24,10 @@
         <div class="nav-inner">
             <a href="#hero" class="nav-logo">孙琪翔</a>
             <div class="nav-links">
+                <a href="#news">AI动态</a>
                 <a href="#about">关于我</a>
                 <a href="#empower">妇女赋能</a>
                 <a href="#courses">课程</a>
-                <a href="#news">AI动态</a>
                 <a href="#tools">工具</a>
                 <a href="#videos">视频</a>
                 <a href="#downloads">下载</a>
@@ -75,6 +75,61 @@
         <div class="scroll-hint">
             <span>向下滚动</span>
             <div class="scroll-arrow"></div>
+        </div>
+    </section>
+
+    <!-- AI 最新动态 -->
+    <section class="section" id="news">
+        <div class="section-header">
+            <span class="section-tag">AI NEWS</span>
+            <h2 class="section-title">AI 最新动态</h2>
+            <p class="section-desc">每日精选 AI 领域重要新闻，保持对前沿技术的关注。</p>
+        </div>
+
+        <!-- 今日新闻 -->
+        <div class="glass-card news-today-card">
+            <div class="news-today-header">
+                <h3>今日精选</h3>
+                <span class="news-update-date" id="newsUpdateDate"></span>
+            </div>
+            <div class="news-list" id="newsCurrentList">
+                <!-- 由 JS 动态加载 -->
+                <div class="news-loading">正在加载新闻...</div>
+            </div>
+        </div>
+
+        <!-- 历史新闻 -->
+        <div class="glass-card news-archive-card">
+            <div class="news-archive-toggle" id="archiveToggle">
+                <h3>历史动态</h3>
+                <span class="archive-arrow">▼</span>
+            </div>
+            <div class="news-archive-body" id="newsArchiveBody" style="display: none;">
+                <div class="news-list" id="newsArchiveList">
+                    <!-- 由 JS 动态加载 -->
+                </div>
+                <p class="news-empty-hint" id="newsEmptyHint" style="display:none;">暂无历史新闻。</p>
+            </div>
+        </div>
+
+        <!-- 资源导航 -->
+        <div class="news-grid" style="margin-top: 2rem;">
+            <a href="https://www.codebuddy.cn/docs/workbuddy/Overview" target="_blank" class="glass-card news-card">
+                <span class="news-icon">📘</span>
+                <span class="news-title">WorkBuddy 文档</span>
+            </a>
+            <a href="https://arxiv.org" target="_blank" class="glass-card news-card">
+                <span class="news-icon">📑</span>
+                <span class="news-title">arXiv</span>
+            </a>
+            <a href="https://huggingface.co" target="_blank" class="glass-card news-card">
+                <span class="news-icon">🤗</span>
+                <span class="news-title">Hugging Face</span>
+            </a>
+            <a href="https://www.bilibili.com" target="_blank" class="glass-card news-card">
+                <span class="news-icon">🎬</span>
+                <span class="news-title">B 站 LLM 可视化合集</span>
+            </a>
         </div>
     </section>
 
@@ -833,61 +888,6 @@
         <div class="glass-card ppt-spec-card">
             <h4>PPT 物料规范</h4>
             <p class="ppt-spec-text">纯白底(#FFFFFF)、纯黑字(#000000)、无渐变阴影；中文宋体 / 英文 Times New Roman；标题 28–36pt、正文 18–24pt；金句页独立留白。</p>
-        </div>
-    </section>
-
-    <!-- AI 最新动态 -->
-    <section class="section" id="news">
-        <div class="section-header">
-            <span class="section-tag">AI NEWS</span>
-            <h2 class="section-title">AI 最新动态</h2>
-            <p class="section-desc">每日精选 AI 领域重要新闻，保持对前沿技术的关注。</p>
-        </div>
-
-        <!-- 今日新闻 -->
-        <div class="glass-card news-today-card">
-            <div class="news-today-header">
-                <h3>今日精选</h3>
-                <span class="news-update-date" id="newsUpdateDate"></span>
-            </div>
-            <div class="news-list" id="newsCurrentList">
-                <!-- 由 JS 动态加载 -->
-                <div class="news-loading">正在加载新闻...</div>
-            </div>
-        </div>
-
-        <!-- 历史新闻 -->
-        <div class="glass-card news-archive-card">
-            <div class="news-archive-toggle" id="archiveToggle">
-                <h3>历史动态</h3>
-                <span class="archive-arrow">▼</span>
-            </div>
-            <div class="news-archive-body" id="newsArchiveBody" style="display: none;">
-                <div class="news-list" id="newsArchiveList">
-                    <!-- 由 JS 动态加载 -->
-                </div>
-                <p class="news-empty-hint" id="newsEmptyHint" style="display:none;">暂无历史新闻。</p>
-            </div>
-        </div>
-
-        <!-- 资源导航 -->
-        <div class="news-grid" style="margin-top: 2rem;">
-            <a href="https://www.codebuddy.cn/docs/workbuddy/Overview" target="_blank" class="glass-card news-card">
-                <span class="news-icon">📘</span>
-                <span class="news-title">WorkBuddy 文档</span>
-            </a>
-            <a href="https://arxiv.org" target="_blank" class="glass-card news-card">
-                <span class="news-icon">📑</span>
-                <span class="news-title">arXiv</span>
-            </a>
-            <a href="https://huggingface.co" target="_blank" class="glass-card news-card">
-                <span class="news-icon">🤗</span>
-                <span class="news-title">Hugging Face</span>
-            </a>
-            <a href="https://www.bilibili.com" target="_blank" class="glass-card news-card">
-                <span class="news-icon">🎬</span>
-                <span class="news-title">B 站 LLM 可视化合集</span>
-            </a>
         </div>
     </section>
 
