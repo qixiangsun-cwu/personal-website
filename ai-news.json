@@ -1,6 +1,78 @@
 {
-  "updated": "2026-07-28",
+  "updated": "2026-07-29",
   "current": [
+    {
+      "title": "The AI Future Is for Everyone",
+      "summary": "WSJ评论文章指出AI正从回答问题转向帮助发现新知识，如新药研发，AI的未来属于每一个人",
+      "source": "Wall Street Journal",
+      "url": "https://www.wsj.com/opinion/the-ai-future-is-for-everyone-a0c24e20",
+      "date": "2026-07-28"
+    },
+    {
+      "title": "Sam Altman 谈 AGI、算力与人类主体性",
+      "summary": "OpenAI CEO Sam Altman 深度访谈，探讨 OpenAI 新篇章、算力竞赛及 AGI 时代的人类主体性",
+      "source": "YouTube",
+      "url": "https://www.youtube.com/watch?v=XDB5beon4DY",
+      "date": "2026-07-28"
+    },
+    {
+      "title": "AI 正在让你的生活变得更贵",
+      "summary": "CNN报道AI推高美国物价，影响不止电费账单，重大技术创新正通过通胀重塑经济结构",
+      "source": "CNN",
+      "url": "https://www.cnn.com/2026/07/28/economy/ai-boosting-inflation-us",
+      "date": "2026-07-28"
+    },
+    {
+      "title": "扎克伯格：AI权力应广泛分布而非集中",
+      "summary": "Meta CEO扎克伯格批评AI权力集中化，认为超级智能应广泛分配以推动经济增长和创业机会",
+      "source": "New York Times",
+      "url": "https://www.nytimes.com/2026/07/28/technology/mark-zuckerberg-meta-ai.html",
+      "date": "2026-07-28"
+    },
+    {
+      "title": "Forbes 2026 AI 50 榜单发布",
+      "summary": "Forbes发布2026年AI 50强榜单，聚焦最具前景的人工智能企业，展示驱动AI未来的领军者",
+      "source": "Forbes",
+      "url": "https://www.forbes.com/lists/ai50/",
+      "date": "2026-07-28"
+    },
+    {
+      "title": "美国启动 Genesis Mission，278个AI项目加速突破",
+      "summary": "美国启动Genesis Mission，选出278个AI项目，加速能源、科学发现和国家安全领域突破",
+      "source": "Innovation News Network",
+      "url": "https://www.innovationnewsnetwork.com/artificial-intelligence/",
+      "date": "2026-07-28"
+    },
+    {
+      "title": "AI助力新药研发：设计全新蛋白质",
+      "summary": "哈佛博士生解释AI如何变革蛋白质设计，为新型药物研发开辟全新路径",
+      "source": "Harvard University",
+      "url": "https://gsas.harvard.edu/news/new-proteins-new-medicines-help-ai",
+      "date": "2026-07-28"
+    },
+    {
+      "title": "内布拉斯加大学获 Genesis Mission 资助推进 AI+6G",
+      "summary": "Husker主导项目获Genesis Mission资金，结合AI、超算与量子技术推进6G通信发展",
+      "source": "Newswise",
+      "url": "https://www.newswise.com/articles/husker-led-project-receives-genesis-mission-funding-to-advance-ai-6g",
+      "date": "2026-07-28"
+    },
+    {
+      "title": "新华社：中国AI突破是有设计的战略成果",
+      "summary": "新华社发文称中国AI突破非偶然，从基础模型到应用正快速推进，致力于创新开放与全球合作",
+      "source": "新华社",
+      "url": "https://www.facebook.com/XinhuaNewsAgency/posts/as-ai-reshapes-the-world-chinas-commitment-to-innovation-openness-and-global-coo/1481608580668338/",
+      "date": "2026-07-28"
+    },
+    {
+      "title": "NSF启动 CyberAICorps 奖项推进AI与网络安全教育",
+      "summary": "美国国家科学基金会宣布首批CyberAICorps奖学金奖，推进AI和网络安全教育与劳动力发展",
+      "source": "U.S. National Science Foundation",
+      "url": "https://www.nsf.gov/news",
+      "date": "2026-07-28"
+    }
+  ],
+  "archive": [
     {
       "title": "Sam Altman宣称AI奇点已至",
       "summary": "OpenAI CEO Sam Altman在播客中表示「我们已进入奇点时刻」，称AI已能自我改进、释放快速进步，并暗批竞争对手的「恐怖愿景」；多位学者对此表示异议，认为门槛尚未达到",
@@ -70,9 +142,7 @@
       "source": "The Guardian",
       "url": "https://www.theguardian.com/technology/artificialintelligenceai",
       "date": "2026-07-27"
-    }
-  ],
-  "archive": [
+    },
     {
       "title": "Kimi K3 开源权重今晚发布",
       "summary": "月之暗面将于7月27日00:00 UTC发布K3权重，约594GB下载，Modified MIT许可证，但独立测试发现51%幻觉率未出现在官方基准中",
