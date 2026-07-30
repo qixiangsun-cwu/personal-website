@@ -1,6 +1,78 @@
 {
-  "updated": "2026-07-29",
+  "updated": "2026-07-30",
   "current": [
+    {
+      "title": "联合国发布AI初步报告：AI可深刻扩展人类教育、医疗与辅助技术能力",
+      "summary": "联合国独立国际科学小组发布初步报告，指出AI可通过个性化教育、可及心理健康工具和改进辅助技术深刻扩展人类能力",
+      "source": "联合国独立国际科学小组",
+      "url": "https://www.un.org/independent-international-scientific-panel-ai/sites/default/files/2026-07/en_Preliminary%20Report_.pdf",
+      "date": "2026-07-29"
+    },
+    {
+      "title": "NYT：AI计算能力洪流即将上线，数据中心建设迎来爆发期",
+      "summary": "纽约时报报道，大规模AI算力即将上线，AI系统已通过律师资格考试并助力阿尔茨海默症病因发现",
+      "source": "纽约时报",
+      "url": "https://www.nytimes.com/interactive/2026/07/29/technology/ai-chips-data-center-boom.html",
+      "date": "2026-07-29"
+    },
+    {
+      "title": "扎克伯格呼吁美国不应禁止中国AI模型，竞争应靠创新而非封锁",
+      "summary": "扎克伯格在金融时报采访中表示禁止中国AI模型并非有效方案，美国公司需系统性识别障碍和弱点以更好竞争",
+      "source": "金融时报 / IFNews",
+      "url": "https://www.ifnews.com/news.html?aid=855014&cid=49",
+      "date": "2026-07-29"
+    },
+    {
+      "title": "20多家硅谷巨头联合发声，敦促美国不要对开源AI过早限制",
+      "summary": "英伟达、微软、Meta、Palantir等20多家公司联合发布公开信，呼吁不要对开源AI模型实施过早限制，否则将扼杀竞争",
+      "source": "HK01",
+      "url": "https://www.hk01.com/%E5%9C%8B%E9%9A%9B%E5%88%86%E6%9E%90/60375125/%E4%B8%AD%E7%BE%8Eai%E5%A4%A7%E6%88%B0-%E7%9F%BD%E8%B0%B7%E7%9A%84%E6%9C%88%E4%BA%AE%E4%B8%A6%E4%B8%8D%E6%A0%BC%E5%A4%96%E5%9C%93",
+      "date": "2026-07-29"
+    },
+    {
+      "title": "WAIC 2026见证AI从\"炫技\"进入物理世界，机器人协同训练亮相",
+      "summary": "本届WAIC上算力基础设施、端边AI芯片、触觉感知芯片集中亮相，松应科技发布全球首个多形态机器人协同训练物理AI平台",
+      "source": "央广网",
+      "url": "https://www.cnr.cn/mspd/msyx/20260729/t20260729_527735844.shtml",
+      "date": "2026-07-29"
+    },
+    {
+      "title": "Georgia Tech揭幕新AI医学研究中心，加速下一波医疗突破",
+      "summary": "佐治亚理工学院揭幕全新AI医学研究中心，希望借助人工智能加速下一波医疗突破",
+      "source": "Fox 5 Atlanta",
+      "url": "https://www.fox5atlanta.com/video/fmc-ycpn9lprbdf4vni6",
+      "date": "2026-07-29"
+    },
+    {
+      "title": "IEEE发布新报告：AI将在2030年前重塑生活、医疗和工作方式",
+      "summary": "IEEE发布新megatrends报告，揭示AI驱动突破正推动个性化治疗、早期疾病诊断和基因疗法",
+      "source": "PRNewswire",
+      "url": "https://www.prnewswire.com/news-releases/how-ai-will-reshape-life-by-2030-new-ieee-megatrends-report-unveils-tech-forces-transforming-homes-schools-and-work-302835666.html",
+      "date": "2026-07-29"
+    },
+    {
+      "title": "深圳发布新政：加强通用/垂类/端侧/物理AI模型研发应用",
+      "summary": "深圳加强通用和垂类模型、端侧模型、物理AI模型、高性能智能体研发应用，加快人工智能产业布局",
+      "source": "新浪人工智能",
+      "url": "https://k.sina.com.cn/article_7857201856_1d45362c001908hgr6.html?from=tech",
+      "date": "2026-07-29"
+    },
+    {
+      "title": "OpenAI发布GPT-5.6模型家族，Kimi K3实现2.8T参数端侧运行",
+      "summary": "OpenAI发布GPT-5.6模型家族Sol与Terra，Deltafin项目在M1 Max上实现Kimi K3 2.8T参数0.0687 token/s推理",
+      "source": "AI日报",
+      "url": "https://aihot.virxact.com/daily",
+      "date": "2026-07-29"
+    },
+    {
+      "title": "微软发布MAI-Cyber-1-Flash，多智能体漏洞识别与修复系统",
+      "summary": "微软在MDASH中推出MAI-Cyber-1-Flash，这是一个多智能体漏洞识别与修复系统",
+      "source": "Microsoft AI",
+      "url": "https://microsoft.ai/news/introducing-mai-cyber-1-flash-inside-mdash/",
+      "date": "2026-07-29"
+    }
+  ],
+  "archive": [
     {
       "title": "The AI Future Is for Everyone",
       "summary": "WSJ评论文章指出AI正从回答问题转向帮助发现新知识，如新药研发，AI的未来属于每一个人",
@@ -70,9 +142,7 @@
       "source": "U.S. National Science Foundation",
       "url": "https://www.nsf.gov/news",
       "date": "2026-07-28"
-    }
-  ],
-  "archive": [
+    },
     {
       "title": "Sam Altman宣称AI奇点已至",
       "summary": "OpenAI CEO Sam Altman在播客中表示「我们已进入奇点时刻」，称AI已能自我改进、释放快速进步，并暗批竞争对手的「恐怖愿景」；多位学者对此表示异议，认为门槛尚未达到",
