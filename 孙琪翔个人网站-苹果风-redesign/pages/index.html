@@ -1,0 +1,1351 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>孙琪翔 · AI赋能与教学</title>
+    <style id="theme-vars">
+/*
+ * Pinguo design tokens
+ * Brand: Pinguo
+ * Domain: Consumer imaging product
+ * Style: Restrained, elegant, Apple-inspired
+ * Theme mode: light-dark
+ * Source language: zh
+ * Output language: en
+ *
+ * Color architecture (two layers):
+ *   1. Primitive palette - six categories. brand / background / text / icon
+ *      are each a 10-step scale (50 lightest to 900 darkest). state-success and
+ *      state-error are functional colors anchored on Apple system colors.
+ *      Anchors follow Apple Human Interface Guidelines system colors
+ *      (System Blue #007AFF, System Green #34C759, System Red #FF3B30,
+ *      system grays / label / background colors).
+ *   2. Semantic tokens - :root (light) and .dark map roles onto primitives.
+ *      Components and UI kits must only consume the semantic tokens below.
+ */
+
+/* @group-priority: brand, background, text, icon, state-success, state-error */
+
+:root {
+  
+  /* solo-design consumption aliases: explicit prefix for fill-html-head.mjs */
+  --apple-background: var(--background, #ffffff);
+  --apple-foreground: var(--foreground, #0f172a);
+  --apple-card: var(--card, var(--background));
+  --apple-card-foreground: var(--card-foreground, var(--foreground));
+  --apple-popover: var(--popover, var(--card));
+  --apple-popover-foreground: var(--popover-foreground, var(--card-foreground, var(--foreground)));
+  --apple-primary: var(--primary, #111827);
+  --apple-primary-foreground: var(--primary-foreground, #ffffff);
+  --apple-secondary: var(--secondary, var(--muted, var(--card)));
+  --apple-secondary-foreground: var(--secondary-foreground, var(--foreground));
+  --apple-muted: var(--muted, var(--card));
+  --apple-muted-foreground: var(--muted-foreground, var(--foreground));
+  --apple-accent: var(--accent, var(--secondary, var(--muted, var(--card))));
+  --apple-accent-foreground: var(--accent-foreground, var(--foreground));
+  --apple-destructive: var(--destructive, #ef4444);
+  --apple-destructive-foreground: var(--destructive-foreground, #ffffff);
+  --apple-border: var(--border, currentColor);
+  --apple-input: var(--input, var(--border));
+  --apple-ring: var(--ring, var(--primary));
+  --apple-chart-1: var(--chart-1, var(--primary));
+  --apple-chart-2: var(--chart-2, var(--secondary, var(--primary)));
+  --apple-chart-3: var(--chart-3, var(--accent, var(--primary)));
+  --apple-chart-4: var(--chart-4, var(--muted-foreground, var(--foreground)));
+  --apple-chart-5: var(--chart-5, var(--foreground));
+  --apple-sidebar: var(--sidebar, var(--background));
+  --apple-sidebar-foreground: var(--sidebar-foreground, var(--foreground));
+  --apple-sidebar-primary: var(--sidebar-primary, var(--primary));
+  --apple-sidebar-primary-foreground: var(--sidebar-primary-foreground, var(--primary-foreground));
+  --apple-sidebar-accent: var(--sidebar-accent, var(--accent, var(--muted, var(--card))));
+  --apple-sidebar-accent-foreground: var(--sidebar-accent-foreground, var(--accent-foreground, var(--foreground)));
+
+/* ===== PRIMITIVE PALETTE ===== */
+
+  /* brand */
+  --brand-50: #e8f2ff;
+  --brand-100: #cfe5ff;
+  --brand-200: #9fcbff;
+  --brand-300: #66abff;
+  --brand-400: #2e8dff;
+  --brand-500: #007aff; /* @primary */
+  --brand-600: #0064d6;
+  --brand-700: #004fad;
+  --brand-800: #003b82;
+  --brand-900: #00275a;
+
+  /* background */
+  --background-50: #ffffff;
+  --background-100: #f7f7fa;
+  --background-200: #f2f2f7;
+  --background-300: #e5e5ea;
+  --background-400: #d1d1d6;
+  --background-500: #aeaeb2;
+  --background-600: #8e8e93;
+  --background-700: #3a3a3c;
+  --background-800: #1c1c1e;
+  --background-900: #000000;
+
+  /* text */
+  --text-50: #f5f5f7;
+  --text-100: #e3e3e8;
+  --text-200: #c7c7cc;
+  --text-300: #aeaeb2;
+  --text-400: #8e8e93;
+  --text-500: #6e6e73;
+  --text-600: #48484a;
+  --text-700: #3c3c43;
+  --text-800: #1d1d1f;
+  --text-900: #000000;
+
+  /* icon */
+  --icon-50: #f5f5f7;
+  --icon-100: #e5e5ea;
+  --icon-200: #d1d1d6;
+  --icon-300: #c7c7cc;
+  --icon-400: #aeaeb2;
+  --icon-500: #8e8e93;
+  --icon-600: #6e6e73;
+  --icon-700: #48484a;
+  --icon-800: #2c2c2e;
+  --icon-900: #1d1d1f;
+
+  /* state-success */
+  --state-success: #34c759; /* @primary */
+  --state-success-dark: #30d158;
+  --state-success-surface: #e9f9ee;
+  --state-success-foreground: #ffffff;
+
+  /* state-error */
+  --state-error: #ff3b30; /* @primary */
+  --state-error-dark: #ff453a;
+  --state-error-surface: #ffecea;
+  --state-error-foreground: #ffffff;
+
+  /* ===== SEMANTIC ROLES ===== */
+
+  /* semantic */
+  --background: var(--background-50);
+  --foreground: var(--text-800);
+  --card: var(--background-50);
+  --card-foreground: var(--text-800);
+  --popover: var(--background-50);
+  --popover-foreground: var(--text-900);
+
+  --primary: var(--brand-500);
+  --primary-foreground: var(--background-50);
+  --secondary: var(--background-200);
+  --secondary-foreground: var(--text-800);
+  --muted: var(--background-200);
+  --muted-foreground: var(--text-400);
+  --accent: var(--background-100);
+  --accent-foreground: var(--text-800);
+  --destructive: var(--state-error);
+  --destructive-foreground: var(--state-error-foreground);
+  --success: var(--state-success);
+  --success-foreground: var(--state-success-foreground);
+  --border: var(--background-300);
+  --input: var(--background-400);
+  --ring: var(--brand-500);
+
+  --icon: var(--icon-900);
+  --icon-muted: var(--icon-500);
+
+  /* chart */
+  --chart-1: var(--state-success);
+  --chart-2: var(--brand-500);
+  --chart-3: #ff9500;
+  --chart-4: #5856d6;
+  --chart-5: #af52de;
+
+  /* sidebar */
+  --sidebar: var(--background-200);
+  --sidebar-foreground: var(--text-800);
+  --sidebar-primary: var(--brand-500);
+  --sidebar-primary-foreground: var(--background-50);
+  --sidebar-accent: var(--background-300);
+  --sidebar-accent-foreground: var(--text-800);
+  --sidebar-border: var(--background-300);
+  --sidebar-ring: var(--brand-500);
+
+  /* TYPOGRAPHY */
+  --font-sans: DM Sans, ui-sans-serif, sans-serif, system-ui;
+  --font-serif: DM Sans, ui-sans-serif, sans-serif, system-ui;
+  --font-mono: JetBrains Mono, monospace;
+  --tracking-normal: 0em;
+
+  /* RADIUS */
+  --radius: 1.2rem;
+
+  /* SHADOWS */
+  --shadow-2xs: 0 1px 2px -1px rgba(0, 0, 0, 0.04); /* Hairline */
+  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.04); /* Subtle */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05), 0 1px 3px -1px rgba(0, 0, 0, 0.05); /* Card */
+  --shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.06), 0 1px 2px -1px rgba(0, 0, 0, 0.05); /* Raised */
+  --shadow-md: 0 4px 8px -2px rgba(0, 0, 0, 0.06), 0 2px 4px -2px rgba(0, 0, 0, 0.05); /* Card Hover */
+  --shadow-lg: 0 8px 24px -8px rgba(0, 0, 0, 0.08), 0 4px 8px -4px rgba(0, 0, 0, 0.05); /* Float */
+  --shadow-xl: 0 16px 40px -10px rgba(0, 0, 0, 0.10), 0 8px 16px -8px rgba(0, 0, 0, 0.06); /* Overlay */
+  --shadow-2xl: 0 24px 64px -12px rgba(0, 0, 0, 0.12); /* Modal */
+
+  /* SPACING */
+  --spacing: 0.24rem;
+}
+
+/* ===== SEMANTIC ROLES - dark (primitive palette inherited) ===== */
+.dark {
+  --background: var(--background-900);
+  --foreground: var(--text-50);
+  --card: var(--background-800);
+  --card-foreground: var(--text-50);
+  --popover: var(--background-700);
+  --popover-foreground: var(--text-50);
+
+  --primary: var(--brand-400);
+  --primary-foreground: var(--background-900);
+  --secondary: var(--background-800);
+  --secondary-foreground: var(--text-50);
+  --muted: var(--background-800);
+  --muted-foreground: var(--text-400);
+  --accent: var(--background-700);
+  --accent-foreground: var(--text-50);
+  --destructive: var(--state-error-dark);
+  --destructive-foreground: var(--state-error-foreground);
+  --success: var(--state-success-dark);
+  --success-foreground: var(--state-success-foreground);
+  --border: var(--background-700);
+  --input: var(--background-700);
+  --ring: var(--brand-400);
+
+  --icon: var(--icon-50);
+  --icon-muted: var(--icon-500);
+
+  --chart-1: var(--state-success-dark);
+  --chart-2: var(--brand-400);
+  --chart-3: #ff9f0a;
+  --chart-4: #5e5ce6;
+  --chart-5: #bf5af2;
+
+  --sidebar: var(--background-800);
+  --sidebar-foreground: var(--text-50);
+  --sidebar-primary: var(--brand-400);
+  --sidebar-primary-foreground: var(--background-900);
+  --sidebar-accent: var(--background-700);
+  --sidebar-accent-foreground: var(--text-50);
+  --sidebar-border: var(--background-700);
+  --sidebar-ring: var(--brand-400);
+
+  --shadow-2xs: 0 1px 2px -1px rgba(0, 0, 0, 0.30);
+  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.30);
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.36), 0 1px 3px -1px rgba(0, 0, 0, 0.36);
+  --shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.40), 0 1px 2px -1px rgba(0, 0, 0, 0.36);
+  --shadow-md: 0 4px 8px -2px rgba(0, 0, 0, 0.44), 0 2px 4px -2px rgba(0, 0, 0, 0.36);
+  --shadow-lg: 0 8px 24px -8px rgba(0, 0, 0, 0.50), 0 4px 8px -4px rgba(0, 0, 0, 0.40);
+  --shadow-xl: 0 16px 40px -10px rgba(0, 0, 0, 0.55), 0 8px 16px -8px rgba(0, 0, 0, 0.44);
+  --shadow-2xl: 0 24px 64px -12px rgba(0, 0, 0, 0.60);
+}
+
+:root {
+  --apple-radius-sm: var(--radius);
+  --apple-radius-md: var(--radius);
+  --apple-radius-lg: var(--radius);
+  --apple-radius-xl: var(--radius);
+}
+
+    </style>
+    <style id="component-vars">
+/* ═══════════════════════════════════════════════════════════════
+   components.css — Design System Component Definitions
+   Auto-extracted from preview/component-*.html
+   DO NOT EDIT MANUALLY — regenerate via extract-components-css.mjs
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Button ────────────────────────────────────────────────── */
+/* @anatomy
+   <div class="row"><span class="label">Primary 56</span><button class="btn btn-primary btn-lg">Buy now</button><button class="btn btn-primary btn-lg" disabled>Buy now</button></div>
+   <hr class="divider">
+   <div class="row"><span class="label">Secondary 48</span><button class="btn btn-secondary">Shop the latest</button><button class="btn btn-secondary" disabled>Shop the latest</button></div>
+   <div class="row"><span class="label">Text 48</span><button class="btn btn-text">Learn more ›</button><button class="btn btn-text" disabled>Learn more ›</button></div>
+*/
+body{margin:0;padding:12px;background:var(--background);color:var(--foreground);font-family:var(--font-sans);letter-spacing:var(--tracking-normal)}.row{display:flex;align-items:center;gap:calc(var(--spacing)*3);flex-wrap:wrap;margin:0 0 calc(var(--spacing)*3)}.label{min-width:72px;color:var(--muted-foreground);font:600 10px/1 var(--font-mono);letter-spacing:.12em;text-transform:uppercase}.btn{display:inline-flex;align-items:center;justify-content:center;gap:calc(var(--spacing)*1.5);height:40px;padding:0 20px;border:none;border-radius:calc(var(--radius)*2);background:transparent;color:var(--foreground);font:600 14px/1 var(--font-sans);letter-spacing:var(--tracking-normal);white-space:nowrap;box-shadow:var(--shadow-sm);cursor:pointer;transition:background-color .18s ease,color .18s ease,opacity .18s ease,filter .18s ease}.btn:focus-visible{outline:2px solid var(--ring);outline-offset:2px}.btn:disabled{opacity:.42;cursor:not-allowed}.btn-primary{background:var(--primary);color:var(--primary-foreground)}.btn-primary:hover{filter:brightness(.96)}.btn-secondary{height:48px;padding:0 24px;background:var(--secondary);color:var(--secondary-foreground)}.btn-secondary:hover{background:var(--muted)}.btn-text{height:48px;padding:0 4px;box-shadow:none}.btn-text:hover{color:var(--primary)}.btn-lg{height:56px;padding:0 28px;font-size:16px}.divider{border:0;border-top:1px solid var(--border);margin:calc(var(--spacing)*4) 0}
+
+/* ── Card ──────────────────────────────────────────────────── */
+/* @anatomy
+   <div class="row">
+   <span class="label">Info</span>
+   <article class="card">
+   <div><div class="eyebrow">Pinguo Apple</div><h1 class="title">Built for creators</h1><p class="body-copy">A calm surface for comparing cameras, storage tiers, and bundle benefits across the ecosystem.</p></div>
+   <a class="cta" href="#">Compare models</a>
+   </article>
+   <article class="card disabled" aria-disabled="true">
+   <div><div class="eyebrow">Campus Store</div><h1 class="title">Education pricing</h1><p class="body-copy">Student bundles stay visible while unavailable purchase actions remain clearly disabled.</p></div>
+   <span class="cta">Compare models</span>
+   </article>
+   </div>
+   <hr class="divider">
+   <div class="row">
+   <span class="label">Media</span>
+   <article class="card media-card">
+   <div class="media"></div>
+   <div><div class="meta">Creator bundle</div><h1 class="title">Studio kit with Lens Sync</h1><div class="price">From $799 with Education pricing</div></div>
+   </article>
+   <article class="card media-card dark">
+   <div class="media"></div>
+   <div><div class="meta">Consumer imaging ecosystem</div><h1 class="title">Built for creators</h1><div class="price">Compare models across camera, app, and cloud plans</div></div>
+   </article>
+   </div>
+*/
+body{margin:0;padding:12px;background:var(--background);color:var(--foreground);font:500 14px/1.45 var(--font-sans);letter-spacing:var(--tracking-normal)}.row{display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap}.label{width:72px;padding-top:10px;color:var(--muted-foreground);font:700 10px/1 var(--font-sans);letter-spacing:.12em;text-transform:uppercase}.divider{margin:12px 0;border:0;border-top:1px solid var(--border)}.card{width:188px;min-height:148px;padding:calc(var(--spacing)*5);display:flex;flex-direction:column;justify-content:space-between;background:var(--card);color:var(--card-foreground);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-md);transition:transform .18s ease,box-shadow .18s ease}.card:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg)}.card.disabled,.card.disabled:hover{opacity:.5;transform:none;box-shadow:var(--shadow-md)}.eyebrow,.meta{color:var(--muted-foreground);font-size:11px;letter-spacing:.08em;text-transform:uppercase}.title{margin:6px 0 8px;font-size:18px;line-height:1.15}.body-copy{margin:0;color:var(--muted-foreground);font-size:13px}.cta{display:inline-flex;align-items:center;justify-content:center;width:max-content;margin-top:12px;padding:calc(var(--spacing)*2) calc(var(--spacing)*3.5);border-radius:999px;background:var(--primary);color:var(--primary-foreground);font-size:12px;font-weight:700;text-decoration:none}.media{aspect-ratio:4/3;border-radius:calc(var(--radius) - 4px);background:linear-gradient(135deg,var(--secondary),var(--accent));border:1px solid var(--border)}.media-card{min-height:212px;padding:calc(var(--spacing)*4)}.media-card .title{font-size:16px;margin:10px 0 6px}.price{font-size:12px;color:var(--muted-foreground)}.dark{background:var(--card);color:var(--card-foreground)}
+
+/* ── Comparison Table ──────────────────────────────────────── */
+/* @anatomy
+   <div class="row"><span class="label">Default</span><div class="t"><div class="c m">Compare models</div><div class="c h"><span class="k">Mini</span><span class="s">Pinguo Apple</span></div><div class="c h"><span class="k">Air</span><span class="s">Popular</span></div><div class="c h b"><span class="k">Pro</span><span class="s">Creator</span></div><div class="c m">Battery life</div><div class="c v">12h</div><div class="c v">16h</div><div class="c v">20h</div><div class="c m">Storage</div><div class="c v">256GB</div><div class="c v">512GB</div><div class="c v">1TB</div><div class="c m">Camera system</div><div class="c n">Dual</div><div class="c n">48MP</div><div class="c n">48MP+T</div></div><div class="t x" aria-disabled="true"><div class="c m">Compare models</div><div class="c h"><span class="k">Mini</span><span class="s">Pinguo Apple</span></div><div class="c h"><span class="k">Air</span><span class="s">Popular</span></div><div class="c h b"><span class="k">Pro</span><span class="s">Creator</span></div><div class="c m">Battery life</div><div class="c v">12h</div><div class="c v">16h</div><div class="c v">20h</div><div class="c m">Storage</div><div class="c v">256GB</div><div class="c v">512GB</div><div class="c v">1TB</div><div class="c m">Camera system</div><div class="c n">Dual</div><div class="c n">48MP</div><div class="c n">48MP+T</div></div></div>
+   <hr class="divider">
+   <div class="row"><span class="label">Compact</span><div class="t q dark"><div class="c m">Compare models</div><div class="c h"><span class="k">Mini</span></div><div class="c h"><span class="k">Air</span></div><div class="c h b"><span class="k">Pro</span></div><div class="c h"><span class="k">Ultra</span></div><div class="c m">Battery life</div><div class="c v">12h</div><div class="c v">16h</div><div class="c v">20h</div><div class="c v">24h</div><div class="c m">Storage</div><div class="c v">256GB</div><div class="c v">512GB</div><div class="c v">1TB</div><div class="c v">2TB</div><div class="c m">Camera system</div><div class="c n">Dual</div><div class="c n">48MP</div><div class="c n">48MP+T</div><div class="c n">Triple</div></div></div>
+*/
+body{margin:0;padding:12px;background:var(--background);color:var(--foreground);font:500 13px/1.4 var(--font-sans);letter-spacing:var(--tracking-normal)}.row{display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:8px}.label{width:72px;padding-top:10px;color:var(--muted-foreground);font:700 10px/1 var(--font-mono);letter-spacing:.12em;text-transform:uppercase}.divider{margin:12px 0;border:0;border-top:1px solid var(--border)}.t{display:grid;grid-template-columns:96px repeat(3,1fr);overflow:hidden;border:1px solid var(--border);border-radius:var(--radius);background:var(--card);color:var(--card-foreground);box-shadow:var(--shadow-sm)}.q{grid-template-columns:82px repeat(4,1fr)}.c{padding:10px;border-right:1px solid var(--border);border-bottom:1px solid var(--border)}.t>.c:nth-child(4n),.q>.c:nth-child(5n){border-right:0}.t>.c:nth-last-child(-n+4),.q>.c:nth-last-child(-n+5){border-bottom:0}.m{background:var(--background);color:var(--muted-foreground);font:700 10px/1 var(--font-mono);letter-spacing:.12em;text-transform:uppercase}.h{background:var(--background);font-weight:700}.k{display:block;font-size:14px;line-height:1.1}.s{display:block;margin-top:4px;color:var(--chart-2);font-size:11px;font-weight:700}.b .k{color:var(--chart-2)}.v{font-weight:600}.n{color:var(--muted-foreground);font-size:12px}.x{opacity:.45}
+
+/* ── Input ─────────────────────────────────────────────────── */
+/* @anatomy
+   <div class="row">
+   <span class="label">Search 44</span>
+   <div class="field">
+   <span class="icon">⌕</span>
+   <input class="control" aria-label="Search products" placeholder="Search products">
+   <button class="clear" type="button" aria-label="Clear search">×</button>
+   </div>
+   <div class="field disabled">
+   <span class="icon">⌕</span>
+   <input class="control" aria-label="Search products disabled" placeholder="Search products" disabled>
+   <button class="clear" type="button" aria-label="Clear search disabled" disabled>×</button>
+   </div>
+   </div>
+   <hr class="divider">
+   <div class="row">
+   <span class="label">Dark 40</span>
+   <div class="surface dark">
+   <div class="field small">
+   <input class="control" aria-label="Email address" placeholder="Email address">
+   </div>
+   </div>
+   <div class="surface dark">
+   <div class="field small disabled">
+   <input class="control" aria-label="Track your order disabled" placeholder="Track your order" disabled>
+   </div>
+   </div>
+   </div>
+*/
+body{margin:0;padding:12px;background:var(--background);color:var(--foreground);font:500 13px/1.4 var(--font-sans)}.row{display:flex;align-items:center;gap:calc(var(--spacing)*3);flex-wrap:wrap;margin-bottom:8px}.label{min-width:58px;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted-foreground)}.divider{border:0;border-top:1px solid var(--border);margin:10px 0}.surface{display:flex;gap:calc(var(--spacing)*2);padding:calc(var(--spacing)*3);border:1px solid var(--border);border-radius:var(--radius);background:var(--card);box-shadow:var(--shadow-sm)}.dark{background:var(--background);color:var(--foreground)}.field{display:flex;align-items:center;gap:calc(var(--spacing)*2);min-width:240px;height:44px;padding:0 calc(var(--spacing)*3);border:1px solid var(--input);border-radius:var(--radius);background:var(--background);color:var(--foreground);box-shadow:var(--shadow-xs)}.field.small{height:40px}.field:focus-within{border-color:var(--ring);box-shadow:0 0 0 1px var(--ring)}.field.disabled{opacity:.55}.icon,.clear{padding:0;border:0;background:transparent;color:var(--icon-muted);font:inherit}.icon{font-size:13px}.control{flex:1;border:0;outline:0;background:transparent;color:inherit;font:inherit}.control::placeholder{color:var(--muted-foreground)}
+
+/* ── Navigation ────────────────────────────────────────────── */
+/* @anatomy
+   <div class="row"><span class="label">Global 44</span><nav class="webbar dark" aria-label="Pinguo Apple global navigation"><span class="brand">Pinguo Apple</span><div class="rail"><a class="link" href="#">Store</a><a class="link" href="#">Explore</a><a class="link" href="#">Community</a><a class="link" href="#">Support</a></div></nav><nav class="webbar dark disabled" aria-label="Pinguo Apple global navigation disabled"><span class="brand">Pinguo Apple</span><div class="rail"><span class="link">Store</span><span class="link">Explore</span><span class="link">Community</span><span class="link">Support</span></div></nav></div>
+   <hr class="divider">
+   <div class="row"><span class="label">Tab Bar</span><div class="mobile"><div class="screen"><nav class="tabbar" aria-label="Pinguo Apple tab bar"><a class="tab" href="#"><span class="dot"></span><span>Store</span></a><a class="tab" href="#"><span class="dot"></span><span>Explore</span></a><a class="tab" href="#"><span class="dot"></span><span>Community</span></a><a class="tab" href="#"><span class="dot"></span><span>Support</span></a></nav></div></div><div class="mobile disabled"><div class="screen"><nav class="tabbar" aria-label="Pinguo Apple tab bar disabled"><span class="tab"><span class="dot"></span><span>Store</span></span><span class="tab"><span class="dot"></span><span>Explore</span></span><span class="tab"><span class="dot"></span><span>Community</span></span><span class="tab"><span class="dot"></span><span>Support</span></span></nav></div></div></div>
+*/
+body{margin:0;padding:12px;background:var(--background);color:var(--foreground);font:500 13px/1.4 var(--font-sans);letter-spacing:var(--tracking-normal)}.row{display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:8px}.label{width:72px;padding-top:10px;color:var(--muted-foreground);font:700 10px/1 var(--font-mono);letter-spacing:.12em;text-transform:uppercase}.divider{margin:12px 0;border:0;border-top:1px solid var(--border)}.webbar,.mobile{border:1px solid var(--border);box-shadow:var(--shadow-sm)}.webbar{display:flex;align-items:center;gap:calc(var(--spacing)*2);min-width:320px;height:44px;padding:0 calc(var(--spacing)*3);border-radius:var(--radius);background:var(--sidebar)}.brand{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap}.rail{display:flex;gap:calc(var(--spacing)*1.5);margin-left:auto}.link,.tab{display:inline-flex;align-items:center;justify-content:center;border-radius:999px;color:inherit;text-decoration:none;white-space:nowrap;transition:background-color .18s ease,color .18s ease,opacity .18s ease}.link{height:32px;padding:0 calc(var(--spacing)*2.5)}.link:hover,.tab:hover{background:var(--secondary)}.link:focus-visible,.tab:focus-visible{outline:2px solid var(--ring);outline-offset:2px}.dark{background:var(--sidebar);color:var(--foreground)}.disabled{opacity:.48}.disabled .link,.disabled .tab{pointer-events:none}.mobile{padding:calc(var(--spacing)*2);border-radius:calc(var(--radius)*1.1);background:var(--card)}.screen{display:flex;align-items:flex-end;justify-content:center;width:188px;height:164px;padding:calc(var(--spacing)*3);border-radius:calc(var(--radius)*.9);background:linear-gradient(180deg,var(--background),var(--secondary))}.tabbar{display:flex;gap:calc(var(--spacing)*1.5);padding:calc(var(--spacing)*1.5);border:1px solid var(--border);border-radius:999px;background:var(--card);box-shadow:var(--shadow-md)}.tab{flex-direction:column;gap:2px;min-width:56px;height:56px;padding:0 calc(var(--spacing)*1.5);font-size:11px;text-align:center}.dot{width:18px;height:18px;border-radius:999px;background:var(--secondary);box-shadow:inset 0 0 0 1px var(--border)}.tab:hover .dot{background:var(--primary)}
+
+/* ── Product Grid ──────────────────────────────────────────── */
+/* @anatomy
+   <div class="row">
+   <span class="label">4-up</span>
+   <div class="grid grid-4">
+   <article class="card"><div class="media"></div><span class="eyebrow">New this season</span><strong class="title">Pinguo Lens Pro</strong><span class="price">From $999</span><a class="cta" href="/">Compare all models</a></article>
+   <article class="card"><div class="media"></div><span class="eyebrow">Creator kit</span><strong class="title">Pinguo Air Cam</strong><span class="price">From $749</span><a class="cta" href="/">Build your setup</a></article>
+   <article class="card"><div class="media"></div><span class="eyebrow">Studio ready</span><strong class="title">Pinguo Dock One</strong><span class="price">From $299</span><a class="cta" href="/">See accessories</a></article>
+   <article class="card is-disabled"><div class="media"></div><span class="eyebrow">Coming soon</span><strong class="title">Pinguo Vision Mini</strong><span class="price muted">Notify me</span><span class="cta">Unavailable</span></article>
+   </div>
+   </div>
+   <hr class="divider">
+   <div class="row">
+   <span class="label">Story</span>
+   <div class="grid grid-2">
+   <article class="card story"><div class="media"></div><span class="eyebrow">Consumer imaging product ecosystem</span><strong class="title">Travel light with one camera, one dock, and one cloud-ready edit flow.</strong><span class="price muted">Pinguo Apple picks for weekend shoots</span><a class="cta" href="/">Shop the story</a></article>
+   <article class="card story"><div class="media"></div><span class="eyebrow">Compare lineup</span><strong class="title">Choose between compact capture, pro optics, and desktop-grade finishing tools.</strong><span class="price muted">Made for photo-first households</span><a class="cta" href="/">Compare all models</a></article>
+   </div>
+   </div>
+*/
+body{margin:0;padding:12px;background:var(--background);color:var(--foreground);font:500 14px/1.4 var(--font-sans)}.row{display:flex;align-items:flex-start;gap:8px;margin-bottom:8px}.label{width:72px;padding-top:6px;color:var(--muted-foreground);font-size:10px;letter-spacing:.12em;text-transform:uppercase;flex:0 0 auto}.grid{display:grid;gap:8px;flex:1}.grid-4{grid-template-columns:repeat(4,minmax(0,1fr))}.grid-2{grid-template-columns:repeat(2,minmax(0,1fr))}.card{display:flex;flex-direction:column;gap:8px;padding:10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--card);color:var(--card-foreground);box-shadow:var(--shadow-xs);transition:border-color .2s ease,transform .2s ease}.card:hover{border-color:var(--primary);transform:translateY(-1px)}.media{aspect-ratio:1;border-radius:calc(var(--radius) - 4px);background:linear-gradient(135deg,var(--secondary),var(--background));border:1px solid var(--border)}.story .media{aspect-ratio:1.25;background:linear-gradient(135deg,var(--foreground),var(--secondary))}.eyebrow{color:var(--muted-foreground);font-size:10px;letter-spacing:.08em;text-transform:uppercase}.title{font-size:15px;line-height:1.25}.price{font-variant-numeric:tabular-nums}.cta{display:inline-flex;align-self:flex-start;padding:7px 10px;border-radius:999px;background:var(--primary);color:var(--primary-foreground);font-size:12px;text-decoration:none}.muted{color:var(--muted-foreground)}.is-disabled{opacity:.55}.divider{margin:10px 0;border:0;border-top:1px solid var(--border)}
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.3.1/dist/index.global.js"></script>
+    <script src="https://unpkg.com/lucide@1.8.0/dist/umd/lucide.min.js"></script>
+    <style type="text/tailwindcss">
+  @theme inline {
+    --color-background: var(--apple-background);
+    --color-foreground: var(--apple-foreground);
+    --color-card: var(--apple-card);
+    --color-card-foreground: var(--apple-card-foreground);
+    --color-popover: var(--apple-popover);
+    --color-popover-foreground: var(--apple-popover-foreground);
+    --color-primary: var(--apple-primary);
+    --color-primary-foreground: var(--apple-primary-foreground);
+    --color-secondary: var(--apple-secondary);
+    --color-secondary-foreground: var(--apple-secondary-foreground);
+    --color-muted: var(--apple-muted);
+    --color-muted-foreground: var(--apple-muted-foreground);
+    --color-accent: var(--apple-accent);
+    --color-accent-foreground: var(--apple-accent-foreground);
+    --color-destructive: var(--apple-destructive);
+    --color-destructive-foreground: var(--apple-destructive-foreground);
+    --color-border: var(--apple-border);
+    --color-input: var(--apple-input);
+    --color-ring: var(--apple-ring);
+    --color-chart-1: var(--apple-chart-1);
+    --color-chart-2: var(--apple-chart-2);
+    --color-chart-3: var(--apple-chart-3);
+    --color-chart-4: var(--apple-chart-4);
+    --color-chart-5: var(--apple-chart-5);
+    --color-sidebar: var(--apple-sidebar);
+    --color-sidebar-foreground: var(--apple-sidebar-foreground);
+    --color-sidebar-primary: var(--apple-sidebar-primary);
+    --color-sidebar-primary-foreground: var(--apple-sidebar-primary-foreground);
+    --color-sidebar-accent: var(--apple-sidebar-accent);
+    --color-sidebar-accent-foreground: var(--apple-sidebar-accent-foreground);
+    --radius-sm: var(--apple-radius-sm);
+    --radius-md: var(--apple-radius-md);
+    --radius-lg: var(--apple-radius-lg);
+    --radius-xl: var(--apple-radius-xl);
+  }
+  @layer base {
+    body { background: var(--apple-background); color: var(--apple-foreground); }
+    td, th { @apply break-words; word-break: break-all; word-break: auto-phrase; }
+    th { @apply whitespace-nowrap; }
+  }
+    </style>
+    <style id="semantic-token-fallback">
+      .bg-background { background-color: var(--apple-background); }
+      .text-background { color: var(--apple-background); }
+      .border-background { border-color: var(--apple-background); }
+      .ring-background { --tw-ring-color: var(--apple-background); }
+      .bg-foreground { background-color: var(--apple-foreground); }
+      .text-foreground { color: var(--apple-foreground); }
+      .border-foreground { border-color: var(--apple-foreground); }
+      .ring-foreground { --tw-ring-color: var(--apple-foreground); }
+      .bg-card { background-color: var(--apple-card); }
+      .text-card { color: var(--apple-card); }
+      .border-card { border-color: var(--apple-card); }
+      .ring-card { --tw-ring-color: var(--apple-card); }
+      .bg-card-foreground { background-color: var(--apple-card-foreground); }
+      .text-card-foreground { color: var(--apple-card-foreground); }
+      .border-card-foreground { border-color: var(--apple-card-foreground); }
+      .ring-card-foreground { --tw-ring-color: var(--apple-card-foreground); }
+      .bg-popover { background-color: var(--apple-popover); }
+      .text-popover { color: var(--apple-popover); }
+      .border-popover { border-color: var(--apple-popover); }
+      .ring-popover { --tw-ring-color: var(--apple-popover); }
+      .bg-popover-foreground { background-color: var(--apple-popover-foreground); }
+      .text-popover-foreground { color: var(--apple-popover-foreground); }
+      .border-popover-foreground { border-color: var(--apple-popover-foreground); }
+      .ring-popover-foreground { --tw-ring-color: var(--apple-popover-foreground); }
+      .bg-primary { background-color: var(--apple-primary); }
+      .text-primary { color: var(--apple-primary); }
+      .border-primary { border-color: var(--apple-primary); }
+      .ring-primary { --tw-ring-color: var(--apple-primary); }
+      .bg-primary-foreground { background-color: var(--apple-primary-foreground); }
+      .text-primary-foreground { color: var(--apple-primary-foreground); }
+      .border-primary-foreground { border-color: var(--apple-primary-foreground); }
+      .ring-primary-foreground { --tw-ring-color: var(--apple-primary-foreground); }
+      .bg-secondary { background-color: var(--apple-secondary); }
+      .text-secondary { color: var(--apple-secondary); }
+      .border-secondary { border-color: var(--apple-secondary); }
+      .ring-secondary { --tw-ring-color: var(--apple-secondary); }
+      .bg-secondary-foreground { background-color: var(--apple-secondary-foreground); }
+      .text-secondary-foreground { color: var(--apple-secondary-foreground); }
+      .border-secondary-foreground { border-color: var(--apple-secondary-foreground); }
+      .ring-secondary-foreground { --tw-ring-color: var(--apple-secondary-foreground); }
+      .bg-muted { background-color: var(--apple-muted); }
+      .text-muted { color: var(--apple-muted); }
+      .border-muted { border-color: var(--apple-muted); }
+      .ring-muted { --tw-ring-color: var(--apple-muted); }
+      .bg-muted-foreground { background-color: var(--apple-muted-foreground); }
+      .text-muted-foreground { color: var(--apple-muted-foreground); }
+      .border-muted-foreground { border-color: var(--apple-muted-foreground); }
+      .ring-muted-foreground { --tw-ring-color: var(--apple-muted-foreground); }
+      .bg-accent { background-color: var(--apple-accent); }
+      .text-accent { color: var(--apple-accent); }
+      .border-accent { border-color: var(--apple-accent); }
+      .ring-accent { --tw-ring-color: var(--apple-accent); }
+      .bg-accent-foreground { background-color: var(--apple-accent-foreground); }
+      .text-accent-foreground { color: var(--apple-accent-foreground); }
+      .border-accent-foreground { border-color: var(--apple-accent-foreground); }
+      .ring-accent-foreground { --tw-ring-color: var(--apple-accent-foreground); }
+      .bg-destructive { background-color: var(--apple-destructive); }
+      .text-destructive { color: var(--apple-destructive); }
+      .border-destructive { border-color: var(--apple-destructive); }
+      .ring-destructive { --tw-ring-color: var(--apple-destructive); }
+      .bg-destructive-foreground { background-color: var(--apple-destructive-foreground); }
+      .text-destructive-foreground { color: var(--apple-destructive-foreground); }
+      .border-destructive-foreground { border-color: var(--apple-destructive-foreground); }
+      .ring-destructive-foreground { --tw-ring-color: var(--apple-destructive-foreground); }
+      .bg-border { background-color: var(--apple-border); }
+      .text-border { color: var(--apple-border); }
+      .border-border { border-color: var(--apple-border); }
+      .ring-border { --tw-ring-color: var(--apple-border); }
+      .bg-input { background-color: var(--apple-input); }
+      .text-input { color: var(--apple-input); }
+      .border-input { border-color: var(--apple-input); }
+      .ring-input { --tw-ring-color: var(--apple-input); }
+      .bg-ring { background-color: var(--apple-ring); }
+      .text-ring { color: var(--apple-ring); }
+      .border-ring { border-color: var(--apple-ring); }
+      .ring-ring { --tw-ring-color: var(--apple-ring); }
+      .bg-chart-1 { background-color: var(--apple-chart-1); }
+      .text-chart-1 { color: var(--apple-chart-1); }
+      .border-chart-1 { border-color: var(--apple-chart-1); }
+      .ring-chart-1 { --tw-ring-color: var(--apple-chart-1); }
+      .bg-chart-2 { background-color: var(--apple-chart-2); }
+      .text-chart-2 { color: var(--apple-chart-2); }
+      .border-chart-2 { border-color: var(--apple-chart-2); }
+      .ring-chart-2 { --tw-ring-color: var(--apple-chart-2); }
+      .bg-chart-3 { background-color: var(--apple-chart-3); }
+      .text-chart-3 { color: var(--apple-chart-3); }
+      .border-chart-3 { border-color: var(--apple-chart-3); }
+      .ring-chart-3 { --tw-ring-color: var(--apple-chart-3); }
+      .bg-chart-4 { background-color: var(--apple-chart-4); }
+      .text-chart-4 { color: var(--apple-chart-4); }
+      .border-chart-4 { border-color: var(--apple-chart-4); }
+      .ring-chart-4 { --tw-ring-color: var(--apple-chart-4); }
+      .bg-chart-5 { background-color: var(--apple-chart-5); }
+      .text-chart-5 { color: var(--apple-chart-5); }
+      .border-chart-5 { border-color: var(--apple-chart-5); }
+      .ring-chart-5 { --tw-ring-color: var(--apple-chart-5); }
+      .bg-sidebar { background-color: var(--apple-sidebar); }
+      .text-sidebar { color: var(--apple-sidebar); }
+      .border-sidebar { border-color: var(--apple-sidebar); }
+      .ring-sidebar { --tw-ring-color: var(--apple-sidebar); }
+      .bg-sidebar-foreground { background-color: var(--apple-sidebar-foreground); }
+      .text-sidebar-foreground { color: var(--apple-sidebar-foreground); }
+      .border-sidebar-foreground { border-color: var(--apple-sidebar-foreground); }
+      .ring-sidebar-foreground { --tw-ring-color: var(--apple-sidebar-foreground); }
+      .bg-sidebar-primary { background-color: var(--apple-sidebar-primary); }
+      .text-sidebar-primary { color: var(--apple-sidebar-primary); }
+      .border-sidebar-primary { border-color: var(--apple-sidebar-primary); }
+      .ring-sidebar-primary { --tw-ring-color: var(--apple-sidebar-primary); }
+      .bg-sidebar-primary-foreground { background-color: var(--apple-sidebar-primary-foreground); }
+      .text-sidebar-primary-foreground { color: var(--apple-sidebar-primary-foreground); }
+      .border-sidebar-primary-foreground { border-color: var(--apple-sidebar-primary-foreground); }
+      .ring-sidebar-primary-foreground { --tw-ring-color: var(--apple-sidebar-primary-foreground); }
+      .bg-sidebar-accent { background-color: var(--apple-sidebar-accent); }
+      .text-sidebar-accent { color: var(--apple-sidebar-accent); }
+      .border-sidebar-accent { border-color: var(--apple-sidebar-accent); }
+      .ring-sidebar-accent { --tw-ring-color: var(--apple-sidebar-accent); }
+      .bg-sidebar-accent-foreground { background-color: var(--apple-sidebar-accent-foreground); }
+      .text-sidebar-accent-foreground { color: var(--apple-sidebar-accent-foreground); }
+      .border-sidebar-accent-foreground { border-color: var(--apple-sidebar-accent-foreground); }
+      .ring-sidebar-accent-foreground { --tw-ring-color: var(--apple-sidebar-accent-foreground); }
+    </style>
+    <style>
+      .no-scrollbar::-webkit-scrollbar { display: none; }
+      .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+      [data-icon] {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        -webkit-mask-size: contain;
+        mask-size: contain;
+        -webkit-mask-repeat: no-repeat;
+        mask-repeat: no-repeat;
+        -webkit-mask-position: center;
+        mask-position: center;
+        background-color: currentColor;
+      }
+    </style>
+</head>
+<body class="antialiased">
+<svg style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true">
+  <defs>
+    <symbol id="icon-arrow-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></symbol>
+    <symbol id="icon-chevron-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></symbol>
+    <symbol id="icon-chevron-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></symbol>
+    <symbol id="icon-external-link" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></symbol>
+    <symbol id="icon-mail" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7"/><rect x="2" y="4" width="20" height="16" rx="2"/></symbol>
+    <symbol id="icon-file" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z"/><path d="M14 2v5a1 1 0 0 0 1 1h5"/></symbol>
+    <symbol id="icon-folder-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 14 1.5-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.54 6a2 2 0 0 1-1.95 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H18a2 2 0 0 1 2 2v2"/></symbol>
+    <symbol id="icon-box" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></symbol>
+    <symbol id="icon-mouse-pointer-click" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4.1 12 6"/><path d="m5.1 8-2.9-.8"/><path d="m6 12-1.9 2"/><path d="M7.2 2.2 8 5.1"/><path d="M9.037 9.69a.498.498 0 0 1 .653-.653l11 4.5a.5.5 0 0 1-.074.949l-4.349 1.041a1 1 0 0 0-.74.739l-1.04 4.35a.5.5 0 0 1-.95.074z"/></symbol>
+    <symbol id="icon-circle-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></symbol>
+    <symbol id="icon-message-circle-more" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719"/><path d="M8 12h.01"/><path d="M12 12h.01"/><path d="M16 12h.01"/></symbol>
+    <symbol id="icon-circle-play" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 9.003a1 1 0 0 1 1.517-.859l4.997 2.997a1 1 0 0 1 0 1.718l-4.997 2.997A1 1 0 0 1 9 14.996z"/><circle cx="12" cy="12" r="10"/></symbol>
+    <symbol id="icon-triangle-alert" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></symbol>
+    <symbol id="icon-heart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9.5a5.5 5.5 0 0 1 9.591-3.676.56.56 0 0 0 .818 0A5.49 5.49 0 0 1 22 9.5c0 2.29-1.5 4-3 5.5l-5.492 5.313a2 2 0 0 1-3 .019L5 15c-1.5-1.5-3-3.2-3-5.5"/></symbol>
+    <symbol id="icon-send-horizontal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.714 3.048a.498.498 0 0 0-.683.627l2.843 7.627a2 2 0 0 1 0 1.396l-2.842 7.627a.498.498 0 0 0 .682.627l18-8.5a.5.5 0 0 0 0-.904z"/><path d="M6 12h16"/></symbol>
+    <symbol id="icon-tag" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"/><circle cx="7.5" cy="7.5" r=".5" fill="currentColor"/></symbol>
+  </defs>
+</svg>
+
+<style id="critical-layout">
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=JetBrains+Mono:wght@400..700&display=swap');
+
+*,*::before,*::after{box-sizing:border-box;}
+html{scroll-behavior:smooth;scroll-padding-top:52px;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;}
+body{margin:0;padding:0;background:var(--background);color:var(--foreground);font-family:var(--font-sans);font-size:17px;line-height:1.47059;letter-spacing:-0.022em;}
+a{color:inherit;text-decoration:none;}
+button,input{font:inherit;color:inherit;}
+img,svg{display:block;max-width:100%;}
+.icon-svg{width:24px;height:24px;color:currentColor;flex-shrink:0;}
+.icon-sm{width:16px;height:16px;}
+.icon-md{width:28px;height:28px;}
+.icon-lg{width:40px;height:40px;}
+
+.container{max-width:1024px;margin:0 auto;padding:0 22px;}
+.container-wide{max-width:1184px;margin:0 auto;padding:0 22px;}
+
+.apple-section{width:100%;padding:80px 0;}
+.section-muted{background:var(--muted);}
+.section-dark{
+  --background:var(--background-900);
+  --foreground:var(--text-50);
+  --card:var(--background-800);
+  --card-foreground:var(--text-50);
+  --primary:var(--brand-400);
+  --primary-foreground:var(--background-900);
+  --secondary:var(--background-800);
+  --secondary-foreground:var(--text-50);
+  --muted:var(--background-800);
+  --muted-foreground:var(--text-400);
+  --accent:var(--background-700);
+  --accent-foreground:var(--text-50);
+  --border:var(--background-700);
+  background:var(--background);color:var(--foreground);
+}
+
+.section-header{text-align:center;margin-bottom:48px;}
+.apple-eyebrow{font-size:14px;font-weight:400;letter-spacing:-0.016em;color:var(--muted-foreground);margin:0 0 8px;}
+.apple-display-1{font-size:clamp(40px,6vw,80px);line-height:1.05;letter-spacing:-0.03em;font-weight:600;margin:0;}
+.apple-display-2{font-size:clamp(32px,4.5vw,56px);line-height:1.07;letter-spacing:-0.005em;font-weight:600;margin:0;}
+.apple-display-3{font-size:clamp(28px,3.5vw,40px);line-height:1.1;font-weight:600;margin:0;}
+.apple-headline{font-size:21px;line-height:1.2;font-weight:600;margin:0;}
+.apple-copy{font-size:21px;line-height:1.35;color:var(--muted-foreground);max-width:640px;margin:16px auto 0;}
+.apple-copy-sm{font-size:17px;line-height:1.5;color:var(--muted-foreground);margin:0;}
+
+/* Nav */
+.globalnav{position:sticky;top:0;z-index:9999;width:100%;height:44px;background:color-mix(in srgb,var(--background) 80%,transparent);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);border-bottom:1px solid color-mix(in srgb,var(--foreground) 4%,transparent);}
+.globalnav-inner{max-width:1024px;height:100%;margin:0 auto;padding:0 22px;display:flex;align-items:center;justify-content:space-between;gap:16px;}
+.globalnav-brand{font-size:14px;font-weight:600;letter-spacing:-0.01em;color:inherit;white-space:nowrap;}
+.globalnav-list{display:flex;align-items:center;gap:4px;list-style:none;margin:0;padding:0;overflow-x:auto;}
+.globalnav-link{flex-shrink:0;display:inline-flex;align-items:center;height:32px;padding:0 12px;border-radius:999px;font-size:13px;font-weight:400;letter-spacing:-0.01em;color:color-mix(in srgb,var(--foreground) 80%,transparent);transition:background-color .18s ease,color .18s ease;}
+.globalnav-link:hover{background:var(--secondary);color:var(--foreground);}
+.globalnav-cta{flex-shrink:0;display:inline-flex;align-items:center;height:28px;padding:0 16px;border-radius:999px;background:var(--primary);color:var(--primary-foreground);font-size:12px;font-weight:500;transition:filter .18s ease;}
+.globalnav-cta:hover{filter:brightness(.96);}
+
+/* Hero */
+.apple-hero{padding:96px 0 64px;text-align:center;}
+.hero-eyebrow{color:var(--primary);}
+.hero-copy{color:color-mix(in srgb,var(--foreground) 80%,transparent);max-width:640px;margin:20px auto 0;}
+.hero-cta{display:flex;flex-wrap:wrap;justify-content:center;gap:16px;margin-top:32px;}
+.apple-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:44px;padding:0 24px;border-radius:999px;font-size:17px;font-weight:400;transition:background-color .18s ease,color .18s ease,filter .18s ease,border-color .18s ease;white-space:nowrap;border:1px solid transparent;}
+.apple-btn-primary{background:var(--primary);color:var(--primary-foreground);}
+.apple-btn-primary:hover{filter:brightness(.96);}
+.apple-btn-secondary{background:transparent;color:var(--primary);border-color:var(--primary);}
+.apple-btn-secondary:hover{background:var(--primary);color:var(--primary-foreground);}
+.apple-btn-sm{height:36px;padding:0 18px;font-size:14px;}
+.hero-visual{margin:56px auto 0;max-width:920px;width:100%;aspect-ratio:16/9;border-radius:18px;background:radial-gradient(60% 80% at 50% 30%,color-mix(in srgb,var(--primary) 45%,transparent),transparent 60%),radial-gradient(80% 100% at 50% 100%,color-mix(in srgb,var(--foreground) 5%,transparent),transparent 60%),var(--background);border:1px solid color-mix(in srgb,var(--foreground) 8%,transparent);display:grid;place-items:center;position:relative;overflow:hidden;}
+.hero-visual::before{content:"";position:absolute;width:240px;height:240px;border-radius:50%;border:1px solid color-mix(in srgb,var(--foreground) 14%,transparent);animation:hero-pulse 6s ease-in-out infinite;}
+.hero-visual::after{content:"";position:absolute;width:160px;height:160px;border-radius:50%;border:1px solid color-mix(in srgb,var(--primary) 30%,transparent);animation:hero-spin 18s linear infinite;}
+@keyframes hero-pulse{0%,100%{transform:scale(1);opacity:1;}50%{transform:scale(1.08);opacity:.7;}}
+@keyframes hero-spin{0%{transform:rotate(0deg);}100%{transform:rotate(360deg);}}
+
+/* Feature stripe */
+.feature-stripe{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:0;border-radius:18px;overflow:hidden;background:var(--card);border:1px solid var(--border);margin-top:64px;}
+.feature-cell{padding:32px 20px;display:flex;flex-direction:column;align-items:center;gap:8px;border-right:1px solid var(--border);text-align:center;}
+.feature-cell:last-child{border-right:none;}
+.feature-num{font-size:36px;line-height:1;font-weight:600;letter-spacing:-0.02em;}
+.feature-label{font-size:13px;color:var(--muted-foreground);}
+
+/* Cards */
+.apple-card{border:1px solid var(--border);border-radius:18px;background:var(--card);box-shadow:var(--shadow-sm);transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease;}
+.apple-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-md);border-color:var(--primary);}
+.card-padded{padding:24px;}
+.is-disabled{opacity:.55;pointer-events:none;}
+
+/* Bento */
+.bento{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;}
+.bento-card{min-height:320px;padding:40px;display:flex;flex-direction:column;gap:12px;}
+.bento-card.span-2{grid-column:span 2;}
+.bento-art{flex:1;min-height:120px;display:grid;place-items:center;}
+.bento-art .icon-svg{width:96px;height:96px;color:var(--foreground);opacity:.9;}
+
+/* Modules / quick grids */
+.module-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;}
+.quick-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;}
+.module-card,.quick-card{padding:24px;display:flex;flex-direction:column;gap:10px;}
+.module-card .icon-svg,.quick-card .icon-svg{width:32px;height:32px;color:var(--foreground);}
+.module-title,.quick-title{font-size:17px;font-weight:600;line-height:1.25;margin:0;}
+.module-desc,.quick-desc{font-size:14px;line-height:1.5;color:var(--muted-foreground);margin:0;}
+
+/* Product-grid tools */
+.tool-category{display:flex;align-items:center;gap:12px;margin:48px 0 20px;padding-bottom:12px;border-bottom:1px solid var(--border);}
+.tool-category:first-child{margin-top:0;}
+.tool-category h3{font-size:21px;font-weight:600;margin:0;}
+.tool-count{font-size:13px;color:var(--muted-foreground);background:var(--secondary);padding:4px 10px;border-radius:999px;}
+.tool-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:16px;}
+.tool-card{display:flex;flex-direction:column;gap:10px;padding:16px;border:1px solid var(--border);border-radius:18px;background:var(--card);box-shadow:var(--shadow-xs);transition:border-color .2s ease,transform .2s ease,box-shadow .2s ease;color:inherit;}
+.tool-card:hover{border-color:var(--primary);transform:translateY(-1px);box-shadow:var(--shadow-sm);}
+.tool-art{aspect-ratio:1;border-radius:calc(var(--radius) - 4px);background:linear-gradient(135deg,var(--secondary),var(--background));border:1px solid var(--border);display:grid;place-items:center;}
+.tool-art .icon-svg{width:40px;height:40px;color:var(--foreground);}
+.tool-meta{display:flex;justify-content:space-between;align-items:center;gap:8px;}
+.badge{font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:4px 8px;border-radius:999px;}
+.badge-pro{background:color-mix(in srgb,var(--primary) 12%,transparent);color:var(--primary);}
+.badge-all{background:color-mix(in srgb,var(--muted-foreground) 12%,transparent);color:var(--muted-foreground);}
+.tool-cat{font-size:12px;color:var(--muted-foreground);}
+.tool-title{font-size:16px;font-weight:600;line-height:1.25;margin:0;}
+.tool-desc{font-size:14px;line-height:1.5;color:var(--muted-foreground);flex:1;margin:0;}
+.tool-link{font-size:13px;color:var(--primary);display:inline-flex;align-items:center;gap:4px;margin-top:auto;}
+
+/* News */
+.news-card{margin-bottom:16px;}
+.news-header{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:16px;}
+.news-list{display:flex;flex-direction:column;gap:10px;}
+.news-item{display:flex;justify-content:space-between;gap:16px;padding:14px 16px;border-radius:12px;background:var(--background);border:1px solid var(--border);transition:border-color .18s ease,transform .18s ease;}
+.news-item:hover{border-color:var(--primary);transform:translateX(4px);}
+.news-item-main{min-width:0;}
+.news-item-title{font-size:15px;font-weight:600;line-height:1.3;margin:0 0 4px;}
+.news-item-summary{font-size:13px;line-height:1.5;color:var(--muted-foreground);margin:0;}
+.news-item-meta{flex-shrink:0;text-align:right;}
+.news-item-source{font-size:12px;font-weight:600;color:var(--primary);}
+.news-item-date{font-size:12px;color:var(--muted-foreground);}
+.archive-toggle{display:flex;justify-content:space-between;align-items:center;cursor:pointer;padding:4px 0;}
+.archive-arrow{transition:transform .3s ease;}
+.archive-arrow.open{transform:rotate(180deg);}
+.news-empty{font-size:14px;color:var(--muted-foreground);padding:16px 0;}
+
+/* About */
+.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
+.info-list{display:flex;flex-direction:column;gap:14px;}
+.info-row{padding-bottom:14px;border-bottom:1px solid var(--border);}
+.info-row:last-child{border-bottom:none;padding-bottom:0;}
+.info-label{font-size:12px;color:var(--muted-foreground);margin-bottom:2px;}
+.info-value{font-size:15px;line-height:1.4;}
+.research-tags{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;}
+.research-tag{font-size:13px;font-weight:500;padding:6px 12px;border-radius:999px;background:var(--secondary);color:var(--secondary-foreground);}
+.achievement-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px;}
+.achievement-list li{font-size:14px;line-height:1.6;color:var(--muted-foreground);padding-left:18px;position:relative;}
+.achievement-list li::before{content:"";position:absolute;left:0;top:9px;width:6px;height:6px;border-radius:50%;background:var(--primary);}
+.skill-cloud{display:flex;flex-wrap:wrap;gap:10px;}
+.skill-chip{font-size:14px;font-weight:500;padding:8px 14px;border-radius:999px;background:var(--secondary);color:var(--secondary-foreground);transition:background-color .18s ease,color .18s ease;}
+.skill-chip:hover{background:var(--primary);color:var(--primary-foreground);}
+
+/* Timeline */
+.timeline{position:relative;padding-left:24px;}
+.timeline::before{content:"";position:absolute;left:7px;top:4px;bottom:4px;width:2px;background:var(--border);border-radius:2px;}
+.timeline-item{position:relative;margin-bottom:20px;}
+.timeline-dot{position:absolute;left:-24px;top:6px;width:16px;height:16px;border-radius:50%;background:var(--background);border:2px solid var(--primary);}
+.timeline-date{font-size:12px;font-weight:600;color:var(--primary);letter-spacing:.05em;}
+.timeline-title{font-size:17px;font-weight:600;margin:4px 0 2px;}
+.timeline-loc{font-size:14px;color:var(--muted-foreground);}
+
+/* Videos */
+.video-card{text-align:center;padding:48px 24px;}
+.video-tags{display:flex;justify-content:center;flex-wrap:wrap;gap:10px;margin-bottom:32px;}
+.video-tag{font-size:14px;padding:8px 14px;border-radius:999px;background:var(--secondary);color:var(--secondary-foreground);}
+.video-coming{display:flex;flex-direction:column;align-items:center;gap:12px;}
+.video-coming .icon-svg{width:64px;height:64px;color:var(--muted-foreground);}
+.video-coming p{margin:0;font-size:17px;color:var(--muted-foreground);}
+
+/* Contact */
+.contact-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+.contact-card{padding:20px;border-radius:16px;background:var(--secondary);display:flex;align-items:center;gap:14px;color:inherit;transition:background-color .18s ease;}
+.contact-card:hover{background:var(--accent);}
+.contact-icon{width:40px;height:40px;color:var(--foreground);flex-shrink:0;}
+.contact-label{font-size:12px;color:var(--muted-foreground);margin-bottom:2px;}
+.contact-value{font-size:15px;font-weight:500;}
+
+/* Footer */
+.apple-footer{background:var(--muted);color:var(--muted-foreground);font-size:12px;line-height:1.5;padding:28px 0;text-align:center;}
+
+/* Responsive */
+@media (max-width:1024px){
+  .about-grid{grid-template-columns:1fr;}
+  .tool-grid,.module-grid,.quick-grid{grid-template-columns:repeat(2,1fr);}
+  .contact-grid{grid-template-columns:1fr;}
+}
+@media (max-width:832px){
+  .globalnav-list{gap:2px;}
+  .globalnav-link{padding:0 10px;font-size:12px;}
+  .bento{grid-template-columns:1fr;}
+  .bento-card.span-2{grid-column:span 1;}
+}
+@media (max-width:640px){
+  .apple-section{padding:56px 0;}
+  .container,.container-wide{padding:0 16px;}
+  .feature-stripe{grid-template-columns:1fr;}
+  .feature-cell{border-right:none;border-bottom:1px solid var(--border);}
+  .feature-cell:last-child{border-bottom:none;}
+  .tool-grid,.module-grid,.quick-grid{grid-template-columns:1fr;}
+  .news-item{flex-direction:column;}
+  .news-item-meta{text-align:left;}
+  .hero-visual{border-radius:12px;}
+}
+
+/* Reveal */
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .6s ease,transform .6s ease;}
+.reveal.visible{opacity:1;transform:none;}
+</style>
+
+<main>
+  <nav class="globalnav" aria-label="Global">
+    <div class="globalnav-inner">
+      <a class="globalnav-brand" href="#top">孙琪翔</a>
+      <ul class="globalnav-list">
+        <li><a class="globalnav-link" href="#news">AI动态</a></li>
+        <li><a class="globalnav-link" href="#about">关于我</a></li>
+        <li><a class="globalnav-link" href="#empower">妇女赋能</a></li>
+        <li><a class="globalnav-link" href="#courses">课程</a></li>
+        <li><a class="globalnav-link" href="#tools">工具</a></li>
+        <li><a class="globalnav-link" href="#videos">视频</a></li>
+        <li><a class="globalnav-link" href="#downloads">下载</a></li>
+        <li><a class="globalnav-link" href="#contact">联系</a></li>
+      </ul>
+      <a class="globalnav-cta" href="workspace.html" data-dom-id="nav-workspace">工作台</a>
+    </div>
+  </nav>
+
+  <section class="apple-section section-dark apple-hero" id="top">
+    <div class="container">
+      <p class="apple-eyebrow hero-eyebrow">AI 赋能 · 妇女发展 · 前沿教学</p>
+      <h1 class="apple-display-1">用 AI 把前沿工具<br>变成她手中的生产力</h1>
+      <p class="hero-copy">孙琪翔 · 中华女子学院 AI 专业讲师<br>首都师范大学博士 · 计算机视觉 / 大语言模型性别偏见评测 / 前端图形学</p>
+      <div class="hero-cta">
+        <a class="apple-btn apple-btn-primary" href="#courses">浏览课程</a>
+        <a class="apple-btn apple-btn-secondary" href="#about">了解更多</a>
+      </div>
+      <div class="hero-visual" aria-hidden="true"></div>
+      <div class="feature-stripe">
+        <div class="feature-cell"><span class="feature-num">10+</span><span class="feature-label">发表论文</span></div>
+        <div class="feature-cell"><span class="feature-num">2</span><span class="feature-label">SCI 二区 TOP</span></div>
+        <div class="feature-cell"><span class="feature-num">4+</span><span class="feature-label">省市级讲座</span></div>
+        <div class="feature-cell"><span class="feature-num">3</span><span class="feature-label">教学课程</span></div>
+        <div class="feature-cell"><span class="feature-num">3</span><span class="feature-label">国自然参与</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="apple-section" id="news">
+    <div class="container">
+      <header class="section-header reveal">
+        <p class="apple-eyebrow">AI NEWS</p>
+        <h2 class="apple-display-2">AI 最新动态</h2>
+        <p class="apple-copy">每日精选 AI 领域重要新闻，保持对前沿技术的关注。</p>
+      </header>
+
+      <article class="apple-card card-padded news-card reveal">
+        <div class="news-header">
+          <h3 class="apple-headline">今日精选</h3>
+          <span class="apple-copy-sm" id="newsUpdateDate"></span>
+        </div>
+        <div class="news-list" id="newsCurrentList">
+          <p class="news-empty">新闻加载中，请稍后刷新。</p>
+        </div>
+      </article>
+
+      <article class="apple-card card-padded news-card reveal">
+        <div class="archive-toggle" id="archiveToggle" role="button" tabindex="0" aria-expanded="false">
+          <h3 class="apple-headline">历史动态</h3>
+          <svg class="icon-svg icon-sm archive-arrow" id="archiveArrow"><use href="#icon-chevron-down"/></svg>
+        </div>
+        <div class="news-list" id="newsArchiveList" style="display:none;margin-top:16px;"></div>
+        <p class="news-empty" id="newsEmptyHint" style="display:none;">暂无历史新闻。</p>
+      </article>
+
+      <div class="quick-grid" style="margin-top:24px;">
+        <a class="apple-card quick-card reveal" href="https://www.codebuddy.cn/docs/workbuddy/Overview" target="_blank" rel="noopener">
+          <svg class="icon-svg icon-md"><use href="#icon-external-link"/></svg>
+          <h4 class="quick-title">WorkBuddy 文档</h4>
+          <p class="quick-desc">CodeBuddy 官方使用指南</p>
+        </a>
+        <a class="apple-card quick-card reveal" href="https://arxiv.org" target="_blank" rel="noopener">
+          <svg class="icon-svg icon-md"><use href="#icon-external-link"/></svg>
+          <h4 class="quick-title">arXiv</h4>
+          <p class="quick-desc">预印本论文检索</p>
+        </a>
+        <a class="apple-card quick-card reveal" href="https://huggingface.co" target="_blank" rel="noopener">
+          <svg class="icon-svg icon-md"><use href="#icon-external-link"/></svg>
+          <h4 class="quick-title">Hugging Face</h4>
+          <p class="quick-desc">开源模型与数据集</p>
+        </a>
+        <a class="apple-card quick-card reveal" href="https://www.bilibili.com" target="_blank" rel="noopener">
+          <svg class="icon-svg icon-md"><use href="#icon-external-link"/></svg>
+          <h4 class="quick-title">B 站 LLM 可视化合集</h4>
+          <p class="quick-desc">教学视频资源</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="apple-section section-muted" id="about">
+    <div class="container">
+      <header class="section-header reveal">
+        <p class="apple-eyebrow">ABOUT</p>
+        <h2 class="apple-display-2">关于我</h2>
+      </header>
+      <div class="about-grid">
+        <article class="apple-card card-padded reveal">
+          <h3 class="apple-headline" style="margin-bottom:16px;">个人信息</h3>
+          <div class="info-list">
+            <div class="info-row"><div class="info-label">姓名</div><div class="info-value">孙琪翔（Sun Qixiang）</div></div>
+            <div class="info-row"><div class="info-label">单位</div><div class="info-value">中华女子学院 · 数据科学与信息技术学院</div></div>
+            <div class="info-row"><div class="info-label">职称</div><div class="info-value">AI 专业讲师（2025.09 至今）</div></div>
+            <div class="info-row"><div class="info-label">兼任</div><div class="info-value">干训部教师；借调国际教育学院（援外培训）</div></div>
+            <div class="info-row"><div class="info-label">学历</div><div class="info-value">首都师范大学 博士（2025.06 毕业，导师 赵星教授）</div></div>
+            <div class="info-row"><div class="info-label">城市</div><div class="info-value">北京</div></div>
+          </div>
+        </article>
+        <article class="apple-card card-padded reveal">
+          <h3 class="apple-headline" style="margin-bottom:16px;">研究方向</h3>
+          <div class="research-tags">
+            <span class="research-tag">AI / 计算机视觉</span>
+            <span class="research-tag">大语言模型性别偏见评测</span>
+            <span class="research-tag">低剂量 CT 图像重建</span>
+            <span class="research-tag">医学影像深度学习</span>
+            <span class="research-tag">前端图形学 Three.js / WebGL / WebGPU</span>
+          </div>
+          <h3 class="apple-headline" style="margin:24px 0 16px;">学术成果</h3>
+          <ul class="achievement-list">
+            <li>发表论文 10+ 篇，含 2 篇 SCI 二区 TOP（CMPB 2024、IEEE TIM 2024）</li>
+            <li>专利 1 项（学生一作）、软著 1 项</li>
+            <li>参与 3 项国家自然科学基金项目</li>
+            <li>荣誉：博士一等学业奖学金、北京市优秀毕业生等 4 项</li>
+          </ul>
+        </article>
+      </div>
+      <article class="apple-card card-padded reveal">
+        <h3 class="apple-headline" style="margin-bottom:16px;">技能标签</h3>
+        <div class="skill-cloud">
+          <span class="skill-chip">人工智能</span>
+          <span class="skill-chip">计算机视觉</span>
+          <span class="skill-chip">LLM 性别偏见评测</span>
+          <span class="skill-chip">CT 图像重建</span>
+          <span class="skill-chip">前端图形学 / Three.js</span>
+          <span class="skill-chip">AI 赋能培训</span>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section class="apple-section section-dark" id="empower">
+    <div class="container">
+      <header class="section-header reveal">
+        <p class="apple-eyebrow">EMPOWERMENT</p>
+        <h2 class="apple-display-2">妇女赋能专栏</h2>
+        <p class="apple-copy">用 AI 把前沿工具变成基层妇联与女性工作者用得上的生产力——从识图、写稿到数据分析，让技术真正服务"她"。</p>
+      </header>
+
+      <article class="apple-card card-padded reveal">
+        <h3 class="apple-headline" style="margin-bottom:20px;">系列讲座</h3>
+        <div class="timeline">
+          <div class="timeline-item">
+            <div class="timeline-dot"></div>
+            <div class="timeline-content">
+              <div class="timeline-date">2026.05</div>
+              <div class="timeline-title">WorkBuddy 功能演示与 Vibe Coding</div>
+              <div class="timeline-loc">中华女子学院 · 高校师生 · 首次在高校办讲座</div>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-dot"></div>
+            <div class="timeline-content">
+              <div class="timeline-date">2026.06</div>
+              <div class="timeline-title">她力量 × AI 赋能</div>
+              <div class="timeline-loc">内蒙古呼伦贝尔 · 妇联执委 · "北疆巾慧"项目</div>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-dot"></div>
+            <div class="timeline-content">
+              <div class="timeline-date">2026.06.24</div>
+              <div class="timeline-title">AI 赋能讲座</div>
+              <div class="timeline-loc">甘肃漳县（妇联）· 基层妇联 · 开展座谈</div>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-dot"></div>
+            <div class="timeline-content">
+              <div class="timeline-date">2026.06.25</div>
+              <div class="timeline-title">AI 赋能讲座</div>
+              <div class="timeline-loc">甘肃西和县（妇联）· 基层妇联 · 开展座谈</div>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <div class="module-grid" style="margin:24px 0;">
+        <article class="apple-card module-card reveal">
+          <svg class="icon-svg icon-md"><use href="#icon-circle-check"/></svg>
+          <h4 class="module-title">AI 赋能基层</h4>
+          <p class="module-desc">零基础讲透豆包、DeepSeek、WorkBuddy 在办公、识图、表格、语音转写中的用法。</p>
+        </article>
+        <article class="apple-card module-card reveal">
+          <svg class="icon-svg icon-md"><use href="#icon-heart"/></svg>
+          <h4 class="module-title">她力量 × 数字素养</h4>
+          <p class="module-desc">面向妇联执委与乡镇干部的数字能力提升路径。</p>
+        </article>
+        <article class="apple-card module-card reveal">
+          <svg class="icon-svg icon-md"><use href="#icon-triangle-alert"/></svg>
+          <h4 class="module-title">女性与 AI 偏见</h4>
+          <p class="module-desc">结合 LLM 性别偏见评测研究，科普 AI 中的性别议题与应对。</p>
+        </article>
+        <article class="apple-card module-card reveal">
+          <svg class="icon-svg icon-md"><use href="#icon-folder-open"/></svg>
+          <h4 class="module-title">案例库</h4>
+          <p class="module-desc">讲座中真实案例：自动找工作 Agent、自我分析画像、Resume 生成等。</p>
+        </article>
+      </div>
+
+      <div class="quick-grid">
+        <article class="apple-card quick-card reveal">
+          <svg class="icon-svg icon-md"><use href="#icon-message-circle-more"/></svg>
+          <h4 class="quick-title">妇联执委 / 乡镇女干部</h4>
+          <p class="quick-desc">办公提效与基层服务</p>
+        </article>
+        <article class="apple-card quick-card reveal">
+          <svg class="icon-svg icon-md"><use href="#icon-circle-check"/></svg>
+          <h4 class="quick-title">高校女生</h4>
+          <p class="quick-desc">AI 通识与职业发展</p>
+        </article>
+        <article class="apple-card quick-card reveal">
+          <svg class="icon-svg icon-md"><use href="#icon-send-horizontal"/></svg>
+          <h4 class="quick-title">基层女性创业者 / 返创女性</h4>
+          <p class="quick-desc">数字工具与内容创作</p>
+        </article>
+        <article class="apple-card quick-card reveal">
+          <svg class="icon-svg icon-md"><use href="#icon-mouse-pointer-click"/></svg>
+          <h4 class="quick-title">援外培训学员</h4>
+          <p class="quick-desc">国际教育学院交流</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="apple-section" id="courses">
+    <div class="container">
+      <header class="section-header reveal">
+        <p class="apple-eyebrow">COURSES</p>
+        <h2 class="apple-display-2">培训课程</h2>
+      </header>
+      <div class="bento">
+        <article class="apple-card bento-card reveal">
+          <div>
+            <span class="badge badge-pro" style="margin-bottom:8px;display:inline-block;">AI 赋能</span>
+            <h3 class="apple-display-3">AI 赋能基层系列讲座</h3>
+            <p class="apple-copy-sm" style="margin-top:8px;">面向妇联执委与乡镇干部，零基础讲透工具实战。</p>
+          </div>
+          <p class="apple-copy-sm">内蒙古 · 甘肃两县，2026</p>
+        </article>
+        <article class="apple-card bento-card reveal">
+          <div>
+            <span class="badge badge-all" style="margin-bottom:8px;display:inline-block;">高校讲座</span>
+            <h3 class="apple-display-3">WorkBuddy 与 AI 编程</h3>
+            <p class="apple-copy-sm" style="margin-top:8px;">演示对话式编程快速出作品，Vibe Coding 实战。</p>
+          </div>
+          <p class="apple-copy-sm">中华女子学院，2026.05</p>
+        </article>
+        <article class="apple-card bento-card reveal">
+          <div>
+            <span class="badge badge-pro" style="margin-bottom:8px;display:inline-block;">专业课程</span>
+            <h3 class="apple-display-3">前端图形学实用技术</h3>
+            <p class="apple-copy-sm" style="margin-top:8px;">围绕 Three.js / WebGL / WebGPU 的三维渲染与交互，配套课件+作业。</p>
+          </div>
+          <p class="apple-copy-sm">数据科学与信息技术学院（大三）</p>
+        </article>
+        <article class="apple-card bento-card reveal">
+          <div>
+            <span class="badge badge-all" style="margin-bottom:8px;display:inline-block;">通识课</span>
+            <h3 class="apple-display-3">计算机应用基础</h3>
+            <p class="apple-copy-sm" style="margin-top:8px;">办公软件、信息素养、计算思维，案例驱动。</p>
+          </div>
+          <p class="apple-copy-sm">中华女子学院</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="apple-section section-muted" id="tools">
+    <div class="container-wide">
+      <header class="section-header reveal">
+        <p class="apple-eyebrow">TOOLS</p>
+        <h2 class="apple-display-2">工具与资源导航</h2>
+        <p class="apple-copy">国内外主流 AI 工具全景梳理，涵盖对话助手、创作工具、效率办公、编程开发，适合不同场景和需求。</p>
+      </header>
+
+      <div class="tool-category reveal"><h3>对话助手 · 国内</h3><span class="tool-count">10 款</span></div>
+      <div class="tool-grid">
+        <a class="tool-card reveal" href="https://www.deepseek.com" target="_blank" rel="noopener"><div class="tool-art"><svg class="icon-svg icon-lg"><use href="#icon-external-link"/></svg></div><div class="tool-meta"><span class="badge badge-pro">专业级</span><span class="tool-cat">深度求索</span></div><h4 class="tool-title">DeepSeek</h4><p class="tool-desc">推理能力极强，擅长代码生成、数学解题、深度分析，成本低，开源生态活跃。</p><span class="tool-link">访问 <svg class="icon-svg icon-sm"><use href="#icon-arrow-right"/></svg></span></a>
+        <a class="tool-card reveal" href="https://www.doubao.com" target="_blank" rel="noopener"><div class="tool-art"><svg class="icon-svg icon-lg"><use href="#icon-external-link"/></svg></div><div class="tool-meta"><span class="badge badge-all">全民级</span><span class="tool-cat">字节跳动</span></div><h4 class="tool-title">豆包</h4><p class="tool-desc">中文理解出色，对话/写作/图像生成一体化，语音交互流畅，零基础首选。</p><span class="tool-link">访问 <svg class="icon-svg icon-sm"><use href="#icon-arrow-right"/></svg></span></a>
+        <a class="tool-card reveal" href="https://kimi.moonshot.cn" target="_blank" rel="noopener"><div class="tool-art"><svg class="icon-svg icon-lg"><use href="#icon-external-link"/></svg></div><div class="tool-meta"><span class="badge badge-pro">专业级</span><span class="tool-cat">月之暗面</span></div><h4 class="tool-title">Kimi</h4><p class="tool-desc">200 万字超长文本处理，论文/文档/报告秒读，跨语言文献整理，学术党利器。</p><span class="tool-link">访问 <svg class="icon-svg icon-sm"><use href="#icon-arrow-right"/></svg></span></a>
+        <a class="tool-card reveal" href="https://tongyi.aliyun.com" target="_blank" rel="noopener"><div class="tool-art"><svg class="icon-svg icon-lg"><use href="#icon-external-link"/></svg></div><div class="tool-meta"><span class="badge badge-pro">专业级</span><span class="tool-cat">阿里巴巴</span></div><h4 class="tool-title">通义千问</h4><p class="tool-desc">长文本与多模态能力均衡，行业定制方案丰富，金融预测、智能座舱等场景深耕。</p><span class="tool-link">访问 <svg class="icon-svg icon-sm"><use href="#icon-arrow-right"/></svg></span></a>
+        <a class="tool-card reveal" href="https://yiyan.baidu.com" target="_blank" rel="noopener"><div class="tool-art"><svg class="icon-svg icon-lg"><use href="#icon-external-link"/></svg></div><div class="tool-meta"><span class="badge badge-all">全民级</span><span class="tool-cat">百度</span></div><h4 class="tool-title">文心一言</h4><p class="tool-desc">中文理解深厚，成语/方言/网络黑话都门清，PPT 自动生成+AI 绘画一条龙。</p><span class="tool-link">访问 <svg class="icon-svg icon-sm"><use href="#icon-arrow-right"/></svg></span></a>
+        <a class="tool-card reveal" href="https://chatglm.cn" target="_blank" rel="noopener"><div class="tool-art"><svg class="icon-svg icon-lg"><use href="#icon-external-link"/></svg></div><div class="tool-meta"><span class="badge badge-pro">专业级</span><span class="tool-cat">智谱 AI</span></div><h4 class="tool-title">智谱清言</h4><p class="tool-desc">学术研究与数据分析见长，ChatGLM 系列开源模型影响力大，适合科研场景。</p><span class="tool-link">访问 <svg class="icon-svg icon-sm"><use href="#icon-arrow-right"/></svg></span></a>
+        <a class="tool-card reveal" href="https://yuanbao.tencent.com" target="_blank" rel="noopener"><div class="tool-art"><svg class="icon-svg icon-lg"><use href="#icon-external-link"/></svg></div><div class="tool-meta"><span class="badge badge-all">全民级</span><span class="tool-cat">腾讯</span></div><h4 class="tool-title">腾讯元宝</h4><p class="tool-desc">文件处理全能王，PDF/表格提取/报告拆解，深度模式与快速模式智能切换。</p><span class="tool-link">访问 <svg class="icon-svg icon-sm"><use href="#icon-arrow-right"/></svg></span></a>
+        <a class="tool-card reveal" href="https://www.tiangong.cn" target="_blank" rel="noopener"><div class="tool-art"><svg class="icon-svg icon-lg"><use href="#icon-external-link"/></svg></div><div class="tool-meta"><span class="badge badge-pro">专业级</span><span class="tool-cat">昆仑万维</span></div><h4 class="tool-title">天工 AI</h4><p class="tool-desc">国内首个音乐 SOTA 模型，AI 搜索/对话/写作/音乐生成全覆盖，多模态能力突出。</p><span class="tool-link">访问 <svg class="icon-svg icon-sm"><use href="#icon-arrow-right"/></svg></span></a>
+        <a class="tool-card reveal" href="https://xinghuo.xfyun.cn" target="_blank" rel="noopener"><div class="tool-art"><svg class="icon-svg icon-lg"><use href="#icon-external-link"/></svg></div><div class="tool-meta"><span class="badge badge-all">全民级</span><span class="tool-cat">科大讯飞</span></div><h4 class="tool-title">讯飞星火</h4><p class="tool-desc">语音识别技术领先，中文对话/翻译/办公协作出色，教育场景与行业解决方案丰富。</p><span class="tool-link">访问 <svg class="icon-svg icon-sm"><use href="#icon-arrow-right"/></svg></span></a>
+        <a class="tool-card reveal" href="https://www.baichuan-ai.com" target="_blank" rel="noopener"><div class="tool-art"><svg class="icon-svg icon-lg"><use href="#icon-external-link"/></svg></div><div class="tool-meta"><span class="badge badge-pro">专业级</span><span class="tool-cat">百川智能</span></div><h4 class="tool-title">百川智能</h4><p class="tool-desc">王小川创立，国产大模型新势力，医疗/金融等垂直领域深耕，开源模型影响力大。</p><span class="tool-link">访问 <svg class="icon-svg icon-sm"><use href="#icon-arrow-right"/></svg></span></a>
+      </div>
+
+      <div class="tool-category reveal"><h3>对话助手 · 国外</h3><span class="tool-count">6 款</span></div>
+      <div class="tool-grid">
+        <a class="tool-card reveal" href="https://chat.openai.com" target="_blank" rel="noopener"><div class="tool-art"><svg class="icon-svg icon-lg"><use href="#icon-external-link"/></svg></div><div class="tool-meta"><span class="badge badge-pro">专业级</span><span class="tool-cat">OpenAI</span></div><h4 class="tool-title">ChatGPT</h4><p class="tool-desc">综合实力最强，文字创作天花板，GPT-4o + o 系列推理模型，生态最成熟。</p><span class="tool-link">访问 <svg class="icon-svg icon-sm"><use href="#icon-arrow-right"/></svg></span></a>
+        <a class="tool-card reveal" href="https://gemini.google.com" target="_blank" rel="noopener"><div class="tool-art"><svg class="icon-svg icon-lg"><use href="#icon-external-link"/></svg></div><div class="tool-meta"><span class="badge badge-all">全民级</span><span class="tool-cat">Google</span></div><h4 class="tool-title">Gemini</h4><p class="tool-desc">多模态与搜索整合最强，速度快，与 Google 生态深度绑定。</p><span class="tool-link">访问 <svg class="icon-svg icon-sm"><use href="#icon-arrow-right"/></svg></span></a>
+        <a class="tool-card reveal" href="https://claude.ai" target="_blank" rel="noopener"><div class="tool-art"><svg class="icon-svg icon-lg"><use href="#icon-external-link"/></svg></div><div class="tool-meta"><span class="badge badge-pro">专业级</span><span class="tool-cat">Anthropic</span></div><h4 class="tool-title">Claude</h4><p class="tool-desc">长文本处理王者，安全严谨性突出，幻觉率低，深度分析比 ChatGPT 更稳。</p><span class="tool-link">访问 <svg class="icon-svg icon-sm"><use href="#icon-arrow-right"/></svg></span></a>
+        <a class="tool-card reveal" href="https://x.ai" target="_blank" rel="noopener"><div class="tool-art"><svg class="icon-svg icon-lg"><use href="#icon-external-link"/></svg></div><div class="tool-meta"><span class="badge badge-all">全民级</span><span class="tool-cat">xAI</span></div><h4 class="tool-title">Grok</h4><p class="tool-desc">Elon Musk 出品，集成 X 平台实时搜索，幽默风趣，开发者友好，免费额度充裕。</p><span class="tool-link">访问 <svg class="icon-svg icon-sm"><use href="#icon-arrow-right"/></svg></span></a>
+        <a class="tool-card reveal" href="https://www.deepl.com" target="_blank" rel="noopener"><div class="tool-art"><svg class="icon-svg icon-lg"><use href="#icon-external-link"/></svg></div><div class="tool-meta"><span class="badge badge-all">全民级</span><span class="tool-cat">DeepL</span></div><h4 class="tool-title">DeepL Write</h4><p class="tool-desc">AI 翻译与写作工具，翻译质量公认最优，支持多语言精准互译与学术写作润色。</p><span class="tool-link">访问 <svg class="icon-svg icon-sm"><use href="#icon-arrow-right"/></svg></span></a>
+        <a class="tool-card reveal" href="https://pi.ai" target="_blank" rel="noopener"><div class="tool-art"><svg class="icon-svg icon-lg"><use href="#icon-external-link"/></svg></div><div class="tool-meta"><span class="badge badge-all">全民级</span><span class="tool-cat">Inflection AI</span></div><h4 class="tool-title">Pi</h4><p class="tool-desc">个性情感陪伴型 AI 助手，对话自然亲和，擅长倾听与深度交流，心理健康场景友好。</p><span class="tool-link">访问 <svg class="icon-svg icon-sm"><use href="#icon-arrow-right"/></svg></span></a>
+      </div>
+
+      <div class="tool-category reveal"><h3>创作工具 · 图像 / 视频</h3><span class="tool-count">10 款</span></div>
+      <div class="tool-grid">
+        <a class="tool-card reveal" href="https://jimeng.jianying.com" target="_blank" rel="noopener"><div class="tool-art"><svg class="icon-svg icon-lg"><use href="#icon-external-link"/></svg></div><div class="tool-meta"><span class="badge badge-all">全民级</span><span class="tool-cat">字节跳动</span></div><h4 class="tool-title">即梦</h4><p class="tool-desc">AI 图像与视频生成，操作门槛低，支持海报/宣传图/短视频，每天免费生成。</p><span class="tool-link">访问 <svg class="icon-svg icon-sm"><use href="#icon-arrow-right"/></svg></span></a>
+        <a class="tool-card reveal" href="https://klingai.com" target="_blank" rel="noopener"><div class="tool-art"><svg class="icon-svg icon-lg"><use href="#icon-external-link"/></svg></div><div class="tool-meta"><span class="badge badge-pro">专业级</span><span class="tool-cat">快手</span></div><h4 class="tool-title">可灵 Kling</h4><p class="tool-desc">国产第一梯队视频生成模型，画质与动态表现优异，支持图生视频/文生视频。</p><span class="tool-link">访问 <svg class="icon-svg icon-sm"><use href="#icon-arrow-right"/></svg></span></a>
+        <a class="tool-card reveal" href="https://hailuoai.com" target="_blank" rel="noopener"><div class="tool-art"><svg class="icon-svg icon-lg"><use href="#icon-external-link"/></svg></div><div class="tool-meta"><span class="badge badge-pro">专业级</span><span class="tool-cat">MiniMax</span></div><h4 class="tool-title">海螺 AI / MiniMax</h4><p class="tool-desc">视频生成与语音合成能力突出，大模型性能追赶一线，国产大模型新势力。</p><span class="tool-link">访问 <svg class="icon-svg icon-sm"><use href="#icon-arrow-right"/></svg></span></a>
+        <a class="tool-card reveal" href="https://www.midjourney.com" target="_blank" rel="noopener"><div class="tool-art"><svg class="icon-svg icon-lg"><use href="#icon-external-link"/></svg></div><div class="tool-meta"><span class="badge badge-pro">专业级</span><span class="tool-cat">Midjourney</span></div><h4 class="tool-title">Midjourney</h4><p class="tool-desc">商业级 AI 绘画审美天花板，做配图/海报/概念图质感一流，设计师首选。</p><span class="tool-link">访问 <svg class="icon-svg icon-sm"><use href="#icon-arrow-right"/></svg></span></a>
+        <a class="tool-card reveal" href="https://sora.com" target="_blank" rel="noopener"><div class="tool-art"><svg class="icon-svg icon-lg"><use href="#icon-external-link"/></svg></div><div class="tool-meta"><span class="badge badge-pro">专业级</span><span class="tool-cat">OpenAI</span></div><h4 class="tool-title">Sora</h4><p class="tool-desc">OpenAI 视频生成模型，视频质量与连贯性领先，引领 AI 视频生成新纪元。</p><span class="tool-link">访问 <svg class="icon-svg icon-sm"><use href="#icon-arrow-right"/></svg></span></a>
+        <a class="tool-card reveal" href="https://labs.openai.com" target="_blank" rel="noopener"><div class="tool-art"><svg class="icon-svg icon-lg"><use href="#icon-external-link"/></svg></div><div class="tool-meta"><span class="badge badge-pro">专业级</span><span class="tool-cat">OpenAI</span></div><h4 class="tool-title">DALL·E 3</h4><p class="tool-desc">OpenAI 文生图模型，与 ChatGPT 深度集成，创意表达精准，图像细节丰富。</p><span class="tool-link">访问 <svg class="icon-svg icon-sm"><use href="#icon-arrow-right"/></svg></span></a>
+        <a class="tool-card reveal" href="https://runwayml.com" target="_blank" rel="noopener"><div class="tool-art"><svg class="icon-svg icon-lg"><use href="#icon-external-link"/></svg></div><div class="tool-meta"><span class="badge badge-pro">专业级</span><span class="tool-cat">Runway</span></div><h4 class="tool-title">Runway</h4><p class="tool-desc">AI 视频编辑与生成平台，Gen-3 Alpha 模型效果惊艳，支持视频修补/扩展/重绘。</p><span class="tool-link">访问 <svg class="icon-svg icon-sm"><use href="#icon-arrow-right"/></svg></span></a>
+        <a class="tool-card reveal" href="https://pika.art" target="_blank" rel="noopener"><div class="tool-art"><svg class="icon-svg icon-lg"><use href="#icon-external-link"/></svg></div><div class="tool-meta"><span class="badge badge-all">全民级</span><span class="tool-cat">Pika</span></div><h4 class="tool-title">Pika</h4><p class="tool-desc">轻量级 AI 视频生成，操作极简，支持文生视频/图生视频，社交媒体创作者首选。</p><span class="tool-link">访问 <svg class="icon-svg icon-sm"><use href="#icon-arrow-right"/></svg></span></a>
+        <a class="tool-card reveal" href="https://www.xiaoyunqu.com" target="_blank" rel="noopener"><div class="tool-art"><svg class="icon-svg icon-lg"><use href="#icon-external-link"/></svg></div><div class="tool-meta"><span class="badge badge-all">全民级</span><span class="tool-cat">剪映</span></div><h4 class="tool-title">小云雀</h4><p class="tool-desc">剪映出品，零门槛 AI 视频/数字人口播/图片创作，10 万字剧本一键成片。</p><span class="tool-link">访问 <svg class="icon-svg icon-sm"><use href="#icon-arrow-right"/></svg></span></a>
+        <a class="tool-card reveal" href="https://leonardo.ai" target="_blank" rel="noopener"><div class="tool-art"><svg class="icon-svg icon-lg"><use href="#icon-external-link"/></svg></div><div class="tool-meta"><span class="badge badge-all">全民级</span><span class="tool-cat">Leonardo AI</span></div><h4 class="tool-title">Leonardo AI</h4><p class="tool-desc">游戏资产生成平台，AI 绘画/风格定制/模型训练一体，艺术创作与设计人必备。</p><span class="tool-link">访问 <svg class="icon-svg icon-sm"><use href="#icon-arrow-right"/></svg></span></a>
+      </div>
+
+      <div class="tool-category reveal"><h3>AI 音乐创作</h3><span class="tool-count">6 款</span></div>
+      <div class="tool-grid">
+        <a class="tool-card reveal" href="https://suno.com" target="_blank" rel="noopener"><div class="tool-art"><svg class="icon-svg icon-lg"><use href="#icon-external-link"/></svg></div><div class="tool-meta"><span class="badge badge-pro">专业级</span><span class="tool-cat">Suno</span></div><h4 class="tool-title">Suno</h4><p class="tool-desc">AI 音乐生成里程碑，V4 版本可生成 4 分钟完整歌曲，音质出色，歌词与旋律自然流畅。</p><span class="tool-link">访问 <svg class="icon-svg icon-sm"><use href="#icon-arrow-right"/></svg></span></a>
+        <a class="tool-card reveal" href="https://www.tiangong.cn" target="_blank" rel="noopener"><div class="tool-art"><svg class="icon-svg icon-lg"><use href="#icon-external-link"/></svg></div><div class="tool-meta"><span class="badge badge-pro">专业级</span><span class="tool-cat">昆仑万维</span></div><h4 class="tool-title">天工 SkyMusic</h4><p class="tool-desc">国内首个音乐 SOTA 模型，中文人声与高音质表现突出，支持风格定制与商用。</p><span class="tool-link">访问 <svg class="icon-svg icon-sm"><use href="#icon-arrow-right"/></svg></span></a>
+        <a class="tool-card reveal" href="https://tianyin.163.com" target="_blank" rel="noopener"><div class="tool-art"><svg class="icon-svg icon-lg"><use href="#icon-external-link"/></svg></div><div class="tool-meta"><span class="badge badge-all">全民级</span><span class="tool-cat">网易云音乐</span></div><h4 class="tool-title">网易天音</h4><p class="tool-desc">一站式中文 AI 音乐创作平台，操作极简，输入描述即可生成完整歌曲，适合音乐小白。</p><span class="tool-link">访问 <svg class="icon-svg icon-sm"><use href="#icon-arrow-right"/></svg></span></a>
+        <a class="tool-card reveal" href="https://www.aiva.ai" target="_blank" rel="noopener"><div class="tool-art"><svg class="icon-svg icon-lg"><use href="#icon-external-link"/></svg></div><div class="tool-meta"><span class="badge badge-pro">专业级</span><span class="tool-cat">AIVA</span></div><h4 class="tool-title">AIVA</h4><p class="tool-desc">专业级 AI 作曲平台，擅长古典/交响乐/影视配乐，音轨级精细控制，作曲家级输出。</p><span class="tool-link">访问 <svg class="icon-svg icon-sm"><use href="#icon-arrow-right"/></svg></span></a>
+        <a class="tool-card reveal" href="https://www.udio.com" target="_blank" rel="noopener"><div class="tool-art"><svg class="icon-svg icon-lg"><use href="#icon-external-link"/></svg></div><div class="tool-meta"><span class="badge badge-all">全民级</span><span class="tool-cat">Udio</span></div><h4 class="tool-title">Udio</h4><p class="tool-desc">极简 AI 写歌软件，输入描述即可一键生成完整人声+编曲歌曲，新手友好度极高。</p><span class="tool-link">访问 <svg class="icon-svg icon-sm"><use href="#icon-arrow-right"/></svg></span></a>
+        <a class="tool-card reveal" href="https://www.mureka.ai" target="_blank" rel="noopener"><div class="tool-art"><svg class="icon-svg icon-lg"><use href="#icon-external-link"/></svg></div><div class="tool-meta"><span class="badge badge-pro">专业级</span><span class="tool-cat">昆仑万维</span></div><h4 class="tool-title">Mureka</h4><p class="tool-desc">国产 AI 音乐商用创作平台，基于 SkyMusic 2.0 大模型，支持 12 分轨+WAV 无损导出。</p><span class="tool-link">访问 <svg class="icon-svg icon-sm"><use href="#icon-arrow-right"/></svg></span></a>
+      </div>
+
+      <div class="tool-category reveal"><h3>效率办公</h3><span class="tool-count">10 款</span></div>
+      <div class="tool-grid">
+        <a class="tool-card reveal" href="https://www.wps.cn" target="_blank" rel="noopener"><div class="tool-art"><svg class="icon-svg icon-lg"><use href="#icon-external-link"/></svg></div><div class="tool-meta"><span class="badge badge-all">全民级</span><span class="tool-cat">金山办公</span></div><h4 class="tool-title">WPS 灵犀</h4><p class="tool-desc">WPS 内置 AI 助手，文档/表格/PPT 智能生成，AI 办公进入智能体时代。</p><span class="tool-link">访问 <svg class="icon-svg icon-sm"><use href="#icon-arrow-right"/></svg></span></a>
+        <a class="tool-card reveal" href="https://www.perplexity.ai" target="_blank" rel="noopener"><div class="tool-art"><svg class="icon-svg icon-lg"><use href="#icon-external-link"/></svg></div><div class="tool-meta"><span class="badge badge-pro">专业级</span><span class="tool-cat">Perplexity</span></div><h4 class="tool-title">Perplexity</h4><p class="tool-desc">AI 搜索引擎，深度研究利器，回答附带引用来源，适合资料调研与事实核查。</p><span class="tool-link">访问 <svg class="icon-svg icon-sm"><use href="#icon-arrow-right"/></svg></span></a>
+        <a class="tool-card reveal" href="https://www.notion.so" target="_blank" rel="noopener"><div class="tool-art"><svg class="icon-svg icon-lg"><use href="#icon-external-link"/></svg></div><div class="tool-meta"><span class="badge badge-pro">专业级</span><span class="tool-cat">Notion</span></div><h4 class="tool-title">Notion AI</h4><p class="tool-desc">知识管理与 AI 写作结合，笔记/文档/数据库/项目管理一体化，办公效率神器。</p><span class="tool-link">访问 <svg class="icon-svg icon-sm"><use href="#icon-arrow-right"/></svg></span></a>
+        <a class="tool-card reveal" href="https://www.grammarly.com" target="_blank" rel="noopener"><div class="tool-art"><svg class="icon-svg icon-lg"><use href="#icon-external-link"/></svg></div><div class="tool-meta"><span class="badge badge-all">全民级</span><span class="tool-cat">Grammarly</span></div><h4 class="tool-title">Grammarly</h4><p class="tool-desc">英文写作助手，语法纠错/风格优化/润色改写，学术论文与商务邮件必备。</p><span class="tool-link">访问 <svg class="icon-svg icon-sm"><use href="#icon-arrow-right"/></svg></span></a>
+        <a class="tool-card reveal" href="https://copilot.microsoft.com" target="_blank" rel="noopener"><div class="tool-art"><svg class="icon-svg icon-lg"><use href="#icon-external-link"/></svg></div><div class="tool-meta"><span class="badge badge-all">全民级</span><span class="tool-cat">Microsoft</span></div><h4 class="tool-title">Microsoft Copilot</h4><p class="tool-desc">融合 Office 365 与 Windows 的 AI 助手，Word/Excel/PPT 全场景智能辅助。</p><span class="tool-link">访问 <svg class="icon-svg icon-sm"><use href="#icon-arrow-right"/></svg></span></a>
+        <a class="tool-card reveal" href="https://www.feishu.cn" target="_blank" rel="noopener"><div class="tool-art"><svg class="icon-svg icon-lg"><use href="#icon-external-link"/></svg></div><div class="tool-meta"><span class="badge badge-all">全民级</span><span class="tool-cat">字节跳动</span></div><h4 class="tool-title">飞书 AI</h4><p class="tool-desc">文档/表格/会议/日历 AI 一体化，真正在替你工作而非替你写字，企业协作首选。</p><span class="tool-link">访问 <svg class="icon-svg icon-sm"><use href="#icon-arrow-right"/></svg></span></a>
+        <a class="tool-card reveal" href="https://gamma.app" target="_blank" rel="noopener"><div class="tool-art"><svg class="icon-svg icon-lg"><use href="#icon-external-link"/></svg></div><div class="tool-meta"><span class="badge badge-all">全民级</span><span class="tool-cat">Gamma</span></div><h4 class="tool-title">Gamma</h4><p class="tool-desc">AI PPT 生成神器，10 分钟做出专业级演示文稿，支持文档/网页/PPT 多格式。</p><span class="tool-link">访问 <svg class="icon-svg icon-sm"><use href="#icon-arrow-right"/></svg></span></a>
+        <a class="tool-card reveal" href="https://chatexcel.com" target="_blank" rel="noopener"><div class="tool-art"><svg class="icon-svg icon-lg"><use href="#icon-external-link"/></svg></div><div class="tool-meta"><span class="badge badge-all">全民级</span><span class="tool-cat">ChatExcel</span></div><h4 class="tool-title">ChatExcel</h4><p class="tool-desc">国内最强 AI 表格自动化，对话式操作 Excel，数据清洗/公式/图表一句话搞定。</p><span class="tool-link">访问 <svg class="icon-svg icon-sm"><use href="#icon-arrow-right"/></svg></span></a>
+        <a class="tool-card reveal" href="https://tingwu.aliyun.com" target="_blank" rel="noopener"><div class="tool-art"><svg class="icon-svg icon-lg"><use href="#icon-external-link"/></svg></div><div class="tool-meta"><span class="badge badge-pro">专业级</span><span class="tool-cat">阿里巴巴</span></div><h4 class="tool-title">通义听悟</h4><p class="tool-desc">会议录音/视频自动转文字，AI 提炼摘要/待办/关键词，学术讲座与会议记录利器。</p><span class="tool-link">访问 <svg class="icon-svg icon-sm"><use href="#icon-arrow-right"/></svg></span></a>
+        <a class="tool-card reveal" href="https://www.iflyrec.com" target="_blank" rel="noopener"><div class="tool-art"><svg class="icon-svg icon-lg"><use href="#icon-external-link"/></svg></div><div class="tool-meta"><span class="badge badge-all">全民级</span><span class="tool-cat">科大讯飞</span></div><h4 class="tool-title">讯飞听见</h4><p class="tool-desc">语音转文字行业标杆，支持多语种/方言转写，会议录音/采访/课堂实录精准高效。</p><span class="tool-link">访问 <svg class="icon-svg icon-sm"><use href="#icon-arrow-right"/></svg></span></a>
+      </div>
+
+      <div class="tool-category reveal"><h3>编程开发</h3><span class="tool-count">8 款</span></div>
+      <div class="tool-grid">
+        <a class="tool-card reveal" href="https://www.codebuddy.cn" target="_blank" rel="noopener"><div class="tool-art"><svg class="icon-svg icon-lg"><use href="#icon-external-link"/></svg></div><div class="tool-meta"><span class="badge badge-pro">专业级</span><span class="tool-cat">AI 助手</span></div><h4 class="tool-title">WorkBuddy / 小龙虾</h4><p class="tool-desc">技能编排与自动化，讲师演示与科研，多步骤复杂任务一键执行。</p><span class="tool-link">访问 <svg class="icon-svg icon-sm"><use href="#icon-arrow-right"/></svg></span></a>
+        <a class="tool-card reveal" href="https://www.cursor.com" target="_blank" rel="noopener"><div class="tool-art"><svg class="icon-svg icon-lg"><use href="#icon-external-link"/></svg></div><div class="tool-meta"><span class="badge badge-pro">专业级</span><span class="tool-cat">Cursor</span></div><h4 class="tool-title">Cursor</h4><p class="tool-desc">AI 代码编辑器标杆，内置 Claude/GPT 深度集成，代码补全/重构/生成体验一流。</p><span class="tool-link">访问 <svg class="icon-svg icon-sm"><use href="#icon-arrow-right"/></svg></span></a>
+        <a class="tool-card reveal" href="https://www.trae.ai" target="_blank" rel="noopener"><div class="tool-art"><svg class="icon-svg icon-lg"><use href="#icon-external-link"/></svg></div><div class="tool-meta"><span class="badge badge-pro">专业级</span><span class="tool-cat">字节跳动</span></div><h4 class="tool-title">Trae</h4><p class="tool-desc">AI 原生 IDE，国内黑马级产品，对话式编程快速出作品，Vibe Coding 代表作。</p><span class="tool-link">访问 <svg class="icon-svg icon-sm"><use href="#icon-arrow-right"/></svg></span></a>
+        <a class="tool-card reveal" href="https://github.com/features/copilot" target="_blank" rel="noopener"><div class="tool-art"><svg class="icon-svg icon-lg"><use href="#icon-external-link"/></svg></div><div class="tool-meta"><span class="badge badge-pro">专业级</span><span class="tool-cat">GitHub</span></div><h4 class="tool-title">GitHub Copilot</h4><p class="tool-desc">AI 编程助手鼻祖，VS Code 深度集成，代码补全/提建议/写测试，开发者标配。</p><span class="tool-link">访问 <svg class="icon-svg icon-sm"><use href="#icon-arrow-right"/></svg></span></a>
+        <a class="tool-card reveal" href="https://replit.com" target="_blank" rel="noopener"><div class="tool-art"><svg class="icon-svg icon-lg"><use href="#icon-external-link"/></svg></div><div class="tool-meta"><span class="badge badge-all">全民级</span><span class="tool-cat">Replit</span></div><h4 class="tool-title">Replit</h4><p class="tool-desc">云端开发环境+AI 编程，浏览器即可写代码/部署，适合教学与快速原型验证。</p><span class="tool-link">访问 <svg class="icon-svg icon-sm"><use href="#icon-arrow-right"/></svg></span></a>
+        <a class="tool-card reveal" href="https://docs.anthropic.com/en/docs/claude-code" target="_blank" rel="noopener"><div class="tool-art"><svg class="icon-svg icon-lg"><use href="#icon-external-link"/></svg></div><div class="tool-meta"><span class="badge badge-pro">专业级</span><span class="tool-cat">Anthropic</span></div><h4 class="tool-title">Claude Code</h4><p class="tool-desc">Anthropic 官方 CLI 编程工具，Agent 模式自主编程，代码质量评测得分最高。</p><span class="tool-link">访问 <svg class="icon-svg icon-sm"><use href="#icon-arrow-right"/></svg></span></a>
+        <a class="tool-card reveal" href="https://codeium.com/windsurf" target="_blank" rel="noopener"><div class="tool-art"><svg class="icon-svg icon-lg"><use href="#icon-external-link"/></svg></div><div class="tool-meta"><span class="badge badge-pro">专业级</span><span class="tool-cat">Codeium</span></div><h4 class="tool-title">Windsurf</h4><p class="tool-desc">AI 编程 IDE 新锐，流式代码生成与智能上下文理解，支持多模型切换，开发者好评。</p><span class="tool-link">访问 <svg class="icon-svg icon-sm"><use href="#icon-arrow-right"/></svg></span></a>
+        <a class="tool-card reveal" href="https://tongyi.aliyun.com/lingma" target="_blank" rel="noopener"><div class="tool-art"><svg class="icon-svg icon-lg"><use href="#icon-external-link"/></svg></div><div class="tool-meta"><span class="badge badge-all">全民级</span><span class="tool-cat">阿里巴巴</span></div><h4 class="tool-title">通义灵码</h4><p class="tool-desc">阿里出品 AI 编程助手，VS Code/JetBrains 插件，代码补全/审查/单元测试全覆盖。</p><span class="tool-link">访问 <svg class="icon-svg icon-sm"><use href="#icon-arrow-right"/></svg></span></a>
+      </div>
+
+      <article class="apple-card card-padded reveal" style="margin-top:24px;">
+        <h3 class="apple-headline" style="margin-bottom:16px;">资源导航分级</h3>
+        <div class="quick-grid">
+          <div class="quick-card" style="padding:0;">
+            <h4 class="quick-title">全民级</h4>
+            <p class="quick-desc">豆包、文心一言、腾讯元宝、天工 AI、讯飞星火、即梦、小云雀、Pika、Leonardo AI、Grok、Gemini、DeepL Write、Pi、Copilot、WPS 灵犀、飞书 AI、Gamma、ChatExcel、Grammarly、讯飞听见、网易天音、Udio、Replit、通义灵码</p>
+          </div>
+          <div class="quick-card" style="padding:0;">
+            <h4 class="quick-title">专业级</h4>
+            <p class="quick-desc">DeepSeek、Kimi、通义千问、智谱清言、百川智能、ChatGPT、Claude、Midjourney、Sora、DALL·E 3、Runway、可灵、海螺 AI、Suno、天工 SkyMusic、AIVA、Mureka、Perplexity、Notion AI、通义听悟、WorkBuddy、Cursor、Trae、GitHub Copilot、Claude Code、Windsurf</p>
+          </div>
+          <div class="quick-card" style="padding:0;">
+            <h4 class="quick-title">垂直类</h4>
+            <p class="quick-desc">arXiv（学术论文）、Hugging Face（开源模型）、B站 LLM 可视化（教学资源）、Kimi（长文档）、Perplexity（深度研究）、通义听悟（语音转写）、讯飞听见（语音转写）</p>
+          </div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section class="apple-section" id="videos">
+    <div class="container">
+      <header class="section-header reveal">
+        <p class="apple-eyebrow">VIDEOS</p>
+        <h2 class="apple-display-2">讲课视频</h2>
+      </header>
+      <article class="apple-card video-card reveal">
+        <div class="video-tags">
+          <span class="video-tag">AI 赋能讲座实录</span>
+          <span class="video-tag">Three.js 公开课</span>
+          <span class="video-tag">计算机应用基础示范课</span>
+        </div>
+        <div class="video-coming">
+          <svg class="icon-svg"><use href="#icon-circle-play"/></svg>
+          <p>视频将通过 B 站嵌入展示</p>
+          <p style="font-size:14px;color:var(--muted-foreground);">即将更新</p>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section class="apple-section section-muted" id="downloads">
+    <div class="container">
+      <header class="section-header reveal">
+        <p class="apple-eyebrow">DOWNLOADS</p>
+        <h2 class="apple-display-2">下载专区</h2>
+      </header>
+      <div class="quick-grid">
+        <a class="apple-card quick-card reveal" href="ai-empower-xihe.html">
+          <svg class="icon-svg icon-md"><use href="#icon-file"/></svg>
+          <h4 class="quick-title">AI 赋能基层培训讲义</h4>
+          <p class="quick-desc">西和县讲座实操讲义 · 58 页完整版 · 六大模块</p>
+          <span class="apple-btn apple-btn-primary apple-btn-sm" style="margin-top:auto;align-self:flex-start;">查看讲义</span>
+        </a>
+        <div class="apple-card quick-card reveal is-disabled">
+          <svg class="icon-svg icon-md"><use href="#icon-tag"/></svg>
+          <h4 class="quick-title">基层妇联提示词模板集</h4>
+          <p class="quick-desc">文案 / 表格 / 识图高频场景</p>
+          <span class="apple-btn apple-btn-secondary apple-btn-sm" style="margin-top:auto;align-self:flex-start;opacity:.6;">待补充</span>
+        </div>
+        <div class="apple-card quick-card reveal is-disabled">
+          <svg class="icon-svg icon-md"><use href="#icon-box"/></svg>
+          <h4 class="quick-title">Three.js 课程配套示例</h4>
+          <p class="quick-desc">课堂代码与作业参考</p>
+          <span class="apple-btn apple-btn-secondary apple-btn-sm" style="margin-top:auto;align-self:flex-start;opacity:.6;">待补充</span>
+        </div>
+        <div class="apple-card quick-card reveal">
+          <svg class="icon-svg icon-md"><use href="#icon-folder-open"/></svg>
+          <h4 class="quick-title">部署指南</h4>
+          <p class="quick-desc">本站 GitHub Pages + Cloudflare 说明</p>
+          <span class="apple-btn apple-btn-primary apple-btn-sm" style="margin-top:auto;align-self:flex-start;">查看指南</span>
+        </div>
+      </div>
+      <article class="apple-card card-padded reveal" style="margin-top:24px;">
+        <h3 class="apple-headline" style="margin-bottom:8px;">PPT 物料规范</h3>
+        <p class="apple-copy-sm">纯白底（#FFFFFF）、纯黑字（#000000）、无渐变阴影；中文宋体 / 英文 Times New Roman；标题 28–36pt、正文 18–24pt；金句页独立留白。</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="apple-section" id="contact">
+    <div class="container">
+      <header class="section-header reveal">
+        <p class="apple-eyebrow">CONTACT</p>
+        <h2 class="apple-display-2">联系我</h2>
+      </header>
+      <div class="contact-grid">
+        <a class="contact-card reveal" href="mailto:qixiangsun@126.com">
+          <svg class="icon-svg icon-lg contact-icon"><use href="#icon-mail"/></svg>
+          <div>
+            <div class="contact-label">邮箱</div>
+            <div class="contact-value">qixiangsun@126.com</div>
+          </div>
+        </a>
+        <a class="contact-card reveal" href="https://github.com/isekeylabSunQixiang" target="_blank" rel="noopener">
+          <svg class="icon-svg icon-lg contact-icon"><use href="#icon-external-link"/></svg>
+          <div>
+            <div class="contact-label">GitHub</div>
+            <div class="contact-value">isekeylabSunQixiang</div>
+          </div>
+        </a>
+        <div class="contact-card reveal">
+          <svg class="icon-svg icon-lg contact-icon"><use href="#icon-circle-play"/></svg>
+          <div>
+            <div class="contact-label">B 站</div>
+            <div class="contact-value" style="color:var(--muted-foreground);">讲课视频主页（即将更新）</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="apple-footer">
+    <div class="container">
+      <p>© 2026 孙琪翔 · 中华女子学院 · AI 赋能妇女发展</p>
+      <p style="margin-top:4px;opacity:.8;">用技术服务"她" · Apple-inspired editorial design</p>
+    </div>
+  </footer>
+</main>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  // Smooth scroll offset for sticky nav
+  document.querySelectorAll('a[href^="#"]').forEach(function (a) {
+    a.addEventListener('click', function (e) {
+      var id = this.getAttribute('href');
+      if (id === '#') return;
+      var target = document.querySelector(id);
+      if (target) {
+        e.preventDefault();
+        var y = target.getBoundingClientRect().top + window.pageYOffset - 52;
+        window.scrollTo({ top: y, behavior: 'smooth' });
+      }
+    });
+  });
+
+  // News loading
+  async function loadNews() {
+    try {
+      var res = await fetch('../ai-news.json');
+      if (!res.ok) throw new Error('fetch failed');
+      var data = await res.json();
+      var dateEl = document.getElementById('newsUpdateDate');
+      if (dateEl) dateEl.textContent = '更新于 ' + (data.updated || '');
+      var currentList = document.getElementById('newsCurrentList');
+      if (currentList) {
+        if (data.current && data.current.length) {
+          currentList.innerHTML = data.current.map(createNewsItem).join('');
+        } else {
+          currentList.innerHTML = '<p class="news-empty">暂无新闻，今日更新中。</p>';
+        }
+      }
+      var archiveList = document.getElementById('newsArchiveList');
+      var emptyHint = document.getElementById('newsEmptyHint');
+      if (archiveList) {
+        if (data.archive && data.archive.length) {
+          archiveList.innerHTML = data.archive.map(createNewsItem).join('');
+        } else if (emptyHint) {
+          emptyHint.style.display = 'block';
+        }
+      }
+    } catch (err) {
+      var currentList = document.getElementById('newsCurrentList');
+      if (currentList) currentList.innerHTML = '<p class="news-empty">新闻加载中，请稍后刷新。</p>';
+    }
+  }
+
+  function createNewsItem(item) {
+    return '<a class="news-item" href="' + item.url + '" target="_blank" rel="noopener">' +
+      '<div class="news-item-main"><h4 class="news-item-title">' + item.title + '</h4><p class="news-item-summary">' + item.summary + '</p></div>' +
+      '<div class="news-item-meta"><span class="news-item-source">' + item.source + '</span><span class="news-item-date">' + item.date + '</span></div>' +
+      '</a>';
+  }
+
+  loadNews();
+
+  // Archive toggle
+  var archiveToggle = document.getElementById('archiveToggle');
+  var archiveBody = document.getElementById('newsArchiveList');
+  var archiveArrow = document.getElementById('archiveArrow');
+  if (archiveToggle && archiveBody) {
+    archiveToggle.addEventListener('click', function () {
+      var open = archiveBody.style.display === 'block';
+      archiveBody.style.display = open ? 'none' : 'block';
+      archiveArrow.classList.toggle('open', !open);
+      archiveToggle.setAttribute('aria-expanded', String(!open));
+    });
+  }
+
+  // Reveal on scroll
+  var reveals = document.querySelectorAll('.reveal');
+  if ('IntersectionObserver' in window) {
+    var obs = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          obs.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+    reveals.forEach(function (el) { obs.observe(el); });
+  } else {
+    reveals.forEach(function (el) { el.classList.add('visible'); });
+  }
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,72 @@
+{
+  "data": [
+    {
+      "id": "page-index",
+      "title": "首页",
+      "type": "page",
+      "version": 1,
+      "createdAt": 1785427728,
+      "canvasData": {
+        "x": 0,
+        "y": 0,
+        "group": 0,
+        "layoutSnapshot": {
+          "version": 1,
+          "contentHeight": 14881,
+          "viewportWidth": 1440,
+          "sourceHash": "fnv1a-b729efa0",
+          "measuredAt": 1785475829693
+        }
+      },
+      "devMetadata": {
+        "htmlSrc": "pages/index.html",
+        "interactions": [
+          {
+            "domId": "nav-workspace",
+            "targetPageId": "page-workspace"
+          }
+        ]
+      }
+    },
+    {
+      "id": "page-workspace",
+      "title": "工作台",
+      "type": "page",
+      "version": 1,
+      "createdAt": 1785427728,
+      "canvasData": {
+        "x": 420,
+        "y": 0,
+        "group": 0,
+        "layoutSnapshot": {
+          "version": 1,
+          "contentHeight": 663,
+          "viewportWidth": 1440,
+          "sourceHash": "fnv1a-5a19321b",
+          "measuredAt": 1785475829693
+        }
+      },
+      "devMetadata": {
+        "htmlSrc": "pages/workspace.html",
+        "interactions": [
+          {
+            "domId": "back-to-home",
+            "targetPageId": "page-index"
+          }
+        ]
+      }
+    }
+  ],
+  "config": {
+    "autoLayout": true,
+    "deviceType": "desktop",
+    "designLibrary": {
+      "name": "苹果",
+      "id": "dl_builtin_apple",
+      "version": null,
+      "scope": "built-in-global",
+      "path": "c:\\Users\\Qixiang\\.trae-cn\\design_libraries\\dl_builtin_apple",
+      "versionSource": "selected-context"
+    }
+  }
+}

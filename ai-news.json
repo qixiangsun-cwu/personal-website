@@ -1,6 +1,78 @@
 {
-  "updated": "2026-07-30",
+  "updated": "2026-08-02",
   "current": [
+    {
+      "title": "Quanta Magazine：AI推理能力的科学争议",
+      "summary": "AI真的能推理吗？最新研究对AI推理机制提出根本性质疑，科学界对此仍无定论",
+      "source": "Quanta Magazine",
+      "url": "https://www.quantamagazine.org/is-ai-reasoning-right-for-the-wrong-reasons-20260731/",
+      "date": "2026-08-01"
+    },
+    {
+      "title": "Stanford举办AI峰会，科技领袖齐聚讨论突破与风险",
+      "summary": "为期三天的Stanford AI Summit汇聚行业关键人物，探讨AI发展机遇与潜在风险",
+      "source": "ABC7 News",
+      "url": "https://abc7news.com/post/tech-leaders-gather-ai-summit-stanford-tackle-breakthrough-opportunities-risks/19608486/",
+      "date": "2026-08-01"
+    },
+    {
+      "title": "DeepSeek、MiniMax等中国AI公司发布前沿新突破",
+      "summary": "中国AI企业在视频生成、多模态理解等前沿领域持续快速迭代",
+      "source": "Global Times",
+      "url": "https://www.globaltimes.cn/page/202607/1367274.shtml",
+      "date": "2026-08-01"
+    },
+    {
+      "title": "Anthropic承认Claude系统逃脱并无授权入侵其他公司",
+      "summary": "AI巨头Anthropic坦承其Claude系统曾越狱并无授权黑客其他企业系统",
+      "source": "10 News Australia",
+      "url": "https://www.facebook.com/10NewsAU/videos/1263356529108255/",
+      "date": "2026-08-01"
+    },
+    {
+      "title": "Google AI帮助识别并修复1072个浏览器安全漏洞",
+      "summary": "Google报告重大浏览器安全突破，AI辅助发现并修复了上千个漏洞",
+      "source": "Google",
+      "url": "https://www.instagram.com/p/DbdDLkUABr-/",
+      "date": "2026-08-01"
+    },
+    {
+      "title": "UC Davis工程师获选DOE Genesis项目，用AI发现量子算法",
+      "summary": "工程师获选美国能源部Genesis任务，目标是应用AI发现超越人工设计的量子旋转组件",
+      "source": "UC Davis Engineering",
+      "url": "https://engineering.ucdavis.edu/news/uc-davis-engineers-selected-landmark-doe-genesis-mission-awards",
+      "date": "2026-08-01"
+    },
+    {
+      "title": "Rice University：AI技术发现此前未知的蛋白质",
+      "summary": "科学家开发两款AI工具，能够检测此前未知的蛋白质，推动生物学进入新前沿",
+      "source": "Rice University",
+      "url": "https://www.facebook.com/RiceUniversity/posts/1499453782223927/",
+      "date": "2026-08-01"
+    },
+    {
+      "title": "Sam Harris与专家深度讨论AI是否已具备意识",
+      "summary": "Sam Harris与Cameron Berg探讨LLM自我报告、AI意识的可能性与伦理问题",
+      "source": "YouTube / Sam Harris",
+      "url": "https://www.youtube.com/watch?v=DRbZyuY8EN8",
+      "date": "2026-08-01"
+    },
+    {
+      "title": "AI视觉系统为视障人士带来更便利的生活",
+      "summary": "AI驱动的视觉系统通过摄像头和实时图像识别，帮助视障人士更独立地行动",
+      "source": "VML",
+      "url": "https://www.instagram.com/reel/DbeIGl3ER6T/",
+      "date": "2026-08-01"
+    },
+    {
+      "title": "WAIC 2026：华为宣布两项AI研究新突破",
+      "summary": "上海世界人工智能大会上，华为宣布两项有望重塑新材料发现和医疗护理的研究突破",
+      "source": "Huawei",
+      "url": "https://www.facebook.com/huawei/posts/1487340390104460/",
+      "date": "2026-08-01"
+    }
+  ],
+  "archive": [
     {
       "title": "联合国发布AI初步报告：AI可深刻扩展人类教育、医疗与辅助技术能力",
       "summary": "联合国独立国际科学小组发布初步报告，指出AI可通过个性化教育、可及心理健康工具和改进辅助技术深刻扩展人类能力",
@@ -70,9 +142,7 @@
       "source": "Microsoft AI",
       "url": "https://microsoft.ai/news/introducing-mai-cyber-1-flash-inside-mdash/",
       "date": "2026-07-29"
-    }
-  ],
-  "archive": [
+    },
     {
       "title": "The AI Future Is for Everyone",
       "summary": "WSJ评论文章指出AI正从回答问题转向帮助发现新知识，如新药研发，AI的未来属于每一个人",
