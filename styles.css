@@ -809,6 +809,65 @@ body {
     flex-direction: column;
 }
 
+.tool-logo {
+    width: 48px;
+    height: 48px;
+    border-radius: 13px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.72);
+    box-shadow:
+        0 4px 12px rgba(0, 0, 0, 0.10),
+        inset 0 1px 0 rgba(255, 255, 255, 0.7);
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    margin-bottom: 1.1rem;
+    position: relative;
+    overflow: hidden;
+    flex-shrink: 0;
+    transition: var(--transition);
+}
+
+.tool-logo img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    padding: 7px;
+}
+
+/* 字母兜底版：品牌色渐变 */
+.tool-logo-text {
+    background: linear-gradient(135deg, var(--c1), var(--c2));
+    border-color: transparent;
+}
+
+.tool-logo-text::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.20) 0%, rgba(255, 255, 255, 0) 55%);
+    border-radius: inherit;
+    pointer-events: none;
+}
+
+.tool-logo-text span {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: #fff;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.18);
+    position: relative;
+    z-index: 1;
+    letter-spacing: -0.02em;
+    line-height: 1;
+}
+
+.tool-card:hover .tool-logo {
+    transform: translateY(-2px) scale(1.05);
+    box-shadow:
+        0 8px 20px rgba(0, 0, 0, 0.16),
+        inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
 .tool-header {
     display: flex;
     align-items: center;
