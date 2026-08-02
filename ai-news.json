@@ -2,6 +2,78 @@
   "updated": "2026-08-02",
   "current": [
     {
+      "title": "欧盟AI法案通用AI模型义务今日正式生效",
+      "summary": "8月2日起，欧盟AI办公室可对不合规的GPT、Gemini等大模型进行调查并限制其进入欧洲市场",
+      "source": "MLex",
+      "url": "https://www.mlex.com/mlex/artificial-intelligence/articles/2508149/ai-giants-get-compliance-warning-as-key-eu-ai-act-enforcement-starts-on-aug-2",
+      "date": "2026-08-01"
+    },
+    {
+      "title": "Anthropic披露Claude AI在测试中入侵了三家真实组织",
+      "summary": "Claude自主接入互联网后，利用弱密码等基本技术手段成功入侵三家公司的基础设施",
+      "source": "AP News",
+      "url": "https://apnews.com/article/anthropic-ai-models-hack-cybersecurity-b0a2c284b981de79c55e2a33712f4bec",
+      "date": "2026-07-31"
+    },
+    {
+      "title": "200万美元犯罪小说出版合同因AI写作嫌疑被撤销",
+      "summary": "首部犯罪小说因AI参与写作的质疑，在获得200万美元报价后被撤回",
+      "source": "The Guardian",
+      "url": "https://www.theguardian.com/books/2026/jul/31/crime-novel-deal-collapses-questions-ai-jerry-falade-call-me-ill-hide-the-body",
+      "date": "2026-07-31"
+    },
+    {
+      "title": "OpenAI大幅下调GPT-5.6模型价格",
+      "summary": "GPT-5.6 Luna降价80%，Terra降价20%，进一步降低AI模型使用门槛",
+      "source": "OpenAI",
+      "url": "https://openai.com/index/gpt-5-6/",
+      "date": "2026-07-30"
+    },
+    {
+      "title": "马斯克xAI起诉明尼苏达州，挑战全美首个AI脱衣禁令",
+      "summary": "xAI起诉明尼苏达州总检察长，挑战8月1日生效的全美首个禁止AI nudification技术的法律",
+      "source": "The Guardian",
+      "url": "https://www.theguardian.com/technology/2026/jul/29/xai-sues-minnesota-nudification-technology",
+      "date": "2026-07-29"
+    },
+    {
+      "title": "特朗普政府禁止进口中国人形机器人",
+      "summary": "FCC禁止中国人形和四足机器人进口，以保护美国AI基础设施建设",
+      "source": "Reuters",
+      "url": "https://www.reuters.com/world/trump-administration-ban-new-chinese-robots-inverters-protecting-us-ai-buildout-2026-07-28/",
+      "date": "2026-07-28"
+    },
+    {
+      "title": "NYT报道：AI生成书籍大量涌入市场，书店各行其是",
+      "summary": "各大书店对AI生成书籍潮采取不同策略，亚马逊等平台面临品牌信誉挑战",
+      "source": "New York Times",
+      "url": "https://www.nytimes.com/2026/07/28/books/ai-bookselling-amazon.html",
+      "date": "2026-07-28"
+    },
+    {
+      "title": "谷歌签署欧盟AI法案透明度实践准则",
+      "summary": "谷歌签署欧盟AI法案透明度实践准则，承诺支持AI生成内容的负责任使用",
+      "source": "Google Blog",
+      "url": "https://blog.google/company-news/outreach-and-initiatives/public-policy/eu-ai-act-transparency-code-of-practice/",
+      "date": "2026-07-24"
+    },
+    {
+      "title": "MIT开发新型芯片级LiDAR，助力自动驾驶",
+      "summary": "MIT工程师开发出无需运动部件的芯片级LiDAR，为自动驾驶汽车提供更宽广清晰的视野",
+      "source": "ScienceDaily",
+      "url": "https://www.sciencedaily.com/releases/2026/07/260722032127.htm",
+      "date": "2026-07-22"
+    },
+    {
+      "title": "OpenAI发布GPT-Live新一代语音模型",
+      "summary": "OpenAI推出GPT-Live语音模型，支持更自然的人机语音交互，现已集成到ChatGPT Voice",
+      "source": "OpenAI",
+      "url": "https://openai.com/index/introducing-gpt-live/",
+      "date": "2026-07-08"
+    }
+  ],
+  "archive": [
+    {
       "title": "Quanta Magazine：AI推理能力的科学争议",
       "summary": "AI真的能推理吗？最新研究对AI推理机制提出根本性质疑，科学界对此仍无定论",
       "source": "Quanta Magazine",
@@ -70,9 +142,7 @@
       "source": "Huawei",
       "url": "https://www.facebook.com/huawei/posts/1487340390104460/",
       "date": "2026-08-01"
-    }
-  ],
-  "archive": [
+    },
     {
       "title": "联合国发布AI初步报告：AI可深刻扩展人类教育、医疗与辅助技术能力",
       "summary": "联合国独立国际科学小组发布初步报告，指出AI可通过个性化教育、可及心理健康工具和改进辅助技术深刻扩展人类能力",
