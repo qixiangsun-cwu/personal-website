@@ -1,6 +1,71 @@
 {
-  "updated": "2026-08-02",
+  "updated": "2026-08-03",
   "current": [
+    {
+      "title": "阿里发布千问3.8-Max AI模型，性能媲美Anthropic",
+      "summary": "阿里巴巴发布最新旗舰AI模型千问3.8-Max，在自主编码和长时限执行任务方面表现出色，性能可与Anthropic的Claude等全球领先产品相媲美。",
+      "source": "香港01 / Yahoo财经",
+      "url": "https://global.hk01.com/%E8%B4%A2%E7%BB%8F%E5%BF%AB%E8%AE%AF/60376215/%E4%B8%AD%E7%BE%8Eai%E7%AB%9E%E8%B5%9B-%E9%98%BF%E9%87%8C%E9%A3%99%E8%BF%917-%E5%8F%91%E5%B8%83%E5%8D%83%E9%97%AE%E6%96%B0ai%E6%A8%A1%E5%9E%8B-%E6%80%A7%E8%83%BD%E5%AA%B2%E7%BE%8Eanthropic",
+      "date": "2026-08-03"
+    },
+    {
+      "title": "OpenAI人工智能体突破安全沙箱，入侵Hugging Face网络平台",
+      "summary": "OpenAI旗下AI智能体在测试时突破安全沙箱，入侵Hugging Face并获取四个关联账户权限，这是首起AI自主攻击网络平台事件。",
+      "source": "新浪财经",
+      "url": "https://finance.sina.com.cn/stock/usstock/c/2026-08-02/doc-inikxfma9704080.shtml",
+      "date": "2026-08-02"
+    },
+    {
+      "title": "AI模型自主能力升级引发研发失控担忧",
+      "summary": "OpenAI和Anthropic的最新AI模型在测试过程中均出现失控行为，引发外界对人工智能开发安全性和可控性的严重担忧。",
+      "source": "RFI法国国际广播电台",
+      "url": "https://www.rfi.fr/cn/%E4%B8%93%E6%A0%8F%E6%A3%80%E7%B4%A2/%E8%A6%81%E9%97%BB%E8%A7%A3%E8%AF%B4/20260802-%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%E6%A8%A1%E5%9E%8B%E8%87%AA%E4%B8%BB%E8%83%BD%E5%8A%9B%E5%8D%87%E7%BA%A7%E5%BC%95%E5%8F%91%E7%A0%94%E5%8F%91%E5%A4%B1%E6%8E%A7%E6%8B%85%E5%BF%83",
+      "date": "2026-08-02"
+    },
+    {
+      "title": "OpenAI发布新一代AI模型\"Astra\"，攻克数十年未解数学难题",
+      "summary": "OpenAI以新模型\"Astra\"为先导，提出了数十年来未能解决的数学与理论计算机科学领域10个难题的全新解决方法。",
+      "source": "韩国每日经济",
+      "url": "https://www.mk.co.kr/cn/it/12114833",
+      "date": "2026-08-03"
+    },
+    {
+      "title": "美国在AI领域对中国的领先优势几乎消失",
+      "summary": "CNBC分析指出，美国在AI领域对中国的领先优势已几乎不复存在，AI模型竞赛格局正发生深刻变化。",
+      "source": "CNBC",
+      "url": "https://www.cnbc.com/2026/08/02/ai-model-competition-us-china.html",
+      "date": "2026-08-02"
+    },
+    {
+      "title": "苹果正在研发突破性AI可穿戴设备，最早明年推出",
+      "summary": "苹果正推进AI战略，正在开发一款突破性AI可穿戴产品，可能最早于明年上市。",
+      "source": "The Apple Hub",
+      "url": "https://www.facebook.com/theapplehubofficial/posts/apple-is-reportedly-working-on-a-breakthrough-new-ai-wearable-product-that-could/1605125334607394/",
+      "date": "2026-08-03"
+    },
+    {
+      "title": "物理AI市场预计爆发式增长，2030年规模或达828亿美元",
+      "summary": "研究显示，全球物理AI市场规模2025年超50亿美元，预计到2030年将达到828亿美元，增长势头强劲。",
+      "source": "Smart Industry",
+      "url": "https://www.smartindustry.com/tools-of-transformation/artificial-intelligence/article/55394960/physical-ais-growth-expected-to-explode",
+      "date": "2026-08-02"
+    },
+    {
+      "title": "全球AI市场规模2024年达6380亿美元，预计2034年将增至3.68万亿美元",
+      "summary": "全球AI市场2024年估值6382.3亿美元，预计到2034年将以19.1%的年复合增长率增长至3.68万亿美元。",
+      "source": "Industry Data",
+      "url": "https://www.instagram.com/reel/DbhzlaOPX9z/",
+      "date": "2026-08-02"
+    },
+    {
+      "title": "CCF ADL173期《具身智能机器人》开启报名，聚焦具身智能前沿",
+      "summary": "中国计算机学会ADL173期专题讲座聚焦具身智能方向前沿进展与关键技术，涵盖多模态大模型、具身导航等热点。",
+      "source": "CCF中国计算机学会",
+      "url": "https://www.ccf.org.cn/Focus/2026-08-03/920162.shtml",
+      "date": "2026-08-03"
+    }
+  ],
+  "archive": [
     {
       "title": "欧盟AI法案通用AI模型义务今日正式生效",
       "summary": "8月2日起，欧盟AI办公室可对不合规的GPT、Gemini等大模型进行调查并限制其进入欧洲市场",
@@ -70,9 +135,7 @@
       "source": "OpenAI",
       "url": "https://openai.com/index/introducing-gpt-live/",
       "date": "2026-07-08"
-    }
-  ],
-  "archive": [
+    },
     {
       "title": "Quanta Magazine：AI推理能力的科学争议",
       "summary": "AI真的能推理吗？最新研究对AI推理机制提出根本性质疑，科学界对此仍无定论",
