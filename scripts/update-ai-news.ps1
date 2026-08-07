@@ -88,7 +88,7 @@ foreach ($feed in $feeds) {
             $summary = ''
             if ($desc) {
                 $summary = ($desc -replace '<[^>]+>', ' ' -replace '\s+', ' ').Trim()
-                if ($summary.Length -gt 120) { $summary = $summary.Substring(0, 120) + '…' }
+                if ($summary.Length -gt 240) { $summary = $summary.Substring(0, 240) + '…' }
             }
 
             $source = if ($item.source) { [string]$item.source } else {

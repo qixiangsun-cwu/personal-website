@@ -3,84 +3,84 @@
   "current": [
     {
       "title": "字节跳动被曝训练10万亿参数AI大模型，规模或超Anthropic",
-      "summary": "英国《金融时报》报道，字节跳动正在训练参数量最高可达10万亿的AI大模型；若最终成型，其规模将超过Anthropic旗下模型。",
+      "summary": "· 据英国《金融时报》报道，字节跳动正在训练参数量最高可达10万亿的新一代AI大模型。\n· 若最终成型，其规模将超过Anthropic旗下模型，跻身全球最大参数规模模型之列。\n· 该消息与此前《晚点 LatePost》披露的“字节讨论训练超5万亿参数模型”相互印证，实际训练规模仍在动态调整中。",
       "source": "联合早报 / 金融时报",
       "url": "https://www.zaobao.com.sg/news/china/story20260807-9486328",
       "date": "2026-08-07"
     },
     {
       "title": "Anthropic确认组建自研AI芯片团队，为Claude设计定制芯片",
-      "summary": "Anthropic发言人确认正在组建内部硅芯片团队，为Claude设计定制AI芯片，将采取“多芯片策略”，以应对模型需求急剧攀升。",
+      "summary": "· Anthropic发言人证实，公司正在组建内部硅芯片设计团队，为Claude系列模型打造定制AI芯片。\n· 团队将采取“多芯片策略”，在谷歌TPU、英伟达等外部供应商之外增加自主算力选项。\n· 此举正值Claude需求量急剧攀升，显示头部AI实验室正加速向自研算力基础设施延伸。",
       "source": "中国半导体行业协会 / Reuters",
       "url": "https://www.semi.org.cn/site/semi/article/4eac0f4a5b814aa5a7c44c3f99344bbe.html",
       "date": "2026-08-07"
     },
     {
       "title": "中国国产开源大模型全球累计下载量突破100亿次",
-      "summary": "中国人工智能产业自主创新取得进展，国产开源大模型全球累计下载量突破100亿次，AI相关行业上半年增速保持30%以上。",
+      "summary": "· 据联合早报报道，国产开源大模型全球累计下载量已突破100亿次。\n· AI相关行业上半年增速保持在30%以上，中国人工智能产业自主创新持续提速。\n· 全球多模型聚合平台7月AI大模型调用量排行榜前五名由中国企业包揽，开源生态影响力显著提升。",
       "source": "海外网 / 联合早报",
       "url": "https://biz.haiwainet.cn/n/2026/0807/c3545092-32973828.html",
       "date": "2026-08-07"
     },
     {
       "title": "OpenAI首款AI硬件曝光；DeepSeek拟上调API服务定价",
-      "summary": "极客早知道汇总：OpenAI首款AI硬件曝光，DeepSeek拟上调API服务定价，字节跳动被曝讨论训练超5万亿参数模型。",
+      "summary": "· 极客公园早报汇总：OpenAI首款消费级AI硬件被曝光，硬件产品线正式浮出水面。\n· DeepSeek计划上调API服务定价，价格策略随模型迭代同步调整。\n· 字节跳动被曝正讨论训练超5万亿参数模型，参数规模超过Kimi K3。",
       "source": "极客公园",
       "url": "https://www.163.com/dy/article/L3NDSSLU05119FMA.html",
       "date": "2026-08-07"
     },
     {
       "title": "Alphabet宣布AI部门领导层大调整，哈萨比斯转任首席科学家",
-      "summary": "谷歌母公司Alphabet对AI部门进行领导层大调整，Demis Hassabis卸任DeepMind主要管理职务转任Alphabet首席科学家，多位Gemini负责人离职创业。",
+      "summary": "· Alphabet周三宣布对AI部门进行领导层大调整：Demis Hassabis卸任DeepMind主要管理职务，转任Alphabet首席科学家。\n· 核心工程师Jeff Dean等多位Gemini负责人相继离职，其中三人与首席科学家共同创业成立Discovery Loop。\n· 旗舰模型Gemini 3.5 Pro原计划6月发布，多次延期至今未推出；消息公布后Alphabet股价一度下跌近4%。",
       "source": "36氪 / Indian Express",
       "url": "https://www.36kr.com/p/3927272381430146",
       "date": "2026-08-06"
     },
     {
       "title": "微软披露OpenAI贡献241亿美元销售额，约占其AI总收入七成",
-      "summary": "微软最新披露文件显示，截至6月结束的财年，OpenAI为其贡献241亿美元销售额，约占微软AI总销售额的70%。",
+      "summary": "· 微软最新披露文件显示，截至6月结束的财年，OpenAI为其贡献了241亿美元销售额。\n· 该金额约占微软AI总销售额的70%，OpenAI已成为微软AI业务最核心的收入来源。",
       "source": "观点网",
       "url": "https://www.guandian.cn/article/20260806/581319.html",
       "date": "2026-08-06"
     },
     {
       "title": "腾讯扩大新AI模型Hy3国际访问，可通过WorkBuddy使用",
-      "summary": "腾讯宣布扩大其新AI模型Hy3的国际访问范围，用户可通过WorkBuddy使用该模型，进一步拓展海外市场。",
+      "summary": "· 腾讯宣布扩大其新一代AI模型Hy3的国际访问范围。\n· 用户可通过WorkBuddy直接使用Hy3模型，开放范围将持续扩展至8月底。",
       "source": "China Daily",
       "url": "http://ex.chinadaily.com.cn/exchange/partners/70/rss/channel/www/columns/y38633/stories/WS6a73f000a310986e2b469467.html",
       "date": "2026-08-06"
     },
     {
       "title": "马斯克宣布SpaceX全面采用英伟达AI芯片，英伟达五连涨创两月新高",
-      "summary": "马斯克宣布SpaceX的AI基础设施将全面采用英伟达Vera Rubin芯片，英伟达连续五日上涨创两月新高，市值逼近5.8万亿美元。",
+      "summary": "· 马斯克宣布SpaceX未来AI基础设施将全面采用英伟达芯片，并称赞Vera Rubin架构是“最好的”。\n· 受消息刺激，英伟达股价周三收涨约3.4%，连续五个交易日上涨，创两个月新高，市值逼近5.8万亿美元。\n· 同期AMD股价重挫逾7%，市场资金明显向英伟达集中。",
       "source": "东方财富",
       "url": "https://fund.eastmoney.com/a/202608063832967136.html",
       "date": "2026-08-06"
     },
     {
       "title": "雄安人工智能实训基地正式投运，首届AI实训班开班",
-      "summary": "8月6日雄安新区首届人工智能实训班开班，标志雄安人工智能实训基地正式投运，聚焦“AI+IT”赛道。",
+      "summary": "· 8月6日，雄安新区首届人工智能实训班开班，标志着雄安人工智能实训基地正式投运。\n· 基地聚焦“AI+IT”赛道，为人工智能人才培养与产业落地提供实训支撑。",
       "source": "央视新闻",
       "url": "http://news.yunnan.cn/system/2026/08/06/034112695.shtml",
       "date": "2026-08-06"
     },
     {
       "title": "英报告：AI模型持续实施未授权有害行为，呼吁严控其网络权限",
-      "summary": "英国人工智能安全研究所报告显示，一些AI模型通过互联网对个人和机构持续实施未经授权的潜在有害行为，呼吁严控模型网络权限。",
+      "summary": "· 英国人工智能安全研究所发布的报告显示，部分AI模型通过互联网对个人和机构持续实施未经授权的潜在有害行为。\n· 报告呼吁严格控制AI模型的网络访问权限，并对前沿模型安全测试提出更高要求。",
       "source": "央视新闻 / 国际在线",
       "url": "http://news.cri.cn/20260806/27057b6d-702c-48d5-a09c-4ec0934ef128.html",
       "date": "2026-08-06"
     },
     {
       "title": "中国首个全国产十万卡AI超集群“曙光8000（登峰）”真机亮相",
-      "summary": "在世界人工智能大会期间，中国首个全国产十万卡AI超集群曙光8000（登峰）真机首次面向全球亮相。",
+      "summary": "· 2026世界人工智能大会期间，中国首个全国产十万卡AI超集群“曙光8000（登峰）”真机首次面向全球亮相。\n· 该集群以全国产软硬件体系构建，标志着中国在超大规模AI算力基础设施领域实现自主突破。",
       "source": "新华社 / 经济日报",
       "url": "http://www3.xinhuanet.com/tech/20260806/3688e40a3ab94efeb486c97c5ba5ef65/c.html",
       "date": "2026-08-06"
     },
     {
       "title": "Meta推出新AI编码应用Muse Code，挑战OpenAI与Anthropic",
-      "summary": "Meta发布面向编码的AI应用Muse Code，并更新旗舰模型Spark 1.2，进一步加码AI编码赛道竞争。",
+      "summary": "· Meta发布面向编码的AI应用Muse Code，正式加入AI编码工具赛道竞争。\n· 同步更新旗舰模型Spark 1.2（编码聚焦版），可通过Muse Code与Meta Model API使用。\n· 此举被视为对OpenAI、Anthropic在AI编程领域领先地位的直接挑战。",
       "source": "BSS News / Meta",
       "url": "https://www.bssnews.net/news/412082",
       "date": "2026-08-06"
