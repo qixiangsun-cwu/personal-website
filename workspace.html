@@ -212,10 +212,8 @@
         <div class="glass-card lock-card">
             <div class="lock-icon">🔒</div>
             <h1 class="lock-title">私有工作台</h1>
-            <p class="lock-desc">此区域仅限本人访问，请输入密码</p>
-            <input type="password" class="lock-input" id="passwordInput" placeholder="输入密码" autocomplete="off">
-            <button class="lock-btn" id="unlockBtn">进入工作台</button>
-            <p class="lock-error" id="lockError">密码错误，请重试</p>
+            <p class="lock-desc">此区域仅限本人访问，请通过带访问密钥的专属链接进入。</p>
+            <p class="lock-hint">如需使用，请联系管理员获取访问链接。</p>
             <a href="index.html" class="lock-back">← 返回公开页</a>
         </div>
     </div>
@@ -346,37 +344,94 @@
     </div>
 
     <script>
-        // 工作台密码验证
-        const WORKSPACE_PASSWORD = 'Sqx15973@';
+        // 工作台访问密钥验证
+        // 源码中仅保存密钥的 SHA-256 哈希，密钥本体不会出现在代码里。
+        // 访问方式：workspace.html?key=你的访问密钥
+        var WORKSPACE_KEY_HASH = '7139bdc0b912a859de7d4497ed34aa64041ee96921978f8ff7124016a4dc0ff2';
 
-        document.getElementById('unlockBtn').addEventListener('click', function() {
-            checkPassword();
-        });
-
-        document.getElementById('passwordInput').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                checkPassword();
+        function sha256Hex(str) {
+            // 纯 JS SHA-256（用于兼容非 https 的本地打开场景）
+            function rightRotate(value, amount) {
+                return (value >>> amount) | (value << (32 - amount));
             }
-        });
-
-        function checkPassword() {
-            const input = document.getElementById('passwordInput').value;
-            const error = document.getElementById('lockError');
-            const lockScreen = document.getElementById('lockScreen');
-            const content = document.getElementById('workspaceContent');
-
-            if (input === WORKSPACE_PASSWORD) {
-                lockScreen.style.display = 'none';
-                content.classList.add('show');
-                renderVisitStats();
-            } else {
-                error.classList.add('show');
-                document.getElementById('passwordInput').value = '';
-                setTimeout(() => {
-                    error.classList.remove('show');
-                }, 3000);
+            var mathPow = Math.pow, maxWord = mathPow(2, 32), lengthProperty = 'length';
+            var result = '', i, j;
+            var words = [], asciiBitLength = str[lengthProperty] * 8;
+            var hash = sha256Hex.h = sha256Hex.h || [];
+            var k = sha256Hex.k = sha256Hex.k || [];
+            var primeCounter = k[lengthProperty];
+            var isComposite = {};
+            for (var candidate = 2; primeCounter < 64; candidate++) {
+                if (!isComposite[candidate]) {
+                    for (i = 0; i < 313; i += candidate) isComposite[i] = candidate;
+                    hash[primeCounter] = (mathPow(candidate, 0.5) * maxWord) | 0;
+                    k[primeCounter++] = (mathPow(candidate, 1 / 3) * maxWord) | 0;
+                }
             }
+            str += '\x80';
+            while (str[lengthProperty] % 64 - 56) str += '\x00';
+            for (i = 0; i < str[lengthProperty]; i++) {
+                j = str.charCodeAt(i);
+                if (j >> 8) return '';
+                words[i >> 2] |= j << ((3 - i) % 4) * 8;
+            }
+            words[words[lengthProperty]] = ((asciiBitLength / maxWord) | 0);
+            words[words[lengthProperty]] = (asciiBitLength);
+            for (j = 0; j < words[lengthProperty];) {
+                var w = words.slice(j, j += 16);
+                var oldHash = hash.slice(0, 8);
+                for (i = 0; i < 64; i++) {
+                    var w15 = w[i - 15], w2 = w[i - 2];
+                    var a = hash[0], e = hash[4];
+                    var temp1 = hash[7]
+                        + (rightRotate(e, 6) ^ rightRotate(e, 11) ^ rightRotate(e, 25))
+                        + ((e & hash[5]) ^ ((~e) & hash[6]))
+                        + k[i]
+                        + (w[i] = (i < 16) ? w[i] : (
+                            w[i - 16]
+                            + (rightRotate(w15, 7) ^ rightRotate(w15, 18) ^ (w15 >>> 3))
+                            + w[i - 7]
+                            + (rightRotate(w2, 17) ^ rightRotate(w2, 19) ^ (w2 >>> 10))
+                        ) | 0);
+                    var temp2 = (rightRotate(a, 2) ^ rightRotate(a, 13) ^ rightRotate(a, 22))
+                        + ((a & hash[1]) ^ (a & hash[2]) ^ (hash[1] & hash[2]));
+                    hash = [(temp1 + temp2) | 0].concat(hash);
+                    hash[4] = (hash[4] + temp1) | 0;
+                }
+                for (i = 0; i < 8; i++) hash[i] = (hash[i] + oldHash[i]) | 0;
+            }
+            for (i = 0; i < 8; i++) {
+                for (j = 3; j + 1; j--) {
+                    var b = (hash[i] >> (j * 8)) & 255;
+                    result += ((b < 16) ? 0 : '') + b.toString(16);
+                }
+            }
+            return result;
         }
+
+        function showWorkspace() {
+            document.getElementById('lockScreen').style.display = 'none';
+            document.getElementById('workspaceContent').classList.add('show');
+            renderVisitStats();
+        }
+
+        (function() {
+            // 本次会话已解锁则直接进入
+            var unlocked = false;
+            try { unlocked = sessionStorage.getItem('workspace_unlocked') === '1'; } catch (e) {}
+            if (unlocked) {
+                showWorkspace();
+                return;
+            }
+
+            // 从 URL 读取访问密钥并校验哈希
+            var params = new URLSearchParams(window.location.search);
+            var key = params.get('key') || '';
+            if (key && sha256Hex(key) === WORKSPACE_KEY_HASH) {
+                showWorkspace();
+                try { sessionStorage.setItem('workspace_unlocked', '1'); } catch (e) {}
+            }
+        })();
 
         function renderVisitStats() {
             try {

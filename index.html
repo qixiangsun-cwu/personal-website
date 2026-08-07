@@ -51,14 +51,19 @@
         <div class="section-header section-header--center">
             <span class="section-tag">AI NEWS</span>
             <h2 class="section-title">AI 最新动态</h2>
-            <p class="section-desc">每日精选 AI 领域重要新闻，保持对前沿技术的关注。</p>
+            <p class="section-desc">每日自动抓取 AI 领域重要资讯，保持对前沿技术的关注。</p>
         </div>
 
-        <!-- 今日新闻 -->
+        <!-- 动态统计 -->
+        <div class="news-stats">
+            <span class="news-count-badge">动态总数 <b id="newsTotalCount">--</b> 条</span>
+            <span class="news-update-date" id="newsUpdateDate"></span>
+        </div>
+
+        <!-- 最新动态 -->
         <div class="glass-card news-today-card">
             <div class="news-today-header">
-                <h3>今日精选</h3>
-                <span class="news-update-date" id="newsUpdateDate"></span>
+                <h3>📌 最新动态</h3>
             </div>
             <div class="news-list" id="newsCurrentList">
                 <!-- 由 JS 动态加载 -->
@@ -66,18 +71,16 @@
             </div>
         </div>
 
-        <!-- 历史新闻 -->
-        <div class="glass-card news-archive-card">
-            <div class="news-archive-toggle" id="archiveToggle">
-                <h3>历史动态</h3>
-                <span class="archive-arrow">▼</span>
+        <!-- 全部动态 -->
+        <div class="glass-card news-more-card">
+            <div class="news-more-header">
+                <h3>🗞️ 全部动态</h3>
+                <span class="news-more-sub" id="newsMoreSub"></span>
             </div>
-            <div class="news-archive-body" id="newsArchiveBody" style="display: none;">
-                <div class="news-list" id="newsArchiveList">
-                    <!-- 由 JS 动态加载 -->
-                </div>
-                <p class="news-empty-hint" id="newsEmptyHint" style="display:none;">暂无历史新闻。</p>
+            <div class="news-list" id="newsMoreList">
+                <!-- 由 JS 动态加载 -->
             </div>
+            <button class="news-more-btn" id="newsMoreBtn" style="display:none;">展开全部动态</button>
         </div>
 
         <!-- 资源导航 -->
@@ -99,6 +102,8 @@
                 <span class="news-title">B 站 LLM 可视化合集</span>
             </a>
         </div>
+
+        <p class="news-auto-note">🤖 本板块由每日自动化任务抓取更新，每天 08:00 自动同步最新 AI 资讯并发布。</p>
     </section>
 
     <!-- 关于我 -->

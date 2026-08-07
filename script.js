@@ -126,21 +126,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // ---------- AI 新闻加载 ----------
     loadNews();
 
-    // ---------- 历史新闻折叠 ----------
-    var archiveToggle = document.getElementById('archiveToggle');
-    var archiveBody = document.getElementById('newsArchiveBody');
-    var archiveArrow = document.querySelector('.archive-arrow');
-
-    if (archiveToggle) {
-        archiveToggle.addEventListener('click', function() {
-            var isVisible = archiveBody.style.display !== 'none';
-            archiveBody.style.display = isVisible ? 'none' : 'block';
-            if (archiveArrow) {
-                archiveArrow.style.transform = isVisible ? '' : 'rotate(180deg)';
-            }
-        });
-    }
-
     // ---------- 访问统计 ----------
     recordVisit();
 });
@@ -155,6 +140,7 @@ async function loadNews() {
         var dateEl = document.getElementById('newsUpdateDate');
         if (dateEl) dateEl.textContent = '更新于 ' + data.updated;
 
+        // 最新动态：今日/近两日精选
         var currentList = document.getElementById('newsCurrentList');
         if (currentList && data.current && data.current.length > 0) {
             currentList.innerHTML = data.current.map(createNewsItem).join('');
@@ -162,23 +148,92 @@ async function loadNews() {
             currentList.innerHTML = '<p class="news-empty-hint">暂无新闻，今日更新中。</p>';
         }
 
-        var archiveList = document.getElementById('newsArchiveList');
-        var emptyHint = document.getElementById('newsEmptyHint');
-        if (archiveList && data.archive && data.archive.length > 0) {
-            archiveList.innerHTML = data.archive.map(createNewsItem).join('');
-        } else if (archiveList && emptyHint) {
-            emptyHint.style.display = 'block';
+        // 全部动态：合并去重 + 按日期倒序
+        var allItems = dedupeNews(data.current || []).concat(dedupeNews(data.archive || []));
+        allItems.sort(function(a, b) {
+            return String(b.date || '').localeCompare(String(a.date || ''));
+        });
+
+        var totalEl = document.getElementById('newsTotalCount');
+        if (totalEl) totalEl.textContent = allItems.length;
+
+        var moreSub = document.getElementById('newsMoreSub');
+        if (moreSub && allItems.length > 0) {
+            moreSub.textContent = '共 ' + allItems.length + ' 条 · ' + allItems[allItems.length - 1].date + ' 至 ' + allItems[0].date;
         }
+
+        renderMoreNews(allItems);
     } catch (e) {
         var currentList = document.getElementById('newsCurrentList');
         if (currentList) {
-            currentList.innerHTML = '<p class="news-empty-hint">新闻加载中，请稍后刷新。</p>';
+            currentList.innerHTML = '<p class="news-empty-hint">新闻加载失败，请通过 GitHub Pages 访问本站或稍后刷新重试。</p>';
         }
     }
 }
 
+function dedupeNews(items) {
+    var seen = {};
+    var out = [];
+    (items || []).forEach(function(item) {
+        var t = String(item.title || '').trim();
+        if (t && !seen[t]) {
+            seen[t] = 1;
+            out.push(item);
+        }
+    });
+    return out;
+}
+
+var NEWS_PAGE_SIZE = 12;
+
+function renderMoreNews(items) {
+    var listEl = document.getElementById('newsMoreList');
+    var btn = document.getElementById('newsMoreBtn');
+    if (!listEl) return;
+    if (!items.length) {
+        listEl.innerHTML = '<p class="news-empty-hint">暂无历史动态。</p>';
+        return;
+    }
+
+    var showAll = false;
+
+    function paint() {
+        var slice = showAll ? items : items.slice(0, NEWS_PAGE_SIZE);
+        listEl.innerHTML = slice.map(createNewsItem).join('');
+        if (btn) {
+            if (items.length > NEWS_PAGE_SIZE) {
+                btn.style.display = '';
+                btn.textContent = showAll ? '收起' : '展开全部动态（' + items.length + ' 条）';
+            } else {
+                btn.style.display = 'none';
+            }
+        }
+    }
+
+    paint();
+    if (btn) {
+        btn.addEventListener('click', function() {
+            showAll = !showAll;
+            paint();
+        });
+    }
+}
+
 function createNewsItem(item) {
-    return '\n        <a href="' + item.url + '" target="_blank" rel="noopener" class="news-item">\n            <div class="news-item-content">\n                <h4 class="news-item-title">' + item.title + '</h4>\n                <p class="news-item-summary">' + item.summary + '</p>\n            </div>\n            <div class="news-item-meta">\n                <span class="news-item-source">' + item.source + '</span>\n                <span class="news-item-date">' + item.date + '</span>\n            </div>\n        </a>\n    ';
+    var url = item.url || '#';
+    var title = escapeHtml(item.title || '');
+    var summary = escapeHtml(item.summary || '');
+    var source = escapeHtml(item.source || '');
+    var date = escapeHtml(item.date || '');
+    return '\n        <a href="' + url + '" target="_blank" rel="noopener" class="news-item">\n            <div class="news-item-content">\n                <h4 class="news-item-title">' + title + '</h4>\n                <p class="news-item-summary">' + summary + '</p>\n            </div>\n            <div class="news-item-meta">\n                <span class="news-item-date">' + date + '</span>\n                <span class="news-item-source">' + source + '</span>\n            </div>\n        </a>\n    ';
+}
+
+function escapeHtml(str) {
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
 }
 
 // ---------- 访问统计 ----------
