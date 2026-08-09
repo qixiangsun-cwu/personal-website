@@ -1,53 +1,35 @@
 ﻿# ============================================================
-# 个人网站 · AI 资讯每日自动抓取
-# 功能：抓取 RSS -> 更新 ai-news.json -> 自动提交并推送 GitHub
+# 个人网站 · AI 资讯每日抓取（待审核模式）
+# 抓取 RSS -> 生成 ai-news.pending.json + 预览页 ai-news-preview.html
+# 不提交、不推送；审核通过后双击 scripts\approve-ai-news.bat 发布
 # 由 Windows 计划任务每天 08:00 调用
 # ============================================================
 $ErrorActionPreference = 'Stop'
-
 $OutputEncoding = [System.Text.Encoding]::UTF8
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 
 $siteDir = Split-Path -Parent $PSScriptRoot
 $jsonPath = Join-Path $siteDir 'ai-news.json'
-$logPath  = Join-Path $siteDir '.news-update.log'
+$pendingPath = Join-Path $siteDir 'ai-news.pending.json'
+$previewPath = Join-Path $siteDir 'ai-news-preview.html'
+$logPath = Join-Path $siteDir '.news-update.log'
 
 function Write-Log([string]$msg) {
     $line = "[{0}] {1}" -f (Get-Date -Format 'yyyy-MM-dd HH:mm:ss'), $msg
     Add-Content -Path $logPath -Value $line -Encoding UTF8
 }
 
-Write-Log "===== 开始每日 AI 资讯更新 ====="
+Write-Log "===== 抓取开始（待审核模式） ====="
 
-# ---------- 定位 git ----------
-$git = (Get-Command git -ErrorAction SilentlyContinue).Source
-if (-not $git) {
-    $candidates = @(
-        "$env:LOCALAPPDATA\Programs\Git\cmd\git.exe",
-        "C:\Program Files\Git\cmd\git.exe",
-        "C:\Users\Legion\.cache\codex-runtimes\codex-primary-runtime\dependencies\native\git\cmd\git.exe",
-        "C:\Users\Legion\.workbuddy\vendor\PortableGit\cmd\git.exe"
-    )
-    foreach ($c in $candidates) {
-        if (Test-Path $c) { $git = $c; break }
-    }
-}
-if (-not $git) {
-    Write-Log "ERROR: 未找到 git，退出"
-    exit 1
-}
-Write-Log "使用 git: $git"
-
-# ---------- RSS 源 ----------
 $feeds = @(
     'https://www.ithome.com/rss/',
-    'https://36kr.com/feed',
     'https://www.qbitai.com/feed',
-    'https://www.jiqizhixin.com/rss',
     'https://www.cnbeta.com.tw/backend.php',
     'https://techcrunch.com/category/artificial-intelligence/feed/',
     'https://openai.com/blog/rss.xml',
-    'https://huggingface.co/blog/feed.xml'
+    'https://huggingface.co/blog/feed.xml',
+    'https://blog.google/technology/ai/rss/',
+    'http://export.arxiv.org/rss/cs.AI'
 )
 
 $keywords = 'AI|人工智能|大模型|智能体|GPT|Gemini|Claude|OpenAI|Anthropic|DeepSeek|机器人|算力|芯片|自动驾驶|多模态|AIGC|LLM|Agent|NVIDIA|英伟达|Hugging Face|Qwen|Kimi|豆包|元宝'
@@ -58,9 +40,16 @@ $seen = @{}
 foreach ($feed in $feeds) {
     try {
         $resp = Invoke-WebRequest -Uri $feed -UseBasicParsing -TimeoutSec 20
-        $rss = [xml]$resp.Content
+        $bytes = $resp.RawContentStream.ToArray()
+        $xmlText = [System.Text.Encoding]::UTF8.GetString($bytes)
+        $encMatch = [regex]::Match($xmlText, 'encoding=["'']([A-Za-z0-9\-_]+)["'']')
+        if ($encMatch.Success) {
+            try { $xmlText = [System.Text.Encoding]::GetEncoding($encMatch.Groups[1].Value).GetString($bytes) } catch {}
+        }
+        $rss = [xml]$xmlText
         $items = @($rss.rss.channel.item)
         if ($items.Count -eq 0) { $items = @($rss.feed.entry) }
+
         foreach ($item in $items) {
             $title = [string]$item.title
             if (-not $title -or $title -notmatch $keywords) { continue }
@@ -72,8 +61,8 @@ foreach ($feed in $feeds) {
             elseif ($item.date) { $pub = [string]$item.date }
             if (-not $pub) { continue }
 
-            $dt = $null
-            if (-not [DateTime]::TryParse($pub, [ref]$dt)) { continue }
+            $dt = [datetime]::MinValue
+            if (-not [DateTime]::TryParse([string]$pub, [ref]$dt)) { continue }
             if ($dt -lt (Get-Date).AddDays(-2)) { continue }
 
             $dateStr = $dt.ToString('yyyy-MM-dd')
@@ -87,7 +76,7 @@ foreach ($feed in $feeds) {
             $desc = if ($item.description) { [string]$item.description } else { [string]$item.summary }
             $summary = ''
             if ($desc) {
-                $summary = ($desc -replace '<[^>]+>', ' ' -replace '\s+', ' ').Trim()
+                $summary = ($desc -replace '<[^>]+>', ' ' -replace '&nbsp;', ' ' -replace '\s+', ' ').Trim()
                 if ($summary.Length -gt 240) { $summary = $summary.Substring(0, 240) + '…' }
             }
 
@@ -111,77 +100,98 @@ foreach ($feed in $feeds) {
 
 Write-Log "抓取到新条目: $($newItems.Count)"
 if ($newItems.Count -eq 0) {
-    Write-Log "没有抓取到新条目，跳过更新"
+    Write-Log "没有新条目，无需审核"
     exit 0
 }
 
-# ---------- 合并进 ai-news.json ----------
-try {
-    $old = Get-Content -Raw -Encoding UTF8 $jsonPath | ConvertFrom-Json
-} catch {
-    $old = $null
-}
+# ---------- 与已发布内容合并 ----------
+$old = $null
+try { $old = Get-Content -Raw -Encoding UTF8 $jsonPath | ConvertFrom-Json } catch {}
 
+$oldTitles = @{}
 $allItems = [System.Collections.Generic.List[object]]::new()
 if ($old) {
-    foreach ($it in @($old.current) + @($old.archive)) { $allItems.Add($it) }
+    foreach ($it in @($old.current) + @($old.archive)) {
+        $allItems.Add($it)
+        $oldTitles[[string]$it.title] = $true
+    }
 }
 foreach ($it in $newItems) { $allItems.Add($it) }
 
 $merged = @()
 $titleSeen = @{}
+$newTitles = [System.Collections.Generic.List[object]]::new()
 foreach ($it in $allItems) {
     $t = ([string]$it.title).Trim()
     if ($t -and -not $titleSeen.ContainsKey($t)) {
         $titleSeen[$t] = $true
-        $merged += [PSCustomObject]@{
+        $obj = [PSCustomObject]@{
             title   = $t
             summary = [string]$it.summary
             source  = [string]$it.source
             url     = [string]$it.url
             date    = [string]$it.date
         }
+        $merged += $obj
+        if (-not $oldTitles.ContainsKey($t)) { $newTitles.Add($obj) }
     }
 }
-
 $merged = $merged | Sort-Object { [datetime]::ParseExact($_.date, 'yyyy-MM-dd', $null) } -Descending
 
-# “最新动态”保留最近两天，避免单日条目过少
 $latestDate = $merged[0].date
 $latestCutoff = ([datetime]::ParseExact($latestDate, 'yyyy-MM-dd', $null)).AddDays(-1).ToString('yyyy-MM-dd')
 $current = @($merged | Where-Object { $_.date -ge $latestCutoff } | Select-Object -First 15)
 $archive = @($merged | Where-Object { $_.date -lt $latestCutoff } | Select-Object -First 300)
 
-$result = [PSCustomObject]@{
-    updated = (Get-Date -Format 'yyyy-MM-dd')
-    current = $current
-    archive = $archive
+$pending = [PSCustomObject]@{
+    generated = (Get-Date -Format 'yyyy-MM-dd HH:mm:ss')
+    updated   = (Get-Date -Format 'yyyy-MM-dd')
+    current   = $current
+    archive   = $archive
+}
+$pendingJson = $pending | ConvertTo-Json -Depth 6
+[System.IO.File]::WriteAllText($pendingPath, $pendingJson, (New-Object System.Text.UTF8Encoding($false)))
+Write-Log "待审稿已生成: current=$($current.Count) archive=$($archive.Count) 新增=$($newTitles.Count)"
+
+# ---------- 生成预览页 ----------
+function HtmlEncode([string]$s) { return [System.Net.WebUtility]::HtmlEncode($s) }
+
+$sb = [System.Text.StringBuilder]::new()
+[void]$sb.AppendLine('<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><title>AI 动态 · 待发布预览</title><style>')
+[void]$sb.AppendLine('body{font-family:"Microsoft YaHei",system-ui,sans-serif;background:#f4f6fb;margin:0;padding:32px 16px;color:#1c2430}')
+[void]$sb.AppendLine('.wrap{max-width:960px;margin:0 auto}.head{background:linear-gradient(135deg,#1f3a8a,#3b82f6);color:#fff;border-radius:18px;padding:28px 32px;margin-bottom:20px}')
+[void]$sb.AppendLine('.head h1{margin:0 0 8px;font-size:24px}.head p{margin:2px 0;opacity:.9;font-size:13px}')
+[void]$sb.AppendLine('.stats{display:flex;gap:12px;flex-wrap:wrap;margin:16px 0}')
+[void]$sb.AppendLine('.stat{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:10px 18px;font-size:13px}')
+[void]$sb.AppendLine('.stat b{font-size:18px;color:#1d4ed8}')
+[void]$sb.AppendLine('h2{font-size:18px;margin:26px 0 12px}')
+[void]$sb.AppendLine('.card{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:16px 20px;margin-bottom:10px}')
+[void]$sb.AppendLine('.card.new{border-left:4px solid #16a34a;background:#f7fdf8}')
+[void]$sb.AppendLine('.badge{display:inline-block;background:#16a34a;color:#fff;font-size:11px;border-radius:999px;padding:2px 8px;margin-left:8px;vertical-align:2px}')
+[void]$sb.AppendLine('.date{display:inline-block;background:#eef2ff;color:#4338ca;font-size:11px;border-radius:999px;padding:2px 8px;margin-right:8px}')
+[void]$sb.AppendLine('.src{color:#64748b;font-size:12px;margin:4px 0 6px}')
+[void]$sb.AppendLine('a{color:#1d4ed8;text-decoration:none}.sum{font-size:13px;color:#475569;line-height:1.6;white-space:pre-line}')
+[void]$sb.AppendLine('.note{margin-top:24px;background:#fffbeb;border:1px solid #fde68a;border-radius:12px;padding:14px 18px;font-size:13px;color:#92400e}')
+[void]$sb.AppendLine('</style></head><body><div class="wrap">')
+[void]$sb.AppendLine('<div class="head"><h1>AI 动态 · 待发布预览</h1><p>生成时间：' + (Get-Date -Format 'yyyy-MM-dd HH:mm:ss') + '</p><p>以下内容尚未发布，请审核后确认。</p></div>')
+[void]$sb.AppendLine('<div class="stats"><span class="stat">最新动态 <b>' + $current.Count + '</b></span><span class="stat">本期新增 <b>' + $newTitles.Count + '</b></span><span class="stat">最新日期 <b>' + $latestDate + '</b></span></div>')
+
+[void]$sb.AppendLine('<h2>本期新增（' + $newTitles.Count + ' 条）</h2>')
+foreach ($it in $newTitles) {
+    $t = HtmlEncode $it.title; $s = HtmlEncode $it.summary; $src = HtmlEncode $it.source; $url = HtmlEncode $it.url
+    [void]$sb.AppendLine('<div class="card new"><span class="date">' + $it.date + '</span><a href="' + $url + '" target="_blank"><b>' + $t + '</b></a><span class="badge">新增</span><div class="src">' + $src + '</div><div class="sum">' + $s + '</div></div>')
 }
 
-$jsonText = $result | ConvertTo-Json -Depth 5
-$utf8NoBom = New-Object System.Text.UTF8Encoding($false)
-[System.IO.File]::WriteAllText($jsonPath, $jsonText, $utf8NoBom)
-Write-Log "ai-news.json 更新完成: current=$($current.Count) archive=$($archive.Count)"
-
-# ---------- 提交并推送 ----------
-Push-Location $siteDir
-try {
-    & $git add ai-news.json
-    $status = & $git status --porcelain -- ai-news.json
-    if ($status) {
-        $msgFile = Join-Path $env:TEMP ("ai-news-msg-" + (Get-Date -Format 'yyyyMMddHHmmss') + ".txt")
-        [System.IO.File]::WriteAllText($msgFile, "news: AI新闻更新 $(Get-Date -Format 'yyyy-MM-dd')", (New-Object System.Text.UTF8Encoding($false)))
-        & $git -c user.name="Qi-Xiang Sun" -c user.email="qixiangsun@126.com" commit -F $msgFile
-        Remove-Item -LiteralPath $msgFile -ErrorAction SilentlyContinue
-        $pushOut = & $git push origin main 2>&1 | Out-String
-        Write-Log "push 结果: $pushOut"
-    } else {
-        Write-Log "无变更，跳过提交"
-    }
-} catch {
-    Write-Log "ERROR git: $($_.Exception.Message)"
-} finally {
-    Pop-Location
+[void]$sb.AppendLine('<h2>最新动态（前 ' + $current.Count + ' 条）</h2>')
+foreach ($it in $current) {
+    $t = HtmlEncode $it.title; $s = HtmlEncode $it.summary; $src = HtmlEncode $it.source; $url = HtmlEncode $it.url
+    [void]$sb.AppendLine('<div class="card"><span class="date">' + $it.date + '</span><a href="' + $url + '" target="_blank"><b>' + $t + '</b></a><div class="src">' + $src + '</div><div class="sum">' + $s + '</div></div>')
 }
 
-Write-Log "===== 更新结束 ====="
+[void]$sb.AppendLine('<div class="note">确认内容无误后，双击运行 <b>scripts\approve-ai-news.bat</b> 发布；发布前不会影响线上网站。</div>')
+[void]$sb.AppendLine('</div></body></html>')
+[System.IO.File]::WriteAllText($previewPath, $sb.ToString(), (New-Object System.Text.UTF8Encoding($false)))
+
+try { Start-Process $previewPath } catch {}
+Write-Log "预览页已生成并打开"
+Write-Log "===== 抓取结束 ====="
