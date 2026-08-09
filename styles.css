@@ -5,6 +5,8 @@
 
 /* ---------- 令牌 ---------- */
 :root {
+  color-scheme: light dark;
+
   /* 纸色 — 微暖白 */
   --color-paper:    oklch(97% 0.005 85);
   --color-paper-2:  oklch(94% 0.006 85);
@@ -19,6 +21,7 @@
   --color-accent-soft:  oklch(55% 0.18 270 / 0.12);
   --color-accent-ink:   oklch(98% 0.002 270);
   --color-focus:        oklch(58% 0.19 270);
+  --color-accent-border: oklch(55% 0.18 270 / 0.35);
 
   /* 毛玻璃升级 — Apple Liquid Glass approximation */
   --glass-bg:       oklch(100% 0.001 85 / 0.52);
@@ -82,6 +85,8 @@
 /* ---------- 暗色模式 ---------- */
 @media (prefers-color-scheme: dark) {
   :root {
+    color-scheme: dark;
+
     --color-paper:    oklch(14% 0.006 85);
     --color-paper-2:  oklch(18% 0.008 85);
     --color-surface:  oklch(12% 0.004 85);
@@ -94,6 +99,7 @@
     --color-accent-soft:  oklch(65% 0.16 270 / 0.16);
     --color-accent-ink:   oklch(12% 0.004 85);
     --color-focus:        oklch(68% 0.17 270);
+    --color-accent-border: oklch(65% 0.16 270 / 0.45);
 
     --glass-bg:       oklch(18% 0.005 85 / 0.55);
     --glass-bg-hover: oklch(22% 0.006 85 / 0.65);
@@ -101,6 +107,23 @@
     --glass-shadow:
       0 8px 32px oklch(0% 0 0 / 0.22),
       inset 0 1px 0 oklch(100% 0 0 / 0.08);
+  }
+
+  /* 深色下：工具 logo 芯片改浅色，避免白底图标露方块 */
+  .tool-logo {
+    background: oklch(97% 0.003 85);
+    border-color: oklch(92% 0.005 85 / 0.6);
+    box-shadow:
+      0 4px 12px oklch(0% 0 0 / 0.30),
+      inset 0 1px 0 oklch(100% 0 0 / 0.80);
+  }
+
+  /* 深色下：背景光斑降透明度，避免过亮 */
+  .bg-blob { opacity: 0.32; }
+
+  ::selection {
+    background: var(--color-accent-soft);
+    color: var(--color-ink);
   }
 }
 
@@ -1008,7 +1031,7 @@ body {
   color: var(--color-ink-2);
   line-height: 1.6;
   white-space: pre-line;
-  border-left: 3px solid rgba(0, 122, 255, 0.22);
+  border-left: 3px solid var(--color-accent-border);
   padding-left: 0.65rem;
   margin-top: 0.15rem;
 }
@@ -1358,9 +1381,9 @@ body {
   gap: 0.25rem;
   padding: 0.35rem 0.9rem;
   border-radius: 999px;
-  background: rgba(0, 122, 255, 0.08);
-  border: 1px solid rgba(0, 122, 255, 0.22);
-  color: #007aff;
+  background: var(--color-accent-soft);
+  border: 1px solid var(--color-accent-border);
+  color: var(--color-accent);
   font-size: 0.85rem;
   font-weight: 500;
 }
@@ -1397,9 +1420,9 @@ body {
   margin: var(--space-lg) auto 0;
   padding: 0.55rem 1.6rem;
   border-radius: 999px;
-  border: 1px solid rgba(0, 122, 255, 0.35);
+  border: 1px solid var(--color-accent-border);
   background: transparent;
-  color: #007aff;
+  color: var(--color-accent);
   font-size: 0.9rem;
   font-weight: 500;
   cursor: pointer;
@@ -1407,7 +1430,7 @@ body {
 }
 
 .news-more-btn:hover {
-  background: rgba(0, 122, 255, 0.08);
+  background: var(--color-accent-soft);
   transform: translateY(-1px);
 }
 
@@ -1416,9 +1439,9 @@ body {
   align-items: center;
   padding: 0.18rem 0.55rem;
   border-radius: 999px;
-  background: rgba(0, 122, 255, 0.07);
-  border: 1px solid rgba(0, 122, 255, 0.16);
-  color: #007aff;
+  background: var(--color-accent-soft);
+  border: 1px solid var(--color-accent-border);
+  color: var(--color-accent);
   font-size: 0.75rem;
   font-weight: 600;
   white-space: nowrap;
