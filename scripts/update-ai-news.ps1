@@ -34,6 +34,22 @@ $feeds = @(
 
 $keywords = 'AI|人工智能|大模型|智能体|GPT|Gemini|Claude|OpenAI|Anthropic|DeepSeek|机器人|算力|芯片|自动驾驶|多模态|AIGC|LLM|Agent|NVIDIA|英伟达|Hugging Face|Qwen|Kimi|豆包|元宝'
 
+function Get-ElemText($node) {
+    if ($null -eq $node) { return '' }
+    try {
+        if ($node -is [System.Xml.XmlElement]) {
+            $inner = $node.InnerText
+            if ([string]::IsNullOrWhiteSpace($inner)) {
+                # Atom 源的 <link href="..."> 无文本，取 href 属性
+                $href = $node.GetAttribute('href')
+                if ($href) { return $href.Trim() }
+            }
+            return $inner.Trim()
+        }
+    } catch {}
+    return ([string]$node).Trim()
+}
+
 $newItems = [System.Collections.Generic.List[object]]::new()
 $seen = @{}
 
@@ -51,38 +67,38 @@ foreach ($feed in $feeds) {
         if ($items.Count -eq 0) { $items = @($rss.feed.entry) }
 
         foreach ($item in $items) {
-            $title = [string]$item.title
+            $title = Get-ElemText $item.title
             if (-not $title -or $title -notmatch $keywords) { continue }
 
-            $pub = $null
-            if ($item.pubDate) { $pub = [string]$item.pubDate }
-            elseif ($item.published) { $pub = [string]$item.published }
-            elseif ($item.updated) { $pub = [string]$item.updated }
-            elseif ($item.date) { $pub = [string]$item.date }
+            $pub = Get-ElemText $item.pubDate
+            if (-not $pub) { $pub = Get-ElemText $item.published }
+            if (-not $pub) { $pub = Get-ElemText $item.updated }
+            if (-not $pub) { $pub = Get-ElemText $item.date }
             if (-not $pub) { continue }
 
             $dt = [datetime]::MinValue
-            if (-not [DateTime]::TryParse([string]$pub, [ref]$dt)) { continue }
+            if (-not [DateTime]::TryParse($pub, [ref]$dt)) { continue }
             if ($dt -lt (Get-Date).AddDays(-2)) { continue }
 
             $dateStr = $dt.ToString('yyyy-MM-dd')
-            $link = if ($item.link) { [string]$item.link } else { [string]$item.id }
+            $link = Get-ElemText $item.link
+            if (-not $link -or -not $link.StartsWith('http')) { $link = Get-ElemText $item.id }
             if (-not $link -or -not $link.StartsWith('http')) { continue }
 
             $key = $title.Trim()
             if ($seen.ContainsKey($key)) { continue }
             $seen[$key] = $true
 
-            $desc = if ($item.description) { [string]$item.description } else { [string]$item.summary }
+            $desc = Get-ElemText $item.description
+            if (-not $desc) { $desc = Get-ElemText $item.summary }
             $summary = ''
             if ($desc) {
                 $summary = ($desc -replace '<[^>]+>', ' ' -replace '&nbsp;', ' ' -replace '\s+', ' ').Trim()
                 if ($summary.Length -gt 240) { $summary = $summary.Substring(0, 240) + '…' }
             }
 
-            $source = if ($item.source) { [string]$item.source } else {
-                ($feed -replace '^https?://', '') -split '/' | Select-Object -First 1
-            }
+            $source = Get-ElemText $item.source
+            if (-not $source) { $source = ($feed -replace '^https?://', '') -split '/' | Select-Object -First 1 }
 
             $newItems.Add([PSCustomObject]@{
                 title   = $title.Trim()
