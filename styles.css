@@ -109,22 +109,6 @@
       inset 0 1px 0 oklch(100% 0 0 / 0.08);
   }
 
-  /* 深色下：工具 logo 芯片改浅色，避免白底图标露方块 */
-  .tool-logo {
-    background: oklch(97% 0.003 85);
-    border-color: oklch(92% 0.005 85 / 0.6);
-    box-shadow:
-      0 4px 12px oklch(0% 0 0 / 0.30),
-      inset 0 1px 0 oklch(100% 0 0 / 0.80);
-  }
-
-  /* 深色下：背景光斑降透明度，避免过亮 */
-  .bg-blob { opacity: 0.32; }
-
-  ::selection {
-    background: var(--color-accent-soft);
-    color: var(--color-ink);
-  }
 }
 
 /* ---------- 基础重置 ---------- */
@@ -197,12 +181,6 @@ body {
   0%, 100% { transform: translate(0, 0) scale(1); }
   33% { transform: translate(40px, -25px) scale(1.04); }
   66% { transform: translate(-25px, 35px) scale(0.96); }
-}
-
-@media (prefers-color-scheme: dark) {
-  .blob-1 { background: oklch(40% 0.08 290); opacity: 0.35; }
-  .blob-2 { background: oklch(42% 0.06 320); opacity: 0.30; }
-  .blob-3 { background: oklch(44% 0.05 180); opacity: 0.25; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1470,4 +1448,26 @@ body {
   margin-top: 0.4rem;
   font-size: 0.85rem;
   color: var(--color-muted);
+}
+
+/* ---------- 深色模式组件覆盖（置于文件末尾以确保优先级） ---------- */
+@media (prefers-color-scheme: dark) {
+  /* 工具 logo 芯片改浅色，避免白底图标在深色下露方块 */
+  .tool-logo {
+    background: oklch(97% 0.003 85);
+    border-color: oklch(92% 0.005 85 / 0.6);
+    box-shadow:
+      0 4px 12px oklch(0% 0 0 / 0.30),
+      inset 0 1px 0 oklch(100% 0 0 / 0.80);
+  }
+
+  /* 背景光斑：深色下压暗并降透明度 */
+  .blob-1 { background: oklch(40% 0.08 290); opacity: 0.35; }
+  .blob-2 { background: oklch(42% 0.06 320); opacity: 0.30; }
+  .blob-3 { background: oklch(44% 0.05 180); opacity: 0.25; }
+
+  ::selection {
+    background: var(--color-accent-soft);
+    color: var(--color-ink);
+  }
 }
