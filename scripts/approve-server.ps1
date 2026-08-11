@@ -189,6 +189,7 @@ try {
         $rawPath = $req.Url.AbsolutePath
         $path = [System.Uri]::UnescapeDataString($rawPath)
         if ($path -eq '/' -or $path -eq '') { $path = '/index.html' }
+        if ($path -eq '/approve') { $path = '/approve.html' }
 
         if ($path -eq '/api/status') {
             Send-Json $res (Get-Status)
