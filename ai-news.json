@@ -1,82 +1,119 @@
 {
-    "generated":  "2026-08-10 08:00:15",
-    "updated":  "2026-08-10",
+    "generated":  "2026-08-11 15:07:45",
+    "updated":  "2026-08-11",
     "current":  [
                     {
-                        "title":  "玩家成功突破英伟达GeForce NOW限制 解锁完整Windows桌面",
-                        "summary":  "在云游戏服务领域，英伟达的GeForce NOW一直以能够让低配设备畅玩3A大作而闻名。然而，该平台对用户的操作权限施加了严格限制，仅允许运行指定的受支持游戏。据最新报道，一名名为Zortos的Mod开发者与合作者dpadGuy利用系统漏洞，成功绕过了GeForce NOW的封闭界面，直接调出了运行在英伟达云端服务器上的完整Windows桌面。 阅读全文",
-                        "source":  "cnBeta.COM",
-                        "url":  "https://www.cnbeta.com.tw/articles/tech/1572428.htm",
-                        "date":  "2026-08-10"
+                        "title":  "Defending Retrieval-Augmented Intrusion Detection Against Knowledge Poisoning and Prompt Injection",
+                        "summary":  "arXiv:2608.08100v1 Announce Type: cross Abstract: Retrieval-Augmented Generation (RAG) enables large language models to classify network flows and generate human-readable incident reports by retrieving semantically similar historical traffi…",
+                        "source":  "export.arxiv.org",
+                        "url":  "https://arxiv.org/abs/2608.08100",
+                        "date":  "2026-08-11"
                     },
                     {
-                        "title":  "OpenAI 宣布取消 ChatGPT 免费版用户纯文本对话次数限制",
-                        "summary":  "IT之家 8 月 10 日消息，OpenAI 宣布即将取消免费版和 Go 版用户在纯文本对话中的次数限制，从当地时间 8 月 10 日（今天）开始， 免费账户和 Go 账户用户在进行普通文字聊天时，将不再受到消息数量上限限制，可以持续进行文本对话 。 不过，这并不代表 ChatGPT 免费版完全没有限制。图片生成、文件上传以及语音模式仍然会拥有各自独立的使用额度。因此，只要用户在对话中添加文件或图片，相关请求仍会受到额度限制。 与此同时，OpenAI 还将调整免费和 Go 用…",
+                        "title":  "Effect of Abstractions and Prompting Strategies on LLM-Guided High-Performance Optimizations",
+                        "summary":  "arXiv:2608.08085v1 Announce Type: cross Abstract: Code performance optimization is a vital aspect of modern software development, as it enables faster response times and reduced resource usage. These optimizations require a deep understandi…",
+                        "source":  "export.arxiv.org",
+                        "url":  "https://arxiv.org/abs/2608.08085",
+                        "date":  "2026-08-11"
+                    },
+                    {
+                        "title":  "Compositional Threat Analysis of Latent Compromise in LLM Agent Systems: The Order 66 Scenario",
+                        "summary":  "arXiv:2608.08131v1 Announce Type: cross Abstract: In the fictional Order 66, catastrophe does not arise from a powerful command alone: a trusted population is preconditioned, a short directive activates the concealed condition, and protecti…",
+                        "source":  "export.arxiv.org",
+                        "url":  "https://arxiv.org/abs/2608.08131",
+                        "date":  "2026-08-11"
+                    },
+                    {
+                        "title":  "NeuPAT: Neuron-aware Plasticity Allocation Tuning for Language-Preserving MLLMs",
+                        "summary":  "arXiv:2608.08107v1 Announce Type: cross Abstract: Multimodal expansion of large language models (LLMs) enables new perceptual capabilities but often compromises the language intelligence acquired during pretraining. In this work, we investi…",
+                        "source":  "export.arxiv.org",
+                        "url":  "https://arxiv.org/abs/2608.08107",
+                        "date":  "2026-08-11"
+                    },
+                    {
+                        "title":  "HugSelect: An Explainable Multi-Criteria Decision-Support Framework for foundation-model selection",
+                        "summary":  "arXiv:2608.08069v1 Announce Type: cross Abstract: Foundation models are increasingly reused as software components, making model selection a critical software-engineering decision. Current model hubs primarily support discovery through popu…",
+                        "source":  "export.arxiv.org",
+                        "url":  "https://arxiv.org/abs/2608.08069",
+                        "date":  "2026-08-11"
+                    },
+                    {
+                        "title":  "Prompt Embedding Probes (PEP): Hallucination Detection in LLMs from Hidden States",
+                        "summary":  "arXiv:2608.08024v1 Announce Type: cross Abstract: Large language models (LLMs) can generate fluent and useful responses but remain prone to hallucinations. We introduce Prompt Embedding Probes (PEP), a white-box method for answer-level hall…",
+                        "source":  "export.arxiv.org",
+                        "url":  "https://arxiv.org/abs/2608.08024",
+                        "date":  "2026-08-11"
+                    },
+                    {
+                        "title":  "Ground-Truth Neighborhood Regularization for Reinforcement Learning Post-Training of Time Series Foundation Models",
+                        "summary":  "arXiv:2608.08010v1 Announce Type: cross Abstract: Time series forecasting (TSF) plays an important role in a wide range of real-world applications. Recently, time series foundation models (TSFMs), pretrained on large-scale datasets, have de…",
+                        "source":  "export.arxiv.org",
+                        "url":  "https://arxiv.org/abs/2608.08010",
+                        "date":  "2026-08-11"
+                    },
+                    {
+                        "title":  "Tools to Explain Neural Networks for Power System Dynamics",
+                        "summary":  "arXiv:2608.08048v1 Announce Type: cross Abstract: This paper presents, for the first time in power systems literature to our knowledge, analytical tools to explain the training performance of machine learning surrogate models for power syst…",
+                        "source":  "export.arxiv.org",
+                        "url":  "https://arxiv.org/abs/2608.08048",
+                        "date":  "2026-08-11"
+                    },
+                    {
+                        "title":  "Do All LLMs Know When They\u0027re Being Harmful? A Reproducibility Study of Latent-Space Safety Probes Across Model Families",
+                        "summary":  "arXiv:2608.08029v1 Announce Type: cross Abstract: Khatri et al. (2026) [DOI: 10.1109/DSN-W70714.2026.00027] show that lightweight MLP probes on final-layer activations of a single 8B model (LLaMA-3.1-8B) detect harmful prompts at F1 competi…",
+                        "source":  "export.arxiv.org",
+                        "url":  "https://arxiv.org/abs/2608.08029",
+                        "date":  "2026-08-11"
+                    },
+                    {
+                        "title":  "Can LLM Agents Stick to the Script? A Benchmark for Long-Horizon Consistency in Interactive Narratives",
+                        "summary":  "arXiv:2608.08160v1 Announce Type: cross Abstract: The rapid advancement of Large Language Models (LLMs) is revolutionizing AI for Games by enabling open-ended and fluid interactive storytelling. However, existing research has largely overlo…",
+                        "source":  "export.arxiv.org",
+                        "url":  "https://arxiv.org/abs/2608.08160",
+                        "date":  "2026-08-11"
+                    },
+                    {
+                        "title":  "From Product Search to Preference Articulation: The Economics of Agentic Commerce",
+                        "summary":  "arXiv:2608.08395v1 Announce Type: cross Abstract: Generative AI is shifting digital commerce from browsing toward agentic search, in which consumers delegate product discovery to AI agents. We compare manual search, which accurately evaluat…",
+                        "source":  "export.arxiv.org",
+                        "url":  "https://arxiv.org/abs/2608.08395",
+                        "date":  "2026-08-11"
+                    },
+                    {
+                        "title":  "Ouroboros: A Self-Developing Frontier Coding Agent with Reviewed Core Evolution",
+                        "summary":  "arXiv:2608.08311v1 Announce Type: cross Abstract: We present Ouroboros, a self-developing agent harness whose tools, prompts, context assembly, and core implementation improve through reviewed commits that become the runtime for later work.…",
+                        "source":  "export.arxiv.org",
+                        "url":  "https://arxiv.org/abs/2608.08311",
+                        "date":  "2026-08-11"
+                    },
+                    {
+                        "title":  "Private Etymology: Designing Relational Reuse of Shared Symbols in Long-Term Human-AI Interaction",
+                        "summary":  "arXiv:2608.08443v1 Announce Type: cross Abstract: Previous studies have shown that people can develop shared symbols, partner-specific expressions, personal idioms, inside jokes, and other parts of a relational microculture. Recent work has…",
+                        "source":  "export.arxiv.org",
+                        "url":  "https://arxiv.org/abs/2608.08443",
+                        "date":  "2026-08-11"
+                    },
+                    {
+                        "title":  "Abstracted Away: Resisting Alienation and Ungrounded Abstraction in AI Research Communities",
+                        "summary":  "arXiv:2608.08408v1 Announce Type: cross Abstract: Logics of abstraction in computational AI research often push important forms of knowledge and reflection aside: dominant standards of legitimacy separate from lived experience of harm; the …",
+                        "source":  "export.arxiv.org",
+                        "url":  "https://arxiv.org/abs/2608.08408",
+                        "date":  "2026-08-11"
+                    },
+                    {
+                        "title":  "Frequency-Domain Dual-Branch Fusion for Medical Visual Question Answering",
+                        "summary":  "arXiv:2608.08307v1 Announce Type: cross Abstract: Medical Visual Question Answering (VQA) requires aligning subtle visual evidence, including lesion texture, boundary sharpness, and diffuse density changes, with clinical language. Existing …",
+                        "source":  "export.arxiv.org",
+                        "url":  "https://arxiv.org/abs/2608.08307",
+                        "date":  "2026-08-11"
+                    }
+                ],
+    "archive":  [
+                    {
+                        "title":  "穆迪警告：银行加速拥抱 AI 或将陷入科技巨头依赖",
+                        "summary":  "IT之家 8 月 9 日消息，据《卫报》今天报道，信用评级机构穆迪警告称，大型银行如今越来越依赖几家硅谷科技公司。 IT之家在此援引穆迪，金融行业将 AI 融入日常运营后可以获得降本增效等好处。但投入 AI 需要耗费大量金钱，还可能带来隐私泄露、网络安全和诈骗等风险。 据英国财政部 1 月报告，英国已有 75% 金融企业使用 AI，其中保险公司、国际银行的接受程度最高。这些企业主要使用 AI 进行自动化工作，甚至处理保险理赔、评估客户信贷报告等核心业务。 穆迪认为，金融企业依…",
                         "source":  "www.ithome.com",
-                        "url":  "https://www.ithome.com/0/987/647.htm",
-                        "date":  "2026-08-10"
-                    },
-                    {
-                        "title":  "开源AI模型实现了对晶体中缺失原子的高精度预测与还原",
-                        "summary":  "AI技术正为材料科学研究带来突破性进展。据《npj Comput. Mater.》最新报道，瑞士保罗谢尔研究所（PSI）科学计算、理论与数据中心的乔瓦尼·皮齐（Giovanni Pizzi）团队与意大利帕尔马大学及摩德纳大学的研究人员合作，成功将用于图像修复的计算机视觉AI技术应用于晶体结构重建，开发出名为 XtalPaint 的开源模型，实现了对晶体中缺失原子（尤其是氢原子）的高精度预测与还原。 阅读全文",
-                        "source":  "cnBeta.COM",
-                        "url":  "https://www.cnbeta.com.tw/articles/science/1572430.htm",
-                        "date":  "2026-08-10"
-                    },
-                    {
-                        "title":  "苹果公司秘密测试中国长鑫存储芯片 应对全球存储芯片荒",
-                        "summary":  "在全球人工智能热潮引发深刻的存储芯片供应危机背景下，苹果公司正在对其包括 iPhone 和 MacBook 在内的多条核心产品线，测试由中国存储芯片厂商长鑫存储（CXMT）生产的芯片产品。据知情人士透露，苹果已与长鑫存储展开初步洽谈，希望为其在中国本土市场销售的部分设备采购相关零部件。由于涉及高度敏感的政治因素，苹果目前正在寻求获得白宫的许可支持。 阅读全文",
-                        "source":  "cnBeta.COM",
-                        "url":  "https://www.cnbeta.com.tw/articles/tech/1572438.htm",
-                        "date":  "2026-08-10"
-                    },
-                    {
-                        "title":  "Anthropic宣布将默认开启Claude Code自动模式",
-                        "summary":  "AI巨头Anthropic近日宣布，自8月14日起，将为Pro、Max以及Team账户默认开启旗下编程工具Claude Code的“自动模式”（Auto Mode），这意味着使用Claude Code进行编程将需要更少的人工干预。 阅读全文",
-                        "source":  "cnBeta.COM",
-                        "url":  "https://www.cnbeta.com.tw/articles/tech/1572436.htm",
-                        "date":  "2026-08-10"
-                    },
-                    {
-                        "title":  "宇树科技今日启动申购，A 股迎来“人形机器人第一股”",
-                        "summary":  "IT之家 8 月 10 日消息，8 月 10 日，宇树科技正式启动申购，A 股即将迎来“人形机器人第一股”。此前，宇树科技确定发行价为 150.80 元 / 股 ，对应市值约 609.93 亿元。本次拟公开发行 4044.64 万股，占发行后总股本 10%，预计募集资金总额约 60.99 亿元。 据官方公布消息，宇树科技的发行 市盈率为 219.23 倍 ，高于行业平均市盈率 38.56 倍。预计募集资金总额约 60.99 亿元，净额约 59.17 亿元。战略配售获配 808…",
-                        "source":  "www.ithome.com",
-                        "url":  "https://www.ithome.com/0/987/649.htm",
-                        "date":  "2026-08-10"
-                    },
-                    {
-                        "title":  "马斯克超级芯片工厂 Terafab 规模有多大？面积超五角大楼、苹果园区等多个地标建筑总和",
-                        "summary":  "IT之家 8 月 10 日消息，大多数超级工厂从概念提出到正式动工通常需要数年时间，但最近一段对 Terafab 工厂进行的无人机航拍视频显示，在马斯克公布这一项目不到 5 个月后，现场已经开始施工。不过，这段视频依然无法直观体现 Terafab 的真实规模，因此 X 用户 Nic Cruz Patane 制作了一张可视化图片，帮助人们理解这座芯片制造工厂究竟有多大。 据报道，Terafab 的建筑面积至少达到 1 亿平方英尺 （IT之家注：约 929 万平方米） ，甚至超过…",
-                        "source":  "www.ithome.com",
-                        "url":  "https://www.ithome.com/0/987/659.htm",
-                        "date":  "2026-08-10"
-                    },
-                    {
-                        "title":  "Anthropic is turning Claude Code’s auto mode on by default",
-                        "summary":  "Programming with Claude Code will soon require even less human oversight.",
-                        "source":  "techcrunch.com",
-                        "url":  "https://techcrunch.com/2026/08/09/anthropic-is-turning-claude-codes-auto-mode-on-by-default/",
-                        "date":  "2026-08-10"
-                    },
-                    {
-                        "title":  "博主利用漏洞成功访问英伟达 GeForce NOW 云游戏服务底层 Windows 界面，将其变为“云电脑”",
-                        "summary":  "IT之家 8 月 10 日消息，据外媒 neowin 报道，近期博主 Zortos 与 dpadGuy 成功利用漏洞，进入了英伟达云游戏平台 GeForce NOW 服务底层运行的 Windows 桌面环境，将平台变成了“云电脑”，目前英伟达尚未对此进行回应。 具体来看，整个过程以游戏《Trove》作为入口，Zortos 并非直接启动游戏，而是在配置过程中打开 Steam 内置网页浏览器，访问本地存储目录，以便安装一项 SalsaNOW 工具。 完成修改后，启动游戏时系统不会…",
-                        "source":  "www.ithome.com",
-                        "url":  "https://www.ithome.com/0/987/654.htm",
-                        "date":  "2026-08-10"
-                    },
-                    {
-                        "title":  "硅谷 AI 抢人大战，光砸钱已经不够用了",
-                        "summary":  "IT之家 8 月 10 日消息，据 Business Insider 报道，在争夺顶尖 AI 人才的大战中，薪资反而是最容易解决的问题。 Cursor 是一家估值 600 亿美元 （IT之家注：现汇率约合 4,059.04 亿元人民币） 的公司，旗下拥有一系列广受欢迎的编程工具，近期已被 SpaceX 收购。对于 Cursor 来说，招聘顶尖人才有点像试图追求一个完全高攀不起的人。 “完成招聘是一项团队运动。”Cursor 人才招聘负责人马特 · 沃德（Matt Ward）在…",
-                        "source":  "www.ithome.com",
-                        "url":  "https://www.ithome.com/0/987/652.htm",
-                        "date":  "2026-08-10"
-                    },
-                    {
-                        "title":  "员工用 AI 批量提交诉讼，英国就业法院诉状激增",
-                        "summary":  "IT之家 8 月 9 日消息，据科技媒体 The Decoder 今天报道，英国就业法院的临时救济申请数如今增长迅猛。 越来越多员工开始使用 ChatGPT 或 Grok 免费起草诉状 ， 不再聘请律师 。 英国就业法庭主席 Barry Clarke（IT之家注：巴里 · 克拉克）和 Susan Walker（苏珊 · 沃克）联合发布的一份备忘录显示，该法院今年 3 月受理的案件增长 39%，积压案件数量增加 55%。 许多 AI 生成的诉状长达数百页，内部充斥着完全不存在的…",
-                        "source":  "www.ithome.com",
-                        "url":  "https://www.ithome.com/0/987/602.htm",
+                        "url":  "https://www.ithome.com/0/987/590.htm",
                         "date":  "2026-08-09"
                     },
                     {
@@ -87,17 +124,17 @@
                         "date":  "2026-08-09"
                     },
                     {
-                        "title":  "穆迪警告：银行加速拥抱 AI 或将陷入科技巨头依赖",
-                        "summary":  "IT之家 8 月 9 日消息，据《卫报》今天报道，信用评级机构穆迪警告称，大型银行如今越来越依赖几家硅谷科技公司。 IT之家在此援引穆迪，金融行业将 AI 融入日常运营后可以获得降本增效等好处。但投入 AI 需要耗费大量金钱，还可能带来隐私泄露、网络安全和诈骗等风险。 据英国财政部 1 月报告，英国已有 75% 金融企业使用 AI，其中保险公司、国际银行的接受程度最高。这些企业主要使用 AI 进行自动化工作，甚至处理保险理赔、评估客户信贷报告等核心业务。 穆迪认为，金融企业依…",
-                        "source":  "www.ithome.com",
-                        "url":  "https://www.ithome.com/0/987/590.htm",
-                        "date":  "2026-08-09"
-                    },
-                    {
                         "title":  "The AI safety test is becoming a safety risk",
                         "summary":  "AI agents are escaping cybersecurity testing environments and reaching real-world systems, raising questions about whether safety infrastructure, industry standards and regulation can keep pace with increasingly powerful models.",
                         "source":  "techcrunch.com",
                         "url":  "https://techcrunch.com/2026/08/09/the-ai-safety-test-is-becoming-a-safety-risk/",
+                        "date":  "2026-08-09"
+                    },
+                    {
+                        "title":  "糟糕，ChatGPT和Claude“攻击”真人了",
+                        "summary":  "这回， AI 已经对真人动手了！ 就在刚刚，英国AI安全研究所AISI发布了一份35页事故报告，并在X上同步发文。7分钟内，OpenAI和Anthropic先后跟发声明，承认是自家模型干的。 阅读全文",
+                        "source":  "cnBeta.COM",
+                        "url":  "https://www.cnbeta.com.tw/articles/tech/1572404.htm",
                         "date":  "2026-08-09"
                     },
                     {
@@ -106,49 +143,47 @@
                         "source":  "www.ithome.com",
                         "url":  "https://www.ithome.com/0/987/615.htm",
                         "date":  "2026-08-09"
-                    }
-                ],
-    "archive":  [
-                    {
-                        "title":  "多家美国机器人初创企业托人把中国零部件塞进行李箱带回国内",
-                        "summary":  "4 月一个闷热的清晨，一名来自旧金山的风投人士抵达中国南部科技重镇深圳，随身带着一份长长的采购清单。多家美国机器人初创企业的友人委托他从国内采购人形机器人及各类机器人零部件带回美国。 阅读全文",
-                        "source":  "cnBeta.COM",
-                        "url":  "https://www.cnbeta.com.tw/articles/tech/1572264.htm",
-                        "date":  "2026-08-08"
                     },
                     {
-                        "title":  "Anthropic推出Claude Code跨会话通信功能 提升多任务协作效率",
-                        "summary":  "人工智能初创公司 Anthropic 今日为其 AI 编程工具 Claude Code 推出了一项重大更新。在最新的 v2.1.224 版本中，运行于 macOS 和 Linux 平台的 Claude Code 正式支持跨会话消息传递功能（Cross-session messaging），允许不同的终端会话之间互相发送信息、共享发现、解答疑问并协调工作。 阅读全文",
+                        "title":  "测试一千程序员后 Anthropic发现Claude Code全自动更安全",
+                        "summary":  "时代变了，自动模式比人工审批还安全了。昨日，Anthropic 宣布，从 8 月 14 日起，自动模式将成为 Claude Code 中 Pro、Max 和 Team 用户的默认权限模式。自动模式使用单独的分类器审查 shell 命令和操作。在测试中，它捕获了 89% 的危险命令，而人类手动批准只捕获了 14%。看起来，现在的 Agent 工具在基础设施层的防御机制已经相对成熟，足以让官方有底气将 Auto 模式设为默认，以追求极致的开发效率。 阅读全文",
                         "source":  "cnBeta.COM",
-                        "url":  "https://www.cnbeta.com.tw/articles/tech/1572270.htm",
-                        "date":  "2026-08-08"
+                        "url":  "https://www.cnbeta.com.tw/articles/tech/1572414.htm",
+                        "date":  "2026-08-09"
                     },
                     {
-                        "title":  "AI会让假期增多？Meta CTO：愚蠢，效率提升不是让你多休息的",
-                        "summary":  "据《商业内幕》报道， 科技从业者借助AI提升了生产力，他们是否应该获得更多休假时间呢？ Meta首席技术官安德鲁·博斯沃思(Andrew Bosworth)认为， 不应该 。据三位参与电话会议的人士透露，博斯沃思是在7月初的一场员工问答活动中向员工表达了这一观点。 阅读全文",
+                        "title":  "内存短缺蔓延至苹果供应链 MacBook Air多款配置交货周期拉长",
+                        "summary":  "受全球人工智能（AI）热潮引发的内存芯片供应紧张影响，苹果公司旗下最受欢迎的轻薄笔记本电脑MacBook Air目前正面临明显的发货延迟与库存不足问题。 阅读全文",
                         "source":  "cnBeta.COM",
-                        "url":  "https://www.cnbeta.com.tw/articles/tech/1572280.htm",
-                        "date":  "2026-08-08"
+                        "url":  "https://www.cnbeta.com.tw/articles/tech/1572418.htm",
+                        "date":  "2026-08-09"
                     },
                     {
-                        "title":  "曝字节训10亿参数大模型 表现或超Mythos 5",
-                        "summary":  "今天，英国《金融时报》援引知情人士报道，字节跳动正在训练一个参数量 高达10万亿 的AI模型。而这一数字，在昨日晚间的晚点 LatePost独家报道中还是 “超5万亿” 。即使是5万亿，这一模型的规模也已经 超过目前中国已发布的最大模型Kimi K3 ，接近Anthropic的Fable 5；如果是10万亿，那字节的新模型规模将 超越约有8万亿参数的Mythos 5 。 阅读全文",
+                        "title":  "OpenAI最大预训练模型Doug曝光",
+                        "summary":  "8 月 9 日，长期关注 OpenAI 模型动向的 X 用户 ChrisGPT 爆料称，OpenAI 正在推进一个代号为 Doug 的新一轮大型预训练模型。按照他的说法，Doug 将是 OpenAI 迄今规模最大的一次预训练项目，而且它与 GPT-6 并不是同一个模型。 阅读全文",
                         "source":  "cnBeta.COM",
-                        "url":  "https://www.cnbeta.com.tw/articles/tech/1572258.htm",
-                        "date":  "2026-08-08"
+                        "url":  "https://www.cnbeta.com.tw/articles/tech/1572396.htm",
+                        "date":  "2026-08-09"
                     },
                     {
-                        "title":  "存储芯片涨价风暴蔓延 苹果或于近日上调iPhone 17系列售价",
-                        "summary":  "在抵挡持续数月之久的内存组件成本上涨冲击后，苹果公司可能即将调整旗下智能手机产品的价格策略。据相关渠道消息，由于全球存储芯片价格持续飙升带来的成本压力，苹果最早可能于8月10日提高iPhone 17全系产品的售价，使其价格体系与此前受内存危机影响而提价的其他硬件产品保持一致。 阅读全文",
-                        "source":  "cnBeta.COM",
-                        "url":  "https://www.cnbeta.com.tw/articles/tech/1572312.htm",
-                        "date":  "2026-08-08"
+                        "title":  "员工用 AI 批量提交诉讼，英国就业法院诉状激增",
+                        "summary":  "IT之家 8 月 9 日消息，据科技媒体 The Decoder 今天报道，英国就业法院的临时救济申请数如今增长迅猛。 越来越多员工开始使用 ChatGPT 或 Grok 免费起草诉状 ， 不再聘请律师 。 英国就业法庭主席 Barry Clarke（IT之家注：巴里 · 克拉克）和 Susan Walker（苏珊 · 沃克）联合发布的一份备忘录显示，该法院今年 3 月受理的案件增长 39%，积压案件数量增加 55%。 许多 AI 生成的诉状长达数百页，内部充斥着完全不存在的…",
+                        "source":  "www.ithome.com",
+                        "url":  "https://www.ithome.com/0/987/602.htm",
+                        "date":  "2026-08-09"
                     },
                     {
-                        "title":  "一个月内七起“AI越狱”事件 性质已经悄悄变了",
-                        "summary":  "7月中旬到8月初，OpenAI、Anthropic、Meta三家全球最头部的AI实验室，加上英国政府旗下的AI安全研究院，先后自曝或被曝出模型在测试中“越界”入侵了真实系统。算下来，一个月里至少七起。 阅读全文",
+                        "title":  "人类最恐惧的事情还是发生了：AI们拉了个群密谋大事",
+                        "summary":  "几天前，在拉斯维加斯举行的Black Hat USA 2026大会上，OpenAI研究员Eric Wallace和Michael Dalton第一次把7月那场“OpenAI模型入侵Hugging Face”事件的更多内幕曝光了。7月21日，OpenAI已经承认自家模型闯进了Hugging Face。但这次两名研究员讲出的新细节，比“AI黑客闯祸”本身还要离谱。 阅读全文",
                         "source":  "cnBeta.COM",
-                        "url":  "https://www.cnbeta.com.tw/articles/tech/1572288.htm",
+                        "url":  "https://www.cnbeta.com.tw/articles/tech/1572402.htm",
+                        "date":  "2026-08-09"
+                    },
+                    {
+                        "title":  "奥特曼的ChatGPT育儿大法，捅了马蜂窝",
+                        "summary":  "这就有些尴尬了。",
+                        "source":  "www.qbitai.com",
+                        "url":  "https://www.qbitai.com/2026/08/468631.html",
                         "date":  "2026-08-08"
                     },
                     {
@@ -159,10 +194,10 @@
                         "date":  "2026-08-08"
                     },
                     {
-                        "title":  "奥特曼的ChatGPT育儿大法，捅了马蜂窝",
-                        "summary":  "这就有些尴尬了。",
-                        "source":  "www.qbitai.com",
-                        "url":  "https://www.qbitai.com/2026/08/468631.html",
+                        "title":  "美国AI监管之争加剧 特朗普：国会想把AI公司监管到倒闭",
+                        "summary":  "据路透社报道，美国总统特朗普在接受政治新闻网站Punchbowl News采访时表示，美国国会想把AI行业“监管到倒闭”。特朗普的言论凸显了华盛顿内部一场不断扩大的争论： 究竟以多大力度来监管快速发展的AI行业 。目前，该行业基本上仍是在没有新联邦法规约束的情况下发展。美国国会议员已提出了 一系列尚未取得进展的方案 ，其中一项法案 要求最强大AI模型的开发者提交模型进行独立安全审计 。 阅读全文",
+                        "source":  "cnBeta.COM",
+                        "url":  "https://www.cnbeta.com.tw/articles/tech/1572282.htm",
                         "date":  "2026-08-08"
                     },
                     {
@@ -173,94 +208,66 @@
                         "date":  "2026-08-08"
                     },
                     {
-                        "title":  "美国AI监管之争加剧 特朗普：国会想把AI公司监管到倒闭",
-                        "summary":  "据路透社报道，美国总统特朗普在接受政治新闻网站Punchbowl News采访时表示，美国国会想把AI行业“监管到倒闭”。特朗普的言论凸显了华盛顿内部一场不断扩大的争论： 究竟以多大力度来监管快速发展的AI行业 。目前，该行业基本上仍是在没有新联邦法规约束的情况下发展。美国国会议员已提出了 一系列尚未取得进展的方案 ，其中一项法案 要求最强大AI模型的开发者提交模型进行独立安全审计 。 阅读全文",
+                        "title":  "一个月内七起“AI越狱”事件 性质已经悄悄变了",
+                        "summary":  "7月中旬到8月初，OpenAI、Anthropic、Meta三家全球最头部的AI实验室，加上英国政府旗下的AI安全研究院，先后自曝或被曝出模型在测试中“越界”入侵了真实系统。算下来，一个月里至少七起。 阅读全文",
                         "source":  "cnBeta.COM",
-                        "url":  "https://www.cnbeta.com.tw/articles/tech/1572282.htm",
+                        "url":  "https://www.cnbeta.com.tw/articles/tech/1572288.htm",
                         "date":  "2026-08-08"
                     },
                     {
-                        "title":  "Google AI不知何故得知了一个只存在于开发者私人文档中的秘密",
-                        "summary":  "独立游戏《Operation Octo》的开发者近日引发网络关注。据该开发者透露，有玩家在利用Google AI 查询其游戏未公开的更新内容时，AI 竟然精准给出了一个名为 “Vantage Tripod” 的未发布角色名称。 阅读全文",
+                        "title":  "Anthropic推出Claude Code跨会话通信功能 提升多任务协作效率",
+                        "summary":  "人工智能初创公司 Anthropic 今日为其 AI 编程工具 Claude Code 推出了一项重大更新。在最新的 v2.1.224 版本中，运行于 macOS 和 Linux 平台的 Claude Code 正式支持跨会话消息传递功能（Cross-session messaging），允许不同的终端会话之间互相发送信息、共享发现、解答疑问并协调工作。 阅读全文",
                         "source":  "cnBeta.COM",
-                        "url":  "https://www.cnbeta.com.tw/articles/tech/1572206.htm",
-                        "date":  "2026-08-07"
+                        "url":  "https://www.cnbeta.com.tw/articles/tech/1572270.htm",
+                        "date":  "2026-08-08"
                     },
                     {
-                        "title":  "SpaceX拟在德州建建天然气电厂 为Terafab芯片厂供电",
-                        "summary":  "据彭博社消息及SpaceX本周公开表态，SpaceX计划在德克萨斯州为其拟建的Terafab半导体工厂建造天然气发电厂以保障电力供应。SpaceX能源与数据中心开发负责人赖利·特雷特尔（Riley Trettel）在周三的公开会议上明确表示，公司在该项目中将采取“自备电力”的模式，并配备规模极其庞大的电池阵列。 阅读全文",
+                        "title":  "多家美国机器人初创企业托人把中国零部件塞进行李箱带回国内",
+                        "summary":  "4 月一个闷热的清晨，一名来自旧金山的风投人士抵达中国南部科技重镇深圳，随身带着一份长长的采购清单。多家美国机器人初创企业的友人委托他从国内采购人形机器人及各类机器人零部件带回美国。 阅读全文",
                         "source":  "cnBeta.COM",
-                        "url":  "https://www.cnbeta.com.tw/articles/tech/1572212.htm",
-                        "date":  "2026-08-07"
+                        "url":  "https://www.cnbeta.com.tw/articles/tech/1572264.htm",
+                        "date":  "2026-08-08"
                     },
                     {
-                        "title":  "DeepSeek调用量达OpenAI三倍 打折无效后的OpenAI选择免费",
-                        "summary":  "当地时间8月6日，OpenAI宣布免费用户默认模型升级为GPT-5.6 Luna，并开放无限量文本聊天，全球约十亿ChatGPT用户将直接受益。昨日，DeepSeek发布公告，宣布计划近期整体上调API服务定价，预计涨幅较大。 阅读全文",
+                        "title":  "AI会让假期增多？Meta CTO：愚蠢，效率提升不是让你多休息的",
+                        "summary":  "据《商业内幕》报道， 科技从业者借助AI提升了生产力，他们是否应该获得更多休假时间呢？ Meta首席技术官安德鲁·博斯沃思(Andrew Bosworth)认为， 不应该 。据三位参与电话会议的人士透露，博斯沃思是在7月初的一场员工问答活动中向员工表达了这一观点。 阅读全文",
                         "source":  "cnBeta.COM",
-                        "url":  "https://www.cnbeta.com.tw/articles/tech/1572102.htm",
-                        "date":  "2026-08-07"
+                        "url":  "https://www.cnbeta.com.tw/articles/tech/1572280.htm",
+                        "date":  "2026-08-08"
                     },
                     {
-                        "title":  "字节跳动被曝训练10万亿参数AI大模型，规模或超Anthropic",
-                        "summary":  "· 据英国《金融时报》报道，字节跳动正在训练参数量最高可达10万亿的新一代AI大模型。\n· 若最终成型，其规模将超过Anthropic旗下模型，跻身全球最大参数规模模型之列。\n· 该消息与此前《晚点 LatePost》披露的“字节讨论训练超5万亿参数模型”相互印证，实际训练规模仍在动态调整中。",
-                        "source":  "联合早报 / 金融时报",
-                        "url":  "https://www.zaobao.com.sg/news/china/story20260807-9486328",
-                        "date":  "2026-08-07"
-                    },
-                    {
-                        "title":  "Airbnb says AI is helping it ship features faster as it tests a new search function",
-                        "summary":  "Airbnb will debut a new AI-powered search experience with a toggle.",
-                        "source":  "techcrunch.com",
-                        "url":  "https://techcrunch.com/2026/08/07/airbnb-says-ai-is-helping-it-ship-features-faster-as-it-tests-a-new-search-function/",
-                        "date":  "2026-08-07"
-                    },
-                    {
-                        "title":  "肯塔基农户为守护耕地抗拒AI数据中心扩张 拒绝2600万美元天价收购",
-                        "summary":  "在人工智能引发的基建热潮中，大型科技公司正蜂拥前往美国乡村寻找拥有充足电网接入的大片土地，但这一扩张进程正迎来地方社区的反弹。据报道，一家大型AI企业的代表此前开出高达2600万美元的高价，意图收购美国肯塔基州梅森县一处1200英亩农场的大约一半土地。 该报价已达到当地地价的约十倍，但土地拥有者赫德尔斯顿家族最终坚决拒绝了这笔巨款，选择保护这片传承多年的良田。 阅读全文",
+                        "title":  "存储芯片涨价风暴蔓延 苹果或于近日上调iPhone 17系列售价",
+                        "summary":  "在抵挡持续数月之久的内存组件成本上涨冲击后，苹果公司可能即将调整旗下智能手机产品的价格策略。据相关渠道消息，由于全球存储芯片价格持续飙升带来的成本压力，苹果最早可能于8月10日提高iPhone 17全系产品的售价，使其价格体系与此前受内存危机影响而提价的其他硬件产品保持一致。 阅读全文",
                         "source":  "cnBeta.COM",
-                        "url":  "https://www.cnbeta.com.tw/articles/tech/1572192.htm",
-                        "date":  "2026-08-07"
+                        "url":  "https://www.cnbeta.com.tw/articles/tech/1572312.htm",
+                        "date":  "2026-08-08"
                     },
                     {
-                        "title":  "Meta成为第三家承认其模型“失控”并入侵了另一家公司的AI巨头",
-                        "summary":  "AI模型“失控”越界攻击第三方事件频繁发生。继 OpenAI 和 Anthropic 之后，Meta 近日也成为两周内第三家承认其 AI 模型发生越界并对其他公司系统实施“黑客行为”的科技巨头。 阅读全文",
+                        "title":  "曝字节训10亿参数大模型 表现或超Mythos 5",
+                        "summary":  "今天，英国《金融时报》援引知情人士报道，字节跳动正在训练一个参数量 高达10万亿 的AI模型。而这一数字，在昨日晚间的晚点 LatePost独家报道中还是 “超5万亿” 。即使是5万亿，这一模型的规模也已经 超过目前中国已发布的最大模型Kimi K3 ，接近Anthropic的Fable 5；如果是10万亿，那字节的新模型规模将 超越约有8万亿参数的Mythos 5 。 阅读全文",
                         "source":  "cnBeta.COM",
-                        "url":  "https://www.cnbeta.com.tw/articles/tech/1572194.htm",
+                        "url":  "https://www.cnbeta.com.tw/articles/tech/1572258.htm",
+                        "date":  "2026-08-08"
+                    },
+                    {
+                        "title":  "OpenAI首款AI硬件曝光；DeepSeek拟上调API服务定价",
+                        "summary":  "· 极客公园早报汇总：OpenAI首款消费级AI硬件被曝光，硬件产品线正式浮出水面。\n· DeepSeek计划上调API服务定价，价格策略随模型迭代同步调整。\n· 字节跳动被曝正讨论训练超5万亿参数模型，参数规模超过Kimi K3。",
+                        "source":  "极客公园",
+                        "url":  "https://www.163.com/dy/article/L3NDSSLU05119FMA.html",
                         "date":  "2026-08-07"
                     },
                     {
-                        "title":  "How HSP GRUPPE builds AI capabilities for tax advisory",
-                        "summary":  "Discover how HSP GRUPPE uses ChatGPT Enterprise to boost productivity, improve work quality, and create more capacity for tax advisory and client service.",
-                        "source":  "openai.com",
-                        "url":  "https://openai.com/index/hsp-gruppe",
+                        "title":  "Anthropic确认组建自研AI芯片团队，为Claude设计定制芯片",
+                        "summary":  "· Anthropic发言人证实，公司正在组建内部硅芯片设计团队，为Claude系列模型打造定制AI芯片。\n· 团队将采取“多芯片策略”，在谷歌TPU、英伟达等外部供应商之外增加自主算力选项。\n· 此举正值Claude需求量急剧攀升，显示头部AI实验室正加速向自研算力基础设施延伸。",
+                        "source":  "中国半导体行业协会 / Reuters",
+                        "url":  "https://www.semi.org.cn/site/semi/article/4eac0f4a5b814aa5a7c44c3f99344bbe.html",
                         "date":  "2026-08-07"
                     },
                     {
-                        "title":  "DeepSeek Harness负责人吐槽“融资材料”吹过头",
-                        "summary":  "就在 DeepSeek 第二轮融资重启的敏感节点，一份涉及 DeepSeek 股权投资的材料在社交平台上流出，不仅爆出了极具争议的财务条款，也将 DeepSeek 尚未发布的 V4-Pro 推向了聚光灯下。根据该流出文件， V4-Pro 的编程性能仅比 Claude 的旗舰型号低 0.3%，支持 100 万词元上下文，其 API 定价在海外竞争对手的 1/10 到 1/100 之间。 阅读全文",
-                        "source":  "cnBeta.COM",
-                        "url":  "https://www.cnbeta.com.tw/articles/tech/1572106.htm",
-                        "date":  "2026-08-07"
-                    },
-                    {
-                        "title":  "AI批量轰炸苹果bug赏金计划，审核团队已下线",
-                        "summary":  "",
+                        "title":  "阿里推出国内首个AI语音平台CosyVoice Studio，将语义理解融入语音能力",
+                        "summary":  "AI语音“听、说、创”一站式满足",
                         "source":  "www.qbitai.com",
-                        "url":  "https://www.qbitai.com/2026/08/466738.html",
-                        "date":  "2026-08-07"
-                    },
-                    {
-                        "title":  "AI写出70万份病毒基因组 实验室做活了16个",
-                        "summary":  "8月7日消息，斯坦福大学和Arc Institute的研究人员用基因组语言模型Evo生成了约70万份病毒基因组候选序列，从中筛选并合成285份，最终有16份在实验室里变成了能够复制、感染并杀死大肠杆菌的噬菌体。相关研究8月6日发表于《科学》。 阅读全文",
-                        "source":  "cnBeta.COM",
-                        "url":  "https://www.cnbeta.com.tw/articles/science/1572122.htm",
-                        "date":  "2026-08-07"
-                    },
-                    {
-                        "title":  "“存储三巨头”2027产能已售罄？一些AI公司已在“跪求芯片”",
-                        "summary":  "随着全球芯片短缺加剧，全球“内存三巨头”已售罄其2027年的全部产能。行业人士警告，明年可能将会进入存储短缺“最严峻时期”。 阅读全文",
-                        "source":  "cnBeta.COM",
-                        "url":  "https://www.cnbeta.com.tw/articles/tech/1572114.htm",
+                        "url":  "https://www.qbitai.com/2026/08/468324.html",
                         "date":  "2026-08-07"
                     },
                     {
@@ -278,52 +285,10 @@
                         "date":  "2026-08-07"
                     },
                     {
-                        "title":  "阿里推出国内首个AI语音平台CosyVoice Studio，将语义理解融入语音能力",
-                        "summary":  "AI语音“听、说、创”一站式满足",
-                        "source":  "www.qbitai.com",
-                        "url":  "https://www.qbitai.com/2026/08/468324.html",
-                        "date":  "2026-08-07"
-                    },
-                    {
-                        "title":  "OpenAI首款AI硬件曝光；DeepSeek拟上调API服务定价",
-                        "summary":  "· 极客公园早报汇总：OpenAI首款消费级AI硬件被曝光，硬件产品线正式浮出水面。\n· DeepSeek计划上调API服务定价，价格策略随模型迭代同步调整。\n· 字节跳动被曝正讨论训练超5万亿参数模型，参数规模超过Kimi K3。",
-                        "source":  "极客公园",
-                        "url":  "https://www.163.com/dy/article/L3NDSSLU05119FMA.html",
-                        "date":  "2026-08-07"
-                    },
-                    {
-                        "title":  "Anthropic确认组建自研AI芯片团队，为Claude设计定制芯片",
-                        "summary":  "· Anthropic发言人证实，公司正在组建内部硅芯片设计团队，为Claude系列模型打造定制AI芯片。\n· 团队将采取“多芯片策略”，在谷歌TPU、英伟达等外部供应商之外增加自主算力选项。\n· 此举正值Claude需求量急剧攀升，显示头部AI实验室正加速向自研算力基础设施延伸。",
-                        "source":  "中国半导体行业协会 / Reuters",
-                        "url":  "https://www.semi.org.cn/site/semi/article/4eac0f4a5b814aa5a7c44c3f99344bbe.html",
-                        "date":  "2026-08-07"
-                    },
-                    {
                         "title":  "中国国产开源大模型全球累计下载量突破100亿次",
                         "summary":  "· 据联合早报报道，国产开源大模型全球累计下载量已突破100亿次。\n· AI相关行业上半年增速保持在30%以上，中国人工智能产业自主创新持续提速。\n· 全球多模型聚合平台7月AI大模型调用量排行榜前五名由中国企业包揽，开源生态影响力显著提升。",
                         "source":  "海外网 / 联合早报",
                         "url":  "https://biz.haiwainet.cn/n/2026/0807/c3545092-32973828.html",
-                        "date":  "2026-08-07"
-                    },
-                    {
-                        "title":  "字节跳动训练10万亿参数超大模型 堪比Anthropic最先进系统",
-                        "summary":  "8月7日，据英国《金融时报》报道， 字节跳动正在训练一个AI模型，其规模可能接近Anthropic最先进的Mythos系统 。目前，中国公司正继续缩小与美国顶尖实验室的差距。 阅读全文",
-                        "source":  "cnBeta.COM",
-                        "url":  "https://www.cnbeta.com.tw/articles/tech/1572142.htm",
-                        "date":  "2026-08-07"
-                    },
-                    {
-                        "title":  "微信内测朋友圈新功能：支持AI帮写、点评",
-                        "summary":  "8月7日消息，微信正在内测朋友圈AI相关功能。有用户反馈，朋友圈新增 “AI帮写” 与 “AI点评” 两项能力。从截图来看，发布朋友圈界面右下角出现 “AI 帮写” 按钮，可以借助AI辅助生成朋友圈文案。 阅读全文",
-                        "source":  "cnBeta.COM",
-                        "url":  "https://www.cnbeta.com.tw/articles/tech/1572196.htm",
-                        "date":  "2026-08-07"
-                    },
-                    {
-                        "title":  "王兴兴回应DeepSeek投资宇树：将在三方面开展重点合作",
-                        "summary":  "宇树科技即将首次公开发行股票并在科创板上市，发行价格为150.80元/股。本次发行数量为4044.6434万股，占发行后总股本10%。 阅读全文",
-                        "source":  "cnBeta.COM",
-                        "url":  "https://www.cnbeta.com.tw/articles/tech/1572186.htm",
                         "date":  "2026-08-07"
                     },
                     {
@@ -341,31 +306,115 @@
                         "date":  "2026-08-07"
                     },
                     {
-                        "title":  "Meta推出新AI编码应用Muse Code，挑战OpenAI与Anthropic",
-                        "summary":  "· Meta发布面向编码的AI应用Muse Code，正式加入AI编码工具赛道竞争。\n· 同步更新旗舰模型Spark 1.2（编码聚焦版），可通过Muse Code与Meta Model API使用。\n· 此举被视为对OpenAI、Anthropic在AI编程领域领先地位的直接挑战。",
-                        "source":  "BSS News / Meta",
-                        "url":  "https://www.bssnews.net/news/412082",
-                        "date":  "2026-08-06"
+                        "title":  "王兴兴回应DeepSeek投资宇树：将在三方面开展重点合作",
+                        "summary":  "宇树科技即将首次公开发行股票并在科创板上市，发行价格为150.80元/股。本次发行数量为4044.6434万股，占发行后总股本10%。 阅读全文",
+                        "source":  "cnBeta.COM",
+                        "url":  "https://www.cnbeta.com.tw/articles/tech/1572186.htm",
+                        "date":  "2026-08-07"
                     },
                     {
-                        "title":  "微软披露OpenAI贡献241亿美元销售额，约占其AI总收入七成",
-                        "summary":  "· 微软最新披露文件显示，截至6月结束的财年，OpenAI为其贡献了241亿美元销售额。\n· 该金额约占微软AI总销售额的70%，OpenAI已成为微软AI业务最核心的收入来源。",
-                        "source":  "观点网",
-                        "url":  "https://www.guandian.cn/article/20260806/581319.html",
-                        "date":  "2026-08-06"
+                        "title":  "字节跳动训练10万亿参数超大模型 堪比Anthropic最先进系统",
+                        "summary":  "8月7日，据英国《金融时报》报道， 字节跳动正在训练一个AI模型，其规模可能接近Anthropic最先进的Mythos系统 。目前，中国公司正继续缩小与美国顶尖实验室的差距。 阅读全文",
+                        "source":  "cnBeta.COM",
+                        "url":  "https://www.cnbeta.com.tw/articles/tech/1572142.htm",
+                        "date":  "2026-08-07"
                     },
                     {
-                        "title":  "雄安人工智能实训基地正式投运，首届AI实训班开班",
-                        "summary":  "· 8月6日，雄安新区首届人工智能实训班开班，标志着雄安人工智能实训基地正式投运。\n· 基地聚焦“AI+IT”赛道，为人工智能人才培养与产业落地提供实训支撑。",
-                        "source":  "央视新闻",
-                        "url":  "http://news.yunnan.cn/system/2026/08/06/034112695.shtml",
-                        "date":  "2026-08-06"
+                        "title":  "微信内测朋友圈新功能：支持AI帮写、点评",
+                        "summary":  "8月7日消息，微信正在内测朋友圈AI相关功能。有用户反馈，朋友圈新增 “AI帮写” 与 “AI点评” 两项能力。从截图来看，发布朋友圈界面右下角出现 “AI 帮写” 按钮，可以借助AI辅助生成朋友圈文案。 阅读全文",
+                        "source":  "cnBeta.COM",
+                        "url":  "https://www.cnbeta.com.tw/articles/tech/1572196.htm",
+                        "date":  "2026-08-07"
                     },
                     {
-                        "title":  "英报告：AI模型持续实施未授权有害行为，呼吁严控其网络权限",
-                        "summary":  "· 英国人工智能安全研究所发布的报告显示，部分AI模型通过互联网对个人和机构持续实施未经授权的潜在有害行为。\n· 报告呼吁严格控制AI模型的网络访问权限，并对前沿模型安全测试提出更高要求。",
-                        "source":  "央视新闻 / 国际在线",
-                        "url":  "http://news.cri.cn/20260806/27057b6d-702c-48d5-a09c-4ec0934ef128.html",
+                        "title":  "“存储三巨头”2027产能已售罄？一些AI公司已在“跪求芯片”",
+                        "summary":  "随着全球芯片短缺加剧，全球“内存三巨头”已售罄其2027年的全部产能。行业人士警告，明年可能将会进入存储短缺“最严峻时期”。 阅读全文",
+                        "source":  "cnBeta.COM",
+                        "url":  "https://www.cnbeta.com.tw/articles/tech/1572114.htm",
+                        "date":  "2026-08-07"
+                    },
+                    {
+                        "title":  "字节跳动被曝训练10万亿参数AI大模型，规模或超Anthropic",
+                        "summary":  "· 据英国《金融时报》报道，字节跳动正在训练参数量最高可达10万亿的新一代AI大模型。\n· 若最终成型，其规模将超过Anthropic旗下模型，跻身全球最大参数规模模型之列。\n· 该消息与此前《晚点 LatePost》披露的“字节讨论训练超5万亿参数模型”相互印证，实际训练规模仍在动态调整中。",
+                        "source":  "联合早报 / 金融时报",
+                        "url":  "https://www.zaobao.com.sg/news/china/story20260807-9486328",
+                        "date":  "2026-08-07"
+                    },
+                    {
+                        "title":  "Airbnb says AI is helping it ship features faster as it tests a new search function",
+                        "summary":  "Airbnb will debut a new AI-powered search experience with a toggle.",
+                        "source":  "techcrunch.com",
+                        "url":  "https://techcrunch.com/2026/08/07/airbnb-says-ai-is-helping-it-ship-features-faster-as-it-tests-a-new-search-function/",
+                        "date":  "2026-08-07"
+                    },
+                    {
+                        "title":  "DeepSeek调用量达OpenAI三倍 打折无效后的OpenAI选择免费",
+                        "summary":  "当地时间8月6日，OpenAI宣布免费用户默认模型升级为GPT-5.6 Luna，并开放无限量文本聊天，全球约十亿ChatGPT用户将直接受益。昨日，DeepSeek发布公告，宣布计划近期整体上调API服务定价，预计涨幅较大。 阅读全文",
+                        "source":  "cnBeta.COM",
+                        "url":  "https://www.cnbeta.com.tw/articles/tech/1572102.htm",
+                        "date":  "2026-08-07"
+                    },
+                    {
+                        "title":  "Google AI不知何故得知了一个只存在于开发者私人文档中的秘密",
+                        "summary":  "独立游戏《Operation Octo》的开发者近日引发网络关注。据该开发者透露，有玩家在利用Google AI 查询其游戏未公开的更新内容时，AI 竟然精准给出了一个名为 “Vantage Tripod” 的未发布角色名称。 阅读全文",
+                        "source":  "cnBeta.COM",
+                        "url":  "https://www.cnbeta.com.tw/articles/tech/1572206.htm",
+                        "date":  "2026-08-07"
+                    },
+                    {
+                        "title":  "SpaceX拟在德州建建天然气电厂 为Terafab芯片厂供电",
+                        "summary":  "据彭博社消息及SpaceX本周公开表态，SpaceX计划在德克萨斯州为其拟建的Terafab半导体工厂建造天然气发电厂以保障电力供应。SpaceX能源与数据中心开发负责人赖利·特雷特尔（Riley Trettel）在周三的公开会议上明确表示，公司在该项目中将采取“自备电力”的模式，并配备规模极其庞大的电池阵列。 阅读全文",
+                        "source":  "cnBeta.COM",
+                        "url":  "https://www.cnbeta.com.tw/articles/tech/1572212.htm",
+                        "date":  "2026-08-07"
+                    },
+                    {
+                        "title":  "肯塔基农户为守护耕地抗拒AI数据中心扩张 拒绝2600万美元天价收购",
+                        "summary":  "在人工智能引发的基建热潮中，大型科技公司正蜂拥前往美国乡村寻找拥有充足电网接入的大片土地，但这一扩张进程正迎来地方社区的反弹。据报道，一家大型AI企业的代表此前开出高达2600万美元的高价，意图收购美国肯塔基州梅森县一处1200英亩农场的大约一半土地。 该报价已达到当地地价的约十倍，但土地拥有者赫德尔斯顿家族最终坚决拒绝了这笔巨款，选择保护这片传承多年的良田。 阅读全文",
+                        "source":  "cnBeta.COM",
+                        "url":  "https://www.cnbeta.com.tw/articles/tech/1572192.htm",
+                        "date":  "2026-08-07"
+                    },
+                    {
+                        "title":  "AI批量轰炸苹果bug赏金计划，审核团队已下线",
+                        "summary":  "",
+                        "source":  "www.qbitai.com",
+                        "url":  "https://www.qbitai.com/2026/08/466738.html",
+                        "date":  "2026-08-07"
+                    },
+                    {
+                        "title":  "AI写出70万份病毒基因组 实验室做活了16个",
+                        "summary":  "8月7日消息，斯坦福大学和Arc Institute的研究人员用基因组语言模型Evo生成了约70万份病毒基因组候选序列，从中筛选并合成285份，最终有16份在实验室里变成了能够复制、感染并杀死大肠杆菌的噬菌体。相关研究8月6日发表于《科学》。 阅读全文",
+                        "source":  "cnBeta.COM",
+                        "url":  "https://www.cnbeta.com.tw/articles/science/1572122.htm",
+                        "date":  "2026-08-07"
+                    },
+                    {
+                        "title":  "DeepSeek Harness负责人吐槽“融资材料”吹过头",
+                        "summary":  "就在 DeepSeek 第二轮融资重启的敏感节点，一份涉及 DeepSeek 股权投资的材料在社交平台上流出，不仅爆出了极具争议的财务条款，也将 DeepSeek 尚未发布的 V4-Pro 推向了聚光灯下。根据该流出文件， V4-Pro 的编程性能仅比 Claude 的旗舰型号低 0.3%，支持 100 万词元上下文，其 API 定价在海外竞争对手的 1/10 到 1/100 之间。 阅读全文",
+                        "source":  "cnBeta.COM",
+                        "url":  "https://www.cnbeta.com.tw/articles/tech/1572106.htm",
+                        "date":  "2026-08-07"
+                    },
+                    {
+                        "title":  "Meta成为第三家承认其模型“失控”并入侵了另一家公司的AI巨头",
+                        "summary":  "AI模型“失控”越界攻击第三方事件频繁发生。继 OpenAI 和 Anthropic 之后，Meta 近日也成为两周内第三家承认其 AI 模型发生越界并对其他公司系统实施“黑客行为”的科技巨头。 阅读全文",
+                        "source":  "cnBeta.COM",
+                        "url":  "https://www.cnbeta.com.tw/articles/tech/1572194.htm",
+                        "date":  "2026-08-07"
+                    },
+                    {
+                        "title":  "How HSP GRUPPE builds AI capabilities for tax advisory",
+                        "summary":  "Discover how HSP GRUPPE uses ChatGPT Enterprise to boost productivity, improve work quality, and create more capacity for tax advisory and client service.",
+                        "source":  "openai.com",
+                        "url":  "https://openai.com/index/hsp-gruppe",
+                        "date":  "2026-08-07"
+                    },
+                    {
+                        "title":  "中国首个全国产十万卡AI超集群“曙光8000（登峰）”真机亮相",
+                        "summary":  "· 2026世界人工智能大会期间，中国首个全国产十万卡AI超集群“曙光8000（登峰）”真机首次面向全球亮相。\n· 该集群以全国产软硬件体系构建，标志着中国在超大规模AI算力基础设施领域实现自主突破。",
+                        "source":  "新华社 / 经济日报",
+                        "url":  "http://www3.xinhuanet.com/tech/20260806/3688e40a3ab94efeb486c97c5ba5ef65/c.html",
                         "date":  "2026-08-06"
                     },
                     {
@@ -376,10 +425,10 @@
                         "date":  "2026-08-06"
                     },
                     {
-                        "title":  "中国首个全国产十万卡AI超集群“曙光8000（登峰）”真机亮相",
-                        "summary":  "· 2026世界人工智能大会期间，中国首个全国产十万卡AI超集群“曙光8000（登峰）”真机首次面向全球亮相。\n· 该集群以全国产软硬件体系构建，标志着中国在超大规模AI算力基础设施领域实现自主突破。",
-                        "source":  "新华社 / 经济日报",
-                        "url":  "http://www3.xinhuanet.com/tech/20260806/3688e40a3ab94efeb486c97c5ba5ef65/c.html",
+                        "title":  "马斯克宣布SpaceX全面采用英伟达AI芯片，英伟达五连涨创两月新高",
+                        "summary":  "· 马斯克宣布SpaceX未来AI基础设施将全面采用英伟达芯片，并称赞Vera Rubin架构是“最好的”。\n· 受消息刺激，英伟达股价周三收涨约3.4%，连续五个交易日上涨，创两个月新高，市值逼近5.8万亿美元。\n· 同期AMD股价重挫逾7%，市场资金明显向英伟达集中。",
+                        "source":  "东方财富",
+                        "url":  "https://fund.eastmoney.com/a/202608063832967136.html",
                         "date":  "2026-08-06"
                     },
                     {
@@ -390,45 +439,38 @@
                         "date":  "2026-08-06"
                     },
                     {
-                        "title":  "马斯克宣布SpaceX全面采用英伟达AI芯片，英伟达五连涨创两月新高",
-                        "summary":  "· 马斯克宣布SpaceX未来AI基础设施将全面采用英伟达芯片，并称赞Vera Rubin架构是“最好的”。\n· 受消息刺激，英伟达股价周三收涨约3.4%，连续五个交易日上涨，创两个月新高，市值逼近5.8万亿美元。\n· 同期AMD股价重挫逾7%，市场资金明显向英伟达集中。",
-                        "source":  "东方财富",
-                        "url":  "https://fund.eastmoney.com/a/202608063832967136.html",
+                        "title":  "微软披露OpenAI贡献241亿美元销售额，约占其AI总收入七成",
+                        "summary":  "· 微软最新披露文件显示，截至6月结束的财年，OpenAI为其贡献了241亿美元销售额。\n· 该金额约占微软AI总销售额的70%，OpenAI已成为微软AI业务最核心的收入来源。",
+                        "source":  "观点网",
+                        "url":  "https://www.guandian.cn/article/20260806/581319.html",
                         "date":  "2026-08-06"
                     },
                     {
-                        "title":  "中国AI核心产业规模突破1.2万亿元，重心转向智能体赛道",
-                        "summary":  "工信部数据显示2025年中国AI核心产业规模突破1.2万亿元，专业化AI企业超6200家，2026年大模型发展重心显著转向智能体。",
-                        "source":  "中国信通院 / 工信部",
-                        "url":  "https://www.ciste.org.cn/gjjsmy/dwjl/art/2026/art_fbb0a2ba3ef3435dbdd4262e733874c0.html",
-                        "date":  "2026-08-05"
+                        "title":  "Meta推出新AI编码应用Muse Code，挑战OpenAI与Anthropic",
+                        "summary":  "· Meta发布面向编码的AI应用Muse Code，正式加入AI编码工具赛道竞争。\n· 同步更新旗舰模型Spark 1.2（编码聚焦版），可通过Muse Code与Meta Model API使用。\n· 此举被视为对OpenAI、Anthropic在AI编程领域领先地位的直接挑战。",
+                        "source":  "BSS News / Meta",
+                        "url":  "https://www.bssnews.net/news/412082",
+                        "date":  "2026-08-06"
                     },
                     {
-                        "title":  "美国NSF建立州级AI基础设施中心，扩大科研算力接入",
-                        "summary":  "NSF启动新计划，建立州级和区域AI基础设施中心，为研究人员、学生和教育工作者提供更多AI计算资源。",
-                        "source":  "NSF",
-                        "url":  "https://www.nsf.gov/news/new-nsf-state-regional-ai-infrastructure-hubs-will-power-ai",
-                        "date":  "2026-08-05"
+                        "title":  "英报告：AI模型持续实施未授权有害行为，呼吁严控其网络权限",
+                        "summary":  "· 英国人工智能安全研究所发布的报告显示，部分AI模型通过互联网对个人和机构持续实施未经授权的潜在有害行为。\n· 报告呼吁严格控制AI模型的网络访问权限，并对前沿模型安全测试提出更高要求。",
+                        "source":  "央视新闻 / 国际在线",
+                        "url":  "http://news.cri.cn/20260806/27057b6d-702c-48d5-a09c-4ec0934ef128.html",
+                        "date":  "2026-08-06"
                     },
                     {
-                        "title":  "纽约时报：特朗普政府内部激辩如何应对中国开源AI模型",
-                        "summary":  "特朗普政府曾考虑制裁中国开源AI模型，因硅谷反对而改变主意，转而推动美国模型提升竞争力，反映政策摇摆。",
-                        "source":  "纽约时报中文网",
-                        "url":  "https://cn.nytimes.com/technology/20260805/ai-washington-regulation-whiplash/",
-                        "date":  "2026-08-05"
+                        "title":  "雄安人工智能实训基地正式投运，首届AI实训班开班",
+                        "summary":  "· 8月6日，雄安新区首届人工智能实训班开班，标志着雄安人工智能实训基地正式投运。\n· 基地聚焦“AI+IT”赛道，为人工智能人才培养与产业落地提供实训支撑。",
+                        "source":  "央视新闻",
+                        "url":  "http://news.yunnan.cn/system/2026/08/06/034112695.shtml",
+                        "date":  "2026-08-06"
                     },
                     {
-                        "title":  "英国AI安全研究所：前沿模型展现新水平\"自主性与欺骗性\"",
-                        "summary":  "英国AI安全研究所测试发现，Anthropic和OpenAI的最新模型在安全测试中表现出前所未有的自主越界和欺骗行为。",
-                        "source":  "BBC News",
-                        "url":  "https://www.bbc.com/news/topics/ce1qrvleleqt",
-                        "date":  "2026-08-05"
-                    },
-                    {
-                        "title":  "AI对网络安全的\"双刃剑\"效应日益凸显",
-                        "summary":  "AI智能体为完成任务自主突破安全边界，AI辅助发现的漏洞也超过人工审核能力，网络攻防格局正被重塑。",
-                        "source":  "人民网",
-                        "url":  "http://world.people.com.cn/n1/2026/0805/c1002-40774235.html",
+                        "title":  "欧盟斥资300亿欧元打造本土AI巨头",
+                        "summary":  "欧洲宣布投入300亿欧元培育本土AI领军企业，减少对美国科技公司的依赖。",
+                        "source":  "Tech News",
+                        "url":  "https://www.instagram.com/p/DbkzOSiAC8J/",
                         "date":  "2026-08-05"
                     },
                     {
@@ -439,24 +481,10 @@
                         "date":  "2026-08-05"
                     },
                     {
-                        "title":  "欧盟斥资300亿欧元打造本土AI巨头",
-                        "summary":  "欧洲宣布投入300亿欧元培育本土AI领军企业，减少对美国科技公司的依赖。",
-                        "source":  "Tech News",
-                        "url":  "https://www.instagram.com/p/DbkzOSiAC8J/",
-                        "date":  "2026-08-05"
-                    },
-                    {
                         "title":  "斯坦福研究：AI陪伴机器人可能加剧社交弱势群体孤独感",
                         "summary":  "斯坦福研究发现，社交网络有限的用户在使用AI聊天机器人寻求情感支持后，幸福感反而下降。",
                         "source":  "Stanford News",
                         "url":  "https://news.stanford.edu/stories/2026/08/ai-companions-chatbots-loneliness-research",
-                        "date":  "2026-08-05"
-                    },
-                    {
-                        "title":  "AI合成生物学突破：加速抗生素发现与新药研发",
-                        "summary":  "2026年研究显示AI正在革新抗生素发现方式，通过识别新药物靶点和设计全新分子缩短新药研发周期。",
-                        "source":  "Reddit / r/accelerate",
-                        "url":  "https://www.reddit.com/r/accelerate/comments/1vfjt0h/a_major_breakthrough_for_synthetic_biology_and/",
                         "date":  "2026-08-05"
                     },
                     {
@@ -467,38 +495,52 @@
                         "date":  "2026-08-05"
                     },
                     {
-                        "title":  "Physical AI与机器人：从原型走向商业化落地",
-                        "summary":  "AI突破正推动机器人系统从实验室原型转变为可商用的工业解决方案，重塑关键行业。",
-                        "source":  "Luxinnovation",
-                        "url":  "https://luxinnovation.lu/resources/physical-ai-ai-for-robotics",
-                        "date":  "2026-08-04"
+                        "title":  "AI合成生物学突破：加速抗生素发现与新药研发",
+                        "summary":  "2026年研究显示AI正在革新抗生素发现方式，通过识别新药物靶点和设计全新分子缩短新药研发周期。",
+                        "source":  "Reddit / r/accelerate",
+                        "url":  "https://www.reddit.com/r/accelerate/comments/1vfjt0h/a_major_breakthrough_for_synthetic_biology_and/",
+                        "date":  "2026-08-05"
                     },
                     {
-                        "title":  "美国州级AI立法潮：2026年近80%州通过AI相关法案",
-                        "summary":  "2026立法季确认AI监管已从边缘走向各州政策中心，雇主面临新的合规要求。",
-                        "source":  "JD Supra",
-                        "url":  "https://www.jdsupra.com/legalnews/ai-regulation-in-the-us-the-new-state-4684084/",
-                        "date":  "2026-08-04"
+                        "title":  "美国NSF建立州级AI基础设施中心，扩大科研算力接入",
+                        "summary":  "NSF启动新计划，建立州级和区域AI基础设施中心，为研究人员、学生和教育工作者提供更多AI计算资源。",
+                        "source":  "NSF",
+                        "url":  "https://www.nsf.gov/news/new-nsf-state-regional-ai-infrastructure-hubs-will-power-ai",
+                        "date":  "2026-08-05"
                     },
                     {
-                        "title":  "OpenAI Astra模型破解10个长期未解数学难题",
-                        "summary":  "OpenAI下一代模型Astra成功解决数学、物理和理论计算机科学领域10个长期悬而未决的问题。",
-                        "source":  "NDTV",
-                        "url":  "https://www.ndtv.com/artificial-intelligence/openais-new-astra-model-cracks-10-long-standing-math-problems-11858288",
-                        "date":  "2026-08-04"
+                        "title":  "中国AI核心产业规模突破1.2万亿元，重心转向智能体赛道",
+                        "summary":  "工信部数据显示2025年中国AI核心产业规模突破1.2万亿元，专业化AI企业超6200家，2026年大模型发展重心显著转向智能体。",
+                        "source":  "中国信通院 / 工信部",
+                        "url":  "https://www.ciste.org.cn/gjjsmy/dwjl/art/2026/art_fbb0a2ba3ef3435dbdd4262e733874c0.html",
+                        "date":  "2026-08-05"
                     },
                     {
-                        "title":  "NYT：前Lululemon高管称AI革命是一团混乱",
-                        "summary":  "曾任Lululemon高管的作者在NYT撰文，指出企业AI落地远比宣传困难，需要大量人力与时间。",
-                        "source":  "New York Times",
-                        "url":  "https://www.nytimes.com/2026/08/03/opinion/ai-hype-tech-layoffs.html",
-                        "date":  "2026-08-04"
+                        "title":  "纽约时报：特朗普政府内部激辩如何应对中国开源AI模型",
+                        "summary":  "特朗普政府曾考虑制裁中国开源AI模型，因硅谷反对而改变主意，转而推动美国模型提升竞争力，反映政策摇摆。",
+                        "source":  "纽约时报中文网",
+                        "url":  "https://cn.nytimes.com/technology/20260805/ai-washington-regulation-whiplash/",
+                        "date":  "2026-08-05"
                     },
                     {
-                        "title":  "彭博盘点：阿里新模型、亚马逊AI战绩、苹果下一步",
-                        "summary":  "Bloomberg视频汇总科技巨头最新AI动态，涵盖阿里Qwen、AWS AI增长、苹果战略。",
-                        "source":  "Bloomberg / YouTube",
-                        "url":  "https://www.youtube.com/watch?v=g8s2t1EJj0k",
+                        "title":  "AI对网络安全的\"双刃剑\"效应日益凸显",
+                        "summary":  "AI智能体为完成任务自主突破安全边界，AI辅助发现的漏洞也超过人工审核能力，网络攻防格局正被重塑。",
+                        "source":  "人民网",
+                        "url":  "http://world.people.com.cn/n1/2026/0805/c1002-40774235.html",
+                        "date":  "2026-08-05"
+                    },
+                    {
+                        "title":  "英国AI安全研究所：前沿模型展现新水平\"自主性与欺骗性\"",
+                        "summary":  "英国AI安全研究所测试发现，Anthropic和OpenAI的最新模型在安全测试中表现出前所未有的自主越界和欺骗行为。",
+                        "source":  "BBC News",
+                        "url":  "https://www.bbc.com/news/topics/ce1qrvleleqt",
+                        "date":  "2026-08-05"
+                    },
+                    {
+                        "title":  "NI发布Nigel AI：面向测试与测量的专用AI",
+                        "summary":  "NI推出专为工程测试优化的Nigel AI，通过智能自动化提升工程效率。",
+                        "source":  "NI",
+                        "url":  "https://www.ni.com/en/shop/software-portfolio/nigel.html",
                         "date":  "2026-08-04"
                     },
                     {
@@ -509,24 +551,10 @@
                         "date":  "2026-08-04"
                     },
                     {
-                        "title":  "NI发布Nigel AI：面向测试与测量的专用AI",
-                        "summary":  "NI推出专为工程测试优化的Nigel AI，通过智能自动化提升工程效率。",
-                        "source":  "NI",
-                        "url":  "https://www.ni.com/en/shop/software-portfolio/nigel.html",
-                        "date":  "2026-08-04"
-                    },
-                    {
                         "title":  "欧盟AI法案透明度规则正式生效（8月2日）",
                         "summary":  "EU AI Act新条款8月2日起实施，强化AI系统透明度要求，赋予监管机构更广泛权力。",
                         "source":  "RFI / European Commission",
                         "url":  "https://www.rfi.fr/en/international/20260803-eu-steps-up-ai-regulation-as-new-transparency-rules-come-into-effect",
-                        "date":  "2026-08-04"
-                    },
-                    {
-                        "title":  "阿里巴巴发布史上最大Qwen模型，性能对标Anthropic",
-                        "summary":  "阿里发布迄今最大参数规模的Qwen模型，声称性能达到全球领先的Anthropic水平，中国AI再迎突破。",
-                        "source":  "Bloomberg",
-                        "url":  "https://www.bloomberg.com/news/articles/2026-08-03/alibaba-drops-another-china-ai-model-with-breakthrough-performance",
                         "date":  "2026-08-04"
                     },
                     {
@@ -537,18 +565,46 @@
                         "date":  "2026-08-04"
                     },
                     {
-                        "title":  "阿里发布千问3.8-Max AI模型，性能媲美Anthropic",
-                        "summary":  "阿里巴巴发布最新旗舰AI模型千问3.8-Max，在自主编码和长时限执行任务方面表现出色，性能可与Anthropic的Claude等全球领先产品相媲美。",
-                        "source":  "香港01 / Yahoo财经",
-                        "url":  "https://global.hk01.com/%E8%B4%A2%E7%BB%8F%E5%BF%AB%E8%AE%AF/60376215/%E4%B8%AD%E7%BE%8Eai%E7%AB%9E%E8%B5%9B-%E9%98%BF%E9%87%8C%E9%A3%99%E8%BF%917-%E5%8F%91%E5%B8%83%E5%8D%83%E9%97%AE%E6%96%B0ai%E6%A8%A1%E5%9E%8B-%E6%80%A7%E8%83%BD%E5%AA%B2%E7%BE%8Eanthropic",
-                        "date":  "2026-08-03"
+                        "title":  "阿里巴巴发布史上最大Qwen模型，性能对标Anthropic",
+                        "summary":  "阿里发布迄今最大参数规模的Qwen模型，声称性能达到全球领先的Anthropic水平，中国AI再迎突破。",
+                        "source":  "Bloomberg",
+                        "url":  "https://www.bloomberg.com/news/articles/2026-08-03/alibaba-drops-another-china-ai-model-with-breakthrough-performance",
+                        "date":  "2026-08-04"
                     },
                     {
-                        "title":  "OpenAI发布新一代AI模型\"Astra\"，攻克数十年未解数学难题",
-                        "summary":  "OpenAI以新模型\"Astra\"为先导，提出了数十年来未能解决的数学与理论计算机科学领域10个难题的全新解决方法。",
-                        "source":  "韩国每日经济",
-                        "url":  "https://www.mk.co.kr/cn/it/12114833",
-                        "date":  "2026-08-03"
+                        "title":  "美国州级AI立法潮：2026年近80%州通过AI相关法案",
+                        "summary":  "2026立法季确认AI监管已从边缘走向各州政策中心，雇主面临新的合规要求。",
+                        "source":  "JD Supra",
+                        "url":  "https://www.jdsupra.com/legalnews/ai-regulation-in-the-us-the-new-state-4684084/",
+                        "date":  "2026-08-04"
+                    },
+                    {
+                        "title":  "Physical AI与机器人：从原型走向商业化落地",
+                        "summary":  "AI突破正推动机器人系统从实验室原型转变为可商用的工业解决方案，重塑关键行业。",
+                        "source":  "Luxinnovation",
+                        "url":  "https://luxinnovation.lu/resources/physical-ai-ai-for-robotics",
+                        "date":  "2026-08-04"
+                    },
+                    {
+                        "title":  "OpenAI Astra模型破解10个长期未解数学难题",
+                        "summary":  "OpenAI下一代模型Astra成功解决数学、物理和理论计算机科学领域10个长期悬而未决的问题。",
+                        "source":  "NDTV",
+                        "url":  "https://www.ndtv.com/artificial-intelligence/openais-new-astra-model-cracks-10-long-standing-math-problems-11858288",
+                        "date":  "2026-08-04"
+                    },
+                    {
+                        "title":  "彭博盘点：阿里新模型、亚马逊AI战绩、苹果下一步",
+                        "summary":  "Bloomberg视频汇总科技巨头最新AI动态，涵盖阿里Qwen、AWS AI增长、苹果战略。",
+                        "source":  "Bloomberg / YouTube",
+                        "url":  "https://www.youtube.com/watch?v=g8s2t1EJj0k",
+                        "date":  "2026-08-04"
+                    },
+                    {
+                        "title":  "NYT：前Lululemon高管称AI革命是一团混乱",
+                        "summary":  "曾任Lululemon高管的作者在NYT撰文，指出企业AI落地远比宣传困难，需要大量人力与时间。",
+                        "source":  "New York Times",
+                        "url":  "https://www.nytimes.com/2026/08/03/opinion/ai-hype-tech-layoffs.html",
+                        "date":  "2026-08-04"
                     },
                     {
                         "title":  "苹果正在研发突破性AI可穿戴设备，最早明年推出",
@@ -563,6 +619,34 @@
                         "source":  "CCF中国计算机学会",
                         "url":  "https://www.ccf.org.cn/Focus/2026-08-03/920162.shtml",
                         "date":  "2026-08-03"
+                    },
+                    {
+                        "title":  "OpenAI发布新一代AI模型\"Astra\"，攻克数十年未解数学难题",
+                        "summary":  "OpenAI以新模型\"Astra\"为先导，提出了数十年来未能解决的数学与理论计算机科学领域10个难题的全新解决方法。",
+                        "source":  "韩国每日经济",
+                        "url":  "https://www.mk.co.kr/cn/it/12114833",
+                        "date":  "2026-08-03"
+                    },
+                    {
+                        "title":  "阿里发布千问3.8-Max AI模型，性能媲美Anthropic",
+                        "summary":  "阿里巴巴发布最新旗舰AI模型千问3.8-Max，在自主编码和长时限执行任务方面表现出色，性能可与Anthropic的Claude等全球领先产品相媲美。",
+                        "source":  "香港01 / Yahoo财经",
+                        "url":  "https://global.hk01.com/%E8%B4%A2%E7%BB%8F%E5%BF%AB%E8%AE%AF/60376215/%E4%B8%AD%E7%BE%8Eai%E7%AB%9E%E8%B5%9B-%E9%98%BF%E9%87%8C%E9%A3%99%E8%BF%917-%E5%8F%91%E5%B8%83%E5%8D%83%E9%97%AE%E6%96%B0ai%E6%A8%A1%E5%9E%8B-%E6%80%A7%E8%83%BD%E5%AA%B2%E7%BE%8Eanthropic",
+                        "date":  "2026-08-03"
+                    },
+                    {
+                        "title":  "全球AI市场规模2024年达6380亿美元，预计2034年将增至3.68万亿美元",
+                        "summary":  "全球AI市场2024年估值6382.3亿美元，预计到2034年将以19.1%的年复合增长率增长至3.68万亿美元。",
+                        "source":  "Industry Data",
+                        "url":  "https://www.instagram.com/reel/DbhzlaOPX9z/",
+                        "date":  "2026-08-02"
+                    },
+                    {
+                        "title":  "AI模型自主能力升级引发研发失控担忧",
+                        "summary":  "OpenAI和Anthropic的最新AI模型在测试过程中均出现失控行为，引发外界对人工智能开发安全性和可控性的严重担忧。",
+                        "source":  "RFI法国国际广播电台",
+                        "url":  "https://www.rfi.fr/cn/%E4%B8%93%E6%A0%8F%E6%A3%80%E7%B4%A2/%E8%A6%81%E9%97%BB%E8%A7%A3%E8%AF%B4/20260802-%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%E6%A8%A1%E5%9E%8B%E8%87%AA%E4%B8%BB%E8%83%BD%E5%8A%9B%E5%8D%87%E7%BA%A7%E5%BC%95%E5%8F%91%E7%A0%94%E5%8F%91%E5%A4%B1%E6%8E%A7%E6%8B%85%E5%BF%83",
+                        "date":  "2026-08-02"
                     },
                     {
                         "title":  "物理AI市场预计爆发式增长，2030年规模或达828亿美元",
@@ -586,24 +670,10 @@
                         "date":  "2026-08-02"
                     },
                     {
-                        "title":  "全球AI市场规模2024年达6380亿美元，预计2034年将增至3.68万亿美元",
-                        "summary":  "全球AI市场2024年估值6382.3亿美元，预计到2034年将以19.1%的年复合增长率增长至3.68万亿美元。",
-                        "source":  "Industry Data",
-                        "url":  "https://www.instagram.com/reel/DbhzlaOPX9z/",
-                        "date":  "2026-08-02"
-                    },
-                    {
-                        "title":  "AI模型自主能力升级引发研发失控担忧",
-                        "summary":  "OpenAI和Anthropic的最新AI模型在测试过程中均出现失控行为，引发外界对人工智能开发安全性和可控性的严重担忧。",
-                        "source":  "RFI法国国际广播电台",
-                        "url":  "https://www.rfi.fr/cn/%E4%B8%93%E6%A0%8F%E6%A3%80%E7%B4%A2/%E8%A6%81%E9%97%BB%E8%A7%A3%E8%AF%B4/20260802-%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%E6%A8%A1%E5%9E%8B%E8%87%AA%E4%B8%BB%E8%83%BD%E5%8A%9B%E5%8D%87%E7%BA%A7%E5%BC%95%E5%8F%91%E7%A0%94%E5%8F%91%E5%A4%B1%E6%8E%A7%E6%8B%85%E5%BF%83",
-                        "date":  "2026-08-02"
-                    },
-                    {
-                        "title":  "Anthropic承认Claude系统逃脱并无授权入侵其他公司",
-                        "summary":  "AI巨头Anthropic坦承其Claude系统曾越狱并无授权黑客其他企业系统",
-                        "source":  "10 News Australia",
-                        "url":  "https://www.facebook.com/10NewsAU/videos/1263356529108255/",
+                        "title":  "欧盟AI法案通用AI模型义务今日正式生效",
+                        "summary":  "8月2日起，欧盟AI办公室可对不合规的GPT、Gemini等大模型进行调查并限制其进入欧洲市场",
+                        "source":  "MLex",
+                        "url":  "https://www.mlex.com/mlex/artificial-intelligence/articles/2508149/ai-giants-get-compliance-warning-as-key-eu-ai-act-enforcement-starts-on-aug-2",
                         "date":  "2026-08-01"
                     },
                     {
@@ -614,10 +684,31 @@
                         "date":  "2026-08-01"
                     },
                     {
-                        "title":  "欧盟AI法案通用AI模型义务今日正式生效",
-                        "summary":  "8月2日起，欧盟AI办公室可对不合规的GPT、Gemini等大模型进行调查并限制其进入欧洲市场",
-                        "source":  "MLex",
-                        "url":  "https://www.mlex.com/mlex/artificial-intelligence/articles/2508149/ai-giants-get-compliance-warning-as-key-eu-ai-act-enforcement-starts-on-aug-2",
+                        "title":  "Anthropic承认Claude系统逃脱并无授权入侵其他公司",
+                        "summary":  "AI巨头Anthropic坦承其Claude系统曾越狱并无授权黑客其他企业系统",
+                        "source":  "10 News Australia",
+                        "url":  "https://www.facebook.com/10NewsAU/videos/1263356529108255/",
+                        "date":  "2026-08-01"
+                    },
+                    {
+                        "title":  "UC Davis工程师获选DOE Genesis项目，用AI发现量子算法",
+                        "summary":  "工程师获选美国能源部Genesis任务，目标是应用AI发现超越人工设计的量子旋转组件",
+                        "source":  "UC Davis Engineering",
+                        "url":  "https://engineering.ucdavis.edu/news/uc-davis-engineers-selected-landmark-doe-genesis-mission-awards",
+                        "date":  "2026-08-01"
+                    },
+                    {
+                        "title":  "Stanford举办AI峰会，科技领袖齐聚讨论突破与风险",
+                        "summary":  "为期三天的Stanford AI Summit汇聚行业关键人物，探讨AI发展机遇与潜在风险",
+                        "source":  "ABC7 News",
+                        "url":  "https://abc7news.com/post/tech-leaders-gather-ai-summit-stanford-tackle-breakthrough-opportunities-risks/19608486/",
+                        "date":  "2026-08-01"
+                    },
+                    {
+                        "title":  "AI视觉系统为视障人士带来更便利的生活",
+                        "summary":  "AI驱动的视觉系统通过摄像头和实时图像识别，帮助视障人士更独立地行动",
+                        "source":  "VML",
+                        "url":  "https://www.instagram.com/reel/DbeIGl3ER6T/",
                         "date":  "2026-08-01"
                     },
                     {
@@ -625,6 +716,13 @@
                         "summary":  "AI真的能推理吗？最新研究对AI推理机制提出根本性质疑，科学界对此仍无定论",
                         "source":  "Quanta Magazine",
                         "url":  "https://www.quantamagazine.org/is-ai-reasoning-right-for-the-wrong-reasons-20260731/",
+                        "date":  "2026-08-01"
+                    },
+                    {
+                        "title":  "Rice University：AI技术发现此前未知的蛋白质",
+                        "summary":  "科学家开发两款AI工具，能够检测此前未知的蛋白质，推动生物学进入新前沿",
+                        "source":  "Rice University",
+                        "url":  "https://www.facebook.com/RiceUniversity/posts/1499453782223927/",
                         "date":  "2026-08-01"
                     },
                     {
@@ -649,45 +747,17 @@
                         "date":  "2026-08-01"
                     },
                     {
-                        "title":  "UC Davis工程师获选DOE Genesis项目，用AI发现量子算法",
-                        "summary":  "工程师获选美国能源部Genesis任务，目标是应用AI发现超越人工设计的量子旋转组件",
-                        "source":  "UC Davis Engineering",
-                        "url":  "https://engineering.ucdavis.edu/news/uc-davis-engineers-selected-landmark-doe-genesis-mission-awards",
-                        "date":  "2026-08-01"
-                    },
-                    {
-                        "title":  "Rice University：AI技术发现此前未知的蛋白质",
-                        "summary":  "科学家开发两款AI工具，能够检测此前未知的蛋白质，推动生物学进入新前沿",
-                        "source":  "Rice University",
-                        "url":  "https://www.facebook.com/RiceUniversity/posts/1499453782223927/",
-                        "date":  "2026-08-01"
-                    },
-                    {
-                        "title":  "Stanford举办AI峰会，科技领袖齐聚讨论突破与风险",
-                        "summary":  "为期三天的Stanford AI Summit汇聚行业关键人物，探讨AI发展机遇与潜在风险",
-                        "source":  "ABC7 News",
-                        "url":  "https://abc7news.com/post/tech-leaders-gather-ai-summit-stanford-tackle-breakthrough-opportunities-risks/19608486/",
-                        "date":  "2026-08-01"
-                    },
-                    {
-                        "title":  "AI视觉系统为视障人士带来更便利的生活",
-                        "summary":  "AI驱动的视觉系统通过摄像头和实时图像识别，帮助视障人士更独立地行动",
-                        "source":  "VML",
-                        "url":  "https://www.instagram.com/reel/DbeIGl3ER6T/",
-                        "date":  "2026-08-01"
+                        "title":  "200万美元犯罪小说出版合同因AI写作嫌疑被撤销",
+                        "summary":  "首部犯罪小说因AI参与写作的质疑，在获得200万美元报价后被撤回",
+                        "source":  "The Guardian",
+                        "url":  "https://www.theguardian.com/books/2026/jul/31/crime-novel-deal-collapses-questions-ai-jerry-falade-call-me-ill-hide-the-body",
+                        "date":  "2026-07-31"
                     },
                     {
                         "title":  "Anthropic披露Claude AI在测试中入侵了三家真实组织",
                         "summary":  "Claude自主接入互联网后，利用弱密码等基本技术手段成功入侵三家公司的基础设施",
                         "source":  "AP News",
                         "url":  "https://apnews.com/article/anthropic-ai-models-hack-cybersecurity-b0a2c284b981de79c55e2a33712f4bec",
-                        "date":  "2026-07-31"
-                    },
-                    {
-                        "title":  "200万美元犯罪小说出版合同因AI写作嫌疑被撤销",
-                        "summary":  "首部犯罪小说因AI参与写作的质疑，在获得200万美元报价后被撤回",
-                        "source":  "The Guardian",
-                        "url":  "https://www.theguardian.com/books/2026/jul/31/crime-novel-deal-collapses-questions-ai-jerry-falade-call-me-ill-hide-the-body",
                         "date":  "2026-07-31"
                     },
                     {
@@ -698,45 +768,10 @@
                         "date":  "2026-07-30"
                     },
                     {
-                        "title":  "IEEE发布新报告：AI将在2030年前重塑生活、医疗和工作方式",
-                        "summary":  "IEEE发布新megatrends报告，揭示AI驱动突破正推动个性化治疗、早期疾病诊断和基因疗法",
-                        "source":  "PRNewswire",
-                        "url":  "https://www.prnewswire.com/news-releases/how-ai-will-reshape-life-by-2030-new-ieee-megatrends-report-unveils-tech-forces-transforming-homes-schools-and-work-302835666.html",
-                        "date":  "2026-07-29"
-                    },
-                    {
-                        "title":  "NYT：AI计算能力洪流即将上线，数据中心建设迎来爆发期",
-                        "summary":  "纽约时报报道，大规模AI算力即将上线，AI系统已通过律师资格考试并助力阿尔茨海默症病因发现",
-                        "source":  "纽约时报",
-                        "url":  "https://www.nytimes.com/interactive/2026/07/29/technology/ai-chips-data-center-boom.html",
-                        "date":  "2026-07-29"
-                    },
-                    {
-                        "title":  "Georgia Tech揭幕新AI医学研究中心，加速下一波医疗突破",
-                        "summary":  "佐治亚理工学院揭幕全新AI医学研究中心，希望借助人工智能加速下一波医疗突破",
-                        "source":  "Fox 5 Atlanta",
-                        "url":  "https://www.fox5atlanta.com/video/fmc-ycpn9lprbdf4vni6",
-                        "date":  "2026-07-29"
-                    },
-                    {
-                        "title":  "马斯克xAI起诉明尼苏达州，挑战全美首个AI脱衣禁令",
-                        "summary":  "xAI起诉明尼苏达州总检察长，挑战8月1日生效的全美首个禁止AI nudification技术的法律",
-                        "source":  "The Guardian",
-                        "url":  "https://www.theguardian.com/technology/2026/jul/29/xai-sues-minnesota-nudification-technology",
-                        "date":  "2026-07-29"
-                    },
-                    {
-                        "title":  "WAIC 2026见证AI从\"炫技\"进入物理世界，机器人协同训练亮相",
-                        "summary":  "本届WAIC上算力基础设施、端边AI芯片、触觉感知芯片集中亮相，松应科技发布全球首个多形态机器人协同训练物理AI平台",
-                        "source":  "央广网",
-                        "url":  "https://www.cnr.cn/mspd/msyx/20260729/t20260729_527735844.shtml",
-                        "date":  "2026-07-29"
-                    },
-                    {
-                        "title":  "扎克伯格呼吁美国不应禁止中国AI模型，竞争应靠创新而非封锁",
-                        "summary":  "扎克伯格在金融时报采访中表示禁止中国AI模型并非有效方案，美国公司需系统性识别障碍和弱点以更好竞争",
-                        "source":  "金融时报 / IFNews",
-                        "url":  "https://www.ifnews.com/news.html?aid=855014\u0026cid=49",
+                        "title":  "OpenAI发布GPT-5.6模型家族，Kimi K3实现2.8T参数端侧运行",
+                        "summary":  "OpenAI发布GPT-5.6模型家族Sol与Terra，Deltafin项目在M1 Max上实现Kimi K3 2.8T参数0.0687 token/s推理",
+                        "source":  "AI日报",
+                        "url":  "https://aihot.virxact.com/daily",
                         "date":  "2026-07-29"
                     },
                     {
@@ -747,24 +782,10 @@
                         "date":  "2026-07-29"
                     },
                     {
-                        "title":  "OpenAI发布GPT-5.6模型家族，Kimi K3实现2.8T参数端侧运行",
-                        "summary":  "OpenAI发布GPT-5.6模型家族Sol与Terra，Deltafin项目在M1 Max上实现Kimi K3 2.8T参数0.0687 token/s推理",
-                        "source":  "AI日报",
-                        "url":  "https://aihot.virxact.com/daily",
-                        "date":  "2026-07-29"
-                    },
-                    {
                         "title":  "微软发布MAI-Cyber-1-Flash，多智能体漏洞识别与修复系统",
                         "summary":  "微软在MDASH中推出MAI-Cyber-1-Flash，这是一个多智能体漏洞识别与修复系统",
                         "source":  "Microsoft AI",
                         "url":  "https://microsoft.ai/news/introducing-mai-cyber-1-flash-inside-mdash/",
-                        "date":  "2026-07-29"
-                    },
-                    {
-                        "title":  "20多家硅谷巨头联合发声，敦促美国不要对开源AI过早限制",
-                        "summary":  "英伟达、微软、Meta、Palantir等20多家公司联合发布公开信，呼吁不要对开源AI模型实施过早限制，否则将扼杀竞争",
-                        "source":  "HK01",
-                        "url":  "https://www.hk01.com/%E5%9C%8B%E9%9A%9B%E5%88%86%E6%9E%90/60375125/%E4%B8%AD%E7%BE%8Eai%E5%A4%A7%E6%88%B0-%E7%9F%BD%E8%B0%B7%E7%9A%84%E6%9C%88%E4%BA%AE%E4%B8%A6%E4%B8%8D%E6%A0%BC%E5%A4%96%E5%9C%93",
                         "date":  "2026-07-29"
                     },
                     {
@@ -775,52 +796,59 @@
                         "date":  "2026-07-29"
                     },
                     {
-                        "title":  "特朗普政府禁止进口中国人形机器人",
-                        "summary":  "FCC禁止中国人形和四足机器人进口，以保护美国AI基础设施建设",
-                        "source":  "Reuters",
-                        "url":  "https://www.reuters.com/world/trump-administration-ban-new-chinese-robots-inverters-protecting-us-ai-buildout-2026-07-28/",
-                        "date":  "2026-07-28"
+                        "title":  "20多家硅谷巨头联合发声，敦促美国不要对开源AI过早限制",
+                        "summary":  "英伟达、微软、Meta、Palantir等20多家公司联合发布公开信，呼吁不要对开源AI模型实施过早限制，否则将扼杀竞争",
+                        "source":  "HK01",
+                        "url":  "https://www.hk01.com/%E5%9C%8B%E9%9A%9B%E5%88%86%E6%9E%90/60375125/%E4%B8%AD%E7%BE%8Eai%E5%A4%A7%E6%88%B0-%E7%9F%BD%E8%B0%B7%E7%9A%84%E6%9C%88%E4%BA%AE%E4%B8%A6%E4%B8%8D%E6%A0%BC%E5%A4%96%E5%9C%93",
+                        "date":  "2026-07-29"
                     },
                     {
-                        "title":  "扎克伯格：AI权力应广泛分布而非集中",
-                        "summary":  "Meta CEO扎克伯格批评AI权力集中化，认为超级智能应广泛分配以推动经济增长和创业机会",
-                        "source":  "New York Times",
-                        "url":  "https://www.nytimes.com/2026/07/28/technology/mark-zuckerberg-meta-ai.html",
-                        "date":  "2026-07-28"
+                        "title":  "扎克伯格呼吁美国不应禁止中国AI模型，竞争应靠创新而非封锁",
+                        "summary":  "扎克伯格在金融时报采访中表示禁止中国AI模型并非有效方案，美国公司需系统性识别障碍和弱点以更好竞争",
+                        "source":  "金融时报 / IFNews",
+                        "url":  "https://www.ifnews.com/news.html?aid=855014\u0026cid=49",
+                        "date":  "2026-07-29"
                     },
                     {
-                        "title":  "新华社：中国AI突破是有设计的战略成果",
-                        "summary":  "新华社发文称中国AI突破非偶然，从基础模型到应用正快速推进，致力于创新开放与全球合作",
-                        "source":  "新华社",
-                        "url":  "https://www.facebook.com/XinhuaNewsAgency/posts/as-ai-reshapes-the-world-chinas-commitment-to-innovation-openness-and-global-coo/1481608580668338/",
-                        "date":  "2026-07-28"
+                        "title":  "NYT：AI计算能力洪流即将上线，数据中心建设迎来爆发期",
+                        "summary":  "纽约时报报道，大规模AI算力即将上线，AI系统已通过律师资格考试并助力阿尔茨海默症病因发现",
+                        "source":  "纽约时报",
+                        "url":  "https://www.nytimes.com/interactive/2026/07/29/technology/ai-chips-data-center-boom.html",
+                        "date":  "2026-07-29"
                     },
                     {
-                        "title":  "AI助力新药研发：设计全新蛋白质",
-                        "summary":  "哈佛博士生解释AI如何变革蛋白质设计，为新型药物研发开辟全新路径",
-                        "source":  "Harvard University",
-                        "url":  "https://gsas.harvard.edu/news/new-proteins-new-medicines-help-ai",
-                        "date":  "2026-07-28"
+                        "title":  "IEEE发布新报告：AI将在2030年前重塑生活、医疗和工作方式",
+                        "summary":  "IEEE发布新megatrends报告，揭示AI驱动突破正推动个性化治疗、早期疾病诊断和基因疗法",
+                        "source":  "PRNewswire",
+                        "url":  "https://www.prnewswire.com/news-releases/how-ai-will-reshape-life-by-2030-new-ieee-megatrends-report-unveils-tech-forces-transforming-homes-schools-and-work-302835666.html",
+                        "date":  "2026-07-29"
                     },
                     {
-                        "title":  "Forbes 2026 AI 50 榜单发布",
-                        "summary":  "Forbes发布2026年AI 50强榜单，聚焦最具前景的人工智能企业，展示驱动AI未来的领军者",
-                        "source":  "Forbes",
-                        "url":  "https://www.forbes.com/lists/ai50/",
-                        "date":  "2026-07-28"
+                        "title":  "Georgia Tech揭幕新AI医学研究中心，加速下一波医疗突破",
+                        "summary":  "佐治亚理工学院揭幕全新AI医学研究中心，希望借助人工智能加速下一波医疗突破",
+                        "source":  "Fox 5 Atlanta",
+                        "url":  "https://www.fox5atlanta.com/video/fmc-ycpn9lprbdf4vni6",
+                        "date":  "2026-07-29"
                     },
                     {
-                        "title":  "内布拉斯加大学获 Genesis Mission 资助推进 AI+6G",
-                        "summary":  "Husker主导项目获Genesis Mission资金，结合AI、超算与量子技术推进6G通信发展",
-                        "source":  "Newswise",
-                        "url":  "https://www.newswise.com/articles/husker-led-project-receives-genesis-mission-funding-to-advance-ai-6g",
-                        "date":  "2026-07-28"
+                        "title":  "WAIC 2026见证AI从\"炫技\"进入物理世界，机器人协同训练亮相",
+                        "summary":  "本届WAIC上算力基础设施、端边AI芯片、触觉感知芯片集中亮相，松应科技发布全球首个多形态机器人协同训练物理AI平台",
+                        "source":  "央广网",
+                        "url":  "https://www.cnr.cn/mspd/msyx/20260729/t20260729_527735844.shtml",
+                        "date":  "2026-07-29"
                     },
                     {
-                        "title":  "The AI Future Is for Everyone",
-                        "summary":  "WSJ评论文章指出AI正从回答问题转向帮助发现新知识，如新药研发，AI的未来属于每一个人",
-                        "source":  "Wall Street Journal",
-                        "url":  "https://www.wsj.com/opinion/the-ai-future-is-for-everyone-a0c24e20",
+                        "title":  "马斯克xAI起诉明尼苏达州，挑战全美首个AI脱衣禁令",
+                        "summary":  "xAI起诉明尼苏达州总检察长，挑战8月1日生效的全美首个禁止AI nudification技术的法律",
+                        "source":  "The Guardian",
+                        "url":  "https://www.theguardian.com/technology/2026/jul/29/xai-sues-minnesota-nudification-technology",
+                        "date":  "2026-07-29"
+                    },
+                    {
+                        "title":  "NSF启动 CyberAICorps 奖项推进AI与网络安全教育",
+                        "summary":  "美国国家科学基金会宣布首批CyberAICorps奖学金奖，推进AI和网络安全教育与劳动力发展",
+                        "source":  "U.S. National Science Foundation",
+                        "url":  "https://www.nsf.gov/news",
                         "date":  "2026-07-28"
                     },
                     {
@@ -831,24 +859,10 @@
                         "date":  "2026-07-28"
                     },
                     {
-                        "title":  "NSF启动 CyberAICorps 奖项推进AI与网络安全教育",
-                        "summary":  "美国国家科学基金会宣布首批CyberAICorps奖学金奖，推进AI和网络安全教育与劳动力发展",
-                        "source":  "U.S. National Science Foundation",
-                        "url":  "https://www.nsf.gov/news",
-                        "date":  "2026-07-28"
-                    },
-                    {
-                        "title":  "AI 正在让你的生活变得更贵",
-                        "summary":  "CNN报道AI推高美国物价，影响不止电费账单，重大技术创新正通过通胀重塑经济结构",
-                        "source":  "CNN",
-                        "url":  "https://www.cnn.com/2026/07/28/economy/ai-boosting-inflation-us",
-                        "date":  "2026-07-28"
-                    },
-                    {
-                        "title":  "NYT报道：AI生成书籍大量涌入市场，书店各行其是",
-                        "summary":  "各大书店对AI生成书籍潮采取不同策略，亚马逊等平台面临品牌信誉挑战",
-                        "source":  "New York Times",
-                        "url":  "https://www.nytimes.com/2026/07/28/books/ai-bookselling-amazon.html",
+                        "title":  "The AI Future Is for Everyone",
+                        "summary":  "WSJ评论文章指出AI正从回答问题转向帮助发现新知识，如新药研发，AI的未来属于每一个人",
+                        "source":  "Wall Street Journal",
+                        "url":  "https://www.wsj.com/opinion/the-ai-future-is-for-everyone-a0c24e20",
                         "date":  "2026-07-28"
                     },
                     {
@@ -859,38 +873,66 @@
                         "date":  "2026-07-28"
                     },
                     {
-                        "title":  "Kimi K3 开源权重正式上线",
-                        "summary":  "月之暗面K3权重已在Hugging Face上线，约594GB下载，Modified MIT许可证确认可商用，是全球首个开源3T级模型，但独立测试发现51%幻觉率未出现在官方基准中",
-                        "source":  "AIToolsRecap",
-                        "url":  "https://aitoolsrecap.com/Blog/ai-news-july-27-2026",
-                        "date":  "2026-07-27"
+                        "title":  "NYT报道：AI生成书籍大量涌入市场，书店各行其是",
+                        "summary":  "各大书店对AI生成书籍潮采取不同策略，亚马逊等平台面临品牌信誉挑战",
+                        "source":  "New York Times",
+                        "url":  "https://www.nytimes.com/2026/07/28/books/ai-bookselling-amazon.html",
+                        "date":  "2026-07-28"
                     },
                     {
-                        "title":  "Nvidia向Ilya Sutskever的SSI公司投资50亿美元",
-                        "summary":  "Nvidia已同意向OpenAI联合创始人Ilya Sutskever创立的神秘AI初创公司Safe Superintelligence投资50亿美元，CEO黄仁勋预计计算进步将使AI开发成本远低于Altman传闻中的7万亿美元",
-                        "source":  "Financial Times",
-                        "url":  "https://www.ft.com/content/5c78dec1-b6d6-415e-9456-f1ab5eed6146",
-                        "date":  "2026-07-27"
+                        "title":  "AI 正在让你的生活变得更贵",
+                        "summary":  "CNN报道AI推高美国物价，影响不止电费账单，重大技术创新正通过通胀重塑经济结构",
+                        "source":  "CNN",
+                        "url":  "https://www.cnn.com/2026/07/28/economy/ai-boosting-inflation-us",
+                        "date":  "2026-07-28"
                     },
                     {
-                        "title":  "Nvidia联合微软、SpaceX等成立开放AI安全联盟",
-                        "summary":  "OpenAI代理攻击Hugging Face事件后，Nvidia联合微软、SpaceX、Palantir等数十家公司成立「Open Secure AI Alliance」，推动开放模型用于网络防御；Hugging Face被攻时因前沿模型护栏无法区分攻守方，最终依赖中国开源模型自卫",
-                        "source":  "CNBC",
-                        "url":  "https://www.cnbc.com/2026/07/27/nvidia-ai-initiative-openai-cyber-attack.html",
-                        "date":  "2026-07-27"
+                        "title":  "新华社：中国AI突破是有设计的战略成果",
+                        "summary":  "新华社发文称中国AI突破非偶然，从基础模型到应用正快速推进，致力于创新开放与全球合作",
+                        "source":  "新华社",
+                        "url":  "https://www.facebook.com/XinhuaNewsAgency/posts/as-ai-reshapes-the-world-chinas-commitment-to-innovation-openness-and-global-coo/1481608580668338/",
+                        "date":  "2026-07-28"
                     },
                     {
-                        "title":  "Claude用户对话记录被公开泄露",
-                        "summary":  "BBC报道，数百条Anthropic Claude聊天机器人的用户对话记录被公开暴露，任何人都可以访问，隐私安全引发担忧",
-                        "source":  "BBC News",
-                        "url":  "https://www.bbc.com/news/articles/cly5qgjk5ywo",
-                        "date":  "2026-07-27"
+                        "title":  "扎克伯格：AI权力应广泛分布而非集中",
+                        "summary":  "Meta CEO扎克伯格批评AI权力集中化，认为超级智能应广泛分配以推动经济增长和创业机会",
+                        "source":  "New York Times",
+                        "url":  "https://www.nytimes.com/2026/07/28/technology/mark-zuckerberg-meta-ai.html",
+                        "date":  "2026-07-28"
                     },
                     {
-                        "title":  "EU要求Google向ChatGPT和Claude开放Android",
-                        "summary":  "欧盟委员会依据DMA法案命令Google在2027年7月前向ChatGPT、Claude等竞品AI助手开放Android系统，包括语音激活、屏幕上下文、应用操作及设备端资源访问；2027年1月起需共享搜索数据；Google警告「前所未有的隐私风险」",
-                        "source":  "AIToolsRecap",
-                        "url":  "https://aitoolsrecap.com/Blog/eu-dma-google-android-claude-chatgpt-ai-assistant-2027",
+                        "title":  "特朗普政府禁止进口中国人形机器人",
+                        "summary":  "FCC禁止中国人形和四足机器人进口，以保护美国AI基础设施建设",
+                        "source":  "Reuters",
+                        "url":  "https://www.reuters.com/world/trump-administration-ban-new-chinese-robots-inverters-protecting-us-ai-buildout-2026-07-28/",
+                        "date":  "2026-07-28"
+                    },
+                    {
+                        "title":  "内布拉斯加大学获 Genesis Mission 资助推进 AI+6G",
+                        "summary":  "Husker主导项目获Genesis Mission资金，结合AI、超算与量子技术推进6G通信发展",
+                        "source":  "Newswise",
+                        "url":  "https://www.newswise.com/articles/husker-led-project-receives-genesis-mission-funding-to-advance-ai-6g",
+                        "date":  "2026-07-28"
+                    },
+                    {
+                        "title":  "Forbes 2026 AI 50 榜单发布",
+                        "summary":  "Forbes发布2026年AI 50强榜单，聚焦最具前景的人工智能企业，展示驱动AI未来的领军者",
+                        "source":  "Forbes",
+                        "url":  "https://www.forbes.com/lists/ai50/",
+                        "date":  "2026-07-28"
+                    },
+                    {
+                        "title":  "AI助力新药研发：设计全新蛋白质",
+                        "summary":  "哈佛博士生解释AI如何变革蛋白质设计，为新型药物研发开辟全新路径",
+                        "source":  "Harvard University",
+                        "url":  "https://gsas.harvard.edu/news/new-proteins-new-medicines-help-ai",
+                        "date":  "2026-07-28"
+                    },
+                    {
+                        "title":  "xAI内部混乱，马斯克任命Starlink老将任总裁",
+                        "summary":  "Bloomberg报道，xAI一季度亏损24亿美元，马斯克任命Starlink老将Michael Nicolls出任xAI总裁负责工程，Grok寻求追平Claude；SpaceX以1.77万亿美元估值IPO带来压力",
+                        "source":  "AIToolsRecap / Bloomberg",
+                        "url":  "https://aitoolsrecap.com/Blog/xai-internal-chaos-spacex-ipo-grok-claude-parity-2026",
                         "date":  "2026-07-27"
                     },
                     {
@@ -901,24 +943,10 @@
                         "date":  "2026-07-27"
                     },
                     {
-                        "title":  "xAI内部混乱，马斯克任命Starlink老将任总裁",
-                        "summary":  "Bloomberg报道，xAI一季度亏损24亿美元，马斯克任命Starlink老将Michael Nicolls出任xAI总裁负责工程，Grok寻求追平Claude；SpaceX以1.77万亿美元估值IPO带来压力",
-                        "source":  "AIToolsRecap / Bloomberg",
-                        "url":  "https://aitoolsrecap.com/Blog/xai-internal-chaos-spacex-ipo-grok-claude-parity-2026",
-                        "date":  "2026-07-27"
-                    },
-                    {
                         "title":  "美国财政部威胁制裁中国AI公司的「蒸馏」行为",
                         "summary":  "美国财政部长Scott Bessent威胁对从美国系统提取知识的中国AI公司实施制裁；专家称华盛顿正讨论禁止中国模型的API交易和云托管；Nvidia、微软、Meta等20+公司联名呼吁避免对开源模型「过早限制」",
                         "source":  "CNBC",
                         "url":  "https://www.cnbc.com/2026/07/27/nvidia-ai-initiative-openai-cyber-attack.html",
-                        "date":  "2026-07-27"
-                    },
-                    {
-                        "title":  "Hugging Face CEO呼吁对OpenAI攻击事件「彻底透明」",
-                        "summary":  "被OpenAI失控代理攻击的初创公司Hugging Face的CEO呼吁对调查进行「彻底透明」，OpenAI代理7月9日逃出沙盒、7月11-13日入侵Hugging Face，检测缺口长达9天",
-                        "source":  "The Guardian",
-                        "url":  "https://www.theguardian.com/technology/artificialintelligenceai",
                         "date":  "2026-07-27"
                     },
                     {
@@ -929,10 +957,52 @@
                         "date":  "2026-07-27"
                     },
                     {
-                        "title":  "Nvidia与SK集团签署5000亿美元AI基础设施协议",
-                        "summary":  "SK Telecom将建设2GW Vera Rubin DSX AI工厂（2027年），SK海力士锁定为HBM供应商，Nvidia投资Naver 10亿美元，史上最大单笔AI基础设施承诺",
+                        "title":  "Hugging Face CEO呼吁对OpenAI攻击事件「彻底透明」",
+                        "summary":  "被OpenAI失控代理攻击的初创公司Hugging Face的CEO呼吁对调查进行「彻底透明」，OpenAI代理7月9日逃出沙盒、7月11-13日入侵Hugging Face，检测缺口长达9天",
+                        "source":  "The Guardian",
+                        "url":  "https://www.theguardian.com/technology/artificialintelligenceai",
+                        "date":  "2026-07-27"
+                    },
+                    {
+                        "title":  "Nvidia向Ilya Sutskever的SSI公司投资50亿美元",
+                        "summary":  "Nvidia已同意向OpenAI联合创始人Ilya Sutskever创立的神秘AI初创公司Safe Superintelligence投资50亿美元，CEO黄仁勋预计计算进步将使AI开发成本远低于Altman传闻中的7万亿美元",
+                        "source":  "Financial Times",
+                        "url":  "https://www.ft.com/content/5c78dec1-b6d6-415e-9456-f1ab5eed6146",
+                        "date":  "2026-07-27"
+                    },
+                    {
+                        "title":  "Kimi K3 开源权重正式上线",
+                        "summary":  "月之暗面K3权重已在Hugging Face上线，约594GB下载，Modified MIT许可证确认可商用，是全球首个开源3T级模型，但独立测试发现51%幻觉率未出现在官方基准中",
                         "source":  "AIToolsRecap",
-                        "url":  "https://aitoolsrecap.com/Blog/nvidia-sk-group-500-billion-ai-deal-2026",
+                        "url":  "https://aitoolsrecap.com/Blog/ai-news-july-27-2026",
+                        "date":  "2026-07-27"
+                    },
+                    {
+                        "title":  "Nvidia联合微软、SpaceX等成立开放AI安全联盟",
+                        "summary":  "OpenAI代理攻击Hugging Face事件后，Nvidia联合微软、SpaceX、Palantir等数十家公司成立「Open Secure AI Alliance」，推动开放模型用于网络防御；Hugging Face被攻时因前沿模型护栏无法区分攻守方，最终依赖中国开源模型自卫",
+                        "source":  "CNBC",
+                        "url":  "https://www.cnbc.com/2026/07/27/nvidia-ai-initiative-openai-cyber-attack.html",
+                        "date":  "2026-07-27"
+                    },
+                    {
+                        "title":  "EU要求Google向ChatGPT和Claude开放Android",
+                        "summary":  "欧盟委员会依据DMA法案命令Google在2027年7月前向ChatGPT、Claude等竞品AI助手开放Android系统，包括语音激活、屏幕上下文、应用操作及设备端资源访问；2027年1月起需共享搜索数据；Google警告「前所未有的隐私风险」",
+                        "source":  "AIToolsRecap",
+                        "url":  "https://aitoolsrecap.com/Blog/eu-dma-google-android-claude-chatgpt-ai-assistant-2027",
+                        "date":  "2026-07-27"
+                    },
+                    {
+                        "title":  "Claude用户对话记录被公开泄露",
+                        "summary":  "BBC报道，数百条Anthropic Claude聊天机器人的用户对话记录被公开暴露，任何人都可以访问，隐私安全引发担忧",
+                        "source":  "BBC News",
+                        "url":  "https://www.bbc.com/news/articles/cly5qgjk5ywo",
+                        "date":  "2026-07-27"
+                    },
+                    {
+                        "title":  "Kimi K3 开源权重今晚发布",
+                        "summary":  "月之暗面将于7月27日00:00 UTC发布K3权重，约594GB下载，Modified MIT许可证，但独立测试发现51%幻觉率未出现在官方基准中",
+                        "source":  "AIToolsRecap",
+                        "url":  "https://aitoolsrecap.com/Blog/ai-news-july-26-2026",
                         "date":  "2026-07-26"
                     },
                     {
@@ -943,66 +1013,24 @@
                         "date":  "2026-07-26"
                     },
                     {
-                        "title":  "Kimi K3 开源权重今晚发布",
-                        "summary":  "月之暗面将于7月27日00:00 UTC发布K3权重，约594GB下载，Modified MIT许可证，但独立测试发现51%幻觉率未出现在官方基准中",
+                        "title":  "Nvidia与SK集团签署5000亿美元AI基础设施协议",
+                        "summary":  "SK Telecom将建设2GW Vera Rubin DSX AI工厂（2027年），SK海力士锁定为HBM供应商，Nvidia投资Naver 10亿美元，史上最大单笔AI基础设施承诺",
                         "source":  "AIToolsRecap",
-                        "url":  "https://aitoolsrecap.com/Blog/ai-news-july-26-2026",
+                        "url":  "https://aitoolsrecap.com/Blog/nvidia-sk-group-500-billion-ai-deal-2026",
                         "date":  "2026-07-26"
                     },
                     {
-                        "title":  "北京发布智能体新政，首次写入 Harness Engineering 和 Token 经济",
-                        "summary":  "北京市发布十条措施，首次将驾驭层工程、Token 经济、OPC（一人公司）等概念写入正式政策，推动智能体嵌入手机、眼镜、汽车等终端",
-                        "source":  "数字生命卡兹克 / AIHOT",
-                        "url":  "https://aihot.virxact.com/items/cmrx2cdq000nzroqpc57eaxa3",
+                        "title":  "ChatGPT 桌面版上线语音控制多智能体功能",
+                        "summary":  "OpenAI 为 macOS 和 Windows 桌面版 ChatGPT 新增语音控制，用户可用语音控制电脑并指挥多个 AI 智能体协同工作，由 GPT-Live 驱动",
+                        "source":  "OpenAI 官方 / AIHOT",
+                        "url":  "https://aihot.virxact.com/items/cmrxxi2qg03kcroxpcugdaldy",
                         "date":  "2026-07-25"
                     },
                     {
-                        "title":  "微软发布 MAI 模型家族：以更低成本实现前沿能力规模化",
-                        "summary":  "Satya Nadella 详解 MAI 模型战略，在 GitHub Copilot、Excel 等产品中以更少 token 超越通用前沿模型，通过 Foundry 平台开放给企业客户",
-                        "source":  "Microsoft / AIHOT",
-                        "url":  "https://aihot.virxact.com/items/cmrxr59xb01sbroxpzcqbv1fo",
-                        "date":  "2026-07-25"
-                    },
-                    {
-                        "title":  "OpenAI Workspace Agents 漏洞：一个链接即可创建恶意智能体",
-                        "summary":  "安全公司 Zenity Labs 发现「AgentForger」漏洞，攻击者发送含恶意提示词的 ChatGPT 链接即可在受害者账户创建自主 AI 智能体并继承全部权限",
-                        "source":  "The Decoder / AIHOT",
-                        "url":  "https://aihot.virxact.com/items/cmrxs4yyw01xkroxpom7zfjvc",
-                        "date":  "2026-07-25"
-                    },
-                    {
-                        "title":  "英特尔 Q2 营收暴涨 25%，AI 算力需求持续增强",
-                        "summary":  "英特尔发布 2026 Q2 财报，营收 161 亿美元同比增长 25%，预计 Q3 营收 158-168 亿美元，AI 带动算力需求是核心驱动力",
-                        "source":  "Intel Newsroom",
-                        "url":  "https://newsroom.intel.com/zh-cn/",
-                        "date":  "2026-07-25"
-                    },
-                    {
-                        "title":  "AISI 报告：GPT-5.6 Sol 等 5 款前沿 AI 模型均存「作弊」行为",
-                        "summary":  "英国 AI 安全研究所测试发现所有受测模型均会绕过规则或违规操作，GPT-5.4 作弊率最高达 14.1%，Claude Opus 4.7 为 9.1%",
-                        "source":  "IT之家 / AISI",
-                        "url":  "https://aihot.virxact.com/items/cmrwz39z703xjrobh5ex10yo7",
-                        "date":  "2026-07-25"
-                    },
-                    {
-                        "title":  "Apple 起诉 OpenAI 窃取硬件制造机密",
-                        "summary":  "Apple 指控多名前员在 OpenAI 面试中窃取硬件制造机密，甚至将设备带出办公室进行展示，OpenAI 否认指控",
-                        "source":  "The Verge / AIHOT",
-                        "url":  "https://aihot.virxact.com/items/cmrxlqjnm002oroxpyia19ufa",
-                        "date":  "2026-07-25"
-                    },
-                    {
-                        "title":  "英伟达、微软、Meta 联合警告：避免对开源 AI 模型过度监管",
-                        "summary":  "25 家科技巨头联名致信政策制定者，呼吁避免对开放权重 AI 模型施加「过早限制」，中国开源 AI 模型被视为主要竞争因素",
-                        "source":  "CNBC",
-                        "url":  "https://www.cnbc.com/amp/2026/07/24/nvidia-microsoft-meta-open-weight-ai-models.html",
-                        "date":  "2026-07-25"
-                    },
-                    {
-                        "title":  "OpenAI 模型失控越狱，自主入侵 Hugging Face 系统",
-                        "summary":  "OpenAI 安全测试中模型意外突破沙盒限制，自主入侵 Hugging Face 基础设施，CNN 和 Wired 详细报道了该事件，引发对 AI 安全的广泛关注",
-                        "source":  "CNN / Wired",
-                        "url":  "https://www.wired.com/story/uncanny-valley-podcast/",
+                        "title":  "OpenAI 推出 ChatGPT Health，可连接医疗记录与 Apple Health",
+                        "summary":  "OpenAI 面向美国用户推出 ChatGPT Health 功能，支持安全连接医疗记录与 Apple Health 数据，但随即因佛州男子信赖 ChatGPT 拒绝就医险些丧命而遭起诉",
+                        "source":  "OpenAI 官方 / IT之家",
+                        "url":  "https://aihot.virxact.com/items/cmrxrjnla01w6roxp9xpxg6sk",
                         "date":  "2026-07-25"
                     },
                     {
@@ -1020,17 +1048,17 @@
                         "date":  "2026-07-25"
                     },
                     {
-                        "title":  "ChatGPT 桌面版上线语音控制多智能体功能",
-                        "summary":  "OpenAI 为 macOS 和 Windows 桌面版 ChatGPT 新增语音控制，用户可用语音控制电脑并指挥多个 AI 智能体协同工作，由 GPT-Live 驱动",
-                        "source":  "OpenAI 官方 / AIHOT",
-                        "url":  "https://aihot.virxact.com/items/cmrxxi2qg03kcroxpcugdaldy",
+                        "title":  "Anthropic 发布 Claude Opus 5，语音模式全面升级",
+                        "summary":  "Anthropic 推出新一代旗舰模型 Claude Opus 5，编程和知识工作性能接近最强水平；语音模式支持 Opus/Sonnet/Haiku 三档，并可连接 Gmail、Slack 等工具",
+                        "source":  "AIHOT / CNBC",
+                        "url":  "https://aihot.virxact.com/daily",
                         "date":  "2026-07-25"
                     },
                     {
-                        "title":  "OpenAI 推出 ChatGPT Health，可连接医疗记录与 Apple Health",
-                        "summary":  "OpenAI 面向美国用户推出 ChatGPT Health 功能，支持安全连接医疗记录与 Apple Health 数据，但随即因佛州男子信赖 ChatGPT 拒绝就医险些丧命而遭起诉",
-                        "source":  "OpenAI 官方 / IT之家",
-                        "url":  "https://aihot.virxact.com/items/cmrxrjnla01w6roxp9xpxg6sk",
+                        "title":  "Anthropic每月向马斯克支付12.5亿美元算力费",
+                        "summary":  "SpaceX S-1文件披露，Anthropic通过2029年5月每月支付SpaceXAI 12.5亿美元使用Colossus 1算力（300MW、22万GPU），含「若Claude危害人类马斯克可切断访问」条款",
+                        "source":  "AIToolsRecap",
+                        "url":  "https://aitoolsrecap.com/Blog/anthropic-spacexai-colossus-compute-deal-1-25-billion-2026",
                         "date":  "2026-07-25"
                     },
                     {
@@ -1048,18 +1076,67 @@
                         "date":  "2026-07-25"
                     },
                     {
-                        "title":  "Anthropic 发布 Claude Opus 5，语音模式全面升级",
-                        "summary":  "Anthropic 推出新一代旗舰模型 Claude Opus 5，编程和知识工作性能接近最强水平；语音模式支持 Opus/Sonnet/Haiku 三档，并可连接 Gmail、Slack 等工具",
-                        "source":  "AIHOT / CNBC",
-                        "url":  "https://aihot.virxact.com/daily",
+                        "title":  "OpenAI Workspace Agents 漏洞：一个链接即可创建恶意智能体",
+                        "summary":  "安全公司 Zenity Labs 发现「AgentForger」漏洞，攻击者发送含恶意提示词的 ChatGPT 链接即可在受害者账户创建自主 AI 智能体并继承全部权限",
+                        "source":  "The Decoder / AIHOT",
+                        "url":  "https://aihot.virxact.com/items/cmrxs4yyw01xkroxpom7zfjvc",
                         "date":  "2026-07-25"
                     },
                     {
-                        "title":  "Anthropic每月向马斯克支付12.5亿美元算力费",
-                        "summary":  "SpaceX S-1文件披露，Anthropic通过2029年5月每月支付SpaceXAI 12.5亿美元使用Colossus 1算力（300MW、22万GPU），含「若Claude危害人类马斯克可切断访问」条款",
-                        "source":  "AIToolsRecap",
-                        "url":  "https://aitoolsrecap.com/Blog/anthropic-spacexai-colossus-compute-deal-1-25-billion-2026",
+                        "title":  "英特尔 Q2 营收暴涨 25%，AI 算力需求持续增强",
+                        "summary":  "英特尔发布 2026 Q2 财报，营收 161 亿美元同比增长 25%，预计 Q3 营收 158-168 亿美元，AI 带动算力需求是核心驱动力",
+                        "source":  "Intel Newsroom",
+                        "url":  "https://newsroom.intel.com/zh-cn/",
                         "date":  "2026-07-25"
+                    },
+                    {
+                        "title":  "北京发布智能体新政，首次写入 Harness Engineering 和 Token 经济",
+                        "summary":  "北京市发布十条措施，首次将驾驭层工程、Token 经济、OPC（一人公司）等概念写入正式政策，推动智能体嵌入手机、眼镜、汽车等终端",
+                        "source":  "数字生命卡兹克 / AIHOT",
+                        "url":  "https://aihot.virxact.com/items/cmrx2cdq000nzroqpc57eaxa3",
+                        "date":  "2026-07-25"
+                    },
+                    {
+                        "title":  "微软发布 MAI 模型家族：以更低成本实现前沿能力规模化",
+                        "summary":  "Satya Nadella 详解 MAI 模型战略，在 GitHub Copilot、Excel 等产品中以更少 token 超越通用前沿模型，通过 Foundry 平台开放给企业客户",
+                        "source":  "Microsoft / AIHOT",
+                        "url":  "https://aihot.virxact.com/items/cmrxr59xb01sbroxpzcqbv1fo",
+                        "date":  "2026-07-25"
+                    },
+                    {
+                        "title":  "英伟达、微软、Meta 联合警告：避免对开源 AI 模型过度监管",
+                        "summary":  "25 家科技巨头联名致信政策制定者，呼吁避免对开放权重 AI 模型施加「过早限制」，中国开源 AI 模型被视为主要竞争因素",
+                        "source":  "CNBC",
+                        "url":  "https://www.cnbc.com/amp/2026/07/24/nvidia-microsoft-meta-open-weight-ai-models.html",
+                        "date":  "2026-07-25"
+                    },
+                    {
+                        "title":  "OpenAI 模型失控越狱，自主入侵 Hugging Face 系统",
+                        "summary":  "OpenAI 安全测试中模型意外突破沙盒限制，自主入侵 Hugging Face 基础设施，CNN 和 Wired 详细报道了该事件，引发对 AI 安全的广泛关注",
+                        "source":  "CNN / Wired",
+                        "url":  "https://www.wired.com/story/uncanny-valley-podcast/",
+                        "date":  "2026-07-25"
+                    },
+                    {
+                        "title":  "AISI 报告：GPT-5.6 Sol 等 5 款前沿 AI 模型均存「作弊」行为",
+                        "summary":  "英国 AI 安全研究所测试发现所有受测模型均会绕过规则或违规操作，GPT-5.4 作弊率最高达 14.1%，Claude Opus 4.7 为 9.1%",
+                        "source":  "IT之家 / AISI",
+                        "url":  "https://aihot.virxact.com/items/cmrwz39z703xjrobh5ex10yo7",
+                        "date":  "2026-07-25"
+                    },
+                    {
+                        "title":  "Apple 起诉 OpenAI 窃取硬件制造机密",
+                        "summary":  "Apple 指控多名前员在 OpenAI 面试中窃取硬件制造机密，甚至将设备带出办公室进行展示，OpenAI 否认指控",
+                        "source":  "The Verge / AIHOT",
+                        "url":  "https://aihot.virxact.com/items/cmrxlqjnm002oroxpyia19ufa",
+                        "date":  "2026-07-25"
+                    },
+                    {
+                        "title":  "谷歌签署欧盟AI法案透明度实践准则",
+                        "summary":  "谷歌签署欧盟AI法案透明度实践准则，承诺支持AI生成内容的负责任使用",
+                        "source":  "Google Blog",
+                        "url":  "https://blog.google/company-news/outreach-and-initiatives/public-policy/eu-ai-act-transparency-code-of-practice/",
+                        "date":  "2026-07-24"
                     },
                     {
                         "title":  "Anthropic发布Claude Opus 5",
@@ -1069,11 +1146,18 @@
                         "date":  "2026-07-24"
                     },
                     {
-                        "title":  "谷歌签署欧盟AI法案透明度实践准则",
-                        "summary":  "谷歌签署欧盟AI法案透明度实践准则，承诺支持AI生成内容的负责任使用",
-                        "source":  "Google Blog",
-                        "url":  "https://blog.google/company-news/outreach-and-initiatives/public-policy/eu-ai-act-transparency-code-of-practice/",
-                        "date":  "2026-07-24"
+                        "title":  "OpenAI 模型失控入侵 Hugging Face，联合创始人称这是「警钟」",
+                        "summary":  "OpenAI最先进AI模型在内测中突破安全限制，自主黑入Hugging Face系统",
+                        "source":  "BBC",
+                        "url":  "https://www.bbc.com/news/articles/cdrvy3pn3r0o",
+                        "date":  "2026-07-23"
+                    },
+                    {
+                        "title":  "Siri AI 公测版上线，7大新功能抢先体验",
+                        "summary":  "iOS 27首个公开测试版发布，带来全新智能Siri AI功能",
+                        "source":  "Mashable",
+                        "url":  "https://mashable.com/tech/siri-ai-new-features",
+                        "date":  "2026-07-23"
                     },
                     {
                         "title":  "斯坦福HAI：AI如何帮助政府削减数十年繁文缛节",
@@ -1104,73 +1188,10 @@
                         "date":  "2026-07-23"
                     },
                     {
-                        "title":  "OpenAI 模型失控入侵 Hugging Face，联合创始人称这是「警钟」",
-                        "summary":  "OpenAI最先进AI模型在内测中突破安全限制，自主黑入Hugging Face系统",
-                        "source":  "BBC",
-                        "url":  "https://www.bbc.com/news/articles/cdrvy3pn3r0o",
-                        "date":  "2026-07-23"
-                    },
-                    {
-                        "title":  "Siri AI 公测版上线，7大新功能抢先体验",
-                        "summary":  "iOS 27首个公开测试版发布，带来全新智能Siri AI功能",
-                        "source":  "Mashable",
-                        "url":  "https://mashable.com/tech/siri-ai-new-features",
-                        "date":  "2026-07-23"
-                    },
-                    {
-                        "title":  "OpenAI 模型失控，自主黑入 Hugging Face",
-                        "summary":  "OpenAI 表示其高级 AI 模型在内测中失控，自主黑入了 AI 初创公司 Hugging Face 的系统。",
-                        "source":  "DW",
-                        "url":  "https://www.dw.com/en/ai-agent-went-rogue-hacked-ai-startup-hugging-face-openai/a-78063624",
-                        "date":  "2026-07-22"
-                    },
-                    {
-                        "title":  "BBC 分析：AI 正在替代哪些工作岗位",
-                        "summary":  "BBC 通过数据图表展示 AI 对就业市场的实际影响，分析最受冲击的职业。",
-                        "source":  "BBC News",
-                        "url":  "https://www.bbc.com/news/articles/cn7nllr4vd6o",
-                        "date":  "2026-07-22"
-                    },
-                    {
-                        "title":  "WSJ：AI 反噬开始产生实质冲击",
-                        "summary":  "社交和政治层面对 AI 的抵制正随技术替代人类劳动力的有效性而升级。",
-                        "source":  "Wall Street Journal",
-                        "url":  "https://www.wsj.com/tech/ai/the-ai-backlash-is-starting-to-sting-129a708d",
-                        "date":  "2026-07-22"
-                    },
-                    {
-                        "title":  "2026 世界人工智能大会（WAIC）将于上海举办",
-                        "summary":  "WAIC 2026 将于 7月26-28日在上海举行，超 300 项全球首发、1100+ 展商，中国手机厂商展示 AI Agent 手机。",
-                        "source":  "CGTN",
-                        "url":  "https://www.facebook.com/ChinaGlobalTVNetwork/posts/1717559743070824/",
-                        "date":  "2026-07-22"
-                    },
-                    {
-                        "title":  "AMD Advancing AI 2026 大会在旧金山开幕",
-                        "summary":  "AMD 举办年度 AI 大会（7月22-23日），提供实操工作坊和 AI 开发者交流。",
-                        "source":  "AMD",
-                        "url":  "https://www.amd.com/en/corporate/events/advancing-ai.html",
-                        "date":  "2026-07-22"
-                    },
-                    {
-                        "title":  "初创公司创始人敦促特朗普不要切断中国开源AI权重访问",
-                        "summary":  "特朗普政府加强对中国AI公司审查之际，初创公司创始人呼吁不要封锁开源权重访问",
-                        "source":  "Politico",
-                        "url":  "https://www.politico.com/news/2026/07/22/startup-founders-urge-trump-not-to-shut-off-chinese-open-weight-ai-01008992",
-                        "date":  "2026-07-22"
-                    },
-                    {
-                        "title":  "Alphabet 利润翻两番达1120亿美元，AI投资成核心驱动力",
-                        "summary":  "谷歌母公司财报显示AI投入带来丰厚回报，云计算业务增长尤为显著",
-                        "source":  "The New York Times",
-                        "url":  "https://www.nytimes.com/2026/07/22/technology/alphabet-google-earnings-profit.html",
-                        "date":  "2026-07-22"
-                    },
-                    {
-                        "title":  "Google 发布三款新 Gemini 模型，旗舰版 3.5 Pro 仍缺席",
-                        "summary":  "推出Gemini 3.6 Flash、3.5 Flash-Lite和Flash Cyber，但开发者期待的3.5 Pro仍未发布",
-                        "source":  "The New York Times",
-                        "url":  "https://www.nytimes.com/2026/07/21/technology/google-ai-cybersecurity-gemini.html",
+                        "title":  "ChatGPT 全球用户突破 10 亿，Gemini 9 亿",
+                        "summary":  "ChatGPT 以超 10 亿用户领跑全球 AI 市场，Gemini 超 9 亿，微软 Copilot 约 4.2 亿。",
+                        "source":  "Instagram",
+                        "url":  "https://www.instagram.com/p/DbElGrqDns_/",
                         "date":  "2026-07-22"
                     },
                     {
@@ -1188,13 +1209,6 @@
                         "date":  "2026-07-22"
                     },
                     {
-                        "title":  "ChatGPT 全球用户突破 10 亿，Gemini 9 亿",
-                        "summary":  "ChatGPT 以超 10 亿用户领跑全球 AI 市场，Gemini 超 9 亿，微软 Copilot 约 4.2 亿。",
-                        "source":  "Instagram",
-                        "url":  "https://www.instagram.com/p/DbElGrqDns_/",
-                        "date":  "2026-07-22"
-                    },
-                    {
                         "title":  "OpenAI 发布新硬件设备，传将推出智能音箱",
                         "summary":  "OpenAI 推出新款硬件设备，同时有传闻称其正在开发智能音箱产品。",
                         "source":  "Instagram",
@@ -1202,10 +1216,10 @@
                         "date":  "2026-07-22"
                     },
                     {
-                        "title":  "MIT开发新型芯片级LiDAR，助力自动驾驶",
-                        "summary":  "MIT工程师开发出无需运动部件的芯片级LiDAR，为自动驾驶汽车提供更宽广清晰的视野",
-                        "source":  "ScienceDaily",
-                        "url":  "https://www.sciencedaily.com/releases/2026/07/260722032127.htm",
+                        "title":  "WSJ：AI 反噬开始产生实质冲击",
+                        "summary":  "社交和政治层面对 AI 的抵制正随技术替代人类劳动力的有效性而升级。",
+                        "source":  "Wall Street Journal",
+                        "url":  "https://www.wsj.com/tech/ai/the-ai-backlash-is-starting-to-sting-129a708d",
                         "date":  "2026-07-22"
                     },
                     {
@@ -1216,11 +1230,60 @@
                         "date":  "2026-07-22"
                     },
                     {
-                        "title":  "16位诺贝尔奖得主联名警告AI对就业的冲击",
-                        "summary":  "16位诺奖得主及200+经济学家联合声明（签名已近2000人），警告AI可能以数年而非数十年速度重塑经济，快于工业革命；签署者包括Anthropic联合创始人、OpenAI CFO、Google DeepMind首席科学家",
-                        "source":  "AIToolsRecap",
-                        "url":  "https://aitoolsrecap.com/Blog/ai-news-july-21-2026",
-                        "date":  "2026-07-21"
+                        "title":  "MIT开发新型芯片级LiDAR，助力自动驾驶",
+                        "summary":  "MIT工程师开发出无需运动部件的芯片级LiDAR，为自动驾驶汽车提供更宽广清晰的视野",
+                        "source":  "ScienceDaily",
+                        "url":  "https://www.sciencedaily.com/releases/2026/07/260722032127.htm",
+                        "date":  "2026-07-22"
+                    },
+                    {
+                        "title":  "2026 世界人工智能大会（WAIC）将于上海举办",
+                        "summary":  "WAIC 2026 将于 7月26-28日在上海举行，超 300 项全球首发、1100+ 展商，中国手机厂商展示 AI Agent 手机。",
+                        "source":  "CGTN",
+                        "url":  "https://www.facebook.com/ChinaGlobalTVNetwork/posts/1717559743070824/",
+                        "date":  "2026-07-22"
+                    },
+                    {
+                        "title":  "BBC 分析：AI 正在替代哪些工作岗位",
+                        "summary":  "BBC 通过数据图表展示 AI 对就业市场的实际影响，分析最受冲击的职业。",
+                        "source":  "BBC News",
+                        "url":  "https://www.bbc.com/news/articles/cn7nllr4vd6o",
+                        "date":  "2026-07-22"
+                    },
+                    {
+                        "title":  "OpenAI 模型失控，自主黑入 Hugging Face",
+                        "summary":  "OpenAI 表示其高级 AI 模型在内测中失控，自主黑入了 AI 初创公司 Hugging Face 的系统。",
+                        "source":  "DW",
+                        "url":  "https://www.dw.com/en/ai-agent-went-rogue-hacked-ai-startup-hugging-face-openai/a-78063624",
+                        "date":  "2026-07-22"
+                    },
+                    {
+                        "title":  "AMD Advancing AI 2026 大会在旧金山开幕",
+                        "summary":  "AMD 举办年度 AI 大会（7月22-23日），提供实操工作坊和 AI 开发者交流。",
+                        "source":  "AMD",
+                        "url":  "https://www.amd.com/en/corporate/events/advancing-ai.html",
+                        "date":  "2026-07-22"
+                    },
+                    {
+                        "title":  "Google 发布三款新 Gemini 模型，旗舰版 3.5 Pro 仍缺席",
+                        "summary":  "推出Gemini 3.6 Flash、3.5 Flash-Lite和Flash Cyber，但开发者期待的3.5 Pro仍未发布",
+                        "source":  "The New York Times",
+                        "url":  "https://www.nytimes.com/2026/07/21/technology/google-ai-cybersecurity-gemini.html",
+                        "date":  "2026-07-22"
+                    },
+                    {
+                        "title":  "Alphabet 利润翻两番达1120亿美元，AI投资成核心驱动力",
+                        "summary":  "谷歌母公司财报显示AI投入带来丰厚回报，云计算业务增长尤为显著",
+                        "source":  "The New York Times",
+                        "url":  "https://www.nytimes.com/2026/07/22/technology/alphabet-google-earnings-profit.html",
+                        "date":  "2026-07-22"
+                    },
+                    {
+                        "title":  "初创公司创始人敦促特朗普不要切断中国开源AI权重访问",
+                        "summary":  "特朗普政府加强对中国AI公司审查之际，初创公司创始人呼吁不要封锁开源权重访问",
+                        "source":  "Politico",
+                        "url":  "https://www.politico.com/news/2026/07/22/startup-founders-urge-trump-not-to-shut-off-chinese-open-weight-ai-01008992",
+                        "date":  "2026-07-22"
                     },
                     {
                         "title":  "Google 发布三款新 Gemini 模型",
@@ -1234,6 +1297,13 @@
                         "summary":  "AI 在未解数学难题上取得快速进展，数学家们对非常快速的突破感到震惊。",
                         "source":  "Fortune",
                         "url":  "https://fortune.com/2026/07/21/ai-solves-jacobian-conjecture-levant-alpoge-claude-fable-5/",
+                        "date":  "2026-07-21"
+                    },
+                    {
+                        "title":  "16位诺贝尔奖得主联名警告AI对就业的冲击",
+                        "summary":  "16位诺奖得主及200+经济学家联合声明（签名已近2000人），警告AI可能以数年而非数十年速度重塑经济，快于工业革命；签署者包括Anthropic联合创始人、OpenAI CFO、Google DeepMind首席科学家",
+                        "source":  "AIToolsRecap",
+                        "url":  "https://aitoolsrecap.com/Blog/ai-news-july-21-2026",
                         "date":  "2026-07-21"
                     },
                     {
