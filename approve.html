@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI 动态 · 审批台</title>
+<style>
+:root{--bg:#f4f6fb;--card:#fff;--ink:#1c2430;--sub:#64748b;--line:#e2e8f0;--blue:#1d4ed8;--green:#16a34a;--red:#dc2626;--amber:#b45309}
+*{box-sizing:border-box}
+body{font-family:"Microsoft YaHei",system-ui,sans-serif;background:var(--bg);margin:0;padding:32px 16px;color:var(--ink)}
+.wrap{max-width:960px;margin:0 auto}
+.head{background:linear-gradient(135deg,#1f3a8a,#3b82f6);color:#fff;border-radius:18px;padding:24px 28px;margin-bottom:18px}
+.head h1{margin:0 0 6px;font-size:22px}
+.head p{margin:2px 0;font-size:13px;opacity:.92}
+.stats{display:flex;gap:12px;flex-wrap:wrap;margin:16px 0}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 18px;font-size:13px;flex:1;min-width:150px}
+.stat b{font-size:18px;color:var(--blue);display:block;margin-top:2px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 22px;margin-bottom:14px}
+h2{font-size:16px;margin:0 0 12px}
+ul{margin:0;padding-left:20px;font-size:13px;line-height:1.7}
+.meta{color:var(--sub);font-size:12px}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+button{border:0;border-radius:10px;padding:10px 18px;font-size:14px;cursor:pointer;font-family:inherit}
+.btn-approve{background:var(--green);color:#fff}
+.btn-approve:disabled{background:#9ca3af;cursor:not-allowed}
+.btn-ghost{background:#eef2ff;color:var(--blue)}
+.btn-danger{background:#fef2f2;color:var(--red)}
+#result{margin-top:14px;font-size:13px;white-space:pre-wrap;background:#f8fafc;border:1px solid var(--line);border-radius:10px;padding:12px 16px;display:none;max-height:320px;overflow:auto}
+.note{margin-top:16px;background:#fffbeb;border:1px solid #fde68a;border-radius:12px;padding:12px 16px;font-size:13px;color:var(--amber)}
+.hint{background:#eef2ff;border:1px solid #c7d2fe;border-radius:12px;padding:14px 18px;font-size:13px;margin-bottom:14px}
+code{background:#eef2ff;border-radius:6px;padding:1px 6px;font-size:12px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="head">
+    <h1>AI 动态 · 审批台</h1>
+    <p>本地审批服务器 · <span id="serverAddr">检测中…</span></p>
+    <p id="headline">正在加载待审稿状态…</p>
+  </div>
+  <div class="hint" id="standaloneHint" style="display:none">
+    当前是通过文件直接打开的，无法连接审批服务器。请先启动服务器：
+    <code>powershell -ExecutionPolicy Bypass -File scripts\approve-server.ps1</code>
+    ，然后访问 <a href="http://localhost:8866/approve">http://localhost:8866/approve</a>
+  </div>
+  <div class="stats">
+    <div class="stat">待审稿生成时间<b id="sPendingGen">--</b></div>
+    <div class="stat">本期新增<b id="sNewCount">--</b></div>
+    <div class="stat">待审稿最新动态<b id="sPendingCur">--</b></div>
+    <div class="stat">已发布更新至<b id="sPublished">--</b></div>
+  </div>
+  <div class="card">
+    <h2>本期新增条目（<span id="newListCount">0</span>）</h2>
+    <ul id="newList"><li>加载中…</li></ul>
+    <p class="meta">完整内容见预览页；批准后会把待审稿复制为正式数据并推送到 GitHub。</p>
+    <div class="actions">
+      <a href="/ai-news-preview.html" target="_blank"><button class="btn-ghost" type="button">查看完整预览</button></a>
+      <button class="btn-approve" id="btnApprove" type="button" disabled>批准发布并推送</button>
+      <button class="btn-danger" id="btnShutdown" type="button">停止审批服务器</button>
+    </div>
+    <div id="result"></div>
+  </div>
+  <div class="note">⚠ 此审批台默认只绑定本机 localhost。发布操作会执行 git 提交并推送到 GitHub，请确认内容无误后再批准。</div>
+</div>
+<script>
+var TOKEN = '__APPROVE_TOKEN__';
+var isStandalone = location.protocol === 'file:';
+if (isStandalone) {
+  document.getElementById('standaloneHint').style.display = '';
+  document.getElementById('headline').textContent = '未连接审批服务器';
+} else {
+  refresh();
+}
+
+function refresh() {
+  fetch('/api/status').then(function(r){ return r.json(); }).then(render).catch(function(e){
+    showResult('无法连接审批服务器：' + e.message);
+  });
+}
+function render(s) {
+  if (s.server) {
+    document.getElementById('serverAddr').textContent = 'http://localhost:' + s.server.port + '/approve';
+  }
+  var p = s.pending, d = s.published;
+  document.getElementById('sPendingGen').textContent = (p && p.exists) ? p.generated : '无待审稿';
+  document.getElementById('sNewCount').textContent = p ? p.newCount : 0;
+  document.getElementById('sPendingCur').textContent = (p && p.exists) ? (p.currentCount + ' 条') : '--';
+  document.getElementById('sPublished').textContent = (d && d.updated) ? (d.updated + '（' + d.currentCount + ' 条）') : '--';
+  var items = (p && p.newTitles) || [];
+  document.getElementById('newListCount').textContent = items.length;
+  var ul = document.getElementById('newList');
+  if (!items.length) {
+    ul.innerHTML = '<li>没有新增条目（或待审稿尚未生成）</li>';
+  } else {
+    ul.innerHTML = items.map(function(it){
+      return '<li><b>' + esc(it.title) + '</b> <span class="meta">' + esc(it.date || '') + ' · ' + esc(it.source || '') + '</span></li>';
+    }).join('');
+  }
+  document.getElementById('btnApprove').disabled = !(p && p.exists);
+  document.getElementById('headline').textContent = (p && p.exists)
+    ? ('有 ' + p.newCount + ' 条新增内容等待审批')
+    : '当前没有待审稿，无需审批';
+}
+function esc(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+  });
+}
+function showResult(t) {
+  var el = document.getElementById('result');
+  el.style.display = '';
+  el.textContent = t;
+}
+function post(path, done) {
+  showResult('处理中，请稍候…（发布包含 git 提交与推送，可能需要十几秒）');
+  fetch(path, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ token: TOKEN })
+  }).then(function(r){
+    return r.json().then(function(j){ return {status: r.status, j: j}; });
+  }).then(function(o){ done(o.status, o.j); }).catch(function(e){
+    showResult('请求失败：' + e.message);
+  });
+}
+document.getElementById('btnApprove').addEventListener('click', function(){
+  if (!confirm('确认将待审稿发布为正式数据并推送到 GitHub？')) return;
+  post('/api/approve', function(status, j){
+    if (j && j.ok) showResult('✅ ' + (j.message || '发布成功'));
+    else showResult('❌ 发布失败（HTTP ' + status + '）：\n' + ((j && j.message) || '未知错误'));
+    refresh();
+  });
+});
+document.getElementById('btnShutdown').addEventListener('click', function(){
+  if (!confirm('停止本地审批服务器？')) return;
+  post('/api/shutdown', function(status, j){
+    showResult(j && j.message ? j.message : '已请求停止');
+  });
+});
+</script>
+</body>
+</html>

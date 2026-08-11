@@ -1,9 +1,11 @@
 ﻿# ============================================================
 # 个人网站 · AI 资讯每日抓取（待审核模式）
 # 抓取 RSS -> 生成 ai-news.pending.json + 预览页 ai-news-preview.html
-# 不提交、不推送；审核通过后双击 scripts\approve-ai-news.bat 发布
-# 由 Windows 计划任务每天 08:00 调用
+# 不提交、不推送；生成后自动打开本地审批台 http://localhost:8866/approve
+# 由 Windows 计划任务每天 08:00 调用；-Headless 供 CI/手动无界面调用
 # ============================================================
+param([switch]$Headless)
+
 $ErrorActionPreference = 'Stop'
 $OutputEncoding = [System.Text.Encoding]::UTF8
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
@@ -77,7 +79,7 @@ foreach ($feed in $feeds) {
             if (-not $pub) { continue }
 
             $dt = [datetime]::MinValue
-            if (-not [DateTime]::TryParse($pub, [ref]$dt)) { continue }
+            if (-not [DateTime]::TryParse([string]$pub, [ref]$dt)) { continue }
             if ($dt -lt (Get-Date).AddDays(-2)) { continue }
 
             $dateStr = $dt.ToString('yyyy-MM-dd')
@@ -110,7 +112,9 @@ foreach ($feed in $feeds) {
         }
         Write-Log "OK feed: $feed"
     } catch {
-        Write-Log "WARN feed $feed -> $($_.Exception.Message)"
+        $warnMsg = [string]$_.Exception.Message
+        if ($warnMsg.Length -gt 300) { $warnMsg = $warnMsg.Substring(0, 300) + ' …' }
+        Write-Log "WARN feed $feed -> $warnMsg"
     }
 }
 
@@ -204,10 +208,29 @@ foreach ($it in $current) {
     [void]$sb.AppendLine('<div class="card"><span class="date">' + $it.date + '</span><a href="' + $url + '" target="_blank"><b>' + $t + '</b></a><div class="src">' + $src + '</div><div class="sum">' + $s + '</div></div>')
 }
 
-[void]$sb.AppendLine('<div class="note">确认内容无误后，双击运行 <b>scripts\approve-ai-news.bat</b> 发布；发布前不会影响线上网站。</div>')
+[void]$sb.AppendLine('<div class="note">确认内容无误后，打开 <b>http://localhost:8866/approve</b> 点击「批准发布」，或双击 <b>scripts\approve-ai-news.bat</b>；发布前不会影响线上网站。</div>')
 [void]$sb.AppendLine('</div></body></html>')
 [System.IO.File]::WriteAllText($previewPath, $sb.ToString(), (New-Object System.Text.UTF8Encoding($false)))
 
-try { Start-Process $previewPath } catch {}
-Write-Log "预览页已生成并打开"
+Write-Log "预览页已生成: $previewPath"
+$isCI = ($env:GITHUB_ACTIONS -eq 'true')
+if ($Headless -or $isCI) {
+    Write-Log "Headless 模式：跳过打开浏览器"
+} else {
+    $server = Join-Path $PSScriptRoot 'approve-server.ps1'
+    $approveUrl = "http://localhost:8866/approve"
+    $listening = Get-NetTCPConnection -LocalPort 8866 -State Listen -ErrorAction SilentlyContinue
+    if (-not $listening) {
+        try {
+            $argLine = '-NoProfile -ExecutionPolicy Bypass -File "' + $server + '" -NoOpen'
+            Start-Process -FilePath 'powershell.exe' -ArgumentList $argLine -WindowStyle Hidden
+            Start-Sleep -Seconds 2
+            Write-Log "审批服务器已启动"
+        } catch {
+            Write-Log "启动审批服务器失败: $($_.Exception.Message)"
+        }
+    }
+    try { Start-Process $approveUrl } catch { Write-Log "打开审批页失败: $($_.Exception.Message)" }
+    Write-Log "审批页已打开: $approveUrl"
+}
 Write-Log "===== 抓取结束 ====="
