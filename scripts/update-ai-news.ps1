@@ -208,29 +208,20 @@ foreach ($it in $current) {
     [void]$sb.AppendLine('<div class="card"><span class="date">' + $it.date + '</span><a href="' + $url + '" target="_blank"><b>' + $t + '</b></a><div class="src">' + $src + '</div><div class="sum">' + $s + '</div></div>')
 }
 
-[void]$sb.AppendLine('<div class="note">确认内容无误后，打开 <b>http://localhost:8866/approve</b> 点击「批准发布」，或双击 <b>scripts\approve-ai-news.bat</b>；发布前不会影响线上网站。</div>')
+[void]$sb.AppendLine('<div class="note">确认内容无误后，在 Codex 对话框中回复「批准今天的 AI 动态」发布；或运行 <b>scripts\approve-ai-news.bat</b>。发布前不会影响线上网站。</div>')
 [void]$sb.AppendLine('</div></body></html>')
 [System.IO.File]::WriteAllText($previewPath, $sb.ToString(), (New-Object System.Text.UTF8Encoding($false)))
 
 Write-Log "预览页已生成: $previewPath"
 $isCI = ($env:GITHUB_ACTIONS -eq 'true')
 if ($Headless -or $isCI) {
-    Write-Log "Headless 模式：跳过打开浏览器"
+    Write-Log "Headless 模式：不弹提示"
 } else {
-    $server = Join-Path $PSScriptRoot 'approve-server.ps1'
-    $approveUrl = "http://localhost:8866/approve"
-    $listening = Get-NetTCPConnection -LocalPort 8866 -State Listen -ErrorAction SilentlyContinue
-    if (-not $listening) {
-        try {
-            $argLine = '-NoProfile -ExecutionPolicy Bypass -File "' + $server + '" -NoOpen'
-            Start-Process -FilePath 'powershell.exe' -ArgumentList $argLine -WindowStyle Hidden
-            Start-Sleep -Seconds 2
-            Write-Log "审批服务器已启动"
-        } catch {
-            Write-Log "启动审批服务器失败: $($_.Exception.Message)"
-        }
-    }
-    try { Start-Process $approveUrl } catch { Write-Log "打开审批页失败: $($_.Exception.Message)" }
-    Write-Log "审批页已打开: $approveUrl"
+    Write-Host ""
+    Write-Host "============================================================"
+    Write-Host " 今日 AI 动态待审稿已生成（本期新增 $($newTitles.Count) 条）"
+    Write-Host " 请在 Codex 对话框中打开本项目，回复「批准今天的 AI 动态」"
+    Write-Host "============================================================"
+    Write-Log "请到 Codex 对话框中审批（回复「批准今天的 AI 动态」）"
 }
 Write-Log "===== 抓取结束 ====="
