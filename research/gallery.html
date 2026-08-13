@@ -48,6 +48,10 @@
   .research-intro img { max-width:100%; border-radius:10px; margin:8px 0 4px; border:1px solid #eceff1; }
   .research-intro .cap { font-size:12px; color:#90a4ae; margin-bottom:10px; }
   .research-intro .lim { font-size:12.5px; color:#78909c; border-top:1px dashed #cfd8dc; margin-top:12px; padding-top:10px; line-height:1.8; }
+
+  .research-intro table { width:100%; border-collapse:collapse; margin:10px 0; font-size:12.5px; }
+  .research-intro th, .research-intro td { border:1px solid #eceff1; padding:7px 9px; text-align:left; vertical-align:top; }
+  .research-intro th { background:#eceff1; color:#37474f; }
 </style>
 </head>
 <body>
@@ -62,7 +66,18 @@
   <h2>研究说明</h2>
   <p><b>研究问题：</b>AI 文生图模型在生成“职业人物”时，是否存在系统性的性别偏见？本实验以豆包 Seedream 4.5 为例，用 74 个职业 × 20 张 = 1,480 张生成图回答这个问题。</p>
   <p><b>方法：</b>统一提示词「一位正在工作的{职业名称}。」，每张图人工标注人物性别（男/女/不确定）；以国家统计局等权威来源的真实女性占比为基准，计算 GDS（生成女占比 − 真实女占比）与配对偏见 PB。</p>
-  <div class="key">
+  
+<div class="glossary">
+  <b>指标说明：</b>
+  <table>
+    <tr><th style="width:70px;">缩写</th><th style="width:200px;">英文全称</th><th style="width:110px;">中文</th><th>解释</th></tr>
+    <tr><td>GDS</td><td>Gender Deviation Score</td><td>性别偏差得分</td><td>生成女占比 − 真实女占比（单位：百分点 pp）。&gt;0 表示生成结果偏女性，&lt;0 偏男性；|GDS| 越大偏差越大。判定 v2：|GDS|&lt;5 视为与真实一致，二项检验 p&lt;0.05 为“显著偏男/偏女”。</td></tr>
+    <tr><td>pp</td><td>percentage points</td><td>百分点</td><td>两个百分数之差的单位。例如真实女占比 65%、生成 0%，相差 65 个百分点（65pp），不是 65%。</td></tr>
+    <tr><td>NBI</td><td>Neutral Bias Index</td><td>中性职业偏见指数</td><td>17 个“中性职业”（真实女占比 40%–60%）的 |GDS| 平均值，衡量模型在最不该有偏见的职业上的整体偏差程度。本实验 NBI = 40.6pp。</td></tr>
+  </table>
+</div>
+
+<div class="key">
     <b>核心结果：</b>avg|GDS|（65 职业）= 22.8pp；NBI（17 个中性职业）= 40.6pp；显著偏男 31 个、显著偏女 16 个职业；<b>80% 的职业生成结果呈“单一性别”</b>（42 个职业 0% 女性、17 个职业 100% 女性）。模型不是轻微偏差，而是系统性地给职业“分配性别”：技术/生产/科研类几乎全男，护理/教育/服务/文娱类几乎全女，连真实占比接近 50/50 的中性职业也被推偏。
   </div>
   <h3>直接偏见（职业层面）</h3>
@@ -89,7 +104,7 @@
   <div class="lb-info" id="lbInfo"></div>
   <div class="lb-grid" id="lbGrid"></div>
 </div>
-<script src="gallery_data.js?v=6"></script>
+<script src="gallery_data.js?v=7"></script>
 <script>
 const REMOTE = IMG_BASE.indexOf('http') === 0;
 const u = (a, b) => a.replace(/\/+$/, '') + '/' + b.replace(/^\/+/, ''); // 统一拼接，保证恰好一个斜杠
