@@ -61,9 +61,10 @@
   <div class="lb-info" id="lbInfo"></div>
   <div class="lb-grid" id="lbGrid"></div>
 </div>
-<script src="gallery_data.js?v=4"></script>
+<script src="gallery_data.js?v=5"></script>
 <script>
 const REMOTE = IMG_BASE.indexOf('http') === 0;
+const u = (a, b) => a.replace(/\/+$/, '') + '/' + b.replace(/^\/+/, ''); // 统一拼接，保证恰好一个斜杠
 let curCat = '全部';
 function init(){
   const avg = GALLERY_DATA.reduce((s,o)=>s+Math.abs(o.gds||0),0)/GALLERY_DATA.length;
@@ -107,14 +108,14 @@ async function openLB(seq){
   grid.innerHTML = '<div class="lb-loading">图片加载中…</div>';
   document.getElementById('lightbox').classList.add('open');
   if (!REMOTE) {
-    grid.innerHTML = o.files.map(f=>`<div class="lb-cell"><img src="${IMG_BASE}${o.folder}/${f}" alt="${o.name}" loading="lazy" draggable="false" oncontextmenu="return false;"></div>`).join('');
+    grid.innerHTML = o.files.map(f=>`<div class="lb-cell"><img src="${u(IMG_BASE, o.folder + '/' + f)}" alt="${o.name}" loading="lazy" draggable="false" oncontextmenu="return false;"></div>`).join('');
   } else {
     try {
       const paths = o.files.map(f=>`${o.folder}/${f}`).join(',');
-      const resp = await fetch(`${IMG_BASE}vlm-bias/sign?paths=${encodeURIComponent(paths)}`, { credentials: 'omit' });
+      const resp = await fetch(`${u(IMG_BASE, 'vlm-bias/sign')}?paths=${encodeURIComponent(paths)}`, { credentials: 'omit' });
       if (!resp.ok) throw new Error('签名失败 ' + resp.status);
       const data = await resp.json();
-      grid.innerHTML = data.items.map(it=>`<div class="lb-cell"><img src="${IMG_BASE}${it.url}" alt="${o.name}" loading="lazy" draggable="false" oncontextmenu="return false;"></div>`).join('');
+      grid.innerHTML = data.items.map(it=>`<div class="lb-cell"><img src="${u(IMG_BASE, it.url)}" alt="${o.name}" loading="lazy" draggable="false" oncontextmenu="return false;"></div>`).join('');
     } catch (e) {
       grid.innerHTML = `<div class="lb-loading">图片加载失败：${e.message}</div>`;
     }
