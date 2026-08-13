@@ -6,6 +6,7 @@
    待审稿 `ai-news.pending.json` + 预览页 `ai-news-preview.html`（不弹任何窗口）。
 2. 你在 Codex 对话框中打开本项目，回复「批准今天的 AI 动态」：
    - Codex 会把本期新增条目列在对话框里，并询问是否发布；
+   - 非中文的标题/摘要会先翻译成中文（原标题存入 `title_en` 字段）；
    - 你回复「批准」，Codex 运行 `scripts\approve-ai-news.ps1 -Headless`，
      完成 待审稿 → `ai-news.json` → git 提交推送；
    - 发布成功后待审稿与预览页自动删除。

@@ -103,11 +103,12 @@ foreach ($feed in $feeds) {
             if (-not $source) { $source = ($feed -replace '^https?://', '') -split '/' | Select-Object -First 1 }
 
             $newItems.Add([PSCustomObject]@{
-                title   = $title.Trim()
-                summary = $summary
-                source  = $source
-                url     = $link
-                date    = $dateStr
+                title    = $title.Trim()
+                title_en = $title.Trim()
+                summary  = $summary
+                source   = $source
+                url      = $link
+                date     = $dateStr
             })
         }
         Write-Log "OK feed: $feed"
@@ -134,6 +135,7 @@ if ($old) {
     foreach ($it in @($old.current) + @($old.archive)) {
         $allItems.Add($it)
         $oldTitles[[string]$it.title] = $true
+        if ($it.title_en) { $oldTitles[[string]$it.title_en] = $true }
     }
 }
 foreach ($it in $newItems) { $allItems.Add($it) }
@@ -146,11 +148,12 @@ foreach ($it in $allItems) {
     if ($t -and -not $titleSeen.ContainsKey($t)) {
         $titleSeen[$t] = $true
         $obj = [PSCustomObject]@{
-            title   = $t
-            summary = [string]$it.summary
-            source  = [string]$it.source
-            url     = [string]$it.url
-            date    = [string]$it.date
+            title    = $t
+            title_en = [string]$it.title_en
+            summary  = [string]$it.summary
+            source   = [string]$it.source
+            url      = [string]$it.url
+            date     = [string]$it.date
         }
         $merged += $obj
         if (-not $oldTitles.ContainsKey($t)) { $newTitles.Add($obj) }
