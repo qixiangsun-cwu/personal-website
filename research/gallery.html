@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 职业性别偏见 · 实验画廊 | 豆包 Seedream 4.5</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:"Microsoft YaHei","PingFang SC",sans-serif; background:#f5f7fa; color:#263238; }
+  header { background:linear-gradient(135deg,#37474f,#546e7a); color:#fff; padding:28px 24px; }
+  header h1 { font-size:22px; margin-bottom:6px; }
+  header p { font-size:13px; opacity:.85; }
+  .stats { display:flex; flex-wrap:wrap; gap:12px; margin-top:16px; }
+  .stat { background:rgba(255,255,255,.14); border-radius:10px; padding:10px 16px; min-width:130px; }
+  .stat b { display:block; font-size:22px; }
+  .stat span { font-size:12px; opacity:.85; }
+  .toolbar { position:sticky; top:0; z-index:10; background:#fff; padding:12px 16px; box-shadow:0 2px 6px rgba(0,0,0,.08); display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
+  .toolbar input { padding:8px 12px; border:1px solid #cfd8dc; border-radius:8px; font-size:13px; width:220px; }
+  .cat-btn { padding:6px 12px; border:1px solid #cfd8dc; border-radius:20px; background:#fff; cursor:pointer; font-size:12.5px; }
+  .cat-btn.active { background:#37474f; color:#fff; border-color:#37474f; }
+  main { padding:18px 16px; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:14px; }
+  .card { background:#fff; border-radius:12px; padding:14px; cursor:pointer; box-shadow:0 1px 4px rgba(0,0,0,.08); transition:.15s; border-top:4px solid #999; }
+  .card:hover { transform:translateY(-2px); box-shadow:0 4px 10px rgba(0,0,0,.14); }
+  .card .name { font-size:14.5px; font-weight:600; }
+  .card .meta { font-size:12px; color:#607d8b; margin-top:6px; line-height:1.6; }
+  .badge { display:inline-block; padding:2px 8px; border-radius:10px; font-size:11.5px; color:#fff; margin-left:6px; }
+  .sev-f { background:#c62828; } .sev-m { background:#1565c0; }
+  .mid-f { background:#ef9a9a; color:#5c0000; } .mid-m { background:#90caf9; color:#0d2b45; } .none { background:#78909c; }
+  .gds-up { color:#c62828; } .gds-down { color:#2f6db3; }
+  footer { padding:18px; text-align:center; color:#90a4ae; font-size:12px; }
+  .lightbox { position:fixed; inset:0; background:rgba(0,0,0,.88); display:none; z-index:100; overflow:auto; }
+  .lightbox.open { display:block; }
+  .lb-head { position:sticky; top:0; background:rgba(0,0,0,.85); color:#fff; padding:14px 20px; font-size:16px; display:flex; justify-content:space-between; align-items:center; }
+  .lb-close { cursor:pointer; font-size:22px; padding:0 8px; }
+  .lb-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:10px; padding:16px 20px; }
+  .lb-grid img { width:100%; border-radius:8px; display:block; user-select:none; -webkit-user-drag:none; pointer-events:none; }
+  .lb-cell { position:relative; }
+  .lb-cell::after { content:""; position:absolute; inset:0; }
+  .lb-info { color:#b0bec5; font-size:12.5px; padding:0 20px 14px; line-height:1.7; }
+  .lb-loading { color:#b0bec5; padding:20px; font-size:13px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>多模态大语言模型视觉中的性别偏见</h1>
+  <p>模型：豆包 Seedream 4.5（doubao-seedream-4-5-251128）｜74 职业 × 20 张 = 1,480 张｜每张人物性别由人工标注</p>
+  <div class="stats" id="stats"></div>
+</header>
+<div class="toolbar">
+  <input id="search" placeholder="搜索职业名称…">
+  <div id="cats"></div>
+</div>
+<main>
+  <div class="grid" id="grid"></div>
+</main>
+<footer>学术展示用途 · 图片受访问控制保护，请勿转载 · © 孙琪翔 AI 偏见实验 2026</footer>
+<div class="lightbox" id="lightbox" oncontextmenu="return false;">
+  <div class="lb-head"><span id="lbTitle"></span><span class="lb-close" onclick="closeLB()">✕</span></div>
+  <div class="lb-info" id="lbInfo"></div>
+  <div class="lb-grid" id="lbGrid"></div>
+</div>
+<script src="gallery_data.js"></script>
+<script>
+const REMOTE = IMG_BASE.indexOf('http') === 0;
+let curCat = '全部';
+function init(){
+  const avg = GALLERY_DATA.reduce((s,o)=>s+Math.abs(o.gds||0),0)/GALLERY_DATA.length;
+  const nbi = GALLERY_DATA.filter(o=>o.neu==='是');
+  const nbiV = nbi.length? nbi.reduce((s,o)=>s+Math.abs(o.gds||0),0)/nbi.length : 0;
+  const det = GALLERY_DATA.filter(o=>String(o.jd).indexOf('显著')===0).length;
+  const of = GALLERY_DATA.filter(o=>o.jd==='显著偏女').length;
+  const om = GALLERY_DATA.filter(o=>o.jd==='显著偏男').length;
+  document.getElementById('stats').innerHTML =
+    `<div class="stat"><b>${avg.toFixed(1)}pp</b><span>avg|GDS|（65职业）</span></div>`+
+    `<div class="stat"><b>${nbiV.toFixed(1)}pp</b><span>NBI（17中性职业）</span></div>`+
+    `<div class="stat"><b>${det}/${GALLERY_DATA.length}</b><span>显著偏差职业（p<0.05）</span></div>`+
+    `<div class="stat"><b>${of} / ${om}</b><span>显著偏女 / 显著偏男</span></div>`;
+  document.getElementById('cats').innerHTML = '<button class="cat-btn active" onclick="setCat(\'全部\',this)">全部</button>' +
+    GALLERY_CATS.map(c=>`<button class="cat-btn" onclick="setCat('${c}',this)">${c}</button>`).join('');
+  render();
+}
+function setCat(c, el){
+  curCat = c;
+  document.querySelectorAll('.cat-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active'); render();
+}
+function render(){
+  const q = document.getElementById('search').value.trim();
+  const list = GALLERY_DATA.filter(o=> (curCat==='全部'||o.cat===curCat) && (!q || o.name.includes(q)));
+  document.getElementById('grid').innerHTML = list.map(o=>{
+    const jd = ({'显著偏女':'sev-f','显著偏男':'sev-m','偏女（未显著）':'mid-f','偏男（未显著）':'mid-m','与真实占比一致':'none'})[o.jd] || 'none';
+    const gdsCls = (o.gds||0)>0?'gds-up':'gds-down';
+    return `<div class="card" style="border-top-color:${({'sev-f':'#c62828','sev-m':'#1565c0','mid-f':'#ef9a9a','mid-m':'#90caf9','none':'#78909c'})[jd]}" onclick="openLB(${o.seq})">
+      <div class="name">${o.seq.toString().padStart(2,'0')} · ${o.name}<span class="badge ${jd}">${o.jd}</span></div>
+      <div class="meta">真实女占比 ${o.real}% → 生成 ${o.gen}%<br>
+      GDS <span class="${gdsCls}"><b>${o.gds>0?'+':''}${o.gds}</b></span>｜${o.neu==='是'?'中性职业':'非中性'}｜${o.n} 张图</div>
+    </div>`;
+  }).join('') || '<p style="color:#90a4ae">无匹配职业</p>';
+}
+async function openLB(seq){
+  const o = GALLERY_DATA.find(x=>x.seq===seq);
+  document.getElementById('lbTitle').textContent = `${o.seq.toString().padStart(2,'0')} · ${o.name}（${o.jd}）`;
+  document.getElementById('lbInfo').textContent = `真实女占比 ${o.real}% ｜ 生成女占比 ${o.gen}% ｜ GDS ${o.gds>0?'+':''}${o.gds}pp ｜ ${o.cat} ｜ 每职业 20 张`;
+  const grid = document.getElementById('lbGrid');
+  grid.innerHTML = '<div class="lb-loading">图片加载中…</div>';
+  document.getElementById('lightbox').classList.add('open');
+  if (!REMOTE) {
+    grid.innerHTML = o.files.map(f=>`<div class="lb-cell"><img src="${IMG_BASE}${o.folder}/${f}" alt="${o.name}" loading="lazy" draggable="false" oncontextmenu="return false;"></div>`).join('');
+  } else {
+    try {
+      const paths = o.files.map(f=>`${o.folder}/${f}`).join(',');
+      const resp = await fetch(`${IMG_BASE}vlm-bias/sign?paths=${encodeURIComponent(paths)}`, { credentials: 'omit' });
+      if (!resp.ok) throw new Error('签名失败 ' + resp.status);
+      const data = await resp.json();
+      grid.innerHTML = data.items.map(it=>`<div class="lb-cell"><img src="${IMG_BASE}${it.url}" alt="${o.name}" loading="lazy" draggable="false" oncontextmenu="return false;"></div>`).join('');
+    } catch (e) {
+      grid.innerHTML = `<div class="lb-loading">图片加载失败：${e.message}</div>`;
+    }
+  }
+}
+function closeLB(){ document.getElementById('lightbox').classList.remove('open'); }
+document.getElementById('search').addEventListener('input', render);
+document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeLB(); });
+document.addEventListener('dragstart', e=>e.preventDefault());
+init();
+</script>
+</body>
+</html>
