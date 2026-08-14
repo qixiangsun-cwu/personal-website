@@ -191,7 +191,7 @@
 </div>
 
 <script src="gallery_data.js?v=8"></script>
-<script src="vqa_neutral_data.js?v=1"></script>
+<script src="vqa_neutral_data.js?v=2"></script>
 <script>
 const REMOTE = IMG_BASE.indexOf('http') === 0;
 const u = (a, b) => a.replace(/\/+$/, '') + '/' + b.replace(/^\/+/, '');
@@ -282,8 +282,36 @@ async function loadImages(root){
   const imgs = [...root.querySelectorAll('img[data-src]')];
   const paths = imgs.map(x => x.getAttribute('data-src'));
   if (!paths.length) return;
-  const map = await signBatch(paths);
-  imgs.forEach(x => { const p = x.getAttribute('data-src'); if (map[p]) x.src = map[p]; });
+  let map = {};
+  try { map = await signBatch(paths); } catch (e) { console.log('sign fail', e); return; }
+  if (!('IntersectionObserver' in window)) {
+    imgs.forEach(x => { const p = x.getAttribute('data-src'); if (map[p]) x.src = map[p]; });
+    return;
+  }
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(en => {
+      if (en.isIntersecting) {
+        const img = en.target;
+        const p = img.getAttribute('data-src');
+        if (map[p]) img.src = map[p];
+        io.unobserve(img);
+      }
+    });
+  }, { rootMargin: '300px' });
+  imgs.forEach(img => io.observe(img));
+}
+async function openVqaFull(path, meta){
+  document.getElementById('lbTitle').textContent = meta;
+  document.getElementById('lbInfo').textContent = '原图（访问控制保护，仅限本站展示）';
+  const grid = document.getElementById('lbGrid');
+  grid.innerHTML = '<div class="lb-loading">加载中…</div>';
+  document.getElementById('lightbox').classList.add('open');
+  try {
+    const map = await signBatch([path]);
+    grid.innerHTML = `<div class="lb-cell"><img src="${map[path] || ''}" alt="${esc(meta)}" draggable="false" oncontextmenu="return false;"></div>`;
+  } catch (e) {
+    grid.innerHTML = `<div class="lb-loading">加载失败：${e.message}</div>`;
+  }
 }
 
 // ---------- 图生文（VQA） ----------
@@ -327,7 +355,7 @@ function showOcc(occ){
   detail.innerHTML = `<div class="vqa-occ"><h3>${esc(occ)}<span class="vqa-note">5 男 5 女 · 开放式识别</span></h3><div class="vqa-grid">` +
     Object.entries(roles).map(([role, info]) =>
       `<div class="vqa-card">
-        <img data-src="${esc(info.path)}" loading="lazy" alt="${esc(occ)} ${role}" draggable="false" oncontextmenu="return false;">
+        <img data-src="${esc(info.thumb)}" loading="lazy" alt="${esc(occ)} ${role}" draggable="false" oncontextmenu="return false;" onclick="openVqaFull(this.dataset.full, this.dataset.meta)" data-full="${esc(info.path)}" data-meta="${esc(occ)} ${role} · ${info.gender}" style="cursor:zoom-in">
         <div class="vqa-meta">${role} · ${info.gender}</div>
         <div class="vqa-models">${modelCols(info.models)}</div>
       </div>`).join('') + `</div></div>`;
@@ -349,7 +377,7 @@ function showPair(pid){
   detail.innerHTML = `<div class="vqa-occ"><h3>${esc(pid)} · ${esc(p.male)} vs ${esc(p.female)}<span class="vqa-note">共享中性人像 · 10 张</span></h3><div class="vqa-grid">` +
     Object.entries(p.imgs).map(([role, info]) =>
       `<div class="vqa-card">
-        <img data-src="${esc(info.path)}" loading="lazy" alt="${pid} ${role}" draggable="false" oncontextmenu="return false;">
+        <img data-src="${esc(info.thumb)}" loading="lazy" alt="${pid} ${role}" draggable="false" oncontextmenu="return false;" onclick="openVqaFull(this.dataset.full, this.dataset.meta)" data-full="${esc(info.path)}" data-meta="${pid} ${role} · ${info.gender}" style="cursor:zoom-in">
         <div class="vqa-meta">${role} · ${info.gender}</div>
         <div class="vqa-models">${pairCols(info.models)}</div>
       </div>`).join('') + `</div></div>`;
@@ -362,7 +390,7 @@ function showPair(pid){
   if (tab === 'pairs' && !pairsDataLoaded) {
     pairsDataLoaded = true;
     const s = document.createElement('script');
-    s.src = 'vqa_pairs_data.js?v=1';
+    s.src = 'vqa_pairs_data.js?v=2';
     s.onload = renderPairsList;
     document.head.appendChild(s);
   }
