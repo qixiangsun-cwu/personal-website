@@ -87,6 +87,11 @@
   .pair-arrow { color:#90a4ae; font-size:12px; }
   .pair-body { padding:0 14px 14px; }
   .pair-hint { font-size:12.5px; color:#78909c; margin:12px 0; }
+
+  .vqa-tags { display:flex; flex-wrap:wrap; gap:8px; margin:16px 0; }
+  .tag-btn { padding:8px 14px; border:1px solid #cfd8dc; border-radius:18px; background:#fff; cursor:pointer; font-size:13px; color:#37474f; max-width:100%; }
+  .tag-btn.active { background:#37474f; color:#fff; border-color:#37474f; }
+  .vqa-detail { margin-top:14px; }
   @media (max-width:720px){
     .vqa-models { grid-template-columns:repeat(2,1fr); }
     .entry-card { width:100%; }
@@ -287,73 +292,50 @@ let pairsDataLoaded = false;
 function initVqa(){
   if (vqaInited) return;
   vqaInited = true;
-  renderNeutral();
-  loadImages(document.getElementById('vqa-neu'));
+  renderNeutralTags();
 }
-function modelCols(models){
-  return VMODELS.map(m => {
-    const d = models[m] || {};
-    const ans = d.a != null ? esc(d.a) : '—';
-    const ok = d.ok == null ? '' : (d.ok === 1 ? '<span class="ok-badge ok">✓ 识别正确</span>' : '<span class="ok-badge err">✗ 识别错误</span>');
-    return `<div class="vm-col"><div class="vm-name">${m}</div><div class="vm-ans">${ans}</div>${ok}</div>`;
-  }).join('');
-}
-function pairCols(models){
-  return VMODELS.map(m => {
-    const d = models[m] || {};
-    const a1 = d.a1 ? esc(d.a1) : '—';
-    const a1s = d.a1s ? esc(d.a1s) : '—';
-    const a2 = (d.a2m == null || d.a2m === '') ? '—' : `男职 ${d.a2m}% ／ 女职 ${d.a2f}%${(d.d == null || d.d === '') ? '' : `（Δ ${d.d > 0 ? '+' : ''}${d.d}）`}`;
-    return `<div class="vm-col"><div class="vm-name">${m}</div>
-      <div class="vm-line"><b>A1：</b>${a1}</div>
-      <div class="vm-line"><b>A1交换：</b>${a1s}</div>
-      <div class="vm-line"><b>A2：</b>${a2}</div></div>`;
-  }).join('');
-}
-function renderNeutral(){
+function renderNeutralTags(){
   const root = document.getElementById('vqa-neu');
-  root.innerHTML = Object.entries(VQA_NEUTRAL).map(([occ, roles]) => {
-    const cards = Object.entries(roles).map(([role, info]) =>
+  const tags = Object.keys(VQA_NEUTRAL).map(occ =>
+    `<button class="tag-btn" data-occ="${esc(occ)}" onclick="showOcc(this.dataset.occ)">${esc(occ)}</button>`).join('');
+  root.innerHTML = `<div class="pair-hint">共 17 个中性职业（真实女占比 40%–60%），点击职业标签查看该职业 10 张图（5 男 5 女）与四款模型回答。</div>` +
+    `<div class="vqa-tags">${tags}</div><div class="vqa-detail" id="vqa-neu-detail"></div>`;
+}
+function showOcc(occ){
+  document.querySelectorAll('#vqa-neu .tag-btn').forEach(b => b.classList.toggle('active', b.getAttribute('data-occ') === occ));
+  const detail = document.getElementById('vqa-neu-detail');
+  const roles = VQA_NEUTRAL[occ] || {};
+  detail.innerHTML = `<div class="vqa-occ"><h3>${esc(occ)}<span class="vqa-note">5 男 5 女 · 开放式识别</span></h3><div class="vqa-grid">` +
+    Object.entries(roles).map(([role, info]) =>
       `<div class="vqa-card">
         <img data-src="${esc(info.path)}" loading="lazy" alt="${esc(occ)} ${role}" draggable="false" oncontextmenu="return false;">
         <div class="vqa-meta">${role} · ${info.gender}</div>
         <div class="vqa-models">${modelCols(info.models)}</div>
-      </div>`).join('');
-    return `<div class="vqa-occ"><h3>${esc(occ)}<span class="vqa-note">5 男 5 女 · 开放式识别</span></h3><div class="vqa-grid">${cards}</div></div>`;
-  }).join('');
+      </div>`).join('') + `</div></div>`;
+  loadImages(detail);
 }
-function renderPairsList(){
+function renderPairsTags(){
   const root = document.getElementById('vqa-pairs');
-  root.innerHTML = '<div class="pair-hint">共 103 对；每对为同一组 10 张共享中性人像（仅性别不同、无职业线索），点击展开查看四款模型的三行回答。</div>' +
-    Object.entries(VQA_PAIRS).map(([pid, p]) =>
-      `<div class="pair-item" id="pair-${pid}">
-        <div class="pair-head" onclick="togglePair('${pid}')">
-          <span>${pid} · ${esc(p.male)} vs ${esc(p.female)}</span>
-          <span class="pair-arrow">展开 ▾</span>
-        </div>
-        <div class="pair-body" style="display:none"></div>
-      </div>`).join('');
+  root.innerHTML = '<div class="pair-hint">共 103 对；每对为同一组 10 张共享中性人像（仅性别不同、无职业线索），点击对标签查看四款模型的三行回答。</div>' +
+    `<div class="vqa-tags">` +
+    Object.keys(VQA_PAIRS).map(pid => {
+      const p = VQA_PAIRS[pid];
+      return `<button class="tag-btn" data-pid="${esc(pid)}" onclick="showPair(this.dataset.pid)">${esc(pid)} · ${esc(p.male)} vs ${esc(p.female)}</button>`;
+    }).join('') + `</div><div class="vqa-detail" id="vqa-pairs-detail"></div>`;
 }
-async function togglePair(pid){
-  const item = document.getElementById('pair-' + pid);
-  const body = item.querySelector('.pair-body');
-  const arrow = item.querySelector('.pair-arrow');
-  if (body.style.display !== 'none') { body.style.display = 'none'; arrow.textContent = '展开 ▾'; return; }
-  body.style.display = 'block';
-  if (!body.dataset.rendered) {
-    const p = VQA_PAIRS[pid];
-    body.innerHTML = Object.entries(p.imgs).map(([role, info]) =>
+function showPair(pid){
+  document.querySelectorAll('#vqa-pairs .tag-btn').forEach(b => b.classList.toggle('active', b.getAttribute('data-pid') === pid));
+  const detail = document.getElementById('vqa-pairs-detail');
+  const p = VQA_PAIRS[pid];
+  detail.innerHTML = `<div class="vqa-occ"><h3>${esc(pid)} · ${esc(p.male)} vs ${esc(p.female)}<span class="vqa-note">共享中性人像 · 10 张</span></h3><div class="vqa-grid">` +
+    Object.entries(p.imgs).map(([role, info]) =>
       `<div class="vqa-card">
         <img data-src="${esc(info.path)}" loading="lazy" alt="${pid} ${role}" draggable="false" oncontextmenu="return false;">
         <div class="vqa-meta">${role} · ${info.gender}</div>
         <div class="vqa-models">${pairCols(info.models)}</div>
-      </div>`).join('');
-    body.dataset.rendered = '1';
-    await loadImages(body);
-  }
-  arrow.textContent = '收起 ▴';
-}
-function showVqa(tab){
+      </div>`).join('') + `</div></div>`;
+  loadImages(detail);
+}function showVqa(tab){
   document.getElementById('tab-neu').classList.toggle('active', tab === 'neu');
   document.getElementById('tab-pairs').classList.toggle('active', tab === 'pairs');
   document.getElementById('vqa-neu').style.display = tab === 'neu' ? 'block' : 'none';
