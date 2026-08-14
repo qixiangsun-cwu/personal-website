@@ -391,7 +391,7 @@ function showPair(pid){
     pairsDataLoaded = true;
     const s = document.createElement('script');
     s.src = 'vqa_pairs_data.js?v=2';
-    s.onload = renderPairsList;
+    s.onload = renderPairsTags;
     document.head.appendChild(s);
   }
 }
