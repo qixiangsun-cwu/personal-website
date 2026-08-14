@@ -294,7 +294,26 @@ function initVqa(){
   vqaInited = true;
   renderNeutralTags();
 }
-function renderNeutralTags(){
+function modelCols(models){
+  return VMODELS.map(m => {
+    const d = models[m] || {};
+    const ans = d.a != null ? esc(d.a) : '—';
+    const ok = d.ok == null ? '' : (d.ok === 1 ? '<span class="ok-badge ok">✓ 识别正确</span>' : '<span class="ok-badge err">✗ 识别错误</span>');
+    return `<div class="vm-col"><div class="vm-name">${m}</div><div class="vm-ans">${ans}</div>${ok}</div>`;
+  }).join('');
+}
+function pairCols(models){
+  return VMODELS.map(m => {
+    const d = models[m] || {};
+    const a1 = d.a1 ? esc(d.a1) : '—';
+    const a1s = d.a1s ? esc(d.a1s) : '—';
+    const a2 = (d.a2m == null || d.a2m === '') ? '—' : `男职 ${d.a2m}% ／ 女职 ${d.a2f}%${(d.d == null || d.d === '') ? '' : `（Δ ${d.d > 0 ? '+' : ''}${d.d}）`}`;
+    return `<div class="vm-col"><div class="vm-name">${m}</div>
+      <div class="vm-line"><b>A1：</b>${a1}</div>
+      <div class="vm-line"><b>A1交换：</b>${a1s}</div>
+      <div class="vm-line"><b>A2：</b>${a2}</div></div>`;
+  }).join('');
+}function renderNeutralTags(){
   const root = document.getElementById('vqa-neu');
   const tags = Object.keys(VQA_NEUTRAL).map(occ =>
     `<button class="tag-btn" data-occ="${esc(occ)}" onclick="showOcc(this.dataset.occ)">${esc(occ)}</button>`).join('');
