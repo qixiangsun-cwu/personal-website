@@ -96,7 +96,7 @@ foreach ($feed in $feeds) {
             $summary = ''
             if ($desc) {
                 $summary = ($desc -replace '<[^>]+>', ' ' -replace '&nbsp;', ' ' -replace '\s+', ' ').Trim()
-                if ($summary.Length -gt 240) { $summary = $summary.Substring(0, 240) + '…' }
+                if ($summary.Length -gt 600) { $summary = $summary.Substring(0, 600) + '…' }
             }
 
             $source = Get-ElemText $item.source
