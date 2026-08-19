@@ -1,6 +1,7 @@
 User-agent: *
 Allow: /
 Disallow: /approve
+Disallow: /private/
 Disallow: /approve.html
 Disallow: /research/gallery.html.bak
 
