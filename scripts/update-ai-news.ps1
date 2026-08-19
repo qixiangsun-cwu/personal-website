@@ -167,7 +167,7 @@ $latestDate = $merged[0].date
 $latestCutoff = ([datetime]::ParseExact($latestDate, 'yyyy-MM-dd', $null)).AddDays(-1).ToString('yyyy-MM-dd')
 $currentList = [System.Collections.Generic.List[object]]::new()
 $srcCount = @{}
-$capPerSource = 3
+$capPerSource = 1
 foreach ($it in @($merged | Where-Object { $_.date -ge $latestCutoff })) {
     if ($currentList.Count -ge 15) { break }
     $src = [string]$it.source
