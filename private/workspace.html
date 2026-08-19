@@ -281,18 +281,6 @@
                 <p style="margin-top: 1rem; font-size: 0.85rem; color: var(--color-muted);">复用每日工作汇总工作区内容</p>
             </div>
 
-            <!-- 剪贴板工具 -->
-            <div class="glass-card ws-card">
-                <h3>📋 剪贴板</h3>
-                <div class="ws-list">
-                    <div class="ws-item" style="flex-direction: column; align-items: flex-start; gap: 0.6rem; padding: 0.85rem;">
-                        <span class="ws-item-name">读取剪贴板中的文本（仅在你自己的浏览器中读取，需点击授权）</span>
-                        <button id="clipboardReadBtn" class="lock-btn" type="button" style="width: auto; padding: 0.5rem 1.2rem;">读取剪贴板</button>
-                        <textarea id="clipboardOutput" rows="6" readonly placeholder="点击上方按钮后，这里显示剪贴板内容…" style="width:100%; box-sizing:border-box; font-family:inherit; font-size:0.85rem; padding:0.6rem; border:1px solid var(--color-rule); border-radius:8px; background:var(--color-surface); color:var(--color-ink); resize:vertical;"></textarea>
-                    </div>
-                </div>
-            </div>
-
             <!-- 援外研修班资料库 -->
             <div class="glass-card ws-card">
                 <h3>🌍 援外研修班资料库</h3>
@@ -426,24 +414,6 @@
             document.getElementById('lockScreen').style.display = 'none';
             document.getElementById('workspaceContent').classList.add('show');
             renderVisitStats();
-            initClipboardReader();
-        }
-
-        function initClipboardReader() {
-            var btn = document.getElementById('clipboardReadBtn');
-            var out = document.getElementById('clipboardOutput');
-            if (!btn || !out) return;
-            btn.addEventListener('click', function () {
-                if (!navigator.clipboard || !navigator.clipboard.readText) {
-                    out.value = '当前浏览器不支持剪贴板读取。\n要求：HTTPS 环境 + 较新的 Chrome/Edge/Firefox。';
-                    return;
-                }
-                navigator.clipboard.readText().then(function (text) {
-                    out.value = text === '' ? '（剪贴板为空）' : text;
-                }).catch(function (err) {
-                    out.value = '读取失败：' + (err && err.name ? err.name : String(err)) + '\n请确认浏览器已授权剪贴板读取，且窗口处于前台。';
-                });
-            });
         }
 
         (function() {
