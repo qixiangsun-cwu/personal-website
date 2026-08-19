@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /approve.html
+Disallow: /research/gallery.html.bak
+
+Sitemap: https://www.qixiangsun.com.cn/sitemap.xml
