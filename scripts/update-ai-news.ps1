@@ -26,12 +26,14 @@ Write-Log "===== 抓取开始（待审核模式） ====="
 $feeds = @(
     'https://www.ithome.com/rss/',
     'https://www.qbitai.com/feed',
-    'https://www.cnbeta.com.tw/backend.php',
+    'https://www.infoq.cn/feed',
     'https://techcrunch.com/category/artificial-intelligence/feed/',
     'https://openai.com/blog/rss.xml',
-    'https://huggingface.co/blog/feed.xml',
-    'https://blog.google/technology/ai/rss/',
-    'http://export.arxiv.org/rss/cs.AI'
+    'http://export.arxiv.org/rss/cs.AI',
+    'https://www.technologyreview.com/feed/',
+    'https://www.theverge.com/rss/ai-artificial-intelligence/index.xml',
+    'https://www.wired.com/feed/tag/ai/latest/rss',
+    'https://blogs.nvidia.com/feed/'
 )
 
 $keywords = 'AI|人工智能|大模型|智能体|GPT|Gemini|Claude|OpenAI|Anthropic|DeepSeek|机器人|算力|芯片|自动驾驶|多模态|AIGC|LLM|Agent|NVIDIA|英伟达|Hugging Face|Qwen|Kimi|豆包|元宝'
@@ -163,7 +165,18 @@ $merged = $merged | Sort-Object { [datetime]::ParseExact($_.date, 'yyyy-MM-dd', 
 
 $latestDate = $merged[0].date
 $latestCutoff = ([datetime]::ParseExact($latestDate, 'yyyy-MM-dd', $null)).AddDays(-1).ToString('yyyy-MM-dd')
-$current = @($merged | Where-Object { $_.date -ge $latestCutoff } | Select-Object -First 15)
+$currentList = [System.Collections.Generic.List[object]]::new()
+$srcCount = @{}
+$capPerSource = 3
+foreach ($it in @($merged | Where-Object { $_.date -ge $latestCutoff })) {
+    if ($currentList.Count -ge 15) { break }
+    $src = [string]$it.source
+    if (-not $srcCount.ContainsKey($src)) { $srcCount[$src] = 0 }
+    if ($srcCount[$src] -ge $capPerSource) { continue }
+    $currentList.Add($it)
+    $srcCount[$src]++
+}
+$current = @($currentList)
 $archive = @($merged | Where-Object { $_.date -lt $latestCutoff } | Select-Object -First 300)
 
 $pending = [PSCustomObject]@{
