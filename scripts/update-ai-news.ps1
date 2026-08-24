@@ -164,7 +164,7 @@ foreach ($it in $allItems) {
 $merged = $merged | Sort-Object { [datetime]::ParseExact($_.date, 'yyyy-MM-dd', $null) } -Descending
 
 $latestDate = $merged[0].date
-$latestCutoff = ([datetime]::ParseExact($latestDate, 'yyyy-MM-dd', $null)).AddDays(-2).ToString('yyyy-MM-dd')
+$latestCutoff = ([datetime]::ParseExact($latestDate, 'yyyy-MM-dd', $null)).AddDays(-1).ToString('yyyy-MM-dd')
 $currentList = [System.Collections.Generic.List[object]]::new()
 $srcCount = @{}
 $capPerSource = 1
