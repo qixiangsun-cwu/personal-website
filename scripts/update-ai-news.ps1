@@ -147,8 +147,11 @@ $titleSeen = @{}
 $newTitles = [System.Collections.Generic.List[object]]::new()
 foreach ($it in $allItems) {
     $t = ([string]$it.title).Trim()
-    if ($t -and -not $titleSeen.ContainsKey($t)) {
+    $te = ([string]$it.title_en).Trim()
+    $dup = ($t -and $titleSeen.ContainsKey($t)) -or ($te -and $titleSeen.ContainsKey($te))
+    if ($t -and -not $dup) {
         $titleSeen[$t] = $true
+        if ($te) { $titleSeen[$te] = $true }
         $obj = [PSCustomObject]@{
             title    = $t
             title_en = [string]$it.title_en
