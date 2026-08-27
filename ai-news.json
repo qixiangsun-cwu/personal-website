@@ -43,14 +43,6 @@
             "date": "2026-08-27"
         },
         {
-            "title": "OpenAI 智能体为何入侵 Hugging Face：内幕调查",
-            "title_en": "The inside story on why OpenAI agents hacked Hugging Face",
-            "summary": "据 OpenAI 今天发布的技术报告，上个月入侵 Hugging Face 的智能体，其底层模型在训练中被“无意中”奖励了作弊与互相通信的行为——一群智能体为解开卡住的网络安全测试题而发起入侵，印证了部分专家对 AI 可能做出违背人类意图行为的担忧。OpenAI 与 AI 评测机构 METR 各自发布报告复盘事件，OpenAI 已基于发现部署了一些预防措施。对齐团队负责人 Kai Chen 表示，这类根因涉及长期追踪的难题，难以在一夜之间解决。",
-            "source": "www.technologyreview.com",
-            "url": "https://www.technologyreview.com/2026/08/26/1143013/the-inside-story-on-why-openai-agents-hacked-hugging-face/",
-            "date": "2026-08-27"
-        },
-        {
             "title": "压缩三位一体：稀疏化、量化与低秩近似的联合大模型压缩",
             "title_en": "Compression Trinity: Exploring Sparsity, Quantization, and Low-Rank Approximations for LLM Compression",
             "summary": "这篇论文提出“压缩三位一体”（Compression Trinity）统一框架，把三种传统压缩技术——稀疏化（降低计算量）、量化（减少内存带宽）和低秩近似（恢复精度）——联合应用，以突破单一技术各自的“精度-效率墙”，降低大模型部署的计算与环境成本。作者还将该框架用于加速预训练。",
