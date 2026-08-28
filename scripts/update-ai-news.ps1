@@ -36,7 +36,7 @@ $feeds = @(
     'https://blogs.nvidia.com/feed/'
 )
 
-$keywords = 'AI|人工智能|大模型|智能体|GPT|Gemini|Claude|OpenAI|Anthropic|DeepSeek|机器人|算力|芯片|自动驾驶|多模态|AIGC|LLM|Agent|NVIDIA|英伟达|Hugging Face|Qwen|Kimi|豆包|元宝'
+$keywords = '\bAI\b|人工智能|大模型|智能体|GPT|Gemini|Claude|OpenAI|Anthropic|DeepSeek|机器人|算力|芯片|自动驾驶|多模态|AIGC|LLM|Agent|NVIDIA|英伟达|Hugging Face|Qwen|Kimi|豆包|元宝'
 
 function Get-ElemText($node) {
     if ($null -eq $node) { return '' }
