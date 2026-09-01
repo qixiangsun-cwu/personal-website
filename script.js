@@ -192,21 +192,17 @@ function renderMoreNews(items) {
     if (!listEl) return;
     if (!items.length) {
         listEl.innerHTML = '<p class="news-empty-hint">暂无历史动态。</p>';
+        if (btn) btn.style.display = 'none';
         return;
     }
 
     var showAll = false;
 
     function paint() {
-        var slice = showAll ? items : items.slice(0, NEWS_PAGE_SIZE);
-        listEl.innerHTML = slice.map(createNewsItem).join('');
+        listEl.innerHTML = showAll ? items.map(createNewsItem).join('') : '';
         if (btn) {
-            if (items.length > NEWS_PAGE_SIZE) {
-                btn.style.display = '';
-                btn.textContent = showAll ? '收起' : '展开全部动态（' + items.length + ' 条）';
-            } else {
-                btn.style.display = 'none';
-            }
+            btn.style.display = '';
+            btn.textContent = showAll ? '收起' : '展开全部动态（' + items.length + ' 条）';
         }
     }
 
