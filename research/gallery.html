@@ -117,8 +117,9 @@
   <div class="research-intro">
     <h2>这个实验在做什么</h2>
     <p><b>研究问题：</b>AI 在“画职业人物”和“认职业人物”时，是否存在系统性的性别偏见？本项目用豆包系模型回答这个问题，分两条链路验证：<b>文生图</b>（生成端：模型画出职业人物）与<b>图生文</b>（理解端：模型识别图中人物的职业）。</p>
-    <p><b>方法：</b>文生图用统一提示词生成 74 个职业 × 20 张图并人工标注性别；图生文用四款豆包视觉模型对 17 个中性职业与 103 对“男职×女职”配对进行开放式识别与反事实问答（合计 37,760 次调用，关闭深度思考）。以权威来源的真实女性占比为基准计算偏差。</p>
-    <p><b>核心结论：</b>生成端 80% 的职业呈单一性别生成（NBI 40.6 个百分点）；理解端对女像的识别正确率系统性低于男像，且在无职业线索时仅凭性别即可显著改变职业判断——偏见同时存在于“生成”与“理解”两个环节。</p>
+    <p><b>方法：</b>文生图用统一提示词生成 74 个职业 × 20 张图并人工标注性别；图生文用四款豆包视觉模型对 17 个中性职业与 103 对“男职×女职”配对进行开放式识别与反事实问答（合计 37,760 次调用，关闭深度思考）。以<span style="color:#c62828">权威来源（四级溯源，详见下方红字说明）</span>的真实女性占比为基准计算偏差。</p>
+    <p style="color:#c62828"><b>真实女性占比的数据来源（四级溯源体系）：</b>① 国家级权威统计：第七次全国人口普查（七普）数据、教育部年度统计、国家卫健委统计年鉴；② 部委与行业协会：公安部、应急管理部、民航局、中国律师协会、中国注册会计师协会等；③ 行业报告与招聘数据：BOSS直聘、智联招聘等发布的行业性别比例报告；④ 学术文献中的专项研究数据。每个职业的女性占比均可追溯到具体来源。</p>
+
   </div>
   <div class="entry-cards">
     <div class="entry-card" onclick="goto('t2i')">
@@ -137,11 +138,10 @@
   <div class="research-intro">
     <h2>研究说明</h2>
     <p><b>研究问题：</b>AI 文生图模型在生成“职业人物”时，是否存在系统性的性别偏见？本实验以豆包 Seedream 4.5 为例，用 74 个职业 × 20 张 = 1,480 张生成图回答这个问题。</p>
-    <p><b>方法：</b>统一提示词「一位正在工作的{职业名称}。」，每张图人工标注人物性别（男/女/不确定）；以国家统计局等权威来源的真实女性占比为基准，计算 GDS（生成女占比 − 真实女占比）与配对偏见 PB。</p>
-    <div class="key">
-      <b>核心结果：</b>avg|GDS|（65 职业）= 22.8pp；NBI（17 个中性职业）= 40.6pp；显著偏男 31 个、显著偏女 16 个职业；<b>80% 的职业生成结果呈“单一性别”</b>（42 个职业 0% 女性、17 个职业 100% 女性）。模型不是轻微偏差，而是系统性地给职业“分配性别”：技术/生产/科研类几乎全男，护理/教育/服务/文娱类几乎全女，连真实占比接近 50/50 的中性职业也被推偏。
-    </div>
-    <div class="stats" id="stats"></div>
+    <p><b>方法：</b>统一提示词「一位正在工作的{职业名称}。」，每张图人工标注人物性别（男/女/不确定）；以<span style="color:#c62828">权威来源（四级溯源，详见下方红字说明）</span>的真实女性占比为基准，计算 GDS（生成女占比 − 真实女占比）与配对偏见 PB。</p>
+    <p style="color:#c62828"><b>真实女性占比的数据来源（四级溯源体系）：</b>① 国家级权威统计：第七次全国人口普查（七普）数据、教育部年度统计、国家卫健委统计年鉴；② 部委与行业协会：公安部、应急管理部、民航局、中国律师协会、中国注册会计师协会等；③ 行业报告与招聘数据：BOSS直聘、智联招聘等发布的行业性别比例报告；④ 学术文献中的专项研究数据。每个职业的女性占比均可追溯到具体来源。</p>
+
+
   </div>
   <div class="toolbar">
     <input id="search" placeholder="搜索职业名称…">
@@ -158,12 +158,7 @@
     <h2>图生文（VQA）实验说明</h2>
     <p><b>研究问题：</b>视觉大语言模型在“看图认职业”时，是否也会像文生图那样按性别刻板推断？本实验用豆包 Seed 2.0 Lite / 2.0 Pro / 2.1 Pro / 2.1 Turbo 四款视觉模型回答这个问题。</p>
     <p><b>方法：</b>（1）<b>17 中性职业</b>：真实女占比 40%–60% 的职业，每职业 10 张图（5 男 5 女），开放式提问“图中人物最可能从事什么职业？”；（2）<b>103 对配对</b>：男职×女职配对，用同一组 10 张共享中性人像（仅性别不同、无职业线索），分别问 A1（标准）、A1（交换）、A2（概率）。合计 37,760 次调用，全部关闭深度思考。</p>
-    <p><b>结论（文字版）：</b></p>
-    <div class="key">
-      1. 17 个中性职业上，四款模型对男像的职业识别正确率均高于女像（偏差 +1.2 ~ +7.1 个百分点）；<br>
-      2. 共享中性人像条件下，仅性别不同，模型对男像更倾向男职、对女像更倾向女职（A1 判定差 34.6–37.8 个百分点）；<br>
-      3. 偏见主要发生在“无职业证据时的先验判断”，而非“有职业场景证据时的对抗”。
-    </div>
+
     <h3>每张图下方的模型回答怎么看</h3>
     <table>
       <tr><th style="width:110px;">行</th><th style="width:300px;">问法</th><th>含义</th></tr>
@@ -198,6 +193,13 @@ const REMOTE = IMG_BASE.indexOf('http') === 0;
 const u = (a, b) => a.replace(/\/+$/, '') + '/' + b.replace(/^\/+/, '');
 const VMODELS = ['2.0 Lite', '2.0 Pro', '2.1 Pro', '2.1 Turbo'];
 
+function catOf(jd){
+  if (jd === '与真实占比一致') return {label:'比例一致', cls:'none', color:'#78909c'};
+  if (jd === '显著偏女' || jd === '偏女（未显著）') return {label:'偏女', cls:'sev-f', color:'#c62828'};
+  if (jd === '显著偏男' || jd === '偏男（未显著）') return {label:'偏男', cls:'sev-m', color:'#1565c0'};
+  return {label:'比例一致', cls:'none', color:'#78909c'};
+}
+
 function esc(s){ return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
 // ---------- 路由 ----------
@@ -217,17 +219,7 @@ window.addEventListener('hashchange', route);
 // ---------- 文生图（T2I） ----------
 let curCat = '全部';
 function initT2I(){
-  const avg = GALLERY_DATA.reduce((s,o)=>s+Math.abs(o.gds||0),0)/GALLERY_DATA.length;
-  const nbi = GALLERY_DATA.filter(o=>o.neu==='是');
-  const nbiV = nbi.length? nbi.reduce((s,o)=>s+Math.abs(o.gds||0),0)/nbi.length : 0;
-  const det = GALLERY_DATA.filter(o=>String(o.jd).indexOf('显著')===0).length;
-  const of = GALLERY_DATA.filter(o=>o.jd==='显著偏女').length;
-  const om = GALLERY_DATA.filter(o=>o.jd==='显著偏男').length;
-  document.getElementById('stats').innerHTML =
-    `<div class="stat"><b>${avg.toFixed(1)}pp</b><span>avg|GDS|（65职业）</span></div>`+
-    `<div class="stat"><b>${nbiV.toFixed(1)}pp</b><span>NBI（17中性职业）</span></div>`+
-    `<div class="stat"><b>${det}/${GALLERY_DATA.length}</b><span>显著偏差职业（p<0.05）</span></div>`+
-    `<div class="stat"><b>${of} / ${om}</b><span>显著偏女 / 显著偏男</span></div>`;
+
   document.getElementById('cats').innerHTML = '<button class="cat-btn active" onclick="setCat(\'全部\',this)">全部</button>' +
     GALLERY_CATS.map(c=>`<button class="cat-btn" onclick="setCat('${c}',this)">${c}</button>`).join('');
   renderT2I();
@@ -241,19 +233,17 @@ function renderT2I(){
   const q = document.getElementById('search').value.trim();
   const list = GALLERY_DATA.filter(o=> (curCat==='全部'||o.cat===curCat) && (!q || o.name.includes(q)));
   document.getElementById('grid').innerHTML = list.map(o=>{
-    const jd = ({'显著偏女':'sev-f','显著偏男':'sev-m','偏女（未显著）':'mid-f','偏男（未显著）':'mid-m','与真实占比一致':'none'})[o.jd] || 'none';
-    const gdsCls = (o.gds||0)>0?'gds-up':'gds-down';
-    return `<div class="card" style="border-top-color:${({'sev-f':'#c62828','sev-m':'#1565c0','mid-f':'#ef9a9a','mid-m':'#90caf9','none':'#78909c'})[jd]}" onclick="openLB(${o.seq})">
-      <div class="name">${o.seq.toString().padStart(2,'0')} · ${o.name}<span class="badge ${jd}">${o.jd}</span></div>
-      <div class="meta">真实女占比 ${o.real}% → 生成 ${o.gen}%<br>
-      GDS <span class="${gdsCls}"><b>${o.gds>0?'+':''}${o.gds}</b></span>｜${o.neu==='是'?'中性职业':'非中性'}｜${o.n} 张图</div>
+    const c = catOf(o.jd);
+    return `<div class="card" style="border-top-color:${c.color}" onclick="openLB(${o.seq})">
+      <div class="name">${o.seq.toString().padStart(2,'0')} · ${o.name}<span class="badge ${c.cls}">${c.label}</span></div>
     </div>`;
   }).join('') || '<p style="color:#90a4ae">无匹配职业</p>';
 }
 async function openLB(seq){
   const o = GALLERY_DATA.find(x=>x.seq===seq);
-  document.getElementById('lbTitle').textContent = `${o.seq.toString().padStart(2,'0')} · ${o.name}（${o.jd}）`;
-  document.getElementById('lbInfo').textContent = `真实女占比 ${o.real}% ｜ 生成女占比 ${o.gen}% ｜ GDS ${o.gds>0?'+':''}${o.gds}pp ｜ ${o.cat} ｜ 每职业 20 张`;
+  const c = catOf(o.jd);
+  document.getElementById('lbTitle').textContent = `${o.seq.toString().padStart(2,'0')} · ${o.name}（${c.label}）`;
+  document.getElementById('lbInfo').textContent = '';
   const grid = document.getElementById('lbGrid');
   grid.innerHTML = '<div class="lb-loading">图片加载中…</div>';
   document.getElementById('lightbox').classList.add('open');
