@@ -20,6 +20,40 @@ document.addEventListener('DOMContentLoaded', function() {
         }, { passive: true });
     }
 
+    // ---------- 移动端导航菜单 ----------
+    const navToggle = document.getElementById('navToggle');
+    const navMobile = document.getElementById('navMobile');
+    if (navToggle && navMobile) {
+        const navIcon = navToggle.querySelector('i');
+
+        function setMenu(open) {
+            navMobile.classList.toggle('open', open);
+            navToggle.classList.toggle('active', open);
+            navToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+            navToggle.setAttribute('aria-label', open ? '关闭菜单' : '打开菜单');
+            if (navIcon) {
+                navIcon.className = open ? 'ph ph-x' : 'ph ph-list';
+            }
+        }
+
+        navToggle.addEventListener('click', function() {
+            setMenu(!navMobile.classList.contains('open'));
+        });
+
+        navMobile.querySelectorAll('a').forEach(function(link) {
+            link.addEventListener('click', function() {
+                setMenu(false);
+            });
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && navMobile.classList.contains('open')) {
+                setMenu(false);
+                navToggle.focus();
+            }
+        });
+    }
+
     // ---------- 滚动渐入动画 (IntersectionObserver) ----------
     if (!prefersReducedMotion) {
         const revealEls = document.querySelectorAll(

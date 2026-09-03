@@ -8,10 +8,11 @@
     <meta name="baidu-site-verification" content="codeva-BTw7o3XKce" />
     <meta name="google-site-verification" content="VBjH1DqNMvsK41dZAJkg5wBZMJST0NkId0D9NvoWZR0" />
     <link rel="icon" type="image/svg+xml" href="favicon.svg?v=3">
-    <link rel="stylesheet" href="styles.css?v=20260809b">
+    <link rel="stylesheet" href="styles.css?v=20260903a">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600&family=Noto+Serif+SC:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/regular/style.css">
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -62,6 +63,19 @@
                         
                 <a href="#contact">联系</a>
             </div>
+            <button class="nav-toggle" id="navToggle" type="button" aria-label="打开菜单" aria-expanded="false" aria-controls="navMobile">
+                <i class="ph ph-list" aria-hidden="true"></i>
+            </button>
+        </div>
+        <div class="nav-mobile" id="navMobile">
+            <a href="#news">AI动态</a>
+            <a href="#about">关于我</a>
+            <a href="#empower">妇女赋能</a>
+            <a href="#courses">课程</a>
+            <a href="#tools">工具</a>
+            <a href="#videos">视频</a>
+            <a href="#downloads">下载</a>
+            <a href="#contact">联系</a>
         </div>
     </nav>
 
@@ -91,7 +105,7 @@
         <!-- 最新动态 -->
         <div class="glass-card news-today-card">
             <div class="news-today-header">
-                <h3>📌 最新动态</h3>
+                <h3><i class="ph ph-push-pin" aria-hidden="true"></i>最新动态</h3>
             </div>
             <div class="news-list" id="newsCurrentList">
                 <!-- 由 JS 动态加载 -->
@@ -102,7 +116,7 @@
         <!-- 全部动态 -->
         <div class="glass-card news-more-card">
             <div class="news-more-header">
-                <h3>🗞️ 全部动态</h3>
+                <h3><i class="ph ph-newspaper" aria-hidden="true"></i>全部动态</h3>
                 <span class="news-more-sub" id="newsMoreSub"></span>
             </div>
             <div class="news-list" id="newsMoreList">
@@ -114,19 +128,19 @@
         <!-- 资源导航 -->
         <div class="news-grid" style="margin-top: 2rem;">
             <a href="https://www.codebuddy.cn/docs/workbuddy/Overview" target="_blank" class="glass-card news-card">
-                <span class="news-icon">📘</span>
+                <span class="news-icon"><i class="ph ph-book-open-text" aria-hidden="true"></i></span>
                 <span class="news-title">WorkBuddy 文档</span>
             </a>
             <a href="https://arxiv.org" target="_blank" class="glass-card news-card">
-                <span class="news-icon">📑</span>
+                <span class="news-icon"><i class="ph ph-file-text" aria-hidden="true"></i></span>
                 <span class="news-title">arXiv</span>
             </a>
             <a href="https://huggingface.co" target="_blank" class="glass-card news-card">
-                <span class="news-icon">🤗</span>
+                <span class="news-icon"><i class="ph ph-smiley" aria-hidden="true"></i></span>
                 <span class="news-title">Hugging Face</span>
             </a>
             <a href="https://www.bilibili.com" target="_blank" class="glass-card news-card">
-                <span class="news-icon">🎬</span>
+                <span class="news-icon"><i class="ph ph-monitor-play" aria-hidden="true"></i></span>
                 <span class="news-title">B 站 LLM 可视化合集</span>
             </a>
         </div>
@@ -233,22 +247,22 @@
         <!-- 核心主题模块 -->
         <div class="module-grid">
             <div class="glass-card module-card">
-                <div class="module-icon">🌱</div>
+                <div class="module-icon"><i class="ph ph-plant" aria-hidden="true"></i></div>
                 <h4>AI 赋能基层</h4>
                 <p>零基础讲透豆包、DeepSeek、WorkBuddy 在办公、识图、表格、语音转写中的用法。</p>
             </div>
             <div class="glass-card module-card">
-                <div class="module-icon">💡</div>
+                <div class="module-icon"><i class="ph ph-lightbulb" aria-hidden="true"></i></div>
                 <h4>她力量 × 数字素养</h4>
                 <p>面向妇联执委与乡镇干部的数字能力提升路径。</p>
             </div>
             <div class="glass-card module-card">
-                <div class="module-icon">⚖️</div>
+                <div class="module-icon"><i class="ph ph-scales" aria-hidden="true"></i></div>
                 <h4>女性与 AI 偏见</h4>
                 <p>结合 LLM 性别偏见评测研究，科普 AI 中的性别议题与应对。</p>
             </div>
             <div class="glass-card module-card">
-                <div class="module-icon">📚</div>
+                <div class="module-icon"><i class="ph ph-books" aria-hidden="true"></i></div>
                 <h4>案例库</h4>
                 <p>讲座中真实案例：自动找工作 Agent、自我分析画像、Resume 生成等。</p>
             </div>
@@ -259,15 +273,15 @@
             <h3>受益群体</h3>
             <div class="benefit-grid">
                 <div class="benefit-item">
-                    <span class="benefit-emoji">👩‍💼</span>
+                    <span class="benefit-emoji"><i class="ph ph-users-three" aria-hidden="true"></i></span>
                     <span>妇联执委 / 乡镇女干部</span>
                 </div>
                 <div class="benefit-item">
-                    <span class="benefit-emoji">👩‍🎓</span>
+                    <span class="benefit-emoji"><i class="ph ph-graduation-cap" aria-hidden="true"></i></span>
                     <span>高校学生（AI 通识、职业发展）</span>
                 </div>
                 <div class="benefit-item">
-                    <span class="benefit-emoji">💪</span>
+                    <span class="benefit-emoji"><i class="ph ph-rocket" aria-hidden="true"></i></span>
                     <span>基层女性创业者 / 返创女性</span>
                 </div>
             </div>
@@ -897,7 +911,7 @@
                 <span class="video-cat">计算机应用基础示范课</span>
             </div>
             <div class="video-coming">
-                <div class="video-coming-icon">📺</div>
+                <div class="video-coming-icon"><i class="ph ph-video" aria-hidden="true"></i></div>
                 <p>视频将通过 B 站嵌入展示</p>
                 <p class="video-coming-sub">BV 号待补充</p>
             </div>
@@ -912,25 +926,25 @@
         </div>
         <div class="download-grid">
             <a href="ai-empower-xihe.html" class="glass-card download-card">
-                <div class="download-icon">📄</div>
+                <div class="download-icon"><i class="ph ph-file-text" aria-hidden="true"></i></div>
                 <h4>AI 赋能基层培训讲义</h4>
                 <p>西和县讲座实操讲义 · 58页完整版 · 六大模块</p>
                 <span class="download-btn download-ready">查看讲义 →</span>
             </a>
             <div class="glass-card download-card">
-                <div class="download-icon">📝</div>
+                <div class="download-icon"><i class="ph ph-list-checks" aria-hidden="true"></i></div>
                 <h4>基层妇联提示词模板集</h4>
                 <p>文案 / 表格 / 识图高频场景</p>
                 <button class="download-btn download-pending">待补充</button>
             </div>
             <div class="glass-card download-card">
-                <div class="download-icon">💻</div>
+                <div class="download-icon"><i class="ph ph-code" aria-hidden="true"></i></div>
                 <h4>Three.js 课程配套示例</h4>
                 <p>课堂代码与作业参考</p>
                 <button class="download-btn download-pending">待补充</button>
             </div>
             <div class="glass-card download-card">
-                <div class="download-icon">📖</div>
+                <div class="download-icon"><i class="ph ph-cloud-arrow-up" aria-hidden="true"></i></div>
                 <h4>部署指南</h4>
                 <p>本站 GitHub Pages + Cloudflare 说明</p>
                 <button class="download-btn download-ready">已有</button>
@@ -949,28 +963,28 @@
             <h2 class="section-title">联系我</h2>
             <div class="contact-grid">
                 <a href="mailto:qixiangsun@126.com" class="contact-item">
-                    <span class="contact-icon">✉️</span>
+                    <span class="contact-icon"><i class="ph ph-envelope" aria-hidden="true"></i></span>
                     <div>
                         <span class="contact-label">邮箱</span>
                         <span class="contact-value">qixiangsun@126.com</span>
                     </div>
                 </a>
                 <a href="https://github.com/qixiangsun-cwu" target="_blank" class="contact-item">
-                    <span class="contact-icon">🐙</span>
+                    <span class="contact-icon"><i class="ph ph-github-logo" aria-hidden="true"></i></span>
                     <div>
                         <span class="contact-label">GitHub</span>
                         <span class="contact-value">qixiangsun-cwu</span>
                     </div>
                 </a>
                 <a href="https://orcid.org/0000-0001-7288-4501" target="_blank" class="contact-item">
-                    <span class="contact-icon">🆔</span>
+                    <span class="contact-icon"><i class="ph ph-identification-badge" aria-hidden="true"></i></span>
                     <div>
                         <span class="contact-label">ORCID</span>
                         <span class="contact-value">0000-0001-7288-4501</span>
                     </div>
                 </a>
                 <div class="contact-item">
-                    <span class="contact-icon">📺</span>
+                    <span class="contact-icon"><i class="ph ph-monitor-play" aria-hidden="true"></i></span>
                     <div>
                         <span class="contact-label">B 站</span>
                         <span class="contact-value contact-pending">讲课视频主页（待补充）</span>
@@ -986,6 +1000,6 @@
         <p class="footer-sub">用技术服务"她" · Glassmorphism × Apple Design</p>
     </footer>
 
-    <script src="script.js?v=20260901c"></script>
+    <script src="script.js?v=20260903a"></script>
 </body>
 </html>

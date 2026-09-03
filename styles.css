@@ -1471,3 +1471,211 @@ body {
     color: var(--color-ink);
   }
 }
+
+/* ============================================
+   精致化：Phosphor 线形图标 + 移动端菜单 + 编辑感细节
+   2026-09-03
+   ============================================ */
+
+/* 图标统一：线形图标继承强调色 */
+.news-icon, .module-icon, .benefit-emoji, .download-icon, .contact-icon, .video-coming-icon {
+  color: var(--color-accent);
+}
+
+.news-icon i, .benefit-emoji i, .download-icon i, .contact-icon i, .video-coming-icon i,
+.module-icon i {
+  display: block;
+  line-height: 1;
+}
+
+/* 新闻资源卡图标：软底芯片 */
+.news-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 13px;
+  background: var(--color-accent-soft);
+  border: 1px solid var(--color-accent-border);
+  font-size: 1.4rem;
+  line-height: 1;
+}
+
+/* 模块图标：软底芯片 */
+.module-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: var(--color-accent-soft);
+  border: 1px solid var(--color-accent-border);
+  font-size: 1.45rem;
+  line-height: 1;
+  margin-bottom: var(--space-md);
+}
+
+/* 受益群体图标 */
+.benefit-emoji {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+/* 下载图标：软底芯片 */
+.download-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 15px;
+  background: var(--color-accent-soft);
+  border: 1px solid var(--color-accent-border);
+  font-size: 1.6rem;
+  line-height: 1;
+  margin-bottom: var(--space-md);
+}
+
+/* 联系图标 */
+.contact-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+/* 视频占位图标：虚线芯片，示意“待补充”但更精致 */
+.video-coming-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 18px;
+  background: var(--color-accent-soft);
+  border: 1px dashed var(--color-accent-border);
+  font-size: 1.8rem;
+  line-height: 1;
+  margin-bottom: var(--space-md);
+  opacity: 1;
+}
+
+/* 新闻板块标题内联图标 */
+.news-today-header h3 i,
+.news-more-header h3 i {
+  font-size: 0.95em;
+  color: var(--color-accent);
+  margin-right: 0.4rem;
+  vertical-align: -0.06em;
+}
+
+/* 编辑感：Hero eyebrow 圆点 */
+.hero-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+.hero-tag::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  flex-shrink: 0;
+}
+
+/* 编辑感：section 标签下方短横线 */
+.section-tag::after {
+  content: '';
+  display: block;
+  width: 30px;
+  height: 2px;
+  margin-top: var(--space-xs);
+  border-radius: 2px;
+  background: var(--color-accent);
+}
+.section-header--center .section-tag::after {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* 移动端导航 */
+.nav-toggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-sm);
+  background: var(--glass-bg);
+  color: var(--color-ink);
+  font-size: 1.35rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease-out),
+              color var(--dur-fast) var(--ease-out);
+}
+.nav-toggle:hover {
+  background: var(--glass-bg-hover);
+}
+.nav-toggle.active {
+  color: var(--color-accent);
+}
+
+.nav-mobile {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  display: none;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--space-sm) var(--space-md) var(--space-md);
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-rule);
+  box-shadow: 0 14px 36px oklch(20% 0.01 270 / 0.14);
+  transform: translateY(-6px);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: transform var(--dur-base) var(--ease-out),
+              opacity var(--dur-base) var(--ease-out),
+              visibility var(--dur-base);
+}
+.nav-mobile.open {
+  transform: translateY(0);
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+.nav-mobile a {
+  display: block;
+  padding: 0.7rem 0.9rem;
+  border-radius: var(--radius-sm);
+  color: var(--color-ink-2);
+  text-decoration: none;
+  font-size: var(--text-sm);
+  font-weight: 400;
+  transition: background var(--dur-fast) var(--ease-out),
+              color var(--dur-fast) var(--ease-out);
+}
+.nav-mobile a:hover {
+  background: var(--color-accent-soft);
+  color: var(--color-ink);
+}
+
+@media (max-width: 768px) {
+  .nav-toggle {
+    display: inline-flex;
+  }
+  .nav-mobile {
+    display: flex;
+  }
+}
