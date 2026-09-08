@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-page-node-id="Y56xMXdQZGGnssMOevuXah">
+<head data-page-node-id="TXrrWMfCw49CsyNbajBGRK">
+<meta charset="UTF-8" data-page-node-id="YpFNVAFGyHgNu2x2K2Gbgt">
+<meta name="viewport" content="width=device-width, initial-scale=1.0" data-page-node-id="hAX5PT4rLvHLk606fZhcwT">
+<title>课程实地项目 · AI 与 Agent 工具使用示例</title>
+<style>
+:root{
+  --ink:#14161a;--ink2:#3d434d;--ink3:#6b7280;--line:#e4e7ec;
+  --bg:#fafafa;--card:#fff;--soft:#f5f6f8;
+  --brand:#e8552d;--brand2:#ff8a3d;--grad:linear-gradient(135deg,#e8552d 0%,#ff8a3d 100%);
+  --green:#0f9960;--amber:#d97706;--red:#dc2626;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+background:var(--bg);color:var(--ink);line-height:1.75;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1080px;margin:0 auto;padding:0 22px}
+nav{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.93);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+nav .wrap{display:flex;gap:4px;align-items:center;height:52px;overflow-x:auto;scrollbar-width:none}
+nav .wrap::-webkit-scrollbar{display:none}
+nav a{flex:0 0 auto;font-size:13px;color:var(--ink3);text-decoration:none;padding:6px 11px;border-radius:6px;white-space:nowrap}
+nav a:hover{color:var(--brand);background:var(--soft)}
+nav .brand{flex:0 0 auto;font-weight:700;font-size:14px;margin-right:10px}
+header{padding:58px 0 42px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,#fff,#fafafa)}
+.kicker{display:inline-block;font-size:12px;letter-spacing:2px;color:var(--brand);font-weight:700;margin-bottom:14px}
+h1{font-size:clamp(26px,4.2vw,40px);line-height:1.26;letter-spacing:-.8px;font-weight:800;margin-bottom:16px}
+h1 em{font-style:normal;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.sub{font-size:15.5px;color:var(--ink2);max-width:780px}
+section{padding:52px 0;border-bottom:1px solid var(--line)}
+.snum{font-size:12px;font-weight:700;color:var(--brand);letter-spacing:1.5px;margin-bottom:9px}
+h2{font-size:clamp(21px,2.9vw,29px);font-weight:800;letter-spacing:-.5px;margin-bottom:11px}
+.lead{color:var(--ink2);font-size:15px;max-width:820px;margin-bottom:24px}
+table{width:100%;border-collapse:collapse;font-size:13px;background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+th{background:var(--soft);text-align:left;padding:11px 13px;font-weight:700;font-size:12.5px;color:var(--ink2);border-bottom:1px solid var(--line)}
+td{padding:11px 13px;border-bottom:1px solid var(--line);color:var(--ink2);vertical-align:top}
+tr:last-child td{border-bottom:none}
+td b{color:var(--ink)}
+.task{background:var(--card);border:1px solid var(--line);border-radius:14px;margin-bottom:22px;overflow:hidden}
+.th{padding:16px 20px;background:linear-gradient(135deg,#fff6f2,#fffdfc);border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+.th h3{font-size:17px;font-weight:800;letter-spacing:-.3px}
+.th .goal{font-size:13px;color:var(--ink2);margin-top:5px;max-width:640px}
+.th .no{flex:0 0 auto;width:30px;height:30px;border-radius:8px;background:var(--grad);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px}
+.tb{padding:18px 20px}
+.row{display:grid;grid-template-columns:150px 1fr;gap:10px 18px;font-size:13.5px;align-items:start}
+.row dt{color:var(--brand);font-weight:700;font-size:12.5px;padding-top:2px}
+.row dd{color:var(--ink2)}
+.row dd ul{list-style:none}
+.row dd li{padding:3px 0 3px 15px;position:relative}
+.row dd li::before{content:'';position:absolute;left:0;top:12px;width:5px;height:5px;border-radius:50%;background:var(--ink3)}
+.pbox{border:1px solid var(--line);border-radius:11px;overflow:hidden;margin-top:14px}
+.pbox .ph{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 15px;background:var(--soft);border-bottom:1px solid var(--line)}
+.pbox .ph b{font-size:13.5px}
+.pbox .ph small{font-size:12px;color:var(--ink3)}
+pre{white-space:pre-wrap;word-wrap:break-word;font-family:"SFMono-Regular",Consolas,"Microsoft YaHei",monospace;
+font-size:13px;line-height:1.85;padding:16px;background:#fcfcfd;max-height:520px;overflow:auto}
+.copy{flex:0 0 auto;font-size:12.5px;padding:6px 14px;border-radius:7px;border:1px solid var(--brand);background:#fff;color:var(--brand);cursor:pointer;font-weight:600}
+.copy:hover{background:var(--grad);color:#fff;border-color:transparent}
+.copy.ok{background:var(--green);color:#fff;border-color:transparent}
+.chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px}
+.chip{font-size:11.5px;padding:3px 10px;border-radius:20px;background:var(--soft);color:var(--ink2);border:1px solid var(--line)}
+.chip.g{background:#f0faf5;color:var(--green);border-color:#cfe9dc}
+.chip.a{background:#fffaf0;color:var(--amber);border-color:#f3dfb8}
+.chip.r{background:#fef4f4;color:var(--red);border-color:#f5c9c9}
+.note{background:#fffaf0;border:1px solid #f3dfb8;border-radius:10px;padding:13px 16px;font-size:13.5px;color:#8a5a00;margin-top:16px}
+.warn{background:#fef4f4;border:1px solid #f5c9c9;border-radius:10px;padding:13px 16px;font-size:13.5px;color:#8f2020;margin-top:16px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:17px}
+.card h4{font-size:14.5px;margin-bottom:7px}
+.card p{font-size:13.5px;color:var(--ink2)}
+.card .tagx{font-size:11px;color:var(--brand);font-weight:700;margin-bottom:6px;display:block}
+footer{padding:42px 0 56px;text-align:center}
+footer p{font-size:13px;color:var(--ink3)}
+.qb{font-size:clamp(17px,2.4vw,22px);font-weight:700;line-height:1.6;max-width:700px;margin:0 auto 12px;letter-spacing:-.3px}
+@media(max-width:820px){.grid2,.grid3{grid-template-columns:1fr}.row{grid-template-columns:1fr}header{padding:42px 0 32px}}
+</style>
+</head>
+<body data-page-node-id="3oZAggKNGk04m0mDyxt6DW">
+
+<nav data-page-node-id="1QGYAQS5UOXM7RTIsA0jta">
+  <div class="wrap" data-page-node-id="OCKdStb37MJ42FgLe5b6E0">
+    <span class="brand" data-page-node-id="8Hmt5y9cWv0kvnpqY3IamG">WorkBuddy 使用示例</span>
+    <a href="#m" data-page-node-id="4sfyiJ8rEFMZi0I5i8vktr">速查矩阵</a>
+    <a href="#t1" data-page-node-id="yQxygdeRD1GRuDzMDNdqES">① 讲解</a>
+    <a href="#t2" data-page-node-id="4A2WoMC6frN4ZGAJU5b6ip">② 故事稿</a>
+    <a href="#t3" data-page-node-id="onR3NmVVqLpxj8QOI3SLSz">③ 走读采集</a>
+    <a href="#t4" data-page-node-id="0bP1xXMuiBy4ad30UBEIqc">④ 点位访谈</a>
+    <a href="#t5" data-page-node-id="wDmXpCXxf4C0uwFHSdmv7F">⑤ 数字人</a>
+    <a href="#t6" data-page-node-id="xErO7bszfXXPVs0cTAXkkh">⑥ 整合发布</a>
+    <a href="#auto" data-page-node-id="GdbPHI5gnQLEzxItD8vvBv">定时自动化</a>
+    <a href="#ph" data-page-node-id="ZeoWBBj6Pq6tmQwnLKjHKv">手机端</a>
+    <a href="#rule" data-page-node-id="uy7IbF0RBUHdt0b7JYzrPG">三条纪律</a>
+  </div>
+</nav>
+
+<header data-page-node-id="vhBMJnpXNN92qLFXaFAXHl">
+  <div class="wrap" data-page-node-id="RgESGmEIv94gG8pWBTljkg">
+    <div class="kicker" data-page-node-id="BLoM6eHo1LV8NHXnEW2Rx9">课程实地项目 · 实操手册</div>
+    <h1 data-page-node-id="O2quhKvZ1Qph8OqCEiYARv">六类任务，<em data-page-node-id="nQa8TnIymTD8pLHGLchUzy">AI 与 Agent 怎么用</em></h1>
+    <p class="sub" data-page-node-id="AMFiqph1xAqn2keX1ZmwlY">下面每一条都是可以直接复制、粘贴、跑通的指令。区分一件事：<b data-page-node-id="ZoTIiYwqDvYay1FYJu4W9t">普通 AI 聊天只会给你一段文字，Agent 会直接帮你把活干完</b>——读你的录音、跑转写、生成文件、按时提醒你缺什么。本页示例以 WorkBuddy 为主，另附学生手机端的等价做法。</p>
+  </div>
+</header>
+
+<!-- 速查矩阵 -->
+<section id="m" data-page-node-id="cvG3lbkCsmg8CRaoo7OTgz">
+  <div class="wrap" data-page-node-id="o0Ll14RP09bsuTQwck5QcV">
+    <div class="snum" data-page-node-id="hlP8WAntRsfrXOdB9x11GQ">速查</div>
+    <h2 data-page-node-id="muet17JxlYGLvfzReFBtzh">六类任务 × 工具对照</h2>
+    <p class="lead" data-page-node-id="z4omIIydIMexWrDXBlDyND">先找到你的任务在哪一行，再看用哪个工具、产出什么。不必一次全学，用到哪条抄哪条。</p>
+    <table data-page-node-id="W1DlX9P1K9eQvOdJ9BSH8A">
+      <thead data-page-node-id="ZGkvv7SeFIV48roXBFDuBw"><tr data-page-node-id="RLqOvROPXVRtWpxfXyXCCn"><th style="width:16%" data-page-node-id="hfg2pDm3eSAgAnrMR3l5HJ">任务</th><th style="width:24%" data-page-node-id="s6Mk79DWDxTSXv3raG7NIp">AI / Agent 干什么</th><th style="width:22%" data-page-node-id="BKsme3sAgEO7jRbPI5o0tG">主用工具</th><th data-page-node-id="zmbhlTDrFKU9ifZcnaoeA3">最终产出</th></tr></thead>
+      <tbody data-page-node-id="tmaQSuBw8ttRuI7o3QgJI3">
+        <tr data-page-node-id="nhewOHiaPyJw4Szw5Jlq2H"><td data-page-node-id="rO3zeCAS1icn14dDX9WTDx"><b data-page-node-id="bGRbH5pTsSAjKJ1mBEB85a">① 志愿讲解</b></td><td data-page-node-id="Qeiw51NEo71V6vZ3eIBX7o">转写试讲录音、挑出表达问题、打磨讲解词</td><td data-page-node-id="MdB0u3tZWapkAVu26CJLyF">WorkBuddy 本地转录 + 大模型</td><td data-page-node-id="IDrCQj8Y1Dw5Zqe2joSpwq">讲解词定稿、表达改进清单</td></tr>
+        <tr data-page-node-id="0RlvmfdCaPx4JMOJJP1Dcj"><td data-page-node-id="DAu5DGy5UUhnRFGnzFvWNQ"><b data-page-node-id="6MhXBjGn0Jc9BUf7nHrDNt">② 人物故事稿</b></td><td data-page-node-id="Ix4sYP2nglk4p3J5TdkD1X">史料梳理、成稿、投稿格式校对</td><td data-page-node-id="0kPRin7srUPjQEzZtsDrVs">WorkBuddy + 提示词模板</td><td data-page-node-id="s8Uc0XdFSKStvs3EUeygEo">可投稿的 3 分钟故事稿</td></tr>
+        <tr data-page-node-id="YWr8WmUiyodvpym2icijM0"><td data-page-node-id="ssWRAersuDXF9bcet9zJBM"><b data-page-node-id="4lSL5UjO4rMQWiNeCiz9rB">③ 场馆走读采集</b></td><td data-page-node-id="sPv0comjuZZ8omNDOWOwlF">生成采集清单、现场速记整理</td><td data-page-node-id="5Wn4p1kMb4RziFcYPda3MT">手机豆包 + WorkBuddy</td><td data-page-node-id="FxWcwYRihy09hliqLB2t6e">采集清单、现场笔记</td></tr>
+        <tr data-page-node-id="C7UXF4AdGBMY8xacwgSqTs"><td data-page-node-id="JmMLjSnVpC6LpilnLuQXk7"><b data-page-node-id="xbs9Bzaoqp5notRYALxYjT">④ 点位深度访谈</b></td><td data-page-node-id="UJLaxsMWA1DUETnoYOmrl7">提纲生成、批量转录、口述体成稿、核查</td><td data-page-node-id="xckXoZRpu0qtmbKJ8bDa23">WorkBuddy 批量处理</td><td data-page-node-id="cEgc0Ym5L9z9kQFvjKmsAw">12 份口述稿 + 核查表</td></tr>
+        <tr data-page-node-id="43F9281RQQ6JmEtwjRchAu"><td data-page-node-id="i3H1VWVVdxdI3GCWnwJOlq"><b data-page-node-id="X1fRGvVcKLSIfwtB5Zbqbb">⑤ 数字人对话</b></td><td data-page-node-id="JE6SBs7Gb93cx406kQrFyJ">跨时空脚本、口播稿、分镜</td><td data-page-node-id="rvYygsxKXJvZfg4bdIzZFB">大模型 + 数字人工具</td><td data-page-node-id="GepqOyagWfGsSitaDJkJ4D">对话脚本、口播稿</td></tr>
+        <tr data-page-node-id="duQj5kfZFzComBxFG9oS4c"><td data-page-node-id="K7euXhGG2AtSI9A85UWK5l"><b data-page-node-id="UpDXCsdZuezfDrEcrtNpSU">⑥ 成果整合发布</b></td><td data-page-node-id="OomMlIENwUJFFrHHokMQqO">汇总成网页 / 文档，生成二维码</td><td data-page-node-id="vZlS3B5V3ClcKtny0dmMaW">WorkBuddy</td><td data-page-node-id="bV0Gt7YNHZQQ9gUwbr3gL1">单页导览站、投稿包</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- 任务1 -->
+<section id="t1" data-page-node-id="3rv3ABRgbNJ4V62YhXlaeo">
+  <div class="wrap" data-page-node-id="pIX6WhX0T5pHVz4H5vqRYU">
+    <div class="snum" data-page-node-id="ZFWw66qnra6swrHkAxbfTk">任务 ①</div>
+    <h2 data-page-node-id="w5MV2qkuiYeOto5BEb3raR">志愿讲解：把试讲录音变成可改的稿子</h2>
+    <p class="lead" data-page-node-id="pKgArvkMkldn1fHQmhMwfQ">学生最容易卡在"我讲得哪里不对"——自己听录音听不出来。Agent 可以把口语转写成文字，逐句指出问题。</p>
+
+    <div class="task" data-page-node-id="TSheANzNBqoFVzJBHJUQ87">
+      <div class="th" data-page-node-id="LQUZ0trKo1shQNIGfuFfIl">
+        <div data-page-node-id="rGz7ZYoTHcks5DkxXqwSwK"><h3 data-page-node-id="0YMtUqxPvha4cvL9XB7c85">试讲复盘</h3><div class="goal" data-page-node-id="of7AudjJu4e3GY4oD26JIU">一段 3–5 分钟的试讲录音 → 文字稿 + 3 条具体改进建议 + 打磨后的讲解词</div></div>
+        <div class="no" data-page-node-id="HC9dExSJD4ELFQPiKznUwv">1</div>
+      </div>
+      <div class="tb" data-page-node-id="g3AedV3gz285BYUikGhVAj">
+        <dl class="row" data-page-node-id="yTBKUOSquU1up82v8ZM4vg">
+          <dt data-page-node-id="cr71reJj9j1wFojwVaU0aN">Agent 干活步骤</dt>
+          <dd data-page-node-id="ckNqNXbB7QsUwLQJKqUeCF"><ul data-page-node-id="AUZiuK1JAwHB4ZVkLXIi7Z">
+            <li data-page-node-id="SJhLNB5F0Qad9aqsFIOA43">本地转写录音（离线，音频不出本机）</li>
+            <li data-page-node-id="r1LAdqFZOIBaPfbyC0p4ej">标出口头禅、重复句、逻辑断点</li>
+            <li data-page-node-id="nPQWYbBxB82ExBP73hgXcO">按讲解场景重写出一版能直接念的稿</li>
+          </ul></dd>
+          <dt data-page-node-id="WNHBdiRC2N6Ew9IrmAHBMG">预计耗时</dt>
+          <dd data-page-node-id="cQfhKRdUX033rOyBUKzXmm">转写 1 分钟内；成稿 5–10 分钟</dd>
+        </dl>
+        <div class="pbox" data-page-node-id="jyeWIVPgVU90j2HOLsEAPw">
+          <div class="ph" data-page-node-id="kNYSzVhY1Fn2qx4DWbeddf"><b data-page-node-id="qVm7OCfWFGLoiEwyYAEJNt">直接复制这条指令</b><small data-page-node-id="IDgvZiK1QrrkjKDeeVuDFT">把音频文件交给 WorkBuddy 后发送</small><button class="copy" data-page-node-id="mhu6VhhiDXaygifmqi65av">复制</button></div>
+<pre data-page-node-id="sDyZSK1EuyCji9jgGteWSb">请把这段讲解试讲录音完整转写成文字稿，然后做三件事：
+
+1. 【诊断】逐段标出问题，只标三类：
+   · 口头禅与重复（指出具体第几句、重复了什么）
+   · 逻辑断点（听众会在哪里听不懂，缺了什么背景没交代）
+   · 表达问题（长句、书面语、站著讲不出来的句子）
+2. 【改进】给出 3 条改进建议，每条必须引用原文中的具体一句，并给出改写后的版本。不要给"注意语速"这种空话。
+3. 【成稿】基于原稿重写一版 3 分钟讲解词，要求：
+   · 开场 30 秒有钩子（具体的人、精确数字、或反常识的事实），不许用"大家好今天我来介绍"
+   · 单句不超过 25 字，口语化
+   · 每 60 秒标一个 [停顿·引导看展品]
+   · 结尾回到"今天为什么还要讲这个"
+
+最后把转写稿和改进建议分别存成两个文件。</pre>
+        </div>
+        <div class="chips" data-page-node-id="Bs1c9GtOpbu10hvM7fAGOZ"><span class="chip g" data-page-node-id="AKw6dS3N3tEMBmAYf8rBMu">本地转写免费</span><span class="chip" data-page-node-id="t1wgYC9yLS2NqI8FUbXfg2">产出：讲解词 + 改进清单</span><span class="chip a" data-page-node-id="EymrZx5SEXdxzLHLmgAhFY">注意：史实另走核查流程</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 任务2 -->
+<section id="t2" data-page-node-id="UQtoDet1sFC9XGHqEGG2xZ">
+  <div class="wrap" data-page-node-id="TXYMOPmxOGcKFRbUSNeO2r">
+    <div class="snum" data-page-node-id="NnZk2COKxeyamkfTKUAONm">任务 ②</div>
+    <h2 data-page-node-id="aHSaITTUQoUFCftkzzL5wr">人物故事稿：从史料到可投稿的成稿</h2>
+    <p class="lead" data-page-node-id="A3sqkcrYrWTirm1wkSVXSg">这类稿子要对外发表，最大风险是 AI 编造细节。指令里必须写死"不确定就标【待核实】"。</p>
+
+    <div class="task" data-page-node-id="d1RGFegtRFP9SbM1PLXiDt">
+      <div class="th" data-page-node-id="DXM4hQd3HllIJDj5PRvAG8">
+        <div data-page-node-id="bM7dQMvVb90apgcwLWGiEK"><h3 data-page-node-id="bJg5OkD1Q6FYrMVPUsZe9B">史料 → 讲解稿</h3><div class="goal" data-page-node-id="IyX8juxwqlfBDTE9rux4Fh">零散史料 + 口述草稿 → 一篇结构完整、史实可追溯的 3 分钟故事稿</div></div>
+        <div class="no" data-page-node-id="GCbFdNVx8VNHV3myL0SPcA">2</div>
+      </div>
+      <div class="tb" data-page-node-id="PHIbsHjVNTh7ClmW2k5vrF">
+        <dl class="row" data-page-node-id="hHs6F2As4WrWQ8SygnYPxE">
+          <dt data-page-node-id="UeGcUf9FHmAVAeCBy95xeU">Agent 干活步骤</dt>
+          <dd data-page-node-id="0vZDczDVlfOm0tDPNnFrED"><ul data-page-node-id="CQo0oTpWNKww0V2vR76e79">
+            <li data-page-node-id="MPzTqr0mxv0NSkieOne3Ql">按"处境 → 选择 → 回望"重组材料</li>
+            <li data-page-node-id="6tZFWKd1kWuIUDrIvZDMaL">逐条标注史实来源，无法确认的直接标出</li>
+            <li data-page-node-id="9UHXoyKUZkrPp5Diah6CwT">输出两个版本：讲解口播版 + 投稿文字版</li>
+          </ul></dd>
+        </dl>
+        <div class="pbox" data-page-node-id="22wLCax6HBYzz758k9DyPt">
+          <div class="ph" data-page-node-id="Z4z2g6vzCnTdmVCo1N6V9v"><b data-page-node-id="7BFIAdoxBxuU8gLPIuMAPP">直接复制这条指令</b><small data-page-node-id="tiUOiQLUXszFVOqaJyv0AY">把史料与草稿一起粘贴</small><button class="copy" data-page-node-id="gCQDRWXoTGqQWw6WlgdTlc">复制</button></div>
+<pre data-page-node-id="UjtZfU9sdrkY0mNO7Rtebi">请根据我提供的史料和口述草稿，写一篇 3 分钟人物故事稿（约 600 字），用于场馆讲解并对外投稿。
+
+结构：
+· 开场 30 秒：一个具体场景或物件切入，不用生平介绍开头
+· 中段：一个关键选择或转折，要有细节（时间、地点、动作、对话）
+· 结尾：落到"今天为什么还要讲这个人"
+
+硬性约束：
+1. 所有年代、职务、地名、数字必须附来源；来源只认权威材料（馆方展陈说明、官方出版物、正式史料）
+2. 任何无法在权威来源中确认的内容，一律写【待核实】，禁止补全、禁止合理推测、禁止为了故事完整而虚构
+3. 如果两处材料说法矛盾，明确指出，不要和稀泥
+4. 语言口语化，单句不超过 25 字
+
+输出两个版本：
+A. 讲解口播版（带 [停顿] 标记）
+B. 投稿文字版（书面语，800 字内，带标题）
+
+最后附一张核查表：全文出现的所有史实条目 | 是否有来源 | 来源是什么 | 风险等级。</pre>
+        </div>
+        <div class="warn" data-page-node-id="ByHKSf8h9KcnGpGlIYKiVw"><b data-page-node-id="uWzPczc4gID3C4oWnDuaQF">发稿前必做：</b>把核查表里每一条"无来源"的内容查实或删掉。AI 生成的年代和职务是最高频的出错点，一次也不能放过。</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 任务3 -->
+<section id="t3" data-page-node-id="Cw2SP2qyGTzeuo7BkjnZyX">
+  <div class="wrap" data-page-node-id="5tMiJ24qsoTP6Xv6MtGxOQ">
+    <div class="snum" data-page-node-id="5Atpj28IiZPYaJcfaSfTON">任务 ③</div>
+    <h2 data-page-node-id="bLHFQTiBwsJ3yHIKieaj9P">场馆走读采集：出发前先拿到清单</h2>
+    <p class="lead" data-page-node-id="wnvopEqgGDKw02JY6POBvC">学生到现场最容易"不知道拍什么、问什么"，回来素材残缺无法用。出发前让 Agent 出一份清单，手机上看。</p>
+
+    <div class="task" data-page-node-id="TEEfTEwCUgJLz0DUjwnaKe">
+      <div class="th" data-page-node-id="Ne9pvHNZMWBbJHFeByvFWw">
+        <div data-page-node-id="DdXEvB9D1iAIHJij0ReJae"><h3 data-page-node-id="SntNIYG4dl0KVDP3bkomUs">采集清单生成</h3><div class="goal" data-page-node-id="RFzSBaPB1LYQe1T7iksHe0">一个场馆 + 一条线路 → 可照做的拍摄清单、提问清单、记录清单</div></div>
+        <div class="no" data-page-node-id="uOZ7CSxcpe5JcLlENfqDnT">3</div>
+      </div>
+      <div class="tb" data-page-node-id="AhMW54rWKEVNpdh2YUEha0">
+        <div class="pbox" data-page-node-id="DF3S7BxwhjHBXAUcJotneX">
+          <div class="ph" data-page-node-id="EEaszQ2RM63E5FCFZ95gkO"><b data-page-node-id="R5aTMwcZ8ONyyNMlKc1MOn">直接复制这条指令</b><small data-page-node-id="P7LYozYfNYfEu1jKADSIPx">出发前一天用</small><button class="copy" data-page-node-id="z0JpbMG9AFOBlSfp0AW7eY">复制</button></div>
+<pre data-page-node-id="FLccF90ty3jujAAMtQBqxP">我明天要去【场馆名称】做一次走读采集，主题是【主题】，现场时间约 2 小时，只有手机，没有专业设备。
+请生成一份现场采集清单，三部分：
+
+1. 【拍摄清单】按参观动线顺序列出 8–12 个必拍镜头，每个注明：
+   拍什么 / 横屏还是竖屏 / 是特写还是空镜 / 这段素材后面用在成片的哪里
+   其中必须包含：1 个开场用的环境空镜、1 个能体现"古今对比"的对照镜头
+2. 【提问清单】给现场讲解员或传承人的 5 个问题，要求：
+   从具体物件和动作切入，不问"你觉得怎么样"这类空问题
+   每个问题后面标注"追问方向"（对方答得简短时怎么追）
+3. 【记录清单】现场必须记下来的信息字段（工艺名称、材料、工序、传承人、年代等），做成可直接勾选的表
+
+补充要求：如果馆内可能不允许拍摄，请提醒我需要先确认什么。</pre>
+        </div>
+        <div class="chips" data-page-node-id="qP1W5Cpnqgdt6P6ui6jZbX"><span class="chip g" data-page-node-id="xjy1wnQ7WhQP1rKn7avOOZ">手机可用（豆包/DeepSeek 同样有效）</span><span class="chip" data-page-node-id="cvFbriIcWs9mgZv5mEB3Nk">产出：三张清单</span></div>
+
+        <div class="pbox" data-page-node-id="TnYWlNmRTADAwo1Lkytagg">
+          <div class="ph" data-page-node-id="YWcryWMexMA3FPqquLL6rl"><b data-page-node-id="HVnvEsyvxLMVBMRgIrFAys">回来之后：现场速记整理</b><small data-page-node-id="98Piwr9kh3DFIgs3YDVNMd">把手机备忘录里的碎片丢给它</small><button class="copy" data-page-node-id="CcQsCbF0ZAz7LNrbiAVaGM">复制</button></div>
+<pre data-page-node-id="hwaPyIXHNw5HZk1yeU0hQ4">下面是我在现场用手机随手记的碎片笔记，顺序混乱、有错字、有简写。
+请整理成一份结构化的现场记录：
+· 按"参观动线"重新排序
+· 补充每个点的空缺字段，能补的补，补不了的写【需回访】
+· 标出哪些内容明显需要核实（年代、人名、数字）
+· 最后列出：这次采集还缺什么素材，下次去必须补哪 3 项
+
+笔记如下：
+———
+（粘贴碎片笔记）</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 任务4 -->
+<section id="t4" data-page-node-id="mg7pwnz8OUmIcK9nPwpgS3">
+  <div class="wrap" data-page-node-id="xHH5LWNDG5yNThpmWL0xOA">
+    <div class="snum" data-page-node-id="4cC8NQcbk3ZH5TlFtnS89A">任务 ④</div>
+    <h2 data-page-node-id="gCTYIbsA7hRACc1My1s01V">点位深度访谈：一个人负责一个点，批量处理才不会崩</h2>
+    <p class="lead" data-page-node-id="MJEofKCqVl6r7jKkEyeIYH">这是工作量最大的一块：多个点位、多段访谈。关键不是"能不能做"，而是"能不能一次做一批"——这正是 Agent 比聊天机器人强的地方。</p>
+
+    <div class="task" data-page-node-id="nPeep2dXztrCqJCIxKFwAH">
+      <div class="th" data-page-node-id="zUKvvsbtS6lBqvhmO62WIy">
+        <div data-page-node-id="MVGgfDbe2UHi9u5KjzujaC"><h3 data-page-node-id="5HQWDvjvNFMc2lkFc3aB3y">批量转录 + 成稿</h3><div class="goal" data-page-node-id="8bGZtOm4tcWk6F9KuJZOmv">一个装满 m4a 的文件夹 → 逐个转写 + 命名归档 + 汇总表 + 口述体成稿</div></div>
+        <div class="no" data-page-node-id="0HY0vfZGcSH5DO8bY6G7MH">4</div>
+      </div>
+      <div class="tb" data-page-node-id="EWKkXKBYUNRD13Dalorq1Q">
+        <div class="pbox" data-page-node-id="4Mkxa4KUkgOspS9S1oGHaD">
+          <div class="ph" data-page-node-id="9SOpfTXZAIL068F8sKa2RU"><b data-page-node-id="HrVCmNX26AehWrLXyeqcHG">指令 A：批量转录归档</b><small data-page-node-id="ll8N5kffI09EC659LRzN3a">把整个素材目录交给它</small><button class="copy" data-page-node-id="bOLF7AfgLcDXSqUjUy2w9L">复制</button></div>
+<pre data-page-node-id="05LZKHgApwWy406CAiTDY4">请处理【目录路径】下所有音频文件（m4a/mp3/wav）：
+1. 逐个转写成文字稿，本地离线处理，不要把音频上传到任何在线服务
+2. 输出文件按"点位编号-日期-访谈对象.txt"命名，存到 transcripts/ 目录
+3. 同时为每个文件生成带时间戳的 .srt 字幕
+4. 全部处理完后，生成一张汇总表 progress.csv，列为：
+   文件名 | 时长 | 字数 | 主要说话人数量 | 是否含授权确认语 | 转写质量(好/一般/差) | 备注
+5. 凡是"是否含授权确认语"为否的文件，单独列出来提醒我——这些素材暂时不能对外发布
+
+处理过程中如果某个文件失败，不要中断，记录原因后继续下一个。</pre>
+        </div>
+
+        <div class="pbox" data-page-node-id="fXe4CkBkmKg54CQG5R0EEL">
+          <div class="ph" data-page-node-id="W45NyGliIAQWMrTYqrYxpc"><b data-page-node-id="M7clgQswjV5wSftLfG5OTs">指令 B：单篇口述体成稿</b><small data-page-node-id="C0WQgf5nzrtex1nri9f1Zl">转录完成后逐篇处理</small><button class="copy" data-page-node-id="tfnOTV4pLoN3MkX4SXK27o">复制</button></div>
+<pre data-page-node-id="APLlqcinDwTczDASZTYYQD">下面是采访【对象身份】的转写稿。请整理成一篇 800 字左右的口述体文章。
+
+要求：
+1. 保留第一人称"我"，保留受访者原本的说话味道，不要润色成书面语
+2. 删掉重复与口头禅，但不改变原意，不添加原文没有的内容
+3. 按"当时的处境 → 关键选择 → 今天的回望"三段组织
+4. 所有时间、地点、数字原样保留，不要四舍五入、不要换算（"1978 年"不许写成"70 年代末"）
+5. 听不清的地方标【听不清 12:34】，绝不猜测补全
+6. 人名、地名、机构名拿不准的标【待核实】
+
+转写稿如下：
+———
+（粘贴转写文本）</pre>
+        </div>
+
+        <div class="pbox" data-page-node-id="7SouzF0pm57RQSNYI9Hqz6">
+          <div class="ph" data-page-node-id="rQz2UBC2rIsFmHlt1v68bP"><b data-page-node-id="thUImC9njwkiJOpHC4Xkzm">指令 C：访谈提纲（采访前用）</b><small data-page-node-id="NufYfDGLlHhSuS0n9ktqDh">30 分钟访谈的标准配置</small><button class="copy" data-page-node-id="rxFabT6zbr2AoYLHtdPFTQ">复制</button></div>
+<pre data-page-node-id="6nKW38emmCDS7ih854CIMY">我要采访一位【受访者身份】，时间 30 分钟。受访者背景：【一句话介绍】。
+目的是做一条口述素材，最终剪成 3 分钟视频 + 一篇文字稿。
+
+请生成一份访谈提纲：
+· 开场破冰 3 问：从具体物件、场景、动作切入，不问空问题
+· 主体 8 问：每问附【追问方向】（对方答得简短时怎么追）
+· 收尾 2 问：一个关于未来，一个关于"想对 20 岁的自己说什么"
+· 每问标注【素材用途】：这段能剪到成片的哪个位置
+
+约束：
+· 不设计诱导性提问，不让受访者背稿，不替受访者总结
+· 涉及年代、职务、奖项的问题单独列出，便于事后核实
+· 语言口语化，像聊天，不像调查问卷
+· 另附：采访开始前必须完成的授权确认话术（一句话，要能录进录音里）</pre>
+        </div>
+        <div class="chips" data-page-node-id="DohIteDr4y8rIYiWG0ofgI"><span class="chip g" data-page-node-id="ezcs7pzs8odL666cqXm7W4">本地转录：16 分钟音频约 1 分钟出稿</span><span class="chip a" data-page-node-id="aeSaHmhKU7fDFJCbhXdM2m">抢话处说话人可能判错，需人工复核</span><span class="chip r" data-page-node-id="jqavPiGPCzvFwZhdmW75BY">无授权确认的素材不得发布</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 任务5 -->
+<section id="t5" data-page-node-id="yAdGTvoR8BFaKneNMKqKsY">
+  <div class="wrap" data-page-node-id="nKCKAUFJwErCDrpyV2PgTI">
+    <div class="snum" data-page-node-id="CderoWdEtNlGTMZ6rRRYBY">任务 ⑤</div>
+    <h2 data-page-node-id="Q4mwANQOlbiXb588U4DXIB">数字人跨时空对话：脚本是难点，不是技术</h2>
+    <p class="lead" data-page-node-id="5uiZX1yyvsOr4t3NFXW0H7">数字人工具本身不难，难在脚本——让历史人物"开口"说什么、什么不能说。这部分完全可以先用 AI 打磨脚本，再决定要不要花钱做形象。</p>
+
+    <div class="task" data-page-node-id="ESrtxxWQirZgpuR0ZFdkLB">
+      <div class="th" data-page-node-id="csVzoZwCz8bEuWps1A8HXR">
+        <div data-page-node-id="3iU5OJqbZJnLYiCU0xYwM0"><h3 data-page-node-id="XQrUmZRZXDTuRv5VqBojBd">对话脚本 + 口播稿</h3><div class="goal" data-page-node-id="QAUNggAtAlAAVWjHMV3Z65">史料 → 90 秒跨时空对话脚本 → 数字人口播稿（含口型约束）</div></div>
+        <div class="no" data-page-node-id="k0x3kz1C8hKZGmMCdkwMzI">5</div>
+      </div>
+      <div class="tb" data-page-node-id="yUwDQQo0scUopNgCmCMtsF">
+        <div class="pbox" data-page-node-id="cHPTdBkWJPcTklt8KVYtGq">
+          <div class="ph" data-page-node-id="3QAbgNlKeFHz1kowPpsNFL"><b data-page-node-id="WSGQiMcZdA3vjcDTHinDEF">直接复制这条指令</b><small data-page-node-id="HtCGFQNi2vYdcmqeKN30iF">先写脚本，别急着做形象</small><button class="copy" data-page-node-id="StEp8iXY8ng712KpoOhBzA">复制</button></div>
+<pre data-page-node-id="huFm875uTjf8ulldKKb3ww">请写一段 90 秒的"跨时空对话"脚本，用于数字人演绎。双方：
+
+A = 当代大学生，带手机，说今天的口语，有好奇也会迟疑
+B = 【历史人物】，只能说史料中确有其事的内容，不确定的地方标【待核实】
+
+结构：
+· A 开场提一个现代人真的会好奇的问题（例如"您那时候怎么跟家里联系"），不要问空泛的大问题
+· B 回答必须带具体细节——时间、地点、物件、气味，不要说空话
+· 三轮来回，每轮都要产生一次具体的"反差"
+· 结尾两人各一句，形成对照，不总结、不升华、不喊口号
+
+禁止：
+· 让 B 说出她不可能知道的现代词汇
+· 让任何一方发表后世视角的历史评价
+· 为了煽情虚构情节——宁可短，不可假</pre>
+        </div>
+        <div class="pbox" data-page-node-id="HVSFlW1rYcVr12KbW613Wc">
+          <div class="ph" data-page-node-id="zkepVsR9jcuaXo9uXsQ1lh"><b data-page-node-id="bN8RZHLj5Z4LJsUGYNCjLT">配套：数字人口播稿</b><small data-page-node-id="qe0P7TeAQRiTE8TDaTS406">口型同步有约束，写法不一样</small><button class="copy" data-page-node-id="62eh95SRSXTYq6Vf5nNLAc">复制</button></div>
+<pre data-page-node-id="wMdyogzFkRJ0yWoF3JT9T7">请为数字人形象写一段 45 秒口播稿。
+角色设定：【历史人物身份】；要讲的事：【一句话概括】
+
+约束：
+· 数字人口型同步有限，用短句，每句不超过 20 字
+· 避免生僻字、连续叠词、拗口的外文音译
+· 停顿处标 [停0.5s]，配合手势处标 [手势]
+· 只用该人物可能知道的词，不得出现现代概念
+· 最后一句留给"画面定格 + 字幕"
+
+同时给出这段口播对应的 3 条画面提示（背景场景怎么搭）。</pre>
+        </div>
+        <div class="warn" data-page-node-id="tIZWRH6ppAz5hdztrph9qv"><b data-page-node-id="x1XS8MPHng7QKmbFQt5vCY">成本与合规提醒：</b>数字人形象与声音克隆通常按次或按分钟收费，<b data-page-node-id="1w5mhnkBsjjp4y7DlO9sFE">先做 1 个形象跑通再批量</b>；历史人物形象成片必须显著标注"AI 生成"；涉及在世人物及其家属的，先取得书面或录音同意。</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 任务6 -->
+<section id="t6" data-page-node-id="yay9ZMZf2xIkyYAYGurUJ9">
+  <div class="wrap" data-page-node-id="gVfmLghLRQi8BSVyVER1Cw">
+    <div class="snum" data-page-node-id="8hSlsiGQDprfrDWw4G60b4">任务 ⑥</div>
+    <h2 data-page-node-id="Tjgcmj9pA2UrFABInFBWMp">成果整合：把散落素材变成一个能拿得出手的东西</h2>
+    <p class="lead" data-page-node-id="nMMl1N0EQjK6yYaTIzPQW5">前面所有工作的终点。Agent 的强项在这里最明显——它可以直接生成一个文件，而不是给你一段"你可以这样做"的建议。</p>
+
+    <div class="grid2" data-page-node-id="2l9E7ihMdcVqwXo3XjNLlM">
+      <div class="card" data-page-node-id="I4fQHp72LGBkWpJcMMfWEu">
+        <span class="tagx" data-page-node-id="UyLF57BRuVDRMc6C6GfwjB">产出 1 · 单页导览</span>
+        <h4 data-page-node-id="2HOzH8kfkFcOIDA4pKi0xs">点位资料整合站</h4>
+        <p data-page-node-id="DYkWtUJSpgXZxfzZuklZmB">把所有点位的文字、图片、口播稿合成一个可打开的 HTML，手机上也能看，能直接发给别人。</p>
+      </div>
+      <div class="card" data-page-node-id="6goXbZ6OMPvji62TTM8aAq">
+        <span class="tagx" data-page-node-id="eaDjlFoP4cDgHrXsZPDCjg">产出 2 · 投稿包</span>
+        <h4 data-page-node-id="oiQSW619fboU3arXDcJ3RC">成稿 + 核查表 + 素材清单</h4>
+        <p data-page-node-id="D3tSF35lKIFporJaJdFneR">按平台要求打包：正文、图片说明、授权确认记录、史实核查表，一次交齐不返工。</p>
+      </div>
+    </div>
+
+    <div class="pbox" style="margin-top:18px" data-page-node-id="gGtFoq8P4yfhgKLNyVHHaO">
+      <div class="ph" data-page-node-id="Dz41QM35AS0JDAhGg3z7v2"><b data-page-node-id="EyjueDCs29unyzxAoqR2C4">直接复制这条指令</b><small data-page-node-id="tdYoN1es34b9jwZBz5GU8T">素材齐了之后用它收口</small><button class="copy" data-page-node-id="XRpIWLaBUR3sWOHU81asAw">复制</button></div>
+<pre data-page-node-id="wYcwUqSOSNZnOLnCSsmCta">请把【素材目录】里的点位资料整合成一个单页 HTML 导览页，要求：
+
+1. 顶部：一条横向时间轴，标出各点位的地理顺序
+2. 每个点位一张卡片，包含：
+   · 点位名称与编号
+   · 200–300 字沿革说明
+   · 3 条"古今对比"（要具体到物件，不要空泛说"变化很大"）
+   · 60 秒口播稿
+   · 对应照片（图片路径在素材目录里）
+3. 卡片可点开收起，手机竖屏也能正常看
+4. 页面底部注明素材来源与"部分内容由 AI 辅助生成，史实已人工核实"
+5. 输出一个单独的 .html 文件，双击即可打开，不依赖网络
+
+如果某个点位缺少照片或口播稿，在页面上留占位并标【待补】，不要跳过该点位。
+
+最后告诉我：还缺哪几个点位的什么素材。</pre>
+    </div>
+
+    <div class="pbox" data-page-node-id="uN5Xy2BFnYfgFGBSFQeAhp">
+      <div class="ph" data-page-node-id="lXGooEBhYdlAfJEsHcyky0"><b data-page-node-id="LBHBJhJtHmGk5AI1nJPCGH">配套：短视频分镜</b><small data-page-node-id="GgJYKVt1nhN4cCv0bSJ2pn">要做片子时用</small><button class="copy" data-page-node-id="toZ41T9uQqA2Bj66eODsXT">复制</button></div>
+<pre data-page-node-id="BYusOttuuF8cGmuvbfM8Rp">地点：【点位】，时长 60 秒，竖屏 9:16，受众是大学生。
+请输出分镜表，每行五列：时间轴 | 画面（具体拍什么）| 口播（每句不超过 15 字）| 字幕关键词 | 音效/音乐
+
+要求：
+1. 前 3 秒必须有冲突或悬念，不能是空镜加标题
+2. 至少 1 处"古今对比"，具体到物件
+3. 中间 40 秒最多讲 3 件事
+4. 结尾 5 秒给行动号召或留白，二选一
+5. 所有史实标注来源，不确定的写【待核实】
+
+点位背景资料：
+———
+（粘贴资料）</pre>
+    </div>
+  </div>
+</section>
+
+<!-- 自动化 -->
+<section id="auto" data-page-node-id="8gWSj6b1stbevHWV7gOwJe">
+  <div class="wrap" data-page-node-id="8YKprfVUUbe1cjYZpGwSH2">
+    <div class="snum" data-page-node-id="tMYCZrOCfQtzERt49eO7re">进阶</div>
+    <h2 data-page-node-id="V0tWZMuWnNQjxgdQ8qDyBJ">设成定时任务：让 Agent 自己盯着进度</h2>
+    <p class="lead" data-page-node-id="o3ZV2QqFODlKM4PiJMBVLy">这几件事不需要你记得做。把下面任意一条设成定时自动化，到点它自己跑，跑完把结果发给你。<b data-page-node-id="1FfjbVBOVNqWjwlx4Ajbw6">进度失控是多点位项目最常见的翻车方式</b>，定时任务是最便宜的解法。</p>
+
+    <div class="grid3" data-page-node-id="Ry9LQvDzuGphb80lUdjhF3">
+      <div class="card" data-page-node-id="qvZ5LdYjDoKQcmVDnMttA2">
+        <span class="tagx" data-page-node-id="1BYJbyAjTYY5moo49zgz5g">每周一 09:00</span>
+        <h4 data-page-node-id="pYzjxhYymyG2odBE7J3r6c">素材进度巡检</h4>
+        <p style="margin:8px 0 10px" data-page-node-id="mqIGaXgmao7mP3xbbicKzJ">扫描素材目录，列出上周新增文件、缺失项、命名不合规的文件，生成一张进度表发我。谁的点位还没交素材，直接点名。</p>
+        <div style="font-size:12.5px;color:var(--ink3);background:var(--soft);padding:9px 11px;border-radius:8px" data-page-node-id="GlMcEVQVDE7co5A4AKaWi2">"检查素材目录，对比点位清单，列出缺失与不合规项，生成进度提醒"</div>
+      </div>
+      <div class="card" data-page-node-id="hWqWtJpBiXrLrtpUUbz0t6">
+        <span class="tagx" data-page-node-id="jZhRYpS9AF7ksciupcWfru">每天 20:00</span>
+        <h4 data-page-node-id="5ynVrN6cDPav1fgrxeAxBg">当日录音自动转写</h4>
+        <p style="margin:8px 0 10px" data-page-node-id="AbouT41wtKHFMWIxdKSp0C">把当天新增的录音全部转写成文字稿并归档，第二天一早就能看到昨天的素材成稿，不用等、不用催。</p>
+        <div style="font-size:12.5px;color:var(--ink3);background:var(--soft);padding:9px 11px;border-radius:8px" data-page-node-id="lSC6rTBRr4aDpwDIYoRKYn">"转写今天新增的音频，按规范命名归档，汇总后告诉我哪几段质量差需要重录"</div>
+      </div>
+      <div class="card" data-page-node-id="4kmEZiwx3ongHDkRyWDoMk">
+        <span class="tagx" data-page-node-id="sUWxJqVQX3QxTu8Uhkq0yO">每月最后一天</span>
+        <h4 data-page-node-id="dNAa6VkpcEKbETE7s1HRS4">月报与风险扫描</h4>
+        <p style="margin:8px 0 10px" data-page-node-id="1LcEjPb8Fy0C5TeaOuKJTm">汇总本月产出（稿件数、字数、成片数），并扫描所有待核实条目是否还挂着——挂太久的史实风险要提前暴露。</p>
+        <div style="font-size:12.5px;color:var(--ink3);background:var(--soft);padding:9px 11px;border-radius:8px" data-page-node-id="HHUJ1y1kIbWnmf31znv0jb">"汇总本月产出并列出仍未核实的史实条目，按风险排序"</div>
+      </div>
+    </div>
+    <div class="note" data-page-node-id="rYaYSdCGurvM4e1TLeIrmw"><b data-page-node-id="0B5dQsIlALL9bRV5EbBCBj">提醒：</b>自动化只在需要"重复且容易忘"的事上用。采集、访谈、判断史实这些环节不能自动化替代人——机器可以提醒你缺素材，但不能替你去现场。</div>
+  </div>
+</section>
+
+<!-- 手机端 -->
+<section id="ph" data-page-node-id="hnRIU91DZ0ruDHo5CTmqVJ">
+  <div class="wrap" data-page-node-id="N5VPVHcdhqJHZrGXR0aX73">
+    <div class="snum" data-page-node-id="kUhrDlClkd9zdBHivmTTuI">给不用电脑的学生</div>
+    <h2 data-page-node-id="OWe74YLJI9UCa8GlMjLYME">手机端等价做法</h2>
+    <p class="lead" data-page-node-id="Y9n4z106papTxnGq2D1ZQg">不是每个人都有电脑，也不是每个人都愿意开电脑。下面三件事手机豆包、DeepSeek 就能做，效果不打折。</p>
+    <table data-page-node-id="Gu5aiXc3E7ecR9FeaFP32m">
+      <thead data-page-node-id="HAaLE5vGzuacb9DMHaBHOb"><tr data-page-node-id="bXbDJnYigwc8Uj8mAkqMDx"><th style="width:24%" data-page-node-id="PwuGen3zMdFhwUQmy8qEA1">场景</th><th data-page-node-id="TaEeqEB0uhXE8O9R5IK1Ws">手机上怎么做</th></tr></thead>
+      <tbody data-page-node-id="tBvuNBW7cQ85aKZDQ0ctox">
+        <tr data-page-node-id="tUUizTssJMQshaBXMHjUDN"><td data-page-node-id="USPDAqg3Mtn9oAYfpERxRf"><b data-page-node-id="GuiMRyGF8Xzt8ZU3f1Dnow">现场记录</b></td><td data-page-node-id="Bl4VN8UoezjHHcbuaFEGDv">边走边用语音输入口述所见所闻，结束时让它"整理成结构化现场笔记，标出需要核实的年代与人名"</td></tr>
+        <tr data-page-node-id="EWnX3vWv4TyVpYEaj3E30z"><td data-page-node-id="TI7BmrJcWNZ35Deq1Z3qSK"><b data-page-node-id="v9ErEx5M57Pyt4fNwt9Vf2">讲解词初稿</b></td><td data-page-node-id="tsgTba9cUg9iRxzpRmxgNd">把口述笔记粘贴进去，让它"改写成 3 分钟讲解词，开场有钩子，每 60 秒一个停顿点"</td></tr>
+        <tr data-page-node-id="xSb9BxQ5TvW38yHSFNUoUE"><td data-page-node-id="dFtoo3bCXwICG9Ebs9LuA1"><b data-page-node-id="Ovuxq9eHXHcGEkVxiWxvdZ">拍摄前构思</b></td><td data-page-node-id="DM65qeOAXUprivRIvmRMMy">告诉它"我在【地点】，只有手机，要拍 60 秒短视频"，让它直接给分镜表，照着拍就行</td></tr>
+      </tbody>
+    </table>
+    <div class="note" data-page-node-id="A95yv3GRZjQ8tV1FtxFzR7"><b data-page-node-id="3VtolGIPBEADTlB6NTmniD">手机上做不了的三件事：</b>批量转录长录音、生成本地文件与网页、定时任务。这三件交给有电脑的人统一处理——这也正是分组时每组至少要有一个"技术搭子"的原因。</div>
+  </div>
+</section>
+
+<!-- 纪律 -->
+<section id="rule" data-page-node-id="8BZBsICiFZeFkiwxkMeICM">
+  <div class="wrap" data-page-node-id="wgFwRAWwwcvwKOGILcQ6li">
+    <div class="snum" data-page-node-id="FKCVJ0iuv4Oz0CQNCMLhBi">底线</div>
+    <h2 data-page-node-id="BGhIFyWZdHpTDjzdlXbNMi">三条纪律，违反一条整个项目白做</h2>
+    <div class="grid3" data-page-node-id="re8pIFulXw6IRI9PheksJn">
+      <div class="card" style="border-color:#f5c9c9;background:#fffafa" data-page-node-id="Hdxrf0336frsg6PuhmnLYA">
+        <span class="tagx" style="color:var(--red)" data-page-node-id="OROk7B4oCUXTTgmEYyI6kM">纪律一 · 命名</span>
+        <h4 data-page-node-id="Twm9DKyXl2GYcKyXnY8CwK">点位编号-姓名-日期-类型.后缀</h4>
+        <p data-page-node-id="SeMxAsu6KqcxG0cg1djbnE">例：Z03-李萌-20261015-访谈.m4a。每段录音开头先口述"我是谁、今天几号、在哪、采访谁"——30 秒，解决后期认不出谁是谁的问题。</p>
+      </div>
+      <div class="card" style="border-color:#f5c9c9;background:#fffafa" data-page-node-id="aQXDmZM3CzDR5qPRjFIhHG">
+        <span class="tagx" style="color:var(--red)" data-page-node-id="xTBYkhcWVcc5oM0FefsS4F">纪律二 · 授权</span>
+        <h4 data-page-node-id="bs56xFzVBumyMuGGGCcsE1">录音里必须有那句同意</h4>
+        <p data-page-node-id="68exCzzm2s2MkmR1cykUeE">采访开始前录一句："本次采访用于教学与非商业传播，您是否同意？"对方口头同意即可，但<b data-page-node-id="CIAByrabMDfXzTuBwqu9LO">必须有这一句</b>。没有的素材不得发布，批量转录时会自动标出。</p>
+      </div>
+      <div class="card" style="border-color:#f3dfb8;background:#fffdf8" data-page-node-id="FGaVAbXtnbqr7ONmTw8I9K">
+        <span class="tagx" style="color:var(--amber)" data-page-node-id="tM2GaVp28CLGImYF12F9oE">纪律三 · 核实</span>
+        <h4 data-page-node-id="AupumwdIwKEkqO3G3LVG76">AI 生成 1 分钟，核实 30 分钟</h4>
+        <p data-page-node-id="bVOt8xo3hfikz7qqu9O2zt">年代、职务、奖项、数字是 AI 最高频的出错点。凡是要公开发的内容，逐条走核查流程；没有来源的一律删掉或标【存疑】，不替它补全。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer data-page-node-id="V5rNYRaof5COolkvG5ZjUc">
+  <div class="wrap" data-page-node-id="E4scKsHmEBKAtYwkUEgSE0">
+    <p class="qb" data-page-node-id="PW65jdUnmFxICIL1MEyWzp">让机器干重复的活，<br data-page-node-id="puQ1BNZJHeqctIhLZy6fUj">让人干只有人能干的事。</p>
+    <p data-page-node-id="fqGWkzbKxHU3F2MKZxUmDG">课程实地项目 · AI 与 Agent 工具使用示例 · 所有指令均可直接复制使用</p>
+  </div>
+</footer>
+
+<script>
+document.querySelectorAll('.copy').forEach(function(b){
+  b.addEventListener('click',function(){
+    var pre=b.closest('.pbox').querySelector('pre');
+    var text=pre.innerText;
+    var done=function(){var o=b.innerText;b.innerText='已复制';b.classList.add('ok');
+      setTimeout(function(){b.innerText=o;b.classList.remove('ok')},1600)};
+    if(navigator.clipboard&&navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(done,fb)}else{fb()}
+    function fb(){var ta=document.createElement('textarea');ta.value=text;
+      ta.style.position='fixed';ta.style.left='-9999px';document.body.appendChild(ta);ta.select();
+      try{document.execCommand('copy');done()}catch(e){alert('复制失败，请手动选中')}
+      document.body.removeChild(ta)}
+  });
+});
+</script>
+</body>
+</html>
