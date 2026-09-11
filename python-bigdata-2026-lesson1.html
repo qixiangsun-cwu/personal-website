@@ -1,0 +1,1266 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第1次课 · 课程介绍与Python概述 | Python大数据分析基础</title>
+<style>
+/* ===== 基础 ===== */
+:root{
+  --ink:#2b2820; --ink-soft:#5d594c; --ink-faint:#8a8577;
+  --paper:#f6f3ec; --card:#fffdf8; --line:#e4ddcc; --line-soft:#efe9dc;
+  --blue:#306998; --blue-deep:#1f3864; --blue-soft:#eaf1f8;
+  --gold:#b8860b; --amber:#b45309; --amber-soft:#fdf3e3;
+  --green:#2e7d32; --green-soft:#eaf5eb;
+  --red:#b3392f; --red-soft:#fbeceb;
+  --code-bg:#191b24; --code-hd:#232533; --code-txt:#e8e6de;
+  --radius:14px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;scroll-padding-top:86px;}
+body{
+  font-family:"Times New Roman","宋体",SimSun,"Songti SC","SimSun-ExtB",serif;
+  font-size:16px;line-height:1.95;color:var(--ink);background:var(--paper);
+  -webkit-font-smoothing:antialiased;
+}
+/* ===== 顶部 Hero ===== */
+.hero{
+  background:linear-gradient(120deg,#1b3157 0%,#264a7e 55%,#306998 100%);
+  color:#fff;padding:46px 20px 40px;position:relative;overflow:hidden;
+}
+.hero::after{
+  content:"";position:absolute;right:-60px;top:-60px;width:300px;height:300px;
+  border-radius:50%;background:rgba(255,212,59,.08);pointer-events:none;
+}
+.hero-inner{max-width:1060px;margin:0 auto;position:relative;z-index:1;}
+.hero .kicker{
+  display:inline-block;font-size:13px;letter-spacing:2px;color:#ffd43b;
+  border:1px solid rgba(255,212,59,.5);border-radius:999px;padding:3px 14px;margin-bottom:16px;
+}
+.hero h1{font-size:38px;font-weight:700;line-height:1.35;margin-bottom:10px;}
+.hero .sub{font-size:18px;color:#dbe6f5;margin-bottom:18px;}
+.hero .meta{display:flex;flex-wrap:wrap;gap:10px;}
+.hero .meta span{
+  font-size:13px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);
+  border-radius:999px;padding:4px 14px;color:#f2f6fb;
+}
+/* ===== 导航 ===== */
+.nav{
+  position:sticky;top:0;z-index:50;background:rgba(253,251,246,.94);
+  backdrop-filter:blur(8px);border-bottom:1px solid var(--line);
+}
+.nav-inner{max-width:1060px;margin:0 auto;display:flex;align-items:center;gap:6px;overflow-x:auto;padding:10px 16px;}
+.nav-inner::-webkit-scrollbar{height:0;}
+.nav a{
+  flex:0 0 auto;font-size:14px;color:var(--ink-soft);text-decoration:none;
+  padding:6px 14px;border-radius:999px;border:1px solid transparent;white-space:nowrap;
+  transition:all .18s;
+}
+.nav a:hover{color:var(--blue);background:var(--blue-soft);}
+.nav a.on{color:#fff;background:var(--blue);border-color:var(--blue);}
+.nav a.nav-back{color:var(--blue-deep);font-weight:700;border-color:#cfe0f0;background:#fff;margin-right:6px;}
+/* ===== 主区域 ===== */
+main{max-width:1060px;margin:0 auto;padding:30px 16px 60px;}
+section{margin-bottom:34px;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:30px 34px;box-shadow:0 1px 4px rgba(60,50,20,.05);}
+.sec-head{display:flex;align-items:flex-start;gap:14px;margin-bottom:6px;}
+.sec-num{
+  flex:0 0 auto;min-width:46px;height:46px;border-radius:12px;background:var(--blue-deep);color:#fff;
+  display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:700;margin-top:4px;
+}
+.sec-head h2{font-size:26px;font-weight:700;line-height:1.3;}
+.sec-sub{font-size:14px;color:var(--ink-soft);margin:2px 0 18px;}
+h3{font-size:20px;font-weight:700;margin:26px 0 10px;padding-left:12px;border-left:5px solid var(--blue);line-height:1.4;}
+h4{font-size:17px;font-weight:700;margin:18px 0 8px;color:var(--blue-deep);}
+p{margin:8px 0;}
+ul,ol{margin:8px 0 8px 24px;}
+li{margin:5px 0;}
+strong{color:var(--blue-deep);}
+code.inline{
+  font-family:"Times New Roman","宋体",SimSun,serif;font-size:15px;background:var(--blue-soft);
+  color:var(--blue-deep);padding:1px 7px;border-radius:6px;border:1px solid #d5e2f0;white-space:nowrap;
+}
+/* 标签 */
+.tag{display:inline-block;font-size:12px;color:var(--blue);background:var(--blue-soft);border:1px solid #d2e2f2;border-radius:999px;padding:1px 10px;margin:2px 4px 2px 0;}
+.tag.gold{color:var(--amber);background:var(--amber-soft);border-color:#f0dcb8;}
+.tag.green{color:var(--green);background:var(--green-soft);border-color:#cfe6d1;}
+/* 提示框 */
+.note,.warn,.danger,.ai,.key{
+  border-radius:10px;padding:12px 16px 12px 44px;margin:14px 0;position:relative;font-size:15px;
+}
+.note{background:var(--blue-soft);border:1px solid #cfe0f0;color:#234a72;}
+.warn{background:var(--amber-soft);border:1px solid #efdcb5;color:#7a4a0a;}
+.danger{background:var(--red-soft);border:1px solid #ecd0cd;color:#8c2f28;}
+.key{background:#f4efe2;border:1px solid #e5dcc0;color:#5d5230;}
+.ai{background:#eef0fa;border:1px solid #d7dbef;color:#333a63;}
+.note::before,.warn::before,.danger::before,.key::before,.ai::before{
+  position:absolute;left:14px;top:12px;width:20px;height:20px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;
+}
+.note::before{content:"i";background:var(--blue);}
+.warn::before{content:"!";background:var(--amber);}
+.danger::before{content:"×";background:var(--red);}
+.key::before{content:"★";background:#9c8a4a;}
+.ai::before{content:"AI";font-size:10px;background:#4c5691;letter-spacing:0;}
+.ai .ai-tag{display:inline-block;font-size:11px;color:#4c5691;border:1px solid #c3c9e6;background:#fff;border-radius:999px;padding:0 8px;margin-right:6px;}
+/* ===== 表格 ===== */
+.tbl-wrap{overflow-x:auto;margin:14px 0;border:1px solid var(--line);border-radius:10px;}
+table{width:100%;border-collapse:collapse;font-size:15px;background:#fff;}
+th,td{padding:9px 14px;border-bottom:1px solid var(--line-soft);text-align:left;vertical-align:top;}
+th{background:var(--blue-soft);color:var(--blue-deep);font-weight:700;white-space:nowrap;}
+tbody tr:nth-child(even){background:#faf7f0;}
+tbody tr:last-child td{border-bottom:none;}
+td code.inline,th code.inline{white-space:nowrap;}
+/* ===== 代码演示 ===== */
+.demo{border-radius:12px;overflow:hidden;border:1px solid #33364a;margin:16px 0;background:var(--code-bg);}
+.demo-head{
+  display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;
+  background:var(--code-hd);padding:8px 14px;border-bottom:1px solid #2e3142;
+}
+.demo-title{font-size:14px;color:#c8cde0;}
+.demo-actions{display:flex;gap:8px;}
+.btn{
+  font-family:inherit;font-size:13px;cursor:pointer;border-radius:8px;padding:4px 14px;
+  border:1px solid #3d4157;color:#d7dae8;background:#2b2e40;transition:all .15s;
+}
+.btn:hover{background:#383c52;}
+.btn-copy:hover{background:#383c52;}
+.btn.ok{background:var(--green);border-color:var(--green);color:#fff;}
+pre.code{
+  font-family:"Times New Roman","宋体",SimSun,serif;font-size:15px;line-height:1.75;
+  color:var(--code-txt);padding:14px 18px;overflow-x:auto;tab-size:4;
+}
+pre.code .c-kw{color:#ff7b72;}
+pre.code .c-str{color:#a5d6a5;}
+pre.code .c-num{color:#79c0ff;}
+pre.code .c-fn{color:#d2a8ff;}
+pre.code .c-com{color:#8b949e;font-style:italic;}
+pre.code .c-op{color:#ffa657;}
+.demo-out{border-top:1px solid #2e3142;background:#12141c;padding:0 0 10px;}
+.out-label{
+  font-size:12px;color:#6b7288;letter-spacing:1px;padding:8px 18px 4px;border-bottom:1px solid #232634;
+}
+pre.out{font-family:"Times New Roman","宋体",SimSun,serif;font-size:15px;line-height:1.7;padding:10px 18px;color:#d6d9e4;overflow-x:auto;}
+.ln-prompt{color:#6ea8dc;}
+.ln-out{color:#e8e6de;}
+.ln-meta{color:#8b949e;font-style:italic;}
+/* ===== 网格 ===== */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:16px 0;}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:16px 0;}
+.grid2 .cell,.grid3 .cell{background:#faf7f0;border:1px solid var(--line-soft);border-radius:12px;padding:16px 18px;}
+.cell h4{margin-top:0;}
+.cell ul{margin-left:20px;}
+.cell li{font-size:15px;}
+@media(max-width:860px){.grid2,.grid3{grid-template-columns:1fr;}}
+.mini-table td{font-size:14px;}
+/* ===== 步骤 ===== */
+.step-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:16px 0;}
+.step-card{background:#faf7f0;border:1px solid var(--line-soft);border-radius:12px;padding:14px 16px;}
+.step-card .sc-no{font-size:12px;color:var(--blue);font-weight:700;letter-spacing:1px;}
+.step-card .sc-title{font-size:16px;font-weight:700;color:var(--blue-deep);margin:4px 0 4px;}
+.step-card .sc-desc{font-size:14px;color:var(--ink-soft);line-height:1.7;}
+.steps{display:flex;flex-direction:column;gap:10px;margin:14px 0;}
+.step{display:flex;gap:14px;background:#faf7f0;border:1px solid var(--line-soft);border-radius:12px;padding:14px 18px;}
+.step .sn{
+  flex:0 0 auto;width:34px;height:34px;border-radius:10px;background:var(--blue-deep);color:#fff;
+  display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;
+}
+.step .sc{flex:1 1 auto;}
+.step .st{font-weight:700;color:var(--blue-deep);font-size:16px;margin-bottom:2px;}
+.step .sd{font-size:15px;color:var(--ink-soft);line-height:1.78;}
+@media(max-width:860px){.step-grid{grid-template-columns:1fr 1fr;}}
+@media(max-width:560px){.step-grid{grid-template-columns:1fr;}}
+/* ===== 图片 ===== */
+.figure{margin:16px 0;text-align:center;}
+.figure img{max-width:100%;border:1px solid var(--line);border-radius:12px;background:#fff;}
+.figure figcaption{font-size:13px;color:var(--ink-soft);margin-top:8px;}
+/* ===== 思维导图知识树 ===== */
+.tree{font-size:15px;line-height:1.7;border:1px solid var(--line);border-radius:12px;background:#fbf8f1;padding:16px 14px;}
+.tree .root-node{
+  display:inline-block;background:var(--blue-deep);color:#fff;font-weight:700;
+  border-radius:999px;padding:5px 22px;margin:4px 0 12px;
+}
+.tree .tn{
+  display:flex;align-items:center;gap:6px;padding:4px 10px;border-radius:8px;cursor:pointer;
+  color:var(--ink);transition:background .15s;
+}
+.tree .tn:hover{background:#f0ecdf;}
+.tree .tn .tw{
+  flex:0 0 auto;width:14px;height:14px;display:inline-flex;align-items:center;justify-content:center;
+  color:#9a937f;font-size:10px;transition:transform .2s;user-select:none;
+}
+.tree .tn.open .tw{transform:rotate(90deg);}
+.tree .tn.branch{font-weight:700;}
+.tree .tn .golink{color:#7a9cc7;font-size:11px;border:1px solid #c9d8ea;border-radius:999px;padding:0 6px;margin-left:auto;background:#fff;flex:0 0 auto;}
+.tree .tn.leaf{cursor:pointer;color:var(--ink-soft);}
+.tree .kids{border-left:2px solid #e0d9c6;margin-left:16px;padding-left:6px;display:none;}
+.tree .kids.show{display:block;}
+.tree .b-blue .tn.branch{color:var(--blue-deep);}
+.tree .b-amber .tn.branch{color:var(--amber);}
+.tree .b-green .tn.branch{color:var(--green);}
+.tree .b-purple .tn.branch{color:#6d4fa8;}
+.tree .legend{font-size:12px;color:var(--ink-faint);margin-top:10px;padding-top:8px;border-top:1px dashed var(--line);}
+/* ===== 卡片网格 ===== */
+.map-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;margin:16px 0;}
+.map-card{
+  background:#faf7f0;border:1px solid var(--line-soft);border-radius:12px;padding:16px 18px;
+  transition:all .2s;text-decoration:none;color:var(--ink);display:block;
+}
+.map-card:hover{border-color:var(--blue);box-shadow:0 4px 14px rgba(48,105,152,.12);transform:translateY(-2px);}
+.map-card .mc-num{font-size:13px;color:var(--blue);font-weight:700;}
+.map-card .mc-title{font-size:18px;font-weight:700;color:var(--blue-deep);margin:4px 0 6px;}
+.map-card .mc-desc{font-size:14px;color:var(--ink-soft);line-height:1.7;}
+/* ===== 回顾 / 小结 ===== */
+.recap{background:#faf7f0;border:1px solid var(--line-soft);border-radius:12px;padding:16px 20px;margin:14px 0;}
+.summary-tbl th{background:var(--blue-deep);color:#fff;}
+.homework{border:1px dashed var(--blue);border-radius:12px;background:var(--blue-soft);padding:16px 22px;margin:14px 0;}
+.homework h4{color:var(--blue-deep);margin-top:0;}
+.nextcard{
+  display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;
+  background:linear-gradient(120deg,#1b3157,#306998);color:#fff;border-radius:12px;padding:18px 22px;margin:16px 0;
+  text-decoration:none;
+}
+.nextcard .nc-title{font-size:18px;font-weight:700;}
+.nextcard .nc-desc{font-size:14px;color:#dbe6f5;}
+.nextcard .nc-go{font-size:14px;border:1px solid rgba(255,255,255,.5);border-radius:999px;padding:4px 16px;color:#fff;}
+.nextcard:hover .nc-go{background:#fff;color:var(--blue-deep);}
+/* 页脚 */
+footer{background:#1c2b44;color:#b9c6dc;text-align:center;padding:26px 20px;font-size:14px;}
+footer .f-main{color:#fff;font-size:16px;margin-bottom:4px;}
+footer a{color:#dfe7f4;text-decoration:none;}
+footer a:hover{text-decoration:underline;}
+/* 回到顶部 */
+#toTop{
+  position:fixed;right:22px;bottom:26px;width:44px;height:44px;border-radius:50%;border:none;
+  font-family:"Times New Roman","宋体",SimSun,serif;font-weight:700;
+  background:var(--blue-deep);color:#fff;font-size:18px;cursor:pointer;box-shadow:0 4px 14px rgba(31,56,100,.35);
+  opacity:0;pointer-events:none;transition:all .25s;z-index:60;
+}
+#toTop.show{opacity:1;pointer-events:auto;}
+#toTop:hover{background:var(--blue);}
+/* ===== 响应式 ===== */
+@media(max-width:720px){
+  body{font-size:15px;}
+  .hero h1{font-size:28px;}
+  .hero{padding:34px 16px 30px;}
+  section{padding:22px 18px;}
+  .sec-head h2{font-size:21px;}
+  .sec-num{min-width:38px;height:38px;font-size:15px;}
+  pre.code{font-size:14px;padding:12px 14px;}
+  pre.out{font-size:14px;padding:8px 14px;}
+  .demo-head{flex-direction:column;align-items:flex-start;}
+}
+</style>
+</head>
+<body>
+
+<!-- ===== 顶部 ===== -->
+<header class="hero">
+  <div class="hero-inner">
+    <span class="kicker">Python 大数据分析基础 · 第1次课</span>
+    <h1>课程介绍与 Python 概述</h1>
+    <p class="sub">课程定位与目标 · 程序与编程语言 · Python 语言介绍 · 开发环境安装 · 扩展库与 pip · Agent 辅助学习</p>
+    <div class="meta">
+      <span>中华女子学院</span><span>4学时 · 180分钟</span><span>授课人：孙琪翔</span><span>2026 年秋季学期 · 第 1 周</span>
+    </div>
+  </div>
+</header>
+
+<!-- ===== 目录导航 ===== -->
+<nav class="nav" id="nav">
+  <div class="nav-inner" id="navInner">
+    <a href="python-bigdata-2026.html" class="nav-back">← 课程主页</a>
+    <a href="#guide" data-sec="guide" class="on">本讲导览</a>
+    <a href="#c1" data-sec="c1">一、课程介绍</a>
+    <a href="#c2" data-sec="c2">二、程序与编程语言</a>
+    <a href="#c3" data-sec="c3">三、Python 语言介绍</a>
+    <a href="#c4" data-sec="c4">四、开发环境安装</a>
+    <a href="#c5" data-sec="c5">五、扩展库与 pip</a>
+    <a href="#c6" data-sec="c6">六、Agent 辅助学习</a>
+    <a href="#summary" data-sec="summary">小结 · 作业</a>
+  </div>
+</nav>
+
+<main>
+
+<!-- ===== 导览 ===== -->
+<section id="guide">
+  <div class="sec-head">
+    <div class="sec-num">导</div>
+    <div>
+      <h2>本讲导览</h2>
+      <p class="sec-sub">Lesson Overview · 先看整体，再逐个模块学习</p>
+    </div>
+  </div>
+
+  <p>本课共 <strong>180 分钟、4 个课时</strong>。前半程解决“这门课学什么、为什么学、怎么学”，后半程动手把 Python 环境装好，写出人生第一个程序。</p>
+
+  <div class="step-grid">
+    <div class="step-card">
+      <div class="sc-no">第 1 课时</div>
+      <div class="sc-title">课程介绍</div>
+      <div class="sc-desc">教师介绍 · 课程定位 · 教学目标 · 学时安排 · 教材资源 · 考核方式 · 学习建议</div>
+    </div>
+    <div class="step-card">
+      <div class="sc-no">第 2 课时</div>
+      <div class="sc-title">程序与编程语言</div>
+      <div class="sc-desc">计算机与程序 · 程序与指令 · 程序设计语言 · 语言发展三阶段 · Python 语言介绍</div>
+    </div>
+    <div class="step-card">
+      <div class="sc-no">第 3 课时</div>
+      <div class="sc-title">开发环境安装</div>
+      <div class="sc-desc">解释器与 IDLE · 安装步骤（务必勾选 PATH）· Shell 交互式与文件式两种用法</div>
+    </div>
+    <div class="step-card">
+      <div class="sc-no">第 4 课时</div>
+      <div class="sc-title">扩展库与上机练习</div>
+      <div class="sc-desc">扩展库与 pip 安装 · Agent 辅助学习 · 课堂上机练习 · 本章小结与作业</div>
+    </div>
+  </div>
+
+  <div class="note">
+    <strong>本课学习目标</strong>：了解课程定位、教学内容、考核方式与学习建议；理解程序、编程语言的基本概念；认识 Python 语言的特点与应用；完成 Python 开发环境安装并运行第一个程序；学会用 Agent（AI 助手）辅助学习，并规范记录 AI 使用过程。
+  </div>
+
+  <h3>本课地图：6 个模块</h3>
+  <p>点击卡片可跳转到对应模块。</p>
+  <div class="map-grid">
+    <a class="map-card" href="#c1"><div class="mc-num">模块一</div><div class="mc-title">课程介绍</div><div class="mc-desc">课程定位、目标、学时、教材、考核与学习建议</div></a>
+    <a class="map-card" href="#c2"><div class="mc-num">模块二</div><div class="mc-title">程序与编程语言</div><div class="mc-desc">计算机与程序、指令、语言发展三阶段</div></a>
+    <a class="map-card" href="#c3"><div class="mc-num">模块三</div><div class="mc-title">Python 语言介绍</div><div class="mc-desc">起源发展、版本、语言特点、应用领域</div></a>
+    <a class="map-card" href="#c4"><div class="mc-num">模块四</div><div class="mc-title">开发环境安装</div><div class="mc-desc">解释器、安装步骤、IDLE 两种使用方式</div></a>
+    <a class="map-card" href="#c5"><div class="mc-num">模块五</div><div class="mc-title">扩展库与 pip</div><div class="mc-desc">什么是扩展库、常用库、pip 安装与验证</div></a>
+    <a class="map-card" href="#c6"><div class="mc-num">模块六</div><div class="mc-title">Agent 辅助学习</div><div class="mc-desc">AI 学习路径、使用规则、四个练习、上机清单</div></a>
+  </div>
+
+  <h3>本讲知识点总览</h3>
+  <p>右侧知识树可点击节点跳转到对应讲解位置，点击三角可展开 / 收起分支。</p>
+  <div class="tree" id="knowledgeTree">
+    <div class="root-node">课程介绍与 Python 概述</div>
+    <div class="kids show">
+      <div class="b-blue">
+        <div class="tn branch open" data-target="c1"><span class="tw">▶</span>课程介绍<span class="golink">模块一</span></div>
+        <div class="kids show">
+          <div class="tn leaf" data-target="c1">课程定位：社科类方向课 56 学时，非计算机专业第一门程序设计语言</div>
+          <div class="tn leaf" data-target="c1">课程目标：知识、能力、素质三维目标</div>
+          <div class="tn leaf" data-target="c1">教学内容与学时：9 章 + 阶段考核，共 56 学时</div>
+          <div class="tn leaf" data-target="c1">教材与资源：清华大学出版社教材 + 学堂在线视频 + 雨课堂练习</div>
+          <div class="tn leaf" data-target="c1">考核方式：过程性考核 60% + 期末考核 40%</div>
+          <div class="tn leaf" data-target="c1">学习建议：有效课堂、重视练习、学以致用、人人都能编程</div>
+        </div>
+      </div>
+      <div class="b-amber">
+        <div class="tn branch open" data-target="c2"><span class="tw">▶</span>程序与编程语言<span class="golink">模块二</span></div>
+        <div class="kids show">
+          <div class="tn leaf" data-target="c2">计算机：能够根据一组指令操作数据的机器</div>
+          <div class="tn leaf" data-target="c2">程序：一组计算机能识别和执行的指令</div>
+          <div class="tn leaf" data-target="c2">程序设计语言：计算机能够理解操作的交互体系</div>
+          <div class="tn leaf" data-target="c2">语言发展：机器语言 → 汇编语言 → 高级语言</div>
+          <div class="tn leaf" data-target="c2">第一个 Python 程序：print("Hello World!")</div>
+        </div>
+      </div>
+      <div class="b-green">
+        <div class="tn branch open" data-target="c3"><span class="tw">▶</span>Python 语言介绍<span class="golink">模块三</span></div>
+        <div class="kids show">
+          <div class="tn leaf" data-target="c3">起源：Guido van Rossum，1989 年圣诞开始编写</div>
+          <div class="tn leaf" data-target="c3">版本：1991 首个版本 → 2000 年 2.0 → 2008 年 3.0 → 现在 3.x 主流</div>
+          <div class="tn leaf" data-target="c3">特点：易学易懂、开源跨平台、胶水语言、功能强大</div>
+          <div class="tn leaf" data-target="c3">应用：数据分析、人工智能、网络爬虫、Web 开发等</div>
+          <div class="tn leaf" data-target="c3">受欢迎程度：TIOBE 排行榜长期第 1 位</div>
+        </div>
+      </div>
+      <div class="b-purple">
+        <div class="tn branch open" data-target="c4"><span class="tw">▶</span>开发环境与扩展库<span class="golink">模块四 / 五</span></div>
+        <div class="kids show">
+          <div class="tn leaf" data-target="c4">Python 环境 = Python 解释器（像翻译官）</div>
+          <div class="tn leaf" data-target="c4">安装要点：勾选 Add Python to PATH、自定义安装路径</div>
+          <div class="tn leaf" data-target="c4">IDLE 两种方式：Shell 窗口（交互式）与文件式（正式开发）</div>
+          <div class="tn leaf" data-target="c4">代码书写：缩进、注释、英文标点、大小写敏感</div>
+          <div class="tn leaf" data-target="c5">扩展库与 pip：标准的 Python 安装包不含扩展库</div>
+        </div>
+      </div>
+      <div class="b-blue">
+        <div class="tn branch open" data-target="c6"><span class="tw">▶</span>Agent 辅助学习<span class="golink">模块六</span></div>
+        <div class="kids show">
+          <div class="tn leaf" data-target="c6">本课程 AI 学习路径：基础阶段 → 进阶阶段 → 项目阶段</div>
+          <div class="tn leaf" data-target="c6">使用规则：先理解、再验证、后使用；基础阶段以手写代码为主</div>
+          <div class="tn leaf" data-target="c6">AI 使用日志三问：我让 AI 做了什么？我如何验证？我学到了什么？</div>
+          <div class="tn leaf" data-target="c6">四个练习 + 课堂上机练习清单</div>
+        </div>
+      </div>
+    </div>
+    <div class="legend">说明：本页知识点依据第 1 次课课件《课程介绍与 Python 概述》整理，与教材第 1 章对应。</div>
+  </div>
+
+  <div class="warn">本课是整学期的“起点课”：学完请确认你能独立完成三件事——<strong>装好 Python</strong>、<strong>在 Shell 里打印一句话</strong>、<strong>用文件方式保存并运行一个 .py 程序</strong>。</div>
+</section>
+
+<!-- ===== 一、课程介绍 ===== -->
+<section id="c1">
+  <div class="sec-head">
+    <div class="sec-num">一</div>
+    <div>
+      <h2>课程介绍</h2>
+      <p class="sec-sub">课程定位 · 为什么学 · 课程目标 · 教学内容与学时 · 教材与资源 · 教学考核 · 学习建议</p>
+    </div>
+  </div>
+
+  <h3>1.1 授课教师</h3>
+  <div class="tbl-wrap">
+    <table class="mini-table">
+      <tbody>
+        <tr><th style="width:150px;">姓名</th><td>孙琪翔</td></tr>
+        <tr><th>单位</th><td>中华女子学院 · 数据科学与信息技术学院</td></tr>
+        <tr><th>主讲课程</th><td>大数据分析基础（Python）、虚拟现实技术等</td></tr>
+        <tr><th>研究方向</th><td>人工智能应用、数据分析与程序设计教学</td></tr>
+        <tr><th>教学理念</th><td>AI 渗透式教学、分层支持、注重动手实践</td></tr>
+        <tr><th>对你的期望</th><td>多动手、多提问、善用 AI 但不依赖</td></tr>
+        <tr><th>交流与答疑</th><td>课堂互动：随堂提问与上机辅导；课后答疑：班级群沟通</td></tr>
+        <tr><th>办公地点</th><td>教图楼 310</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>1.2 课程定位</h3>
+  <ul>
+    <li><strong>经管类、社科类方向课</strong>，共 <strong>56 学时</strong>；</li>
+    <li><strong>非计算机专业学生的第一门程序设计语言</strong>，从零起点讲起；</li>
+    <li>以 <strong>Python 为平台</strong>，理解并完成数据分析的基本任务。</li>
+  </ul>
+  <h4>课程内容主线</h4>
+  <ul>
+    <li><strong>Python 语言基础</strong>：语法、数据类型、控制结构、函数、文件；</li>
+    <li><strong>NumPy</strong>：数值计算与数组运算；</li>
+    <li><strong>Pandas</strong>：数据读取、清洗、查询、汇总；</li>
+    <li><strong>Matplotlib</strong>：数据可视化；</li>
+    <li><strong>综合应用</strong>：完成一个完整的数据分析任务。</li>
+  </ul>
+
+  <h3>1.3 为什么要学习大数据分析</h3>
+  <div class="grid3">
+    <div class="cell">
+      <h4>数据智能时代</h4>
+      <p>大数据、人工智能成为新一轮科技革命与产业变革的驱动力，深刻影响着经济社会发展。</p>
+    </div>
+    <div class="cell">
+      <h4>国家战略背景</h4>
+      <p>《中国制造 2025》《促进大数据发展行动纲要》《新一代人工智能发展规划》相继发布，全面进入数据智能时代。</p>
+    </div>
+    <div class="cell">
+      <h4>人人都该学一点</h4>
+      <p>编程与数据分析能力已成为数据智能时代人才的必备能力，正在进入会计、人力、法律、心理等几乎所有专业。</p>
+    </div>
+  </div>
+  <div class="key">掌握数据思维，能让你<strong>用证据说话、用数据决策</strong>，提升专业竞争力——这正是本课程希望带给你的一项通用能力。</div>
+
+  <h3>1.4 课程目标：知识 · 能力 · 素质</h3>
+  <div class="grid3">
+    <div class="cell">
+      <h4>知识目标</h4>
+      <ul>
+        <li>理解程序设计的一般概念与方法</li>
+        <li>熟悉 Python 语言基本功能，掌握编写 Python 程序的基本方法</li>
+        <li>了解数据分析的概念与一般处理过程</li>
+      </ul>
+    </div>
+    <div class="cell">
+      <h4>能力目标</h4>
+      <ul>
+        <li>能用 Python 编写简单程序</li>
+        <li>能正确选择 Python 工具完成基本数据分析任务</li>
+        <li>初步具备阅读、调试与改进代码的能力</li>
+      </ul>
+    </div>
+    <div class="cell">
+      <h4>素质目标</h4>
+      <ul>
+        <li>培养计算思维、大数据意识与数据思维</li>
+        <li>遵循学术规范，养成团队协作意识</li>
+        <li>培养严谨求真的科学态度与工匠精神</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>1.5 教学内容与学时安排</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr><th>章 / 节</th><th>教学内容</th><th>理论</th><th>实践</th><th>总计</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>第 1 章</td><td>Python 概述</td><td>3</td><td>1</td><td>4</td></tr>
+        <tr><td>第 2 章</td><td>Python 语言基础</td><td>2</td><td>2</td><td>4</td></tr>
+        <tr><td>第 3 章</td><td>程序控制结构</td><td>2</td><td>4</td><td>6</td></tr>
+        <tr><td>第 4 章</td><td>组合数据结构</td><td>2</td><td>4</td><td>6</td></tr>
+        <tr><td>第 5 章</td><td>函数</td><td>2</td><td>2</td><td>4</td></tr>
+        <tr><td>第 6 章</td><td>文件与目录操作</td><td>2</td><td>2</td><td>4</td></tr>
+        <tr><td>第 7 章</td><td>NumPy 数值计算</td><td>2</td><td>2</td><td>4</td></tr>
+        <tr><td>第 8 章</td><td>Pandas 数据处理与分析</td><td>5</td><td>7</td><td>12</td></tr>
+        <tr><td>第 9 章</td><td>数据可视化</td><td>2</td><td>4</td><td>6</td></tr>
+        <tr><td>阶段考核</td><td>阶段测试</td><td>2</td><td>4</td><td>6</td></tr>
+        <tr><td><strong>合计</strong></td><td><strong>共 56 学时</strong></td><td><strong>24</strong></td><td><strong>32</strong></td><td><strong>56</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="note">理论课以讲解与演示为主，上机实践在机房完成。前 5 章侧重 Python 语言基础，为数据分析打牢地基；<strong>第 8 章 Pandas 是本课程的重点与核心，学时最多</strong>。实际进度会根据课堂情况微调。</div>
+
+  <h3>1.6 教材与教学资源</h3>
+  <div class="grid2">
+    <div class="cell">
+      <h4>教材</h4>
+      <p>陈洁, 刘姝. 《Python 编程与数据分析基础》（第 2 版）. 北京：清华大学出版社.</p>
+      <h4>参考书</h4>
+      <p>董付国. 《Python 程序设计基础》（第 2 版）. 人民邮电出版社.</p>
+    </div>
+    <div class="cell">
+      <h4>视频课程</h4>
+      <p>学堂在线搜索《Python 编程与数据分析基础》，可跟随视频预习与复习。</p>
+      <h4>练习与考核资源</h4>
+      <p>雨课堂练习（计入平时成绩）· 随堂上机练习 · 阶段性测试 · 编程作业。</p>
+      <p><span class="tag">雨课堂</span><span class="tag">学堂在线</span><span class="tag">课件 data 目录</span></p>
+    </div>
+  </div>
+
+  <h3>1.7 教学考核方式</h3>
+  <div class="grid2">
+    <div class="cell">
+      <h4>过程性考核 60%</h4>
+      <ul>
+        <li>课堂出勤与课堂参与</li>
+        <li>课堂考核与编程作业</li>
+        <li>期中阶段测试（编程实践 + 笔试）</li>
+      </ul>
+    </div>
+    <div class="cell">
+      <h4>期末考核 40%</h4>
+      <ul>
+        <li>期末考试：考察全学期知识掌握与综合应用</li>
+      </ul>
+    </div>
+  </div>
+  <div class="danger">平时成绩（雨课堂练习、上机、作业）会<strong>直接影响总评</strong>，请务必按时完成。缺交作业不只是扣几分的问题，而是会直接拖低整门课的成绩。</div>
+
+  <h3>1.8 学习建议</h3>
+  <div class="step-grid">
+    <div class="step-card">
+      <div class="sc-no">建议一</div>
+      <div class="sc-title">有效课堂</div>
+      <div class="sc-desc">跟随课程进度，完成课堂学习内容，达到预期目标。</div>
+    </div>
+    <div class="step-card">
+      <div class="sc-no">建议二</div>
+      <div class="sc-title">重视练习</div>
+      <div class="sc-desc">课堂练习和作业按时、保质完成；代码只有亲手敲过才会真正理解。</div>
+    </div>
+    <div class="step-card">
+      <div class="sc-no">建议三</div>
+      <div class="sc-title">学以致用</div>
+      <div class="sc-desc">把知识用到感兴趣的方向：数据分析、游戏、科学实验……带着问题学习效率最高。</div>
+    </div>
+    <div class="step-card">
+      <div class="sc-no">建议四</div>
+      <div class="sc-title">人人都能编程</div>
+      <div class="sc-desc">编程并不神秘——只需掌握规则与命令。第一次写代码遇错很正常，学会读报错就赢了一半。</div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 二、程序与编程语言 ===== -->
+<section id="c2">
+  <div class="sec-head">
+    <div class="sec-num">二</div>
+    <div>
+      <h2>程序与编程语言</h2>
+      <p class="sec-sub">计算机与程序 · 程序与指令 · 程序设计语言 · 语言的发展 · 第一个 Python 程序</p>
+    </div>
+  </div>
+
+  <h3>2.1 计算机与程序</h3>
+  <p><strong>计算机</strong>是“能够根据一组指令操作数据的机器”，它有两个关键特性：</p>
+  <ul>
+    <li><strong>功能性</strong>：可以进行数据计算；</li>
+    <li><strong>可编程性</strong>：能够根据一系列指令来执行任务。</li>
+  </ul>
+  <div class="grid2">
+    <div class="cell">
+      <h4>里程碑：ENIAC（1946 年）</h4>
+      <ul>
+        <li>世界上第一台数字电子计算机</li>
+        <li>重约 <strong>30 吨</strong>，占地约 <strong>170 平方米</strong></li>
+        <li>每秒约 <strong>5000 次</strong>加法运算</li>
+        <li>通过开关和插线<strong>手动编程</strong></li>
+      </ul>
+    </div>
+    <div class="cell">
+      <h4>今天的计算机</h4>
+      <p>应用领域涵盖大数据分析、人工智能（AI）、物联网等；你手里的智能手机，计算能力早已<strong>远超 ENIAC</strong>。</p>
+      <p>硬件性能提升了几百万倍，但有一条没变：<strong>计算机只按人写好的指令做事</strong>。</p>
+    </div>
+  </div>
+
+  <h3>2.2 程序与指令</h3>
+  <p><strong>程序</strong>：一组计算机能识别和执行的指令，每一条指令使计算机执行特定的操作。</p>
+  <ul>
+    <li><strong>运行程序</strong>时，计算机自动地执行各条指令，有条不紊地工作；</li>
+    <li>计算机的每一个操作，都是根据人们事先指定的指令进行的——这个指令的集合就是程序；</li>
+    <li>写程序，就是把解决问题的步骤用编程语言<strong>准确表达</strong>出来。</li>
+  </ul>
+  <div class="key">一句话记住：<strong>程序 = 数据 + 算法</strong>。先想清楚步骤，再交给计算机执行；顺序错了，结果就错了。</div>
+
+  <h3>2.3 程序设计语言</h3>
+  <p><strong>程序设计语言</strong>是计算机能够理解和识别操作的一种交互体系，<strong>越接近人类的自然语言，越容易学习与使用</strong>。</p>
+  <ul>
+    <li>语句和指令用英文单词表示，接近人们的自然语言；</li>
+    <li>运算符和表达式与日常数学式子差不多，容易理解。</li>
+  </ul>
+  <p>例如计算 BMI：<code class="inline">bmi = weight / height**2</code>，含义一目了然。Python 正是这样一种简单、易读的高级语言。</p>
+
+  <h3>2.4 编程语言的发展</h3>
+  <div class="steps">
+    <div class="step">
+      <div class="sn">1</div>
+      <div class="sc">
+        <div class="st">机器语言</div>
+        <div class="sd">由 0、1 二进制指令组成，计算机可直接执行；但编写困难、容易出错，且与具体机器绑定。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sn">2</div>
+      <div class="sc">
+        <div class="st">汇编语言</div>
+        <div class="sd">用助记符代替二进制指令（如 ADD）。比机器语言易读，但仍然面向机器，需要了解硬件细节。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sn">3</div>
+      <div class="sc">
+        <div class="st">高级语言</div>
+        <div class="sd">接近自然语言与数学表达，不依赖具体机器，如 Python、C、Java。可读性好、开发效率高。</div>
+      </div>
+    </div>
+  </div>
+  <div class="note">发展规律：<strong>从贴近机器，到越来越贴近人的思维</strong>。本课程使用的高级语言是 Python。</div>
+
+  <h3>2.5 动手实践：第一个 Python 程序</h3>
+  <p>任务：编写并运行第一个程序，在屏幕上输出一句话。</p>
+  <div class="demo">
+    <div class="demo-head">
+      <span class="demo-title">hello.py — 第一个 Python 程序</span>
+      <div class="demo-actions"><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">print("Hello World!")</pre>
+    <div class="demo-out">
+      <div class="out-label">运行结果</div>
+      <pre class="out"><span class="ln-out">Hello World!</span></pre>
+    </div>
+  </div>
+  <div class="note"><code class="inline">print()</code> 是 Python 的内置输出函数：括号里的内容会被<strong>原样显示</strong>在屏幕上。字符串要用<strong>成对的英文引号</strong>括起来。</div>
+</section>
+
+<!-- ===== 三、Python 语言介绍 ===== -->
+<section id="c3">
+  <div class="sec-head">
+    <div class="sec-num">三</div>
+    <div>
+      <h2>Python 语言介绍</h2>
+      <p class="sec-sub">起源与发展 · 版本 · 语言特点 · 应用领域与实例 · 受欢迎程度</p>
+    </div>
+  </div>
+
+  <h3>3.1 Python 的起源与发展</h3>
+  <ul>
+    <li>创立者：<strong>吉多·范罗苏姆（Guido van Rossum）</strong>，被称为“Python 之父”；</li>
+    <li>名称来自他喜爱的英国喜剧 <em>Monty Python's Flying Circus</em>（并非因为蟒蛇）；</li>
+    <li>1989 年圣诞节，他在荷兰阿姆斯特丹度假时开始编写这种语言；</li>
+    <li>1991 年公开发布第一个版本，2008 年发布 Python 3.0。</li>
+  </ul>
+  <div class="key">“人生苦短，我用 Python。”—— 同样一件事，C 语言可能要写 1000 行，Java 要写 100 行，Python 可能只需要 20 行。</div>
+
+  <h3>3.2 Python 的版本</h3>
+  <div class="step-grid">
+    <div class="step-card">
+      <div class="sc-no">1991 年</div>
+      <div class="sc-title">首个版本</div>
+      <div class="sc-desc">Python 第一次公开发布。</div>
+    </div>
+    <div class="step-card">
+      <div class="sc-no">2000 年</div>
+      <div class="sc-title">Python 2.0</div>
+      <div class="sc-desc">2.x 系列的代表版本。</div>
+    </div>
+    <div class="step-card">
+      <div class="sc-no">2008 年</div>
+      <div class="sc-title">Python 3.0</div>
+      <div class="sc-desc">语法现代化，与 2.x 不兼容。</div>
+    </div>
+    <div class="step-card">
+      <div class="sc-no">现在</div>
+      <div class="sc-title">3.x 主流</div>
+      <div class="sc-desc">本课程统一使用 Python 3。</div>
+    </div>
+  </div>
+  <div class="warn">Python 2.x 与 3.x 两个系列<strong>互不兼容</strong>；Python 2.x <strong>已全面停止维护与更新</strong>。请到 python.org 下载最新稳定版（如 3.8 及以上），不要再用 2.x 的教程自学，否则很多例子会报错。</div>
+
+  <h3>3.3 Python 的语言特点</h3>
+  <div class="grid2">
+    <div class="cell">
+      <h4>易学易懂</h4>
+      <p>语法简单、代码简洁，接近自然语言，上手快。</p>
+    </div>
+    <div class="cell">
+      <h4>开源 · 跨平台</h4>
+      <p>开源免费、社区庞大；同一份代码在 Linux / Windows / macOS 上通用。</p>
+    </div>
+    <div class="cell">
+      <h4>胶水语言</h4>
+      <p>能把多种语言编写的程序融合拼接，适合快速集成与原型开发。</p>
+    </div>
+    <div class="cell">
+      <h4>功能强大</h4>
+      <p>标准库 + 扩展库丰富，覆盖数据分析、人工智能、Web 等；支持命令式、函数式与面向对象等多种编程范式。</p>
+    </div>
+  </div>
+
+  <h3>3.4 Python 语言的应用</h3>
+  <p>
+    <span class="tag">数据分析</span><span class="tag">人工智能</span><span class="tag">科学计算</span><span class="tag">网络爬虫</span>
+    <span class="tag">Web 开发</span><span class="tag">自动化运维</span><span class="tag">云计算</span><span class="tag">常规软件开发</span>
+    <span class="tag">游戏开发</span><span class="tag">智能硬件</span><span class="tag">金融量化</span><span class="tag">医学影像分析</span>
+  </p>
+  <p>Python 的应用几乎覆盖了软件与数据领域的方方面面；本课程聚焦其中的<strong>数据分析</strong>方向。</p>
+
+  <h3>3.5 应用实例：谁在用 Python</h3>
+  <div class="grid2">
+    <div class="cell">
+      <h4>国内企业</h4>
+      <p>豆瓣、知乎、网易、百度、阿里、土豆、新浪等均使用 Python 开发。</p>
+    </div>
+    <div class="cell">
+      <h4>国外企业</h4>
+      <p>谷歌、YouTube、Facebook、NASA 等也在广泛使用 Python。</p>
+    </div>
+  </div>
+
+  <h3>3.6 受欢迎程度：TIOBE 排行榜</h3>
+  <div class="figure">
+    <img src="assets/python-bigdata-2026/tiobe-rank.png" alt="TIOBE 编程语言排行榜，Python 位居第 1 位" loading="lazy">
+    <figcaption>图 1-1 TIOBE 编程语言排行榜：Python 长期位居第 1 位（图为课件示意，最新数据见 tiobe.com）</figcaption>
+  </div>
+  <ul>
+    <li>2004 年以后使用率呈线性增长，Python 已成为最受欢迎的程序设计语言之一；</li>
+    <li><strong>生态成熟</strong>：数据分析、AI、Web 皆有成熟方案；</li>
+    <li><strong>社区庞大</strong>：遇到问题几乎都能找到答案；</li>
+    <li><strong>学习门槛低</strong>：特别适合作为第一门编程语言。</li>
+  </ul>
+  <div class="ai">
+    <span class="ai-tag">AI 渗透点</span>你后面会用到的 <strong>NumPy、Pandas、Matplotlib</strong>，以及当下所有主流大模型（如 ChatGPT、DeepSeek）的训练与调用工具链，底层都大量使用 Python。<strong>学会 Python，等于拿到了一张通往 AI 世界的门票</strong>。
+  </div>
+</section>
+
+<!-- ===== 四、开发环境 ===== -->
+<section id="c4">
+  <div class="sec-head">
+    <div class="sec-num">四</div>
+    <div>
+      <h2>Python 开发环境安装与运行</h2>
+      <p class="sec-sub">开发环境选择 · 什么是解释器 · 安装步骤 · IDLE 的两种使用方式 · 代码书写注意事项</p>
+    </div>
+  </div>
+
+  <h3>4.1 开发环境选择</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>环境 / 工具</th><th>特点</th><th>适合谁</th></tr></thead>
+      <tbody>
+        <tr><td><strong>IDLE</strong>（官方）</td><td>Python 自带，无需额外安装，包含 Shell 交互窗口与代码编辑器</td><td>本课程统一使用</td></tr>
+        <tr><td>Anaconda</td><td>面向数据科学的发行版，预装大量科学计算库</td><td>进阶使用</td></tr>
+        <tr><td>PyCharm</td><td>专业的 Python IDE，功能强大，适合大型项目</td><td>初学阶段可选</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="note">本课程建议：<strong>统一使用 Python 官方 IDLE</strong>，环境简单、聚焦语法本身；学有余力的同学可自行体验 Anaconda / PyCharm / VS Code。</div>
+
+  <h3>4.2 什么是 Python 环境</h3>
+  <p><strong>Python 环境 = Python 解释器</strong>。解释器像一位<strong>翻译官</strong>：把你写的程序代码翻译成机器能够理解的二进制并运行。</p>
+  <h4>安装前准备</h4>
+  <ul>
+    <li>到 python.org 下载对应操作系统（Windows / macOS）的安装包；</li>
+    <li>选择 <strong>Python 3.x</strong> 版本（如 3.8 及以上）；</li>
+    <li>机房环境与个人电脑均可安装，课程软件包目录也提供了离线安装包。</li>
+  </ul>
+
+  <h3>4.3 安装步骤（一）：自定义安装</h3>
+  <div class="figure">
+    <img src="assets/python-bigdata-2026/install-step1.png" alt="Python 安装向导界面：Install Now 与 Customize installation、Add Python to PATH" loading="lazy">
+    <figcaption>图 1-2 安装向导第一屏：勾选“Add Python 3.x to PATH”，并选择“Customize installation”</figcaption>
+  </div>
+  <div class="steps">
+    <div class="step">
+      <div class="sn">1</div>
+      <div class="sc"><div class="st">运行安装程序</div><div class="sd">双击下载的安装文件，进入安装向导。</div></div>
+    </div>
+    <div class="step">
+      <div class="sn">2</div>
+      <div class="sc"><div class="st">务必勾选 Add Python 3.x to PATH</div><div class="sd">勾选后 Python 会被加入环境变量，才能在命令行里直接使用 <code class="inline">python</code> 与 <code class="inline">pip</code> 命令。</div></div>
+    </div>
+    <div class="step">
+      <div class="sn">3</div>
+      <div class="sc"><div class="st">选择 Customize installation</div><div class="sd">进入自定义安装；安装路径建议保持默认，或改为<strong>不含中文与空格</strong>的路径。</div></div>
+    </div>
+  </div>
+  <div class="danger"><strong>如果忘了勾选 PATH？</strong>方法一：卸载后重新安装并勾选 Add to PATH（推荐，最省事）；方法二：手动修改系统环境变量 Path，把 Python 安装目录加进去（容易出错，建议先问老师或 AI）。</div>
+
+  <h3>4.4 安装步骤（二）：完成安装与验证</h3>
+  <div class="steps">
+    <div class="step">
+      <div class="sn">4</div>
+      <div class="sc"><div class="st">后续选项一路 Next</div><div class="sd">Optional Features 保持默认（Documentation、pip、tcl/tk and IDLE 等都被勾选）。</div></div>
+    </div>
+    <div class="step">
+      <div class="sn">5</div>
+      <div class="sc"><div class="st">选择 Install for all users</div><div class="sd">为所有用户安装，保持默认安装路径，点击 Install 开始安装。</div></div>
+    </div>
+    <div class="step">
+      <div class="sn">6</div>
+      <div class="sc"><div class="st">验证安装</div><div class="sd">打开 IDLE，看到 <code class="inline">&gt;&gt;&gt;</code> 提示符即安装成功；或在命令行输入 <code class="inline">python --version</code> 查看版本号。</div></div>
+    </div>
+  </div>
+
+  <h3>4.5 IDLE 的两种使用方式</h3>
+  <div class="figure">
+    <img src="assets/python-bigdata-2026/idle-shell.png" alt="IDLE 的 Shell 窗口：菜单栏、版本信息与 >>> 提示符" loading="lazy">
+    <figcaption>图 1-3 IDLE 的 Shell 窗口：菜单栏、版本信息与 <code class="inline">&gt;&gt;&gt;</code> 提示符</figcaption>
+  </div>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>对比项</th><th>Shell 窗口（交互式）</th><th>文件式（正式开发）</th></tr></thead>
+      <tbody>
+        <tr><td>使用方式</td><td>在 <code class="inline">&gt;&gt;&gt;</code> 后输入语句，回车立即执行</td><td>新建、保存 <code class="inline">.py</code> 文件后运行</td></tr>
+        <tr><td>结果</td><td>执行结果或错误信息直接显示在窗口里</td><td>运行结果显示在 Shell 窗口</td></tr>
+        <tr><td>是否保存</td><td>关闭窗口即消失，无法保存</td><td>文件保存在磁盘上，可反复运行</td></tr>
+        <tr><td>适用场景</td><td>试验单条命令、快速验证想法</td><td>编写完整程序、提交作业</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="note">在 IDLE 中，语法关键字会用<strong>不同颜色</strong>标识；输入函数名后打上括号会弹出语法提示；用 <code class="inline">help()</code> 可以查看对象帮助信息——善用这些提示，能省很多查资料的时间。</div>
+
+  <h3>4.6 文件式编辑：三步走</h3>
+  <div class="steps">
+    <div class="step">
+      <div class="sn">1</div>
+      <div class="sc"><div class="st">创建文件</div><div class="sd">在 IDLE 菜单栏选择 <strong>File → New File</strong>，打开编辑窗口。</div></div>
+    </div>
+    <div class="step">
+      <div class="sn">2</div>
+      <div class="sc"><div class="st">保存文件</div><div class="sd">选择 <strong>File → Save</strong>，设置文件名为 <code class="inline">hello.py</code>。注意：<code class="inline">.py</code> 是 Python 程序文件的扩展名。</div></div>
+    </div>
+    <div class="step">
+      <div class="sn">3</div>
+      <div class="sc"><div class="st">运行程序</div><div class="sd">选择 <strong>Run → Run Module</strong>（或直接按 <strong>F5</strong>）运行，结果输出在 Shell 窗口。</div></div>
+    </div>
+  </div>
+  <p>如果文件已经关闭，可以右键单击 <code class="inline">hello.py</code>，选择 <strong>Edit with IDLE</strong> 重新打开编辑。</p>
+
+  <h3>4.7 代码书写注意事项</h3>
+  <div class="grid2">
+    <div class="cell">
+      <h4>缩进</h4>
+      <p>Python 用<strong>相同的缩进表示同级别的语句块</strong>；缩进不正确会导致程序逻辑错误甚至报错。不要混用空格与 Tab 键。</p>
+    </div>
+    <div class="cell">
+      <h4>注释</h4>
+      <p><code class="inline">#</code> 开头表示单行注释；三引号（三个单引号或三个双引号）括起来的内容可用于多行注释。</p>
+    </div>
+    <div class="cell">
+      <h4>标点符号</h4>
+      <p>必须使用<strong>英文状态</strong>的标点，引号、括号要<strong>成对出现</strong>。中文引号是最常见的低级错误。</p>
+    </div>
+    <div class="cell">
+      <h4>命名与保留字</h4>
+      <p>变量名<strong>区分大小写</strong>（<code class="inline">true</code> 与 <code class="inline">True</code> 不同）；不要用 Python 的保留字做变量名。</p>
+    </div>
+  </div>
+  <div class="demo">
+    <div class="demo-head">
+      <span class="demo-title">代码书写示范：缩进与注释</span>
+      <div class="demo-actions"><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code"># 这是一个单行注释
+name = "Alice"          # 定义变量
+if name == "Alice":     # 分支结构，以冒号结尾
+    print("你好，Alice")  # 注意缩进：这里是上一行的子语句块</pre>
+    <div class="demo-out">
+      <div class="out-label">运行结果</div>
+      <pre class="out"><span class="ln-out">你好，Alice</span></pre>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 五、扩展库与 pip ===== -->
+<section id="c5">
+  <div class="sec-head">
+    <div class="sec-num">五</div>
+    <div>
+      <h2>Python 扩展库与 pip</h2>
+      <p class="sec-sub">什么是扩展库 · 本课程常用扩展库 · pip 安装与验证</p>
+    </div>
+  </div>
+
+  <h3>5.1 什么是扩展库</h3>
+  <ul>
+    <li>标准 Python 安装包只包含<strong>内置模块与标准库</strong>，不包含扩展库；</li>
+    <li>扩展库需要<strong>单独下载、安装并导入</strong>后才能使用；</li>
+    <li>使用 Python 自带的 <strong>pip</strong> 工具，可以安装、卸载与管理扩展库。</li>
+  </ul>
+
+  <h3>5.2 本课程常用扩展库</h3>
+  <div class="step-grid">
+    <div class="step-card">
+      <div class="sc-no">NumPy</div>
+      <div class="sc-title">数值计算</div>
+      <div class="sc-desc">数组与矩阵运算的基础库，第 7 章使用。</div>
+    </div>
+    <div class="step-card">
+      <div class="sc-no">Pandas</div>
+      <div class="sc-title">数据处理</div>
+      <div class="sc-desc">数据读取、清洗、查询与汇总，第 8 章重点。</div>
+    </div>
+    <div class="step-card">
+      <div class="sc-no">Matplotlib</div>
+      <div class="sc-title">数据可视化</div>
+      <div class="sc-desc">绘制折线图、柱状图、直方图等，第 9 章使用。</div>
+    </div>
+    <div class="step-card">
+      <div class="sc-no">xlrd</div>
+      <div class="sc-title">读取 Excel</div>
+      <div class="sc-desc">读取 Excel 数据文件，配合 Pandas 使用。</div>
+    </div>
+  </div>
+
+  <h3>5.3 用 pip 安装扩展库</h3>
+  <div class="steps">
+    <div class="step">
+      <div class="sn">1</div>
+      <div class="sc"><div class="st">打开命令提示符（cmd）</div><div class="sd">Windows 搜索框输入 <code class="inline">cmd</code> 回车，进入黑色命令行窗口。</div></div>
+    </div>
+    <div class="step">
+      <div class="sn">2</div>
+      <div class="sc"><div class="st">输入安装命令</div><div class="sd"><code class="inline">pip install numpy</code>；也可以一条命令装多个库：<code class="inline">pip install pandas matplotlib xlrd</code>。联网时 pip 会自动下载与当前 Python 版本匹配的扩展库。</div></div>
+    </div>
+    <div class="step">
+      <div class="sn">3</div>
+      <div class="sc"><div class="st">验证安装</div><div class="sd">用 <code class="inline">pip list</code> 查看已安装的库；不需要时用 <code class="inline">pip uninstall 库名</code> 卸载。</div></div>
+    </div>
+  </div>
+  <div class="grid2">
+    <div class="figure">
+      <img src="assets/python-bigdata-2026/pip-install.png" alt="在命令提示符中输入 pip install numpy" loading="lazy">
+      <figcaption>图 1-4 在命令提示符中输入 pip install 命令</figcaption>
+    </div>
+    <div class="figure">
+      <img src="assets/python-bigdata-2026/pip-list.png" alt="pip list 查看已经安装的扩展库" loading="lazy">
+      <figcaption>图 1-5 用 pip list 检查 numpy、pandas、matplotlib、xlrd 是否安装成功</figcaption>
+    </div>
+  </div>
+  <div class="warn">如果提示网络问题或安装失败，可以稍后重试，或改用课程软件包目录中的<strong>离线安装包</strong>安装。命令报错时<strong>先自己读一遍提示信息</strong>，再考虑求助。</div>
+</section>
+
+<!-- ===== 六、Agent 辅助学习 ===== -->
+<section id="c6">
+  <div class="sec-head">
+    <div class="sec-num">六</div>
+    <div>
+      <h2>Agent 辅助学习与课堂练习</h2>
+      <p class="sec-sub">AI 学习路径 · 四维智能支持 · 使用规则 · 四个练习 · 上机清单</p>
+    </div>
+  </div>
+
+  <h3>6.1 本课程中的 AI 学习路径</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>阶段</th><th>周次</th><th>AI 使用强度</th><th>重点</th></tr></thead>
+      <tbody>
+        <tr><td>基础阶段</td><td>第 1—5 周</td><td>基本不接入 AI</td><td>手写代码、阅读报错、调试</td></tr>
+        <tr><td>进阶阶段</td><td>第 6—9 周</td><td>部分接入，先审后改</td><td>阅读、验证、改写 AI 给出的代码</td></tr>
+        <tr><td>项目阶段</td><td>第 10—16 周</td><td>深度协作并写 AI 使用日志</td><td>完成数据分析项目</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="key">第一次课是<strong>认识 Agent 的起点</strong>：学会提问、学会验证、学会记录。记住——<strong>AI 是学习助手，不是替你完成作业的代笔</strong>，基础能力必须靠自己练。</div>
+
+  <h3>6.2 AI 的四维智能支持</h3>
+  <div class="grid2">
+    <div class="cell"><h4>AI 嵌入 IDE</h4><p>代码补全、错误定位、智能解释。</p></div>
+    <div class="cell"><h4>AI 互动文档</h4><p>动态补充案例、问答与练习。</p></div>
+    <div class="cell"><h4>AI 雨课堂学伴</h4><p>随堂反馈、个性化练习。</p></div>
+    <div class="cell"><h4>AI 嵌入式 OJ</h4><p>自动评测、错误分析。</p></div>
+  </div>
+
+  <h3>6.3 AI 使用规则</h3>
+  <ul>
+    <li>基础阶段以<strong>自己动手为主</strong>，AI 输出只是辅助建议，不能替代独立思考；</li>
+    <li>任何 AI 生成的内容，都要<strong>先理解、再验证、后使用</strong>；</li>
+    <li>养成写 <strong>AI 使用日志</strong>的习惯，只需回答三个问题：</li>
+  </ul>
+  <div class="ai">
+    <span class="ai-tag">AI 使用日志三问</span>
+    ① 我让 AI 做了什么？　② 我如何验证它的回答？　③ 我从中真正学到了什么？
+  </div>
+
+  <h3>6.4 四个 Agent 课堂练习</h3>
+  <div class="grid2">
+    <div class="cell">
+      <h4>练习 1：用 AI 理解概念</h4>
+      <p>打开 AI 助手提问，理解“程序与编程语言”这一组概念。</p>
+      <ul>
+        <li>什么是计算机程序？程序与指令是什么关系？</li>
+        <li>机器语言、汇编语言、高级语言有什么区别？</li>
+        <li>为什么说 Python 适合作为第一门编程语言？</li>
+      </ul>
+      <p>要求：用自己的话把回答总结成 2—3 句话，并与本课内容对照。</p>
+    </div>
+    <div class="cell">
+      <h4>练习 2：用 AI 认识 Python</h4>
+      <p>向 AI 提问，了解 Python 的特点、用途与数据分析能力。</p>
+      <ul>
+        <li>Python 有哪些特点？为什么它如此流行？</li>
+        <li>Python 在数据分析中通常完成哪些任务？</li>
+        <li>Python 和 Excel 做数据分析有什么不同？</li>
+      </ul>
+      <p>要求：记录 1 条你认为最有价值的回答，并思考它与本学期目标的关系。</p>
+    </div>
+    <div class="cell">
+      <h4>练习 3：让 AI 排查安装报错</h4>
+      <p>安装 Python 或扩展库遇到报错时，用 AI 快速定位原因。提示词模板：</p>
+      <pre class="code" style="font-size:14px;">我在安装 Python（/ 扩展库 numpy）时
+遇到如下报错：
+（把完整报错信息粘贴在这里）
+请问是什么原因？该如何解决？</pre>
+      <p>要求：把报错信息完整复制给 AI，说明操作系统与操作步骤；按建议操作前先理解原因，解决后记录你学到了什么。</p>
+    </div>
+    <div class="cell">
+      <h4>练习 4：让 AI 讲解并验证代码</h4>
+      <p>提示词：<em>请逐行解释下面这段代码：print("Hello World!")，它每一步做了什么？</em></p>
+      <p>三步验证法：</p>
+      <ol>
+        <li>先不看 AI，自己写一遍；</li>
+        <li>对照 AI 讲解，理解每一行；</li>
+        <li>关闭 AI，独立重写并运行验证。</li>
+      </ol>
+    </div>
+  </div>
+
+  <h3>6.5 课堂上机练习清单</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>任务</th><th>内容</th></tr></thead>
+      <tbody>
+        <tr><td>任务 1</td><td>安装 Python，安装时勾选 Add Python to PATH</td></tr>
+        <tr><td>任务 2</td><td>在 Shell 窗口输出 Hello World</td></tr>
+        <tr><td>任务 3</td><td>用文件方式编写程序，运行后输出你的姓名</td></tr>
+        <tr><td>任务 4</td><td>完成 Agent 练习 1—4 中任选两个，并记录 AI 使用日志</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="note"><strong>完成标准</strong>：每一步你都能说清楚“做了什么、为什么这么做”。遇到报错先自己读，再求助 AI，最后能独立解决。</div>
+</section>
+
+<!-- ===== 小结 ===== -->
+<section id="summary">
+  <div class="sec-head">
+    <div class="sec-num">结</div>
+    <div>
+      <h2>本章小结 · 易错提醒 · 作业</h2>
+      <p class="sec-sub">Summary · 课后作业 · 下讲预告</p>
+    </div>
+  </div>
+
+  <h3>今天的关键收获</h3>
+  <ul>
+    <li>计算机程序是<strong>一组计算机能识别和执行的指令</strong>；程序 = 数据 + 算法。</li>
+    <li>编程语言经历了<strong>机器语言 → 汇编语言 → 高级语言</strong>三个阶段。</li>
+    <li>Python 是世界上最流行的编程语言之一，<strong>Python 3.x 是当前主流</strong>。</li>
+    <li>IDLE 提供 <strong>Shell 交互式</strong>与<strong>文件式</strong>两种使用方式。</li>
+    <li>扩展库需要用 <strong>pip</strong> 安装管理，本课程将使用 NumPy、Pandas、Matplotlib、xlrd。</li>
+    <li>AI 助手（Agent）会成为你学习的智能助手，但<strong>基础能力要靠自己练</strong>。</li>
+  </ul>
+
+  <h3>易错提醒</h3>
+  <div class="danger">
+    <ul style="margin-top:0;">
+      <li>安装时忘记勾选 <strong>Add Python to PATH</strong> —— 命令行里敲 <code class="inline">python</code> 会提示“找不到命令”。</li>
+      <li>缩进里<strong>混用空格和 Tab</strong> —— 代码看起来对齐，运行时却报错。</li>
+      <li>使用了<strong>中文标点</strong>（如 “　”，；）—— 语法错误，且报错信息不直观。</li>
+      <li>把 Python <strong>2.x</strong> 的教程代码直接搬到 3.x —— 两者不兼容，很多写法已失效。</li>
+      <li>在 Shell 窗口写了半天代码才想起保存 —— Shell 关闭后代码全部消失，正式程序请用文件式。</li>
+    </ul>
+  </div>
+
+  <div class="homework">
+    <h4>课后作业</h4>
+    <ol>
+      <li>在自己的电脑上安装 Python 及常用扩展包（numpy、pandas、matplotlib、xlrd）。</li>
+      <li>完成教材课后习题 1、2、3。</li>
+      <li>用 Agent 问 AI 一个问题，按“三问格式”记录一篇 AI 使用日志。</li>
+    </ol>
+    <p>提交方式：下次课前通过雨课堂 / 班级群提交。</p>
+  </div>
+
+  <h3>下讲预告</h3>
+  <a class="nextcard" href="python-bigdata-2026-lesson2.html">
+    <div>
+      <div class="nc-title">第 2 次课 · 第 2 章 Python 语言基础</div>
+      <div class="nc-desc">常量与变量 · 运算符与表达式 · 数据类型 · 内置函数 · 基本输入输出 · 模块</div>
+    </div>
+    <span class="nc-go">进入第 2 次课 →</span>
+  </a>
+
+  <div class="recap">
+    <h4 style="margin-top:0;">附录 · 学习平台与离线资源</h4>
+    <ul>
+      <li><strong>离线软件包</strong>：课程软件包目录提供 Python 安装包（含 Windows / macOS），无网络也可安装。</li>
+      <li><strong>教材与参考书</strong>：陈洁、刘姝《Python 编程与数据分析基础》（第 2 版）；董付国《Python 程序设计基础》（第 2 版）。</li>
+      <li><strong>学习平台</strong>：雨课堂（随堂练习与考勤）· 学堂在线（配套视频）· 课件 data 目录（练习数据）。</li>
+    </ul>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="f-main">中华女子学院 · Python大数据分析基础</div>
+  <div>第 1 次课 · 课程介绍与 Python 概述 · 4学时 180分钟 · 授课人：孙琪翔</div>
+  <div style="margin-top:6px;font-size:12px;opacity:.7;">本网页依据第 1 次课课件《课程介绍与 Python 概述》与《Python 编程与数据分析基础》（陈洁、刘姝，清华大学出版社）第 1 章整理。</div>
+  <div style="margin-top:12px;font-size:14px;">
+    <a href="python-bigdata-2026.html">课程主页</a>
+    <span style="opacity:.45;margin:0 8px;">|</span>
+    <a href="python-bigdata-2026-lesson2.html">第2次课 · Python语言基础</a>
+  </div>
+</footer>
+
+<button id="toTop" title="回到顶部">↑</button>
+
+<script>
+/* ===== 语法高亮（轻量Python高亮，与第2次课网页一致） ===== */
+var PY_KW = new Set(['and','or','not','if','elif','else','for','while','in','is','import','from','as','def','return','break','continue','pass','lambda','True','False','None','class','try','except','finally','with','del','global','nonlocal','raise','yield','assert','async','await']);
+var PY_BLT = new Set(['print','input','type','len','abs','round','max','min','int','float','str','bool','dir','help','pow','sum','range','id','repr','sorted','list','tuple','dict','set','open','format','chr','ord','enumerate','zip','map','filter','isinstance','super','vars','hasattr','getattr','setattr']);
+function escHtml(s){
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+function highlight(code){
+  var re = /(#[^\n]*)|("""[\s\S]*?"""|'''[\s\S]*?''')|("(?:[^"\\\n]|\\.)*"|'(?:[^'\\\n]|\\.)*')|(\d+(?:\.\d+)?(?:[eE][+-]?\d+)?)|([A-Za-z_]\w*)/g;
+  var out = '', m, last = 0;
+  while((m = re.exec(code))){
+    out += escHtml(code.slice(last, m.index));
+    if(m[1]) out += '<span class="c-com">' + escHtml(m[1]) + '</span>';
+    else if(m[2]) out += '<span class="c-str">' + escHtml(m[2]) + '</span>';
+    else if(m[3]) out += '<span class="c-str">' + escHtml(m[3]) + '</span>';
+    else if(m[4]) out += '<span class="c-num">' + escHtml(m[4]) + '</span>';
+    else {
+      var nm = m[5];
+      if(PY_KW.has(nm)) out += '<span class="c-kw">' + nm + '</span>';
+      else if(PY_BLT.has(nm)) out += '<span class="c-fn">' + nm + '</span>';
+      else out += escHtml(nm);
+    }
+    last = m.index + m[0].length;
+  }
+  out += escHtml(code.slice(last));
+  return out;
+}
+document.addEventListener('DOMContentLoaded', function(){
+  document.querySelectorAll('pre.code').forEach(function(pre){
+    if(pre.closest('.cell')) return;   /* 提示词模板保持原样，不做语法高亮 */
+    pre.innerHTML = highlight(pre.textContent);
+  });
+});
+
+/* ===== 知识树交互 ===== */
+function jumpTarget(id){
+  var el = document.getElementById(id);
+  if(el) el.scrollIntoView({behavior:'smooth'});
+}
+document.addEventListener('DOMContentLoaded', function(){
+  document.querySelectorAll('#knowledgeTree .tn.branch').forEach(function(el){
+    el.addEventListener('click', function(e){
+      var link = e.target.closest('.golink');
+      if(link){ jumpTarget(link.getAttribute('data-target')); return; }
+      var kids = el.nextElementSibling;
+      if(kids && kids.classList.contains('kids')){
+        kids.classList.toggle('show');
+        el.classList.toggle('open');
+      }
+    });
+  });
+  document.querySelectorAll('#knowledgeTree .tn.leaf').forEach(function(el){
+    el.addEventListener('click', function(){
+      var t = el.getAttribute('data-target');
+      if(t) jumpTarget(t);
+    });
+  });
+});
+
+/* ===== 复制代码 ===== */
+document.addEventListener('DOMContentLoaded', function(){
+  document.querySelectorAll('.btn-copy').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var box = btn.closest('.demo');
+      var pre = box ? box.querySelector('pre.code') : null;
+      if(!pre) return;
+      var text = pre.textContent;
+      var done = function(){
+        var old = btn.textContent;
+        btn.textContent = '已复制 ✓';
+        btn.classList.add('ok');
+        setTimeout(function(){ btn.textContent = old; btn.classList.remove('ok'); }, 1600);
+      };
+      if(navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(text).then(done, function(){ fallbackCopy(text, done); });
+      } else { fallbackCopy(text, done); }
+    });
+  });
+  function fallbackCopy(text, done){
+    var ta = document.createElement('textarea');
+    ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    try{ document.execCommand('copy'); done(); }catch(e){}
+    document.body.removeChild(ta);
+  }
+});
+
+/* ===== 导航滚动高亮 ===== */
+document.addEventListener('DOMContentLoaded', function(){
+  var navLinks = {};
+  document.querySelectorAll('#nav a[data-sec]').forEach(function(a){
+    navLinks[a.getAttribute('data-sec')] = a;
+  });
+  var sections = ['guide','c1','c2','c3','c4','c5','c6','summary'];
+  if('IntersectionObserver' in window){
+    var obs = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        if(en.isIntersecting){
+          document.querySelectorAll('#nav a').forEach(function(a){ a.classList.remove('on'); });
+          var a = navLinks[en.target.id];
+          if(a) a.classList.add('on');
+        }
+      });
+    }, {rootMargin:'-15% 0px -70% 0px'});
+    sections.forEach(function(s){
+      var el = document.getElementById(s);
+      if(el) obs.observe(el);
+    });
+  }
+});
+
+/* ===== 回到顶部 ===== */
+document.addEventListener('DOMContentLoaded', function(){
+  var toTop = document.getElementById('toTop');
+  window.addEventListener('scroll', function(){
+    if(window.scrollY > 600) toTop.classList.add('show');
+    else toTop.classList.remove('show');
+  });
+  toTop.addEventListener('click', function(){
+    window.scrollTo({top:0, behavior:'smooth'});
+  });
+});
+</script>
+</body>
+</html>

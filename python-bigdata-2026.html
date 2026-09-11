@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026年Python大数据分析基础 · 课程主页</title>
+<style>
+/* ===== 基础 ===== */
+:root{
+  --ink:#2b2820; --ink-soft:#5d594c; --ink-faint:#8a8577;
+  --paper:#f6f3ec; --card:#fffdf8; --line:#e4ddcc; --line-soft:#efe9dc;
+  --blue:#306998; --blue-deep:#1f3864; --blue-soft:#eaf1f8;
+  --gold:#b8860b; --amber:#b45309; --amber-soft:#fdf3e3;
+  --green:#2e7d32; --green-soft:#eaf5eb;
+  --red:#b3392f; --red-soft:#fbeceb;
+  --radius:14px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;scroll-padding-top:86px;}
+body{
+  font-family:"Times New Roman","宋体",SimSun,"Songti SC","SimSun-ExtB",serif;
+  font-size:16px;line-height:1.95;color:var(--ink);background:var(--paper);
+  -webkit-font-smoothing:antialiased;
+}
+/* ===== 顶部 Hero ===== */
+.hero{
+  background:linear-gradient(120deg,#1b3157 0%,#264a7e 55%,#306998 100%);
+  color:#fff;padding:48px 20px 42px;position:relative;overflow:hidden;
+}
+.hero::after{
+  content:"";position:absolute;right:-60px;top:-60px;width:300px;height:300px;
+  border-radius:50%;background:rgba(255,212,59,.08);pointer-events:none;
+}
+.hero-inner{max-width:1060px;margin:0 auto;position:relative;z-index:1;}
+.hero .kicker{
+  display:inline-block;font-size:13px;letter-spacing:2px;color:#ffd43b;
+  border:1px solid rgba(255,212,59,.5);border-radius:999px;padding:3px 14px;margin-bottom:16px;
+}
+.hero h1{font-size:38px;font-weight:700;line-height:1.35;margin-bottom:10px;}
+.hero .sub{font-size:18px;color:#dbe6f5;margin-bottom:18px;}
+.hero .meta{display:flex;flex-wrap:wrap;gap:10px;}
+.hero .meta span{
+  font-size:13px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);
+  border-radius:999px;padding:4px 14px;color:#f2f6fb;
+}
+/* ===== 导航 ===== */
+.nav{
+  position:sticky;top:0;z-index:50;background:rgba(253,251,246,.94);
+  backdrop-filter:blur(8px);border-bottom:1px solid var(--line);
+}
+.nav-inner{max-width:1060px;margin:0 auto;display:flex;align-items:center;gap:6px;overflow-x:auto;padding:10px 16px;}
+.nav-inner::-webkit-scrollbar{height:0;}
+.nav a{
+  flex:0 0 auto;font-size:14px;color:var(--ink-soft);text-decoration:none;
+  padding:6px 14px;border-radius:999px;border:1px solid transparent;white-space:nowrap;
+  transition:all .18s;
+}
+.nav a:hover{color:var(--blue);background:var(--blue-soft);}
+.nav a.on{color:#fff;background:var(--blue);border-color:var(--blue);}
+.nav a.nav-back{color:var(--blue-deep);font-weight:700;border-color:#cfe0f0;background:#fff;margin-right:6px;}
+/* ===== 主区域 ===== */
+main{max-width:1060px;margin:0 auto;padding:30px 16px 60px;}
+section{margin-bottom:34px;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:30px 34px;box-shadow:0 1px 4px rgba(60,50,20,.05);}
+.sec-head{display:flex;align-items:flex-start;gap:14px;margin-bottom:6px;}
+.sec-num{
+  flex:0 0 auto;min-width:46px;height:46px;border-radius:12px;background:var(--blue-deep);color:#fff;
+  display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:700;margin-top:4px;
+}
+.sec-head h2{font-size:26px;font-weight:700;line-height:1.3;}
+.sec-sub{font-size:14px;color:var(--ink-soft);margin:2px 0 18px;}
+h3{font-size:20px;font-weight:700;margin:26px 0 10px;padding-left:12px;border-left:5px solid var(--blue);line-height:1.4;}
+h4{font-size:17px;font-weight:700;margin:18px 0 8px;color:var(--blue-deep);}
+p{margin:8px 0;}
+ul,ol{margin:8px 0 8px 24px;}
+li{margin:5px 0;}
+strong{color:var(--blue-deep);}
+code.inline{
+  font-family:"Times New Roman","宋体",SimSun,serif;font-size:15px;background:var(--blue-soft);
+  color:var(--blue-deep);padding:1px 7px;border-radius:6px;border:1px solid #d5e2f0;white-space:nowrap;
+}
+.tag{display:inline-block;font-size:12px;color:var(--blue);background:var(--blue-soft);border:1px solid #d2e2f2;border-radius:999px;padding:1px 10px;margin:2px 4px 2px 0;}
+.tag.gold{color:var(--amber);background:var(--amber-soft);border-color:#f0dcb8;}
+.tag.green{color:var(--green);background:var(--green-soft);border-color:#cfe6d1;}
+.tag.gray{color:var(--ink-faint);background:#f2efe7;border-color:#e2dccf;}
+/* 提示框 */
+.note,.warn,.key{
+  border-radius:10px;padding:12px 16px 12px 44px;margin:14px 0;position:relative;font-size:15px;
+}
+.note{background:var(--blue-soft);border:1px solid #cfe0f0;color:#234a72;}
+.warn{background:var(--amber-soft);border:1px solid #efdcb5;color:#7a4a0a;}
+.key{background:#f4efe2;border:1px solid #e5dcc0;color:#5d5230;}
+.note::before,.warn::before,.key::before{
+  position:absolute;left:14px;top:12px;width:20px;height:20px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;
+}
+.note::before{content:"i";background:var(--blue);}
+.warn::before{content:"!";background:var(--amber);}
+.key::before{content:"★";background:#9c8a4a;}
+/* ===== 表格 ===== */
+.tbl-wrap{overflow-x:auto;margin:14px 0;border:1px solid var(--line);border-radius:10px;}
+table{width:100%;border-collapse:collapse;font-size:15px;background:#fff;}
+th,td{padding:9px 14px;border-bottom:1px solid var(--line-soft);text-align:left;vertical-align:top;}
+th{background:var(--blue-soft);color:var(--blue-deep);font-weight:700;white-space:nowrap;}
+tbody tr:nth-child(even){background:#faf7f0;}
+tbody tr:last-child td{border-bottom:none;}
+/* ===== 网格 ===== */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:16px 0;}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:16px 0;}
+.grid2 .cell,.grid3 .cell{background:#faf7f0;border:1px solid var(--line-soft);border-radius:12px;padding:16px 18px;}
+.cell h4{margin-top:0;}
+.cell ul{margin-left:20px;}
+.cell li{font-size:15px;}
+@media(max-width:860px){.grid2,.grid3{grid-template-columns:1fr;}}
+/* ===== 课程列表 ===== */
+.lesson-group{margin:18px 0 6px;font-size:15px;font-weight:700;color:var(--blue-deep);}
+.lesson-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;margin:14px 0 20px;}
+.lesson-card{
+  display:flex;flex-direction:column;background:#faf7f0;border:1px solid var(--line-soft);
+  border-radius:12px;padding:18px 20px;text-decoration:none;color:var(--ink);transition:all .2s;
+}
+.lesson-card:hover{border-color:var(--blue);box-shadow:0 6px 18px rgba(48,105,152,.14);transform:translateY(-3px);}
+.lesson-card .lc-top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;}
+.lesson-card .lc-no{font-size:13px;font-weight:700;color:var(--blue);letter-spacing:1px;}
+.lesson-card .lc-title{font-size:19px;font-weight:700;color:var(--blue-deep);margin:6px 0 6px;line-height:1.4;}
+.lesson-card .lc-desc{font-size:14px;color:var(--ink-soft);line-height:1.75;flex:1 1 auto;}
+.lesson-card .lc-foot{margin-top:12px;font-size:13px;color:var(--ink-faint);display:flex;justify-content:space-between;align-items:center;gap:10px;}
+.lesson-card .lc-go{color:var(--blue);font-weight:700;}
+.lesson-card.pending{background:#f7f4ec;border-style:dashed;cursor:default;}
+.lesson-card.pending:hover{transform:none;box-shadow:none;border-color:var(--line-soft);}
+.lesson-card.pending .lc-title{color:var(--ink-soft);}
+/* ===== 页脚 ===== */
+footer{background:#1c2b44;color:#b9c6dc;text-align:center;padding:26px 20px;font-size:14px;}
+footer .f-main{color:#fff;font-size:16px;margin-bottom:4px;}
+footer a{color:#dfe7f4;text-decoration:none;}
+footer a:hover{text-decoration:underline;}
+/* 回到顶部 */
+#toTop{
+  position:fixed;right:22px;bottom:26px;width:44px;height:44px;border-radius:50%;border:none;
+  font-family:"Times New Roman","宋体",SimSun,serif;font-weight:700;
+  background:var(--blue-deep);color:#fff;font-size:18px;cursor:pointer;box-shadow:0 4px 14px rgba(31,56,100,.35);
+  opacity:0;pointer-events:none;transition:all .25s;z-index:60;
+}
+#toTop.show{opacity:1;pointer-events:auto;}
+#toTop:hover{background:var(--blue);}
+/* ===== 响应式 ===== */
+@media(max-width:720px){
+  body{font-size:15px;}
+  .hero h1{font-size:27px;}
+  .hero{padding:34px 16px 30px;}
+  section{padding:22px 18px;}
+  .sec-head h2{font-size:21px;}
+  .sec-num{min-width:38px;height:38px;font-size:15px;}
+}
+</style>
+</head>
+<body>
+
+<!-- ===== 顶部 ===== */
+<header class="hero">
+  <div class="hero-inner">
+    <span class="kicker">中华女子学院 · 2026 年秋季学期</span>
+    <h1>2026年Python大数据分析基础</h1>
+    <p class="sub">经管类、社科类方向课 · 56 学时 · 非计算机专业学生的第一门程序设计语言</p>
+    <div class="meta">
+      <span>数据科学与信息技术学院</span><span>授课教师：孙琪翔</span><span>第 1—16 周</span><span>Python 3 + IDLE</span>
+    </div>
+  </div>
+</header>
+
+<!-- ===== 导航 ===== -->
+<nav class="nav" id="nav">
+  <div class="nav-inner" id="navInner">
+    <a href="index.html" class="nav-back">← 返回个人网站</a>
+    <a href="#intro" data-sec="intro" class="on">课程简介</a>
+    <a href="#goal" data-sec="goal">课程目标</a>
+    <a href="#plan" data-sec="plan">教学内容与学时</a>
+    <a href="#book" data-sec="book">教材与资源</a>
+    <a href="#exam" data-sec="exam">考核方式</a>
+    <a href="#lessons" data-sec="lessons">课程列表</a>
+  </div>
+</nav>
+
+<main>
+
+<!-- ===== 课程简介 ===== -->
+<section id="intro">
+  <div class="sec-head">
+    <div class="sec-num">简</div>
+    <div>
+      <h2>课程简介</h2>
+      <p class="sec-sub">Course Overview · 这门课学什么，为什么值得学</p>
+    </div>
+  </div>
+
+  <p>《大数据分析基础（Python）》是面向<strong>经管类、社科类</strong>专业开设的方向课，共 <strong>56 学时</strong>，是<strong>非计算机专业学生的第一门程序设计语言</strong>课程。课程以 Python 为平台，从零起点讲起，帮助大家理解并完成数据分析的基本任务。</p>
+
+  <h3>课程内容主线</h3>
+  <div class="grid3">
+    <div class="cell">
+      <h4>① Python 语言基础</h4>
+      <p>语法、数据类型、控制结构、函数、文件——先把“语言关”过掉。</p>
+    </div>
+    <div class="cell">
+      <h4>② 数据分析三件套</h4>
+      <p>NumPy 数值计算 · Pandas 数据处理与分析 · Matplotlib 数据可视化。</p>
+    </div>
+    <div class="cell">
+      <h4>③ 综合应用</h4>
+      <p>把前面所学串起来，完成一个完整的数据分析任务。</p>
+    </div>
+  </div>
+
+  <h3>为什么要学大数据分析</h3>
+  <ul>
+    <li><strong>数据智能时代</strong>：大数据、人工智能成为新一轮科技革命与产业变革的驱动力，深刻影响经济社会发展；</li>
+    <li><strong>国家战略背景</strong>：《中国制造 2025》《促进大数据发展行动纲要》《新一代人工智能发展规划》相继发布；</li>
+    <li><strong>通用能力</strong>：编程与数据分析能力已成为数据智能时代人才的必备能力，数据分析正在进入会计、人力、法律、心理等几乎所有专业。</li>
+  </ul>
+  <div class="key">掌握数据思维，能让你<strong>用证据说话、用数据决策</strong>，在本专业里多一项别人不容易替代的能力。</div>
+
+  <div class="note">本课程采用 <strong>AI 渗透式教学</strong>：讲清 Python 原理的同时，逐步引入 Agent（AI 助手）辅助学习，并规范记录 AI 使用过程——但基础阶段坚持<strong>自己动手写代码</strong>。</div>
+</section>
+
+<!-- ===== 课程目标 ===== -->
+<section id="goal">
+  <div class="sec-head">
+    <div class="sec-num">标</div>
+    <div>
+      <h2>课程目标</h2>
+      <p class="sec-sub">知识 · 能力 · 素质 三维目标</p>
+    </div>
+  </div>
+  <div class="grid3">
+    <div class="cell">
+      <h4>知识目标</h4>
+      <ul>
+        <li>理解程序设计的一般概念与方法</li>
+        <li>熟悉 Python 语言基本功能，掌握编写 Python 程序的基本方法</li>
+        <li>了解数据分析的概念与一般处理过程</li>
+      </ul>
+    </div>
+    <div class="cell">
+      <h4>能力目标</h4>
+      <ul>
+        <li>能用 Python 编写简单程序</li>
+        <li>能正确选择 Python 工具完成基本数据分析任务</li>
+        <li>初步具备阅读、调试与改进代码的能力</li>
+      </ul>
+    </div>
+    <div class="cell">
+      <h4>素质目标</h4>
+      <ul>
+        <li>培养计算思维、大数据意识与数据思维</li>
+        <li>遵循学术规范，养成团队协作意识</li>
+        <li>培养严谨求真的科学态度与工匠精神</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 教学内容与学时 ===== -->
+<section id="plan">
+  <div class="sec-head">
+    <div class="sec-num">学</div>
+    <div>
+      <h2>教学内容与学时安排</h2>
+      <p class="sec-sub">共 9 章 + 阶段考核，合计 56 学时</p>
+    </div>
+  </div>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr><th>章 / 节</th><th>教学内容</th><th>理论</th><th>实践</th><th>总计</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>第 1 章</td><td>Python 概述</td><td>3</td><td>1</td><td>4</td></tr>
+        <tr><td>第 2 章</td><td>Python 语言基础</td><td>2</td><td>2</td><td>4</td></tr>
+        <tr><td>第 3 章</td><td>程序控制结构</td><td>2</td><td>4</td><td>6</td></tr>
+        <tr><td>第 4 章</td><td>组合数据结构</td><td>2</td><td>4</td><td>6</td></tr>
+        <tr><td>第 5 章</td><td>函数</td><td>2</td><td>2</td><td>4</td></tr>
+        <tr><td>第 6 章</td><td>文件与目录操作</td><td>2</td><td>2</td><td>4</td></tr>
+        <tr><td>第 7 章</td><td>NumPy 数值计算</td><td>2</td><td>2</td><td>4</td></tr>
+        <tr><td>第 8 章</td><td>Pandas 数据处理与分析</td><td>5</td><td>7</td><td>12</td></tr>
+        <tr><td>第 9 章</td><td>数据可视化</td><td>2</td><td>4</td><td>6</td></tr>
+        <tr><td>阶段考核</td><td>阶段测试</td><td>2</td><td>4</td><td>6</td></tr>
+        <tr><td><strong>合计</strong></td><td><strong>共 56 学时</strong></td><td><strong>24</strong></td><td><strong>32</strong></td><td><strong>56</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="note">前 5 章侧重 Python 语言基础，为数据分析打牢地基；<strong>第 8 章 Pandas 是本课程的重点与核心，学时最多</strong>。实际进度会根据课堂情况微调。</div>
+</section>
+
+<!-- ===== 教材与资源 ===== -->
+<section id="book">
+  <div class="sec-head">
+    <div class="sec-num">材</div>
+    <div>
+      <h2>教材与教学资源</h2>
+      <p class="sec-sub">教材 · 参考书 · 视频课程 · 练习平台</p>
+    </div>
+  </div>
+  <div class="grid2">
+    <div class="cell">
+      <h4>教材</h4>
+      <p>陈洁, 刘姝. 《Python 编程与数据分析基础》（第 2 版）. 北京：清华大学出版社.</p>
+      <h4>参考书</h4>
+      <p>董付国. 《Python 程序设计基础》（第 2 版）. 人民邮电出版社.</p>
+    </div>
+    <div class="cell">
+      <h4>视频课程</h4>
+      <p>学堂在线搜索《Python 编程与数据分析基础》，可跟随视频预习与复习。</p>
+      <h4>练习与考核资源</h4>
+      <p>雨课堂练习（计入平时成绩）· 随堂上机练习 · 阶段性测试 · 编程作业。</p>
+      <p><span class="tag">雨课堂</span><span class="tag">学堂在线</span><span class="tag">课件 data 目录</span><span class="tag">离线软件包</span></p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 考核方式 ===== -->
+<section id="exam">
+  <div class="sec-head">
+    <div class="sec-num">考</div>
+    <div>
+      <h2>教学考核方式</h2>
+      <p class="sec-sub">过程性考核 60% + 期末考核 40%</p>
+    </div>
+  </div>
+  <div class="grid2">
+    <div class="cell">
+      <h4>过程性考核 60%</h4>
+      <ul>
+        <li>课堂出勤与课堂参与</li>
+        <li>课堂考核与编程作业</li>
+        <li>期中阶段测试（编程实践 + 笔试）</li>
+      </ul>
+    </div>
+    <div class="cell">
+      <h4>期末考核 40%</h4>
+      <ul>
+        <li>期末考试：考察全学期知识掌握与综合应用</li>
+      </ul>
+    </div>
+  </div>
+  <div class="warn">平时成绩（雨课堂练习、上机、作业）会<strong>直接影响总评</strong>，请务必按时完成。</div>
+</section>
+
+<!-- ===== 课程列表 ===== -->
+<section id="lessons">
+  <div class="sec-head">
+    <div class="sec-num">课</div>
+    <div>
+      <h2>课程列表</h2>
+      <p class="sec-sub">Lesson List · 点击卡片进入对应课次的课堂内容网页</p>
+    </div>
+  </div>
+
+  <p>每一次课都整理成一份<strong>可在线浏览的课堂内容网页</strong>：知识点按模块组织，含图示、代码与课堂练习，课后复习可直接看网页，不必翻课件。</p>
+
+  <div class="lesson-group">已完成的课次</div>
+  <div class="lesson-grid">
+    <a class="lesson-card" href="python-bigdata-2026-lesson1.html">
+      <div class="lc-top">
+        <span class="lc-no">第 1 次课</span>
+        <span class="tag green">已完成</span>
+      </div>
+      <div class="lc-title">课程介绍与 Python 概述</div>
+      <div class="lc-desc">课程定位与目标 · 教学内容与学时 · 教材与考核 · 程序与编程语言 · Python 语言介绍 · 开发环境安装 · 扩展库与 pip · Agent 辅助学习</div>
+      <div class="lc-foot"><span>2026-09-04 · 4 学时</span><span class="lc-go">进入本课 →</span></div>
+    </a>
+    <a class="lesson-card" href="python-bigdata-2026-lesson2.html">
+      <div class="lc-top">
+        <span class="lc-no">第 2 次课</span>
+        <span class="tag green">已完成</span>
+      </div>
+      <div class="lc-title">第 2 章 Python 语言基础</div>
+      <div class="lc-desc">常量与变量 · 运算符与表达式 · 数据类型 · 内置函数 · 基本输入输出 · 模块的使用 · 综合应用（含可交互代码演示）</div>
+      <div class="lc-foot"><span>2026-09-11 · 4 学时</span><span class="lc-go">进入本课 →</span></div>
+    </a>
+  </div>
+
+  <div class="note">
+    <strong>第 2 次课另附一份课堂演示网页（演示Demo）</strong>：包含 7 大模块的现场演示代码、可交互的运算符计算与 AI 概率采样演示、AI 渗透点讲解与推荐视频。<a href="python-bigdata-2026-lesson2-demo.html" style="color:var(--blue-deep);font-weight:700;">打开演示Demo →</a>
+  </div>
+
+  <div class="lesson-group">后续课次（课件整理中）</div>
+  <div class="lesson-grid">
+    <div class="lesson-card pending">
+      <div class="lc-top"><span class="lc-no">第 3 次课</span><span class="tag gray">待更新</span></div>
+      <div class="lc-title">第 3 章 程序控制结构</div>
+      <div class="lc-desc">选择结构、循环结构、break / continue 语句与程序流程图。</div>
+      <div class="lc-foot"><span>6 学时</span><span></span></div>
+    </div>
+    <div class="lesson-card pending">
+      <div class="lc-top"><span class="lc-no">第 4 次课</span><span class="tag gray">待更新</span></div>
+      <div class="lc-title">第 4 章 组合数据结构</div>
+      <div class="lc-desc">列表、元组、字符串、字典、集合与常用序列操作。</div>
+      <div class="lc-foot"><span>6 学时</span><span></span></div>
+    </div>
+    <div class="lesson-card pending">
+      <div class="lc-top"><span class="lc-no">第 5 次课</span><span class="tag gray">待更新</span></div>
+      <div class="lc-title">第 5 章 函数</div>
+      <div class="lc-desc">函数的定义与调用、参数传递、返回值、模块化程序设计。</div>
+      <div class="lc-foot"><span>4 学时</span><span></span></div>
+    </div>
+    <div class="lesson-card pending">
+      <div class="lc-top"><span class="lc-no">第 6 次课</span><span class="tag gray">待更新</span></div>
+      <div class="lc-title">第 6 章 文件与目录操作</div>
+      <div class="lc-desc">文件的读写、目录遍历与常见数据文件格式处理。</div>
+      <div class="lc-foot"><span>4 学时</span><span></span></div>
+    </div>
+    <div class="lesson-card pending">
+      <div class="lc-top"><span class="lc-no">第 7 次课</span><span class="tag gray">待更新</span></div>
+      <div class="lc-title">第 7 章 NumPy 数值计算</div>
+      <div class="lc-desc">数组创建与索引、向量化运算、统计计算与矩阵操作。</div>
+      <div class="lc-foot"><span>4 学时</span><span></span></div>
+    </div>
+    <div class="lesson-card pending">
+      <div class="lc-top"><span class="lc-no">第 8 次课</span><span class="tag gold">课程重点</span></div>
+      <div class="lc-title">第 8 章 Pandas 数据处理与分析</div>
+      <div class="lc-desc">数据读取、清洗与合并，分组统计、数据透视与查询，结合真实订单数据完成分析任务。</div>
+      <div class="lc-foot"><span>12 学时 · 学时最多</span><span></span></div>
+    </div>
+    <div class="lesson-card pending">
+      <div class="lc-top"><span class="lc-no">第 9 次课</span><span class="tag gray">待更新</span></div>
+      <div class="lc-title">第 9 章 数据可视化</div>
+      <div class="lc-desc">Matplotlib 绘图基础、常用统计图形与图表美化。</div>
+      <div class="lc-foot"><span>6 学时</span><span></span></div>
+    </div>
+    <div class="lesson-card pending">
+      <div class="lc-top"><span class="lc-no">阶段考核</span><span class="tag gray">待更新</span></div>
+      <div class="lc-title">期中阶段测试与综合练习</div>
+      <div class="lc-desc">编程实践 + 笔试，覆盖第 1—6 章内容。</div>
+      <div class="lc-foot"><span>6 学时</span><span></span></div>
+    </div>
+  </div>
+
+  <div class="note">课次安排以实际进度为准，页面会随课程推进陆续补充；如果发现某节课的网页有错漏，或希望补充某一块内容，欢迎随时反馈。</div>
+</section>
+
+</main>
+
+<footer>
+  <div class="f-main">中华女子学院 · 2026年Python大数据分析基础</div>
+  <div>数据科学与信息技术学院 · 授课教师：孙琪翔 · 56 学时</div>
+  <div style="margin-top:6px;font-size:12px;opacity:.7;">课程页面依据课件与《Python 编程与数据分析基础》（陈洁、刘姝，清华大学出版社）整理。</div>
+  <div style="margin-top:12px;font-size:14px;"><a href="index.html">← 返回孙琪翔个人网站</a></div>
+</footer>
+
+<button id="toTop" title="回到顶部">↑</button>
+
+<script>
+/* ===== 导航滚动高亮 ===== */
+document.addEventListener('DOMContentLoaded', function(){
+  var navLinks = {};
+  document.querySelectorAll('#nav a[data-sec]').forEach(function(a){
+    navLinks[a.getAttribute('data-sec')] = a;
+  });
+  var sections = ['intro','goal','plan','book','exam','lessons'];
+  if('IntersectionObserver' in window){
+    var obs = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        if(en.isIntersecting){
+          document.querySelectorAll('#nav a').forEach(function(a){ a.classList.remove('on'); });
+          var a = navLinks[en.target.id];
+          if(a) a.classList.add('on');
+        }
+      });
+    }, {rootMargin:'-15% 0px -70% 0px'});
+    sections.forEach(function(s){
+      var el = document.getElementById(s);
+      if(el) obs.observe(el);
+    });
+  }
+  var toTop = document.getElementById('toTop');
+  window.addEventListener('scroll', function(){
+    if(window.scrollY > 600) toTop.classList.add('show');
+    else toTop.classList.remove('show');
+  });
+  toTop.addEventListener('click', function(){
+    window.scrollTo({top:0, behavior:'smooth'});
+  });
+});
+</script>
+</body>
+</html>

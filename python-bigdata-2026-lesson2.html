@@ -1,0 +1,2365 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第2章 Python语言基础 · 上课内容网页</title>
+<style>
+/* ===== 基础 ===== */
+:root{
+  --ink:#2b2820; --ink-soft:#5d594c; --ink-faint:#8a8577;
+  --paper:#f6f3ec; --card:#fffdf8; --line:#e4ddcc; --line-soft:#efe9dc;
+  --blue:#306998; --blue-deep:#1f3864; --blue-soft:#eaf1f8;
+  --gold:#b8860b; --amber:#b45309; --amber-soft:#fdf3e3;
+  --green:#2e7d32; --green-soft:#eaf5eb;
+  --red:#b3392f; --red-soft:#fbeceb;
+  --code-bg:#191b24; --code-hd:#232533; --code-txt:#e8e6de;
+  --radius:14px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;scroll-padding-top:86px;}
+body{
+  font-family:"Times New Roman","宋体",SimSun,"Songti SC","SimSun-ExtB",serif;
+  font-size:16px;line-height:1.95;color:var(--ink);background:var(--paper);
+  -webkit-font-smoothing:antialiased;
+}
+/* ===== 顶部 Hero ===== */
+.hero{
+  background:linear-gradient(120deg,#1b3157 0%,#264a7e 55%,#306998 100%);
+  color:#fff;padding:46px 20px 40px;position:relative;overflow:hidden;
+}
+.hero::after{
+  content:"";position:absolute;right:-60px;top:-60px;width:300px;height:300px;
+  border-radius:50%;background:rgba(255,212,59,.08);pointer-events:none;
+}
+.hero-inner{max-width:1060px;margin:0 auto;position:relative;z-index:1;}
+.hero .kicker{
+  display:inline-block;font-size:13px;letter-spacing:2px;color:#ffd43b;
+  border:1px solid rgba(255,212,59,.5);border-radius:999px;padding:3px 14px;margin-bottom:16px;
+}
+.hero h1{font-size:38px;font-weight:700;line-height:1.35;margin-bottom:10px;}
+.hero .sub{font-size:18px;color:#dbe6f5;margin-bottom:18px;}
+.hero .meta{display:flex;flex-wrap:wrap;gap:10px;}
+.hero .meta span{
+  font-size:13px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);
+  border-radius:999px;padding:4px 14px;color:#f2f6fb;
+}
+/* ===== 导航 ===== */
+.nav{
+  position:sticky;top:0;z-index:50;background:rgba(253,251,246,.94);
+  backdrop-filter:blur(8px);border-bottom:1px solid var(--line);
+}
+.nav-inner{max-width:1060px;margin:0 auto;display:flex;align-items:center;gap:6px;overflow-x:auto;padding:10px 16px;}
+.nav-inner::-webkit-scrollbar{height:0;}
+.nav a{
+  flex:0 0 auto;font-size:14px;color:var(--ink-soft);text-decoration:none;
+  padding:6px 14px;border-radius:999px;border:1px solid transparent;white-space:nowrap;
+  transition:all .18s;
+}
+.nav a:hover{color:var(--blue);background:var(--blue-soft);}
+.nav a.on{color:#fff;background:var(--blue);border-color:var(--blue);}
+.nav a.nav-back{color:var(--blue-deep);font-weight:700;border-color:#cfe0f0;background:#fff;margin-right:6px;}
+.nav a.nav-demo{color:var(--amber);font-weight:700;border-color:#f0dcb8;background:var(--amber-soft);}
+/* ===== 主区域 ===== */
+main{max-width:1060px;margin:0 auto;padding:30px 16px 60px;}
+section{margin-bottom:34px;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:30px 34px;box-shadow:0 1px 4px rgba(60,50,20,.05);}
+.sec-head{display:flex;align-items:flex-start;gap:14px;margin-bottom:6px;}
+.sec-num{
+  flex:0 0 auto;min-width:46px;height:46px;border-radius:12px;background:var(--blue-deep);color:#fff;
+  display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:700;margin-top:4px;
+}
+.sec-head h2{font-size:26px;font-weight:700;line-height:1.3;}
+.sec-sub{font-size:14px;color:var(--ink-soft);margin:2px 0 18px;}
+h3{font-size:20px;font-weight:700;margin:26px 0 10px;padding-left:12px;border-left:5px solid var(--blue);line-height:1.4;}
+h4{font-size:17px;font-weight:700;margin:18px 0 8px;color:var(--blue-deep);}
+p{margin:8px 0;}
+ul,ol{margin:8px 0 8px 24px;}
+li{margin:5px 0;}
+strong{color:var(--blue-deep);}
+code.inline{
+  font-family:"Times New Roman","宋体",SimSun,serif;font-size:15px;background:var(--blue-soft);
+  color:var(--blue-deep);padding:1px 7px;border-radius:6px;border:1px solid #d5e2f0;white-space:nowrap;
+}
+/* 标签 */
+.tag{display:inline-block;font-size:12px;color:var(--blue);background:var(--blue-soft);border:1px solid #d2e2f2;border-radius:999px;padding:1px 10px;margin:2px 4px 2px 0;}
+.tag.gold{color:var(--amber);background:var(--amber-soft);border-color:#f0dcb8;}
+/* 提示框 */
+.note,.warn,.danger,.ai,.key{
+  border-radius:10px;padding:12px 16px 12px 44px;margin:14px 0;position:relative;font-size:15px;
+}
+.note{background:var(--blue-soft);border:1px solid #cfe0f0;color:#234a72;}
+.warn{background:var(--amber-soft);border:1px solid #efdcb5;color:#7a4a0a;}
+.danger{background:var(--red-soft);border:1px solid #ecd0cd;color:#8c2f28;}
+.key{background:#f4efe2;border:1px solid #e5dcc0;color:#5d5230;}
+.ai{background:#eef0fa;border:1px solid #d7dbef;color:#333a63;}
+.note::before,.warn::before,.danger::before,.key::before,.ai::before{
+  position:absolute;left:14px;top:12px;width:20px;height:20px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;
+}
+.note::before{content:"i";background:var(--blue);}
+.warn::before{content:"!";background:var(--amber);}
+.danger::before{content:"×";background:var(--red);}
+.key::before{content:"★";background:#9c8a4a;}
+.ai::before{content:"AI";font-size:10px;background:#4c5691;letter-spacing:0;}
+.ai .ai-tag{display:inline-block;font-size:11px;color:#4c5691;border:1px solid #c3c9e6;background:#fff;border-radius:999px;padding:0 8px;margin-right:6px;}
+/* ===== 表格 ===== */
+.tbl-wrap{overflow-x:auto;margin:14px 0;border:1px solid var(--line);border-radius:10px;}
+table{width:100%;border-collapse:collapse;font-size:15px;background:#fff;}
+th,td{padding:9px 14px;border-bottom:1px solid var(--line-soft);text-align:left;vertical-align:top;}
+th{background:var(--blue-soft);color:var(--blue-deep);font-weight:700;white-space:nowrap;}
+tbody tr:nth-child(even){background:#faf7f0;}
+tbody tr:last-child td{border-bottom:none;}
+td code.inline,th code.inline{white-space:nowrap;}
+/* ===== 代码演示 ===== */
+.demo{border-radius:12px;overflow:hidden;border:1px solid #33364a;margin:16px 0;background:var(--code-bg);}
+.demo-head{
+  display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;
+  background:var(--code-hd);padding:8px 14px;border-bottom:1px solid #2e3142;
+}
+.demo-title{font-size:14px;color:#c8cde0;}
+.demo-actions{display:flex;gap:8px;}
+.btn{
+  font-family:inherit;font-size:13px;cursor:pointer;border-radius:8px;padding:4px 14px;
+  border:1px solid #3d4157;color:#d7dae8;background:#2b2e40;transition:all .15s;
+}
+.btn:hover{background:#383c52;}
+.btn-run{background:#1f6f43;border-color:#2b8a57;color:#fff;}
+.btn-run:hover{background:#26804f;}
+.btn-copy:hover{background:#383c52;}
+pre.code{
+  font-family:"Times New Roman","宋体",SimSun,serif;font-size:15px;line-height:1.75;
+  color:var(--code-txt);padding:14px 18px;overflow-x:auto;tab-size:4;
+}
+pre.code .c-kw{color:#ff7b72;}
+pre.code .c-str{color:#a5d6a5;}
+pre.code .c-num{color:#79c0ff;}
+pre.code .c-fn{color:#d2a8ff;}
+pre.code .c-com{color:#8b949e;font-style:italic;}
+pre.code .c-op{color:#ffa657;}
+.demo-out{border-top:1px solid #2e3142;background:#12141c;padding:0 0 10px;}
+.demo-out.hidden{display:none;}
+.out-label{
+  font-size:12px;color:#6b7288;letter-spacing:1px;padding:8px 18px 4px;border-bottom:1px solid #232634;
+}
+pre.out{font-family:"Times New Roman","宋体",SimSun,serif;font-size:15px;line-height:1.7;padding:10px 18px;color:#d6d9e4;overflow-x:auto;}
+.ln-prompt{color:#6ea8dc;}
+.ln-err{color:#ff8f88;}
+.ln-out{color:#e8e6de;}
+.ln-meta{color:#8b949e;font-style:italic;}
+/* 可交互演示 */
+.inter-panel{
+  background:#20232f;border-top:1px solid #2e3142;padding:12px 16px;display:flex;
+  align-items:center;gap:10px;flex-wrap:wrap;
+}
+.inter-panel label{font-size:14px;color:#aab0c6;}
+.inter-panel input{
+  font-family:inherit;font-size:14px;color:#e8e6de;background:#14161f;border:1px solid #3d4157;
+  border-radius:8px;padding:5px 12px;width:160px;max-width:60%;
+}
+.inter-panel input:focus{outline:none;border-color:#6ea8dc;}
+.chips{display:flex;gap:8px;flex-wrap:wrap;}
+.chip{
+  font-family:inherit;font-size:13px;cursor:pointer;color:#9fb4d6;background:#252a3d;
+  border:1px solid #39405e;border-radius:999px;padding:2px 12px;transition:all .15s;
+}
+.chip:hover{background:#313a56;color:#fff;}
+/* 游戏面板 */
+.game{background:#1c1f2b;border-radius:12px;padding:16px;margin:14px 0;color:#d6d9e4;}
+.game p{font-size:15px;}
+.game .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:10px 0;}
+.game input{
+  font-family:inherit;font-size:15px;color:#e8e6de;background:#14161f;border:1px solid #3d4157;
+  border-radius:8px;padding:6px 12px;width:140px;
+}
+/* 网格 */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:16px 0;}
+.grid2 .cell{background:#faf7f0;border:1px solid var(--line-soft);border-radius:12px;padding:16px 18px;}
+@media(max-width:860px){.grid2{grid-template-columns:1fr;}}
+.mini-table td{font-size:14px;}
+/* ===== 思维导图知识树 ===== */
+.figure{margin:16px 0;text-align:center;}
+.figure img{max-width:100%;border:1px solid var(--line);border-radius:12px;background:#fff;}
+.figure figcaption{font-size:13px;color:var(--ink-soft);margin-top:8px;}
+.tree{font-size:15px;line-height:1.7;border:1px solid var(--line);border-radius:12px;background:#fbf8f1;padding:16px 14px;}
+.tree .root-node{
+  display:inline-block;background:var(--blue-deep);color:#fff;font-weight:700;
+  border-radius:999px;padding:5px 22px;margin:4px 0 12px;
+}
+.tree .tn{
+  display:flex;align-items:center;gap:6px;padding:4px 10px;border-radius:8px;cursor:pointer;
+  color:var(--ink);transition:background .15s;
+}
+.tree .tn:hover{background:#f0ecdf;}
+.tree .tn .tw{
+  flex:0 0 auto;width:14px;height:14px;display:inline-flex;align-items:center;justify-content:center;
+  color:#9a937f;font-size:10px;transition:transform .2s;user-select:none;
+}
+.tree .tn.open .tw{transform:rotate(90deg);}
+.tree .tn.branch{font-weight:700;}
+.tree .tn .golink{color:#7a9cc7;font-size:11px;border:1px solid #c9d8ea;border-radius:999px;padding:0 6px;margin-left:auto;background:#fff;flex:0 0 auto;}
+.tree .tn.leaf{cursor:pointer;color:var(--ink-soft);}
+.tree .kids{border-left:2px solid #e0d9c6;margin-left:16px;padding-left:6px;display:none;}
+.tree .kids.show{display:block;}
+.tree .b-blue .tn.branch{color:var(--blue-deep);}
+.tree .b-amber .tn.branch{color:var(--amber);}
+.tree .b-green .tn.branch{color:var(--green);}
+.tree .b-purple .tn.branch{color:#6d4fa8;}
+.tree .legend{font-size:12px;color:var(--ink-faint);margin-top:10px;padding-top:8px;border-top:1px dashed var(--line);}
+/* 卡片网格（模块地图） */
+.map-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;margin:16px 0;}
+.map-card{
+  background:#faf7f0;border:1px solid var(--line-soft);border-radius:12px;padding:16px 18px;
+  transition:all .2s;text-decoration:none;color:var(--ink);display:block;
+}
+.map-card:hover{border-color:var(--blue);box-shadow:0 4px 14px rgba(48,105,152,.12);transform:translateY(-2px);}
+.map-card .mc-num{font-size:13px;color:var(--blue);font-weight:700;}
+.map-card .mc-title{font-size:18px;font-weight:700;color:var(--blue-deep);margin:4px 0 6px;}
+.map-card .mc-desc{font-size:14px;color:var(--ink-soft);line-height:1.7;}
+/* 上节回顾 */
+.recap{background:#faf7f0;border:1px solid var(--line-soft);border-radius:12px;padding:16px 20px;margin:14px 0;}
+/* 配套资料入口 */
+.nextcard{
+  display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;
+  background:linear-gradient(120deg,#1b3157,#306998);color:#fff;border-radius:12px;padding:18px 22px;margin:16px 0;
+  text-decoration:none;
+}
+.nextcard .nc-title{font-size:18px;font-weight:700;}
+.nextcard .nc-desc{font-size:14px;color:#dbe6f5;}
+.nextcard .nc-go{font-size:14px;border:1px solid rgba(255,255,255,.5);border-radius:999px;padding:4px 16px;color:#fff;}
+.nextcard:hover .nc-go{background:#fff;color:var(--blue-deep);}
+/* 小结表 */
+.summary-tbl th{background:var(--blue-deep);color:#fff;}
+/* 作业 */
+.homework{border:1px dashed var(--blue);border-radius:12px;background:var(--blue-soft);padding:16px 22px;margin:14px 0;}
+.homework h4{color:var(--blue-deep);margin-top:0;}
+/* 页脚 */
+footer{background:#1c2b44;color:#b9c6dc;text-align:center;padding:26px 20px;font-size:14px;}
+footer .f-main{color:#fff;font-size:16px;margin-bottom:4px;}
+/* 回到顶部 */
+#toTop{
+  position:fixed;right:22px;bottom:26px;width:44px;height:44px;border-radius:50%;border:none;
+  font-family:"Times New Roman","宋体",SimSun,serif;font-weight:700;
+  background:var(--blue-deep);color:#fff;font-size:18px;cursor:pointer;box-shadow:0 4px 14px rgba(31,56,100,.35);
+  opacity:0;pointer-events:none;transition:all .25s;z-index:60;
+}
+#toTop.show{opacity:1;pointer-events:auto;}
+#toTop:hover{background:var(--blue);}
+/* ===== 响应式 ===== */
+@media(max-width:720px){
+  body{font-size:15px;}
+  .hero h1{font-size:28px;}
+  .hero{padding:34px 16px 30px;}
+  section{padding:22px 18px;}
+  .sec-head h2{font-size:21px;}
+  .sec-num{min-width:38px;height:38px;font-size:15px;}
+  pre.code{font-size:14px;padding:12px 14px;}
+  pre.out{font-size:14px;padding:8px 14px;}
+  .demo-head{flex-direction:column;align-items:flex-start;}
+}
+</style>
+</head>
+<body>
+
+<!-- ===== 顶部 ===== -->
+<header class="hero">
+  <div class="hero-inner">
+    <span class="kicker">Python 大数据分析基础 · 第2次课</span>
+    <h1>第2章 Python语言基础</h1>
+    <p class="sub">常量与变量 · 运算符与表达式 · 数据类型 · 内置函数 · 基本输入输出 · 模块 · 综合应用</p>
+    <div class="meta">
+      <span>中华女子学院</span><span>4学时 · 180分钟</span><span>授课人：孙琪翔</span><span>AI渗透式教学设计</span>
+    </div>
+  </div>
+</header>
+
+<!-- ===== 目录导航 ===== -->
+<nav class="nav" id="nav">
+  <div class="nav-inner" id="navInner">
+    <a href="python-bigdata-2026.html" class="nav-back">← 课程主页</a>
+    <a href="#guide" data-sec="guide" class="on">本章导览</a>
+    <a href="#s21" data-sec="s21">2.1 常量与变量</a>
+    <a href="#s22" data-sec="s22">2.2 运算符与表达式</a>
+    <a href="#s23" data-sec="s23">2.3 数据类型</a>
+    <a href="#s24" data-sec="s24">2.4 内置函数</a>
+    <a href="#s25" data-sec="s25">2.5 基本输入输出</a>
+    <a href="#s26" data-sec="s26">2.6 模块的使用</a>
+    <a href="#s27" data-sec="s27">2.7 综合应用</a>
+    <a href="#summary" data-sec="summary">小结 · 易错 · 作业</a>
+    <a href="python-bigdata-2026-lesson2-demo.html" class="nav-demo">演示Demo ↗</a>
+  </div>
+</nav>
+
+<main>
+
+<!-- ===== 模块0：本章导览 ===== -->
+<section id="guide">
+  <div class="sec-head">
+    <div class="sec-num">导</div>
+    <div>
+      <h2>本章导览</h2>
+      <p class="sec-sub">Chapter Overview · 先看整体，再逐个模块学习</p>
+    </div>
+  </div>
+
+  <div class="recap">
+    <h4>上节回顾：第1次课要点</h4>
+    <ul>
+      <li>Python是一门简洁、易学、功能强大的编程语言，广泛应用于数据分析、人工智能、Web开发等领域。</li>
+      <li>Python的安装与环境配置：Anaconda集成环境、IDLE编辑器、命令行运行方式。</li>
+      <li>第一个Python程序：print()输出、注释的使用、代码的基本结构。</li>
+      <li>Python的特点：解释型、跨平台、开源免费、丰富的第三方库。</li>
+    </ul>
+    <p>本次课将深入学习Python的核心语法：<strong>变量、运算符、数据类型、输入输出和模块</strong>。</p>
+  </div>
+
+  <a class="nextcard" href="python-bigdata-2026-lesson2-demo.html">
+    <div>
+      <div class="nc-title">配套课堂演示网页 · 演示Demo</div>
+      <div class="nc-desc">7 大模块的现场演示代码 · 可交互的运算符计算、输入输出与 AI 概率采样演示 · AI 渗透点讲解 · 推荐视频</div>
+    </div>
+    <span class="nc-go">打开演示Demo →</span>
+  </a>
+
+  <h3>本课地图：7个模块</h3>
+  <p>本次课分为7个模块，每个模块都融入了AI渗透点，用当前所学语法解释AI内部机制。点击卡片可跳转到对应模块。</p>
+  <div class="map-grid">
+    <a class="map-card" href="#s21"><div class="mc-num">2.1 常量与变量</div><div class="mc-title">怎么让电脑记住数据</div><div class="mc-desc">赋值、命名规则、数据类型、动态类型</div></a>
+    <a class="map-card" href="#s22"><div class="mc-num">2.2 运算符与表达式</div><div class="mc-title">怎么让电脑算题目</div><div class="mc-desc">算术/关系/逻辑/赋值/成员运算、优先级</div></a>
+    <a class="map-card" href="#s23"><div class="mc-num">2.3 数据类型</div><div class="mc-title">数字、字符串、布尔的区别</div><div class="mc-desc">int/float/str/bool、类型转换</div></a>
+    <a class="map-card" href="#s24"><div class="mc-num">2.4 内置函数</div><div class="mc-title">Python自带的工具箱</div><div class="mc-desc">type/len/print/abs/round/max/min</div></a>
+    <a class="map-card" href="#s25"><div class="mc-num">2.5 基本输入输出</div><div class="mc-title">怎么和用户对话</div><div class="mc-desc">input()输入、print()输出与格式化</div></a>
+    <a class="map-card" href="#s26"><div class="mc-num">2.6 模块的使用</div><div class="mc-title">调用别人写好的工具</div><div class="mc-desc">import、from...import、random</div></a>
+    <a class="map-card" href="#s27"><div class="mc-num">2.7 综合应用</div><div class="mc-title">串起来写完整小程序</div><div class="mc-desc">闰年判断、圆面积、猜数字、BMI</div></a>
+  </div>
+
+  <h3>第2章知识点总览（图2-5 第2章小结）</h3>
+  <p>下图是教材中第2章小结的思维导图，本网页全部知识点均以它为依据展开。右侧是可交互的知识树，点击节点即可跳转到对应讲解模块，点击三角可展开/收起分支。</p>
+  <div class="grid2">
+    <div class="figure">
+      <img src="assets/python-bigdata-2026/mindmap-ch2.png" alt="图2-5 第2章小结思维导图" loading="lazy">
+      <figcaption>图2-5 第2章小结：Python语言基础思维导图</figcaption>
+    </div>
+    <div class="tree" id="knowledgeTree">
+      <div class="root-node">Python语言基础</div>
+      <div class="kids show">
+        <div class="b-blue">
+          <div class="tn branch open" data-target="s21"><span class="tw">▶</span>变量<span class="golink">2.1</span></div>
+          <div class="kids show">
+            <div class="tn leaf" data-target="s21">存储程序执行过程中的信息</div>
+            <div class="tn leaf" data-target="s21">遵循命名规则</div>
+            <div class="tn branch open" data-target="s23"><span class="tw">▶</span>数据类型<span class="golink">2.3</span></div>
+            <div class="kids show">
+              <div class="tn branch open" data-target="s23"><span class="tw">▶</span>基本数据类型</div>
+              <div class="kids show">
+                <div class="tn leaf" data-target="s23">数字型：整数(int)、浮点数(float)</div>
+                <div class="tn leaf" data-target="s23">布尔型：True、False</div>
+                <div class="tn leaf" data-target="s23">字符串类型：使用引号作为定界符</div>
+              </div>
+              <div class="tn leaf" data-target="s23">查看数据类型：type()</div>
+              <div class="tn leaf" data-target="s23">不同的数据类型可以存储不同形式的数据，支持不同的操作</div>
+            </div>
+            <div class="tn branch open" data-target="s21"><span class="tw">▶</span>动态类型</div>
+            <div class="kids show">
+              <div class="tn leaf" data-target="s21">变量类型由值决定，且类型检查严格</div>
+              <div class="tn leaf" data-target="s21">变量的值和数据类型可以在运行时动态改变</div>
+            </div>
+          </div>
+        </div>
+        <div class="b-amber">
+          <div class="tn branch open" data-target="s22"><span class="tw">▶</span>运算符与表达式<span class="golink">2.2</span></div>
+          <div class="kids show">
+            <div class="tn leaf" data-target="s22">算术运算符、关系运算符、逻辑运算符、成员测试运算符等</div>
+            <div class="tn leaf" data-target="s22">表达式：运算符、操作对象及其他语法元素的组合，通过运算产生一个确定的值</div>
+            <div class="tn leaf" data-target="s22">运算符优先级：使用()可以显式指定优先级</div>
+          </div>
+        </div>
+        <div class="b-green">
+          <div class="tn branch open" data-target="s24"><span class="tw">▶</span>函数<span class="golink">2.4</span></div>
+          <div class="kids show">
+            <div class="tn leaf" data-target="s24">调用格式：函数名（参数1，参数2，…）</div>
+            <div class="tn branch open" data-target="s24"><span class="tw">▶</span>内置函数</div>
+            <div class="kids show">
+              <div class="tn leaf" data-target="s25">input()输入函数，返回值都是字符串类型</div>
+              <div class="tn leaf" data-target="s25">print()输出函数——格式化输出</div>
+            </div>
+          </div>
+        </div>
+        <div class="b-purple">
+          <div class="tn branch open" data-target="s26"><span class="tw">▶</span>模块<span class="golink">2.6</span></div>
+          <div class="kids show">
+            <div class="tn leaf" data-target="s26">导入：import、from…import</div>
+          </div>
+        </div>
+      </div>
+      <div class="legend">提示：点击三角展开/收起分支，点击节点文字跳转到对应模块。本页所有代码示例均可点击“运行”查看结果。</div>
+    </div>
+  </div>
+</section>
+<!-- ===== 2.1 常量与变量 ===== -->
+<section id="s21">
+  <div class="sec-head">
+    <div class="sec-num">2.1</div>
+    <div>
+      <h2>常量与变量</h2>
+      <p class="sec-sub">怎么让电脑记住数据 · 变量是贴在值上的便利贴</p>
+    </div>
+  </div>
+
+  <h3>1. 核心概念</h3>
+  <ul>
+    <li><strong>常量</strong>：不需要改变也不能改变的字面值，例如数字常量 <code class="inline">3</code>、<code class="inline">3.5</code>。</li>
+    <li><strong>变量</strong>：指其值可以改变的量。程序中使用变量来<strong>保存要处理的各种数据</strong>，即<strong>存储程序执行过程中的信息</strong>。</li>
+  </ul>
+  <div class="note">变量的创建：变量是通过<strong>赋值</strong>方式创建的，并通过<strong>变量名</strong>标识。格式：<code class="inline">变量名 = 值</code>。程序代码按照书写顺序依次执行，所有变量必须<strong>先定义后使用</strong>，否则会输出报错信息。</div>
+
+  <div class="demo" id="d21-1">
+    <div class="demo-head"><span class="demo-title">演示：变量的创建与使用</span>
+      <span class="demo-actions"><button class="btn btn-run" onclick="runDemo('d21-1')">运行</button><button class="btn btn-copy" onclick="copyCode('d21-1')">复制</button></span>
+    </div>
+<pre class="code"># 变量通过赋值方式创建，格式：变量名 = 值
+name = "Zhang San"
+age = 18
+print(name)
+print(age)
+type(age)    # 查看变量的数据类型</pre>
+    <div class="demo-out hidden" id="out-d21-1"><div class="out-label">程序输出</div><pre class="out"></pre></div>
+  </div>
+
+  <div class="demo" id="d21-2">
+    <div class="demo-head"><span class="demo-title">演示：变量必须先定义后使用（否则报错）</span>
+      <span class="demo-actions"><button class="btn btn-run" onclick="runDemo('d21-2')">运行</button><button class="btn btn-copy" onclick="copyCode('d21-2')">复制</button></span>
+    </div>
+<pre class="code">print(name)    # 还没有定义 name，直接使用会报错</pre>
+    <div class="demo-out hidden" id="out-d21-2"><div class="out-label">程序输出</div><pre class="out"></pre></div>
+  </div>
+
+  <h3>2. 变量的命名规则</h3>
+  <ol>
+    <li>必须以<strong>字母或下划线</strong>开头，不能以数字开头；其余部分可以是字母、下划线或者数字。</li>
+    <li>不能有<strong>空格和标点符号</strong>（如括号、引号、逗号、斜线、反斜线、冒号、句号、问号等）。</li>
+    <li>不能使用Python的<strong>关键字、标识符、内置函数名</strong>等系统保留字。</li>
+    <li>Python变量名对<strong>字母大小写敏感</strong>，<code class="inline">Name</code>和<code class="inline">name</code>是不同的变量。</li>
+  </ol>
+  <div class="warn">【注意】变量名称应<strong>见名知义</strong>，推荐使用 snake_case 命名风格，例如 <code class="inline">number_of_students</code>、<code class="inline">max_score</code>。</div>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>变量名</th><th>是否正确</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td><code class="inline">num_student</code></td><td>合法，推荐</td><td>见名知义，snake_case风格</td></tr>
+        <tr><td><code class="inline">sName</code></td><td>合法，推荐</td><td>大小写敏感，sName 与 sname 是两个变量</td></tr>
+        <tr><td><code class="inline">true</code></td><td>合法但不可取</td><td><code class="inline">True</code> 是关键字，true（小写）不是，但极易混淆</td></tr>
+        <tr><td><code class="inline">sum</code></td><td>不推荐</td><td>与内置函数 <code class="inline">sum()</code> 重名，会覆盖其功能</td></tr>
+        <tr><td><code class="inline">2month</code></td><td>不合法</td><td>以数字开头</td></tr>
+        <tr><td><code class="inline">x$2</code></td><td>不合法</td><td>包含标点符号 $</td></tr>
+        <tr><td><code class="inline">and</code></td><td>不合法</td><td>是Python关键字</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h4>关键字（保留字）</h4>
+  <p><strong>关键字</strong>是指已被Python使用的标识符，用来表达特定的语义，不允许通过任何方式改变它们的含义。可以用 <code class="inline">keyword</code> 模块查看全部关键字：</p>
+  <div class="demo" id="d21-3">
+    <div class="demo-head"><span class="demo-title">演示：查看Python全部关键字</span>
+      <span class="demo-actions"><button class="btn btn-run" onclick="runDemo('d21-3')">运行</button><button class="btn btn-copy" onclick="copyCode('d21-3')">复制</button></span>
+    </div>
+<pre class="code">import keyword
+print(keyword.kwlist)    # 输出全部关键字列表</pre>
+    <div class="demo-out hidden" id="out-d21-3"><div class="out-label">程序输出</div><pre class="out"></pre></div>
+  </div>
+
+  <h4>内置函数名不能作为变量名</h4>
+  <p>内置函数是Python解释器自带的函数，如果变量名与内置函数重名，则会<strong>覆盖函数原来的功能</strong>。例如写了 <code class="inline">sum = 0</code> 之后，再调用 <code class="inline">sum([1,2,3])</code> 就会报错，可用 <code class="inline">del sum</code> 恢复。</p>
+  <div class="demo" id="d21-4">
+    <div class="demo-head"><span class="demo-title">演示：查看内置函数（__builtins__）</span>
+      <span class="demo-actions"><button class="btn btn-run" onclick="runDemo('d21-4')">运行</button><button class="btn btn-copy" onclick="copyCode('d21-4')">复制</button></span>
+    </div>
+<pre class="code">dir(__builtins__)    # 查看内置模块中所有的名字（含内置函数）</pre>
+    <div class="demo-out hidden" id="out-d21-4"><div class="out-label">程序输出</div><pre class="out"></pre></div>
+  </div>
+
+  <h3>3. 变量的存储</h3>
+  <p>Python语言中的变量存储的是<strong>其值在内存的地址</strong>。赋值语句的执行过程：<strong>首先把等号右侧表达式的值计算出来，然后在内存中寻找一个位置把值存放进去，最后创建变量并指向这个内存地址</strong>。变量的值是可以改变的——重新赋值时，变量会改指向新的内存位置。</p>
+  <div class="grid2">
+    <div class="cell">
+      <p><code class="inline">x = 3</code>：内存中存放 <strong>3</strong>，变量 x 指向它</p>
+      <p style="text-align:center;font-size:22px;">x → <span style="display:inline-block;background:var(--blue-soft);border:1px solid #c9dcf0;border-radius:8px;padding:2px 16px;">3</span></p>
+    </div>
+    <div class="cell">
+      <p><code class="inline">x = 6</code>：内存中存放 <strong>6</strong>，变量 x 改指向它（3仍在内存中）</p>
+      <p style="text-align:center;font-size:22px;">x → <span style="display:inline-block;background:var(--amber-soft);border:1px solid #eedcb6;border-radius:8px;padding:2px 16px;">6</span></p>
+    </div>
+  </div>
+
+  <h3>4. 动态类型特性</h3>
+  <ul>
+    <li><strong>变量类型由值决定</strong>，Python解释器会根据赋值结果自动推断变量类型，且类型检查严格。</li>
+    <li><strong>变量的值和数据类型可以在运行时动态改变</strong>——同一个变量可以先后存放整数、字符串、布尔值等不同类型的数据。</li>
+  </ul>
+  <div class="demo" id="d21-5">
+    <div class="demo-head"><span class="demo-title">演示：动态类型——同一个变量存放不同类型的数据</span>
+      <span class="demo-actions"><button class="btn btn-run" onclick="runDemo('d21-5')">运行</button><button class="btn btn-copy" onclick="copyCode('d21-5')">复制</button></span>
+    </div>
+<pre class="code">x = 3          # 此时x是整数
+type(x)
+x = "Python"   # 重新赋值为字符串
+type(x)
+x = True       # 再赋值为布尔值
+type(x)</pre>
+    <div class="demo-out hidden" id="out-d21-5"><div class="out-label">程序输出</div><pre class="out"></pre></div>
+  </div>
+
+  <h3>5. 例题：例2-1 员工月薪计算（变量与常量）</h3>
+  <p>假设一个员工每小时的工作薪酬为50元，每天工作8小时，每月工作22天。计算其每月薪酬为多少？如果每小时薪酬上调为80元，每月薪酬又是多少？</p>
+  <div class="demo" id="d21-6">
+    <div class="demo-head"><span class="demo-title">例2-1：员工月薪计算</span>
+      <span class="demo-actions"><button class="btn btn-run" onclick="runDemo('d21-6')">运行</button><button class="btn btn-copy" onclick="copyCode('d21-6')">复制</button></span>
+    </div>
+<pre class="code"># 例2-1：员工月薪计算（变量与常量）
+# 每小时50元，每天工作8小时，每月工作22天
+hourly_salary = 50                      # 变量：时薪
+month_salary = hourly_salary * 8 * 22   # 表达式：月薪 = 时薪×每天小时×每月天数
+print(month_salary)
+
+hourly_salary = 80                      # 时薪上调为80元（变量值可改变）
+month_salary = hourly_salary * 8 * 22
+print(month_salary)</pre>
+    <div class="demo-out hidden" id="out-d21-6"><div class="out-label">程序输出</div><pre class="out"></pre></div>
+  </div>
+
+  <div class="ai">
+    <span class="ai-tag">AI渗透 · AI-01</span><strong>变量 = 模型参数</strong><br>
+    AI的学习，本质就是一大堆变量不断被重新赋值。<code class="inline">w</code> 是模型参数（就是一个变量），每次根据误差调整 <code class="inline">w</code>，就是一次学习。GPT有几千亿个这样的 <code class="inline">w</code>。全程没有循环、没有AI库，只有<strong>赋值 + 算术</strong>。
+  </div>
+  <div class="demo" id="d21-7">
+    <div class="demo-head"><span class="demo-title">AI训练最小演示：一个参数 w 的学习（梯度下降的本质）</span>
+      <span class="demo-actions"><button class="btn btn-run" onclick="runDemo('d21-7')">运行</button><button class="btn btn-copy" onclick="copyCode('d21-7')">复制</button></span>
+    </div>
+<pre class="code"># AI训练最小演示：一个参数w的学习
+x, y_true = 2.0, 10.0
+w = 1.0        # 初始猜测
+lr = 0.1       # 学习率
+
+# 第1次学习：预测 - 误差 - 调整w
+pred = w * x
+w = w - lr * (pred - y_true) * x
+print(w)       # 2.6
+
+# 第2次学习
+pred = w * x
+w = w - lr * (pred - y_true) * x
+print(w)       # 3.56
+
+# 第3次学习
+pred = w * x
+w = w - lr * (pred - y_true) * x
+print(w)       # 4.136
+
+# 正确答案 w = 5.0（因为 5*2=10）
+print("正确答案 w = 5.0")</pre>
+    <div class="demo-out hidden" id="out-d21-7"><div class="out-label">程序输出</div><pre class="out"></pre></div>
+  </div>
+  <div class="key">核心洞察：AI的学习 = 变量 w 被反复赋值。没有循环、没有AI库，只有<strong>赋值 + 算术</strong>。思考：如果学习率 lr 太大或太小，会发生什么？</div>
+</section>
+<!-- ===== 2.2 运算符与表达式 ===== -->
+<section id="s22">
+  <div class="sec-head">
+    <div class="sec-num">2.2</div>
+    <div>
+      <h2>运算符与表达式</h2>
+      <p class="sec-sub">怎么让电脑算题目 · 算术/关系/逻辑/赋值/成员</p>
+    </div>
+  </div>
+
+  <h3>1. 基本概念</h3>
+  <ul>
+    <li><strong>运算符</strong>是表示对象行为的一种形式。Python支持<strong>算术运算符、关系运算符、逻辑运算符以及位运算符</strong>，还有特有的运算符，如<strong>成员测试运算符、集合运算符、同一性测试运算符</strong>等。有些运算符对于不同的对象具有不同的含义（如 <code class="inline">+</code> 对数字是相加，对字符串是拼接）。</li>
+    <li><strong>表达式</strong>：<strong>运算符、操作对象及其他语法元素的组合，通过运算产生一个确定的值</strong>。</li>
+    <li><strong>运算符优先级</strong>：算术运算符的优先级最高，其次是位运算符、成员测试运算符、关系运算符、逻辑运算符等。为避免优先级错误，最好使用<strong>圆括号 <code class="inline">()</code> 显式指定优先级</strong>，同时也能提高代码的可读性。</li>
+  </ul>
+
+  <h3>2. 算术运算符</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>运算符</th><th>名称</th><th>示例</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td><code class="inline">+</code></td><td>加</td><td>7 + 2 = 9</td><td>数值相加，字符串拼接</td></tr>
+        <tr><td><code class="inline">-</code></td><td>减</td><td>7 - 2 = 5</td><td>数值相减</td></tr>
+        <tr><td><code class="inline">*</code></td><td>乘</td><td>7 * 2 = 14</td><td>数值相乘，字符串重复</td></tr>
+        <tr><td><code class="inline">/</code></td><td>除</td><td>7 / 2 = 3.5</td><td>结果永远是float</td></tr>
+        <tr><td><code class="inline">//</code></td><td>整除</td><td>7 // 2 = 3</td><td>向下取整，余数永远非负</td></tr>
+        <tr><td><code class="inline">%</code></td><td>取余</td><td>7 % 2 = 1</td><td>取除法的余数</td></tr>
+        <tr><td><code class="inline">**</code></td><td>幂</td><td>2 ** 3 = 8</td><td>乘方，不是 ^</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="warn">注意：Python中 <code class="inline">/</code> 结果永远是float（<code class="inline">7/2=3.5</code>），<code class="inline">//</code> 是向下取整（<code class="inline">7//2=3</code>），<code class="inline">^</code> 是位异或不是幂！</div>
+  <div class="demo" id="d22-1">
+    <div class="demo-head"><span class="demo-title">演示：算术运算符</span>
+      <span class="demo-actions"><button class="btn btn-run" onclick="runDemo('d22-1')">运行</button><button class="btn btn-copy" onclick="copyCode('d22-1')">复制</button></span>
+    </div>
+<pre class="code"># 算术运算符：+ - * / // % **
+7 / 2       # 除法，结果永远是float
+7 // 2      # 整除，向下取整
+7 % 2       # 取余
+2 ** 3      # 幂运算
+-7 // 2     # 向下取整，结果是-4而不是-3！
+2 ^ 3       # ^ 是位异或，不是幂运算！</pre>
+    <div class="demo-out hidden" id="out-d22-1"><div class="out-label">程序输出</div><pre class="out"></pre></div>
+  </div>
+
+  <h3>3. 关系运算符</h3>
+  <p><strong>关系运算符</strong>比较两个对象的值的大小，结果为<strong>布尔值（True / False）</strong>。关系运算符可以连用，例如 <code class="inline">1 &lt; 3 &lt; 5</code> 等价于 <code class="inline">1 &lt; 3 and 3 &lt; 5</code>。</p>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>运算符</th><th>含义</th><th>示例</th><th>结果</th></tr></thead>
+      <tbody>
+        <tr><td><code class="inline">==</code></td><td>等于（比较，不是赋值 =）</td><td>"abc" == "abc"</td><td>True</td></tr>
+        <tr><td><code class="inline">!=</code></td><td>不等于</td><td>3 != 5</td><td>True</td></tr>
+        <tr><td><code class="inline">&gt;</code> <code class="inline">&lt;</code></td><td>大于 / 小于</td><td>3 &gt; 5</td><td>False</td></tr>
+        <tr><td><code class="inline">&gt;=</code> <code class="inline">&lt;=</code></td><td>大于等于 / 小于等于</td><td>5 &gt;= 5</td><td>True</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="demo" id="d22-2">
+    <div class="demo-head"><span class="demo-title">演示：关系运算符（结果为布尔值）</span>
+      <span class="demo-actions"><button class="btn btn-run" onclick="runDemo('d22-2')">运行</button><button class="btn btn-copy" onclick="copyCode('d22-2')">复制</button></span>
+    </div>
+<pre class="code"># 关系运算符：== != > < >= <=
+3 > 5
+3 < 5
+1 < 3 < 5        # 关系运算符可以连用
+"abc" == "abc"
+"abc" == "ABC"   # 字符串比较大小写敏感
+5 >= 5</pre>
+    <div class="demo-out hidden" id="out-d22-2"><div class="out-label">程序输出</div><pre class="out"></pre></div>
+  </div>
+
+  <h3>4. 逻辑运算符</h3>
+  <p><strong>逻辑运算符</strong>主要用于连接条件表达式从而构成更复杂的表达式，运算结果为<strong>布尔值（True / False）</strong>。<code class="inline">and</code> 和 <code class="inline">or</code> 具有<strong>惰性求值（短路）</strong>的特点，连接多个表达式时只计算必须要计算的值。</p>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>a</th><th>b</th><th>a and b</th><th>a or b</th><th>not a</th></tr></thead>
+      <tbody>
+        <tr><td>True</td><td>True</td><td>True</td><td>True</td><td>False</td></tr>
+        <tr><td>True</td><td>False</td><td>False</td><td>True</td><td>False</td></tr>
+        <tr><td>False</td><td>True</td><td>False</td><td>True</td><td>True</td></tr>
+        <tr><td>False</td><td>False</td><td>False</td><td>False</td><td>True</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="demo" id="d22-3">
+    <div class="demo-head"><span class="demo-title">演示：逻辑运算符与惰性求值（短路）</span>
+      <span class="demo-actions"><button class="btn btn-run" onclick="runDemo('d22-3')">运行</button><button class="btn btn-copy" onclick="copyCode('d22-3')">复制</button></span>
+    </div>
+<pre class="code"># 逻辑运算符：and or not
+3 > 5 and 1 / 0      # 左边为False，右边压根没算！(短路)
+3 > 5 or "hello"     # 左边为False，返回右边的值
+not True
+
+# 优先级：not > and > or；记不住就加括号！
+True or False and False
+(True or False) and False</pre>
+    <div class="demo-out hidden" id="out-d22-3"><div class="out-label">程序输出</div><pre class="out"></pre></div>
+  </div>
+
+  <h3>5. 赋值运算符与复合赋值</h3>
+  <p>复合赋值运算符：<code class="inline">+= -= *= /= //= %= **=</code>。例如 <code class="inline">x += 3</code> 等价于 <code class="inline">x = x + 3</code>。</p>
+  <div class="warn">Python没有 <code class="inline">++</code> 和 <code class="inline">--</code> 运算符！<code class="inline">x++</code> 是语法错误，自增要写成 <code class="inline">x += 1</code>。</div>
+  <div class="demo" id="d22-4">
+    <div class="demo-head"><span class="demo-title">演示：复合赋值运算符</span>
+      <span class="demo-actions"><button class="btn btn-run" onclick="runDemo('d22-4')">运行</button><button class="btn btn-copy" onclick="copyCode('d22-4')">复制</button></span>
+    </div>
+<pre class="code"># 复合赋值：x op= 值 等价于 x = x op 值
+x = 5
+x += 3      # x = x + 3 = 8
+x *= 2      # x = x * 2 = 16
+x //= 4     # x = x // 4 = 4
+x **= 3     # x = x ** 3 = 64
+print(x)</pre>
+    <div class="demo-out hidden" id="out-d22-4"><div class="out-label">程序输出</div><pre class="out"></pre></div>
+  </div>
+
+  <h3>6. 成员测试运算符</h3>
+  <p><strong>成员测试运算符</strong>：测试一个对象是否为另一个对象的元素，结果为<strong>布尔值</strong>。</p>
+  <div class="demo" id="d22-5">
+    <div class="demo-head"><span class="demo-title">演示：in / not in 成员测试</span>
+      <span class="demo-actions"><button class="btn btn-run" onclick="runDemo('d22-5')">运行</button><button class="btn btn-copy" onclick="copyCode('d22-5')">复制</button></span>
+    </div>
+<pre class="code"># 成员测试运算符：in / not in
+"th" in "Python"              # 子串是否在字符串中
+"Py" not in "Python"
+3 in [1, 2, 3]                # 元素是否在列表中
+"北京" in "中华人民共和国首都北京"  # 中文也可以</pre>
+    <div class="demo-out hidden" id="out-d22-5"><div class="out-label">程序输出</div><pre class="out"></pre></div>
+  </div>
+
+  <h3>7. 运算符优先级</h3>
+  <p>表达式中运算符优先级的规则为：<strong>算术运算符的优先级最高，其次是位运算符、成员测试运算符、关系运算符、逻辑运算符</strong>。为了避免优先级错误，最好使用<strong>圆括号 <code class="inline">()</code> 显式指定优先级</strong>，同时也能提高代码的可读性。</p>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>优先级</th><th>运算符</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td>1（高）</td><td><code class="inline">**</code></td><td>幂运算</td></tr>
+        <tr><td>2</td><td><code class="inline">* / // %</code></td><td>乘、除、整除、取余</td></tr>
+        <tr><td>3</td><td><code class="inline">+ -</code></td><td>加、减</td></tr>
+        <tr><td>4</td><td><code class="inline">== != &gt; &lt; &gt;= &lt;=</code></td><td>比较（关系）运算</td></tr>
+        <tr><td>5</td><td><code class="inline">not</code></td><td>逻辑非</td></tr>
+        <tr><td>6</td><td><code class="inline">and</code></td><td>逻辑与</td></tr>
+        <tr><td>7（低）</td><td><code class="inline">or</code></td><td>逻辑或</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="demo" id="d22-6">
+    <div class="demo-head"><span class="demo-title">演示：运算符优先级与括号</span>
+      <span class="demo-actions"><button class="btn btn-run" onclick="runDemo('d22-6')">运行</button><button class="btn btn-copy" onclick="copyCode('d22-6')">复制</button></span>
+    </div>
+<pre class="code"># 先乘除后加减，幂最高；加括号最稳妥
+2 + 3 * 4       # 先算 3*4，再 +2
+(2 + 3) * 4     # 括号显式指定优先级
+2 ** 3 ** 2     # 幂运算从右向左结合：2**9
+(2 ** 3) ** 2   # 加括号后：(2**3)**2</pre>
+    <div class="demo-out hidden" id="out-d22-6"><div class="out-label">程序输出</div><pre class="out"></pre></div>
+  </div>
+  <div class="key">最佳实践：复杂表达式一律<strong>加括号</strong>，不要依赖记忆优先级。代码是写给人看的，顺便让机器执行。</div>
+
+  <div class="ai">
+    <span class="ai-tag">AI渗透 · AI-02/03</span><strong>神经元 = 加权求和 + 阈值</strong><br>
+    AI最核心的代码只有加减乘除：神经元 = 加权求和 <code class="inline">y = w1*x1 + w2*x2 + w3*x3 + b</code>，权重不同 = 模型不同 = 判断标准不同。置信度就是 <code class="inline">float</code> 表示的概率 + 阈值判断（<code class="inline">prob &gt; 0.5</code> → 是猫）。
+  </div>
+  <div class="demo" id="d22-7">
+    <div class="demo-head"><span class="demo-title">神经元计算演示：加权求和 + 激活 + 阈值判断</span>
+      <span class="demo-actions"><button class="btn btn-run" onclick="runDemo('d22-7')">运行</button><button class="btn btn-copy" onclick="copyCode('d22-7')">复制</button></span>
+    </div>
+<pre class="code"># 神经元计算演示
+# 输入：耳朵尖度、胡须长度、眼睛颜色
+x1, x2, x3 = 0.9, 0.7, 0.8
+# 权重（模型学到的参数）
+w1, w2, w3 = 0.5, 0.3, 0.2
+b = 0.4
+
+# 神经元 = 加权求和
+y = w1 * x1 + w2 * x2 + w3 * x3 + b
+print(f"加权和 = {y:.3f}")
+
+# sigmoid激活函数 → 概率
+import math
+prob = 1 / (1 + math.exp(-y))
+print(f"是猫的概率 = {prob:.2%}")
+
+# 阈值判断
+print("判断：", "是猫" if prob > 0.5 else "不是猫")</pre>
+    <div class="demo-out hidden" id="out-d22-7"><div class="out-label">程序输出</div><pre class="out"></pre></div>
+  </div>
+
+  <div class="ai">
+    <span class="ai-tag">AI渗透 · AI-04</span><strong>规则引擎 = and / or / not</strong><br>
+    在深度学习之前，AI的核心是规则引擎——用 <code class="inline">and/or/not</code> 组合条件来做决策。即使在今天，很多AI系统的前置过滤仍然是规则引擎。
+  </div>
+  <div class="demo" id="d22-8">
+    <div class="demo-head"><span class="demo-title">规则引擎：贷款审批AI（组合简单条件表达复杂规则）</span>
+      <span class="demo-actions"><button class="btn btn-run" onclick="runDemo('d22-8')">运行</button><button class="btn btn-copy" onclick="copyCode('d22-8')">复制</button></span>
+    </div>
+<pre class="code"># 规则引擎：贷款审批AI（早期AI的核心逻辑）
+def loan_approve(age, income, credit_score, has_job):
+    # 规则1：年龄必须在18-65岁
+    age_ok = (age >= 18) and (age <= 65)
+    # 规则2：有工作 且 月收入 > 5000
+    income_ok = has_job and (income > 5000)
+    # 规则3：信用分 > 600
+    credit_ok = (credit_score > 600)
+    # 最终决策：所有条件都满足
+    approve = age_ok and income_ok and credit_ok
+    return approve
+
+# 这就是 and/or/not 的力量——组合简单条件表达复杂规则
+result = loan_approve(25, 8000, 700, True)
+print("审批结果：", "通过" if result else "拒绝")</pre>
+    <div class="demo-out hidden" id="out-d22-8"><div class="out-label">程序输出</div><pre class="out"></pre></div>
+  </div>
+</section>
+<!-- ===== 2.3 数据类型 ===== -->
+<section id="s23">
+  <div class="sec-head">
+    <div class="sec-num">2.3</div>
+    <div>
+      <h2>数据类型</h2>
+      <p class="sec-sub">数字·字符串·布尔 · 类型转换与浮点精度陷阱</p>
+    </div>
+  </div>
+
+  <h3>1. 数据类型总览</h3>
+  <p><strong>数据类型</strong>是用来解决不同形式的数据在程序中的<strong>表达、存储和操作</strong>问题。Python支持的基本数据类型包括：<strong>数字、字符串、列表、元组、字典、集合</strong>。使用 <code class="inline">type()</code> 函数可以查看对象的数据类型。<strong>不同类型的对象可以存储不同形式的数据，支持不同的操作</strong>。</p>
+  <div class="note">【注意】Python解释器会根据赋值结果<strong>自动推断变量类型</strong>（动态类型）。</div>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>类型</th><th>示例</th><th>说明</th><th>常见运算</th></tr></thead>
+      <tbody>
+        <tr><td><code class="inline">int</code> 整数</td><td>42, -10</td><td>整数，无大小限制</td><td>+ - * // % **</td></tr>
+        <tr><td><code class="inline">float</code> 浮点数</td><td>3.14, 1.5e10</td><td>浮点数，有精度限制</td><td>+ - * / **</td></tr>
+        <tr><td><code class="inline">str</code> 字符串</td><td>"hello", "你好"</td><td>字符串，用引号包裹</td><td>+ * in len()</td></tr>
+        <tr><td><code class="inline">bool</code> 布尔</td><td>True, False</td><td>布尔值，只有两个</td><td>and or not</td></tr>
+        <tr><td><code class="inline">list</code> 列表</td><td>[1, 2, 3]</td><td>有序、可修改的序列</td><td>索引、切片、len()</td></tr>
+        <tr><td><code class="inline">tuple</code> 元组</td><td>(1, 2)</td><td>有序、不可修改的序列</td><td>索引、切片、len()</td></tr>
+        <tr><td><code class="inline">dict</code> 字典</td><td>{"name": "Tom"}</td><td>键值对映射</td><td>按键访问</td></tr>
+        <tr><td><code class="inline">set</code> 集合</td><td>{1, 2, 3}</td><td>无序、不重复</td><td>成员测试、集合运算</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="demo" id="d23-1">
+    <div class="demo-head"><span class="demo-title">演示：type() 查看数据类型</span>
+      <span class="demo-actions"><button class="btn btn-run" onclick="runDemo('d23-1')">运行</button><button class="btn btn-copy" onclick="copyCode('d23-1')">复制</button></span>
+    </div>
+<pre class="code"># 使用type()函数可以查看对象的数据类型
+age = 20
+type(age)
+type(0.3)
+type(1e-6)
+type(True)
+type("Python")</pre>
+    <div class="demo-out hidden" id="out-d23-1"><div class="out-label">程序输出</div><pre class="out"></pre></div>
+  </div>
+
+  <h3>2. 数字类型</h3>
+  <p>Python中内置的数字类型有<strong>整型（int）、浮点型（float）、复数型（complex）</strong>。</p>
+  <ul>
+    <li><strong>整型</strong>：所有的整数都属于整型（没有小数部分），包括正整数和负整数。Python3整型是<strong>没有大小限制</strong>的。</li>
+    <li><strong>浮点型</strong>：由整数部分和小数部分组成，浮点型也可以使用<strong>科学计数法</strong>表示（如 <code class="inline">1e-6</code>、<code class="inline">1.5e10</code>）。</li>
+    <li><strong>复数型</strong>：形如 <code class="inline">a + bj</code>，如 <code class="inline">3 + 4j</code>。</li>
+  </ul>
+  <div class="demo" id="d23-2">
+    <div class="demo-head"><span class="demo-title">演示：int没有大小限制，float有精度陷阱</span>
+      <span class="demo-actions"><button class="btn btn-run" onclick="runDemo('d23-2')">运行</button><button class="btn btn-copy" onclick="copyCode('d23-2')">复制</button></span>
+    </div>
+<pre class="code"># int：无大小限制（2的1000次方，一个302位的大数）
+2 ** 1000
+
+# float：精度陷阱！
+0.1 + 0.2
+0.1 + 0.2 == 0.3
+
+# 正确做法：用差值判断
+abs(0.1 + 0.2 - 0.3) < 1e-9
+
+# 科学计数法
+1.5e10</pre>
+    <div class="demo-out hidden" id="out-d23-2"><div class="out-label">程序输出</div><pre class="out"></pre></div>
+  </div>
+  <div class="warn">浮点数比较<strong>永远不要用 <code class="inline">==</code></strong>，要用 <code class="inline">abs(a - b) &lt; 1e-9</code>。整数精确，浮点数近似。</div>
+
+  <div class="ai">
+    <span class="ai-tag">AI渗透 · AI-08</span><strong>AI幻觉 = 浮点精度</strong><br>
+    AI的所有计算都是浮点数运算。<code class="inline">0.1+0.2≠0.3</code> 这种微小误差，经过几千亿次运算后被放大，导致AI有时会给出看似合理但错误的答案——这就是AI幻觉的数学根源之一。
+  </div>
+
+  <h3>3. 数字类型之间的转换（强制转换）</h3>
+  <p>数字类型之间可以<strong>强制转换</strong>：<code class="inline">int()</code>、<code class="inline">float()</code>、<code class="inline">str()</code>、<code class="inline">bool()</code>。转换失败会报 <code class="inline">ValueError</code>。</p>
+  <div class="demo" id="d23-3">
+    <div class="demo-head"><span class="demo-title">演示：类型转换函数</span>
+      <span class="demo-actions"><button class="btn btn-run" onclick="runDemo('d23-3')">运行</button><button class="btn btn-copy" onclick="copyCode('d23-3')">复制</button></span>
+    </div>
+<pre class="code"># int()：转整数
+int("123")      # 字符串→整数
+int(3.99)       # 浮点数→整数，截断不是四舍五入！
+# float()：转浮点数
+float("3.14")
+# str()：转字符串
+str(123)
+# bool()：转布尔值
+bool(0)         # 0是空值 → False
+bool(1)         # 非0 → True
+bool("")        # 空字符串 → False
+bool("hello")   # 非空字符串 → True
+bool(None)      # None → False
+# 转换失败会报错
+int("abc")</pre>
+    <div class="demo-out hidden" id="out-d23-3"><div class="out-label">程序输出</div><pre class="out"></pre></div>
+  </div>
+
+  <h3>4. 布尔型</h3>
+  <p><strong>布尔型</strong>：只有 <code class="inline">True</code> 和 <code class="inline">False</code> 两个值，<strong>对应 1 和 0</strong>，主要用于逻辑判断。</p>
+  <div class="demo" id="d23-4">
+    <div class="demo-head"><span class="demo-title">演示：布尔型</span>
+      <span class="demo-actions"><button class="btn btn-run" onclick="runDemo('d23-4')">运行</button><button class="btn btn-copy" onclick="copyCode('d23-4')">复制</button></span>
+    </div>
+<pre class="code"># 布尔型：只有True和False两个值，对应1和0
+3 > 5      # 不成立就是False
+3 < 5      # 成立就是True</pre>
+    <div class="demo-out hidden" id="out-d23-4"><div class="out-label">程序输出</div><pre class="out"></pre></div>
+  </div>
+
+  <h3>5. 例题：例2-2 三位数的拆位（整除与取余）</h3>
+  <div class="demo" id="d23-5">
+    <div class="demo-head"><span class="demo-title">例2-2：计算并输出三位自然数的百位、十位和个位</span>
+      <span class="demo-actions"><button class="btn btn-run" onclick="runDemo('d23-5')">运行</button><button class="btn btn-copy" onclick="copyCode('d23-5')">复制</button></span>
+    </div>
+<pre class="code"># 例2-2：定义三位自然数，拆出百位、十位、个位
+number = 123
+a = number // 100       # 百位：整除100
+b = number // 10 % 10   # 十位：先整除10再取余
+c = number % 10         # 个位：取余10
+print(a, b, c)</pre>
+    <div class="demo-out hidden" id="out-d23-5"><div class="out-label">程序输出</div><pre class="out"></pre></div>
+  </div>
+
+  <h3>6. 字符串类型</h3>
+  <p><strong>字符串</strong>的本质是字符序列，在Python中用<strong>引号</strong>括起来的一个或一串字符就是字符串。引号称为<strong>定界符</strong>：单引号、双引号、三单引号、三双引号；不同形式的引号可以<strong>嵌套</strong>；三引号主要用于表示<strong>多行字符串</strong>。</p>
+  <div class="demo" id="d23-6">
+    <div class="demo-head"><span class="demo-title">演示：字符串定义、定界符与嵌套</span>
+      <span class="demo-actions"><button class="btn btn-run" onclick="runDemo('d23-6')">运行</button><button class="btn btn-copy" onclick="copyCode('d23-6')">复制</button></span>
+    </div>
+<pre class="code"># 字符串：用引号括起来的字符序列，引号称为定界符
+name = 'Linda'
+type(name)
+phone = "123456"      # 双引号，仍然是字符串
+type(phone)
+phone = 123456        # 去掉引号，变成数字
+type(phone)
+
+# 三引号表示多行字符串
+str1 = '''Hello everyone!
+Hello world!'''
+print(str1)
+
+# 引号嵌套
+str2 = "I'm 18 years old."
+print(str2)</pre>
+    <div class="demo-out hidden" id="out-d23-6"><div class="out-label">程序输出</div><pre class="out"></pre></div>
+  </div>
+  <p>Python3中的字符默认为<strong>Unicode编码</strong>，可以表示世界上任何书面语言的字符，包括中文。</p>
+
+  <h4>字符串的索引与切片</h4>
+  <div class="tbl-wrap mini-table">
+    <table>
+      <thead><tr><th>字符</th><th>P</th><th>y</th><th>t</th><th>h</th><th>o</th><th>n</th></tr></thead>
+      <tbody>
+        <tr><td>正索引</td><td>0</td><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td></tr>
+        <tr><td>负索引</td><td>-6</td><td>-5</td><td>-4</td><td>-3</td><td>-2</td><td>-1</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="demo" id="d23-7">
+    <div class="demo-head"><span class="demo-title">演示：字符串索引、切片与常用操作</span>
+      <span class="demo-actions"><button class="btn btn-run" onclick="runDemo('d23-7')">运行</button><button class="btn btn-copy" onclick="copyCode('d23-7')">复制</button></span>
+    </div>
+<pre class="code"># 索引：从0开始，负数从后往前
+s = "Python"
+s[0]         # 第一个字符
+s[-1]        # 最后一个字符
+# 切片：[start:end]，含start不含end
+s[0:3]       # 取第0~2个字符
+s[:3]        # start省略 = 从0开始
+s[3:]        # end省略 = 到末尾
+# 常用操作
+len(s)       # 长度
+s.upper()    # 转大写
+s.lower()    # 转小写
+"th" in s    # 成员判断
+s.replace("P", "J")   # 替换</pre>
+    <div class="demo-out hidden" id="out-d23-7"><div class="out-label">程序输出</div><pre class="out"></pre></div>
+  </div>
+  <div class="warn">切片 <code class="inline">s[1:3]</code> 取的是第 <strong>1 到 2</strong> 个字符（含start不含end），不是第1到第3个！</div>
+
+  <h3>7. 列表、元组、字典和集合</h3>
+  <p>列表、元组、字典、集合和字符串，都是Python中常用的<strong>序列数据结构</strong>。很多复杂的程序设计都要使用这些数据结构。</p>
+  <div class="demo" id="d23-8">
+    <div class="demo-head"><span class="demo-title">演示：查看复合数据结构的类型</span>
+      <span class="demo-actions"><button class="btn btn-run" onclick="runDemo('d23-8')">运行</button><button class="btn btn-copy" onclick="copyCode('d23-8')">复制</button></span>
+    </div>
+<pre class="code"># 列表、元组、字典、集合的类型
+type([1, 2, 3])          # 列表 list
+type((1, 2))             # 元组 tuple
+type({"name": "Tom"})    # 字典 dict
+type({1, 2, 3})          # 集合 set</pre>
+    <div class="demo-out hidden" id="out-d23-8"><div class="out-label">程序输出</div><pre class="out"></pre></div>
+  </div>
+
+  <div class="ai">
+    <span class="ai-tag">AI渗透 · AI-05</span><strong>Prompt = 字符串</strong><br>
+    你给AI的提示词Prompt，本质就是一个<strong>字符串</strong>。AI接收字符串、输出字符串；字符串拼接 = 组合Prompt，字符串替换 = 修改Prompt参数。
+  </div>
+</section>
+<!-- ===== 2.4 内置函数 ===== -->
+<section id="s24">
+  <div class="sec-head">
+    <div class="sec-num">2.4</div>
+    <div>
+      <h2>内置函数</h2>
+      <p class="sec-sub">Python自带的工具箱 · type/len/print/abs/round/max/min</p>
+    </div>
+  </div>
+
+  <h3>1. 函数的概念</h3>
+  <p><strong>函数</strong>是一段封装好的、可以实现某种特定功能的Python程序。用户不用关心程序实现的细节，通过<strong>函数名及其参数</strong>直接调用即可。</p>
+  <div class="key">【调用格式】<code class="inline">函数名(参数1, 参数2, ……)</code><br>
+  <ul style="margin-top:6px;">
+    <li>调用函数时，函数名后必须加一对<strong>圆括号 "()"</strong>。</li>
+    <li>每个函数都有一个<strong>返回值</strong>，表示调用的结果。</li>
+    <li>不同函数的参数个数不同，有的是<strong>必选</strong>的，有的是<strong>可选</strong>的。</li>
+    <li>函数的参数值必须符合要求的<strong>数据类型</strong>。</li>
+    <li>函数可以<strong>嵌套调用</strong>，即一个函数可以作为另一个函数的参数。</li>
+  </ul></div>
+  <p>Python内置了丰富的函数资源，封装在内置模块 <code class="inline">__builtins__</code> 中，在程序中可以<strong>直接使用，不需要import</strong>（共70多个内置函数）。</p>
+
+  <h3>2. 常用内置函数</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>函数</th><th>示例</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td><code class="inline">type()</code></td><td>type(3) → int</td><td>查看数据类型</td></tr>
+        <tr><td><code class="inline">len()</code></td><td>len("abc") → 3</td><td>求长度（字符串/列表等）</td></tr>
+        <tr><td><code class="inline">print()</code></td><td>print("hi") → hi</td><td>输出到屏幕</td></tr>
+        <tr><td><code class="inline">input()</code></td><td>input("名：")</td><td>从键盘输入（返回字符串）</td></tr>
+        <tr><td><code class="inline">abs()</code></td><td>abs(-5) → 5</td><td>求绝对值</td></tr>
+        <tr><td><code class="inline">round()</code></td><td>round(3.14159, 2) → 3.14</td><td>四舍五入（可指定位数）</td></tr>
+        <tr><td><code class="inline">max() / min()</code></td><td>max(3, 7, 2) → 7</td><td>求最大值/最小值</td></tr>
+        <tr><td><code class="inline">int / float / str</code></td><td>int("3") → 3</td><td>类型转换函数</td></tr>
+        <tr><td><code class="inline">pow()</code></td><td>pow(2, 10) → 1024</td><td>幂运算</td></tr>
+        <tr><td><code class="inline">help()</code></td><td>help(print)</td><td>查看对象的联机帮助</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="demo" id="d24-1">
+    <div class="demo-head"><span class="demo-title">演示：函数的调用（type / round / int）</span>
+      <span class="demo-actions"><button class="btn btn-run" onclick="runDemo('d24-1')">运行</button><button class="btn btn-copy" onclick="copyCode('d24-1')">复制</button></span>
+    </div>
+<pre class="code"># 调用格式：函数名(参数1, 参数2, ……)
+name = 'Linda'
+type(name)          # 查看对象类型函数
+price = 32.58
+round(price, 1)     # 四舍五入函数：保留1位小数
+int(price)          # 数据类型转换函数：浮点数转换为整数</pre>
+    <div class="demo-out hidden" id="out-d24-1"><div class="out-label">程序输出</div><pre class="out"></pre></div>
+  </div>
+
+  <div class="demo" id="d24-2">
+    <div class="demo-head"><span class="demo-title">演示：常用内置函数练习</span>
+      <span class="demo-actions"><button class="btn btn-run" onclick="runDemo('d24-2')">运行</button><button class="btn btn-copy" onclick="copyCode('d24-2')">复制</button></span>
+    </div>
+<pre class="code">abs(-5)              # 绝对值
+round(3.14159, 2)    # 四舍五入，保留2位小数
+max(3, 7, 2)         # 最大值
+min(3, 7, 2)         # 最小值
+len("abc")           # 长度
+pow(2, 10)           # 幂运算</pre>
+    <div class="demo-out hidden" id="out-d24-2"><div class="out-label">程序输出</div><pre class="out"></pre></div>
+  </div>
+
+  <h3>3. 查看帮助：help()</h3>
+  <p>使用 <code class="inline">help()</code> 函数可以查看某个对象的联机帮助信息。</p>
+  <div class="demo" id="d24-3">
+    <div class="demo-head"><span class="demo-title">演示：help(round) 查看round函数的帮助</span>
+      <span class="demo-actions"><button class="btn btn-run" onclick="runDemo('d24-3')">运行</button><button class="btn btn-copy" onclick="copyCode('d24-3')">复制</button></span>
+    </div>
+<pre class="code">help(round)    # 查看round函数的帮助信息</pre>
+    <div class="demo-out hidden" id="out-d24-3"><div class="out-label">程序输出</div><pre class="out"></pre></div>
+  </div>
+</section>
+
+<!-- ===== 2.5 基本输入输出 ===== -->
+<section id="s25">
+  <div class="sec-head">
+    <div class="sec-num">2.5</div>
+    <div>
+      <h2>基本输入输出</h2>
+      <p class="sec-sub">怎么和用户对话 · print()输出与input()输入</p>
+    </div>
+  </div>
+
+  <h3>1. 输入函数 input()</h3>
+  <p>【语法】<code class="inline">input([prompt])</code><br>
+  <code class="inline">prompt</code>：提示文本，该参数是<strong>可选</strong>的，类型为字符串。<strong><code class="inline">input()</code> 从键盘接收的任何输入，都被作为字符串类型</strong>。使用 <code class="inline">int()</code> 或 <code class="inline">float()</code> 可转换为数字。</p>
+  <div class="danger">初学者最常见的错误：<code class="inline">input()</code> 返回的是<strong>字符串</strong>，不能直接做数学运算（<code class="inline">"20" + 1</code> 会报 TypeError）。必须先用 <code class="inline">int()</code> 或 <code class="inline">float()</code> 转换。</div>
+  <div class="demo" id="d25-1">
+    <div class="demo-head"><span class="demo-title">演示：input()的返回值永远是字符串</span>
+      <span class="demo-actions"><button class="btn btn-run" onclick="runDemo('d25-1')">运行</button><button class="btn btn-copy" onclick="copyCode('d25-1')">复制</button></span>
+    </div>
+<pre class="code"># input()从键盘接收的任何输入，都被作为字符串类型
+a = input("Please input: ")
+type(a)          # 此时a是字符串
+a = int(a)       # 用int()转换为整型数
+type(a)</pre>
+    <div class="demo-out hidden" id="out-d25-1"><div class="out-label">程序输出（输入123）</div><pre class="out"></pre></div>
+  </div>
+
+  <div class="demo" id="d25-2">
+    <div class="demo-head"><span class="demo-title">例2-3：输入名字，显示 “Hello XXX” 问候语（可交互）</span>
+      <span class="demo-actions"><button class="btn btn-copy" onclick="copyCode('d25-2')">复制</button></span>
+    </div>
+<pre class="code"># 例2-3：使用input从键盘输入名字，显示"Hello XXX"形式的问候语
+name = input('Please input your name: ')
+print('Hello ' + name)</pre>
+    <div class="inter-panel">
+      <label>请输入名字：</label><input id="ig-name" type="text" value="Alice">
+      <button class="btn btn-run" onclick="runGreet()">运行</button>
+      <span style="font-size:12px;color:#8a90a8;">（此处用网页模拟 input() 输入）</span>
+    </div>
+    <div class="demo-out hidden" id="out-greet"><div class="out-label">程序输出</div><pre class="out"></pre></div>
+  </div>
+
+  <div class="demo" id="d25-3">
+    <div class="demo-head"><span class="demo-title">例2-4：输入两个整数，计算两数之和（可交互）</span>
+      <span class="demo-actions"><button class="btn btn-copy" onclick="copyCode('d25-3')">复制</button></span>
+    </div>
+<pre class="code"># 例2-4：从键盘输入两个整数，计算这两个数字之和
+num1 = int(input('num1: '))    # 将输入的数据转换为整数
+num2 = int(input('num2: '))
+print(num1 + num2)</pre>
+    <div class="inter-panel">
+      <label>num1：</label><input id="is-n1" type="number" value="10">
+      <label>num2：</label><input id="is-n2" type="number" value="20">
+      <button class="btn btn-run" onclick="runSum2()">运行</button>
+    </div>
+    <div class="demo-out hidden" id="out-sum2"><div class="out-label">程序输出</div><pre class="out"></pre></div>
+  </div>
+
+  <h3>2. 输出函数 print()</h3>
+  <p>【语法】<code class="inline">print(value, ..., sep=' ', end='\n', file=sys.stdout)</code></p>
+  <ul>
+    <li><code class="inline">value</code>：输出的值，可以有多个。输出多个值时，需要用<strong>英文逗号</strong>分隔。</li>
+    <li><code class="inline">sep</code>：输出结果中各个值之间的<strong>分隔符</strong>，默认为空格。</li>
+    <li><code class="inline">end</code>：输出数据之后以<strong>什么结尾</strong>，默认为换行符。</li>
+    <li><code class="inline">file</code>：输出位置，默认为标准控制台（屏幕）。</li>
+  </ul>
+  <div class="demo" id="d25-4">
+    <div class="demo-head"><span class="demo-title">演示：print()的多个值、sep与end参数</span>
+      <span class="demo-actions"><button class="btn btn-run" onclick="runDemo('d25-4')">运行</button><button class="btn btn-copy" onclick="copyCode('d25-4')">复制</button></span>
+    </div>
+<pre class="code">a = 'www'
+b = 163
+c = 'com'
+print(a, b, c)             # 输出多个对象，默认用空格分隔
+print(a, b, c, sep='.')    # sep设置分隔符
+print(a, end=',')          # end指定结尾符，不换行
+print("完成")</pre>
+    <div class="demo-out hidden" id="out-d25-4"><div class="out-label">程序输出</div><pre class="out"></pre></div>
+  </div>
+
+  <h3>3. 格式化输出（三种方式）</h3>
+
+  <h4>（1）使用 “%” 运算符设置格式</h4>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>格式符</th><th>含义</th><th>示例</th><th>结果</th></tr></thead>
+      <tbody>
+        <tr><td><code class="inline">%s</code></td><td>字符串</td><td>'%s' % 'Python'</td><td>Python</td></tr>
+        <tr><td><code class="inline">%d</code></td><td>整数</td><td>'%d' % 90</td><td>90</td></tr>
+        <tr><td><code class="inline">%f</code></td><td>浮点数（默认6位小数）</td><td>'%f' % 88.5</td><td>88.500000</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="demo" id="d25-5">
+    <div class="demo-head"><span class="demo-title">演示：% 运算符格式化</span>
+      <span class="demo-actions"><button class="btn btn-run" onclick="runDemo('d25-5')">运行</button><button class="btn btn-copy" onclick="copyCode('d25-5')">复制</button></span>
+    </div>
+<pre class="code"># 使用%运算符设置格式：'%s %d %f' % (值1, 值2, 值3)
+subject = "Python"
+score1 = 90
+score2 = 88.5
+print('%s %d %f' % (subject, score1, score2))</pre>
+    <div class="demo-out hidden" id="out-d25-5"><div class="out-label">程序输出</div><pre class="out"></pre></div>
+  </div>
+
+  <h4>（2）使用 format 方法设置格式</h4>
+  <div class="demo" id="d25-6">
+    <div class="demo-head"><span class="demo-title">演示：format方法格式化</span>
+      <span class="demo-actions"><button class="btn btn-run" onclick="runDemo('d25-6')">运行</button><button class="btn btn-copy" onclick="copyCode('d25-6')">复制</button></span>
+    </div>
+<pre class="code"># format方法：{}占位，{0}{1}按下标引用，:.2f保留2位小数，&lt;10s左对齐 &gt;10s右对齐
+print('{:<10s} and {:>10s}'.format('hello', 'world'))
+x, y = 4.123, 7.1563
+print('x={0}, y={1:.2f}'.format(x, y))    # y保留2位小数</pre>
+    <div class="demo-out hidden" id="out-d25-6"><div class="out-label">程序输出</div><pre class="out"></pre></div>
+  </div>
+
+  <h4>（3）使用 f-string 格式化（Python 3.6+ 推荐）</h4>
+  <div class="demo" id="d25-7">
+    <div class="demo-head"><span class="demo-title">演示：f-string 格式化</span>
+      <span class="demo-actions"><button class="btn btn-run" onclick="runDemo('d25-7')">运行</button><button class="btn btn-copy" onclick="copyCode('d25-7')">复制</button></span>
+    </div>
+<pre class="code"># f-string：在字符串前加f，用{变量名}直接引用
+name = "张三"
+age = 20
+print(f"姓名：{name}，年龄：{age}")
+print(f"明年年龄：{age + 1}")      # f-string中可以做运算
+pi = 3.1415926
+print(f"π ≈ {pi:.2f}")            # 保留2位小数</pre>
+    <div class="demo-out hidden" id="out-d25-7"><div class="out-label">程序输出</div><pre class="out"></pre></div>
+  </div>
+
+  <div class="ai">
+    <span class="ai-tag">AI渗透 · AI-07</span><strong>单轮对话 = input() + print()</strong><br>
+    AI对话的本质就是 <code class="inline">input()</code> 和 <code class="inline">print()</code> 的循环——接收用户输入（字符串），处理后输出结果（字符串）。区别在于：ChatGPT内部是几千亿参数的神经网络，而不是 if-else，但<strong>输入输出的接口完全一样</strong>。
+  </div>
+  <div class="demo" id="d25-8">
+    <div class="demo-head"><span class="demo-title">AI单轮对话的最小实现（可交互）：根据关键词回复</span>
+      <span class="demo-actions"><button class="btn btn-copy" onclick="copyCode('d25-8')">复制</button></span>
+    </div>
+<pre class="code"># AI单轮对话的最小实现
+def simple_ai(user_input):
+    """极简AI：根据关键词回复"""
+    if "你好" in user_input:
+        return "你好！我是AI助手，有什么可以帮你的？"
+    elif "名字" in user_input:
+        return "我叫SimpleAI，是一个用Python写的极简对话模型。"
+    elif "天气" in user_input:
+        return "抱歉，我还没有联网，无法查询天气。"
+    elif "谢谢" in user_input:
+        return "不客气！随时为你服务。"
+    else:
+        return "我还在学习中，暂时无法理解这个问题。"
+
+# 单轮对话：input + print
+user_input = input("你：")
+response = simple_ai(user_input)
+print(f"AI：{response}")</pre>
+    <div class="inter-panel">
+      <label>你：</label><input id="ia-input" type="text" value="你好" style="width:220px;">
+      <button class="btn btn-run" onclick="runAI()">运行</button>
+    </div>
+    <div class="demo-out hidden" id="out-ai"><div class="out-label">程序输出</div><pre class="out"></pre></div>
+  </div>
+
+  <div class="ai">
+    <span class="ai-tag">AI渗透 · AI-10</span><strong>Prompt四要素 = print参数化</strong><br>
+    高质量Prompt包含四要素：<strong>角色、任务、上下文、输出格式</strong>。用 f-string 把这四个要素参数化，就能灵活生成各种Prompt——这就是AI应用开发的核心。
+  </div>
+  <div class="demo" id="d25-9">
+    <div class="demo-head"><span class="demo-title">Prompt四要素参数化生成器（可交互）</span>
+      <span class="demo-actions"><button class="btn btn-copy" onclick="copyCode('d25-9')">复制</button></span>
+    </div>
+<pre class="code"># Prompt四要素参数化生成器
+def build_prompt(role, task, context, output_format):
+    """构建高质量Prompt"""
+    prompt = f"""你是一位{role}。
+请完成以下任务：{task}
+背景信息：{context}
+输出要求：{output_format}"""
+    return prompt
+
+# 示例：数据分析助手
+prompt = build_prompt(
+    role="资深数据分析师",
+    task="分析这份销售数据并给出建议",
+    context="数据包含2024年1-6月的月度销售额，1月100万，6月200万",
+    output_format="用表格展示趋势，最后给出3条具体建议"
+)
+print(prompt)</pre>
+    <div class="inter-panel">
+      <label>角色：</label><input id="ip-role" type="text" value="资深数据分析师" style="width:200px;">
+      <label>任务：</label><input id="ip-task" type="text" value="分析这份销售数据并给出建议" style="width:240px;">
+      <label>背景：</label><input id="ip-ctx" type="text" value="数据包含2024年1-6月的月度销售额" style="width:240px;">
+      <label>输出要求：</label><input id="ip-fmt" type="text" value="用表格展示趋势，最后给出3条建议" style="width:240px;">
+      <button class="btn btn-run" onclick="runPrompt()">运行</button>
+    </div>
+    <div class="demo-out hidden" id="out-prompt"><div class="out-label">生成的Prompt</div><pre class="out"></pre></div>
+  </div>
+</section>
+<!-- ===== 2.6 模块的使用 ===== -->
+<section id="s26">
+  <div class="sec-head">
+    <div class="sec-num">2.6</div>
+    <div>
+      <h2>模块的使用</h2>
+      <p class="sec-sub">怎么调用别人写好的工具 · import与random模块</p>
+    </div>
+  </div>
+
+  <h3>1. 模块的概念与分类</h3>
+  <p><strong>模块</strong>是一组程序代码，包含了多个函数、对象及其方法。Python模块分为三类：</p>
+  <ul>
+    <li><strong>内置模块</strong>：Python自带的模块，也称为“标准库”（如 math、random、datetime、statistics、os、json 等）。</li>
+    <li><strong>第三方模块</strong>：不是Python自带的，也称为“扩展库”，需要另外安装（如 numpy、pandas、matplotlib）。</li>
+    <li><strong>自定义模块</strong>：用户自己编写的模块。</li>
+  </ul>
+  <div class="note">在代码中使用这些模块，必须通过 <code class="inline">import</code> 语句<strong>导入当前程序</strong>。</div>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>部分内置模块</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td><code class="inline">math</code></td><td>数学计算</td></tr>
+        <tr><td><code class="inline">datetime</code></td><td>日期操作</td></tr>
+        <tr><td><code class="inline">statistics</code></td><td>计算列表中数字的平均值或者常见统计数据</td></tr>
+        <tr><td><code class="inline">random</code></td><td>随机操作</td></tr>
+        <tr><td><code class="inline">time</code></td><td>时间相关</td></tr>
+        <tr><td><code class="inline">os</code></td><td>操作系统接口</td></tr>
+        <tr><td><code class="inline">json</code></td><td>JSON数据处理</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>2. 导入模块的三种方式</h3>
+
+  <h4>方法一：import 模块名</h4>
+  <p>直接导入该模块的所有内容，使用模块中的某个具体函数时，要在函数名前<strong>加上模块的名字</strong>。</p>
+  <div class="demo" id="d26-1">
+    <div class="demo-head"><span class="demo-title">演示：import math</span>
+      <span class="demo-actions"><button class="btn btn-run" onclick="runDemo('d26-1')">运行</button><button class="btn btn-copy" onclick="copyCode('d26-1')">复制</button></span>
+    </div>
+<pre class="code"># 方法一：import 模块名
+import math
+math.sin(0.5)    # 使用函数时要加模块名前缀
+math.cos(0.5)</pre>
+    <div class="demo-out hidden" id="out-d26-1"><div class="out-label">程序输出</div><pre class="out"></pre></div>
+  </div>
+
+  <h4>方法二：from 模块名 import 函数名</h4>
+  <p>导入模块中的某个具体函数，可以在程序中<strong>直接使用函数名</strong>。</p>
+  <div class="demo" id="d26-2">
+    <div class="demo-head"><span class="demo-title">演示：from math import sin, cos</span>
+      <span class="demo-actions"><button class="btn btn-run" onclick="runDemo('d26-2')">运行</button><button class="btn btn-copy" onclick="copyCode('d26-2')">复制</button></span>
+    </div>
+<pre class="code"># 方法二：from ... import ...
+from math import sin, cos
+sin(0.5)     # 可以直接使用函数名
+cos(0.5)</pre>
+    <div class="demo-out hidden" id="out-d26-2"><div class="out-label">程序输出</div><pre class="out"></pre></div>
+  </div>
+
+  <h4>方法三：from 模块名 import 函数 as 别名</h4>
+  <p>为模块或者函数定义一个<strong>别名</strong>。</p>
+  <div class="demo" id="d26-3">
+    <div class="demo-head"><span class="demo-title">演示：from math import sin as ms</span>
+      <span class="demo-actions"><button class="btn btn-run" onclick="runDemo('d26-3')">运行</button><button class="btn btn-copy" onclick="copyCode('d26-3')">复制</button></span>
+    </div>
+<pre class="code"># 方法三：from ... import ... as ...
+from math import sin as ms
+ms(0.5)</pre>
+    <div class="demo-out hidden" id="out-d26-3"><div class="out-label">程序输出</div><pre class="out"></pre></div>
+  </div>
+
+  <h3>3. random随机数模块</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>函数</th><th>说明</th><th>示例</th></tr></thead>
+      <tbody>
+        <tr><td><code class="inline">random.randint(a, b)</code></td><td>[a, b]范围内的随机整数</td><td>random.randint(1, 100)</td></tr>
+        <tr><td><code class="inline">random.random()</code></td><td>[0.0, 1.0)范围内的随机浮点数</td><td>random.random()</td></tr>
+        <tr><td><code class="inline">random.uniform(a, b)</code></td><td>[a, b]范围内的随机浮点数</td><td>random.uniform(1.5, 3.5)</td></tr>
+        <tr><td><code class="inline">random.choice(seq)</code></td><td>从序列中随机选一个元素</td><td>random.choice([1, 2, 3])</td></tr>
+        <tr><td><code class="inline">random.shuffle(seq)</code></td><td>打乱列表的顺序</td><td>random.shuffle([1, 2, 3])</td></tr>
+        <tr><td><code class="inline">random.seed(n)</code></td><td>设置随机种子（结果可复现）</td><td>random.seed(42)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="demo" id="d26-4">
+    <div class="demo-head"><span class="demo-title">例2-5：random模块的随机选择操作（可交互，每次结果不同）</span>
+      <span class="demo-actions"><button class="btn btn-copy" onclick="copyCode('d26-4')">复制</button></span>
+    </div>
+<pre class="code"># 例2-5：使用random模块的函数进行随机选择操作
+from random import choice
+direction = choice(['N', 'S', 'E', 'W'])
+print(direction)</pre>
+    <div class="inter-panel">
+      <button class="btn btn-run" onclick="runChoice()">随机选一次</button>
+      <span style="font-size:12px;color:#8a90a8;">网页用JS模拟random.choice：每次点击结果不同</span>
+    </div>
+    <div class="demo-out hidden" id="out-choice"><div class="out-label">程序输出</div><pre class="out"></pre></div>
+  </div>
+
+  <div class="demo" id="d26-5">
+    <div class="demo-head"><span class="demo-title">演示：random常用函数（可交互，体会随机性）</span>
+      <span class="demo-actions"><button class="btn btn-copy" onclick="copyCode('d26-5')">复制</button></span>
+    </div>
+<pre class="code"># random常用函数
+import random
+random.randint(1, 100)      # 1-100的随机整数
+random.random()             # 0-1的随机浮点数
+random.uniform(1.5, 3.5)    # 1.5-3.5的随机浮点数
+random.choice([1, 2, 3])    # 从列表随机选一个
+random.seed(42)             # 设置随机种子（可复现）
+random.randint(1, 100)      # 种子相同，结果相同</pre>
+    <div class="inter-panel">
+      <button class="btn btn-run" onclick="runRandoms()">运行</button>
+      <span style="font-size:12px;color:#8a90a8;">前4行每次运行随机；设置seed(42)后结果固定为82</span>
+    </div>
+    <div class="demo-out hidden" id="out-randoms"><div class="out-label">程序输出</div><pre class="out"></pre></div>
+  </div>
+
+  <div class="ai">
+    <span class="ai-tag">AI渗透 · AI-06</span><strong>生成式AI = 概率词语接龙</strong><br>
+    生成式AI的本质：根据<strong>概率随机选择下一个词</strong>。<code class="inline">random.choice()</code> 就是最简单的“生成”；AI的每一步输出都是一次加权随机选择，<code class="inline">temperature</code>（温度参数）控制随机性大小。
+  </div>
+  <div class="demo" id="d26-6">
+    <div class="demo-head"><span class="demo-title">生成式AI最小演示：随机词语接龙（可交互）</span>
+      <span class="demo-actions"><button class="btn btn-copy" onclick="copyCode('d26-6')">复制</button></span>
+    </div>
+<pre class="code"># 生成式AI的最小演示：随机选择下一个词
+from random import choice
+word = choice(["机器", "学习", "深度", "模型", "数据"])
+print(word)</pre>
+    <div class="inter-panel">
+      <button class="btn btn-run" onclick="runWordGen()">生成一次</button>
+      <span style="font-size:12px;color:#8a90a8;">每次点击，随机“生成”一个词</span>
+    </div>
+    <div class="demo-out hidden" id="out-wordgen"><div class="out-label">程序输出</div><pre class="out"></pre></div>
+  </div>
+</section>
+
+<!-- ===== 2.7 综合应用 ===== -->
+<section id="s27">
+  <div class="sec-head">
+    <div class="sec-num">2.7</div>
+    <div>
+      <h2>语言基础综合应用</h2>
+      <p class="sec-sub">串起来写完整小程序 · 闰年判断 / 圆面积 / 猜数字 / BMI</p>
+    </div>
+  </div>
+  <p>综合应用把本章的<strong>变量、运算符、数据类型、内置函数、输入输出、模块</strong>等所有知识点串起来，是检验学习效果的最佳案例。</p>
+
+  <h3>例2-6 判断某个年份是否为闰年（可交互）</h3>
+  <p>闰年规则：能被4整除但不能被100整除，<strong>或</strong>能被400整除。</p>
+  <div class="demo" id="d27-1">
+    <div class="demo-head"><span class="demo-title">例2-6：闰年判断</span>
+      <span class="demo-actions"><button class="btn btn-copy" onclick="copyCode('d27-1')">复制</button></span>
+    </div>
+<pre class="code"># 例2-6：判断某个年份是否为闰年
+# (能被4整除 且 不能被100整除) 或 能被400整除
+year = int(input('year = '))
+print((year % 4 == 0 and year % 100 != 0) or (year % 400 == 0))</pre>
+    <div class="inter-panel">
+      <label>请输入年份：</label><input id="il-year" type="number" value="2024">
+      <button class="btn btn-run" onclick="runLeap()">运行</button>
+      <span class="chips">
+        <button class="chip" onclick="document.getElementById('il-year').value='2024';runLeap()">2024</button>
+        <button class="chip" onclick="document.getElementById('il-year').value='2021';runLeap()">2021</button>
+        <button class="chip" onclick="document.getElementById('il-year').value='2000';runLeap()">2000</button>
+        <button class="chip" onclick="document.getElementById('il-year').value='1900';runLeap()">1900</button>
+      </span>
+    </div>
+    <div class="demo-out hidden" id="out-leap"><div class="out-label">程序输出</div><pre class="out"></pre></div>
+  </div>
+  <div class="note">想一想：2000年是闰年吗？1900年呢？——2000能被400整除，是闰年；1900能被4整除但不能被100整除这个条件不满足（它还能被400整除吗？不能），所以1900<strong>不是</strong>闰年。</div>
+
+  <h3>例2-7 输入x，计算表达式的值（可交互）</h3>
+  <p>计算 <code class="inline">y = sin(x) + 2×sqrt(x + e⁴) − (x+1)³</code>，结果保留2位小数。</p>
+  <div class="demo" id="d27-2">
+    <div class="demo-head"><span class="demo-title">例2-7：表达式计算（综合应用 math 模块与运算符）</span>
+      <span class="demo-actions"><button class="btn btn-copy" onclick="copyCode('d27-2')">复制</button></span>
+    </div>
+<pre class="code"># 例2-7：输入x，计算并显示表达式的值，结果保留2位小数
+import math
+x = input('input x: ')
+x = float(x)
+y = math.sin(x) + 2 * math.sqrt(x + math.exp(4)) - pow((x + 1), 3)
+y = round(y, 2)
+print('y =', y)</pre>
+    <div class="inter-panel">
+      <label>请输入 x：</label><input id="ix-x" type="number" step="0.1" value="0">
+      <button class="btn btn-run" onclick="runExpr7()">运行</button>
+      <span class="chips">
+        <button class="chip" onclick="document.getElementById('ix-x').value='0';runExpr7()">x=0</button>
+        <button class="chip" onclick="document.getElementById('ix-x').value='1';runExpr7()">x=1</button>
+      </span>
+    </div>
+    <div class="demo-out hidden" id="out-expr7"><div class="out-label">程序输出</div><pre class="out"></pre></div>
+  </div>
+
+  <h3>例2-8 输入圆的半径，求圆的面积（可交互）</h3>
+  <div class="demo" id="d27-3">
+    <div class="demo-head"><span class="demo-title">例2-8：圆的面积（格式化输出，保留2位小数）</span>
+      <span class="demo-actions"><button class="btn btn-copy" onclick="copyCode('d27-3')">复制</button></span>
+    </div>
+<pre class="code"># 例2-8：从键盘输入圆的半径，求圆的面积，并格式化输出结果
+import math
+r = input('请输入半径: ')
+r = float(r)
+s = math.pi * pow(r, 2)
+print('圆的面积：{:.2f}'.format(s))</pre>
+    <div class="inter-panel">
+      <label>请输入半径：</label><input id="ir-r" type="number" step="0.5" value="3">
+      <button class="btn btn-run" onclick="runArea()">运行</button>
+      <span class="chips">
+        <button class="chip" onclick="document.getElementById('ir-r').value='3';runArea()">r=3</button>
+        <button class="chip" onclick="document.getElementById('ir-r').value='5';runArea()">r=5</button>
+      </span>
+    </div>
+    <div class="demo-out hidden" id="out-area"><div class="out-label">程序输出</div><pre class="out"></pre></div>
+  </div>
+
+  <h3>综合应用1：猜数字游戏（整合所有知识点，可交互）</h3>
+  <p>这个小游戏整合了<strong>变量、运算符、数据类型、内置函数、输入输出、模块</strong>等所有知识点。</p>
+  <div class="demo" id="d27-4">
+    <div class="demo-head"><span class="demo-title">猜数字游戏：完整Python代码</span>
+      <span class="demo-actions"><button class="btn btn-copy" onclick="copyCode('d27-4')">复制</button></span>
+    </div>
+<pre class="code"># 猜数字游戏：整合本次课所有知识点
+import random
+
+# 变量 + 模块 + 运算符
+secret = random.randint(1, 100)   # 随机生成1-100的秘密数字
+count = 0                         # 计数变量
+
+print("=== 猜数字游戏 ===")
+print("我想了一个1到100之间的数字，你来猜！")
+
+# 游戏循环（下节课学while，这里先体验）
+while True:
+    # input + 类型转换
+    guess = int(input("请输入你的猜测："))
+    count += 1                    # 复合赋值运算符
+
+    # 关系运算符 + 逻辑运算符
+    if guess == secret:
+        print(f"恭喜你猜对了！答案就是{secret}")
+        print(f"你一共猜了{count}次")
+        break                     # 跳出循环
+    elif guess < secret:
+        print("太小了，再大一点！")
+    else:
+        print("太大了，再小一点！")</pre>
+  </div>
+  <div class="game" id="guess-game">
+    <p><strong>网页模拟版</strong>：我已经想好了一个 1~100 之间的数字，你来猜！（逻辑与上面Python代码完全一致）</p>
+    <div class="row">
+      <input id="gg-input" type="number" min="1" max="100" placeholder="输入你的猜测">
+      <button class="btn btn-run" onclick="guessTurn()">猜！</button>
+      <button class="btn" onclick="ggReset()">重新开始</button>
+      <span id="gg-status" style="font-size:13px;color:#8a90a8;"></span>
+    </div>
+    <div class="demo-out" id="gg-panel" style="display:none;"><div class="out-label">游戏过程</div><pre class="out" id="gg-out"></pre></div>
+  </div>
+
+  <h3>综合应用2：BMI健康计算器（可交互）</h3>
+  <p>BMI（身体质量指数）= 体重(kg) / 身高(m)的平方。整合了<strong>输入输出、类型转换、算术运算、条件判断和格式化输出</strong>。</p>
+  <div class="demo" id="d27-5">
+    <div class="demo-head"><span class="demo-title">BMI健康计算器：完整Python代码</span>
+      <span class="demo-actions"><button class="btn btn-copy" onclick="copyCode('d27-5')">复制</button></span>
+    </div>
+<pre class="code"># BMI健康计算器
+print("=== BMI健康计算器 ===")
+
+# 输入 + 类型转换
+weight = float(input("请输入体重（kg）："))
+height = float(input("请输入身高（m）："))
+
+# 算术运算符 + 幂运算
+bmi = weight / (height ** 2)
+
+# 格式化输出
+print(f"你的BMI指数为：{bmi:.1f}")
+
+# 条件判断（关系运算符 + 逻辑运算符）
+if bmi &lt; 18.5:
+    category = "偏瘦"
+    advice = "建议增加营养摄入，适当增肌"
+elif 18.5 &lt;= bmi &lt; 24:
+    category = "正常"
+    advice = "恭喜！请保持健康的生活方式"
+elif 24 &lt;= bmi &lt; 28:
+    category = "偏胖"
+    advice = "建议控制饮食，增加有氧运动"
+else:
+    category = "肥胖"
+    advice = "建议咨询医生，制定科学减重计划"
+
+print(f"健康等级：{category}")
+print(f"健康建议：{advice}")</pre>
+    <div class="inter-panel">
+      <label>体重(kg)：</label><input id="ib-w" type="number" step="0.1" value="70">
+      <label>身高(m)：</label><input id="ib-h" type="number" step="0.01" value="1.75">
+      <button class="btn btn-run" onclick="runBMI()">运行</button>
+    </div>
+    <div class="demo-out hidden" id="out-bmi"><div class="out-label">程序输出</div><pre class="out"></pre></div>
+  </div>
+
+  <h3>知识点回顾</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>知识点</th><th>在综合应用中的体现</th></tr></thead>
+      <tbody>
+        <tr><td>变量</td><td>secret、count、weight、height、bmi 等</td></tr>
+        <tr><td>运算符</td><td>== &lt; &gt; += **，以及逻辑组合（闰年判断）</td></tr>
+        <tr><td>数据类型</td><td>int() / float() 类型转换</td></tr>
+        <tr><td>内置函数</td><td>print()、input()、int()、float()、round()</td></tr>
+        <tr><td>模块</td><td>import random / import math</td></tr>
+        <tr><td>控制流（下章）</td><td>if / elif / else / while / break（第3章详学）</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+<!-- ===== 本章小结 ===== -->
+<section id="summary">
+  <div class="sec-head">
+    <div class="sec-num">结</div>
+    <div>
+      <h2>本章小结 · 易错点 · 作业</h2>
+      <p class="sec-sub">Summary · 7大模块知识图谱 + 10个高频错误 + 课后任务</p>
+    </div>
+  </div>
+
+  <h3>7大模块知识图谱</h3>
+  <div class="tbl-wrap summary-tbl">
+    <table>
+      <thead><tr><th>模块</th><th>核心知识点</th><th>AI渗透点</th></tr></thead>
+      <tbody>
+        <tr><td>2.1 常量与变量</td><td>赋值、命名规则、内存地址、动态类型</td><td>AI-01 变量 = 模型参数</td></tr>
+        <tr><td>2.2 运算符与表达式</td><td>算术 / 关系 / 逻辑 / 赋值 / 成员、优先级</td><td>AI-02/03/04 神经元 / 置信度 / 规则引擎</td></tr>
+        <tr><td>2.3 数据类型</td><td>int / float / str / bool、类型转换、字符串</td><td>AI-05/08 Prompt = 字符串、AI幻觉 = 浮点精度</td></tr>
+        <tr><td>2.4 内置函数</td><td>type / len / print / abs / round / max / help</td><td>AI-09 让AI解释报错（教师演示）</td></tr>
+        <tr><td>2.5 基本输入输出</td><td>print(sep/end/格式化)、input()</td><td>AI-07/10 单轮对话、Prompt四要素</td></tr>
+        <tr><td>2.6 模块的使用</td><td>import / from...import、random随机数</td><td>AI-06 生成式AI = 概率词语接龙</td></tr>
+        <tr><td>2.7 综合应用</td><td>猜数字游戏、BMI计算器</td><td>整合所有知识点</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="note">下次课预告：<strong>第3章 程序控制结构</strong>——if条件判断、for/while循环、循环控制语句（break/continue/pass）。建议预习教材第3章，尝试用if语句写一个简单的成绩等级判断程序。</div>
+
+  <h3>易错点速查表：10个初学者高频错误</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>序号</th><th>错误写法</th><th>正确写法</th><th>错误原因</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td><code class="inline">sum = 0</code></td><td><code class="inline">total = 0</code></td><td>覆盖内置函数 sum()</td></tr>
+        <tr><td>2</td><td><code class="inline">2name = "Tom"</code></td><td><code class="inline">name2 = "Tom"</code></td><td>变量名不能数字开头</td></tr>
+        <tr><td>3</td><td><code class="inline">0.1+0.2 == 0.3</code></td><td><code class="inline">abs(0.1+0.2-0.3) &lt; 1e-9</code></td><td>浮点数精度问题</td></tr>
+        <tr><td>4</td><td><code class="inline">age = input("年龄：")</code></td><td><code class="inline">age = int(input("年龄："))</code></td><td>input返回字符串</td></tr>
+        <tr><td>5</td><td><code class="inline">2 ^ 3 = 8</code></td><td><code class="inline">2 ** 3 = 8</code></td><td>^是位异或，**才是幂</td></tr>
+        <tr><td>6</td><td><code class="inline">s[1:3]</code> 取第1~3个</td><td><code class="inline">s[1:3]</code> 取第1~2个</td><td>切片含start不含end</td></tr>
+        <tr><td>7</td><td><code class="inline">x++</code>（自增）</td><td><code class="inline">x += 1</code></td><td>Python没有++运算符</td></tr>
+        <tr><td>8</td><td><code class="inline">if x = 5:</code></td><td><code class="inline">if x == 5:</code></td><td>=是赋值，==是比较</td></tr>
+        <tr><td>9</td><td><code class="inline">int(3.99) = 4</code></td><td><code class="inline">int(3.99) = 3</code></td><td>int是截断不是四舍五入</td></tr>
+        <tr><td>10</td><td><code class="inline">print name</code></td><td><code class="inline">print(name)</code></td><td>Python3函数必须加括号</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>上机任务（T2-01 ~ T2-13）</h3>
+  <div class="grid2">
+    <div class="cell">
+      <h4>基础任务（必做）</h4>
+      <ul>
+        <li>T2-01 变量赋值与类型查看</li>
+        <li>T2-02 算术运算符练习</li>
+        <li>T2-03 关系与逻辑运算符</li>
+        <li>T2-04 字符串索引与切片</li>
+        <li>T2-05 类型转换练习</li>
+        <li>T2-06 内置函数综合练习</li>
+        <li>T2-07 print格式化输出</li>
+        <li>T2-08 input输入与转换</li>
+      </ul>
+    </div>
+    <div class="cell">
+      <h4>进阶任务（选做）</h4>
+      <ul>
+        <li>T2-09 random模块练习</li>
+        <li>T2-10 温度转换器（℃ ↔ ℉）</li>
+        <li>T2-11 简单计算器</li>
+        <li>T2-12 姓名生成器（random + str）</li>
+        <li>T2-13 AI Prompt生成器</li>
+      </ul>
+      <p style="font-size:14px;color:var(--ink-soft);">提交要求：每道题写注释，保存为 <code class="inline">.py</code> 文件，命名：学号_姓名_T2-XX.py</p>
+    </div>
+  </div>
+
+  <h3>作业布置</h3>
+  <div class="homework">
+    <h4>书面作业（下次课课前检查）</h4>
+    <ol>
+      <li>教材P45 习题2.1-2.5</li>
+      <li>默写变量命名4条规则</li>
+      <li>写出7种算术运算符及示例</li>
+      <li>简述浮点数精度问题及解决方法</li>
+      <li>用自己的话解释“AI幻觉”</li>
+    </ol>
+  </div>
+  <div class="homework">
+    <h4>上机作业（截止：下周三 23:59）</h4>
+    <ul>
+      <li>完成 T2-01 ~ T2-08（基础必做），选做 T2-09 ~ T2-13（进阶）</li>
+      <li>每道题写注释说明，命名：学号_姓名_T2-XX.py</li>
+      <li>打包上传至课程平台</li>
+    </ul>
+  </div>
+
+  <div class="ai">
+    <span class="ai-tag">AI使用规范</span>本课程鼓励学生了解AI原理，但对AI工具的使用有明确规范：基础阶段（第1-4次课）学生<strong>不使用AI写代码</strong>，仅观察教师演示。<strong>允许</strong>：观察教师AI演示、用AI解释报错、辅助理解概念、课后复习。<strong>禁止</strong>：用AI直接生成作业代码、复制粘贴AI答案提交、上机考试使用AI。核心理念：<strong>AI是工具不是替身，理解原理 &gt; 写出代码</strong>。
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="f-main">中华女子学院 · Python大数据分析基础</div>
+  <div>第2章 Python语言基础 · 第2次课 · 4学时 180分钟 · 授课人：孙琪翔</div>
+  <div style="margin-top:6px;font-size:12px;opacity:.7;">本网页依据《Python编程与数据分析基础》（陈洁、刘姝，清华大学出版社）第2章及课件制作，所有代码示例均可点击“运行”演示。</div>
+  <div style="margin-top:12px;font-size:14px;">
+    <a href="python-bigdata-2026.html" style="color:#dfe7f4;">课程主页</a>
+    <span style="opacity:.45;margin:0 8px;">|</span>
+    <a href="python-bigdata-2026-lesson1.html" style="color:#dfe7f4;">第1次课 · 课程介绍与Python概述</a>
+    <span style="opacity:.45;margin:0 8px;">|</span>
+    <a href="python-bigdata-2026-lesson2-demo.html" style="color:#dfe7f4;">第2次课 · 演示Demo</a>
+  </div>
+</footer>
+
+<button id="toTop" title="回到顶部">↑</button>
+<style>[hidden]{display:none!important}</style>
+
+<script>
+/* ===== 演示输出数据（全部经Python实际运行验证） ===== */
+var DEMOS = {
+"d21-1": { out: `>>> name = "Zhang San"
+>>> age = 18
+>>> print(name)
+Zhang San
+>>> print(age)
+18
+>>> type(age)
+<class 'int'>` },
+"d21-2": { out: `>>> print(name)
+Traceback (most recent call last):
+NameError: name 'name' is not defined` },
+"d21-3": { out: `>>> import keyword
+>>> print(keyword.kwlist)
+['False', 'None', 'True', 'and', 'as', 'assert', 'async', 'await', 'break',
+ 'class', 'continue', 'def', 'del', 'elif', 'else', 'except', 'finally',
+ 'for', 'from', 'global', 'if', 'import', 'in', 'is', 'lambda', 'nonlocal',
+ 'not', 'or', 'pass', 'raise', 'return', 'try', 'while', 'with', 'yield']
+（共35个关键字，变量名不能使用它们）` },
+"d21-4": { out: `>>> dir(__builtins__)
+['ArithmeticError', 'AssertionError', 'AttributeError', ..., 'abs', 'all',
+ 'any', 'bool', 'bytes', 'dict', 'dir', 'enumerate', 'float', 'format',
+ 'frozenset', 'help', 'input', 'int', 'isinstance', 'len', 'list', 'map',
+ 'max', 'min', 'object', 'pow', 'print', 'range', 'round', 'set', 'sorted',
+ 'str', 'sum', 'tuple', 'type', 'zip', ...]
+（内置函数封装在__builtins__中可直接使用；不要用它们做变量名）` },
+"d21-5": { out: `>>> x = 3
+>>> type(x)
+<class 'int'>
+>>> x = "Python"
+>>> type(x)
+<class 'str'>
+>>> x = True
+>>> type(x)
+<class 'bool'>` },
+"d21-6": { out: `>>> hourly_salary = 50
+>>> month_salary = hourly_salary * 8 * 22
+>>> print(month_salary)
+8800
+>>> hourly_salary = 80
+>>> month_salary = hourly_salary * 8 * 22
+>>> print(month_salary)
+14080` },
+"d21-7": { out: `2.6
+3.56
+4.136
+正确答案 w = 5.0` },
+"d22-1": { out: `>>> 7 / 2
+3.5
+>>> 7 // 2
+3
+>>> 7 % 2
+1
+>>> 2 ** 3
+8
+>>> -7 // 2
+-4
+>>> 2 ^ 3
+1` },
+"d22-2": { out: `>>> 3 > 5
+False
+>>> 3 < 5
+True
+>>> 1 < 3 < 5
+True
+>>> "abc" == "abc"
+True
+>>> "abc" == "ABC"
+False
+>>> 5 >= 5
+True` },
+"d22-3": { out: `>>> 3 > 5 and 1 / 0
+False
+>>> 3 > 5 or "hello"
+'hello'
+>>> not True
+False
+>>> True or False and False
+True
+>>> (True or False) and False
+False` },
+"d22-4": { out: `>>> x = 5
+>>> x += 3
+>>> x *= 2
+>>> x //= 4
+>>> x **= 3
+>>> print(x)
+64` },
+"d22-5": { out: `>>> "th" in "Python"
+True
+>>> "Py" not in "Python"
+False
+>>> 3 in [1, 2, 3]
+True
+>>> "北京" in "中华人民共和国首都北京"
+True` },
+"d22-6": { out: `>>> 2 + 3 * 4
+14
+>>> (2 + 3) * 4
+20
+>>> 2 ** 3 ** 2
+512
+>>> (2 ** 3) ** 2
+64` },
+"d22-7": { out: `>>> y = w1 * x1 + w2 * x2 + w3 * x3 + b
+>>> print(f"加权和 = {y:.3f}")
+加权和 = 1.220
+>>> prob = 1 / (1 + math.exp(-y))
+>>> print(f"是猫的概率 = {prob:.2%}")
+是猫的概率 = 77.21%
+>>> print("判断：", "是猫" if prob > 0.5 else "不是猫")
+判断： 是猫` },
+"d22-8": { out: `审批结果： 通过` },
+"d23-1": { out: `>>> age = 20
+>>> type(age)
+<class 'int'>
+>>> type(0.3)
+<class 'float'>
+>>> type(1e-6)
+<class 'float'>
+>>> type(True)
+<class 'bool'>
+>>> type("Python")
+<class 'str'>` },
+"d23-2": { out: `>>> 2 ** 1000
+107150860718626732094842504906000181056140481170553360744375038837035105112493612249319837881569585812759467291755314682...
+（302位的整数，Python3的int没有大小限制）
+>>> 0.1 + 0.2
+0.30000000000000004
+>>> 0.1 + 0.2 == 0.3
+False
+>>> abs(0.1 + 0.2 - 0.3) < 1e-9
+True
+>>> 1.5e10
+15000000000.0` },
+"d23-3": { out: `>>> int("123")
+123
+>>> int(3.99)
+3
+>>> float("3.14")
+3.14
+>>> str(123)
+'123'
+>>> bool(0)
+False
+>>> bool(1)
+True
+>>> bool("")
+False
+>>> bool("hello")
+True
+>>> bool(None)
+False
+>>> int("abc")
+Traceback (most recent call last):
+ValueError: invalid literal for int() with base 10: 'abc'` },
+"d23-4": { out: `>>> 3 > 5
+False
+>>> 3 < 5
+True` },
+"d23-5": { out: `>>> number = 123
+>>> a = number // 100
+>>> b = number // 10 % 10
+>>> c = number % 10
+>>> print(a, b, c)
+1 2 3` },
+"d23-6": { out: `>>> name = 'Linda'
+>>> type(name)
+<class 'str'>
+>>> phone = "123456"
+>>> type(phone)
+<class 'str'>
+>>> phone = 123456
+>>> type(phone)
+<class 'int'>
+>>> print(str1)
+Hello everyone!
+Hello world!
+>>> print(str2)
+I'm 18 years old.` },
+"d23-7": { out: `>>> s[0]
+'P'
+>>> s[-1]
+'n'
+>>> s[0:3]
+'Pyt'
+>>> s[:3]
+'Pyt'
+>>> s[3:]
+'hon'
+>>> len(s)
+6
+>>> s.upper()
+'PYTHON'
+>>> s.lower()
+'python'
+>>> "th" in s
+True
+>>> s.replace("P", "J")
+'Jython'` },
+"d23-8": { out: `>>> type([1, 2, 3])
+<class 'list'>
+>>> type((1, 2))
+<class 'tuple'>
+>>> type({"name": "Tom"})
+<class 'dict'>
+>>> type({1, 2, 3})
+<class 'set'>` },
+"d24-1": { out: `>>> type(name)
+<class 'str'>
+>>> round(price, 1)
+32.6
+>>> int(price)
+32` },
+"d24-2": { out: `>>> abs(-5)
+5
+>>> round(3.14159, 2)
+3.14
+>>> max(3, 7, 2)
+7
+>>> min(3, 7, 2)
+2
+>>> len("abc")
+3
+>>> pow(2, 10)
+1024` },
+"d24-3": { out: `>>> help(round)
+Help on built-in function round in module builtins:
+
+round(number, ndigits=None)
+    Round a number to a given precision in decimal digits.
+
+    The return value is an integer if ndigits is omitted or None.  Otherwise
+    the return value has the same type as the number.  ndigits may be negative.` },
+"d25-1": { out: `>>> a = input("Please input: ")
+Please input: 123
+>>> type(a)
+<class 'str'>
+>>> a = int(a)
+>>> type(a)
+<class 'int'>` },
+"d25-4": { out: `>>> a = 'www'
+>>> b = 163
+>>> c = 'com'
+>>> print(a, b, c)
+www 163 com
+>>> print(a, b, c, sep='.')
+www.163.com
+>>> print(a, end=',')
+www,
+>>> print("完成")
+完成` },
+"d25-5": { out: `>>> print('%s %d %f' % (subject, score1, score2))
+Python 90 88.500000` },
+"d25-6": { out: `>>> print('{:<10s} and {:>10s}'.format('hello', 'world'))
+hello      and      world
+>>> x, y = 4.123, 7.1563
+>>> print('x={0}, y={1:.2f}'.format(x, y))
+x=4.123, y=7.16` },
+"d25-7": { out: `>>> print(f"姓名：{name}，年龄：{age}")
+姓名：张三，年龄：20
+>>> print(f"明年年龄：{age + 1}")
+明年年龄：21
+>>> print(f"π ≈ {pi:.2f}")
+π ≈ 3.14` },
+"d26-1": { out: `>>> import math
+>>> math.sin(0.5)
+0.479425538604203
+>>> math.cos(0.5)
+0.8775825618903728` },
+"d26-2": { out: `>>> from math import sin, cos
+>>> sin(0.5)
+0.479425538604203
+>>> cos(0.5)
+0.8775825618903728` },
+"d26-3": { out: `>>> from math import sin as ms
+>>> ms(0.5)
+0.479425538604203` }
+};
+
+/* ===== 输出渲染 ===== */
+function showLines(pre, lines, append){
+  if(!append) pre.innerHTML = '';
+  lines.forEach(function(line){
+    var div = document.createElement('div');
+    if(/^>>>/.test(line) || /^\.\.\./.test(line)) div.className = 'ln-prompt';
+    else if(/(Error|Traceback)/.test(line)) div.className = 'ln-err';
+    else if(/^（/.test(line) || /^#/.test(line)) div.className = 'ln-meta';
+    else div.className = 'ln-out';
+    div.textContent = line;
+    pre.appendChild(div);
+  });
+}
+function runDemo(id){
+  var out = document.getElementById('out-' + id);
+  if(!out) return;
+  out.hidden = false;
+  out.classList.remove('hidden');
+  var pre = out.querySelector('.out');
+  var lines = (DEMOS[id] || {out:''}).out.split('\n');
+  pre.innerHTML = '';
+  var i = 0;
+  var t = setInterval(function(){
+    if(i >= lines.length){ clearInterval(t); return; }
+    appendLine(pre, lines[i]);
+    i++;
+  }, 26);
+}
+function appendLine(pre, line){
+  var div = document.createElement('div');
+  if(/^>>>/.test(line) || /^\.\.\./.test(line)) div.className = 'ln-prompt';
+  else if(/(Error|Traceback)/.test(line)) div.className = 'ln-err';
+  else if(/^（/.test(line) || /^#/.test(line)) div.className = 'ln-meta';
+  else div.className = 'ln-out';
+  div.textContent = line;
+  pre.appendChild(div);
+}
+
+/* ===== 复制代码 ===== */
+function copyCode(id){
+  var demo = document.getElementById(id);
+  if(!demo) return;
+  var code = demo.querySelector('.code').innerText;
+  var btn = demo.querySelector('.btn-copy');
+  var ok = function(){
+    var old = btn.textContent;
+    btn.textContent = '已复制';
+    setTimeout(function(){ btn.textContent = old; }, 1200);
+  };
+  if(navigator.clipboard && window.isSecureContext){
+    navigator.clipboard.writeText(code).then(ok).catch(function(){ legacyCopy(code); ok(); });
+  } else { legacyCopy(code); ok(); }
+}
+function legacyCopy(t){
+  var ta = document.createElement('textarea');
+  ta.value = t;
+  ta.style.position = 'fixed';
+  ta.style.opacity = '0';
+  document.body.appendChild(ta);
+  ta.focus(); ta.select();
+  try { document.execCommand('copy'); } catch(e) {}
+  document.body.removeChild(ta);
+}
+
+/* ===== 交互演示（JS镜像Python逻辑，与PPT代码一致） ===== */
+function runGreet(){
+  var name = document.getElementById('ig-name').value;
+  var out = document.getElementById('out-greet');
+  out.hidden = false; out.classList.remove('hidden');
+  showLines(out.querySelector('.out'), [
+    ">>> name = input('Please input your name: ')",
+    "Please input your name: " + name,
+    ">>> print('Hello ' + name)",
+    "Hello " + name
+  ]);
+}
+function runSum2(){
+  var n1 = parseInt(document.getElementById('is-n1').value) || 0;
+  var n2 = parseInt(document.getElementById('is-n2').value) || 0;
+  var out = document.getElementById('out-sum2');
+  out.hidden = false; out.classList.remove('hidden');
+  showLines(out.querySelector('.out'), [
+    ">>> num1 = int(input('num1: '))",
+    "num1: " + n1,
+    ">>> num2 = int(input('num2: '))",
+    "num2: " + n2,
+    ">>> print(num1 + num2)",
+    String(n1 + n2)
+  ]);
+}
+function runAI(){
+  var text = document.getElementById('ia-input').value;
+  var resp;
+  if(text.indexOf('你好') >= 0) resp = '你好！我是AI助手，有什么可以帮你的？';
+  else if(text.indexOf('名字') >= 0) resp = '我叫SimpleAI，是一个用Python写的极简对话模型。';
+  else if(text.indexOf('天气') >= 0) resp = '抱歉，我还没有联网，无法查询天气。';
+  else if(text.indexOf('谢谢') >= 0) resp = '不客气！随时为你服务。';
+  else resp = '我还在学习中，暂时无法理解这个问题。';
+  var out = document.getElementById('out-ai');
+  out.hidden = false; out.classList.remove('hidden');
+  showLines(out.querySelector('.out'), [
+    ">>> user_input = input('你：')",
+    "你：" + text,
+    ">>> print(f\"AI：{response}\")",
+    "AI：" + resp
+  ]);
+}
+function runPrompt(){
+  var role = document.getElementById('ip-role').value;
+  var task = document.getElementById('ip-task').value;
+  var ctx = document.getElementById('ip-ctx').value;
+  var fmt = document.getElementById('ip-fmt').value;
+  var out = document.getElementById('out-prompt');
+  out.hidden = false; out.classList.remove('hidden');
+  showLines(out.querySelector('.out'), [
+    "你是一位" + role + "。",
+    "请完成以下任务：" + task,
+    "背景信息：" + ctx,
+    "输出要求：" + fmt
+  ]);
+}
+function runChoice(){
+  var opts = ['N', 'S', 'E', 'W'];
+  var d = opts[Math.floor(Math.random() * opts.length)];
+  var out = document.getElementById('out-choice');
+  out.hidden = false; out.classList.remove('hidden');
+  showLines(out.querySelector('.out'), [
+    ">>> from random import choice",
+    ">>> direction = choice(['N', 'S', 'E', 'W'])",
+    ">>> print(direction)",
+    d
+  ]);
+}
+function runRandoms(){
+  var r1 = Math.floor(Math.random() * 100) + 1;
+  var r2 = Math.random();
+  var r3 = 1.5 + Math.random() * 2;
+  var r4 = [1, 2, 3][Math.floor(Math.random() * 3)];
+  var out = document.getElementById('out-randoms');
+  out.hidden = false; out.classList.remove('hidden');
+  showLines(out.querySelector('.out'), [
+    ">>> import random",
+    ">>> random.randint(1, 100)",
+    String(r1),
+    ">>> random.random()",
+    String(r2),
+    ">>> random.uniform(1.5, 3.5)",
+    String(r3),
+    ">>> random.choice([1, 2, 3])",
+    String(r4),
+    ">>> random.seed(42)",
+    ">>> random.randint(1, 100)",
+    "82"
+  ]);
+}
+function runWordGen(){
+  var words = ['机器', '学习', '深度', '模型', '数据'];
+  var w = words[Math.floor(Math.random() * words.length)];
+  var out = document.getElementById('out-wordgen');
+  out.hidden = false; out.classList.remove('hidden');
+  showLines(out.querySelector('.out'), [
+    ">>> from random import choice",
+    ">>> word = choice([\"机器\", \"学习\", \"深度\", \"模型\", \"数据\"])",
+    ">>> print(word)",
+    w
+  ]);
+}
+function runLeap(){
+  var y = parseInt(document.getElementById('il-year').value);
+  if(isNaN(y)){ return; }
+  var res = (y % 4 === 0 && y % 100 !== 0) || (y % 400 === 0);
+  var out = document.getElementById('out-leap');
+  out.hidden = false; out.classList.remove('hidden');
+  showLines(out.querySelector('.out'), [
+    ">>> year = int(input('year = '))",
+    "year = " + y,
+    ">>> print((year % 4 == 0 and year % 100 != 0) or (year % 400 == 0))",
+    res ? 'True' : 'False'
+  ]);
+}
+function runExpr7(){
+  var x = parseFloat(document.getElementById('ix-x').value);
+  if(isNaN(x)) x = 0;
+  var y = Math.sin(x) + 2 * Math.sqrt(x + Math.exp(4)) - Math.pow(x + 1, 3);
+  var out = document.getElementById('out-expr7');
+  out.hidden = false; out.classList.remove('hidden');
+  showLines(out.querySelector('.out'), [
+    ">>> x = float(input('input x: '))",
+    "input x: " + x,
+    ">>> y = math.sin(x) + 2 * math.sqrt(x + math.exp(4)) - pow((x + 1), 3)",
+    ">>> y = round(y, 2)",
+    ">>> print('y =', y)",
+    "y = " + y.toFixed(2)
+  ]);
+}
+function runArea(){
+  var r = parseFloat(document.getElementById('ir-r').value);
+  if(isNaN(r)) r = 0;
+  var s = Math.PI * r * r;
+  var out = document.getElementById('out-area');
+  out.hidden = false; out.classList.remove('hidden');
+  showLines(out.querySelector('.out'), [
+    ">>> r = float(input('请输入半径: '))",
+    "请输入半径: " + r,
+    ">>> s = math.pi * pow(r, 2)",
+    ">>> print('圆的面积：{:.2f}'.format(s))",
+    "圆的面积：" + s.toFixed(2)
+  ]);
+}
+var ggSecret = 0, ggCount = 0, ggStarted = false;
+function ggReset(){
+  ggSecret = Math.floor(Math.random() * 100) + 1;
+  ggCount = 0;
+  var panel = document.getElementById('gg-panel');
+  panel.style.display = 'block';
+  var pre = document.getElementById('gg-out');
+  pre.innerHTML = '';
+  document.getElementById('gg-status').textContent = '游戏已开始（1~100）';
+  showLines(pre, ["=== 猜数字游戏 ===", "我想了一个1到100之间的数字，你来猜！"]);
+}
+function guessTurn(){
+  if(!ggStarted || ggSecret === 0){ ggReset(); ggStarted = true; }
+  var input = document.getElementById('gg-input');
+  var g = parseInt(input.value);
+  var status = document.getElementById('gg-status');
+  if(isNaN(g) || g < 1 || g > 100){ status.textContent = '请输入1~100之间的整数！'; return; }
+  ggCount++;
+  var pre = document.getElementById('gg-out');
+  var lines = [];
+  if(g === ggSecret){
+    lines.push(">>> " + g + " → 恭喜你猜对了！答案就是" + ggSecret);
+    lines.push("你一共猜了" + ggCount + "次");
+    status.textContent = '恭喜猜对！点击"重新开始"再玩一局';
+  } else if(g < ggSecret){
+    lines.push(">>> " + g + " → 太小了，再大一点！");
+    status.textContent = '已猜' + ggCount + '次';
+  } else {
+    lines.push(">>> " + g + " → 太大了，再小一点！");
+    status.textContent = '已猜' + ggCount + '次';
+  }
+  showLines(pre, lines, true);
+  input.value = '';
+  input.focus();
+}
+function runBMI(){
+  var w = parseFloat(document.getElementById('ib-w').value);
+  var h = parseFloat(document.getElementById('ib-h').value);
+  if(isNaN(w) || isNaN(h) || h <= 0){ return; }
+  var bmi = w / (h * h);
+  var category, advice;
+  if(bmi < 18.5){ category = '偏瘦'; advice = '建议增加营养摄入，适当增肌'; }
+  else if(bmi < 24){ category = '正常'; advice = '恭喜！请保持健康的生活方式'; }
+  else if(bmi < 28){ category = '偏胖'; advice = '建议控制饮食，增加有氧运动'; }
+  else { category = '肥胖'; advice = '建议咨询医生，制定科学减重计划'; }
+  var out = document.getElementById('out-bmi');
+  out.hidden = false; out.classList.remove('hidden');
+  showLines(out.querySelector('.out'), [
+    ">>> weight = float(input(\"请输入体重（kg）：\"))",
+    "请输入体重（kg）：" + w,
+    ">>> height = float(input(\"请输入身高（m）：\"))",
+    "请输入身高（m）：" + h,
+    ">>> bmi = weight / (height ** 2)",
+    ">>> print(f\"你的BMI指数为：{bmi:.1f}\")",
+    "你的BMI指数为：" + bmi.toFixed(1),
+    ">>> print(f\"健康等级：{category}\")",
+    "健康等级：" + category,
+    ">>> print(f\"健康建议：{advice}\")",
+    "健康建议：" + advice
+  ]);
+}
+
+/* ===== 语法高亮（轻量Python高亮） ===== */
+var PY_KW = new Set(['and','or','not','if','elif','else','for','while','in','is','import','from','as','def','return','break','continue','pass','lambda','True','False','None','class','try','except','finally','with','del','global','nonlocal','raise','yield','assert','async','await']);
+var PY_BLT = new Set(['print','input','type','len','abs','round','max','min','int','float','str','bool','dir','help','pow','sum','range','id','repr','sorted','list','tuple','dict','set','open','format','chr','ord','enumerate','zip','map','filter','isinstance','super','vars','hasattr','getattr','setattr']);
+function escHtml(s){
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+function highlight(code){
+  var re = /(#[^\n]*)|("""[\s\S]*?"""|'''[\s\S]*?''')|("(?:[^"\\\n]|\\.)*"|'(?:[^'\\\n]|\\.)*')|(\d+(?:\.\d+)?(?:[eE][+-]?\d+)?)|([A-Za-z_]\w*)/g;
+  var out = '', m, last = 0;
+  while((m = re.exec(code))){
+    out += escHtml(code.slice(last, m.index));
+    if(m[1]) out += '<span class="c-com">' + escHtml(m[1]) + '</span>';
+    else if(m[2]) out += '<span class="c-str">' + escHtml(m[2]) + '</span>';
+    else if(m[3]) out += '<span class="c-str">' + escHtml(m[3]) + '</span>';
+    else if(m[4]) out += '<span class="c-num">' + escHtml(m[4]) + '</span>';
+    else {
+      var nm = m[5];
+      if(PY_KW.has(nm)) out += '<span class="c-kw">' + nm + '</span>';
+      else if(PY_BLT.has(nm)) out += '<span class="c-fn">' + nm + '</span>';
+      else out += escHtml(nm);
+    }
+    last = m.index + m[0].length;
+  }
+  out += escHtml(code.slice(last));
+  return out;
+}
+document.addEventListener('DOMContentLoaded', function(){
+  document.querySelectorAll('pre.code').forEach(function(pre){
+    pre.innerHTML = highlight(pre.textContent);
+  });
+});
+
+/* ===== 知识树交互 ===== */
+function jumpTarget(id){
+  var el = document.getElementById(id);
+  if(el) el.scrollIntoView({behavior:'smooth'});
+}
+document.addEventListener('DOMContentLoaded', function(){
+  document.querySelectorAll('#knowledgeTree .tn.branch').forEach(function(el){
+    el.addEventListener('click', function(e){
+      var link = e.target.closest('.golink');
+      if(link){ jumpTarget(link.getAttribute('data-target')); return; }
+      var kids = el.nextElementSibling;
+      if(kids && kids.classList.contains('kids')){
+        kids.classList.toggle('show');
+        el.classList.toggle('open');
+      }
+    });
+  });
+  document.querySelectorAll('#knowledgeTree .tn.leaf').forEach(function(el){
+    el.addEventListener('click', function(){
+      var t = el.getAttribute('data-target');
+      if(t) jumpTarget(t);
+    });
+  });
+});
+
+/* ===== 导航滚动高亮 ===== */
+document.addEventListener('DOMContentLoaded', function(){
+  var navLinks = {};
+  document.querySelectorAll('#nav a').forEach(function(a){
+    navLinks[a.getAttribute('data-sec')] = a;
+  });
+  var sections = ['guide','s21','s22','s23','s24','s25','s26','s27','summary'];
+  if('IntersectionObserver' in window){
+    var obs = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        if(en.isIntersecting){
+          document.querySelectorAll('#nav a').forEach(function(a){ a.classList.remove('on'); });
+          var a = navLinks[en.target.id];
+          if(a) a.classList.add('on');
+        }
+      });
+    }, {rootMargin:'-15% 0px -70% 0px'});
+    sections.forEach(function(s){
+      var el = document.getElementById(s);
+      if(el) obs.observe(el);
+    });
+  }
+});
+
+/* ===== 回到顶部 ===== */
+document.addEventListener('DOMContentLoaded', function(){
+  var toTop = document.getElementById('toTop');
+  window.addEventListener('scroll', function(){
+    if(window.scrollY > 600) toTop.classList.add('show');
+    else toTop.classList.remove('show');
+  });
+  toTop.addEventListener('click', function(){
+    window.scrollTo({top:0, behavior:'smooth'});
+  });
+  /* 交互面板：回车触发运行 */
+  document.querySelectorAll('.inter-panel input').forEach(function(input){
+    input.addEventListener('keydown', function(e){
+      if(e.key === 'Enter'){
+        var btn = input.closest('.inter-panel').querySelector('.btn-run');
+        if(btn && btn.onclick) btn.onclick();
+      }
+    });
+  });
+  var ggInput = document.getElementById('gg-input');
+  if(ggInput){
+    ggInput.addEventListener('keydown', function(e){
+      if(e.key === 'Enter') guessTurn();
+    });
+  }
+});
+</script>
+</body>
+</html>

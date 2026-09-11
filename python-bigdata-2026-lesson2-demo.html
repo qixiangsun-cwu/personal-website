@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python大数据分析基础 · 第2次课 · Python语言基础 · 演示Demo</title>
+<style>
+:root {
+  --navy: #003E7E;
+  --navy-light: #1A5690;
+  --accent: #1A73E8;
+  --accent-light: #4A90D9;
+  --bg: #F5F7FA;
+  --card: #FFFFFF;
+  --text: #1A1A1A;
+  --text-light: #666666;
+  --code-bg: #F5F5F5;
+  --ai-bg: #FFF8E1;
+  --ai-border: #FFCC80;
+  --success: #2E7D32;
+  --danger: #C62828;
+  --shadow: 0 2px 12px rgba(0,62,126,0.1);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: "SimSun", "Times New Roman", serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.8;
+}
+/* 顶部导航 */
+.topbar {
+  background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%);
+  color: white;
+  padding: 16px 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: var(--shadow);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.topbar h1 { font-size: 20px; font-weight: bold; }
+.topbar .meta { font-size: 14px; opacity: 0.9; }
+.topbar .meta a {
+  color: #FFFFFF;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(255,255,255,.45);
+  margin-right: 14px;
+}
+.topbar .meta a:hover { border-bottom-color: #FFFFFF; }
+/* 资源链接 */
+#videos a {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(26,115,232,.35);
+}
+#videos a:hover { border-bottom-color: var(--accent); }
+/* 主布局 */
+.layout { display: flex; min-height: calc(100vh - 60px); }
+/* 侧边栏 */
+.sidebar {
+  width: 260px;
+  background: var(--card);
+  border-right: 1px solid #E0E0E0;
+  padding: 20px 0;
+  position: sticky;
+  top: 60px;
+  height: calc(100vh - 60px);
+  overflow-y: auto;
+}
+.sidebar .section-title {
+  padding: 8px 24px;
+  font-size: 12px;
+  color: var(--text-light);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: bold;
+}
+.sidebar a {
+  display: block;
+  padding: 10px 24px;
+  color: var(--text);
+  text-decoration: none;
+  font-size: 15px;
+  border-left: 3px solid transparent;
+  transition: all 0.2s;
+}
+.sidebar a:hover, .sidebar a.active {
+  background: #E8F0FA;
+  border-left-color: var(--accent);
+  color: var(--navy);
+}
+.sidebar a.ai { color: #E65100; }
+.sidebar a.ai:hover { background: var(--ai-bg); }
+/* 主内容 */
+.main { flex: 1; padding: 32px 48px; max-width: 900px; }
+.section { margin-bottom: 48px; scroll-margin-top: 80px; }
+.section h2 {
+  font-size: 28px;
+  color: var(--navy);
+  border-bottom: 3px solid var(--accent);
+  padding-bottom: 8px;
+  margin-bottom: 20px;
+}
+.section h3 {
+  font-size: 20px;
+  color: var(--navy);
+  margin: 20px 0 12px;
+}
+.section p { margin-bottom: 12px; font-size: 16px; text-align: justify; text-indent: 2em; }
+/* 封面 */
+.cover {
+  background: linear-gradient(135deg, var(--navy) 0%, #002B5C 100%);
+  color: white;
+  padding: 80px 48px;
+  border-radius: 12px;
+  margin-bottom: 48px;
+  position: relative;
+  overflow: hidden;
+}
+.cover::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -20%;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(26,115,232,0.3) 0%, transparent 70%);
+  border-radius: 50%;
+}
+.cover .course { font-size: 18px; opacity: 0.8; margin-bottom: 16px; }
+.cover h1 { font-size: 42px; margin-bottom: 16px; position: relative; }
+.cover .subtitle { font-size: 20px; opacity: 0.9; margin-bottom: 24px; }
+.cover .tags { display: flex; gap: 12px; flex-wrap: wrap; position: relative; }
+.cover .tag {
+  background: rgba(26,115,232,0.4);
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+}
+.cover .teacher { margin-top: 32px; font-size: 16px; opacity: 0.85; position: relative; }
+/* 代码块 */
+.code-block {
+  background: var(--code-bg);
+  border: 1px solid #E0E0E0;
+  border-radius: 8px;
+  margin: 16px 0;
+  overflow: hidden;
+}
+.code-header {
+  background: #E8E8E8;
+  padding: 8px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  color: var(--text-light);
+}
+.copy-btn {
+  background: var(--accent);
+  color: white;
+  border: none;
+  padding: 4px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: background 0.2s;
+}
+.copy-btn:hover { background: var(--navy); }
+.code-block pre {
+  padding: 16px;
+  overflow-x: auto;
+  font-family: "Consolas", "Courier New", monospace;
+  font-size: 14px;
+  line-height: 1.6;
+}
+.code-block .comment { color: #6A9955; }
+.code-block .keyword { color: #C586C0; }
+.code-block .string { color: #CE9178; }
+.code-block .output { color: #0070C0; font-weight: bold; }
+.code-block .error { color: var(--danger); font-weight: bold; }
+/* AI卡片 */
+.ai-card {
+  background: var(--ai-bg);
+  border: 1px solid var(--ai-border);
+  border-radius: 10px;
+  padding: 20px 24px;
+  margin: 16px 0;
+  position: relative;
+}
+.ai-card::before {
+  content: 'AI 渗透';
+  position: absolute;
+  top: -10px;
+  left: 20px;
+  background: var(--accent);
+  color: white;
+  padding: 2px 12px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: bold;
+}
+.ai-card h4 { color: #E65100; margin-bottom: 8px; font-size: 17px; }
+.ai-card p { text-indent: 0; font-size: 15px; }
+/* 重点提示 */
+.tip {
+  background: #E3F2FD;
+  border-left: 4px solid var(--accent);
+  padding: 12px 20px;
+  margin: 16px 0;
+  border-radius: 0 8px 8px 0;
+}
+.tip strong { color: var(--navy); }
+.warn {
+  background: #FFEBEE;
+  border-left: 4px solid var(--danger);
+  padding: 12px 20px;
+  margin: 16px 0;
+  border-radius: 0 8px 8px 0;
+}
+.warn strong { color: var(--danger); }
+/* 模块卡片网格 */
+.module-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 16px;
+  margin: 20px 0;
+}
+.module-card {
+  background: var(--card);
+  border: 1px solid #E0E0E0;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: var(--shadow);
+  transition: transform 0.2s;
+}
+.module-card:hover { transform: translateY(-2px); }
+.module-card .num {
+  font-family: "Times New Roman", serif;
+  font-size: 28px;
+  font-weight: bold;
+  color: var(--accent);
+}
+.module-card .name { font-size: 18px; font-weight: bold; color: var(--navy); margin: 4px 0; }
+.module-card .desc { font-size: 14px; color: var(--text-light); }
+/* 表格 */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 16px 0;
+  font-size: 14px;
+}
+th {
+  background: var(--navy);
+  color: white;
+  padding: 10px 12px;
+  text-align: left;
+}
+td {
+  padding: 8px 12px;
+  border-bottom: 1px solid #E0E0E0;
+}
+tr:nth-child(even) { background: #F8F9FA; }
+tr:hover { background: #E8F0FA; }
+/* 交互演示区 */
+.demo-area {
+  background: var(--card);
+  border: 2px solid var(--accent);
+  border-radius: 12px;
+  padding: 24px;
+  margin: 20px 0;
+}
+.demo-area h4 { color: var(--navy); margin-bottom: 12px; }
+.demo-controls { display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+.demo-controls input, .demo-controls select {
+  padding: 8px 12px;
+  border: 1px solid #CCC;
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: inherit;
+}
+.demo-controls button {
+  background: var(--accent);
+  color: white;
+  border: none;
+  padding: 8px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+}
+.demo-controls button:hover { background: var(--navy); }
+.demo-output {
+  background: #1E1E1E;
+  color: #D4D4D4;
+  padding: 16px;
+  border-radius: 8px;
+  font-family: "Consolas", monospace;
+  font-size: 14px;
+  min-height: 60px;
+  white-space: pre-wrap;
+}
+/* 页脚 */
+.footer {
+  background: var(--navy);
+  color: white;
+  text-align: center;
+  padding: 24px;
+  font-size: 14px;
+  opacity: 0.9;
+}
+/* 响应式 */
+@media (max-width: 768px) {
+  .sidebar { display: none; }
+  .main { padding: 20px; }
+  .cover { padding: 40px 24px; }
+  .cover h1 { font-size: 28px; }
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <h1>Python 大数据分析基础 · 第2次课 · 演示Demo</h1>
+  <div class="meta">
+    <a href="python-bigdata-2026-lesson2.html">← 课堂内容网页</a>
+    <a href="python-bigdata-2026.html">课程主页</a>
+    <span>Python语言基础 · AI渗透式教学 · 授课人：孙琪翔</span>
+  </div>
+</div>
+
+<div class="layout">
+  <nav class="sidebar">
+    <div class="section-title">课程导航</div>
+    <a href="#cover" class="active">封面</a>
+    <a href="#map">本课地图</a>
+    <div class="section-title">7大模块</div>
+    <a href="#m1">2.1 常量与变量</a>
+    <a href="#m2">2.2 运算符</a>
+    <a href="#m3">2.3 数据类型</a>
+    <a href="#m4">2.4 内置函数</a>
+    <a href="#m5">2.5 输入输出</a>
+    <a href="#m6">2.6 模块</a>
+    <a href="#m7">2.7 综合应用</a>
+    <div class="section-title">AI渗透点</div>
+    <a href="#ai1" class="ai">AI-01 变量=参数</a>
+    <a href="#ai2" class="ai">AI-02/03 神经元</a>
+    <a href="#ai6" class="ai">AI-06 生成式AI</a>
+    <a href="#ai8" class="ai">AI-08 浮点精度</a>
+    <div class="section-title">总结</div>
+    <a href="#summary">本章小结</a>
+    <a href="#videos">推荐视频</a>
+  </nav>
+
+  <main class="main">
+    <!-- 封面 -->
+    <section id="cover" class="cover">
+      <div class="course">Python 大数据分析基础</div>
+      <h1>第2章 Python 语言基础</h1>
+      <div class="subtitle">常量变量 · 运算符 · 数据类型 · 输入输出 · 模块</div>
+      <div class="tags">
+        <span class="tag">AI 渗透式教学设计</span>
+        <span class="tag">第2次课</span>
+        <span class="tag">4学时 180分钟</span>
+      </div>
+      <div class="teacher">授课人：孙琪翔 · 中华女子学院</div>
+    </section>
+
+    <!-- 本课地图 -->
+    <section id="map" class="section">
+      <h2>本课地图 · 7大模块 + 10个AI渗透点</h2>
+      <p>本次课分为7个模块，每个模块都融入了AI渗透点，用当前所学语法解释AI内部机制。基础阶段"基本不接入"AI，学生不动手用AI，仅观察教师演示。</p>
+      <div class="module-grid">
+        <div class="module-card"><div class="num">2.1</div><div class="name">常量与变量</div><div class="desc">怎么让电脑"记住"数据 · 变量是便利贴不是盒子</div></div>
+        <div class="module-card"><div class="num">2.2</div><div class="name">运算符与表达式</div><div class="desc">怎么让电脑"算题目" · 算术/关系/逻辑/赋值</div></div>
+        <div class="module-card"><div class="num">2.3</div><div class="name">数据类型</div><div class="desc">数字、字符串、布尔的区别 · 浮点精度陷阱</div></div>
+        <div class="module-card"><div class="num">2.4</div><div class="name">内置函数</div><div class="desc">Python自带的工具箱 · help()与dir()</div></div>
+        <div class="module-card"><div class="num">2.5</div><div class="name">基本输入输出</div><div class="desc">怎么和用户"对话" · input()与print()</div></div>
+        <div class="module-card"><div class="num">2.6</div><div class="name">模块的使用</div><div class="desc">怎么调用别人写好的工具 · random模块</div></div>
+        <div class="module-card"><div class="num">2.7</div><div class="name">综合应用</div><div class="desc">串起来写完整小程序 · 闰年判断+海伦公式</div></div>
+      </div>
+    </section>
+
+    <!-- 2.1 常量与变量 -->
+    <section id="m1" class="section">
+      <h2>2.1 常量与变量</h2>
+      <h3>核心概念</h3>
+      <p>常量是固定不变的值（如3、"hello"），变量通过赋值创建，是贴在值上的"便利贴"——存的是内存地址，不是值本身。</p>
+      <div class="code-block">
+        <div class="code-header">Python Shell 演示 <button class="copy-btn" onclick="copyCode(this)">复制</button></div>
+        <pre><span class="comment"># 常量</span>
+>>> 3
+<span class="output">3</span>
+<span class="comment"># 变量：通过赋值创建</span>
+>>> age = 18
+>>> age
+<span class="output">18</span>
+<span class="comment"># 变量的值可以改变</span>
+>>> age = 20
+>>> age
+<span class="output">20</span>
+<span class="comment"># 先定义后使用，否则NameError</span>
+>>> print(name)
+<span class="error">NameError: name 'name' is not defined</span></pre>
+      </div>
+      <div class="tip"><strong>变量命名4规则：</strong>①字母/数字/下划线，数字不开头 ②大小写敏感 ③不能用关键字 ④见名知义（推荐snake_case）</div>
+      <div class="warn"><strong>覆盖内置函数"事故"：</strong>学生常随手写 <code>sum = 0</code>，之后 <code>sum([1,2,3])</code> 就会报 TypeError。后悔药：<code>del sum</code></div>
+    </section>
+
+    <!-- AI-01 -->
+    <section id="ai1" class="section">
+      <h2>AI 渗透 · AI-01 变量 = 模型参数</h2>
+      <div class="ai-card">
+        <h4>三行代码看懂"训练"</h4>
+        <p>AI的"学习"，本质就是一大堆变量被不断重新赋值。w是模型参数（就是一个变量），每次根据误差调整w，就是一次"学习"。GPT有几千亿个这样的w。全程没有循环、没有AI库，只有赋值+算术。</p>
+      </div>
+      <div class="code-block">
+        <div class="code-header">AI训练最小演示 <button class="copy-btn" onclick="copyCode(this)">复制</button></div>
+        <pre>x, y_true = 2.0, 10.0
+w = 1.0  <span class="comment"># 初始猜测</span>
+lr = 0.1  <span class="comment"># 学习率</span>
+
+<span class="comment"># 第1次学习</span>
+pred = w * x
+w = w - lr * (pred - y_true) * x
+print(w)  <span class="output"># 2.6</span>
+
+<span class="comment"># 第2次学习</span>
+pred = w * x
+w = w - lr * (pred - y_true) * x
+print(w)  <span class="output"># 3.56</span>
+
+<span class="comment"># 第3次学习</span>
+pred = w * x
+w = w - lr * (pred - y_true) * x
+print(w)  <span class="output"># 4.136</span>
+print("正确答案 w = 5.0")</pre>
+      </div>
+    </section>
+
+    <!-- 2.2 运算符 -->
+    <section id="m2" class="section">
+      <h2>2.2 运算符与表达式</h2>
+      <h3>运算符全景与优先级</h3>
+      <p>Python运算符分为算术、关系、逻辑、赋值、成员测试等。优先级从高到低：** > * / // % > + - > 位运算 > in/not in/is > 比较 > not > and > or。记不住怎么办？加括号！</p>
+      <div class="code-block">
+        <div class="code-header">算术运算符重点 <button class="copy-btn" onclick="copyCode(this)">复制</button></div>
+        <pre>>>> 7 / 2, 7 // 2, 7 % 2, 7 ** 2
+<span class="output">(3.5, 3, 1, 49)</span>
+>>> -7 // 3, -7 % 3
+<span class="output">(-3, 2)  # 向下取整，余数永远非负</span>
+>>> 2 ^ 3
+<span class="output">1  # 位异或，不是8！</span></pre>
+      </div>
+      <div class="tip"><strong>逻辑运算符 + 惰性求值 ★：</strong><code>and</code>返回第一个假值或最后一个真值；<code>or</code>返回第一个真值或最后一个假值。惰性求值：<code>False and 1/0</code> 不报错，因为右边压根没算！</div>
+    </section>
+
+    <!-- AI-02/03 -->
+    <section id="ai2" class="section">
+      <h2>AI 渗透 · AI-02/03 神经元 = 加权求和</h2>
+      <div class="ai-card">
+        <h4>AI最核心的一行代码，只有加减乘</h4>
+        <p><strong>AI-02 神经元 = 加权求和：</strong>y = w1*x1 + w2*x2 + w3*x3 + b。权重不同=模型不同=判断标准不同。整个深度学习=很多个这样的表达式叠起来。</p>
+        <p><strong>AI-03 置信度 = float + 阈值：</strong>AI不说"是猫"，它说"是猫的概率0.83"。float表示概率，阈值判断分类。</p>
+      </div>
+      <div class="code-block">
+        <div class="code-header">神经元计算演示 <button class="copy-btn" onclick="copyCode(this)">复制</button></div>
+        <pre><span class="comment"># 输入：耳朵尖度、胡须长度、眼睛颜色</span>
+x1, x2, x3 = 0.9, 0.7, 0.8
+<span class="comment"># 权重（模型学到的参数）</span>
+w1, w2, w3 = 0.5, 0.3, 0.2
+b = -0.4
+
+<span class="comment"># 神经元 = 加权求和</span>
+y = w1*x1 + w2*x2 + w3*x3 + b
+print(f"加权和 = {y:.3f}")
+
+<span class="comment"># sigmoid激活 → 概率</span>
+import math
+prob = 1 / (1 + math.exp(-y))
+print(f"是猫的概率 = {prob:.2%}")
+print("判断:", "是猫" if prob > 0.5 else "不是猫")</pre>
+      </div>
+    </section>
+
+    <!-- 2.3 数据类型 -->
+    <section id="m3" class="section">
+      <h2>2.3 数据类型</h2>
+      <h3>六大类型速览</h3>
+      <table>
+        <tr><th>类型</th><th>示例</th><th>说明</th></tr>
+        <tr><td>int</td><td>42, -10</td><td>整数，无大小限制</td></tr>
+        <tr><td>float</td><td>3.14, 1.5e10</td><td>浮点数，IEEE 754</td></tr>
+        <tr><td>complex</td><td>3+4j</td><td>复数，本章了解</td></tr>
+        <tr><td>bool</td><td>True, False</td><td>int的子类，True=1, False=0</td></tr>
+        <tr><td>str</td><td>"hello"</td><td>字符串，不可变</td></tr>
+        <tr><td>NoneType</td><td>None</td><td>空值</td></tr>
+      </table>
+    </section>
+
+    <!-- AI-08 浮点精度 -->
+    <section id="ai8" class="section">
+      <h2>AI 渗透 · AI-08 浮点精度陷阱 = AI幻觉</h2>
+      <div class="ai-card">
+        <h4>本章最震撼的演示：0.1 + 0.2 ≠ 0.3</h4>
+        <p>浮点数在计算机中用二进制表示，0.1和0.2都无法精确表示。这不是bug，是IEEE 754标准的特性。<strong>AI幻觉也一样：非常流畅、非常自信地给你一个错答案。所以：AI给的每一个关键结论，你都要能自己验证。</strong></p>
+      </div>
+      <div class="code-block">
+        <div class="code-header">浮点精度演示 <button class="copy-btn" onclick="copyCode(this)">复制</button></div>
+        <pre>>>> 0.1 + 0.2
+<span class="output">0.30000000000000004</span>
+>>> 0.1 + 0.2 == 0.3
+<span class="error">False  # 震惊全场</span>
+>>> round(0.1 + 0.2, 2)
+<span class="output">0.3</span>
+>>> abs((0.1+0.2) - 0.3) < 1e-9
+<span class="output">True  # 正确比较姿势</span></pre>
+      </div>
+    </section>
+
+    <!-- 2.4 内置函数 -->
+    <section id="m4" class="section">
+      <h2>2.4 内置函数</h2>
+      <p>Python有150+个内置函数，本章最常用的包括：abs()、round()、pow()、divmod()、max()、min()、sum()、len()、type()、int()、float()、str()、bool()、id()、help()、dir()。用 <code>dir(__builtins__)</code> 可以查看全部。</p>
+      <div class="tip"><strong>help()与dir()是最好的老师：</strong><code>help(print)</code> 查看函数文档，<code>dir(str)</code> 查看字符串的所有方法。遇到不会的函数，先help()再问人。</div>
+    </section>
+
+    <!-- 2.5 输入输出 -->
+    <section id="m5" class="section">
+      <h2>2.5 基本输入输出</h2>
+      <h3>input() 返回值铁律</h3>
+      <div class="warn"><strong>零基础第一号错误源：</strong><code>input()</code> 拿到的一定是字符串！即使输入的是数字，也需要用 <code>int()</code> 或 <code>float()</code> 转换。</div>
+      <div class="code-block">
+        <div class="code-header">两数之和 · 经典大坑 <button class="copy-btn" onclick="copyCode(this)">复制</button></div>
+        <pre><span class="comment"># 错误版本：input返回字符串，+变成拼接</span>
+a = input("a: ")
+b = input("b: ")
+print(a + b)
+<span class="comment"># 输入10、20 → 输出 1020（字符串拼接！）</span>
+
+<span class="comment"># 正确版本：先转类型</span>
+a = float(input("a: "))
+b = float(input("b: "))
+print(a + b)
+<span class="comment"># 输入10、20 → 输出 30.0</span></pre>
+      </div>
+      <h3>print() 的 sep 与 end</h3>
+      <div class="code-block">
+        <div class="code-header">print格式化输出 <button class="copy-btn" onclick="copyCode(this)">复制</button></div>
+        <pre>print("a", "b", "c")
+<span class="output">a b c  # 默认sep=' '</span>
+print("a", "b", "c", sep="-")
+<span class="output">a-b-c</span>
+print("hello", end=" ")
+print("world")
+<span class="output">hello world  # 默认end='\n'</span>
+
+name = "张三"; age = 20
+print(f"{name}今年{age}岁")  <span class="comment"># f-string，推荐</span>
+print("{}今年{}岁".format(name, age))  <span class="comment"># format()</span></pre>
+      </div>
+    </section>
+
+    <!-- 2.6 模块 -->
+    <section id="m6" class="section">
+      <h2>2.6 模块的使用</h2>
+      <p>模块是包含Python定义和语句的文件。使用模块可以复用代码、组织程序。Python有丰富的标准库模块，如math、random、datetime、os等。</p>
+      <div class="code-block">
+        <div class="code-header">import三种方式 <button class="copy-btn" onclick="copyCode(this)">复制</button></div>
+        <pre><span class="comment"># 方式1：导入整个模块</span>
+import random
+print(random.randint(1, 10))
+
+<span class="comment"># 方式2：导入特定函数</span>
+from random import randint, choice
+print(randint(1, 10))
+print(choice(['A', 'B', 'C']))
+
+<span class="comment"># 方式3：导入并起别名</span>
+import random as rnd
+print(rnd.random())</pre>
+      </div>
+      <h3>random 模块</h3>
+      <div class="code-block">
+        <div class="code-header">random常用函数 <button class="copy-btn" onclick="copyCode(this)">复制</button></div>
+        <pre>import random
+random.random()           <span class="comment"># 0~1随机小数</span>
+random.randint(1, 10)     <span class="comment"># 1~10随机整数（含两端）</span>
+random.choice(['N','S','E','W'])  <span class="comment"># 随机选一个</span>
+random.sample(range(1,35), 7)     <span class="comment"># 彩票：7个不重复</span>
+random.shuffle([1,2,3,4,5])       <span class="comment"># 洗牌：原地打乱</span></pre>
+      </div>
+    </section>
+
+    <!-- AI-06 生成式AI -->
+    <section id="ai6" class="section">
+      <h2>AI 渗透 · AI-06 生成式AI = 带概率的词语接龙</h2>
+      <div class="ai-card">
+        <h4>本场高潮：用random模块理解大模型怎么"说话"</h4>
+        <p>生成式AI的本质，就是在每一步根据概率随机选择下一个词——就像"词语接龙"，但每个候选词有不同的概率。random.choices()带weights参数，就是AI采样的最小模型。</p>
+      </div>
+      <div class="code-block">
+        <div class="code-header">生成式AI最小演示 <button class="copy-btn" onclick="copyCode(this)">复制</button></div>
+        <pre>import random
+
+<span class="comment"># 简化版：给定"今天天气"，AI预测下一个词的概率分布</span>
+words = ["很好", "不错", "很差", "一般"]
+probs = [0.6, 0.25, 0.05, 0.1]  <span class="comment"># 概率加起来=1</span>
+
+<span class="comment"># 采样10次，看看AI每次会说什么</span>
+for i in range(10):
+    next_word = random.choices(words, weights=probs, k=1)[0]
+    print(f"第{i+1}次: 今天天气{next_word}")
+
+<span class="comment"># 这就是大模型生成文本的基本原理：</span>
+<span class="comment"># 每一步都在做带概率的随机选择</span>
+<span class="comment"># 温度(temperature)控制概率分布的尖锐程度</span></pre>
+      </div>
+    </section>
+
+    <!-- 2.7 综合应用 -->
+    <section id="m7" class="section">
+      <h2>2.7 综合应用</h2>
+      <h3>例：闰年判断</h3>
+      <div class="code-block">
+        <div class="code-header">闰年判断程序 <button class="copy-btn" onclick="copyCode(this)">复制</button></div>
+        <pre>year = int(input("请输入年份："))
+<span class="comment"># 闰年规则：能被4整除但不能被100整除，或能被400整除</span>
+is_leap = (year % 4 == 0 and year % 100 != 0) or (year % 400 == 0)
+if is_leap:
+    print(f"{year}年是闰年")
+else:
+    print(f"{year}年是平年")</pre>
+      </div>
+      <h3>例：海伦公式求三角形面积</h3>
+      <div class="code-block">
+        <div class="code-header">海伦公式 <button class="copy-btn" onclick="copyCode(this)">复制</button></div>
+        <pre>import math
+a = float(input("边长a："))
+b = float(input("边长b："))
+c = float(input("边长c："))
+s = (a + b + c) / 2  <span class="comment"># 半周长</span>
+area = math.sqrt(s * (s-a) * (s-b) * (s-c))
+print(f"三角形面积 = {area:.2f}")</pre>
+      </div>
+    </section>
+
+    <!-- 交互演示区 -->
+    <section class="section">
+      <h2>交互演示区</h2>
+      <p>在浏览器中直接体验Python语法效果（JS模拟）。</p>
+      
+      <div class="demo-area">
+        <h4>演示1：变量赋值与类型</h4>
+        <div class="demo-controls">
+          <input type="text" id="varName" placeholder="变量名（如age）" value="age">
+          <input type="text" id="varValue" placeholder="变量值（如18）" value="18">
+          <button onclick="demoVar()">运行</button>
+        </div>
+        <div class="demo-output" id="varOutput">点击"运行"查看结果...</div>
+      </div>
+
+      <div class="demo-area">
+        <h4>演示2：运算符计算</h4>
+        <div class="demo-controls">
+          <input type="number" id="num1" value="7" step="any">
+          <select id="op">
+            <option value="+">+ 加</option>
+            <option value="-">- 减</option>
+            <option value="*">* 乘</option>
+            <option value="/">/ 除</option>
+            <option value="//">// 整除</option>
+            <option value="%">% 取余</option>
+            <option value="**">** 幂</option>
+          </select>
+          <input type="number" id="num2" value="2" step="any">
+          <button onclick="demoOp()">计算</button>
+        </div>
+        <div class="demo-output" id="opOutput">点击"计算"查看结果...</div>
+      </div>
+
+      <div class="demo-area">
+        <h4>演示3：AI生成式采样（带概率的随机选择）</h4>
+        <div class="demo-controls">
+          <button onclick="demoAIGenerate()">生成10次"今天天气..."</button>
+        </div>
+        <div class="demo-output" id="aiOutput">点击按钮生成...</div>
+      </div>
+    </section>
+
+    <!-- 本章小结 -->
+    <section id="summary" class="section">
+      <h2>本章小结 · 三句话 + 10个AI渗透点</h2>
+      <div class="tip"><strong>① 变量是便利贴，不是盒子</strong>——存的是地址不是值。</div>
+      <div class="warn"><strong>② input() 拿到的一定是字符串</strong>——1020 记一学期。</div>
+      <div class="tip"><strong>③ 加括号不丢人</strong>——AI最核心的那行代码只有加减乘。</div>
+      <h3>10个AI渗透点速查</h3>
+      <table>
+        <tr><th>编号</th><th>对应语法</th><th>AI概念</th></tr>
+        <tr><td>AI-01</td><td>变量与赋值</td><td>模型参数=变量，训练=不断重新赋值</td></tr>
+        <tr><td>AI-02</td><td>算术表达式</td><td>神经元=加权求和 y=Σwᵢxᵢ+b</td></tr>
+        <tr><td>AI-03</td><td>float+比较</td><td>置信度=float概率，阈值判断分类</td></tr>
+        <tr><td>AI-04</td><td>逻辑运算符</td><td>规则引擎=and/or/not组合条件</td></tr>
+        <tr><td>AI-05</td><td>字符串</td><td>Prompt=字符串，AI的输入就是一段文字</td></tr>
+        <tr><td>AI-06</td><td>random模块</td><td>生成式AI=带概率的词语接龙</td></tr>
+        <tr><td>AI-07</td><td>input+print</td><td>单轮对话=输入→处理→输出</td></tr>
+        <tr><td>AI-08</td><td>浮点精度</td><td>AI幻觉=机器会自信地犯错</td></tr>
+        <tr><td>AI-09</td><td>异常处理</td><td>让AI解释报错（教师演示）</td></tr>
+        <tr><td>AI-10</td><td>print格式化</td><td>Prompt四要素=参数化模板</td></tr>
+      </table>
+    </section>
+
+    <!-- 推荐视频 -->
+    <section id="videos" class="section">
+      <h2>推荐视频与资源</h2>
+      <p>以下链接均已逐个打开核对可用：前两项是本课程的配套视频与官方教程，其余是公开的优质拓展资源（供课后自学）。外部视频由第三方平台提供，若某个链接失效，复制标题到平台检索即可。</p>
+      <table>
+        <tr><th>序号</th><th>资源</th><th>平台</th><th>适合内容</th></tr>
+        <tr><td>1</td><td><a href="https://www.xuetangx.com/course/cwu0809bt1678/31385406" target="_blank" rel="noopener">Python编程与数据分析基础（本课程配套视频）</a></td><td>学堂在线</td><td>跟随课程进度预习与复习，与教材章节对应</td></tr>
+        <tr><td>2</td><td><a href="https://docs.python.org/zh-cn/3/tutorial/" target="_blank" rel="noopener">Python 官方教程（中文版）</a></td><td>python.org</td><td>权威语法参考，遇到疑问时的第一检索站</td></tr>
+        <tr><td>3</td><td><a href="https://www.bilibili.com/video/BV1qW4y1a7fU/" target="_blank" rel="noopener">黑马程序员·Python零基础全套教程</a></td><td>B站</td><td>系统补基础：变量、运算符、数据类型逐节讲解</td></tr>
+        <tr><td>4</td><td><a href="https://www.bilibili.com/video/BV1tDsgzxECr/" target="_blank" rel="noopener">尚硅谷·Python零基础教程</a></td><td>B站</td><td>与上一套互为补充，选择一套跟完即可</td></tr>
+        <tr><td>5</td><td><a href="https://www.bilibili.com/video/BV1Jgf6YvE8e/" target="_blank" rel="noopener">3小时超快速入门Python（动画教学）</a></td><td>B站</td><td>时间紧时的快速通览、考前复习</td></tr>
+        <tr><td>6</td><td><a href="https://www.bilibili.com/video/BV1bx411M7Zx/" target="_blank" rel="noopener">深度学习之神经网络的结构（3Blue1Brown）</a></td><td>B站</td><td>理解“神经元=加权求和”，对应 AI-02/03 渗透点</td></tr>
+        <tr><td>7</td><td><a href="https://www.bilibili.com/video/BV1nogs6qEZn/" target="_blank" rel="noopener">从词向量到Transformer：AI大模型背后的原理</a></td><td>B站</td><td>理解生成式AI=概率词语接龙，对应 AI-06 渗透点</td></tr>
+        <tr><td>8</td><td><a href="https://docs.python.org/zh-cn/3/tutorial/floatingpoint.html" target="_blank" rel="noopener">浮点算术：问题和限制（Python 官方文档）</a></td><td>python.org</td><td>0.1+0.2≠0.3 的原理，对应 AI-08 浮点精度</td></tr>
+      </table>
+      <p style="font-size:14px;color:var(--text-light);">还想深入？“变量是内存中的引用”可在B站检索 <a href="https://search.bilibili.com/all?keyword=python%20%E5%8F%98%E9%87%8F%20%E5%86%85%E5%AD%98" target="_blank" rel="noopener">python 变量 内存</a>；“input 与 print 格式化”可检索 <a href="https://search.bilibili.com/all?keyword=python%20input%20print%20%E6%A0%BC%E5%BC%8F%E5%8C%96" target="_blank" rel="noopener">python input print 格式化</a>，建议选择播放量高、更新时间近的版本。</p>
+    </section>
+
+  </main>
+</div>
+
+<div class="footer">
+  <p>Python 大数据分析基础 · 第2次课 · Python语言基础 · AI渗透式教学设计</p>
+  <p>授课人：孙琪翔 · 中华女子学院 · 4学时 180分钟</p>
+</div>
+
+<script>
+// 复制代码
+function copyCode(btn) {
+  const pre = btn.closest('.code-block').querySelector('pre');
+  const text = pre.innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = '已复制!';
+    setTimeout(() => btn.textContent = '复制', 1500);
+  });
+}
+
+// 侧边栏高亮
+const sections = document.querySelectorAll('section[id]');
+const navLinks = document.querySelectorAll('.sidebar a');
+window.addEventListener('scroll', () => {
+  let current = '';
+  sections.forEach(s => {
+    if (window.scrollY >= s.offsetTop - 100) current = s.id;
+  });
+  navLinks.forEach(a => {
+    a.classList.toggle('active', a.getAttribute('href') === '#' + current);
+  });
+});
+
+// 演示1：变量赋值
+function demoVar() {
+  const name = document.getElementById('varName').value || 'x';
+  const val = document.getElementById('varValue').value;
+  let type = 'str';
+  let display = val;
+  if (!isNaN(val) && val !== '') {
+    if (val.includes('.')) { type = 'float'; }
+    else { type = 'int'; display = parseInt(val); }
+  }
+  if (val === 'True' || val === 'False') { type = 'bool'; }
+  document.getElementById('varOutput').innerHTML =
+    `>>> ${name} = ${val}\n` +
+    `>>> ${name}\n${display}\n` +
+    `>>> type(${name})\n<class '${type}'>\n` +
+    `>>> id(${name})\n${Math.floor(Math.random() * 9000000 + 1000000)}  # 内存地址`;
+}
+
+// 演示2：运算符
+function demoOp() {
+  const a = parseFloat(document.getElementById('num1').value);
+  const b = parseFloat(document.getElementById('num2').value);
+  const op = document.getElementById('op').value;
+  let result;
+  try {
+    switch(op) {
+      case '+': result = a + b; break;
+      case '-': result = a - b; break;
+      case '*': result = a * b; break;
+      case '/': result = b !== 0 ? a / b : 'ZeroDivisionError!'; break;
+      case '//': result = b !== 0 ? Math.floor(a / b) : 'ZeroDivisionError!'; break;
+      case '%': result = b !== 0 ? a % b : 'ZeroDivisionError!'; break;
+      case '**': result = Math.pow(a, b); break;
+    }
+  } catch(e) { result = e.message; }
+  document.getElementById('opOutput').innerHTML =
+    `>>> a = ${a}\n>>> b = ${b}\n>>> a ${op} b\n${result}`;
+}
+
+// 演示3：AI生成式采样
+function demoAIGenerate() {
+  const words = ["很好", "不错", "很差", "一般", "晴朗", "阴沉"];
+  const probs = [0.35, 0.20, 0.05, 0.10, 0.20, 0.10];
+  let output = '';
+  for (let i = 0; i < 10; i++) {
+    let r = Math.random();
+    let cum = 0;
+    let chosen = words[0];
+    for (let j = 0; j < words.length; j++) {
+      cum += probs[j];
+      if (r <= cum) { chosen = words[j]; break; }
+    }
+    output += `第${i+1}次: 今天天气${chosen}\n`;
+  }
+  output += '\n# 这就是大模型生成文本的基本原理：\n# 每一步都在做带概率的随机选择';
+  document.getElementById('aiOutput').textContent = output;
+}
+</script>
+
+</body>
+</html>
