@@ -169,6 +169,65 @@ body {
   transition: background 0.2s;
 }
 .copy-btn:hover { background: var(--navy); }
+/* 运行按钮与 JS 模拟输出 */
+.header-actions { display: flex; gap: 8px; align-items: center; }
+.run-btn {
+  background: var(--success);
+  color: white;
+  border: none;
+  padding: 4px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: background 0.2s;
+}
+.run-btn:hover { background: #1B5E20; }
+.run-btn.go { padding: 4px 16px; }
+.run-panel { border-top: 1px solid #D8DCE2; background: #0F1620; }
+.run-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 16px;
+  font-size: 12px;
+  color: #8FA6C0;
+  border-bottom: 1px solid #1E2A38;
+}
+.run-label .run-state { color: #FFCC80; }
+.run-inputs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 18px;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid #1E2A38;
+}
+.run-inputs label { font-size: 13px; color: #A9BDD4; display: flex; align-items: center; gap: 6px; }
+.run-inputs input {
+  font-family: "Consolas", "Courier New", monospace;
+  font-size: 13px;
+  width: 104px;
+  padding: 4px 8px;
+  color: #E6EEF8;
+  background: #16202C;
+  border: 1px solid #2C3D50;
+  border-radius: 4px;
+}
+.run-inputs input:focus { outline: none; border-color: var(--accent-light); }
+pre.run-out {
+  padding: 12px 16px 14px;
+  color: #D7E3F2;
+  font-family: "Consolas", "Courier New", monospace;
+  font-size: 13.5px;
+  line-height: 1.7;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+pre.run-out .ok { color: #7EE787; }
+pre.run-out .err { color: #FF8A80; }
+pre.run-out .prompt { color: #79C0FF; }
+pre.run-out .dim { color: #7C8DA6; }
 .code-block pre {
   padding: 16px;
   overflow-x: auto;
@@ -388,7 +447,7 @@ tr:hover { background: #E8F0FA; }
       <h2>2.1 常量与变量</h2>
       <h3>核心概念</h3>
       <p>常量是固定不变的值（如3、"hello"），变量通过赋值创建，是贴在值上的"便利贴"——存的是内存地址，不是值本身。</p>
-      <div class="code-block">
+      <div class="code-block" data-demo="shell">
         <div class="code-header">Python Shell 演示 <button class="copy-btn" onclick="copyCode(this)">复制</button></div>
         <pre><span class="comment"># 常量</span>
 >>> 3
@@ -416,7 +475,7 @@ tr:hover { background: #E8F0FA; }
         <h4>三行代码看懂"训练"</h4>
         <p>AI的"学习"，本质就是一大堆变量被不断重新赋值。w是模型参数（就是一个变量），每次根据误差调整w，就是一次"学习"。GPT有几千亿个这样的w。全程没有循环、没有AI库，只有赋值+算术。</p>
       </div>
-      <div class="code-block">
+      <div class="code-block" data-demo="train">
         <div class="code-header">AI训练最小演示 <button class="copy-btn" onclick="copyCode(this)">复制</button></div>
         <pre>x, y_true = 2.0, 10.0
 w = 1.0  <span class="comment"># 初始猜测</span>
@@ -445,7 +504,7 @@ print("正确答案 w = 5.0")</pre>
       <h2>2.2 运算符与表达式</h2>
       <h3>运算符全景与优先级</h3>
       <p>Python运算符分为算术、关系、逻辑、赋值、成员测试等。优先级从高到低：** > * / // % > + - > 位运算 > in/not in/is > 比较 > not > and > or。记不住怎么办？加括号！</p>
-      <div class="code-block">
+      <div class="code-block" data-demo="ops">
         <div class="code-header">算术运算符重点 <button class="copy-btn" onclick="copyCode(this)">复制</button></div>
         <pre>>>> 7 / 2, 7 // 2, 7 % 2, 7 ** 2
 <span class="output">(3.5, 3, 1, 49)</span>
@@ -465,7 +524,7 @@ print("正确答案 w = 5.0")</pre>
         <p><strong>AI-02 神经元 = 加权求和：</strong>y = w1*x1 + w2*x2 + w3*x3 + b。权重不同=模型不同=判断标准不同。整个深度学习=很多个这样的表达式叠起来。</p>
         <p><strong>AI-03 置信度 = float + 阈值：</strong>AI不说"是猫"，它说"是猫的概率0.83"。float表示概率，阈值判断分类。</p>
       </div>
-      <div class="code-block">
+      <div class="code-block" data-demo="neuron">
         <div class="code-header">神经元计算演示 <button class="copy-btn" onclick="copyCode(this)">复制</button></div>
         <pre><span class="comment"># 输入：耳朵尖度、胡须长度、眼睛颜色</span>
 x1, x2, x3 = 0.9, 0.7, 0.8
@@ -507,7 +566,7 @@ print("判断:", "是猫" if prob > 0.5 else "不是猫")</pre>
         <h4>本章最震撼的演示：0.1 + 0.2 ≠ 0.3</h4>
         <p>浮点数在计算机中用二进制表示，0.1和0.2都无法精确表示。这不是bug，是IEEE 754标准的特性。<strong>AI幻觉也一样：非常流畅、非常自信地给你一个错答案。所以：AI给的每一个关键结论，你都要能自己验证。</strong></p>
       </div>
-      <div class="code-block">
+      <div class="code-block" data-demo="floatp">
         <div class="code-header">浮点精度演示 <button class="copy-btn" onclick="copyCode(this)">复制</button></div>
         <pre>>>> 0.1 + 0.2
 <span class="output">0.30000000000000004</span>
@@ -532,7 +591,7 @@ print("判断:", "是猫" if prob > 0.5 else "不是猫")</pre>
       <h2>2.5 基本输入输出</h2>
       <h3>input() 返回值铁律</h3>
       <div class="warn"><strong>零基础第一号错误源：</strong><code>input()</code> 拿到的一定是字符串！即使输入的是数字，也需要用 <code>int()</code> 或 <code>float()</code> 转换。</div>
-      <div class="code-block">
+      <div class="code-block" data-demo="sum2">
         <div class="code-header">两数之和 · 经典大坑 <button class="copy-btn" onclick="copyCode(this)">复制</button></div>
         <pre><span class="comment"># 错误版本：input返回字符串，+变成拼接</span>
 a = input("a: ")
@@ -547,7 +606,7 @@ print(a + b)
 <span class="comment"># 输入10、20 → 输出 30.0</span></pre>
       </div>
       <h3>print() 的 sep 与 end</h3>
-      <div class="code-block">
+      <div class="code-block" data-demo="printf">
         <div class="code-header">print格式化输出 <button class="copy-btn" onclick="copyCode(this)">复制</button></div>
         <pre>print("a", "b", "c")
 <span class="output">a b c  # 默认sep=' '</span>
@@ -567,7 +626,7 @@ print("{}今年{}岁".format(name, age))  <span class="comment"># format()</span
     <section id="m6" class="section">
       <h2>2.6 模块的使用</h2>
       <p>模块是包含Python定义和语句的文件。使用模块可以复用代码、组织程序。Python有丰富的标准库模块，如math、random、datetime、os等。</p>
-      <div class="code-block">
+      <div class="code-block" data-demo="imports">
         <div class="code-header">import三种方式 <button class="copy-btn" onclick="copyCode(this)">复制</button></div>
         <pre><span class="comment"># 方式1：导入整个模块</span>
 import random
@@ -583,7 +642,7 @@ import random as rnd
 print(rnd.random())</pre>
       </div>
       <h3>random 模块</h3>
-      <div class="code-block">
+      <div class="code-block" data-demo="randomf">
         <div class="code-header">random常用函数 <button class="copy-btn" onclick="copyCode(this)">复制</button></div>
         <pre>import random
 random.random()           <span class="comment"># 0~1随机小数</span>
@@ -601,7 +660,7 @@ random.shuffle([1,2,3,4,5])       <span class="comment"># 洗牌：原地打乱<
         <h4>本场高潮：用random模块理解大模型怎么"说话"</h4>
         <p>生成式AI的本质，就是在每一步根据概率随机选择下一个词——就像"词语接龙"，但每个候选词有不同的概率。random.choices()带weights参数，就是AI采样的最小模型。</p>
       </div>
-      <div class="code-block">
+      <div class="code-block" data-demo="aigen">
         <div class="code-header">生成式AI最小演示 <button class="copy-btn" onclick="copyCode(this)">复制</button></div>
         <pre>import random
 
@@ -624,7 +683,7 @@ for i in range(10):
     <section id="m7" class="section">
       <h2>2.7 综合应用</h2>
       <h3>例：闰年判断</h3>
-      <div class="code-block">
+      <div class="code-block" data-demo="leap">
         <div class="code-header">闰年判断程序 <button class="copy-btn" onclick="copyCode(this)">复制</button></div>
         <pre>year = int(input("请输入年份："))
 <span class="comment"># 闰年规则：能被4整除但不能被100整除，或能被400整除</span>
@@ -635,7 +694,7 @@ else:
     print(f"{year}年是平年")</pre>
       </div>
       <h3>例：海伦公式求三角形面积</h3>
-      <div class="code-block">
+      <div class="code-block" data-demo="heron">
         <div class="code-header">海伦公式 <button class="copy-btn" onclick="copyCode(this)">复制</button></div>
         <pre>import math
 a = float(input("边长a："))
@@ -748,6 +807,363 @@ function copyCode(btn) {
     setTimeout(() => btn.textContent = '复制', 1500);
   });
 }
+
+/* ============================================================
+   JS 模拟运行：没有 Python 环境也能在浏览器里看到运行结果
+   每个 .code-block[data-demo] 对应 DEMOS 里的一条"迷你执行器"，
+   按 Python 语义（整除向下取整、取模余数符号、IEEE 754 双精度）在 JS 中重算。
+   ============================================================ */
+function n2s(n) {            /* 数字 → 简洁字符串 */
+  if (!isFinite(n)) return String(n);
+  return String(+n.toFixed(10));
+}
+function pymod(a, b) {       /* Python 取模：余数符号跟随除数 */
+  return ((a % b) + b) % b;
+}
+function escHtml(s) {
+  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+function randInt(a, b) { return a + Math.floor(Math.random() * (b - a + 1)); }
+
+var DEMOS = {
+  /* 2.1 常量与变量：Shell 交互全过程 */
+  shell: {
+    run: function () {
+      return [
+        ['>>> 3', 'prompt'],
+        ['3', 'ok'],
+        ['>>> age = 18', 'prompt'],
+        ['>>> age', 'prompt'],
+        ['18', 'ok'],
+        ['>>> age = 20', 'prompt'],
+        ['>>> age', 'prompt'],
+        ['20', 'ok'],
+        ['>>> print(name)', 'prompt'],
+        ["NameError: name 'name' is not defined", 'err'],
+        ['# 变量必须先赋值才能使用：变量名只是"便利贴"，贴到值上才存在', 'dim']
+      ];
+    }
+  },
+
+  /* AI-01 训练：w 被一轮轮重新赋值 */
+  train: {
+    inputs: [
+      { k: 'x', label: 'x', v: '2.0' },
+      { k: 'y', label: 'y_true', v: '10.0' },
+      { k: 'w', label: '初始 w', v: '1.0' },
+      { k: 'lr', label: '学习率 lr', v: '0.1' }
+    ],
+    run: function (v) {
+      var x = parseFloat(v.x), y = parseFloat(v.y), w = parseFloat(v.w), lr = parseFloat(v.lr);
+      if (isNaN(x) || isNaN(y) || isNaN(w) || isNaN(lr)) return [['请输入数字', 'err']];
+      var out = [];
+      for (var i = 1; i <= 3; i++) {
+        var pred = w * x;
+        var nw = w - lr * (pred - y) * x;
+        out.push(['第' + i + '次学习：pred = w * x = ' + n2s(pred), 'dim']);
+        out.push(['  w = ' + n2s(w) + ' - ' + n2s(lr) + ' * (' + n2s(pred) + ' - ' + n2s(y) + ') * ' + n2s(x) + ' = ' + n2s(nw), 'prompt']);
+        w = nw;
+      }
+      out.push(['正确答案 w = ' + n2s(y / x) + '    # 每次都在靠近它，这就是"学习"', 'ok']);
+      return out;
+    }
+  },
+
+  /* 2.2 运算符：整除取整方向、取模符号、2^3 的坑 */
+  ops: {
+    inputs: [{ k: 'a', label: 'a', v: '7' }, { k: 'b', label: 'b', v: '2' }],
+    run: function (v) {
+      var a = parseFloat(v.a), b = parseFloat(v.b);
+      if (isNaN(a) || isNaN(b)) return [['请输入数字', 'err']];
+      if (b === 0) return [['ZeroDivisionError: division by zero', 'err']];
+      return [
+        ['>>> ' + n2s(a) + ' / ' + n2s(b) + ', ' + n2s(a) + ' // ' + n2s(b) + ', ' + n2s(a) + ' % ' + n2s(b) + ', ' + n2s(a) + ' ** ' + n2s(b), 'prompt'],
+        ['(' + n2s(a / b) + ', ' + Math.floor(a / b) + ', ' + n2s(pymod(a, b)) + ', ' + n2s(Math.pow(a, b)) + ')', 'ok'],
+        ['>>> -' + n2s(a) + ' // ' + n2s(b) + ', -' + n2s(a) + ' % ' + n2s(b), 'prompt'],
+        ['(' + Math.floor(-a / b) + ', ' + n2s(pymod(-a, b)) + ')   # 向下取整，余数符号跟除数一致', 'ok'],
+        ['>>> 2 ^ 3', 'prompt'],
+        ['1   # 位异或，不是 8！', 'err']
+      ];
+    }
+  },
+
+  /* AI-02/03 神经元：加权求和 + sigmoid 概率 */
+  neuron: {
+    inputs: [
+      { k: 'x1', label: 'x1 耳朵尖度', v: '0.9' },
+      { k: 'x2', label: 'x2 胡须长度', v: '0.7' },
+      { k: 'x3', label: 'x3 眼睛颜色', v: '0.8' },
+      { k: 'w1', label: 'w1', v: '0.5' },
+      { k: 'w2', label: 'w2', v: '0.3' },
+      { k: 'w3', label: 'w3', v: '0.2' },
+      { k: 'b', label: '偏置 b', v: '-0.4' }
+    ],
+    run: function (v) {
+      var f = function (k) { return parseFloat(v[k]); };
+      var y = f('w1') * f('x1') + f('w2') * f('x2') + f('w3') * f('x3') + f('b');
+      if (isNaN(y)) return [['请输入数字', 'err']];
+      var prob = 1 / (1 + Math.exp(-y));
+      return [
+        ['>>> y = w1*x1 + w2*x2 + w3*x3 + b', 'prompt'],
+        ['加权和 y = ' + y.toFixed(3), 'ok'],
+        ['>>> prob = 1 / (1 + math.exp(-y))', 'prompt'],
+        ['是猫的概率 = ' + (prob * 100).toFixed(2) + '%', 'ok'],
+        ['判断: ' + (prob > 0.5 ? '是猫' : '不是猫') + '   # 置信度 + 阈值 = 分类', 'ok']
+      ];
+    }
+  },
+
+  /* AI-08 浮点精度 = 机器会自信地犯错 */
+  floatp: {
+    inputs: [
+      { k: 'a', label: 'a', v: '0.1' },
+      { k: 'b', label: 'b', v: '0.2' },
+      { k: 'c', label: 'c', v: '0.3' }
+    ],
+    run: function (v) {
+      var a = parseFloat(v.a), b = parseFloat(v.b), c = parseFloat(v.c);
+      if (isNaN(a) || isNaN(b) || isNaN(c)) return [['请输入数字', 'err']];
+      var sum = a + b;
+      return [
+        ['>>> ' + n2s(a) + ' + ' + n2s(b), 'prompt'],
+        [String(sum), 'ok'],
+        ['>>> ' + n2s(a) + ' + ' + n2s(b) + ' == ' + n2s(c), 'prompt'],
+        [(sum === c ? 'True' : 'False') + '   # 机器算错了，而且非常自信', 'err'],
+        ['>>> round(' + n2s(a) + ' + ' + n2s(b) + ', 2)', 'prompt'],
+        [String(Math.round(sum * 100) / 100), 'ok'],
+        ['>>> abs((' + n2s(a) + ' + ' + n2s(b) + ') - ' + n2s(c) + ') < 1e-9', 'prompt'],
+        [(Math.abs(sum - c) < 1e-9 ? 'True' : 'False') + '   # 正确比较姿势：比差值，不比相等', 'ok']
+      ];
+    }
+  },
+
+  /* 2.5 两数之和：input 返回字符串的大坑 */
+  sum2: {
+    inputs: [{ k: 'a', label: 'a 输入', v: '10' }, { k: 'b', label: 'b 输入', v: '20' }],
+    run: function (v) {
+      var joined = String(v.a) + String(v.b);
+      var n = parseFloat(v.a) + parseFloat(v.b);
+      return [
+        ['>>> a = input("a: ")', 'prompt'],
+        ['a: ' + v.a, 'dim'],
+        ['>>> b = input("b: ")', 'prompt'],
+        ['b: ' + v.b, 'dim'],
+        ['>>> print(a + b)', 'prompt'],
+        [joined + '   # 字符串拼接！初学者第一大坑', 'err'],
+        ['>>> a = float(a); b = float(b)   # 先转类型', 'prompt'],
+        ['>>> print(a + b)', 'prompt'],
+        [isNaN(n) ? 'ValueError: could not convert string to float' : n2s(n), isNaN(n) ? 'err' : 'ok']
+      ];
+    }
+  },
+
+  /* 2.5 print 的 sep / end / 格式化 */
+  printf: {
+    inputs: [{ k: 'name', label: 'name', v: '张三' }, { k: 'age', label: 'age', v: '20' }],
+    run: function (v) {
+      return [
+        ['>>> print("a", "b", "c")', 'prompt'],
+        ["a b c   # 默认 sep=' '", 'ok'],
+        ['>>> print("a", "b", "c", sep="-")', 'prompt'],
+        ['a-b-c', 'ok'],
+        ['>>> print("hello", end=" "); print("world")', 'prompt'],
+        ["hello world   # 默认 end='\\n'，改掉它就不会换行", 'ok'],
+        ['>>> name = "' + v.name + '"; age = ' + v.age, 'prompt'],
+        ['>>> print(f"{name}今年{age}岁")   # f-string，推荐', 'prompt'],
+        [v.name + '今年' + v.age + '岁', 'ok'],
+        ['>>> print("{}今年{}岁".format(name, age))   # format()', 'prompt'],
+        [v.name + '今年' + v.age + '岁', 'ok']
+      ];
+    }
+  },
+
+  /* 2.6 import 三种方式（随机值每次不同） */
+  imports: {
+    run: function () {
+      return [
+        ['>>> import random', 'prompt'],
+        ['>>> print(random.randint(1, 10))', 'prompt'],
+        [String(randInt(1, 10)), 'ok'],
+        ['>>> from random import randint, choice', 'prompt'],
+        ['>>> print(randint(1, 10))', 'prompt'],
+        [String(randInt(1, 10)), 'ok'],
+        [">>> print(choice(['A', 'B', 'C']))", 'prompt'],
+        [['A', 'B', 'C'][randInt(0, 2)], 'ok'],
+        ['>>> import random as rnd', 'prompt'],
+        ['>>> print(rnd.random())', 'prompt'],
+        [String(Math.random()), 'ok'],
+        ['# 每次点"运行"结果都不一样——随机是真的在发生', 'dim']
+      ];
+    }
+  },
+
+  /* 2.6 random 常用函数 */
+  randomf: {
+    run: function () {
+      var pool = [], i;
+      for (i = 1; i <= 34; i++) pool.push(i);
+      var pick = [];
+      for (i = 0; i < 7; i++) pick.push(pool.splice(randInt(0, pool.length - 1), 1)[0]);
+      var cards = [1, 2, 3, 4, 5];
+      for (i = cards.length - 1; i > 0; i--) {
+        var j = randInt(0, i), t = cards[i];
+        cards[i] = cards[j]; cards[j] = t;
+      }
+      return [
+        ['>>> random.random()   # 0~1 随机小数', 'prompt'],
+        [String(Math.random()), 'ok'],
+        ['>>> random.randint(1, 10)   # 1~10 随机整数（含两端）', 'prompt'],
+        [String(randInt(1, 10)), 'ok'],
+        [">>> random.choice(['N','S','E','W'])   # 随机选一个", 'prompt'],
+        [['N', 'S', 'E', 'W'][randInt(0, 3)], 'ok'],
+        ['>>> random.sample(range(1,35), 7)   # 彩票：7个不重复', 'prompt'],
+        ['[' + pick.join(', ') + ']', 'ok'],
+        ['>>> random.shuffle([1,2,3,4,5])   # 洗牌：原地打乱', 'prompt'],
+        ['[' + cards.join(', ') + ']', 'ok']
+      ];
+    }
+  },
+
+  /* AI-06 生成式AI：带概率的词语接龙 */
+  aigen: {
+    inputs: [{ k: 'n', label: '生成次数', v: '10' }],
+    run: function (v) {
+      var words = ['很好', '不错', '很差', '一般'], probs = [0.6, 0.25, 0.05, 0.1];
+      var n = parseInt(v.n, 10);
+      if (isNaN(n)) n = 10;
+      n = Math.max(1, Math.min(50, n));
+      var out = [['>>> for i in range(' + n + '):   # 每一步按概率抽一个词', 'prompt']];
+      for (var i = 0; i < n; i++) {
+        var r = Math.random(), cum = 0, chosen = words[0];
+        for (var j = 0; j < words.length; j++) {
+          cum += probs[j];
+          if (r <= cum) { chosen = words[j]; break; }
+        }
+        out.push(['第' + (i + 1) + '次: 今天天气' + chosen, 'ok']);
+      }
+      out.push(['# 概率越高的词越容易被选中——大模型"说话"就是这么来的', 'dim']);
+      return out;
+    }
+  },
+
+  /* 2.7 闰年判断 */
+  leap: {
+    inputs: [{ k: 'year', label: '请输入年份', v: '2026' }],
+    run: function (v) {
+      var y = parseInt(v.year, 10);
+      if (isNaN(y)) return [["ValueError: invalid literal for int() with base 10: '" + v.year + "'", 'err']];
+      var isLeap = (y % 4 === 0 && y % 100 !== 0) || (y % 400 === 0);
+      return [
+        ['>>> year = int(input("请输入年份："))', 'prompt'],
+        ['请输入年份：' + y, 'dim'],
+        ['>>> is_leap = (year % 4 == 0 and year % 100 != 0) or (year % 400 == 0)', 'prompt'],
+        ['>>> print(...)   # 按 is_leap 打印闰年或平年', 'prompt'],
+        [y + '年是' + (isLeap ? '闰年' : '平年'), 'ok']
+      ];
+    }
+  },
+
+  /* 2.7 海伦公式求三角形面积 */
+  heron: {
+    inputs: [
+      { k: 'a', label: '边长 a', v: '3' },
+      { k: 'b', label: '边长 b', v: '4' },
+      { k: 'c', label: '边长 c', v: '5' }
+    ],
+    run: function (v) {
+      var a = parseFloat(v.a), b = parseFloat(v.b), c = parseFloat(v.c);
+      if (isNaN(a) || isNaN(b) || isNaN(c)) return [['请输入数字', 'err']];
+      var s = (a + b + c) / 2;
+      var t = s * (s - a) * (s - b) * (s - c);
+      if (!(t > 0)) return [['ValueError: math domain error   # 两边之和必须大于第三边', 'err']];
+      return [
+        ['>>> a, b, c = ' + n2s(a) + ', ' + n2s(b) + ', ' + n2s(c), 'prompt'],
+        ['>>> s = (a + b + c) / 2   # 半周长', 'prompt'],
+        ['半周长 s = ' + n2s(s), 'dim'],
+        ['>>> area = math.sqrt(s * (s-a) * (s-b) * (s-c))', 'prompt'],
+        ['三角形面积 = ' + Math.sqrt(t).toFixed(2), 'ok']
+      ];
+    }
+  }
+};
+
+/* 逐行"打印"，像程序真的在跑 */
+function printLines(out, lines) {
+  out.innerHTML = '';
+  var i = 0;
+  (function step() {
+    if (i >= lines.length) return;
+    var line = lines[i++];
+    var text = Array.isArray(line) ? line[0] : line;
+    var cls = Array.isArray(line) ? line[1] : '';
+    out.innerHTML += (cls ? '<span class="' + cls + '">' + escHtml(text) + '</span>' : escHtml(text)) + '\n';
+    setTimeout(step, 70);
+  })();
+}
+
+function execDemo(demoKey, panel) {
+  var demo = DEMOS[demoKey];
+  if (!demo) return;
+  var vals = {};
+  panel.querySelectorAll('.run-inputs input').forEach(function (inp) {
+    vals[inp.getAttribute('data-k')] = inp.value;
+  });
+  var lines;
+  try { lines = demo.run(vals); }
+  catch (e) { lines = [['模拟运行出错: ' + e.message, 'err']]; }
+  printLines(panel.querySelector('.run-out'), lines);
+}
+
+function runDemo(btn) {
+  var block = btn.closest('.code-block');
+  var key = block.getAttribute('data-demo');
+  var demo = DEMOS[key];
+  if (!demo) return;
+  var panel = block.querySelector('.run-panel');
+  if (!panel) {
+    panel = document.createElement('div');
+    panel.className = 'run-panel';
+    panel.innerHTML =
+      '<div class="run-label"><span>运行结果 · 浏览器内 JS 模拟</span><span class="run-state">Python 3</span></div>' +
+      '<div class="run-inputs"></div>' +
+      '<pre class="run-out"></pre>';
+    block.appendChild(panel);
+    var box = panel.querySelector('.run-inputs');
+    if (demo.inputs) {
+      box.innerHTML = demo.inputs.map(function (it) {
+        return '<label>' + escHtml(it.label) + '<input data-k="' + it.k + '" value="' + escHtml(it.v) + '"></label>';
+      }).join('') + '<button class="run-btn go" type="button">▶ 用这些值重新执行</button>';
+      box.querySelector('.go').addEventListener('click', function () { execDemo(key, panel); });
+      box.querySelectorAll('input').forEach(function (inp) {
+        inp.addEventListener('keydown', function (e) { if (e.key === 'Enter') execDemo(key, panel); });
+      });
+    } else {
+      box.style.display = 'none';
+    }
+  }
+  execDemo(key, panel);
+}
+
+/* 给每个 data-demo 代码块自动补上"▶ 运行"按钮 */
+document.addEventListener('DOMContentLoaded', function () {
+  document.querySelectorAll('.code-block[data-demo]').forEach(function (block) {
+    var key = block.getAttribute('data-demo');
+    if (!DEMOS[key]) return;
+    var head = block.querySelector('.code-header');
+    if (!head || head.querySelector('.run-btn')) return;
+    var run = document.createElement('button');
+    run.type = 'button';
+    run.className = 'run-btn';
+    run.textContent = '▶ 运行';
+    run.addEventListener('click', function () { runDemo(run); });
+    var actions = document.createElement('span');
+    actions.className = 'header-actions';
+    actions.appendChild(run);
+    var copy = head.querySelector('.copy-btn');
+    if (copy) actions.appendChild(copy);
+    head.appendChild(actions);
+  });
+});
 
 // 侧边栏高亮
 const sections = document.querySelectorAll('section[id]');

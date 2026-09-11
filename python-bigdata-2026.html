@@ -128,6 +128,12 @@ tbody tr:last-child td{border-bottom:none;}
 .lesson-card.pending{background:#f7f4ec;border-style:dashed;cursor:default;}
 .lesson-card.pending:hover{transform:none;box-shadow:none;border-color:var(--line-soft);}
 .lesson-card.pending .lc-title{color:var(--ink-soft);}
+/* 一张卡片挂多个入口（课堂内容 + 演示Demo） */
+.lesson-card .lc-title-link{display:block;text-decoration:none;}
+.lesson-card .lc-title-link:hover{color:var(--blue);text-decoration:underline;}
+.lc-actions{display:flex;gap:14px;flex-wrap:wrap;align-items:center;}
+.lc-go-demo{color:var(--amber);}
+.lc-foot-stack{flex-direction:column;align-items:flex-start;gap:8px;}
 /* ===== 页脚 ===== */
 footer{background:#1c2b44;color:#b9c6dc;text-align:center;padding:26px 20px;font-size:14px;}
 footer .f-main{color:#fff;font-size:16px;margin-bottom:4px;}
@@ -367,15 +373,21 @@ footer a:hover{text-decoration:underline;}
       <div class="lc-desc">课程定位与目标 · 教学内容与学时 · 教材与考核 · 程序与编程语言 · Python 语言介绍 · 开发环境安装 · 扩展库与 pip · Agent 辅助学习</div>
       <div class="lc-foot"><span>2026-09-04 · 4 学时</span><span class="lc-go">进入本课 →</span></div>
     </a>
-    <a class="lesson-card" href="python-bigdata-2026-lesson2.html">
+    <div class="lesson-card">
       <div class="lc-top">
         <span class="lc-no">第 2 次课</span>
         <span class="tag green">已完成</span>
       </div>
-      <div class="lc-title">第 2 章 Python 语言基础</div>
+      <a class="lc-title lc-title-link" href="python-bigdata-2026-lesson2.html">第 2 章 Python 语言基础</a>
       <div class="lc-desc">常量与变量 · 运算符与表达式 · 数据类型 · 内置函数 · 基本输入输出 · 模块的使用 · 综合应用（含可交互代码演示）</div>
-      <div class="lc-foot"><span>2026-09-11 · 4 学时</span><span class="lc-go">进入本课 →</span></div>
-    </a>
+      <div class="lc-foot lc-foot-stack">
+        <span>2026-09-11 · 4 学时</span>
+        <span class="lc-actions">
+          <a class="lc-go" href="python-bigdata-2026-lesson2.html">进入本课 →</a>
+          <a class="lc-go lc-go-demo" href="python-bigdata-2026-lesson2-demo.html">演示Demo · 可运行 →</a>
+        </span>
+      </div>
+    </div>
   </div>
 
   <div class="note">
