@@ -33,6 +33,9 @@
     <a href="#c5" data-sec="c5">五、模型与第一个脚本</a>
     <a href="#c6" data-sec="c6">六、双轨验证</a>
     <a href="#demo" data-sec="demo">演示中心</a>
+    <a href="#udemo" data-sec="udemo">演示设计</a>
+    <a href="#video" data-sec="video">视频资料</a>
+    <a href="#hw" data-sec="hw">课堂作业</a>
     <a href="#practice" data-sec="practice">速查 · 达标</a>
   </div>
 </nav>
@@ -409,20 +412,21 @@ public class SpinObject : MonoBehaviour
   <div class="sec-head">
     <div class="sec-num">六</div>
     <div>
-      <h2>双轨验证：模拟器 → PICO 真机 ★</h2>
+      <h2>双轨验证：模拟器 → HTC Vive 真机 ★</h2>
       <p class="sec-sub">25 分钟 · 同一个场景，在 PC 与头显里各看一遍</p>
     </div>
   </div>
 
-  <p>你已经在 PC 上用 Device Simulator 跑通了场景。现在戴上 PICO 看<strong>同一个场景</strong>，体会<strong>软件设置与硬件体验之间的差距</strong>——这就是本课程“双轨流程”的核心。</p>
+  <p>你已经在 PC 上用 Device Simulator 跑通了场景。现在戴上 <strong>HTC Vive</strong> 看一个<strong>真实运行的 VR 场景</strong>，体会<strong>软件设置与硬件体验之间的差距</strong>——这就是本课程“双轨流程”的核心。</p>
+  <div class="warn">本实验室的头显是 <strong>HTC Vive ×5</strong>：<strong>有线 + 基站</strong>方案，头显固定在 5 个机位上、<strong>搬不动</strong>，所以这一环节看的是<strong>教师演示的场景</strong>，不是每位同学自己的工程（后续课次设备流程熟练后，再安排"带自己工程上机"）。</div>
 
   <div class="grid2">
     <div class="cell">
       <h4>组织形式</h4>
       <ul>
-        <li>8 组轮换，10 台 PICO；</li>
-        <li>每人约 <strong>2—3 分钟</strong>（只看一眼，不是完整体验）；</li>
-        <li>未轮到的小组：继续完善自己的场景，或帮同组同学排错。</li>
+        <li><strong>5 组轮换，5 套 HTC Vive 同时开放</strong>，按机位号分 1—5 组，每组 8 人；</li>
+        <li>每人约 <strong>3 分钟</strong>（只看一眼，不是完整体验）；</li>
+        <li>未轮到的组：继续完善自己的场景，或帮旁边同学排错。</li>
       </ul>
     </div>
     <div class="cell">
@@ -438,7 +442,7 @@ public class SpinObject : MonoBehaviour
   <h4>记录对比（课堂任务卡填写）</h4>
   <div class="tbl-wrap">
     <table>
-      <thead><tr><th>对比项</th><th>PC 模拟器</th><th>PICO 真机</th></tr></thead>
+      <thead><tr><th>对比项</th><th>PC 模拟器</th><th>HTC Vive 真机</th></tr></thead>
       <tbody>
         <tr><td>画面清晰度</td><td></td><td></td></tr>
         <tr><td>转头时的延迟感</td><td></td><td></td></tr>
@@ -476,6 +480,304 @@ public class SpinObject : MonoBehaviour
   </div>
 </section>
 
+<!-- ===== 课堂演示设计（Unity 实装环境） ===== -->
+<section id="udemo">
+  <div class="sec-head">
+    <div class="sec-num">演</div>
+    <div>
+      <h2>课堂演示设计 · 基于本机实装环境</h2>
+      <p class="sec-sub">Unity 6000.6.0f1 + XR Interaction Toolkit 3.6.0 · 7 个演示，每个 3—6 分钟</p>
+    </div>
+  </div>
+
+  <p>下面 7 个演示全部基于<strong>这台机器上今天实际装好的版本</strong>设计，不是通用教程。每个演示都遵循同一个结构：<strong>先说是哪一步 → 现场做 → 让学生看到现象 → 当场读出数字</strong>。演示用的工程是 <code class="inline">D:\UnityProjects\VRCase01</code>，场景 <code class="inline">Case01.unity</code>。</p>
+
+  <h3>一、实装环境核对表（演示前先念一遍）</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>组件</th><th>本机版本</th><th>在哪看</th><th>演示时要学生注意什么</th></tr></thead>
+      <tbody>
+        <tr><td>Unity 编辑器</td><td><strong>6000.6.0f1</strong></td><td><code class="inline">Help → About Unity</code></td><td><strong>Unity 只能升不能降</strong>：如果你的版本比机房高，机房的工程就打不开。这是第一件要记下来的事</td></tr>
+        <tr><td>Input System</td><td>1.20.0</td><td>Package Manager → In Project</td><td>手柄按键、模拟器按键、后续所有交互都走它</td></tr>
+        <tr><td>XR Interaction Toolkit</td><td>3.6.0</td><td>Package Manager → In Project</td><td>抓取、射线、传送、UI 交互的现成组件都在这个包里</td></tr>
+        <tr><td>XR Plug-in Management</td><td>4.7.0</td><td>Package Manager → In Project</td><td>"一次配置、跨设备"的开关就在它的设置页里</td></tr>
+        <tr><td>OpenXR</td><td>1.18.0</td><td>Package Manager → In Project</td><td>真正接管头显的运行时；这一个勾错了，Play 之后视角一定不动</td></tr>
+        <tr><td>XRI 样例包</td><td>3.6.0（Starter Assets / XR Device Simulator）</td><td><code class="inline">Assets/Samples/XR Interaction Toolkit/3.6.0</code></td><td>关键认知：<strong>模拟器不是第三方插件，是官方包自带的样例</strong></td></tr>
+        <tr><td>PICO Streaming Service（PC 端）</td><td>已装</td><td>开始菜单</td><td>接一体机时才用；接 HTC Vive 走 SteamVR，不需要它</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="warn"><strong>为什么把"核对版本"排成第一个演示</strong>：这不是客套。机房有还原卡、教师机与机房机版本可能不同，而<strong>版本不一致是唯一一种"后面所有步骤都白做"的故障</strong>。先用 3 分钟把它排除掉，后面 150 分钟才安全。</div>
+
+  <h3>二、7 个课堂演示（U1—U7）</h3>
+  <div class="step-grid">
+    <div class="step-card">
+      <div class="sc-no">U1 · 3 分钟</div>
+      <div class="sc-title">版本与包核对</div>
+      <div class="sc-desc"><strong>目标</strong>：全班机器版本一致，每人知道自己这台是什么环境。<br><strong>操作</strong>：<code class="inline">Help → About Unity</code> 读版本号 → Package Manager → In Project 读四个包版本 → 填任务卡。<br><strong>应看到</strong>：编辑器 6000.6.0f1；Input System 1.20.0 / XRI 3.6.0 / XR Management 4.7.0 / OpenXR 1.18.0。<br><strong>翻车点</strong>：装成"团结引擎（Tuanjie）"或 2022 LTS，工程直接打不开。</div>
+    </div>
+    <div class="step-card">
+      <div class="sc-no">U2 · 6 分钟</div>
+      <div class="sc-title">OpenXR 一次性配置</div>
+      <div class="sc-desc"><strong>目标</strong>：让"一次配置支持 Vive / PICO / Quest"这句话变成看得见的东西。<br><strong>操作</strong>：<code class="inline">Project Settings → XR Plug-in Management</code> → Windows 标签勾 OpenXR → 展开 OpenXR 看 Interaction Profile 列表 → 按提示重启编辑器。<br><strong>应看到</strong>：HTC Vive Controller、PICO、Oculus Touch 等配置项并排在同一张表里。<br><strong>对应知识点</strong>：上次课的 Outside-In 基站定位，落到软件里就是 XR Origin 读取的姿态数据。</div>
+    </div>
+    <div class="step-card">
+      <div class="sc-no">U3 · 6 分钟</div>
+      <div class="sc-title">XR Origin + Device Simulator：看 / 转 / 走 / 抓</div>
+      <div class="sc-desc"><strong>目标</strong>：没有头显也能把 6DoF 演完整。<br><strong>操作</strong>：Hierarchy 右键 → <code class="inline">XR → XR Origin (VR)</code>；<strong>删掉旧的 Main Camera</strong>；把 <code class="inline">XR Device Simulator</code> 预制体拖进 Hierarchy；Play 后用 <code class="inline">WASD</code> 移动、按住鼠标右键转头、<code class="inline">Tab</code> 切左右手、<code class="inline">G</code> 握持、鼠标左键触发。<br><strong>应看到</strong>：Game 视图里有虚拟手柄；<strong>走动时物体之间出现视差</strong>——这就是 6DoF 的价值。<br><strong>翻车点</strong>：按键没反应 → 先用鼠标点一下 Game 视图；画面异常 → 旧主相机没删。</div>
+    </div>
+    <div class="step-card">
+      <div class="sc-no">U4 · 5 分钟</div>
+      <div class="sc-title">射线交互与反馈：Hover / Select / 变色</div>
+      <div class="sc-desc"><strong>目标</strong>：把"交互 = 事件 + 反馈"这句话讲实。<br><strong>操作</strong>：给立方体挂 <code class="inline">XRSimpleInteractable</code> + <code class="inline">InteractButton</code> 脚本；Play 后用射线指上去、按下、移开。<br><strong>应看到</strong>：灰色 → <strong>悬停变黄</strong>（<code class="inline">hoverEntered</code>）→ <strong>按下变绿</strong>（<code class="inline">selectEntered</code>）→ 移开复位。<br><strong>对应知识点</strong>：输入设备那一节的"手柄是怎么被看见的"，在软件里变成"事件是怎么被触发的"。</div>
+    </div>
+    <div class="step-card">
+      <div class="sc-no">U5 · 6 分钟</div>
+      <div class="sc-title">第一个脚本：Start / Update / Time.deltaTime</div>
+      <div class="sc-desc"><strong>目标</strong>：讲清"初始化一次"和"每帧一次"的区别，以及转速为什么要乘 <code class="inline">deltaTime</code>。<br><strong>操作</strong>：把 <code class="inline">SpinObject</code> 拖到物体上 → Play（默认 60 度/秒）→ 在 Inspector 把 speed 改成 180 → 再 Play 对比 → 看 Console。<br><strong>应看到</strong>：转速随参数变化；Console 里 <code class="inline">Start</code> 的日志<strong>只出现一次</strong>。<br><strong>对应知识点</strong>：如果不乘 <code class="inline">deltaTime</code>，高刷新率的机器上物体会转得更快——这就是"帧率"这个硬件指标在代码里的落点。</div>
+    </div>
+    <div class="step-card">
+      <div class="sc-no">U6 · 6 分钟</div>
+      <div class="sc-title">自检与性能读数：F1 与 F2</div>
+      <div class="sc-desc"><strong>目标</strong>：把"验收"从手感变成数字，把"面数 → 掉帧 → 眩晕"这条链落地。<br><strong>操作</strong>：Play 后 <code class="inline">SceneSelfCheck</code> 自动跑五项检查，按 <code class="inline">F1</code> 可重查；按 <code class="inline">F2</code> 开性能浮层读 <strong>FPS / Triangles / Draw Calls</strong>；把场景里的树复制成 10 棵，再看这三个数。<br><strong>应看到</strong>：缺项被直接点名；三角面与 Draw Call 上升、帧率下降。<br><strong>翻车点</strong>：个别机器取不到计数器、显示 <code class="inline">n/a</code>，属正常，不影响场景运行。</div>
+    </div>
+    <div class="step-card">
+      <div class="sc-no">U7 · 5 分钟</div>
+      <div class="sc-title">模型导入与比例：从建模软件到场景</div>
+      <div class="sc-desc"><strong>目标</strong>：把"资产导入五道关"里最容易翻车的一段摊开讲。<br><strong>操作</strong>：导入 <code class="inline">_woodhouse.fbx</code> 与 <code class="inline">Palm.fbx</code> → 检查 Scale Factor 与单位 → 放进场景，和 XR Origin 比高矮 → 材质变粉红时重新指定贴图。<br><strong>应看到</strong>：尺寸正常（人能从门口走过去）；粉红材质修好后显示正常。<br><strong>翻车点</strong>：素材路径含中文或空格；贴图丢失（材质的引用关系断了）；坐标轴不一致导致模型躺倒（Blender 是 Z 轴向上、Unity 是 Y 轴向上）。</div>
+    </div>
+  </div>
+
+  <h3>三、演示与课堂时间轴的对应</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>时段</th><th>演示</th><th>为什么放在这个点</th></tr></thead>
+      <tbody>
+        <tr><td>0:08–0:53 讲授</td><td>只做 <strong>U1</strong>（版本与包）</td><td>它同时是"实验 A"的起点，提前做掉，实验段就不慌</td></tr>
+        <tr><td>1:03–1:15 实验 A</td><td>U1 全班跟做</td><td>每人都记下自己的版本号，这是后面所有排障的依据</td></tr>
+        <tr><td>1:15–1:45 实验 B ★</td><td><strong>U2 + U3</strong></td><td>地基环节：XR 环境不通，后面全都做不了</td></tr>
+        <tr><td>1:45–2:10 实验 C ★</td><td><strong>U4 + U5 + U7</strong></td><td>先让场景里有东西（U7），再让它动（U5），再让它可交互（U4）</td></tr>
+        <tr><td>2:10–2:35 双轨验证</td><td>U6 前半段 + 真机</td><td>PC 上先读三个数，戴头显时才有对照</td></tr>
+        <tr><td>2:35–2:50 收束</td><td>U6 后半段（复制物体再看数字）</td><td>用它把"优化"第一次讲成可量化的动作</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>四、演示翻车的三级降级方案</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>级别</th><th>触发条件</th><th>降级做法</th></tr></thead>
+      <tbody>
+        <tr><td>一级</td><td>Package Manager 连不上网、包装不上</td><td>用提前导出的 XR 相关 <code class="inline">.unitypackage</code> 离线安装；U2 改为"看已装好的工程"</td></tr>
+        <tr><td>二级</td><td>头显连不上 / SteamVR 找不到设备</td><td>全部走 Device Simulator，真机环节改为教师机投屏演示，学生只做记录</td></tr>
+        <tr><td>三级</td><td>Unity 崩溃或工程打不开</td><td>用教师机的录屏与截图按原顺序讲完流程，学生改为填写"故障记录表"（也算一次完整练习）</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ===== 视频资料 ===== -->
+<section id="video">
+  <div class="sec-head">
+    <div class="sec-num">视</div>
+    <div>
+      <h2>视频资料 · 第 4 次课配套</h2>
+      <p class="sec-sub">27 条 B 站视频 · 逐条核验标题、时长与发布日期 · 按学习顺序分组</p>
+    </div>
+  </div>
+
+  <div class="key"><strong>怎么用</strong>：本课视频<strong>不能替代动手</strong>。建议顺序是"课上跟做 → 卡住了看对应的那一条 → 想深入再看完整系列"。第五组（Pico Neo3 开发系列）与实验室设备直接对应，是最值得课后刷的一条线。播放量、点赞数为 2026-09-15 核验值。</div>
+
+  <h3>一、引擎认识与安装（对应 4.1 工具选型与实验 A）</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>知识点</th><th>视频</th><th>时长</th><th>数据</th><th>怎么看</th></tr></thead>
+      <tbody>
+        <tr><td>Unity 6 正确安装</td><td><a href="https://www.bilibili.com/video/BV14krRBqEqm" target="_blank" rel="noopener">别再把团结引擎当 Unity 了！Unity 6 正确下载安装教程</a>（嗜睡的猫咪）</td><td>18:00</td><td>13.7 万播放 / 1733 赞</td><td><strong>本课首推</strong>：直接回答"我装的是不是 Unity"——团结引擎是国产分支，工程不通用</td></tr>
+        <tr><td>Hub 与编辑器安装</td><td><a href="https://www.bilibili.com/video/BV1gx42117Z1" target="_blank" rel="noopener">最简单的手把手保姆级 Unity 入门教程：下载和安装</a>（喵布里）</td><td>13:24</td><td>8.5 万播放 / 1603 赞</td><td>课后在自己电脑上补装时用；注意版本要选 LTS 并与机房保持同一大版本</td></tr>
+        <tr><td>引擎选型：Unity vs Unreal</td><td><a href="https://www.bilibili.com/video/BV12U4y1w7Wg" target="_blank" rel="noopener">Unity 和 UE 引擎应该选哪个？深入浅出的对比介绍</a>（枫2）</td><td>12:10</td><td>3.2 万播放 / 1139 赞</td><td>对应 4.1"一类工具只干一件事"：为什么本课选 Unity 而不是 Unreal</td></tr>
+        <tr><td>Unreal 的门槛在哪</td><td><a href="https://www.bilibili.com/video/BV1dm41197G1" target="_blank" rel="noopener">深度解析，为什么 Unreal 比 Unity 难？</a>（倾海海海海）</td><td>12:13</td><td>7.8 万播放 / 1750 赞</td><td>反方视角：承认 Unreal 的画面上限，再解释"上限高 ≠ 课堂合适"</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>二、编辑器界面与环境核对（对应实验 A）</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>知识点</th><th>视频</th><th>时长</th><th>数据</th><th>怎么看</th></tr></thead>
+      <tbody>
+        <tr><td>编辑器全貌（必看）</td><td><a href="https://www.bilibili.com/video/BV1PL4y1e7hy" target="_blank" rel="noopener">Unity 10 分钟快速入门</a>（Ross-Ning）</td><td>11:47</td><td>78.1 万播放 / 2.6 万赞</td><td><strong>本课首推</strong>：11 分钟走完 Hierarchy / Scene / Game / Inspector / Project / Console 六个面板，正好对上实验 A4</td></tr>
+        <tr><td>界面布置与自定义</td><td><a href="https://www.bilibili.com/video/BV1MT411D7mi" target="_blank" rel="noopener">Unity 新手入门：编辑器界面布置</a>（上月球去写甲骨文）</td><td>6:37</td><td>2.0 万播放 / 264 赞</td><td>面板被拖乱了怎么办——多人共用机房机器时人人都会遇到</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>三、XR 环境配置与交互（对应实验 B）</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>知识点</th><th>视频</th><th>时长</th><th>数据</th><th>怎么看</th></tr></thead>
+      <tbody>
+        <tr><td>OpenXR 环境配置</td><td><a href="https://www.bilibili.com/video/BV1Z84y1b7e4" target="_blank" rel="noopener">【Unity VR 开发入门】OpenXR：头盔手柄的环境配置</a>（VR-Sowilo）</td><td>9:44</td><td>7966 播放 / 114 赞</td><td><strong>本课首推</strong>：把"勾了 OpenXR 之后到底发生了什么"讲得比多数教程清楚</td></tr>
+        <tr><td>OpenXR + XRI 完整配置</td><td><a href="https://www.bilibili.com/video/BV1aM4y1d732" target="_blank" rel="noopener">Unity VR 开发教程：OpenXR + XR Interaction Toolkit 安装和配置</a>（Teacher_Liu）</td><td>18:11</td><td>3356 播放 / 36 赞</td><td>课后再看一遍，把 B 环节的每一步对齐到视频里</td></tr>
+        <tr><td>XRI 快速配置交互</td><td><a href="https://www.bilibili.com/video/BV1FGSjYCEsK" target="_blank" rel="noopener">快速配置交互：移动、抓取、UI 交互（XR Interaction Toolkit）</a>（SpatialXR社区）</td><td>18:44</td><td>1.8 万播放 / 1094 赞</td><td><strong>本课首推</strong>：想在下节课做出"能抓、能传送"的场景，看这一条</td></tr>
+        <tr><td>XR Device Simulator（官方）</td><td><a href="https://www.bilibili.com/video/BV14K4y1v7TX" target="_blank" rel="noopener">Unity 设备模拟器（Device Simulator）教程</a>（Unity 官方）</td><td>3:52</td><td>1.3 万播放 / 295 赞</td><td>4 分钟讲完全部模拟按键；<strong>官方出品，界面与 3.6.0 最接近</strong></td></tr>
+        <tr><td>XR 模拟器实操</td><td><a href="https://www.bilibili.com/video/BV1TV411X7SN" target="_blank" rel="noopener">Unity XR 模拟器 XR Device Simulator 使用教程</a>（Cool灬浩）</td><td>4:43</td><td>6369 播放 / 103 赞</td><td>补充"按键没反应"这类现场问题，和本页故障速查表配合看</td></tr>
+        <tr><td>XR Origin 设置</td><td><a href="https://www.bilibili.com/video/BV18G4y1e7Ec" target="_blank" rel="noopener">Unity 开发 Pico VR 项目基础：导入并设置 XR Origin</a>（老徐看VR）</td><td>3:11</td><td>1850 播放 / 12 赞</td><td>补一个"XR Origin 到底替代了相机的什么功能"的直观解释</td></tr>
+        <tr><td>XR Origin 基本设置</td><td><a href="https://www.bilibili.com/video/BV1tS4y1i71c" target="_blank" rel="noopener">XR Origin 基本设置</a>（划破长空那一鸣）</td><td>2:43</td><td>773 播放 / 3 赞</td><td>短平快；播放量很低，但这一步确实没有更好的中文资料</td></tr>
+        <tr><td>SteamVR 与 OpenXR 的关系</td><td><a href="https://www.bilibili.com/video/BV1heAWeUEKb" target="_blank" rel="noopener">使用 OpenXR 代替 SteamVR 以获得更好的 VR 体验</a>（JuiceforeaL_）</td><td>2:52</td><td>2.4 万播放 / 399 赞</td><td>回答"为什么现在推荐 OpenXR，而不是直接挂 SteamVR 插件"</td></tr>
+        <tr><td>SteamVR 报错排查</td><td><a href="https://www.bilibili.com/video/BV1id4y1t7jC" target="_blank" rel="noopener">串流时 SteamVR 报错检测不到头盔，怎么解决</a>（赤峰飞人乔尔特）</td><td>18:01</td><td>8.3 万播放 / 569 赞</td><td>真机环节最可能撞上的故障，先看症状再对号入座</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>四、模型、脚本与性能（对应实验 C 与性能读数）</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>知识点</th><th>视频</th><th>时长</th><th>数据</th><th>怎么看</th></tr></thead>
+      <tbody>
+        <tr><td><strong>模型导入注意事项</strong></td><td><a href="https://www.bilibili.com/video/BV1a541127i7" target="_blank" rel="noopener">Blender 模型导入到 Unity 的相关设置以及注意点</a>（愿为磐石守一人）</td><td>7:06</td><td>4.7 万播放 / 704 赞</td><td><strong>本课首推</strong>：比例、单位、坐标轴、材质四条一次讲全，正好对上 U7</td></tr>
+        <tr><td>导入 FBX（最短路径）</td><td><a href="https://www.bilibili.com/video/BV16y421z7mF" target="_blank" rel="noopener">两分钟教会你如何在 Unity 中导入 FBX 的 3D 模型</a>（YuZou邹宇）</td><td>1:56</td><td>2.2 万播放 / 152 赞</td><td>课堂只放这 2 分钟，其余留给课后</td></tr>
+        <tr><td>材质丢失（粉红）修复</td><td><a href="https://www.bilibili.com/video/BV1za4y1h79a" target="_blank" rel="noopener">导入 Unity 的 FBX 丢失了处理方式（经常会遇到）</a>（poorgun慢）</td><td>5:25</td><td>1.9 万播放 / 127 赞</td><td>把"模型变粉红"从一个意外变成一个可解释、可修复的常见现象</td></tr>
+        <tr><td><strong>脚本生命周期</strong></td><td><a href="https://www.bilibili.com/video/BV1iE411R79S" target="_blank" rel="noopener">零基础学习 C# 在 Unity 中的使用：脚本生命周期</a>（M_Studio）</td><td>10:35</td><td>2.8 万播放 / 1369 赞</td><td><strong>本课首推</strong>：<code class="inline">Start</code> / <code class="inline">Update</code> 各调用几次、顺序如何，看这一条就够了</td></tr>
+        <tr><td>从组件到脚本</td><td><a href="https://www.bilibili.com/video/BV13f4y1w7KJ" target="_blank" rel="noopener">【Unity 游戏开发入门 01】从组件 Component 到 C# 脚本</a>（IGBeginner01）</td><td>4:04</td><td>3.5 万播放 / 972 赞</td><td>补"脚本就是一个自定义组件"这个概念，讲清挂载方式为什么是拖拽</td></tr>
+        <tr><td><strong>Profiler 性能分析</strong></td><td><a href="https://www.bilibili.com/video/BV1uT411N7C9" target="_blank" rel="noopener">简单易懂的 Unity 性能优化：Profiler 使用技巧实例解说</a>（游戏石匠Super）</td><td>10:41</td><td>7883 播放 / 325 赞</td><td><strong>本课首推</strong>：和 <code class="inline">F2</code> 浮层配合，把"掉帧"定位到具体环节</td></tr>
+        <tr><td>Draw Call 优化</td><td><a href="https://www.bilibili.com/video/BV1Bq4y1M7AM" target="_blank" rel="noopener">几个小动作让帧数立刻提升：Unity 性能优化之 Draw Calls</a>（AliveCat）</td><td>4:24</td><td>1.2 万播放 / 446 赞</td><td>回答 U6 里的问题：帧率低时先看三角面还是先看 Draw Call</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>五、与实验室设备直接对应的开发线（推荐课后刷）</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>知识点</th><th>视频</th><th>时长</th><th>数据</th><th>怎么看</th></tr></thead>
+      <tbody>
+        <tr><td>Pico Neo3 开发（1）Hello World</td><td><a href="https://www.bilibili.com/video/BV1oB4y1U7MS" target="_blank" rel="noopener">Pico VR Neo3 开发入门教程（1）——Hello World</a>（怜子卿如水）</td><td>6:31</td><td>3.7 万播放 / 567 赞</td><td><strong>与实验室备用机同型号</strong>，也是目前唯一一条完整的中文设备对应教程线</td></tr>
+        <tr><td>Pico Neo3 开发（2）传送与移动</td><td><a href="https://www.bilibili.com/video/BV1Gu411y7i3" target="_blank" rel="noopener">Pico VR Neo3 开发入门教程（2）——射线传送，移动</a>（怜子卿如水）</td><td>8:19</td><td>1.9 万播放 / 192 赞</td><td>射线传送是后面"密室逃脱"案例的必备交互</td></tr>
+        <tr><td>Pico Neo3 开发（4）开关门</td><td><a href="https://www.bilibili.com/video/BV1NY41177aR" target="_blank" rel="noopener">Pico VR Neo3 开发入门教程（4）——握把手，开关门</a>（怜子卿如水）</td><td>10:07</td><td>8705 播放 / 90 赞</td><td>抓取 + 旋转约束的典型做法，可直接迁移到期末案例</td></tr>
+        <tr><td>Pico Neo3 开发（7）射线事件</td><td><a href="https://www.bilibili.com/video/BV1v34y1e7Qp" target="_blank" rel="noopener">Pico VR Neo3 开发入门教程（7）——射线悬停和点击事件的回调</a>（怜子卿如水）</td><td>9:02</td><td>7332 播放 / 110 赞</td><td>接上 U4 的 Hover / Select，看它在完整项目里怎么用</td></tr>
+        <tr><td>Unity + SteamVR（Vive）</td><td><a href="https://www.bilibili.com/video/BV11mNtzQEkh" target="_blank" rel="noopener">Unity + SteamVR VR 教程（HTC Vive 设备）</a>（镜欲染）</td><td>10:14</td><td>4832 播放 / 97 赞</td><td>本实验室头显是 HTC Vive：这条讲的是 Vive 那条老路，和 OpenXR 方案对照看</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="warn"><strong>内容缺口（如实说明）</strong>：① Unity 6（6000.x）的中文教程还很少，绝大多数优质视频仍是 2021—2022 版界面，<strong>菜单路径会有差异</strong>，以本课操作手册与现场界面为准；② XR Origin、XR Device Simulator 的中文专门讲解播放量普遍很低（几百到几千），说明这块确实缺资料，上表已是能找到的最好选择；③ 没有找到"VR 项目性能优化"的中文系统课，只能用通用 Profiler 与 Draw Call 视频替代。</div>
+</section>
+
+<!-- ===== 课堂作业设计 ===== -->
+<section id="hw">
+  <div class="sec-head">
+    <div class="sec-num">作</div>
+    <div>
+      <h2>课堂作业设计 · 案例 01：第一个可运行的 VR 场景</h2>
+      <p class="sec-sub">课内完成 · 个人独立完成 · 期末 8 个案例合集的第 1 个</p>
+    </div>
+  </div>
+
+  <div class="key"><strong>为什么这样设计</strong>：这学期的期末大作业<strong>不是最后一节课才开始的</strong>——它就是"8 个课堂案例的合集"。所以第一次作业的目标不是做得多漂亮，而是<strong>把一条完整链路走通，并留下能复现的证据</strong>：环境是什么版本、场景里有什么、脚本干了什么、性能数字是多少。这四样东西后面 7 次课都会反复用到。</div>
+
+  <h3>一、基本信息</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>项目</th><th>内容</th></tr></thead>
+      <tbody>
+        <tr><td>作业编号</td><td>第 4 次课课堂作业 · <strong>案例 01</strong>（期末 8 个案例合集的第 1 个）</td></tr>
+        <tr><td>对应章节</td><td>第 4 章 虚拟现实开发常用软件</td></tr>
+        <tr><td>形式</td><td><strong>个人独立完成</strong>：每人一套工程、一份记录</td></tr>
+        <tr><td>完成方式</td><td><strong>课内完成</strong>：实验 A + B + C 共约 67 分钟；本次课不布置课后任务</td></tr>
+        <tr><td>计分</td><td>计入课堂作业 30% 中的一次，同时作为期末 8 个案例合集的第 1 个案例</td></tr>
+        <tr><td>提交</td><td>下课前把<strong>截图 + 一页记录</strong>交到课程群；工程文件夹按"成果带出"流程自行带走</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>二、任务清单（六项，全部课内完成）</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>#</th><th>任务</th><th>具体动作</th><th>产出（要能拿出来给别人看）</th></tr></thead>
+      <tbody>
+        <tr><td>一</td><td><strong>环境登记</strong></td><td>Help → About Unity 读编辑器版本；Package Manager → In Project 读四个包版本</td><td>一张版本表（5 个版本号）</td></tr>
+        <tr><td>二</td><td><strong>XR 环境</strong></td><td>勾 OpenXR；加 XR Origin (VR)；删掉旧的 Main Camera；加 XR Device Simulator</td><td>Play 后视角能走、能转的截图</td></tr>
+        <tr><td>三</td><td><strong>模型导入</strong></td><td>导入至少 1 个外部模型（FBX），修正比例，必要时重新指定材质</td><td>模型与 XR Origin 同框的截图（能看出比例合理）</td></tr>
+        <tr><td>四</td><td><strong>第一个脚本</strong></td><td>给物体挂脚本让它按参数旋转；在 Inspector 里改一次转速并说明差异</td><td>脚本代码截图 + 改参数前后的两张截图</td></tr>
+        <tr><td>五</td><td><strong>性能读数</strong></td><td>按 F2 读 <strong>FPS / Triangles / Draw Calls</strong>；把场景物体复制成 10 份再读一次</td><td>两组数字（改前 / 改后）</td></tr>
+        <tr><td>六</td><td><strong>成果带出</strong></td><td>把工程文件夹与截图打包带走（机房有还原卡：<strong>不带出 = 下课后消失</strong>）</td><td>带出后的压缩包（自己留存，第 12 次课要用）</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>三、课堂达标线（四项，课内可验）</h3>
+  <p>以下四项在全班下课前<strong>逐项通过</strong>，即视为完成案例 01：</p>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>#</th><th>达标项</th><th>通过标准</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>版本记录</td><td>任务卡上填了本机 Unity 版本号，并能说出"为什么版本不能降"</td></tr>
+        <tr><td>2</td><td>XR 环境</td><td>场景含 XR Origin + XR Device Simulator，Play 后视角可移动、可转头</td></tr>
+        <tr><td>3</td><td>模型导入</td><td>至少 1 个外部模型导入且比例正常（没有放大 100 倍或躺倒）</td></tr>
+        <tr><td>4</td><td>脚本运行</td><td>物体按自己设定的参数旋转，并能说清 <code class="inline">Start</code> 与 <code class="inline">Update</code> 的区别</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>四、评分量规（同一份作业，四个等级看增量）</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>等级</th><th>运行效果</th><th>记录与说明</th></tr></thead>
+      <tbody>
+        <tr><td>及格</td><td>四项达标线全部通过</td><td>版本表齐全，截图能对应上六项任务</td></tr>
+        <tr><td>中</td><td>及格 + 性能读数完整</td><td>两组 FPS / Triangles / Draw Calls 数字齐全，并能说出三者关系（物体变多 → 帧率下降）</td></tr>
+        <tr><td>良</td><td>中 + 场景里有可交互物体</td><td>用 <code class="inline">InteractButton</code> 或射线交互做出悬停 / 按下反馈，并解释"交互 = 事件 + 反馈"</td></tr>
+        <tr><td>优</td><td>良 + 有主动优化动作</td><td>能指出本机环境里某一个包或版本的具体作用，并提出一条可验证的改进（例如"把材质合并后 Draw Call 从 X 降到 Y"），且说明验证方法</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="note">评分口径：<strong>能复现、能解释，比"做得多"更重要</strong>。只交截图不写说明的按及格档计；数字对不上但能讲清原因的<strong>不扣分</strong>——那恰好说明你真的在自己机器上跑过。</div>
+
+  <h3>五、作业示例（照这个格式写）</h3>
+  <h4>示例 1 · 版本记录（任务一）</h4>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>项目</th><th>填写内容</th></tr></thead>
+      <tbody>
+        <tr><td>编辑器版本</td><td>6000.6.0f1（Help → About Unity）</td></tr>
+        <tr><td>四个包版本</td><td>Input System 1.20.0 / XR Interaction Toolkit 3.6.0 / XR Plug-in Management 4.7.0 / OpenXR 1.18.0（Package Manager → In Project）</td></tr>
+        <tr><td>一句话结论</td><td>Unity 只能升不能降，所以第一天就要记下版本号，否则换一台机器工程可能直接打不开</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h4>示例 2 · 性能记录（任务五）</h4>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>步骤</th><th>FPS</th><th>Triangles</th><th>Draw Calls</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td>初测</td><td>142</td><td>38.6k</td><td>41</td><td>场景里只有 1 间木屋 + 1 棵树</td></tr>
+        <tr><td>把木屋与树各复制 5 份</td><td>96</td><td>386k</td><td>391</td><td>位置不重叠，避免遮挡影响判断</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p><strong>结论怎么写</strong>：三角面约 ×10、Draw Call 约 ×9.5，帧率从 142 掉到 96。PC 上 96 fps 还算流畅，但 VR 的底线是 72 fps、推荐 90 fps——<strong>同样的场景直接搬到头显里就会掉到线下</strong>。所以"优化"不是做完再补，而是每加一批物体就复测一次。（上面数字是示例格式，实际以你自己机器读到的为准。）</p>
+
+  <h3>六、常见错误（提前避坑）</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>症状</th><th>原因</th><th>处理</th></tr></thead>
+      <tbody>
+        <tr><td>Play 后视角完全不动</td><td>OpenXR 没勾 / 没有 XR Origin / 旧 Main Camera 还在</td><td>按这三项依次检查</td></tr>
+        <tr><td>模拟器按键没反应</td><td>焦点不在 Game 视图</td><td>先用鼠标点一下 Game 视图</td></tr>
+        <tr><td>模型是粉红色</td><td>材质丢失，或贴图路径含中文</td><td>重新指定材质；素材放到纯英文路径</td></tr>
+        <tr><td>模型比房子还大 / 躺倒</td><td>导出单位不一致、坐标轴不同（Blender 的 Z 轴向上，Unity 的 Y 轴向上）</td><td>调 Scale Factor 与 Rotation</td></tr>
+        <tr><td>重开工程东西全没了</td><td>没保存场景</td><td><code class="inline">Ctrl + S</code>；养成"做完一个小步骤就存一次"的习惯</td></tr>
+        <tr><td>下课回来工程不见了</td><td>机房有还原卡，成果没带出</td><td>下课前必须走"成果带出"流程</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>七、与期末大作业的关系</h3>
+  <p>第 4—11 次课共 8 次课，每次课产出 1 个案例，<strong>案例 01 是这 8 个里的第一个</strong>：它定下的是"工程怎么建、版本怎么记、成果怎么带出"这套规矩。后面每个案例都在这套地基上加东西——交互、动画、网络、AR。到第 12 次课（2026-12-02），你要做的是把这 8 个案例整理成一份合集并现场演示，<strong>不需要在最后重新做一个项目</strong>。所以：<strong>今天带走的那份工程，就是你期末作品的第一页。</strong></p>
+</section>
+
 <!-- ===== 故障速查与达标 ===== -->
 <section id="practice">
   <div class="sec-head">
@@ -503,18 +805,7 @@ public class SpinObject : MonoBehaviour
   </div>
 
   <h3>案例 01 的课堂达标线</h3>
-  <p>以下四项在课堂上全部通过，即完成<strong>案例 01</strong>：</p>
-  <div class="tbl-wrap">
-    <table>
-      <thead><tr><th>#</th><th>达标项</th><th>通过标准</th></tr></thead>
-      <tbody>
-        <tr><td>1</td><td>版本记录</td><td>任务卡上填写了本机 Unity 版本号</td></tr>
-        <tr><td>2</td><td>XR 环境</td><td>场景含 XR Origin + Device Simulator，Play 后视角可动</td></tr>
-        <tr><td>3</td><td>模型导入</td><td>至少 1 个外部模型导入且比例正常</td></tr>
-        <tr><td>4</td><td>脚本运行</td><td>物体按自己写的脚本转动</td></tr>
-      </tbody>
-    </table>
-  </div>
+  <p>四项达标线、六项任务清单、四级评分量规与作业示例，已合并到本页的<a href="#hw">《课堂作业设计》</a>一节，避免两处表述不一致。</p>
 
   <div class="note"><strong>本课不布置课后任务</strong>——课程自第 3 次课起采用“课内完成”模式，课堂时间就是唯一窗口，所以每节课都设有达标线，核心产出在课内完成。没做完的部分，下次课开头会留时间继续。</div>
 
@@ -539,7 +830,7 @@ document.addEventListener('DOMContentLoaded', function(){
   document.querySelectorAll('#nav a[data-sec]').forEach(function(a){
     navLinks[a.getAttribute('data-sec')] = a;
   });
-  var sections = ['guide','c1','c2','c3','c4','c5','c6','demo','practice'];
+  var sections = ['guide','c1','c2','c3','c4','c5','c6','demo','udemo','video','hw','practice'];
   if ('IntersectionObserver' in window) {
     var obs = new IntersectionObserver(function(entries){
       entries.forEach(function(en){
