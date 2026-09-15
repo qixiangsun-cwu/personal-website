@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>14 · 三维虚拟声音（HRTF / ITD / ILD）</title>
+<style>
+  :root{--bg:#0f1420;--card:#1b2233;--line:#2c3750;--txt:#eaf0fa;--sub:#9fb0c8;--acc:#4da3ff;--warn:#ffc857;--good:#57d39a;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--txt);font-family:"Microsoft YaHei",system-ui,sans-serif;line-height:1.6;padding:22px;}
+  h1{font-size:21px;margin-bottom:4px;}
+  .badge{display:inline-block;background:#1a2b3f;color:var(--acc);border:1px solid #31547a;border-radius:6px;padding:2px 8px;font-size:12px;margin-bottom:12px;}
+  .row{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start;}
+  canvas{background:#0a0f1a;border:1px solid var(--line);border-radius:12px;max-width:100%;cursor:crosshair;}
+  .side{min-width:270px;max-width:350px;}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:12px;}
+  .panel h3{font-size:14px;color:var(--acc);margin-bottom:8px;}
+  label{display:flex;align-items:center;gap:8px;font-size:14px;margin:8px 0;}
+  input[type=range]{flex:1;}
+  button{background:#111827;color:var(--txt);border:1px solid var(--line);border-radius:8px;padding:8px 12px;cursor:pointer;margin-top:6px;}
+  button:hover{border-color:var(--acc);}
+  .readout{background:#0d1320;border-radius:8px;padding:10px 12px;font-size:14px;margin-top:10px;}
+  .note{color:var(--sub);font-size:12px;margin-top:10px;}
+</style>
+</head>
+<body>
+<h1>14 · 三维虚拟声音（双耳线索）</h1>
+<span class="badge">真实可听：用浏览器 HRTF 做空间音频，请戴耳机</span>
+<div class="row">
+  <canvas id="cv" width="820" height="470"></canvas>
+  <div class="side">
+    <div class="panel">
+      <h3>声源位置</h3>
+      <label>方位角 <span id="azv">0°（正前方）</span></label>
+      <input type="range" id="az" min="0" max="360" step="1" value="0">
+      <label>距离 <span id="dv">1.0 m</span></label>
+      <input type="range" id="dist" min="0.3" max="2" step="0.05" value="1">
+      <button id="start">▶ 开始播放（戴耳机听）</button>
+      <div class="readout" id="out">ITD：— ms<br>ILD：— dB（示意）</div>
+      <p class="note">拖动画布里的「声源」圆点，或在滑杆上调整。ITD（双耳时间差）与 ILD（双耳声级差）是声源定位的两条主线，HRTF 就是给声音加上头部/耳廓的“滤波器”。</p>
+    </div>
+  </div>
+</div>
+<script>
+const cv=document.getElementById('cv'),ctx=cv.getContext('2d');
+const W=cv.width,H=cv.height, cx=W/2, cy=H/2+10;
+const headR=46, earR=10, c=343, a=0.0875; // 头部半径(米)
+let audio=null, panner=null, started=false;
+function deg2rad(d){return d*Math.PI/180;}
+function azRad(){return deg2rad(+document.getElementById('az').value);}
+function distM(){return +document.getElementById('dist').value;}
+function sourceXY(){
+  const r=Math.max(48, distM()*110);
+  const az=azRad();
+  return {x:cx+Math.sin(az)*r, y:cy-Math.cos(az)*r};
+}
+function calc(){
+  let t=+document.getElementById('az').value; if(t>180)t-=360; // -180..180
+  const th=deg2rad(t);
+  const itdMs=(a/c)*1000*(th+Math.sin(th)); // 近右耳为正
+  const azD=+document.getElementById('az').value;
+  const ildDb=15*(1-Math.cos(deg2rad(azD)))/2;
+  return {itdMs,ildDb};
+}
+function draw(){
+  const az=azRad(), d=distM(), s=sourceXY();
+  document.getElementById('azv').textContent=+document.getElementById('az').value+'°';
+  document.getElementById('dv').textContent=d.toFixed(2)+' m';
+  const {itdMs,ildDb}=calc();
+  document.getElementById('out').innerHTML='ITD：'+Math.abs(itdMs).toFixed(3)+' ms（'+(itdMs>=0?'右耳先到':'左耳先到')+'）<br>ILD：'+ildDb.toFixed(1)+' dB（示意，高频更明显）';
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle='#0a0f1a';ctx.fillRect(0,0,W,H);
+  ctx.fillStyle='#9fb0c8';ctx.font='12px Microsoft YaHei';ctx.fillText('俯视图：头部（鼻尖朝上），声源可拖动',20,24);
+  // 头
+  ctx.strokeStyle='#eaf0fa';ctx.lineWidth=2;
+  ctx.beginPath();ctx.arc(cx,cy,headR,0,Math.PI*2);ctx.stroke();
+  ctx.fillStyle='#1b2233';ctx.fill();
+  // 鼻
+  ctx.fillStyle='#ffc857';
+  ctx.beginPath();ctx.moveTo(cx-6,cy-headR+8);ctx.lineTo(cx+6,cy-headR+8);ctx.lineTo(cx,cy-headR-10);ctx.closePath();ctx.fill();
+  // 耳
+  ctx.fillStyle='#eaf0fa';ctx.beginPath();ctx.arc(cx-headR,cy,earR,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.arc(cx+headR,cy,earR,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#9fb0c8';ctx.font='11px Microsoft YaHei';ctx.fillText('左耳',cx-headR-28,cy+4);ctx.fillText('右耳',cx+headR+6,cy+4);
+  // 声波
+  for(let i=0;i<3;i++){
+    ctx.strokeStyle='rgba(255,201,87,'+(0.5-i*0.13)+')';
+    ctx.lineWidth=2;
+    ctx.beginPath();ctx.arc(s.x,s.y,18+i*16,0,Math.PI*2);ctx.stroke();
+  }
+  // 声源
+  ctx.fillStyle='#ffc857';ctx.beginPath();ctx.arc(s.x,s.y,12,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#ffc857';ctx.fillText('声源',s.x+16,s.y+4);
+  // 到两耳的连线
+  ctx.strokeStyle='rgba(255,255,255,0.25)';ctx.lineWidth=1;ctx.setLineDash([4,4]);
+  ctx.beginPath();ctx.moveTo(s.x,s.y);ctx.lineTo(cx-headR,cy);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(s.x,s.y);ctx.lineTo(cx+headR,cy);ctx.stroke();
+  ctx.setLineDash([]);
+  // 底部双耳时间轴
+  drawTimeAxis(itdMs);
+}
+function drawTimeAxis(itdMs){
+  const yL=H-42, yR=H-24, x0=110, x1=W-90, pxPerMs=180;
+  ctx.strokeStyle='#2c3750';ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(x0,yL);ctx.lineTo(x1,yL);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(x0,yR);ctx.lineTo(x1,yR);ctx.stroke();
+  ctx.fillStyle='#9fb0c8';ctx.font='11px Microsoft YaHei';ctx.fillText('左耳波形',20,yL+4);ctx.fillText('右耳波形',20,yR+4);
+  const base=x0+60;
+  const lx=base, rx=base-(itdMs*pxPerMs);
+  drawPulse(lx,yL,'#7fd8ff', Math.max(0.2,1-Math.abs(itdMs)*0.2));
+  drawPulse(rx,yR,'#ff9fb0', 1);
+  ctx.fillStyle='#eaf0fa';ctx.font='11px Microsoft YaHei';
+  ctx.fillText('0 ms',base-8,yL+20);
+  if(Math.abs(itdMs)>0.001){ctx.fillText((itdMs>=0?'+':'')+(itdMs).toFixed(3)+' ms',rx-12,yR+20);}
+}
+function drawPulse(x,y,color,amp){
+  ctx.strokeStyle=color;ctx.lineWidth=2;ctx.beginPath();
+  ctx.moveTo(x-8,y);ctx.lineTo(x-2,y-8*amp);ctx.lineTo(x+4,y);ctx.lineTo(x+8,y+8*amp);ctx.lineTo(x+12,y);ctx.stroke();
+}
+function updateAudio(){
+  if(!panner) return;
+  const az=azRad(), d=distM();
+  panner.positionX.value=Math.sin(az)*d;
+  panner.positionY.value=0;
+  panner.positionZ.value=-Math.cos(az)*d;
+}
+document.getElementById('az').addEventListener('input',()=>{draw();updateAudio();});
+document.getElementById('dist').addEventListener('input',()=>{draw();updateAudio();});
+document.getElementById('start').addEventListener('click',()=>{
+  if(started) return;
+  const AC=window.AudioContext||window.webkitAudioContext;
+  if(!AC){document.getElementById('start').textContent='浏览器不支持 Web Audio';return;}
+  audio=new AC();
+  panner=new PannerNode(audio,{panningModel:'HRTF',distanceModel:'inverse',refDistance:1,rolloffFactor:1});
+  panner.connect(audio.destination);
+  // 短促宽带噪声“咔嗒”循环
+  const dur=0.6, buf=audio.createBuffer(1,audio.sampleRate*dur,audio.sampleRate);
+  const ch=buf.getChannelData(0);
+  for(let i=0;i<ch.length;i++){
+    const t=i/audio.sampleRate;
+    if(t<0.008){ch[i]=(Math.random()*2-1)*Math.exp(-t*500);}
+  }
+  const src=audio.createBufferSource(); src.buffer=buf; src.loop=true;
+  src.connect(panner); src.start();
+  started=true;
+  document.getElementById('start').textContent='✓ 正在播放';
+  updateAudio();
+});
+// 拖拽声源
+let dragging=false;
+cv.addEventListener('mousedown',e=>{dragging=true;move(e);});
+window.addEventListener('mouseup',()=>{dragging=false;});
+cv.addEventListener('mousemove',e=>{if(dragging)move(e);});
+function move(e){
+  const r=cv.getBoundingClientRect();
+  const mx=(e.clientX-r.left)*(W/r.width), my=(e.clientY-r.top)*(H/r.height);
+  const dx=mx-cx, dy=my-cy;
+  const distPx=Math.max(48,Math.min(215,Math.hypot(dx,dy)));
+  let azD=Math.atan2(dx,-dy)*180/Math.PI; // 0=上方
+  if(azD<0)azD+=360;
+  document.getElementById('az').value=Math.round(azD);
+  document.getElementById('dist').value=(distPx/110).toFixed(2);
+  draw(); updateAudio();
+}
+draw();
+</script>
+</body>
+</html>

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第2次课 · 立体显示技术演示中心</title>
+<style>
+  :root{--bg:#0f1420;--card:#1b2233;--line:#2c3750;--txt:#eaf0fa;--sub:#9fb0c8;--acc:#4da3ff;--warn:#ffc857;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--txt);font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif;line-height:1.6;padding:28px;}
+  h1{font-size:26px;margin-bottom:6px;}
+  .lead{color:var(--sub);margin-bottom:22px;max-width:900px;}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;max-width:1200px;}
+  a.card{display:block;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;color:var(--txt);text-decoration:none;transition:.15s;}
+  a.card:hover{border-color:var(--acc);transform:translateY(-2px);}
+  .num{display:inline-block;background:var(--acc);color:#07101f;font-weight:700;border-radius:6px;padding:2px 8px;font-size:13px;margin-right:8px;}
+  .title{font-size:17px;font-weight:700;margin:8px 0 6px;}
+  .tech{color:var(--warn);font-size:13px;margin-bottom:6px;}
+  .desc{color:var(--sub);font-size:13px;}
+  .note{max-width:900px;margin-top:26px;padding:14px 16px;border-left:3px solid var(--warn);background:#1a1f2b;color:var(--sub);font-size:13px;border-radius:0 8px 8px 0;}
+</style>
+</head>
+<body>
+<h1>立体显示技术 · 课堂演示中心</h1>
+<p class="lead">第2次课「虚拟现实的关键技术」配套。所有演示离线可用，无外部依赖；除「03 分色立体」需红青眼镜才能真实体验立体外，其余均为<strong>原理示意/模拟</strong>。</p>
+<p class="lead" style="margin-top:-14px;"><a href="../../vr-2026-lesson2.html" style="color:var(--acc);">← 返回《虚拟现实技术》第2次课课堂内容</a></p>
+
+<div class="grid">
+  <a class="card" href="01_深度线索.html"><span class="num">01</span><div class="title">深度线索</div><div class="tech">单眼线索 + 运动视差</div><div class="desc">开关遮挡/相对大小/线性透视/纹理梯度/相对高度/空气透视，拖动视点感受运动视差。</div></a>
+  <a class="card" href="02_双目视差.html"><span class="num">02</span><div class="title">双目视差</div><div class="tech">瞳距 IPD + 合像</div><div class="desc">左右眼两幅图，调节瞳距与物体距离，观察近/远物体的视差变化，切换合像模式。</div></a>
+  <a class="card" href="03_分色立体.html"><span class="num">03</span><div class="title">分色立体（红青）</div><div class="tech">Anaglyph</div><div class="desc">红青重影渲染，调视差强度体会出屏/入屏；配红青眼镜可看真实立体。</div></a>
+  <a class="card" href="04_主动快门.html"><span class="num">04</span><div class="title">主动快门（分时）</div><div class="tech">Active Shutter</div><div class="desc">左/右帧交替模拟，调频率观察闪烁融合；原理示意，非真实快门眼镜。</div></a>
+  <a class="card" href="05_偏振.html"><span class="num">05</span><div class="title">偏振立体（分光）</div><div class="tech">Polarization</div><div class="desc">正交偏振光 + 左右偏振片，切换戴/不戴眼镜看每只眼各收到哪束光。</div></a>
+  <a class="card" href="06_视差屏障.html"><span class="num">06</span><div class="title">视差屏障</div><div class="tech">Parallax Barrier</div><div class="desc">俯视光线图：狭缝如何把左右子像素分别送给左右眼，调宽度/位置看串扰。</div></a>
+  <a class="card" href="07_柱状透镜.html"><span class="num">07</span><div class="title">柱状透镜</div><div class="tech">Lenticular Lens</div><div class="desc">俯视光线图：微透镜折射分光，与屏障做亮度对比。</div></a>
+  <a class="card" href="08_体三维.html"><span class="num">08</span><div class="title">体三维显示</div><div class="tech">Volumetric</div><div class="desc">旋转屏 + 视觉暂留，用 2D 截面示意空间体素如何被“扫”出来。</div></a>
+  <a class="card" href="09_全息.html"><span class="num">09</span><div class="title">全息显示</div><div class="tech">Holography / CGH</div><div class="desc">物光 + 参考光干涉条纹，参考光重建像；调参考光角度看条纹疏密变化。</div></a>
+  <a class="card" href="10_光场.html"><span class="num">10</span><div class="title">光场 / 集成成像</div><div class="tech">Light Field</div><div class="desc">微透镜阵列把物点光线按方向分开，调视点数观察光线密度。</div></a>
+  <a class="card" href="11_头显模拟器.html"><span class="num">11</span><div class="title">头显模拟器</div><div class="tech">HMD 双屏 + 畸变</div><div class="desc">左右眼双屏渲染房间，调瞳距/视场角/畸变，附 Pancake 折返光路图。</div></a>
+  <a class="card" href="12_VAC.html"><span class="num">12</span><div class="title">调节-辐辏冲突</div><div class="tech">VAC</div><div class="desc">对焦距离 vs 会聚距离，拖动物体距离观察冲突变化。</div></a>
+  <a class="card" href="13_PPD计算器.html"><span class="num">13</span><div class="title">PPD 计算器</div><div class="tech">Pixels Per Degree</div><div class="desc">输入分辨率与视场角算 PPD，与 20 / 60 两条经验阈值对比。</div></a>
+  <a class="card" href="14_三维声音_HRTF.html"><span class="num">14</span><div class="title">三维虚拟声音（HRTF）</div><div class="tech">ITD / ILD / 空间音频</div><div class="desc">拖声源绕头一周，看双耳时间差与声级差变化；点播放用浏览器 HRTF 真实听方位（戴耳机）。</div></a>
+  <a class="card" href="15_人机交互.html"><span class="num">15</span><div class="title">人机交互实验室</div><div class="tech">射线 / 凝视 / 手势 / 语音</div><div class="desc">用鼠标模拟手柄射线选择、眼动驻留选择、手部手势，以及语音链路与 TTS 反馈。</div></a>
+  <a class="card" href="16_立体显示技术分类交互图.html"><span class="num">16</span><div class="title">立体显示技术分类交互图</div><div class="tech">技术全景地图</div><div class="desc">助视式 / 裸眼式 / 真三维三大分支的交互式分类图，点节点看每项技术的分光思路与局限。</div></a>
+  <a class="card" href="17_PPD计算器增强版.html"><span class="num">17</span><div class="title">PPD 计算器 · 增强版</div><div class="tech">Pixels Per Degree</div><div class="desc">在基础版之上增加主流设备预设与阈值说明，可直接对比 PICO 4 Ultra / Quest 3 / Vision Pro。</div></a>
+  <a class="card" href="18_VAC交互演示增强版.html"><span class="num">18</span><div class="title">VAC 交互演示 · 增强版</div><div class="tech">调节-辐辏冲突</div><div class="desc">在基础版之上增加缓解方案对照（多焦面 / 光场 / 软件缓解），观察不同方案的冲突变化。</div></a>
+</div>
+
+<p class="note">⚠️ 注意：普通电脑屏幕无法真实复现偏振、快门、全息、光场等效果，这些页面仅作原理示意。分色（红青）是唯一可直接体验立体感的例外，但需要红青 3D 眼镜。</p>
+</body>
+</html>

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>15 · 人机交互（射线 / 凝视 / 手势 / 语音）</title>
+<style>
+  :root{--bg:#0f1420;--card:#1b2233;--line:#2c3750;--txt:#eaf0fa;--sub:#9fb0c8;--acc:#4da3ff;--warn:#ffc857;--good:#57d39a;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--txt);font-family:"Microsoft YaHei",system-ui,sans-serif;line-height:1.6;padding:22px;}
+  h1{font-size:21px;margin-bottom:4px;}
+  .badge{display:inline-block;background:#1a2b3f;color:var(--acc);border:1px solid #31547a;border-radius:6px;padding:2px 8px;font-size:12px;margin-bottom:12px;}
+  .tabs{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;}
+  .tabs button{background:#111827;color:var(--txt);border:1px solid var(--line);border-radius:8px;padding:8px 14px;cursor:pointer;font-size:14px;}
+  .tabs button.active{border-color:var(--acc);color:var(--acc);}
+  .row{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start;}
+  canvas{background:#0a0f1a;border:1px solid var(--line);border-radius:12px;max-width:100%;cursor:crosshair;}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;min-width:250px;max-width:340px;}
+  .panel h3{font-size:14px;color:var(--acc);margin-bottom:8px;}
+  .gestures{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+  .gestures button{background:#111827;color:var(--txt);border:1px solid var(--line);border-radius:8px;padding:10px;cursor:pointer;text-align:left;}
+  .gestures button.active{border-color:var(--acc);color:var(--acc);}
+  .big{font-size:64px;text-align:center;margin:8px 0;}
+  .desc{color:var(--sub);font-size:13px;min-height:40px;}
+  button.act{background:#111827;color:var(--txt);border:1px solid var(--line);border-radius:8px;padding:8px 12px;cursor:pointer;}
+  button.act:hover{border-color:var(--acc);}
+  .note{color:var(--sub);font-size:12px;margin-top:10px;}
+  svg{max-width:100%;}
+  .hint{color:var(--warn);font-size:12px;margin-top:6px;}
+</style>
+</head>
+<body>
+<h1>15 · 人机交互（射线 / 凝视 / 手势 / 语音）</h1>
+<span class="badge">交互范式实验室 · 用鼠标模拟手柄/眼动/手势</span>
+<div class="tabs">
+  <button data-tab="ray" class="active">① 射线交互（手柄）</button>
+  <button data-tab="gaze">② 凝视交互（眼动）</button>
+  <button data-tab="gesture">③ 手势交互（手部追踪）</button>
+  <button data-tab="voice">④ 语音交互</button>
+</div>
+<div class="row">
+  <div>
+    <canvas id="cv" width="640" height="360"></canvas>
+    <div id="voiceBox" style="display:none;max-width:660px;">
+      <svg viewBox="0 0 640 210" width="640" height="210">
+        <rect x="18" y="70" width="86" height="52" rx="8" fill="#2c3750"/><text x="40" y="100" font-size="13" fill="#eaf0fa">🎤 麦克风</text>
+        <rect x="152" y="70" width="86" height="52" rx="8" fill="#2c3750"/><text x="164" y="100" font-size="13" fill="#eaf0fa">ASR 识别</text>
+        <rect x="286" y="70" width="86" height="52" rx="8" fill="#2c3750"/><text x="300" y="100" font-size="13" fill="#eaf0fa">语义理解</text>
+        <rect x="420" y="70" width="86" height="52" rx="8" fill="#2c3750"/><text x="442" y="100" font-size="13" fill="#eaf0fa">执行动作</text>
+        <rect x="546" y="70" width="80" height="52" rx="8" fill="#2c3750"/><text x="558" y="100" font-size="13" fill="#eaf0fa">TTS 播报</text>
+        <path d="M104 96 h40 m0 0 l8 -6 m-8 6 l-8 -6" fill="none" stroke="#4da3ff" stroke-width="2"/>
+        <path d="M238 96 h40 m0 0 l8 -6 m-8 6 l-8 -6" fill="none" stroke="#4da3ff" stroke-width="2"/>
+        <path d="M372 96 h40 m0 0 l8 -6 m-8 6 l-8 -6" fill="none" stroke="#4da3ff" stroke-width="2"/>
+        <path d="M506 96 h32 m0 0 l8 -6 m-8 6 l-8 -6" fill="none" stroke="#4da3ff" stroke-width="2"/>
+        <text x="180" y="180" font-size="12" fill="#9fb0c8">语音链路：采集 → 识别 → 理解 → 执行 → 语音反馈（ASR 需联网/授权，TTS 可用系统语音离线演示）</text>
+      </svg>
+    </div>
+  </div>
+  <div class="panel" id="controls"></div>
+</div>
+<script>
+const cv=document.getElementById('cv'),ctx=cv.getContext('2d');
+const W=cv.width,H=cv.height;
+const targets=[{x:190,y:130,r:34,label:'按钮A'},{x:320,y:150,r:34,label:'按钮B'},{x:460,y:110,r:34,label:'按钮C'}];
+let tab='ray', hover=-1, sel=new Set(), mouse={x:0,y:0}, dwell=0;
+const GESTURES={
+  pinch:{emoji:'👌',desc:'捏合（Pinch）：拇指与食指接触，常用来“点击/确认”。'},
+  fist:{emoji:'✊',desc:'握拳（Fist）：五指收拢，常用来“抓取”物体。'},
+  point:{emoji:'👉',desc:'指向（Point）：食指伸出，配合射线做远程选择。'},
+  palm:{emoji:'🖐',desc:'手掌（Palm）：五指张开，常用于“菜单/停止/接收”。'}
+};
+function buildControls(){
+  const el=document.getElementById('controls');
+  if(tab==='ray'){
+    el.innerHTML='<h3>射线交互</h3><p style="color:var(--sub);font-size:13px;">移动鼠标＝移动手柄射线；悬停高亮，单击＝扳机选择。</p><p class="hint">模拟 XR Ray Interactor 的 Hover → Select。</p>';
+  } else if(tab==='gaze'){
+    el.innerHTML='<h3>凝视交互</h3><p style="color:var(--sub);font-size:13px;">盯着一个目标不移动约 0.9 秒即“注视选择”。</p><p class="hint">模拟眼动追踪的 Dwell（驻留）触发，适合双手被占用的场景。</p>';
+  } else if(tab==='gesture'){
+    el.innerHTML='<h3>手势交互</h3><div class="gestures">'+
+      Object.keys(GESTURES).map(k=>`<button data-g="${k}" class="${k==='pinch'?'active':''}">${GESTURES[k].emoji} ${label(k)}</button>`).join('')+
+      '</div><div class="big" id="gemoji">'+GESTURES.pinch.emoji+'</div><div class="desc" id="gdesc">'+GESTURES.pinch.desc+'</div>'+
+      '<p class="note">手部追踪约 22 个骨骼关节点，遮挡/快速移动/暗光会降低识别率。</p>';
+    document.querySelectorAll('.gestures button').forEach(b=>b.addEventListener('click',()=>{
+      document.querySelectorAll('.gestures button').forEach(x=>x.classList.remove('active'));
+      b.classList.add('active');
+      const k=b.dataset.g; document.getElementById('gemoji').textContent=GESTURES[k].emoji; document.getElementById('gdesc').textContent=GESTURES[k].desc;
+    }));
+  } else if(tab==='voice'){
+    el.innerHTML='<h3>语音交互</h3><button class="act" id="tts">🔊 试听语音反馈（TTS）</button>'+
+      '<p class="note">点击后系统语音会说出“已打开菜单”。语音识别（ASR）需要联网与麦克风授权，课堂可只演示 TTS 与链路。</p>';
+    document.getElementById('tts').addEventListener('click',()=>{
+      if('speechSynthesis' in window){const u=new SpeechSynthesisUtterance('已打开菜单');u.lang='zh-CN';speechSynthesis.cancel();speechSynthesis.speak(u);}
+      else{alert('浏览器不支持语音合成');}
+    });
+  }
+}
+function label(k){return {pinch:'捏合',fist:'握拳',point:'指向',palm:'手掌'}[k];}
+function draw(){
+  ctx.clearRect(0,0,W,H);ctx.fillStyle='#0a0f1a';ctx.fillRect(0,0,W,H);
+  if(tab==='ray'||tab==='gaze'){
+    ctx.fillStyle='#9fb0c8';ctx.font='12px Microsoft YaHei';ctx.fillText(tab==='ray'?'射线交互：移动鼠标，单击选择':'凝视交互：驻留约0.9秒选择',20,24);
+    for(let i=0;i<targets.length;i++){
+      const t=targets[i], h=hover===i;
+      ctx.fillStyle=sel.has(i)?'#57d39a':'#1b2233';
+      ctx.strokeStyle=h?'#ffc857':'#4da3ff';ctx.lineWidth=h?3:2;
+      ctx.beginPath();ctx.arc(t.x,t.y,t.r,0,Math.PI*2);ctx.fill();ctx.stroke();
+      ctx.fillStyle='#eaf0fa';ctx.font='13px Microsoft YaHei';ctx.textAlign='center';ctx.fillText(t.label,t.x,t.y+4);ctx.textAlign='left';
+      if(sel.has(i)){ctx.fillStyle='#57d39a';ctx.fillText('✓',t.x+t.r-8,t.y-t.r+8);}
+    }
+    if(tab==='ray'){
+      const bx=W/2, by=H-18;
+      ctx.strokeStyle='#ffc857';ctx.lineWidth=2;
+      ctx.beginPath();ctx.moveTo(bx,by);ctx.lineTo(mouse.x,mouse.y);ctx.stroke();
+      ctx.fillStyle='#ffc857';ctx.beginPath();ctx.arc(bx,by,8,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle='#9fb0c8';ctx.font='11px Microsoft YaHei';ctx.fillText('虚拟手柄',bx+12,by+4);
+    } else {
+      ctx.fillStyle='#ffc857';ctx.beginPath();ctx.arc(mouse.x,mouse.y,7,0,Math.PI*2);ctx.fill();
+      if(hover>=0){
+        const p=dwell/0.9;
+        ctx.strokeStyle='#ffc857';ctx.lineWidth=4;
+        ctx.beginPath();ctx.arc(targets[hover].x,targets[hover].y,targets[hover].r+8,-Math.PI/2,-Math.PI/2+Math.PI*2*p);ctx.stroke();
+      }
+    }
+  }
+}
+function findHover(){for(let i=0;i<targets.length;i++){const t=targets[i];if(Math.hypot(mouse.x-t.x,mouse.y-t.y)<t.r)return i;}return -1;}
+let lastTs=0;
+function loop(ts){
+  const dt=lastTs?(ts-lastTs)/1000:0.016; lastTs=ts;
+  if(tab==='gaze'){
+    const h=findHover();
+    if(h===hover&&h>=0){dwell+=dt;} else {dwell=0;}
+    hover=h;
+    if(dwell>=0.9&&hover>=0){sel.add(hover);dwell=0;}
+  }
+  draw();
+  requestAnimationFrame(loop);
+}
+cv.addEventListener('mousemove',e=>{
+  const r=cv.getBoundingClientRect();
+  mouse={x:(e.clientX-r.left)*(W/r.width),y:(e.clientY-r.top)*(H/r.height)};
+  if(tab==='ray'){hover=findHover();}
+});
+cv.addEventListener('mouseleave',()=>{hover=-1;dwell=0;});
+cv.addEventListener('click',()=>{if(tab==='ray'&&hover>=0){sel.has(hover)?sel.delete(hover):sel.add(hover);}});
+document.querySelectorAll('.tabs button').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.tabs button').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');tab=b.dataset.tab;
+  document.getElementById('cv').style.display=(tab==='ray'||tab==='gaze')?'block':'none';
+  document.getElementById('voiceBox').style.display=tab==='voice'?'block':'none';
+  sel.clear();hover=-1;dwell=0;
+  buildControls();
+}));
+// 初始显示 ray
+document.getElementById('cv').style.display='block';
+buildControls();
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>

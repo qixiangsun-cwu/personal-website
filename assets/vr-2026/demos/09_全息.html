@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>09 · 全息显示（原理示意）</title>
+<style>
+  :root{--bg:#0f1420;--card:#1b2233;--line:#2c3750;--txt:#eaf0fa;--sub:#9fb0c8;--acc:#4da3ff;--warn:#ffc857;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--txt);font-family:"Microsoft YaHei",system-ui,sans-serif;line-height:1.6;padding:22px;}
+  h1{font-size:21px;margin-bottom:4px;}
+  .badge{display:inline-block;background:#3a2b1a;color:var(--warn);border:1px solid #6a5128;border-radius:6px;padding:2px 8px;font-size:12px;margin-bottom:12px;}
+  .row{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start;}
+  canvas{background:#0a0f1a;border:1px solid var(--line);border-radius:12px;max-width:100%;}
+  .side{min-width:250px;max-width:330px;}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:12px;}
+  .panel h3{font-size:14px;color:var(--acc);margin-bottom:8px;}
+  label{display:flex;align-items:center;gap:8px;font-size:14px;margin:8px 0;}
+  input[type=range]{flex:1;}
+  .btns{display:flex;gap:8px;margin:8px 0;}
+  button{background:#111827;color:var(--txt);border:1px solid var(--line);border-radius:8px;padding:7px 12px;cursor:pointer;}
+  button.active{border-color:var(--acc);color:var(--acc);}
+  .note{color:var(--sub);font-size:12px;margin-top:10px;}
+</style>
+</head>
+<body>
+<h1>09 · 全息显示（原理示意）</h1>
+<span class="badge">非真实全息 · 仅示意干涉与衍射</span>
+<div class="row">
+  <canvas id="cv" width="820" height="400"></canvas>
+  <div class="side">
+    <div class="panel">
+      <h3>模式</h3>
+      <div class="btns">
+        <button id="btnRec" class="active">记录（干涉）</button>
+        <button id="btnRep">再现（衍射）</button>
+      </div>
+      <h3>参考光角度</h3>
+      <label><span id="av">30°</span></label>
+      <input type="range" id="ang" min="10" max="60" step="1" value="30">
+      <p class="note">全息记录的是物光波的「波前（振幅+相位）」。参考光角度改变，干涉条纹的疏密也会变化。</p>
+    </div>
+  </div>
+</div>
+<script>
+const cv=document.getElementById('cv'),ctx=cv.getContext('2d');
+const W=cv.width,H=cv.height;
+let mode='rec';
+const obj={x:150,y:H/2}, plate=W*0.56;
+document.getElementById('btnRec').onclick=()=>{mode='rec';update();};
+document.getElementById('btnRep').onclick=()=>{mode='rep';update();};
+document.getElementById('ang').oninput=update;
+function update(){
+  const angDeg=+document.getElementById('ang').value;
+  document.getElementById('av').textContent=angDeg+'°';
+  document.getElementById('btnRec').classList.toggle('active',mode==='rec');
+  document.getElementById('btnRep').classList.toggle('active',mode==='rep');
+  const ang=angDeg*Math.PI/180;
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle='#0a0f1a';ctx.fillRect(0,0,W,H);
+  // 记录板
+  ctx.strokeStyle='#4da3ff';ctx.lineWidth=3;
+  ctx.beginPath();ctx.moveTo(plate,50);ctx.lineTo(plate,H-50);ctx.stroke();
+  ctx.fillStyle='#4da3ff';ctx.font='12px Microsoft YaHei';ctx.fillText('感光介质/空间光调制器',plate+8,60);
+  // 物点
+  ctx.fillStyle='#ffc857';ctx.beginPath();ctx.arc(obj.x,obj.y,8,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#ffc857';ctx.fillText('物点',obj.x-18,obj.y-16);
+  if(mode==='rec'){
+    // 物光波（同心圆）
+    ctx.strokeStyle='rgba(255,201,87,0.45)';ctx.lineWidth=1;
+    for(let r=20;r<320;r+=24){ctx.beginPath();ctx.arc(obj.x,obj.y,r,0,Math.PI*2);ctx.stroke();}
+    // 参考光（平行线，角度）
+    ctx.strokeStyle='rgba(120,180,255,0.5)';ctx.lineWidth=1;
+    drawReference(ang);
+    // 干涉条纹（在板上的局部）
+    drawFringes(ang);
+    ctx.fillStyle='#9fb0c8';ctx.fillText('物光波 + 参考光波 → 干涉条纹',30,30);
+  } else {
+    // 参考光
+    ctx.strokeStyle='rgba(120,180,255,0.7)';ctx.lineWidth=1;
+    drawReference(ang);
+    // 衍射重建的物光波（从板向左的虚线弧）
+    ctx.strokeStyle='rgba(255,201,87,0.75)';ctx.setLineDash([5,4]);ctx.lineWidth=2;
+    for(let r=40;r<300;r+=30){ctx.beginPath();ctx.arc(obj.x,obj.y,r,0,Math.PI*2);ctx.stroke();}
+    ctx.setLineDash([]);
+    // 虚像
+    ctx.fillStyle='rgba(255,201,87,0.5)';ctx.beginPath();ctx.arc(obj.x,obj.y,8,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#9fb0c8';ctx.fillText('参考光照射条纹 → 衍射重建物光波（虚像）',30,30);
+  }
+}
+function drawReference(ang){
+  // 平行线：方向与水平成角 ang，从右上方照向板
+  ctx.beginPath();
+  const dx=-Math.cos(ang), dy=Math.sin(ang);
+  const nx=-dy, ny=-dx; // 法线
+  for(let k=-10;k<=10;k++){
+    const ox=plate+k*22*nx, oy=H/2+k*22*ny;
+    ctx.moveTo(ox-dx*260, oy-dy*260);
+    ctx.lineTo(ox+dx*260, oy+dy*260);
+  }
+  ctx.stroke();
+}
+function drawFringes(ang){
+  // 板上的条纹疏密：角度越大越密
+  const sp=Math.max(4, 26/Math.sin(ang));
+  ctx.fillStyle='#eaf0fa';
+  for(let y=70;y<H-50;y+=sp){ctx.fillRect(plate-5,y,10,Math.max(2,sp*0.45));}
+  ctx.fillStyle='#9fb0c8';ctx.font='11px Microsoft YaHei';ctx.fillText('条纹',plate-28,50);
+}
+update();
+</script>
+</body>
+</html>

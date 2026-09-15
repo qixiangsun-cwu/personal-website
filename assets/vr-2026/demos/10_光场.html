@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>10 · 光场 / 集成成像</title>
+<style>
+  :root{--bg:#0f1420;--card:#1b2233;--line:#2c3750;--txt:#eaf0fa;--sub:#9fb0c8;--acc:#4da3ff;--warn:#ffc857;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--txt);font-family:"Microsoft YaHei",system-ui,sans-serif;line-height:1.6;padding:22px;}
+  h1{font-size:21px;margin-bottom:4px;}
+  .badge{display:inline-block;background:#3a2b1a;color:var(--warn);border:1px solid #6a5128;border-radius:6px;padding:2px 8px;font-size:12px;margin-bottom:12px;}
+  .row{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start;}
+  canvas{background:#0a0f1a;border:1px solid var(--line);border-radius:12px;max-width:100%;}
+  .side{min-width:250px;max-width:330px;}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:12px;}
+  .panel h3{font-size:14px;color:var(--acc);margin-bottom:8px;}
+  label{display:flex;align-items:center;gap:8px;font-size:14px;margin:8px 0;}
+  input[type=range]{flex:1;}
+  .note{color:var(--sub);font-size:12px;margin-top:10px;}
+</style>
+</head>
+<body>
+<h1>10 · 光场 / 集成成像（原理示意）</h1>
+<span class="badge">非真实光场设备</span>
+<div class="row">
+  <canvas id="cv" width="820" height="420"></canvas>
+  <div class="side">
+    <div class="panel">
+      <h3>参数</h3>
+      <label>微透镜数（视点数）<span id="nv">8</span></label>
+      <input type="range" id="n" min="4" max="14" step="1" value="8">
+      <label>观察者位置 <span id="yv">210</span></label>
+      <input type="range" id="ey" min="70" max="350" step="2" value="210">
+      <p class="note">物点向各方向发出的光被微透镜阵列分别记录；每个透镜携带一个“视点”。观察者移动时，看到的是不同方向的光线，从而获得连续视差。</p>
+    </div>
+  </div>
+</div>
+<script>
+const cv=document.getElementById('cv'),ctx=cv.getContext('2d');
+const W=cv.width,H=cv.height;
+const obj={x:140,y:H/2}, lx=460, ex=740;
+function draw(){
+  const n=+document.getElementById('n').value;
+  const ey=+document.getElementById('ey').value;
+  document.getElementById('nv').textContent=n;
+  document.getElementById('yv').textContent=ey;
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle='#0a0f1a';ctx.fillRect(0,0,W,H);
+  // 物点
+  ctx.fillStyle='#ffc857';ctx.beginPath();ctx.arc(obj.x,obj.y,8,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#ffc857';ctx.fillText('物点',obj.x-18,obj.y-14);
+  // 微透镜阵列
+  const ys=[];
+  for(let i=0;i<n;i++){ys.push(70+(350-70)*(i+0.5)/n);}
+  ctx.fillStyle='#9fb0c8';ctx.font='12px Microsoft YaHei';ctx.fillText('微透镜阵列',lx+18,50);
+  // 光线
+  let best=0,bd=1e9;
+  for(let i=0;i<n;i++){
+    const y=ys[i];
+    // 从物点到透镜
+    const slope=(y-obj.y)/(lx-obj.x);
+    ctx.strokeStyle='rgba(255,255,255,0.18)';ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(obj.x,obj.y);ctx.lineTo(lx,y);ctx.stroke();
+    // 透镜后继续（光场方向）
+    const endY=y+slope*(W-lx);
+    const hitY=obj.y+slope*(ex-obj.x); // 该光线在观察者处的高度
+    const d=Math.abs(hitY-ey);
+    if(d<bd){bd=d;best=i;}
+    ctx.strokeStyle='rgba(120,180,255,0.28)';ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(lx,y);ctx.lineTo(W,endY);ctx.stroke();
+  }
+  // 透镜（半圆，朝左朝右都可）
+  for(let i=0;i<n;i++){
+    const y=ys[i];
+    ctx.fillStyle='rgba(255,255,255,0.12)';ctx.strokeStyle='#eaf0fa';
+    ctx.beginPath();ctx.arc(lx,y, Math.max(6, 70/n), -Math.PI/2, Math.PI/2, false);
+    ctx.closePath();ctx.fill();ctx.stroke();
+  }
+  // 高亮到达眼睛的光线
+  const y=ys[best];
+  const slope=(y-obj.y)/(lx-obj.x);
+  const hitY=obj.y+slope*(ex-obj.x);
+  ctx.strokeStyle='#ffc857';ctx.lineWidth=2.5;
+  ctx.beginPath();ctx.moveTo(obj.x,obj.y);ctx.lineTo(lx,y);ctx.lineTo(ex,hitY);ctx.stroke();
+  // 眼睛
+  ctx.fillStyle='#eaf0fa';ctx.beginPath();ctx.arc(ex,ey,9,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#0f1420';ctx.beginPath();ctx.arc(ex,ey,4,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#9fb0c8';ctx.fillText('观察者（移动看不同光线）',ex-90,ey-16);
+}
+['n','ey'].forEach(id=>document.getElementById(id).addEventListener('input',draw));
+draw();
+</script>
+</body>
+</html>

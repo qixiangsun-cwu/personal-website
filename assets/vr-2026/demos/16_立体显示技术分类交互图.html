@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>立体显示技术分类交互图</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: "SimSun", "Times New Roman", serif; background: #f5f7fa; color: #1f2329; padding: 20px; }
+  h1 { text-align: center; color: #003e7e; font-size: 28px; margin-bottom: 10px; }
+  .subtitle { text-align: center; color: #666; font-size: 16px; margin-bottom: 30px; }
+  .tree { max-width: 1000px; margin: 0 auto; }
+  .node { background: #fff; border: 2px solid #003e7e; border-radius: 12px; padding: 15px 20px; margin: 10px 0; cursor: pointer; transition: all 0.3s; position: relative; }
+  .node:hover { background: #dae3f3; transform: translateX(5px); }
+  .node.root { background: #003e7e; color: #fff; text-align: center; font-size: 22px; font-weight: bold; }
+  .node.camp { background: #dae3f3; border-color: #003e7e; font-size: 18px; font-weight: bold; margin-left: 40px; }
+  .node.tech { margin-left: 80px; font-size: 16px; border-color: #4a90d9; }
+  .node.tech:hover { background: #e8f0fe; }
+  .node .detail { display: none; margin-top: 10px; padding-top: 10px; border-top: 1px solid #ddd; font-size: 14px; color: #555; line-height: 1.8; }
+  .node.open .detail { display: block; }
+  .node .arrow { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); font-size: 20px; color: #003e7e; transition: transform 0.3s; }
+  .node.open .arrow { transform: translateY(-50%) rotate(90deg); }
+  .tag { display: inline-block; background: #003e7e; color: #fff; padding: 2px 8px; border-radius: 4px; font-size: 12px; margin-right: 8px; }
+  .tag.aux { background: #e67e22; }
+  .tag.naked { background: #27ae60; }
+  .tag.true3d { background: #8e44ad; }
+  .controls { text-align: center; margin: 20px 0; }
+  .controls button { background: #003e7e; color: #fff; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-size: 14px; margin: 0 5px; }
+  .controls button:hover { background: #0056b3; }
+</style>
+</head>
+<body>
+<h1>立体显示技术分类交互图</h1>
+<p class="subtitle">点击每个技术节点展开详细说明 | 中华女子学院 · 虚拟现实技术课程</p>
+
+<div class="controls">
+  <button onclick="expandAll()">全部展开</button>
+  <button onclick="collapseAll()">全部收起</button>
+</div>
+
+<div class="tree">
+  <div class="node root">立体显示技术</div>
+
+  <div class="node camp" onclick="toggle(this)">
+    <span class="arrow">▶</span>
+    双目视差式（给左右眼各一张略不同的图）
+    <div class="detail">
+      本质：利用左右眼视差，让大脑融合出深度感。没有真实聚焦深度，眼睛焦距始终锁定在屏幕上。是目前的主流方案。
+    </div>
+  </div>
+
+  <div class="node tech" onclick="toggle(this)">
+    <span class="tag aux">助视式</span>分色立体（红蓝/红青）
+    <span class="arrow">▶</span>
+    <div class="detail">
+      <strong>原理：</strong>左眼图只保留红色通道，右眼图只保留青色通道；红镜片只让红光通过，青镜片只让青/蓝通过。<br>
+      <strong>优点：</strong>成本极低、任何屏幕都能放、实现简单。<br>
+      <strong>缺点：</strong>颜色失真严重、亮度损失、长时间观看易疲劳。<br>
+      <strong>教学价值：</strong>最容易在浏览器里实现并体验。
+    </div>
+  </div>
+
+  <div class="node tech" onclick="toggle(this)">
+    <span class="tag aux">助视式</span>分时立体（主动快门）
+    <span class="arrow">▶</span>
+    <div class="detail">
+      <strong>原理：</strong>显示器和快门眼镜同步，一帧显示左眼图、下一帧显示右眼图，利用时间复用。<br>
+      <strong>优点：</strong>保留全分辨率、色彩好。<br>
+      <strong>缺点：</strong>需要电子眼镜（供电+同步）、亮度被遮挡下降、对刷新率要求高。
+    </div>
+  </div>
+
+  <div class="node tech" onclick="toggle(this)">
+    <span class="tag aux">助视式</span>分光立体（偏振）
+    <span class="arrow">▶</span>
+    <div class="detail">
+      <strong>原理：</strong>两组光输出偏振方向正交的光，观众戴对应偏振眼镜。线性偏振成本低但歪头会串扰；圆形偏振可自由歪头。<br>
+      <strong>优点：</strong>色彩好、亮度利用率高、眼镜便宜无需供电。<br>
+      <strong>缺点：</strong>一般需要金属幕/保偏幕，普通显示器难以直接实现。
+    </div>
+  </div>
+
+  <div class="node tech" onclick="toggle(this)">
+    <span class="tag aux">助视式</span>头戴式显示（HMD）
+    <span class="arrow">▶</span>
+    <div class="detail">
+      <strong>原理：</strong>左右眼各一块屏或各一半屏，配合光学系统（Fresnel/Pancake）放大成像。<br>
+      <strong>优点：</strong>FOV大、双眼隔离彻底、配合头部追踪实现运动视差。<br>
+      <strong>缺点：</strong>有佩戴重量、存在VAC问题、需要高性能计算。
+    </div>
+  </div>
+
+  <div class="node tech" onclick="toggle(this)">
+    <span class="tag naked">裸眼式</span>视差屏障（Parallax Barrier）
+    <span class="arrow">▶</span>
+    <div class="detail">
+      <strong>原理：</strong>显示面板前加一层透光条—遮光条交替的屏障，狭缝让左眼只看到左图子像素、右眼只看到右图子像素。<br>
+      <strong>优点：</strong>结构简单、成本低、无需戴眼镜。<br>
+      <strong>缺点：</strong>亮度损失大（约减半）、分辨率减半、存在最佳观看位置。
+    </div>
+  </div>
+
+  <div class="node tech" onclick="toggle(this)">
+    <span class="tag naked">裸眼式</span>柱状透镜（Lenticular Lens）
+    <span class="arrow">▶</span>
+    <div class="detail">
+      <strong>原理：</strong>屏幕前覆盖一排垂直柱面微透镜，利用透镜折射把不同子像素的光分别折射到左右眼方向。<br>
+      <strong>优点：</strong>亮度比屏障高（不挡光）、结构相对成熟。<br>
+      <strong>缺点：</strong>透镜制造误差会带来摩尔纹和串扰、同样受最佳观看位置限制。
+    </div>
+  </div>
+
+  <div class="node camp" onclick="toggle(this)">
+    <span class="arrow">▶</span>
+    真三维式（重建真实光场/波前）
+    <div class="detail">
+      本质：在空间中重建真实的光分布，眼睛能真正对焦到不同深度，提供连续视差。是未来的发展方向。
+    </div>
+  </div>
+
+  <div class="node tech" onclick="toggle(this)">
+    <span class="tag true3d">真三维</span>体三维显示（Volumetric）
+    <span class="arrow">▶</span>
+    <div class="detail">
+      <strong>原理：</strong>动态体显示让二维屏高速旋转/摆动，配合视觉暂留扫出空间截面；静态体显示在透明介质中直接激发发光点。<br>
+      <strong>优点：</strong>可多角度环绕观看、有真实体积感。<br>
+      <strong>缺点：</strong>体积受限、遮挡/透明度处理难、动态体显示有机械运动。
+    </div>
+  </div>
+
+  <div class="node tech" onclick="toggle(this)">
+    <span class="tag true3d">真三维</span>全息显示（Holographic/CGH）
+    <span class="arrow">▶</span>
+    <div class="detail">
+      <strong>原理：</strong>记录物光波与参考光波干涉形成的条纹，再现时用参考光照射经衍射重建物体波前。CGH用计算机算全息图。<br>
+      <strong>优点：</strong>完整深度信息、真实聚焦，被称为三维显示的终极目标。<br>
+      <strong>缺点：</strong>计算量大、分辨率要求极高、动态全彩大视场仍处实验室阶段。
+    </div>
+  </div>
+
+  <div class="node tech" onclick="toggle(this)">
+    <span class="tag true3d">真三维</span>光场显示/集成成像
+    <span class="arrow">▶</span>
+    <div class="detail">
+      <strong>原理：</strong>用微透镜阵列或多层屏重建大量方向的光线，描述空间中每一点向每个方向发出的光（四维信息）。<br>
+      <strong>优点：</strong>连续视差、可多人观看、可全彩、已有消费级产品（Looking Glass）。<br>
+      <strong>缺点：</strong>有效分辨率受视点数摊薄、数据量与计算量大。
+    </div>
+  </div>
+</div>
+
+<script>
+function toggle(el) {
+  el.classList.toggle('open');
+}
+function expandAll() {
+  document.querySelectorAll('.node').forEach(n => n.classList.add('open'));
+}
+function collapseAll() {
+  document.querySelectorAll('.node').forEach(n => n.classList.remove('open'));
+}
+</script>
+</body>
+</html>

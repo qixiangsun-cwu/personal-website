@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>04 · 主动快门（分时立体）</title>
+<style>
+  :root{--bg:#0f1420;--card:#1b2233;--line:#2c3750;--txt:#eaf0fa;--sub:#9fb0c8;--acc:#4da3ff;--warn:#ffc857;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--txt);font-family:"Microsoft YaHei",system-ui,sans-serif;line-height:1.6;padding:22px;}
+  h1{font-size:21px;margin-bottom:4px;}
+  .badge{display:inline-block;background:#3a2b1a;color:var(--warn);border:1px solid #6a5128;border-radius:6px;padding:2px 8px;font-size:12px;margin-bottom:12px;}
+  .row{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start;}
+  .stage{display:flex;gap:12px;margin-bottom:12px;}
+  .eye{width:180px;height:180px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:800;border:2px solid var(--line);transition:opacity .05s linear;user-select:none;}
+  #L{background:#33141b;color:#ff8f8f;}
+  #R{background:#12324a;color:#7fd8ff;}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:12px;min-width:280px;max-width:360px;}
+  .panel h3{font-size:14px;color:var(--acc);margin-bottom:8px;}
+  label{display:flex;align-items:center;gap:8px;font-size:14px;margin:8px 0;}
+  input[type=range]{flex:1;}
+  .timeline{display:flex;gap:4px;height:34px;align-items:center;margin-top:10px;}
+  .cell{flex:1;border-radius:6px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;background:#111827;border:1px solid var(--line);height:30px;}
+  .cell.onL{background:#7a2631;border-color:#ff8f8f;color:#fff;}
+  .cell.onR{background:#1f4d6b;border-color:#7fd8ff;color:#fff;}
+  .note{color:var(--sub);font-size:12px;margin-top:10px;}
+</style>
+</head>
+<body>
+<h1>04 · 主动快门（分时立体）</h1>
+<span class="badge">原理示意 · 非真实快门眼镜</span>
+<div class="row">
+  <div>
+    <div class="stage"><div class="eye" id="L">左眼<br>LEFT</div><div class="eye" id="R">右眼<br>RIGHT</div></div>
+    <div class="timeline" id="tl"></div>
+  </div>
+  <div class="panel">
+    <h3>参数</h3>
+    <label>交替频率 <span id="fv">12 Hz</span></label>
+    <input type="range" id="freq" min="0.5" max="30" step="0.5" value="12">
+    <label><input type="checkbox" id="pause"> 暂停</label>
+    <p class="note">频率越高，左右交替越快、越接近“融合不闪”；调低频率可看清“一帧左、一帧右”。120Hz 的分时立体约等于每眼 60Hz。</p>
+  </div>
+</div>
+<script>
+const L=document.getElementById('L'),R=document.getElementById('R'),tl=document.getElementById('tl');
+const N=16; let cells=[];
+for(let i=0;i<N;i++){const c=document.createElement('div');c.className='cell';c.textContent=(i%2===0?'L':'R');tl.appendChild(c);cells.push(c);}
+let t=0,last=performance.now();
+function loop(now){
+  const dt=(now-last)/1000; last=now;
+  const freq=+document.getElementById('freq').value;
+  document.getElementById('fv').textContent=freq.toFixed(1)+' Hz';
+  if(!document.getElementById('pause').checked) t+=dt;
+  const phase=(t*freq*2)%2; // 0..2
+  const leftOpen=phase<1;
+  L.style.opacity=leftOpen?1:0.12;
+  R.style.opacity=leftOpen?0.12:1;
+  const idx=Math.floor(phase*N/2)%N;
+  cells.forEach((c,i)=>{c.className='cell '+(i%2===0?'onL':'onR');});
+  cells[idx].style.outline='3px solid #ffc857';
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>

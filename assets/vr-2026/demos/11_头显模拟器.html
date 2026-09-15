@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>11 · 头显模拟器（HMD 双屏）</title>
+<style>
+  :root{--bg:#0f1420;--card:#1b2233;--line:#2c3750;--txt:#eaf0fa;--sub:#9fb0c8;--acc:#4da3ff;--warn:#ffc857;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--txt);font-family:"Microsoft YaHei",system-ui,sans-serif;line-height:1.6;padding:22px;}
+  h1{font-size:21px;margin-bottom:4px;}
+  .badge{display:inline-block;background:#1a2b3f;color:var(--acc);border:1px solid #31547a;border-radius:6px;padding:2px 8px;font-size:12px;margin-bottom:12px;}
+  .row{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start;}
+  .eyes{display:flex;gap:8px;}
+  canvas{background:#0a0f1a;border:1px solid var(--line);border-radius:10px;}
+  .cap{text-align:center;color:var(--sub);font-size:12px;margin-top:4px;}
+  .side{min-width:270px;max-width:360px;}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:12px;}
+  .panel h3{font-size:14px;color:var(--acc);margin-bottom:8px;}
+  label{display:flex;align-items:center;gap:8px;font-size:14px;margin:8px 0;}
+  input[type=range]{flex:1;}
+  .note{color:var(--sub);font-size:12px;margin-top:10px;}
+  svg{max-width:100%;}
+</style>
+</head>
+<body>
+<h1>11 · 头显模拟器（HMD 双屏渲染）</h1>
+<span class="badge">交互示意 · 用两个虚拟相机模拟左右眼</span>
+<div class="row">
+  <div>
+    <div class="eyes">
+      <div><canvas id="cvL" width="420" height="380"></canvas><div class="cap">左眼屏</div></div>
+      <div><canvas id="cvR" width="420" height="380"></canvas><div class="cap">右眼屏</div></div>
+    </div>
+  </div>
+  <div class="side">
+    <div class="panel">
+      <h3>参数</h3>
+      <label>瞳距 IPD <span id="ipdv">6.5 cm</span></label>
+      <input type="range" id="ipd" min="3" max="10" step="0.1" value="6.5">
+      <label>单眼视场角 <span id="fovv">100°</span></label>
+      <input type="range" id="fov" min="60" max="130" step="1" value="100">
+      <label>镜头畸变 <span id="kv">0.00</span>（负=桶形，正=枕形）</label>
+      <input type="range" id="k" min="-0.5" max="0.5" step="0.02" value="0">
+      <p class="note">注意左右两幅图中近处物体比远处物体偏移更大——这就是瞳距带来的视差。Pancake 折返光路见下方示意图。</p>
+    </div>
+    <div class="panel">
+      <h3>Pancake 折叠光路示意</h3>
+      <svg viewBox="0 0 320 130" width="320" height="130">
+        <rect x="8" y="40" width="42" height="50" rx="4" fill="#2c3750"/>
+        <text x="12" y="20" font-size="10" fill="#9fb0c8">显示面板</text>
+        <line x1="50" y1="65" x2="78" y2="65" stroke="#ffc857" stroke-width="2"/>
+        <line x1="78" y1="65" x2="78" y2="20" stroke="#ffc857" stroke-width="1.5" stroke-dasharray="4 3"/>
+        <text x="82" y="26" font-size="9" fill="#ffc857">偏振反射</text>
+        <line x1="78" y1="20" x2="130" y2="20" stroke="#ffc857" stroke-width="1.5"/>
+        <path d="M130 20 Q150 40 130 65" fill="none" stroke="#4da3ff" stroke-width="2"/>
+        <text x="132" y="48" font-size="9" fill="#4da3ff">曲面反射镜</text>
+        <line x1="130" y1="65" x2="78" y2="65" stroke="#ffc857" stroke-width="1.5"/>
+        <line x1="78" y1="65" x2="118" y2="65" stroke="#ffc857" stroke-width="2"/>
+        <text x="120" y="62" font-size="9" fill="#eaf0fa">部分反射膜</text>
+        <line x1="118" y1="65" x2="180" y2="65" stroke="#ffc857" stroke-width="2"/>
+        <ellipse cx="192" cy="65" rx="12" ry="8" fill="#eaf0fa"/>
+        <text x="210" y="60" font-size="10" fill="#eaf0fa">人眼</text>
+        <text x="8" y="120" font-size="9" fill="#9fb0c8">光在镜片内多次折返，把厚镜片“压扁”</text>
+      </svg>
+    </div>
+  </div>
+</div>
+<script>
+const cvL=document.getElementById('cvL'),cvR=document.getElementById('cvR');
+const spheres=[
+  {x:-0.5,y:0.5,z:2.6,r:0.25,c:'#ff7b6b'},
+  {x: 0.7,y:0.4,z:3.8,r:0.28,c:'#ffd166'},
+  {x: 1.2,y:0.3,z:5.2,r:0.28,c:'#6bc7ff'}
+];
+function project(p,camX,f,k,W,H){
+  const ndcX=(p.x-camX)/p.z, ndcY=p.y/p.z;
+  const r2=ndcX*ndcX+ndcY*ndcY;
+  const s=1+k*r2;
+  const sx=W/2 + ndcX*s*f;
+  const sy=H/2 - ndcY*s*f;
+  return {sx,sy};
+}
+function line3D(ctx,a,b,camX,f,k,W,H){
+  ctx.beginPath();
+  for(let t=0;t<=1;t+=0.03){
+    const p={x:a.x+(b.x-a.x)*t, y:a.y+(b.y-a.y)*t, z:a.z+(b.z-a.z)*t};
+    const q=project(p,camX,f,k,W,H);
+    if(t===0)ctx.moveTo(q.sx,q.sy);else ctx.lineTo(q.sx,q.sy);
+  }
+  ctx.stroke();
+}
+function render(ctx,camX,f,k){
+  const W=ctx.canvas.width,H=ctx.canvas.height;
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle='#0a0f1a';ctx.fillRect(0,0,W,H);
+  // 地板网格
+  ctx.strokeStyle='rgba(255,255,255,0.16)';ctx.lineWidth=1;
+  for(let z=1.5;z<=8.5;z+=1){line3D(ctx,{x:-3,y:0,z},{x:3,y:0,z},camX,f,k,W,H);}
+  for(let x=-3;x<=3;x+=1){line3D(ctx,{x,y:0,z:1.5},{x,y:0,z:8.5},camX,f,k,W,H);}
+  // 后墙网格
+  ctx.strokeStyle='rgba(120,180,255,0.18)';
+  for(let y=0;y<=3;y+=0.75){line3D(ctx,{x:-3,y,z:8.5},{x:3,y,z:8.5},camX,f,k,W,H);}
+  for(let x=-3;x<=3;x+=1){line3D(ctx,{x,y:0,z:8.5},{x,y:3,z:8.5},camX,f,k,W,H);}
+  // 球体（远->近）
+  const sorted=[...spheres].sort((a,b)=>b.z-a.z);
+  for(const s of sorted){
+    const c=project(s,camX,f,k,W,H);
+    const r=s.r/s.z*f;
+    ctx.fillStyle=s.c;
+    ctx.beginPath();ctx.arc(c.sx,c.sy,r,0,Math.PI*2);ctx.fill();
+  }
+}
+function update(){
+  const ipd=+document.getElementById('ipd').value/100;
+  const fovDeg=+document.getElementById('fov').value;
+  const k=+document.getElementById('k').value;
+  document.getElementById('ipdv').textContent=(ipd*100).toFixed(1)+' cm';
+  document.getElementById('fovv').textContent=fovDeg+'°';
+  document.getElementById('kv').textContent=k.toFixed(2);
+  const f=(cvL.height/2)/Math.tan(fovDeg*Math.PI/360);
+  render(cvL.getContext('2d'),-ipd/2,f,k);
+  render(cvR.getContext('2d'),+ipd/2,f,k);
+}
+['ipd','fov','k'].forEach(id=>document.getElementById(id).addEventListener('input',update));
+update();
+</script>
+</body>
+</html>

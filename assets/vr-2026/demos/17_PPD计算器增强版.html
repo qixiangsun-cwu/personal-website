@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PPD计算器与头显对比</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: "SimSun", "Times New Roman", serif; background: #f5f7fa; color: #1f2329; padding: 20px; }
+  h1 { text-align: center; color: #003e7e; font-size: 28px; margin-bottom: 20px; }
+  .container { max-width: 900px; margin: 0 auto; }
+  .calc-box { background: #fff; border-radius: 12px; padding: 25px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+  .calc-box h2 { color: #003e7e; font-size: 20px; margin-bottom: 15px; border-bottom: 2px solid #dae3f3; padding-bottom: 8px; }
+  .form-row { display: flex; align-items: center; margin: 12px 0; gap: 15px; }
+  .form-row label { width: 180px; font-size: 16px; }
+  .form-row input { flex: 1; padding: 8px 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 16px; font-family: "Times New Roman", serif; }
+  .result { background: #dae3f3; border-radius: 8px; padding: 20px; margin-top: 15px; text-align: center; }
+  .result .ppd-value { font-size: 48px; font-weight: bold; color: #003e7e; font-family: "Times New Roman", serif; }
+  .result .ppd-label { font-size: 16px; color: #555; margin-top: 5px; }
+  .result .assessment { font-size: 18px; margin-top: 10px; padding: 8px; border-radius: 6px; }
+  .assessment.good { background: #d4edda; color: #155724; }
+  .assessment.medium { background: #fff3cd; color: #856404; }
+  .assessment.low { background: #f8d7da; color: #721c24; }
+  table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+  th, td { border: 1px solid #ddd; padding: 10px; text-align: center; font-size: 14px; }
+  th { background: #003e7e; color: #fff; }
+  tr:nth-child(even) { background: #f8f9fa; }
+  .bar-container { background: #e9ecef; border-radius: 4px; height: 20px; overflow: hidden; }
+  .bar { height: 100%; background: linear-gradient(90deg, #dc3545, #ffc107, #28a745); transition: width 0.5s; }
+  .note { font-size: 13px; color: #888; margin-top: 10px; line-height: 1.6; }
+</style>
+</head>
+<body>
+<h1>PPD计算器与头显对比</h1>
+<div class="container">
+  <div class="calc-box">
+    <h2>PPD 计算器</h2>
+    <div class="form-row">
+      <label>单眼水平像素数：</label>
+      <input type="number" id="pixels" value="2160" min="100" max="10000">
+    </div>
+    <div class="form-row">
+      <label>单眼水平视场角（度）：</label>
+      <input type="number" id="fov" value="102" min="10" max="180" step="0.1">
+    </div>
+    <div class="result">
+      <div class="ppd-value" id="ppdResult">21.2</div>
+      <div class="ppd-label">Pixels Per Degree（每度像素数）</div>
+      <div class="assessment medium" id="assessment">明显改善纱窗效应</div>
+      <div style="margin-top:15px;">
+        <div class="bar-container">
+          <div class="bar" id="ppdBar" style="width:35%"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;color:#888;margin-top:5px;">
+          <span>0 (极差)</span><span>20 (改善)</span><span>60 (视网膜级)</span>
+        </div>
+      </div>
+    </div>
+    <p class="note">计算公式：PPD ≈ 单眼水平像素数 ÷ 单眼水平视场角。约20 PPD明显改善纱窗效应，约60 PPD接近人眼正常分辨极限。</p>
+  </div>
+
+  <div class="calc-box">
+    <h2>主流头显 PPD 对比</h2>
+    <table>
+      <thead>
+        <tr><th>设备</th><th>单眼分辨率</th><th>单眼水平FOV</th><th>估算PPD</th><th>清晰度等级</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>PICO 4 Ultra</td><td>2160×2160</td><td>约102°</td><td><strong>≈21</strong></td><td>改善纱窗</td></tr>
+        <tr><td>Meta Quest 3</td><td>2064×2208</td><td>约96°</td><td><strong>≈22</strong></td><td>改善纱窗</td></tr>
+        <tr><td>Apple Vision Pro</td><td>约3686×3140</td><td>约100°</td><td><strong>≈37</strong></td><td>较高清晰</td></tr>
+        <tr><td>HTC Vive XR Elite</td><td>1920×1920</td><td>约88°</td><td><strong>≈22</strong></td><td>改善纱窗</td></tr>
+        <tr><td>理想目标（视网膜级）</td><td>-</td><td>-</td><td><strong>≈60</strong></td><td>人眼极限</td></tr>
+      </tbody>
+    </table>
+    <p class="note">注：Vision Pro的PPD不同来源口径不一，此处仅做明显高于一体机的趋势对比。实际PPD还受光学系统、子像素排列等因素影响。</p>
+  </div>
+</div>
+
+<script>
+function calcPPD() {
+  const pixels = parseFloat(document.getElementById('pixels').value) || 0;
+  const fov = parseFloat(document.getElementById('fov').value) || 1;
+  const ppd = pixels / fov;
+  document.getElementById('ppdResult').textContent = ppd.toFixed(1);
+  
+  const pct = Math.min(100, (ppd / 60) * 100);
+  document.getElementById('ppdBar').style.width = pct + '%';
+  
+  const assess = document.getElementById('assessment');
+  if (ppd >= 50) {
+    assess.textContent = '接近视网膜级，几乎看不到像素';
+    assess.className = 'assessment good';
+  } else if (ppd >= 20) {
+    assess.textContent = '明显改善纱窗效应';
+    assess.className = 'assessment medium';
+  } else {
+    assess.textContent = '纱窗效应明显，像素网格可见';
+    assess.className = 'assessment low';
+  }
+}
+document.getElementById('pixels').addEventListener('input', calcPPD);
+document.getElementById('fov').addEventListener('input', calcPPD);
+calcPPD();
+</script>
+</body>
+</html>

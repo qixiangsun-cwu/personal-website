@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>07 · 柱状透镜（裸眼 3D）</title>
+<style>
+  :root{--bg:#0f1420;--card:#1b2233;--line:#2c3750;--txt:#eaf0fa;--sub:#9fb0c8;--acc:#4da3ff;--warn:#ffc857;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--txt);font-family:"Microsoft YaHei",system-ui,sans-serif;line-height:1.6;padding:22px;}
+  h1{font-size:21px;margin-bottom:4px;}
+  .badge{display:inline-block;background:#3a2b1a;color:var(--warn);border:1px solid #6a5128;border-radius:6px;padding:2px 8px;font-size:12px;margin-bottom:12px;}
+  .row{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start;}
+  canvas{background:#0a0f1a;border:1px solid var(--line);border-radius:12px;max-width:100%;}
+  .side{min-width:260px;max-width:340px;}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:12px;}
+  .panel h3{font-size:14px;color:var(--acc);margin-bottom:8px;}
+  label{display:flex;align-items:center;gap:8px;font-size:14px;margin:8px 0;}
+  input[type=range]{flex:1;}
+  .note{color:var(--sub);font-size:12px;margin-top:10px;}
+</style>
+</head>
+<body>
+<h1>07 · 柱状透镜（裸眼 3D）</h1>
+<span class="badge">原理示意（俯视光线图）</span>
+<div class="row">
+  <canvas id="cv" width="820" height="420"></canvas>
+  <div class="side">
+    <div class="panel">
+      <h3>参数</h3>
+      <label>透镜间距 <span id="pv">56</span></label>
+      <input type="range" id="pitch" min="28" max="84" step="2" value="56">
+      <label>观察者横向位置 <span id="cxv">0</span></label>
+      <input type="range" id="viewx" min="-120" max="120" step="2" value="0">
+      <p class="note">柱状透镜用「折射」把 L/R 子像素的光分别送到左右眼，不像屏障那样挡光，因此亮度更高；但同样存在最佳观看位置与串扰。</p>
+    </div>
+  </div>
+</div>
+<script>
+const cv=document.getElementById('cv'),ctx=cv.getContext('2d');
+const W=cv.width,H=cv.height;
+const screenY=70, lensY=210, eyeY=350;
+const x0=120, x1=690;
+let n=20;
+function pitch(){return +document.getElementById('pitch').value;}
+function pixelX(i){return x0+i*pitch()/2+pitch()/4;}
+function type(i){return i%2===0?'L':'R';}
+function lensX(j){return x0+j*pitch()/2;} // 每个 L/R 对一组透镜
+function draw(){
+  const viewX=+document.getElementById('viewx').value;
+  const pp=pitch();
+  document.getElementById('pv').textContent=pp;
+  document.getElementById('cxv').textContent=viewX;
+  n=Math.floor((x1-x0)/(pp/2));
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle='#0a0f1a';ctx.fillRect(0,0,W,H);
+  // 屏幕
+  ctx.strokeStyle='#4da3ff';ctx.lineWidth=2;
+  ctx.beginPath();ctx.moveTo(x0-20,screenY);ctx.lineTo(x1+20,screenY);ctx.stroke();
+  ctx.fillStyle='#9fb0c8';ctx.font='12px Microsoft YaHei';ctx.fillText('显示面板（L/R 子像素）',x0-20,screenY-8);
+  for(let i=0;i<n;i++){
+    const x=pixelX(i);
+    ctx.fillStyle=type(i)==='L'?'#ff8f8f':'#7fd8ff';
+    ctx.fillRect(x-5,screenY-4,10,8);
+    ctx.fillStyle='#0a0f1a';ctx.font='9px Microsoft YaHei';ctx.fillText(type(i),x-3,screenY+2);
+  }
+  // 柱状透镜阵列（朝观众凸出的半圆）
+  const lensCount=Math.floor((x1-x0)/(pp/2));
+  for(let j=0;j<lensCount;j++){
+    const x=lensX(j);
+    ctx.fillStyle='rgba(255,255,255,0.10)';
+    ctx.strokeStyle='#eaf0fa';
+    ctx.beginPath();
+    ctx.arc(x,lensY-10, pp/3.2, 0, Math.PI, false);
+    ctx.closePath(); ctx.fill(); ctx.stroke();
+  }
+  ctx.fillStyle='#9fb0c8';ctx.fillText('柱状透镜阵列（折射分光）',x0-20,lensY+30);
+  // 眼睛
+  const ipd=64;
+  const exL=W/2+viewX-ipd/2, exR=W/2+viewX+ipd/2;
+  drawEye(exL,eyeY,'左眼'); drawEye(exR,eyeY,'右眼');
+  // 光线（经过透镜中心，简化为直线）
+  for(let j=0;j<lensCount;j++){
+    const sx=lensX(j);
+    let hit=screenHit(exL,eyeY,sx,lensY);
+    drawRay(exL,eyeY,sx,lensY,hit,screenY,'L');
+    hit=screenHit(exR,eyeY,sx,lensY);
+    drawRay(exR,eyeY,sx,lensY,hit,screenY,'R');
+  }
+}
+function screenHit(ex,ey,sx,by){return ex+(sx-ex)*ey/(ey-by);}
+function nearestPixel(x){let best=0,bd=1e9;for(let i=0;i<n;i++){const d=Math.abs(pixelX(i)-x);if(d<bd){bd=d;best=i;}}return best;}
+function drawRay(ex,ey,sx,by,hit,sy,eye){
+  const pi=nearestPixel(hit);
+  const correct=(eye==='L'&&type(pi)==='L')||(eye==='R'&&type(pi)==='R');
+  ctx.strokeStyle=correct?'rgba(87,211,154,0.5)':'rgba(255,90,90,0.5)';
+  ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(ex,ey);ctx.lineTo(sx,by);ctx.lineTo(hit,sy);ctx.stroke();
+}
+function drawEye(x,y,label){ctx.fillStyle='#eaf0fa';ctx.beginPath();ctx.arc(x,y,9,0,Math.PI*2);ctx.fill();ctx.fillStyle='#0f1420';ctx.beginPath();ctx.arc(x,y,4,0,Math.PI*2);ctx.fill();ctx.fillStyle='#9fb0c8';ctx.font='11px Microsoft YaHei';ctx.fillText(label,x-14,y+24);}
+['pitch','viewx'].forEach(id=>document.getElementById(id).addEventListener('input',draw));
+draw();
+</script>
+</body>
+</html>

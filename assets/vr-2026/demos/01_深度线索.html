@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>01 · 深度线索</title>
+<style>
+  :root{--bg:#0f1420;--card:#1b2233;--line:#2c3750;--txt:#eaf0fa;--sub:#9fb0c8;--acc:#4da3ff;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--txt);font-family:"Microsoft YaHei",system-ui,sans-serif;line-height:1.6;padding:22px;}
+  h1{font-size:21px;margin-bottom:4px;}
+  .badge{display:inline-block;background:#1a2b3f;color:var(--acc);border:1px solid #31547a;border-radius:6px;padding:2px 8px;font-size:12px;margin-bottom:12px;}
+  .row{display:flex;flex-wrap:wrap;gap:16px;}
+  canvas{background:#0a0f1a;border:1px solid var(--line);border-radius:12px;max-width:100%;}
+  .side{min-width:250px;max-width:360px;}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:12px;}
+  .panel h3{font-size:14px;margin-bottom:8px;color:var(--acc);}
+  label{display:flex;align-items:center;gap:8px;font-size:14px;margin:6px 0;color:var(--txt);cursor:pointer;}
+  input[type=range]{flex:1;}
+  .hint{color:var(--sub);font-size:12px;margin-top:8px;}
+</style>
+</head>
+<body>
+<h1>01 · 深度线索</h1>
+<span class="badge">原理演示</span>
+<div class="row">
+  <canvas id="cv" width="760" height="480"></canvas>
+  <div class="side">
+    <div class="panel">
+      <h3>单眼深度线索（开关）</h3>
+      <label><input type="checkbox" id="cueOcc" checked> 遮挡</label>
+      <label><input type="checkbox" id="cueSize" checked> 相对大小</label>
+      <label><input type="checkbox" id="cuePersp" checked> 线性透视</label>
+      <label><input type="checkbox" id="cueTex" checked> 纹理梯度</label>
+      <label><input type="checkbox" id="cueHeight" checked> 相对高度</label>
+      <label><input type="checkbox" id="cueAir" checked> 空气透视</label>
+    </div>
+    <div class="panel">
+      <h3>运动视差</h3>
+      <label>视点横向移动 <span id="camXv">0</span></label>
+      <input type="range" id="camX" min="-4" max="4" step="0.05" value="0">
+      <label><input type="checkbox" id="cueMP" checked> 按深度位移（开=近快远慢，关=所有物体同速）</label>
+      <p class="hint">拖动上面滑杆模拟“头左右移动”。开启时，近处物体在画面中移动更快。</p>
+    </div>
+  </div>
+</div>
+<script>
+const cv=document.getElementById('cv'), ctx=cv.getContext('2d');
+const W=cv.width, H=cv.height, cx=W*0.5, cy=H*0.50, f=420, camY=0.5;
+const spheres=[
+  {x:-1.2,z:3.0,r:0.32,c:'#ff7b6b'},
+  {x: 0.3,z:4.2,r:0.34,c:'#ffd166'},
+  {x: 1.5,z:5.0,r:0.34,c:'#6bc7ff'},
+  {x:-1.8,z:7.0,r:0.34,c:'#c39bff'},
+  {x: 0.8,z:9.0,r:0.36,c:'#57d39a'},
+  {x: 2.0,z:12.0,r:0.36,c:'#f7a8d8'}
+];
+const $=id=>document.getElementById(id);
+function skyColor(t){const near=[10,15,26], far=[150,180,210];const m=x=>Math.round(near[x]+(far[x]-near[x])*t);return `rgb(${m(0)},${m(1)},${m(2)})`;}
+function draw(){
+  const flags={
+    occ:$('cueOcc').checked, size:$('cueSize').checked, persp:$('cuePersp').checked,
+    tex:$('cueTex').checked, height:$('cueHeight').checked, air:$('cueAir').checked,
+    mp:$('cueMP').checked
+  };
+  const camX=+$('camX').value;
+  $('camXv').textContent=camX.toFixed(2);
+  ctx.clearRect(0,0,W,H);
+  // 天空
+  const g=ctx.createLinearGradient(0,0,0,cy);
+  g.addColorStop(0,'#0a0f1a'); g.addColorStop(1,'#1a2334');
+  ctx.fillStyle=g; ctx.fillRect(0,0,W,cy);
+  // 地面
+  const gg=ctx.createLinearGradient(0,cy,0,H);
+  gg.addColorStop(0,'#263148'); gg.addColorStop(1,'#0c101a');
+  ctx.fillStyle=gg; ctx.fillRect(0,cy,W,H-cy);
+  // 线性透视（地面收敛线）
+  if(flags.persp){
+    ctx.strokeStyle='rgba(255,255,255,0.10)'; ctx.lineWidth=1;
+    for(let i=-6;i<=6;i++){
+      const x0=cx+i*90, y0=H;
+      ctx.beginPath(); ctx.moveTo(x0,y0); ctx.lineTo(cx,cy); ctx.stroke();
+    }
+  }
+  // 纹理梯度
+  if(flags.tex){
+    ctx.fillStyle='rgba(255,255,255,0.10)';
+    if(flags.tex){
+      for(let z=3;z<=20;z+=1.1){
+        const y=cy-(0-camY)*f/z;
+        const step=flags.tex?Math.max(18,28-z*0.6):34;
+        const width=W*(1+ (y-cy)/(H-cy)*2.5);
+        const n=Math.max(3,Math.floor(width/step));
+        for(let i=0;i<n;i++){
+          const t=(i+0.5)/n;
+          const sx=cx+(t-0.5)*width;
+          ctx.fillRect(sx,y,2,2);
+        }
+      }
+    }
+  }
+  // 排序远->近
+  const sorted=[...spheres].sort((a,b)=>b.z-a.z);
+  for(const s of sorted){
+    const shiftZ = flags.mp ? s.z : 6;   // 关掉“按深度位移”时，所有物体用同一深度做横向位移
+    const sx=cx+(s.x-camX)*f/shiftZ;
+    let sy=cy-(0-camY)*f/s.z;
+    if(!flags.height) sy=cy+80; // 去掉相对高度线索
+    let r=flags.size?s.r*f/s.z:20;
+    let col=s.c;
+    if(flags.air){ // 空气透视：远物混入天空色
+      const t=Math.min(1,s.z/14);
+      col=mixColor(s.c,[150,180,210],t*0.65);
+    }
+    // 遮挡演示：z=4.2 前球与 z=5.0 后球靠近时，前球是否挡住后球
+    let alpha=1;
+    if(!flags.occ && s.z===4.2) alpha=0.28; // 关遮挡时让前球变透明，露出后球
+    ctx.globalAlpha=alpha;
+    ctx.fillStyle=col;
+    ctx.beginPath(); ctx.arc(sx,sy,r,0,Math.PI*2); ctx.fill();
+    ctx.globalAlpha=1;
+  }
+}
+function mixColor(hex,target,t){
+  const h=hexToRgb(hex); const r=Math.round(h[0]+(target[0]-h[0])*t), g=Math.round(h[1]+(target[1]-h[1])*t), b=Math.round(h[2]+(target[2]-h[2])*t);
+  return `rgb(${r},${g},${b})`;
+}
+function hexToRgb(hex){const h=hex.replace('#','');return [parseInt(h.substr(0,2),16),parseInt(h.substr(2,2),16),parseInt(h.substr(4,2),16)];}
+['cueOcc','cueSize','cuePersp','cueTex','cueHeight','cueAir','cueMP'].forEach(id=>$(id).addEventListener('change',draw));
+$('camX').addEventListener('input',draw);
+draw();
+</script>
+</body>
+</html>

@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第2次课 · 虚拟现实的关键技术（立体显示）| 2026年虚拟现实技术</title>
+<meta name="description" content="《虚拟现实技术》第2次课课堂内容：五大关键技术、深度线索与双目视差、助视式/裸眼式/真三维立体显示、HMD 指标与 PPD、VAC 调节-辐辏冲突。">
+<link rel="stylesheet" href="assets/vr-2026/course.css">
+</head>
+<body>
+
+<!-- ===== 顶部 ===== -->
+<header class="hero">
+  <div class="hero-inner">
+    <span class="kicker">虚拟现实技术 · 第 2 次课</span>
+    <h1>虚拟现实的关键技术</h1>
+    <p class="sub">重点：立体显示技术 · 从“为什么能看见立体”到“头显的每一个参数意味着什么”</p>
+    <div class="meta">
+      <span>中华女子学院</span><span>4 学时 · 180 分钟（理论 3 + 实验/演示 1）</span><span>授课人：孙琪翔</span><span>2026-09-09 · 第 2 周</span>
+    </div>
+  </div>
+</header>
+
+<!-- ===== 目录导航 ===== -->
+<nav class="nav" id="nav">
+  <div class="nav-inner" id="navInner">
+    <a href="vr-2026.html" class="nav-back">← 课程主页</a>
+    <a href="#guide" data-sec="guide" class="on">本讲导览</a>
+    <a href="#c1" data-sec="c1">一、五大技术</a>
+    <a href="#c2" data-sec="c2">二、深度线索与视差</a>
+    <a href="#c3" data-sec="c3">三、技术分类</a>
+    <a href="#c4" data-sec="c4">四、助视式</a>
+    <a href="#c5" data-sec="c5">五、裸眼式</a>
+    <a href="#c6" data-sec="c6">六、真三维</a>
+    <a href="#c7" data-sec="c7">七、头显 HMD</a>
+    <a href="#c8" data-sec="c8">八、其余四项</a>
+    <a href="#c9" data-sec="c9">九、AI 前沿</a>
+    <a href="#practice" data-sec="practice">演示 · 实操 · 作业</a>
+  </div>
+</nav>
+
+<main>
+
+<!-- ===== 导览 ===== -->
+<section id="guide">
+  <div class="sec-head">
+    <div class="sec-num">导</div>
+    <div>
+      <h2>本讲导览</h2>
+      <p class="sec-sub">Lesson Overview · 上一讲问“VR 是什么”，这一讲问“VR 凭什么能工作”</p>
+    </div>
+  </div>
+
+  <p>第 1 次课得出了一个结论：VR 靠<strong>沉浸性、交互性、构想性</strong>三个特征区别于普通媒体。这一讲回答更硬核的问题——<strong>这三个特征，到底靠哪些技术实现？</strong>课程以立体显示为主线讲透，其余四项关键技术各给一个清晰概览。</p>
+
+  <div class="key">为什么选立体显示当主线？因为它是 VR 区别于普通屏幕的<strong>第一性差异</strong>，也是眩晕、清晰度、沉浸感争论最集中的地方。</div>
+
+  <h3>课堂主线</h3>
+  <pre>五大关键技术总览（10 min）
+   ↓
+人如何感知深度：线索与双目视差（25 min）【演示 01—02】
+   ↓
+助视式立体显示：分色 / 分时 / 偏振（30 min）【演示 03—05】
+   ↓
+裸眼立体显示：视差屏障 / 柱状透镜（22 min）【演示 06—07】
+   ↓
+真三维显示：体三维 / 全息 / 光场（20 min）【演示 08—10】
+   ↓
+头戴式显示 HMD：光学、指标、VAC（30 min）【演示 11—13】
+   ↓
+其余四项技术概览 + AI 前沿（18 min）【演示 14—15】
+   ↓
+学生实操与小结（22 min）</pre>
+
+  <h3>本讲学习目标</h3>
+  <div class="grid2">
+    <div class="cell">
+      <h4>学完能做什么</h4>
+      <ul>
+        <li>说出 VR“为什么能工作”的五大关键技术；</li>
+        <li>用“深度线索 + 双目视差 + 调节-辐辏”解释人为什么能感知立体；</li>
+        <li>按“助视式 / 裸眼式 / 真三维”给主流立体显示技术分类，并说清各自的分光思路、优点与局限；</li>
+        <li>解释 HMD 的 Pancake 光路与关键指标，会做 PPD 估算。</li>
+      </ul>
+    </div>
+    <div class="cell">
+      <h4>实践与前沿</h4>
+      <ul>
+        <li>完成 5 个浏览器实操小实验，把“立体显示”落到可操作、可观察的图形参数；</li>
+        <li>了解 2026 年前沿：光场显示、计算机全息（CGH）、视网膜投影、多焦面/变焦显示，以及 AI 在立体显示中的作用。</li>
+      </ul>
+      <div class="btn-row" style="margin-top:14px;">
+        <a class="btn" href="assets/vr-2026/demos/index.html" target="_blank" rel="noopener">打开演示中心（18 个演示）</a>
+      </div>
+    </div>
+  </div>
+
+  <h3>模块地图</h3>
+  <div class="map-grid">
+    <a class="map-card" href="#c1"><div class="mc-num">模块一</div><div class="mc-title">五大关键技术总览</div><div class="mc-desc">一张表建立全局 + 一条判断口诀</div></a>
+    <a class="map-card" href="#c2"><div class="mc-num">模块二</div><div class="mc-title">深度线索与双目视差</div><div class="mc-desc">单眼线索、双眼线索、出屏与入屏</div></a>
+    <a class="map-card" href="#c3"><div class="mc-num">模块三</div><div class="mc-title">立体显示技术分类</div><div class="mc-desc">先画地图：助视式 / 裸眼式 / 真三维</div></a>
+    <a class="map-card" href="#c4"><div class="mc-num">模块四</div><div class="mc-title">助视式立体显示</div><div class="mc-desc">分色、分时（快门）、分光（偏振）</div></a>
+    <a class="map-card" href="#c5"><div class="mc-num">模块五</div><div class="mc-title">裸眼立体显示</div><div class="mc-desc">视差屏障、柱状透镜与最佳观看点</div></a>
+    <a class="map-card" href="#c6"><div class="mc-num">模块六</div><div class="mc-title">真三维显示</div><div class="mc-desc">体三维、全息、光场 / 集成成像</div></a>
+    <a class="map-card" href="#c7"><div class="mc-num">模块七</div><div class="mc-title">头戴式显示 HMD</div><div class="mc-desc">Pancake 光路、PPD、FOV、延迟、VAC</div></a>
+    <a class="map-card" href="#c8"><div class="mc-num">模块八</div><div class="mc-title">其余四项关键技术</div><div class="mc-desc">建模、虚拟声音、人机交互、VR 引擎</div></a>
+    <a class="map-card" href="#practice"><div class="mc-num">收束</div><div class="mc-title">演示 · 实操 · 作业</div><div class="mc-desc">18 个演示、5 个实操任务、随堂测与课后作业</div></a>
+  </div>
+</section>
+
+<!-- ===== 一、五大关键技术 ===== -->
+<section id="c1">
+  <div class="sec-head">
+    <div class="sec-num">一</div>
+    <div>
+      <h2>五大关键技术总览</h2>
+      <p class="sec-sub">一张表建立全局</p>
+    </div>
+  </div>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr><th>关键技术</th><th>它回答的问题</th><th>典型实现 / 载体</th><th>对应第 1 章特征</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>立体显示</strong></td><td>为什么眼前是“有深度的世界”？</td><td>HMD（Pancake / 菲涅尔）、偏振 / 快门 / 分色、裸眼光栅、体三维、全息、光场</td><td>沉浸性</td></tr>
+        <tr><td><strong>三维建模</strong></td><td>世界里有什么？物体长什么样、怎么动？</td><td>几何建模、物理建模、运动建模；3ds Max / Maya / Blender</td><td>沉浸性 + 构想性</td></tr>
+        <tr><td><strong>三维虚拟声音</strong></td><td>世界为什么“听上去”也有方位？</td><td>HRTF、双耳效应、声源定位、空间音频</td><td>沉浸性</td></tr>
+        <tr><td><strong>人机交互</strong></td><td>我如何操作、世界如何回应？</td><td>跟踪定位（光学 / 惯性）、手势、眼动、语音、触觉</td><td>交互性</td></tr>
+        <tr><td><strong>VR 引擎</strong></td><td>谁来实时组织、渲染这一切？</td><td>Unity、Unreal；渲染 / 物理 / 脚本 / 资源管理</td><td>全部（技术底座）</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="key">
+    <strong>一条判断口诀</strong>：沉浸 ← 立体显示 + 三维声音（“像真的”）；交互 ← 人机交互（“能参与”）；构想 ← 三维建模 + 引擎（“能造出来、跑起来”）。
+  </div>
+</section>
+
+<!-- ===== 二、深度线索与视差 ===== -->
+<section id="c2">
+  <div class="sec-head">
+    <div class="sec-num">二</div>
+    <div>
+      <h2>人为什么能看见立体：深度线索与双目视差</h2>
+      <p class="sec-sub">Depth Cues &amp; Binocular Disparity</p>
+    </div>
+  </div>
+
+  <p>先区分两个层面：<strong>物理上</strong>，真实世界是三维的，光从不同方向、不同距离进入眼睛；<strong>感知上</strong>，大脑“看到”深度靠的是一系列<strong>深度线索（depth cues）</strong>。立体显示的本质，就是<strong>用技术去“伪造”这些线索</strong>，让大脑误以为看到的是真实三维场景。</p>
+
+  <h3>2.1 单眼线索（一只眼睛也能获得）</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr><th>单眼线索</th><th>说明</th><th>在普通 2D 屏幕上能否实现</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>遮挡 occlusion</td><td>近物挡住远物，是最强的线索之一</td><td>能</td></tr>
+        <tr><td>相对大小</td><td>同样大小的物体，远的看起来小</td><td>能</td></tr>
+        <tr><td>线性透视</td><td>平行线在远处汇聚</td><td>能</td></tr>
+        <tr><td>纹理梯度</td><td>近处纹理粗、远处纹理密</td><td>能</td></tr>
+        <tr><td>相对高度</td><td>通常位置越高看起来越远</td><td>能</td></tr>
+        <tr><td>空气透视 / 明暗</td><td>远处更模糊、更偏蓝灰</td><td>能</td></tr>
+        <tr><td>运动视差</td><td>头 / 身体移动时，近物移动快、远物移动慢</td><td>能（交互后更强）</td></tr>
+        <tr><td>调节 accommodation</td><td>睫状肌改变晶状体焦距</td><td><strong>不能</strong>（平面屏幕无法提供真实变化）</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>2.2 双眼线索（VR 立体显示的核心）</h3>
+  <div class="grid2">
+    <div class="cell">
+      <h4>双眼视差（binocular disparity / parallax）</h4>
+      <p>同一物体在左右眼视网膜上成像位置不同，位置差异量就是“视差”。因为两眼之间有约 <strong>6—6.5 cm 的瞳距（IPD）</strong>，两眼看世界相当于两台错开 6.5 cm 的摄像机。</p>
+    </div>
+    <div class="cell">
+      <h4>辐辏（convergence）</h4>
+      <p>看近物时两眼向内转、看远物时两眼放松，眼球转动角度本身也提供深度信息。辐辏与下一节要讲的“调节”是 VAC 问题的两个主角。</p>
+    </div>
+  </div>
+
+  <div class="note">
+    <strong>视差与距离的关系</strong>：物体越近 → 左右眼图像里它“偏移”越大；物体越远 → 偏移越小，趋向于两图几乎重合；无限远 → 视差约为 0。
+    <br>演示：<a href="assets/vr-2026/demos/02_双目视差.html" target="_blank" rel="noopener">02 双目视差</a>——拖动“瞳距”和“物体距离”滑杆，观察左右两幅图中近球与远球的位置差，再切到“合像模式”体会大脑如何把视差融合成深度。
+  </div>
+
+  <h3>2.3 视差的两种符号：「出屏」与「入屏」</h3>
+  <ul>
+    <li><strong>入屏（正视差、远于屏幕）</strong>：物体看起来在屏幕<strong>后方</strong>；</li>
+    <li><strong>出屏（负视差、近于屏幕）</strong>：左右位置反转，物体看起来冲到屏幕<strong>前方</strong>；</li>
+    <li><strong>零视差</strong>：物体正好落在屏幕上。</li>
+  </ul>
+  <div class="warn"><strong>必须记住的结论</strong>：普通 2D 屏幕只有单眼线索，<strong>没有双眼视差</strong>；VR 头显的核心价值，就是补上双眼视差（以及随头部移动而更新的运动视差）——这也是 VR 能让人感到“在场（presence）”的原因。</div>
+</section>
+
+<!-- ===== 三、技术分类 ===== -->
+<section id="c3">
+  <div class="sec-head">
+    <div class="sec-num">三</div>
+    <div>
+      <h2>立体显示技术的全景分类</h2>
+      <p class="sec-sub">先画地图，再逐个技术打勾</p>
+    </div>
+  </div>
+
+  <p>按“<strong>是否提供真实聚焦深度 / 连续视差</strong>”，立体显示分为两大阵营。这棵树是本节课的骨架，每讲完一个技术就在树上打一个勾。</p>
+  <pre>立体显示技术
+├── 双目视差式（本质：给左右眼各一张略不同的图）
+│   ├── 助视式（要戴眼镜 / 头盔）
+│   │   ├── 分色立体（红蓝 / 红青）      —— 颜色分光
+│   │   ├── 分时立体（主动快门）         —— 时间分光
+│   │   ├── 分光立体（偏振）             —— 偏振方向分光
+│   │   └── 头戴式显示 HMD              —— 空间隔离（左眼一块屏、右眼一块屏）
+│   └── 裸眼式（光栅式，不戴眼镜）
+│       ├── 视差屏障
+│       ├── 柱状透镜
+│       └── 指向背光 / 时空复用等
+└── 真三维式（试图重建真实光场 / 波前，含真实聚焦深度）
+    ├── 体三维显示（Volumetric）
+    ├── 全息显示（Holographic / CGH）
+    └── 光场显示 / 集成成像（Light field / Integral imaging）</pre>
+
+  <div class="key">记住一句话就够了：<strong>所有双目视差式技术，目标都只有一个——把左眼该看的图只给左眼，右眼该看的图只给右眼。</strong>不同技术的差别，只是“用什么物理量把左右图分开”。</div>
+</section>
+
+<!-- ===== 四、助视式 ===== -->
+<section id="c4">
+  <div class="sec-head">
+    <div class="sec-num">四</div>
+    <div>
+      <h2>助视式立体显示</h2>
+      <p class="sec-sub">分色 · 分时（快门）· 分光（偏振）</p>
+    </div>
+  </div>
+
+  <h3>4.1 分色立体（Anaglyph，红蓝 / 红青）</h3>
+  <ul>
+    <li><strong>做法</strong>：左眼图像只保留红色通道，右眼图像只保留青色（或蓝色）通道，两图叠加显示；观众戴“左红右青”的滤色眼镜。</li>
+    <li><strong>原理</strong>：红镜片只让红光通过（左眼看红图），青镜片只让青 / 绿 / 蓝通过（右眼看青图）——<strong>颜色分光</strong>。</li>
+    <li><strong>优点</strong>：成本极低、任何屏幕都能放、实现简单。</li>
+    <li><strong>缺点</strong>：颜色失真严重（偏色）、亮度损失、长时间观看易疲劳，不适合表现丰富色彩。</li>
+    <li><strong>教学价值</strong>：这是最容易让学生<strong>亲手在浏览器里实现并真实体验</strong>的立体方案。</li>
+  </ul>
+  <p>演示：<a href="assets/vr-2026/demos/03_分色立体.html" target="_blank" rel="noopener">03 分色立体</a>（拖动“视差强度”体会出屏 / 入屏；配红青眼镜可见真实立体）。</p>
+
+  <h3>4.2 分时立体（Active Shutter，主动快门）</h3>
+  <ul>
+    <li><strong>做法</strong>：显示器与快门眼镜同步，一帧显示左眼图、下一帧显示右眼图；眼镜在对应瞬间分别遮挡右眼 / 左眼。</li>
+    <li><strong>原理</strong>：<strong>时间复用</strong>。常见说法是“每眼 60Hz、合计 120Hz”，保证每只眼睛看到流畅不闪烁的画面。</li>
+    <li><strong>优点</strong>：每帧都是完整画面，保留全分辨率、色彩好。</li>
+    <li><strong>缺点</strong>：需要电子眼镜（供电 + 同步）、亮度因遮挡下降、对刷新率和同步精度要求高，不同步会出现左右眼串扰 / 闪烁。</li>
+  </ul>
+  <p>演示：<a href="assets/vr-2026/demos/04_主动快门.html" target="_blank" rel="noopener">04 主动快门</a>（调高频率看“闪烁融合”，调低看“左右图轮流出现”）。</p>
+  <div class="warn">快门模拟页有高频闪烁，投屏演示时用“标签页分享”，<strong>不要长时间直视全屏高频闪烁</strong>。</div>
+
+  <h3>4.3 分光立体（Polarization，偏振）</h3>
+  <ul>
+    <li><strong>做法</strong>：两组光分别输出<strong>偏振方向正交</strong>的光（线性偏振：水平 / 垂直；圆形偏振：左旋 / 右旋），观众戴对应偏振方向的眼镜。</li>
+    <li><strong>线性偏振</strong>：成本低，但观众歪头会破坏偏振方向导致串扰；<strong>圆形偏振</strong>：可自由歪头，影院 3D 更常用。</li>
+    <li><strong>优点</strong>：色彩好、亮度利用率相对高、眼镜便宜且无需供电。</li>
+    <li><strong>缺点</strong>：一般需要金属幕 / 保偏幕，单台普通显示器难以直接实现，需要两台投影或交替偏振。</li>
+  </ul>
+  <p>演示：<a href="assets/vr-2026/demos/05_偏振.html" target="_blank" rel="noopener">05 偏振</a>（切换“戴 / 不戴眼镜”，看左右眼各能收到哪束光）。</p>
+
+  <h3>4.4 三种助视技术对比</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr><th>技术</th><th>分光依据</th><th>眼镜成本</th><th>色彩</th><th>亮度</th><th>是否需要供电 / 同步</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>分色（红蓝）</td><td>颜色</td><td>极低</td><td>差（偏色）</td><td>低</td><td>否</td></tr>
+        <tr><td>分时（快门）</td><td>时间</td><td>高</td><td>好</td><td>中（被遮挡）</td><td>是</td></tr>
+        <tr><td>分光（偏振）</td><td>偏振方向</td><td>低</td><td>好</td><td>中—高</td><td>否（但屏幕要保偏）</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="warn"><strong>事实提醒</strong>：偏振与快门的真实效果<strong>不能在普通电脑屏上复现</strong>，课堂演示只是原理动画。分色（红青）是唯一能直接在屏幕上真实体验的例外，但需要红青 3D 眼镜。</div>
+</section>
+
+<!-- ===== 五、裸眼式 ===== -->
+<section id="c5">
+  <div class="sec-head">
+    <div class="sec-num">五</div>
+    <div>
+      <h2>裸眼立体显示</h2>
+      <p class="sec-sub">Autostereoscopy · 不用戴眼镜的代价是什么</p>
+    </div>
+  </div>
+
+  <p>裸眼的卖点是不用戴眼镜，主流思路是在屏幕前加一层<strong>光学结构</strong>，把不同子像素发出的光“定向”送到左右眼。</p>
+
+  <h3>5.1 视差屏障（Parallax Barrier）</h3>
+  <ul>
+    <li><strong>结构</strong>：显示面板前加一层“透光条—遮光条”交替的屏障；</li>
+    <li><strong>原理</strong>：狭缝让左眼只能看到左图子像素、右眼只能看到右图子像素，相当于给屏幕加了物理的“方向选择性”；</li>
+    <li><strong>优点</strong>：结构简单、成本低；</li>
+    <li><strong>缺点</strong>：<strong>亮度损失大</strong>（遮光条挡住约一半光）、分辨率减半、存在最佳观看位置，偏离后串扰 / 眩晕。</li>
+  </ul>
+  <p>演示：<a href="assets/vr-2026/demos/06_视差屏障.html" target="_blank" rel="noopener">06 视差屏障</a>（拖动“屏障宽度 / 位置”观察串扰如何出现）。</p>
+
+  <h3>5.2 柱状透镜（Lenticular Lens）</h3>
+  <ul>
+    <li><strong>结构</strong>：屏幕前覆盖一排垂直<strong>柱面微透镜</strong>；</li>
+    <li><strong>原理</strong>：利用透镜折射把不同子像素的光分别折向左右眼，而不是用遮光条“挡”；</li>
+    <li><strong>优点</strong>：亮度比屏障高（不挡光）、结构相对成熟；</li>
+    <li><strong>缺点</strong>：透镜制造误差会带来摩尔纹 / 串扰，同样受最佳观看位置限制。</li>
+  </ul>
+  <p>演示：<a href="assets/vr-2026/demos/07_柱状透镜.html" target="_blank" rel="noopener">07 柱状透镜</a>（俯视图看微透镜折射分光，并与屏障做亮度对比）。</p>
+
+  <h3>5.3 视差屏障 vs 柱状透镜</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr><th>维度</th><th>视差屏障</th><th>柱状透镜</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>分光方式</td><td>遮挡（狭缝）</td><td>折射（微透镜）</td></tr>
+        <tr><td>亮度</td><td>低（约减半）</td><td>较高</td></tr>
+        <tr><td>结构 / 成本</td><td>简单、便宜</td><td>需要精密透镜</td></tr>
+        <tr><td>串扰风险</td><td>存在</td><td>存在（摩尔纹更明显）</td></tr>
+        <tr><td>共同局限</td><td colspan="2">分辨率 / 亮度 / 视角需要权衡，都存在“最佳观看点（sweet spot）”</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="note">为改善“只有固定位置才能看”的问题，出现了<strong>多视角（multi-view）</strong>与<strong>超多视角（super multi-view）</strong>技术，用更多视点让移动时看到连续变化；再往前一步，就逼近下面的<strong>光场显示</strong>。</div>
+</section>
+
+<!-- ===== 六、真三维 ===== -->
+<section id="c6">
+  <div class="sec-head">
+    <div class="sec-num">六</div>
+    <div>
+      <h2>真三维显示</h2>
+      <p class="sec-sub">体三维 · 全息 · 光场 / 集成成像</p>
+    </div>
+  </div>
+
+  <p>前两类都是“左右眼各一张图”的<strong>双目视差</strong>方案，它们没有真实聚焦深度——眼睛的焦距始终锁定在屏幕上。真三维显示试图<strong>在空间中重建真实的光分布</strong>，让眼睛能真正对焦到不同深度。</p>
+
+  <h3>6.1 体三维显示（Volumetric 3D Display）</h3>
+  <ul>
+    <li><strong>动态体显示</strong>：让一块二维屏高速旋转 / 摆动，配合视觉暂留，在时间上依次“扫”出空间每个截面，构成可环绕观看的体素（voxel）图像；</li>
+    <li><strong>静态体显示</strong>：在透明介质（激光激发的气体、荧光介质）中直接激发发光点，形成空间中的体素；</li>
+    <li><strong>优点</strong>：可多角度环绕观看、有真实体积感；</li>
+    <li><strong>缺点</strong>：体积受限、遮挡 / 透明度处理难、动态体显示有机械运动与安全边界问题。</li>
+  </ul>
+  <p>演示：<a href="assets/vr-2026/demos/08_体三维.html" target="_blank" rel="noopener">08 体三维</a></p>
+
+  <h3>6.2 全息显示（Holographic Display / CGH）</h3>
+  <ul>
+    <li><strong>传统全息</strong>：记录物光波与参考光波<strong>干涉形成的条纹</strong>，再现时用参考光照射，经衍射重建出物体的<strong>波前（振幅 + 相位）</strong>；</li>
+    <li><strong>计算机生成全息（CGH）</strong>：不拍实物，用计算机算全息图，再用<strong>空间光调制器（SLM）</strong>动态显示；</li>
+    <li><strong>理想优点</strong>：提供完整深度信息与真实聚焦，被称作三维显示的“终极目标”；</li>
+    <li><strong>现实局限</strong>：计算量大、分辨率要求极高，动态全彩大视场仍处实验室阶段。商业展会上的“全息投影”多为佩珀尔幻象类<strong>伪全息</strong>，要明确区分。</li>
+  </ul>
+  <p>演示：<a href="assets/vr-2026/demos/09_全息.html" target="_blank" rel="noopener">09 全息</a>（页面明确标注“原理示意，非真实全息”）</p>
+
+  <h3>6.3 光场显示与集成成像（Light Field / Integral Imaging）</h3>
+  <ul>
+    <li><strong>光场</strong>：描述空间中每一点向每个方向发出的光（位置 + 方向，四维信息）；</li>
+    <li><strong>光场显示</strong>：用微透镜阵列 / 多层屏重建大量方向的光线，让观察者移动时看到连续变化的视差，并提供一定真实聚焦深度；</li>
+    <li><strong>集成成像</strong>：最早可追溯到 1908 年 Lippmann 提出的“集成摄影”，是光场显示的经典实现；</li>
+    <li><strong>产业案例</strong>：Looking Glass 27 英寸光场显示器（2025 年上市，无需头显 / 眼镜的多用户裸眼 3D）；索尼空间现实显示屏（高速视觉传感器 + 微型光学透镜 + 实时渲染）；</li>
+    <li><strong>局限</strong>：有效分辨率被视点数摊薄、数据量与计算量大。</li>
+  </ul>
+  <p>演示：<a href="assets/vr-2026/demos/10_光场.html" target="_blank" rel="noopener">10 光场</a></p>
+
+  <h3>6.4 三类真三维显示速记</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr><th>技术</th><th>重建的是什么</th><th>是否有真实聚焦深度</th><th>现状</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>体三维</td><td>空间中的发光体素</td><td>部分有</td><td>有产品，体积 / 遮挡受限</td></tr>
+        <tr><td>全息</td><td>光的波前（振幅 + 相位）</td><td>有（理想）</td><td>多为 CGH + SLM 实验室方案</td></tr>
+        <tr><td>光场 / 集成成像</td><td>多方向光线分布</td><td>有（有限景深）</td><td>已有消费级 / 专业级产品</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="key"><strong>难点辨析</strong>：全息记录的是“波前（振幅 + 相位）”，光场记录的是“光线方向分布（位置 + 方向）”——两者目标相似、物理实现不同。</div>
+</section>
+
+<!-- ===== 七、HMD ===== -->
+<section id="c7">
+  <div class="sec-head">
+    <div class="sec-num">七</div>
+    <div>
+      <h2>头戴式显示（HMD）：VR 的核心形态</h2>
+      <p class="sec-sub">光学方案 · 关键指标 · PPD 估算 · VAC</p>
+    </div>
+  </div>
+
+  <h3>7.1 为什么 VR 用 HMD，而不是裸眼大屏？</h3>
+  <ol>
+    <li><strong>视场角（FOV）</strong>：把显示面板 + 光学系统贴在眼前，才能撑满人眼大部分视野，制造“包裹感”；</li>
+    <li><strong>双眼隔离彻底</strong>：左右眼各一块屏 / 各一半屏，视差可控、串扰低；</li>
+    <li><strong>头部运动视差</strong>：头显随头转动、画面随视角更新，强化立体与在场感。</li>
+  </ol>
+
+  <h3>7.2 光学方案：从传统透镜到 Pancake</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr><th>方案</th><th>原理</th><th>体积 / 重量</th><th>说明</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>传统球面 / 非球面透镜</td><td>把近处屏幕成像到远处</td><td>厚、重</td><td>早期 HMD</td></tr>
+        <tr><td>菲涅尔透镜（Fresnel）</td><td>用同心环槽“压扁”透镜</td><td>中</td><td>常见于 HTC Vive、Quest 2 等；有“同心圆眩光”</td></tr>
+        <tr><td><strong>Pancake 折叠光路</strong></td><td>偏振反射 + 部分反射，让光来回折返多次</td><td>薄、轻</td><td>PICO 4 Ultra、Quest 3 等一体机主流；亮度利用率较低，需高亮屏</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>演示：<a href="assets/vr-2026/demos/11_头显模拟器.html" target="_blank" rel="noopener">11 头显模拟器</a>（可调瞳距、视场角、畸变，附 Pancake 折返光路示意图）</p>
+
+  <h3>7.3 HMD 关键指标（重点）</h3>
+  <div class="grid3">
+    <div class="cell">
+      <h4>分辨率与 PPD</h4>
+      <p>分辨率只是“总像素”，真正决定清晰度的是 <strong>PPD（每度像素数）</strong>：</p>
+      <pre>PPD ≈ 单眼水平像素数 ÷ 单眼水平视场角</pre>
+      <p>经验阈值（课堂口径，非绝对标准）：约 <strong>20 PPD</strong> 明显改善“纱窗效应”；约 <strong>60 PPD</strong> 接近人眼正常分辨极限（常被引作“视网膜级”目标）。</p>
+    </div>
+    <div class="cell">
+      <h4>刷新率与延迟</h4>
+      <p><strong>刷新率</strong>越高，动态越顺、闪烁越低，<strong>90Hz 是舒适体验的常用起步值</strong>（120 / 144Hz 更佳）。</p>
+      <p><strong>延迟（MTP，Motion-to-Photon）</strong>：从头动到画面更新的总延迟，应尽量控制在 <strong>20ms 以内</strong>，否则易晕。</p>
+      <p><strong>余晖（persistence）</strong>：像素持续发光时间，余晖高会带来拖影。</p>
+    </div>
+    <div class="cell">
+      <h4>视场角（FOV）</h4>
+      <p>人眼单眼水平约 90°+、双眼约 200°（含周边）；常见一体机双眼 FOV 约 90°—110°，<strong>越大越沉浸</strong>。</p>
+      <p>FOV 越大，同样像素数下的 PPD 越低——清晰度与沉浸感之间存在权衡。</p>
+    </div>
+  </div>
+
+  <h3>7.4 PPD 估算练习</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr><th>设备（示例）</th><th>单眼分辨率</th><th>单眼水平 FOV</th><th>估算 PPD</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>PICO 4 Ultra</td><td>2160×2160</td><td>≈102°</td><td>2160 ÷ 102 ≈ <strong>21</strong></td></tr>
+        <tr><td>Quest 3（参考）</td><td>2064×2208</td><td>≈96°</td><td>2064 ÷ 96 ≈ <strong>22</strong></td></tr>
+        <tr><td>Apple Vision Pro（参考）</td><td>约 3686×3140（厂商口径“微 OLED”）</td><td>单眼约 100°</td><td>≈ <strong>37</strong>（口径有争议，仅供趋势对比）</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="warn">PPD 阈值属<strong>经验区间而非绝对标准</strong>；Vision Pro 的单眼分辨率与 PPD 不同来源口径不一，课堂上只做“明显高于一体机”的趋势对比，不给绝对精确值。</div>
+  <p>演示：<a href="assets/vr-2026/demos/13_PPD计算器.html" target="_blank" rel="noopener">13 PPD 计算器</a> · <a href="assets/vr-2026/demos/17_PPD计算器增强版.html" target="_blank" rel="noopener">17 增强版</a>（输入分辨率与视场角，自动与 20 / 60 两条阈值线比较）</p>
+
+  <h3>7.5 调节-辐辏冲突（VAC）</h3>
+  <div class="grid2">
+    <div class="cell">
+      <h4>冲突是怎么产生的</h4>
+      <ul>
+        <li><strong>辐辏（会聚）</strong>：两眼向内转的角，取决于“大脑认为物体在哪”；</li>
+        <li><strong>调节（对焦）</strong>：晶状体屈光度，取决于“光实际从哪个距离来”；</li>
+        <li>普通 HMD 里<strong>屏幕固定在一个距离</strong>，所以调节距离固定；但视差图像不断暗示不同深度，辐辏不断变化 → 两者打架，产生视觉疲劳与眩晕。</li>
+      </ul>
+    </div>
+    <div class="cell">
+      <h4>缓解思路</h4>
+      <ol>
+        <li><strong>变焦 / 多焦面显示</strong>：让屏幕焦距可变或堆叠多个焦面；</li>
+        <li><strong>全息 / 光场显示</strong>：从源头提供真实聚焦深度；</li>
+        <li><strong>深度融合显示（DFD）</strong>：两个相邻焦面的亮度分配，近似连续深度；</li>
+        <li><strong>软件缓解</strong>：控制景深、减少需要大幅辐辏的近距离内容、缩短单次使用时间。</li>
+      </ol>
+    </div>
+  </div>
+  <p>演示：<a href="assets/vr-2026/demos/12_VAC.html" target="_blank" rel="noopener">12 VAC</a> · <a href="assets/vr-2026/demos/18_VAC交互演示增强版.html" target="_blank" rel="noopener">18 增强版</a></p>
+  <div class="key"><strong>工程权衡</strong>：完全消除 VAC 需要变焦 / 多焦面 / 全息 / 光场，成本与复杂度都很高——这正是立体显示仍是最活跃研究方向的证据。</div>
+</section>
+
+<!-- ===== 八、其余四项 ===== -->
+<section id="c8">
+  <div class="sec-head">
+    <div class="sec-num">八</div>
+    <div>
+      <h2>其余四项关键技术概览</h2>
+      <p class="sec-sub">建模 · 虚拟声音 · 人机交互 · VR 引擎</p>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="cell">
+      <h4>三维建模技术</h4>
+      <ul>
+        <li><strong>几何建模</strong>：用顶点 / 网格 / 曲面描述物体形状（多边形网格、NURBS、体素）；</li>
+        <li><strong>物理建模</strong>：赋予质量、碰撞与材质属性，让物体遵守物理规律；</li>
+        <li><strong>运动建模</strong>：描述物体如何运动（刚体运动、骨骼动画、粒子系统）。</li>
+      </ul>
+    </div>
+    <div class="cell">
+      <h4>三维虚拟声音技术</h4>
+      <ul>
+        <li><strong>双耳效应</strong>：两耳时间差（ITD）、声级差（ILD）、频谱线索；</li>
+        <li><strong>HRTF（头相关传递函数）</strong>：描述头、耳廓、躯干如何“调制”来自不同方向的声音，是实现 3D 音效的关键；</li>
+        <li><strong>空间音频</strong>：配合头部追踪，声源方位随转头实时更新。</li>
+      </ul>
+      <p>演示：<a href="assets/vr-2026/demos/14_三维声音_HRTF.html" target="_blank" rel="noopener">14 三维声音 HRTF</a>（戴耳机点“播放”）</p>
+    </div>
+    <div class="cell">
+      <h4>人机交互技术</h4>
+      <ul>
+        <li><strong>跟踪定位</strong>：光学（Inside-Out 的 SLAM、Outside-In 的基站）、惯性（IMU）、电磁、机械；</li>
+        <li><strong>手势 / 肢体</strong>：数据手套、手部追踪骨骼点；</li>
+        <li><strong>眼动追踪</strong>：注视点渲染（Foveated Rendering）的基础，也用于选择交互；</li>
+        <li><strong>语音</strong>：ASR → 语义 → TTS 链路。</li>
+      </ul>
+      <p>演示：<a href="assets/vr-2026/demos/15_人机交互.html" target="_blank" rel="noopener">15 人机交互</a></p>
+    </div>
+    <div class="cell">
+      <h4>虚拟现实引擎技术</h4>
+      <ul>
+        <li><strong>渲染</strong>：实时把三维场景画到双眼画面；</li>
+        <li><strong>物理</strong>：碰撞检测与刚体动力学；</li>
+        <li><strong>脚本</strong>：用代码驱动逻辑；</li>
+        <li><strong>资源管理</strong>：模型、贴图、音频、场景的加载与优化。</li>
+      </ul>
+      <p>这四项技术与立体显示是配合关系：没有好的三维建模，立体显示就没有内容可显示；没有低延迟渲染，立体画面会撕裂、引发眩晕。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 九、AI 前沿 ===== -->
+<section id="c9">
+  <div class="sec-head">
+    <div class="sec-num">九</div>
+    <div>
+      <h2>AI 与立体显示的前沿</h2>
+      <p class="sec-sub">2026 年的四条线索</p>
+    </div>
+  </div>
+  <ol>
+    <li><strong>AI 生成 3D</strong>（Hunyuan3D、Meshy、TripoSR、TRELLIS 等）解决“内容从哪来”，让立体显示有足够的高质量场景可显示；</li>
+    <li><strong>注视点渲染（Foveated Rendering）</strong>：用眼动追踪只对视线中心做高清渲染，降低算力开销，间接支持更高 PPD 与更高刷新率；</li>
+    <li><strong>AI 显示优化</strong>：用神经网络做畸变校正、超分辨率、串扰补偿；</li>
+    <li><strong>空间智能 / 世界模型</strong>：NeRF、3DGS 等把真实世界转为可显示、可交互的 3D 表示，是未来“生成式立体内容”的基础。</li>
+  </ol>
+</section>
+
+<!-- ===== 演示 / 实操 / 作业 ===== -->
+<section id="practice">
+  <div class="sec-head">
+    <div class="sec-num">结</div>
+    <div>
+      <h2>演示中心 · 实操任务 · 作业</h2>
+      <p class="sec-sub">把原理落到可观察、可操作的东西上</p>
+    </div>
+  </div>
+
+  <h3>一页知识地图</h3>
+  <pre>为什么能看见立体？
+   单眼线索（遮挡 / 透视 / 运动视差…）+ 双眼线索（视差 / 辐辏）
+                ↓
+立体显示怎么骗过眼睛？
+   双目视差式：分色 / 分时 / 偏振 / HMD / 视差屏障 / 柱状透镜
+   真三维式：体三维 / 全息 / 光场
+                ↓
+VR 里怎么落地？
+   HMD + Pancake / Fresnel + 双目屏
+   指标：分辨率、PPD、FOV、刷新率、延迟、余晖
+   核心矛盾：VAC（调节-辐辏冲突）</pre>
+  <div class="key"><strong>一句话收束</strong>：立体显示不是“把图做漂亮”，而是<strong>精准控制进入两只眼睛的光</strong>——分色、分时、分光、分空间、重建波前，都是同一个目标的不同实现路径。</div>
+
+  <h3>课堂演示中心（18 个演示，浏览器直接打开）</h3>
+  <p>全部离线可用、无外部依赖，手机或电脑浏览器均可运行。除“03 分色立体”需红青眼镜才能真实体验立体外，其余均为<strong>原理示意 / 模拟</strong>。</p>
+  <div class="btn-row">
+    <a class="btn" href="assets/vr-2026/demos/index.html" target="_blank" rel="noopener">打开演示中心总入口</a>
+  </div>
+  <div class="demo-grid">
+    <a class="demo-card" href="assets/vr-2026/demos/01_深度线索.html" target="_blank" rel="noopener"><div class="dc-no">01</div><div class="dc-title">深度线索</div><div class="dc-desc">单眼线索 + 运动视差</div></a>
+    <a class="demo-card" href="assets/vr-2026/demos/02_双目视差.html" target="_blank" rel="noopener"><div class="dc-no">02</div><div class="dc-title">双目视差</div><div class="dc-desc">瞳距 IPD + 合像模式</div></a>
+    <a class="demo-card" href="assets/vr-2026/demos/03_分色立体.html" target="_blank" rel="noopener"><div class="dc-no">03</div><div class="dc-title">分色立体（红青）</div><div class="dc-desc">Anaglyph，可真实体验立体</div></a>
+    <a class="demo-card" href="assets/vr-2026/demos/04_主动快门.html" target="_blank" rel="noopener"><div class="dc-no">04</div><div class="dc-title">主动快门（分时）</div><div class="dc-desc">左右帧交替与闪烁融合</div></a>
+    <a class="demo-card" href="assets/vr-2026/demos/05_偏振.html" target="_blank" rel="noopener"><div class="dc-no">05</div><div class="dc-title">偏振立体（分光）</div><div class="dc-desc">正交偏振光与偏振片</div></a>
+    <a class="demo-card" href="assets/vr-2026/demos/06_视差屏障.html" target="_blank" rel="noopener"><div class="dc-no">06</div><div class="dc-title">视差屏障</div><div class="dc-desc">狭缝分光与串扰</div></a>
+    <a class="demo-card" href="assets/vr-2026/demos/07_柱状透镜.html" target="_blank" rel="noopener"><div class="dc-no">07</div><div class="dc-title">柱状透镜</div><div class="dc-desc">微透镜折射分光</div></a>
+    <a class="demo-card" href="assets/vr-2026/demos/08_体三维.html" target="_blank" rel="noopener"><div class="dc-no">08</div><div class="dc-title">体三维显示</div><div class="dc-desc">旋转屏 + 视觉暂留</div></a>
+    <a class="demo-card" href="assets/vr-2026/demos/09_全息.html" target="_blank" rel="noopener"><div class="dc-no">09</div><div class="dc-title">全息显示</div><div class="dc-desc">干涉条纹与波前重建</div></a>
+    <a class="demo-card" href="assets/vr-2026/demos/10_光场.html" target="_blank" rel="noopener"><div class="dc-no">10</div><div class="dc-title">光场 / 集成成像</div><div class="dc-desc">微透镜阵列与视点数</div></a>
+    <a class="demo-card" href="assets/vr-2026/demos/11_头显模拟器.html" target="_blank" rel="noopener"><div class="dc-no">11</div><div class="dc-title">头显模拟器</div><div class="dc-desc">双屏渲染 + Pancake 光路</div></a>
+    <a class="demo-card" href="assets/vr-2026/demos/12_VAC.html" target="_blank" rel="noopener"><div class="dc-no">12</div><div class="dc-title">调节-辐辏冲突</div><div class="dc-desc">对焦距离 vs 会聚距离</div></a>
+    <a class="demo-card" href="assets/vr-2026/demos/13_PPD计算器.html" target="_blank" rel="noopener"><div class="dc-no">13</div><div class="dc-title">PPD 计算器</div><div class="dc-desc">20 / 60 两条经验阈值</div></a>
+    <a class="demo-card" href="assets/vr-2026/demos/14_三维声音_HRTF.html" target="_blank" rel="noopener"><div class="dc-no">14</div><div class="dc-title">三维虚拟声音</div><div class="dc-desc">ITD / ILD / HRTF 空间音频</div></a>
+    <a class="demo-card" href="assets/vr-2026/demos/15_人机交互.html" target="_blank" rel="noopener"><div class="dc-no">15</div><div class="dc-title">人机交互实验室</div><div class="dc-desc">射线 / 凝视 / 手势 / 语音</div></a>
+    <a class="demo-card" href="assets/vr-2026/demos/16_立体显示技术分类交互图.html" target="_blank" rel="noopener"><div class="dc-no">16</div><div class="dc-title">技术分类交互图</div><div class="dc-desc">助视 / 裸眼 / 真三维全景</div></a>
+    <a class="demo-card" href="assets/vr-2026/demos/17_PPD计算器增强版.html" target="_blank" rel="noopener"><div class="dc-no">17</div><div class="dc-title">PPD 计算器 · 增强版</div><div class="dc-desc">主流设备预设对比</div></a>
+    <a class="demo-card" href="assets/vr-2026/demos/18_VAC交互演示增强版.html" target="_blank" rel="noopener"><div class="dc-no">18</div><div class="dc-title">VAC 交互演示 · 增强版</div><div class="dc-desc">缓解方案对照</div></a>
+  </div>
+
+  <h3>学生实操任务（5 个实验，只需浏览器）</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr><th>实验</th><th>演示文件</th><th>关键观察点</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>实验 1 单眼线索还是双眼线索</td><td><a href="assets/vr-2026/demos/01_深度线索.html" target="_blank" rel="noopener">01 深度线索</a></td><td>闭上一只眼后哪些线索仍然有效；运动视差中近物与远物谁移动得快</td></tr>
+        <tr><td>实验 2 瞳距与视差</td><td><a href="assets/vr-2026/demos/02_双目视差.html" target="_blank" rel="noopener">02 双目视差</a></td><td>物体越近视差越大；瞳距越大视差越大；近物与远物偏移方向相反</td></tr>
+        <tr><td>实验 3 做一个“红青立体图”</td><td><a href="assets/vr-2026/demos/03_分色立体.html" target="_blank" rel="noopener">03 分色立体</a></td><td>正视差对应入屏；最大缺点是颜色失真</td></tr>
+        <tr><td>实验 4 裸眼 3D 的最佳观看点</td><td><a href="assets/vr-2026/demos/06_视差屏障.html" target="_blank" rel="noopener">06 视差屏障</a> · <a href="assets/vr-2026/demos/07_柱状透镜.html" target="_blank" rel="noopener">07 柱状透镜</a></td><td>偏离最佳位置出现串扰 / 重影；屏障的亮度损失更大</td></tr>
+        <tr><td>实验 5 算 PPD + 找 VAC 冲突</td><td><a href="assets/vr-2026/demos/13_PPD计算器.html" target="_blank" rel="noopener">13 PPD 计算器</a> · <a href="assets/vr-2026/demos/12_VAC.html" target="_blank" rel="noopener">12 VAC</a></td><td>2160 ÷ 102 ≈ 21 PPD；物体越近，调节与辐辏差距越大、越容易疲劳</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>每组把 5 个实验的“记录 + 思考”整理成一页（手写拍照 / Word / Markdown 均可）提交。</p>
+
+  <h3>随堂测验（抢答 + 判断改错）</h3>
+  <div class="grid2">
+    <div class="cell">
+      <h4>抢答 4 题</h4>
+      <ol>
+        <li>立体显示技术最直接服务于 VR 三大特征中的哪一个？<br><span class="tag">答：沉浸性</span></li>
+        <li>“物体越近，左右眼视差越大”对吗？<br><span class="tag">答：对（视差随距离减小而增大）</span></li>
+        <li>分色、分时、分光分别用什么物理量分开左右眼图像？<br><span class="tag">答：颜色 / 时间 / 偏振方向</span></li>
+        <li>PPD 怎么算？PICO 4 Ultra 约是多少？<br><span class="tag">答：单眼水平像素 ÷ 单眼水平 FOV ≈ 2160÷102 ≈ 21</span></li>
+      </ol>
+    </div>
+    <div class="cell">
+      <h4>判断改错 4 题</h4>
+      <ol>
+        <li>视差屏障和柱状透镜都需要戴眼镜。<br><span class="tag">错：裸眼式不需要眼镜</span></li>
+        <li>全息记录“波前（振幅 + 相位）”，比普通照片多了相位信息。<br><span class="tag">对</span></li>
+        <li>普通 VR 头显里眼睛的“调节距离”随物体远近改变。<br><span class="tag">错：调节固定、辐辏变化，这才是 VAC</span></li>
+        <li>120Hz 分时立体，每只眼睛理论上约得到 60Hz。<br><span class="tag">对（按常见简化口径）</span></li>
+      </ol>
+    </div>
+  </div>
+
+  <h3>课后作业与预习</h3>
+  <ol>
+    <li>提交 5 个实操实验的观察记录（以小组为单位）；</li>
+    <li>整理一张“立体显示技术分类图”：用自己的话重画分类树（助视式 / 裸眼式 / 真三维），每类写 1 个代表技术 + 1 个优点 + 1 个缺点；</li>
+    <li><strong>PPD 计算题</strong>：单眼分辨率 2560×2560、单眼水平视场角 100°，计算 PPD 并判断是否达到“约 20 PPD”的经验门槛；</li>
+    <li><strong>思考题（课程思政）</strong>：立体显示与空间音频如何帮助视障 / 听障人群获得更好的信息获取体验？（100—200 字，结合深度线索或 HRTF 概念）</li>
+    <li><strong>预习第 3 章“虚拟现实系统的硬件设备”</strong>：浏览 PICO 4 Ultra、Meta Quest 3、Apple Vision Pro 的官方规格页，整理“分辨率 / PPD / 视场角 / 刷新率 / 光学方案 / 定位方式”对比草表；并带着两个问题预习——立体显示最终落在哪些硬件上？Inside-Out 与 Outside-In 有什么区别？</li>
+  </ol>
+  <div class="note">评分要点：观察记录完整（40%）+ 分类图逻辑清晰（30%）+ 计算正确（20%）+ 思考题有自己的分析（10%）；提交时间为下次课前。</div>
+</section>
+
+</main>
+
+<footer>
+  <div class="f-main">中华女子学院 · 2026年虚拟现实技术 · 第 2 次课</div>
+  <div>第 2 章 虚拟现实的关键技术（重点：立体显示技术）· 4 学时 · 授课教师：孙琪翔 · 2026-09-09</div>
+  <div style="margin-top:6px;font-size:12px;opacity:.75;">本页依据第 2 次课教学方案、讲义与课堂演示整理；屏幕无法复现偏振 / 快门 / 全息 / 光场效果，演示均为原理示意。</div>
+  <div style="margin-top:12px;font-size:14px;"><a href="vr-2026.html">← 返回课程主页</a> · <a href="index.html">返回个人网站</a></div>
+</footer>
+
+<button id="toTop" title="回到顶部">↑</button>
+
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+  var navLinks = {};
+  document.querySelectorAll('#nav a[data-sec]').forEach(function(a){
+    navLinks[a.getAttribute('data-sec')] = a;
+  });
+  var sections = ['guide','c1','c2','c3','c4','c5','c6','c7','c8','c9','practice'];
+  if ('IntersectionObserver' in window) {
+    var obs = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        if (en.isIntersecting) {
+          document.querySelectorAll('#nav a').forEach(function(a){ a.classList.remove('on'); });
+          var a = navLinks[en.target.id];
+          if (a) a.classList.add('on');
+        }
+      });
+    }, {rootMargin:'-15% 0px -70% 0px'});
+    sections.forEach(function(s){
+      var el = document.getElementById(s);
+      if (el) obs.observe(el);
+    });
+  }
+  var toTop = document.getElementById('toTop');
+  if (toTop) {
+    window.addEventListener('scroll', function(){
+      toTop.classList.toggle('show', window.pageYOffset > 400);
+    }, {passive:true});
+    toTop.addEventListener('click', function(){ window.scrollTo({top:0, behavior:'smooth'}); });
+  }
+});
+</script>
+
+</body>
+</html>

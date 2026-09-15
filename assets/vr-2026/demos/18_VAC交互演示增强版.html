@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>调节-辐辏冲突（VAC）交互演示</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: "SimSun", "Times New Roman", serif; background: #f5f7fa; color: #1f2329; padding: 20px; }
+  h1 { text-align: center; color: #003e7e; font-size: 28px; margin-bottom: 10px; }
+  .subtitle { text-align: center; color: #666; font-size: 16px; margin-bottom: 20px; }
+  .container { max-width: 960px; margin: 0 auto; }
+  .demo-area { background: #fff; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+  canvas { display: block; margin: 0 auto; border: 1px solid #ddd; border-radius: 8px; background: #1a1a2e; }
+  .controls { background: #fff; border-radius: 12px; padding: 20px; margin-bottom: 20px; }
+  .control-row { display: flex; align-items: center; margin: 15px 0; gap: 15px; }
+  .control-row label { width: 160px; font-size: 15px; }
+  .control-row input[type="range"] { flex: 1; }
+  .control-row .value { width: 80px; text-align: right; font-family: "Times New Roman", serif; font-size: 16px; font-weight: bold; color: #003e7e; }
+  .status { display: flex; gap: 20px; margin-top: 15px; }
+  .status-box { flex: 1; padding: 15px; border-radius: 8px; text-align: center; }
+  .status-box.accommodation { background: #d1ecf1; }
+  .status-box.convergence { background: #fff3cd; }
+  .status-box .label { font-size: 14px; color: #555; }
+  .status-box .val { font-size: 24px; font-weight: bold; font-family: "Times New Roman", serif; margin: 5px 0; }
+  .conflict-indicator { text-align: center; padding: 15px; border-radius: 8px; margin-top: 15px; font-size: 18px; font-weight: bold; }
+  .conflict-indicator.match { background: #d4edda; color: #155724; }
+  .conflict-indicator.conflict { background: #f8d7da; color: #721c24; }
+  .explain { background: #fff; border-radius: 12px; padding: 20px; line-height: 1.8; font-size: 15px; }
+  .explain h3 { color: #003e7e; margin-bottom: 10px; }
+  .explain p { margin: 8px 0; }
+  .explain strong { color: #003e7e; }
+</style>
+</head>
+<body>
+<h1>调节-辐辏冲突（VAC）交互演示</h1>
+<p class="subtitle">拖动物体距离，观察调节距离与辐辏距离何时一致、何时冲突</p>
+
+<div class="container">
+  <div class="demo-area">
+    <canvas id="canvas" width="900" height="300"></canvas>
+  </div>
+
+  <div class="controls">
+    <div class="control-row">
+      <label>物体距离（米）：</label>
+      <input type="range" id="distance" min="0.3" max="10" step="0.1" value="2">
+      <span class="value" id="distVal">2.0m</span>
+    </div>
+    <div class="control-row">
+      <label>屏幕固定距离（米）：</label>
+      <input type="range" id="screenDist" min="1" max="5" step="0.1" value="2">
+      <span class="value" id="screenVal">2.0m</span>
+    </div>
+    <div class="control-row">
+      <label>瞳距 IPD（厘米）：</label>
+      <input type="range" id="ipd" min="5" max="7.5" step="0.1" value="6.3">
+      <span class="value" id="ipdVal">6.3cm</span>
+    </div>
+
+    <div class="status">
+      <div class="status-box accommodation">
+        <div class="label">调节距离（屏幕固定）</div>
+        <div class="val" id="accVal">2.0m</div>
+        <div class="label">晶状体屈光度：<span id="accDiopter">0.50D</span></div>
+      </div>
+      <div class="status-box convergence">
+        <div class="label">辐辏距离（视差暗示）</div>
+        <div class="val" id="convVal">2.0m</div>
+        <div class="label">双眼会聚角：<span id="convAngle">3.6°</span></div>
+      </div>
+    </div>
+
+    <div class="conflict-indicator match" id="conflictIndicator">
+      调节与辐辏一致，无VAC冲突
+    </div>
+  </div>
+
+  <div class="explain">
+    <h3>什么是VAC？</h3>
+    <p><strong>调节（Accommodation）：</strong>眼睛看近物时，睫状肌收缩使晶状体变厚，焦距变短。调节距离取决于光实际从哪个距离来。在普通HMD中，屏幕固定在一个光学距离上，所以调节距离是固定的。</p>
+    <p><strong>辐辏（Convergence）：</strong>看近物时两眼向内转，眼球转动角度提供深度信息。辐辏距离取决于大脑认为物体在哪。VR中视差图像不断暗示不同深度，辐辏不断变化。</p>
+    <p><strong>VAC冲突：</strong>当物体的视差暗示距离（辐辏距离）与屏幕实际光学距离（调节距离）不一致时，调节和辐辏就会"打架"，导致视觉疲劳和眩晕。</p>
+    <p><strong>缓解思路：</strong>变焦/多焦面显示、全息/光场显示（从源头提供真实聚焦深度）、深度融合显示（DFD）、软件控制景深、缩短单次使用时间。</p>
+  </div>
+</div>
+
+<script>
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+
+function draw() {
+  const dist = parseFloat(document.getElementById('distance').value);
+  const screenDist = parseFloat(document.getElementById('screenDist').value);
+  const ipd = parseFloat(document.getElementById('ipd').value) / 100; // cm to m
+  
+  document.getElementById('distVal').textContent = dist.toFixed(1) + 'm';
+  document.getElementById('screenVal').textContent = screenDist.toFixed(1) + 'm';
+  document.getElementById('ipdVal').textContent = (ipd*100).toFixed(1) + 'cm';
+  
+  // 计算
+  const accDiopter = 1 / screenDist;
+  const convAngle = 2 * Math.atan((ipd/2) / dist) * 180 / Math.PI;
+  
+  document.getElementById('accVal').textContent = screenDist.toFixed(1) + 'm';
+  document.getElementById('accDiopter').textContent = accDiopter.toFixed(2) + 'D';
+  document.getElementById('convVal').textContent = dist.toFixed(1) + 'm';
+  document.getElementById('convAngle').textContent = convAngle.toFixed(1) + '°';
+  
+  // 冲突判断
+  const diff = Math.abs(dist - screenDist);
+  const indicator = document.getElementById('conflictIndicator');
+  if (diff < 0.3) {
+    indicator.className = 'conflict-indicator match';
+    indicator.textContent = '调节与辐辏一致，无VAC冲突';
+  } else {
+    indicator.className = 'conflict-indicator conflict';
+    indicator.textContent = 'VAC冲突！调节距离=' + screenDist.toFixed(1) + 'm，辐辏距离=' + dist.toFixed(1) + 'm，相差' + diff.toFixed(1) + 'm';
+  }
+  
+  // 绘制
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  
+  const eyeY = 200;
+  const leftEyeX = 350 - ipd*30;
+  const rightEyeX = 350 + ipd*30;
+  const screenX = 700 - screenDist * 25;
+  const objX = 700 - dist * 25;
+  const objY = 150;
+  
+  // 绘制屏幕
+  ctx.fillStyle = '#4a90d9';
+  ctx.fillRect(screenX - 5, 80, 10, 240);
+  ctx.fillStyle = '#fff';
+  ctx.font = '14px SimSun';
+  ctx.fillText('屏幕(固定距离 ' + screenDist.toFixed(1) + 'm)', screenX - 60, 70);
+  
+  // 绘制物体
+  ctx.fillStyle = diff < 0.3 ? '#28a745' : '#dc3545';
+  ctx.beginPath();
+  ctx.arc(objX, objY, 15, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#fff';
+  ctx.fillText('物体', objX - 15, objY - 25);
+  
+  // 绘制眼睛
+  ctx.fillStyle = '#fff';
+  ctx.strokeStyle = '#333';
+  ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.arc(leftEyeX, eyeY, 20, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+  ctx.beginPath(); ctx.arc(rightEyeX, eyeY, 20, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+  
+  // 瞳孔（指向物体 = 辐辏）
+  const leftAngle = Math.atan2(objY - eyeY, objX - leftEyeX);
+  const rightAngle = Math.atan2(objY - eyeY, objX - rightEyeX);
+  ctx.fillStyle = '#333';
+  ctx.beginPath();
+  ctx.arc(leftEyeX + Math.cos(leftAngle)*8, eyeY + Math.sin(leftAngle)*8, 6, 0, Math.PI*2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(rightEyeX + Math.cos(rightAngle)*8, eyeY + Math.sin(rightAngle)*8, 6, 0, Math.PI*2);
+  ctx.fill();
+  
+  // 视线（辐辏）
+  ctx.strokeStyle = 'rgba(255,193,7,0.6)';
+  ctx.lineWidth = 2;
+  ctx.setLineDash([5, 5]);
+  ctx.beginPath(); ctx.moveTo(leftEyeX, eyeY); ctx.lineTo(objX, objY); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(rightEyeX, eyeY); ctx.lineTo(objX, objY); ctx.stroke();
+  ctx.setLineDash([]);
+  
+  // 调节光线（从屏幕到眼睛）
+  ctx.strokeStyle = 'rgba(0,123,255,0.4)';
+  ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(leftEyeX, eyeY); ctx.lineTo(screenX, objY); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(rightEyeX, eyeY); ctx.lineTo(screenX, objY); ctx.stroke();
+  
+  // 标注
+  ctx.fillStyle = '#ffc107';
+  ctx.font = '12px SimSun';
+  ctx.fillText('← 辐辏线(指向物体)', 50, 280);
+  ctx.fillStyle = '#007bff';
+  ctx.fillText('← 调节线(来自屏幕)', 50, 295);
+  
+  ctx.fillStyle = '#333';
+  ctx.font = '14px SimSun';
+  ctx.fillText('左眼', leftEyeX - 15, eyeY + 40);
+  ctx.fillText('右眼', rightEyeX - 15, eyeY + 40);
+}
+
+document.getElementById('distance').addEventListener('input', draw);
+document.getElementById('screenDist').addEventListener('input', draw);
+document.getElementById('ipd').addEventListener('input', draw);
+draw();
+</script>
+</body>
+</html>

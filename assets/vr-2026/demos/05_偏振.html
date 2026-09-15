@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>05 · 偏振立体（分光）</title>
+<style>
+  :root{--bg:#0f1420;--card:#1b2233;--line:#2c3750;--txt:#eaf0fa;--sub:#9fb0c8;--acc:#4da3ff;--warn:#ffc857;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--txt);font-family:"Microsoft YaHei",system-ui,sans-serif;line-height:1.6;padding:22px;}
+  h1{font-size:21px;margin-bottom:4px;}
+  .badge{display:inline-block;background:#3a2b1a;color:var(--warn);border:1px solid #6a5128;border-radius:6px;padding:2px 8px;font-size:12px;margin-bottom:12px;}
+  .row{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start;}
+  canvas{background:#0a0f1a;border:1px solid var(--line);border-radius:12px;max-width:100%;}
+  .side{min-width:250px;max-width:330px;}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:12px;}
+  .panel h3{font-size:14px;color:var(--acc);margin-bottom:8px;}
+  label{display:flex;align-items:center;gap:8px;font-size:14px;margin:8px 0;}
+  .note{color:var(--sub);font-size:12px;margin-top:10px;}
+</style>
+</head>
+<body>
+<h1>05 · 偏振立体（分光）</h1>
+<span class="badge">原理示意 · 非真实偏振设备</span>
+<div class="row">
+  <canvas id="cv" width="820" height="400"></canvas>
+  <div class="side">
+    <div class="panel">
+      <h3>参数</h3>
+      <label><input type="checkbox" id="glasses" checked> 戴上偏振眼镜</label>
+      <p class="note">投影1输出「垂直偏振」，投影2输出「水平偏振」；眼镜左镜片只透垂直、右镜片只透水平。摘掉眼镜时，左右眼会同时收到两束光（串扰）。</p>
+    </div>
+  </div>
+</div>
+<script>
+const cv=document.getElementById('cv'),ctx=cv.getContext('2d');
+const W=cv.width,H=cv.height;
+const sx=250, gx=560, ex=720; // 屏幕、眼镜、眼睛的x位置
+let t=0;
+function loop(){
+  t+=0.02;
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle='#0a0f1a';ctx.fillRect(0,0,W,H);
+  const glasses=document.getElementById('glasses').checked;
+  // 标题
+  ctx.fillStyle='#9fb0c8';ctx.font='13px Microsoft YaHei';
+  // 两个投影
+  drawProjector(90,105,'投影1 · 垂直偏振');
+  drawProjector(90,275,'投影2 · 水平偏振');
+  // 屏幕
+  ctx.strokeStyle='#4da3ff';ctx.lineWidth=3;ctx.setLineDash([6,6]);
+  ctx.beginPath();ctx.moveTo(sx,40);ctx.lineTo(sx,H-40);ctx.stroke();ctx.setLineDash([]);
+  ctx.fillStyle='#4da3ff';ctx.font='13px Microsoft YaHei';ctx.fillText('保偏幕',sx+8,60);
+  // 光束
+  beam(105, 'vertical', '#ff8f8f');
+  beam(275, 'horizontal', '#7fd8ff');
+  // 眼镜
+  drawLens(gx,105,'左镜片·垂直');
+  drawLens(gx,275,'右镜片·水平');
+  // 眼睛
+  drawEye(ex,105); drawEye(ex,275);
+  // 串扰（不戴眼镜时）
+  if(!glasses){
+    ctx.strokeStyle='rgba(255,80,80,0.35)';ctx.lineWidth=2;ctx.setLineDash([4,4]);
+    ctx.beginPath();ctx.moveTo(gx,105);ctx.lineTo(ex,275);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(gx,275);ctx.lineTo(ex,105);ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle='#ffc857';ctx.fillText('串扰',gx+30,210);
+  } else {
+    ctx.fillStyle='#57d39a';ctx.fillText('✓ 左右眼各收各的光',gx+30,210);
+  }
+  requestAnimationFrame(loop);
+}
+function drawProjector(x,y,label){
+  ctx.fillStyle='#1b2233';ctx.fillRect(x-10,y-18,120,36);
+  ctx.strokeStyle='#2c3750';ctx.strokeRect(x-10,y-18,120,36);
+  ctx.fillStyle='#eaf0fa';ctx.font='12px Microsoft YaHei';ctx.fillText(label,x+4,y+2);
+}
+function beam(y,pol,color){
+  // 从投影到屏幕
+  ctx.strokeStyle='rgba(255,255,255,0.25)';ctx.lineWidth=2;
+  ctx.beginPath();ctx.moveTo(210,y);ctx.lineTo(sx,y);ctx.stroke();
+  // 从屏幕到眼镜
+  ctx.beginPath();ctx.moveTo(sx,y);ctx.lineTo(gx,y);ctx.stroke();
+  // 偏振方向标记（光束上的小竖/横线）
+  ctx.strokeStyle=color;ctx.lineWidth=2;
+  for(let x=230;x<sx;x+=24){
+    if(pol==='vertical'){ctx.beginPath();ctx.moveTo(x,y-8);ctx.lineTo(x,y+8);ctx.stroke();}
+    else{ctx.beginPath();ctx.moveTo(x-8,y);ctx.lineTo(x+8,y);ctx.stroke();}
+  }
+  // 移动光子
+  const p1=(t*160)%(sx-220)+220;
+  const p2=(t*160+90)%(gx-sx)+sx;
+  ctx.fillStyle=color;ctx.beginPath();ctx.arc(p1,y,5,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.arc(p2,y,5,0,Math.PI*2);ctx.fill();
+}
+function drawLens(x,y,label){
+  ctx.fillStyle='rgba(255,255,255,0.08)';ctx.strokeStyle='#eaf0fa';ctx.lineWidth=2;
+  ctx.beginPath();ctx.rect(x-12,y-16,24,32);ctx.stroke();
+  ctx.fillStyle='#9fb0c8';ctx.font='11px Microsoft YaHei';ctx.fillText(label,x+24,y+4);
+}
+function drawEye(x,y){
+  ctx.fillStyle='#eaf0fa';ctx.beginPath();ctx.arc(x,y,10,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#0f1420';ctx.beginPath();ctx.arc(x,y,5,0,Math.PI*2);ctx.fill();
+}
+loop();
+</script>
+</body>
+</html>

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>12 · 调节-辐辏冲突（VAC）</title>
+<style>
+  :root{--bg:#0f1420;--card:#1b2233;--line:#2c3750;--txt:#eaf0fa;--sub:#9fb0c8;--acc:#4da3ff;--warn:#ffc857;--good:#57d39a;--bad:#ff8f8f;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--txt);font-family:"Microsoft YaHei",system-ui,sans-serif;line-height:1.6;padding:22px;}
+  h1{font-size:21px;margin-bottom:4px;}
+  .badge{display:inline-block;background:#3a2b1a;color:var(--warn);border:1px solid #6a5128;border-radius:6px;padding:2px 8px;font-size:12px;margin-bottom:12px;}
+  .row{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start;}
+  canvas{background:#0a0f1a;border:1px solid var(--line);border-radius:12px;max-width:100%;}
+  .side{min-width:260px;max-width:340px;}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:12px;}
+  .panel h3{font-size:14px;color:var(--acc);margin-bottom:8px;}
+  label{display:flex;align-items:center;gap:8px;font-size:14px;margin:8px 0;}
+  input[type=range]{flex:1;}
+  .readout{background:#0d1320;border-radius:8px;padding:10px 12px;font-size:14px;margin-top:10px;}
+  .note{color:var(--sub);font-size:12px;margin-top:10px;}
+</style>
+</head>
+<body>
+<h1>12 · 调节-辐辏冲突（VAC）</h1>
+<span class="badge">原理示意（俯视图）</span>
+<div class="row">
+  <canvas id="cv" width="820" height="420"></canvas>
+  <div class="side">
+    <div class="panel">
+      <h3>参数</h3>
+      <label>虚拟物体距离 <span id="dv">2.0 m</span></label>
+      <input type="range" id="obj" min="0.4" max="6" step="0.1" value="2">
+      <div class="readout" id="out"></div>
+      <p class="note">普通 VR 头显里，眼睛「对焦（调节）」始终在屏幕的固定距离；但「会聚（辐辏）」随画面深度变化。两者不一致就是 VAC，越近越明显、越易疲劳。</p>
+    </div>
+  </div>
+</div>
+<script>
+const cv=document.getElementById('cv'),ctx=cv.getContext('2d');
+const W=cv.width,H=cv.height;
+const Da=2.0; // 调节距离（屏幕固定）
+const zE=50;
+const eyeL={x:150,y:zE}, eyeR={x:250,y:zE}, midX=200;
+function zToY(d){return zE+d*58;}
+function draw(){
+  const Dv=+document.getElementById('obj').value;
+  document.getElementById('dv').textContent=Dv.toFixed(1)+' m';
+  const zV=zToY(Dv), zA=zToY(Da);
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle='#0a0f1a';ctx.fillRect(0,0,W,H);
+  ctx.fillStyle='#9fb0c8';ctx.font='12px Microsoft YaHei';ctx.fillText('俯视图：双眼会聚 vs 单眼对焦',20,24);
+  // 屏幕（调节距离）
+  ctx.strokeStyle='#4da3ff';ctx.lineWidth=3;
+  ctx.beginPath();ctx.moveTo(60,zA);ctx.lineTo(W-40,zA);ctx.stroke();
+  ctx.fillStyle='#4da3ff';ctx.fillText('屏幕（调节距离固定 '+Da.toFixed(1)+' m）',W-250,zA-8);
+  // 会聚视线
+  ctx.strokeStyle='rgba(255,201,87,0.85)';ctx.lineWidth=2;
+  ctx.beginPath();ctx.moveTo(eyeL.x,eyeL.y);ctx.lineTo(midX,zV);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(eyeR.x,eyeR.y);ctx.lineTo(midX,zV);ctx.stroke();
+  // 虚拟物体
+  ctx.fillStyle='#ffc857';ctx.beginPath();ctx.arc(midX,zV,8,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#ffc857';ctx.fillText('虚拟物体（辐辏距离 '+Dv.toFixed(1)+' m）',midX+16,zV+4);
+  // 调节（对焦）虚线到屏幕
+  ctx.strokeStyle='rgba(120,180,255,0.7)';ctx.setLineDash([5,4]);ctx.lineWidth=1.5;
+  ctx.beginPath();ctx.moveTo(eyeL.x,eyeL.y);ctx.lineTo(midX,zA);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(eyeR.x,eyeR.y);ctx.lineTo(midX,zA);ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle='#7fd8ff';ctx.fillText('调节（对焦）',midX+16,zA+10);
+  // 眼睛
+  drawEye(eyeL.x,eyeL.y); drawEye(eyeR.x,eyeR.y);
+  ctx.fillStyle='#9fb0c8';ctx.fillText('左眼',eyeL.x-24,eyeL.y+18);
+  ctx.fillText('右眼',eyeR.x+8,eyeR.y+18);
+  // 冲突状态
+  const diff=Math.abs(Dv-Da);
+  const out=document.getElementById('out');
+  if(diff<0.15){
+    out.style.color='var(--good)'; out.innerHTML='辐辏距离 ≈ 调节距离：<b>一致，较舒适</b>';
+  } else {
+    out.style.color='var(--bad)'; out.innerHTML='辐辏 '+Dv.toFixed(1)+' m ≠ 调节 '+Da.toFixed(1)+' m：<b>冲突 '+diff.toFixed(1)+' m，易疲劳</b>';
+  }
+}
+function drawEye(x,y){ctx.fillStyle='#eaf0fa';ctx.beginPath();ctx.arc(x,y,10,0,Math.PI*2);ctx.fill();ctx.fillStyle='#0f1420';ctx.beginPath();ctx.arc(x,y,5,0,Math.PI*2);ctx.fill();}
+document.getElementById('obj').addEventListener('input',draw);
+draw();
+</script>
+</body>
+</html>

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>02 · 双目视差</title>
+<style>
+  :root{--bg:#0f1420;--card:#1b2233;--line:#2c3750;--txt:#eaf0fa;--sub:#9fb0c8;--acc:#4da3ff;--warn:#ffc857;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--txt);font-family:"Microsoft YaHei",system-ui,sans-serif;line-height:1.6;padding:22px;}
+  h1{font-size:21px;margin-bottom:4px;}
+  .badge{display:inline-block;background:#1a2b3f;color:var(--acc);border:1px solid #31547a;border-radius:6px;padding:2px 8px;font-size:12px;margin-bottom:12px;}
+  .row{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-start;}
+  .eyes{display:flex;gap:8px;}
+  canvas{background:#0a0f1a;border:1px solid var(--line);border-radius:10px;}
+  .side{min-width:260px;max-width:340px;}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:12px;}
+  .panel h3{font-size:14px;color:var(--acc);margin-bottom:8px;}
+  label{display:flex;align-items:center;gap:8px;font-size:14px;margin:8px 0;}
+  input[type=range]{flex:1;}
+  .readout{background:#0d1320;border-radius:8px;padding:10px 12px;font-size:14px;color:var(--warn);margin-top:8px;}
+  .cap{text-align:center;color:var(--sub);font-size:12px;margin-top:4px;}
+</style>
+</head>
+<body>
+<h1>02 · 双目视差（瞳距与深度）</h1>
+<span class="badge">原理演示</span>
+<div class="row">
+  <div>
+    <div class="eyes">
+      <div><canvas id="cvL" width="430" height="340"></canvas><div class="cap">左眼视图</div></div>
+      <div><canvas id="cvR" width="430" height="340"></canvas><div class="cap">右眼视图</div></div>
+    </div>
+    <div id="fusionBox" style="display:none;"><canvas id="cvF" width="868" height="340"></canvas><div class="cap">合像模式（左眼红 / 右眼青，叠加重影）</div></div>
+  </div>
+  <div class="side">
+    <div class="panel">
+      <h3>参数</h3>
+      <label>瞳距 IPD <span id="ipdv">6.5 cm</span></label>
+      <input type="range" id="ipd" min="2" max="12" step="0.1" value="6.5">
+      <label>物体距离（缩放）<span id="distv">1.0×</span></label>
+      <input type="range" id="dist" min="0.5" max="2.2" step="0.02" value="1">
+      <label><input type="checkbox" id="fusion"> 合像模式（左右叠加）</label>
+      <div class="readout" id="out">最近物体视差：— px</div>
+      <p style="color:var(--sub);font-size:12px;margin-top:8px;">物体越近、瞳距越大，左右图像的位置差（视差）越大。</p>
+    </div>
+  </div>
+</div>
+<script>
+const cvL=document.getElementById('cvL'),cvR=document.getElementById('cvR'),cvF=document.getElementById('cvF');
+const spheres=[
+  {x:-0.5,z:3.0,r:0.30,c:'#ff7b6b'},
+  {x: 0.6,z:4.5,r:0.30,c:'#ffd166'},
+  {x: 1.4,z:7.0,r:0.30,c:'#6bc7ff'},
+  {x:-1.2,z:10.0,r:0.32,c:'#57d39a'}
+];
+function project(s,camX,f,cx,cy,scale){
+  const z=s.z*scale;
+  const sx=cx+(s.x-camX)*f/z;
+  const sy=cy-(0-0.4)*f/z;
+  const r=s.r*f/z;
+  return {sx,sy,r};
+}
+function render(ctx,ipd,scale,camSign,colorMode){
+  const W=ctx.canvas.width,H=ctx.canvas.height,f=280,cx=W/2,cy=H*0.55;
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle='#0a0f1a';ctx.fillRect(0,0,W,H);
+  // 地面与天空分界
+  ctx.fillStyle='#1a2334';ctx.fillRect(0,0,W,cy);
+  ctx.fillStyle='#0c101a';ctx.fillRect(0,cy,W,H-cy);
+  const camX=camSign*ipd/2;
+  // 远->近排序
+  const sorted=[...spheres].sort((a,b)=>b.z-a.z);
+  for(const s of sorted){
+    const p=project(s,camX,f,cx,cy,scale);
+    if(colorMode==='red'){ctx.fillStyle='rgba(255,60,60,0.55)';}
+    else if(colorMode==='cyan'){ctx.fillStyle='rgba(60,220,255,0.55)';}
+    else {ctx.fillStyle=s.c;}
+    ctx.beginPath();ctx.arc(p.sx,p.sy,p.r,0,Math.PI*2);ctx.fill();
+  }
+  return project(sorted[sorted.length-1],camX,f,cx,cy,scale);
+}
+function update(){
+  const ipd=+document.getElementById('ipd').value;
+  const scale=+document.getElementById('dist').value;
+  const fusion=document.getElementById('fusion').checked;
+  document.getElementById('ipdv').textContent=ipd.toFixed(1)+' cm';
+  document.getElementById('distv').textContent=scale.toFixed(2)+'×';
+  document.getElementById('fusionBox').style.display=fusion?'block':'none';
+  document.querySelector('.eyes').style.display=fusion?'none':'flex';
+  // 视差读数（最近物体 z=3）
+  const W=cvL.width,f=280,cx=W/2;
+  const near={x:-0.5,z:3.0};
+  const sxL=cx+(near.x-(-ipd/2))*f/(near.z*scale);
+  const sxR=cx+(near.x-( ipd/2))*f/(near.z*scale);
+  document.getElementById('out').textContent='最近物体视差：'+Math.abs(sxL-sxR).toFixed(0)+' px';
+  render(cvL.getContext('2d'),ipd,scale,-1,'normal');
+  render(cvR.getContext('2d'),ipd,scale,+1,'normal');
+  if(fusion){
+    const fc=cvF.getContext('2d');
+    fc.clearRect(0,0,cvF.width,cvF.height);
+    fc.fillStyle='#0a0f1a';fc.fillRect(0,0,cvF.width,cvF.height);
+    // 在合像画布上分别叠红左图与青右图（用同一中心）
+    const f=280,cx2=cvF.width/2,cy2=cvF.height*0.55;
+    const drawCol=(camSign,colorMode)=>{
+      const sorted=[...spheres].sort((a,b)=>b.z-a.z);
+      for(const s of sorted){const p=project(s,camSign*ipd/2,f,cx2,cy2,scale);fc.fillStyle=colorMode;fc.beginPath();fc.arc(p.sx,p.sy,p.r,0,Math.PI*2);fc.fill();}
+    };
+    drawCol(-1,'rgba(255,60,60,0.5)');
+    drawCol(+1,'rgba(60,220,255,0.5)');
+  }
+}
+['ipd','dist'].forEach(id=>document.getElementById(id).addEventListener('input',update));
+document.getElementById('fusion').addEventListener('change',update);
+update();
+</script>
+</body>
+</html>

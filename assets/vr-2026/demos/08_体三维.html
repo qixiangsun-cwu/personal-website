@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>08 · 体三维显示</title>
+<style>
+  :root{--bg:#0f1420;--card:#1b2233;--line:#2c3750;--txt:#eaf0fa;--sub:#9fb0c8;--acc:#4da3ff;--warn:#ffc857;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--txt);font-family:"Microsoft YaHei",system-ui,sans-serif;line-height:1.6;padding:22px;}
+  h1{font-size:21px;margin-bottom:4px;}
+  .badge{display:inline-block;background:#3a2b1a;color:var(--warn);border:1px solid #6a5128;border-radius:6px;padding:2px 8px;font-size:12px;margin-bottom:12px;}
+  .row{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start;}
+  canvas{background:#0a0f1a;border:1px solid var(--line);border-radius:12px;max-width:100%;}
+  .side{min-width:250px;max-width:330px;}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:12px;}
+  .panel h3{font-size:14px;color:var(--acc);margin-bottom:8px;}
+  label{display:flex;align-items:center;gap:8px;font-size:14px;margin:8px 0;}
+  input[type=range]{flex:1;}
+  .note{color:var(--sub);font-size:12px;margin-top:10px;}
+</style>
+</head>
+<body>
+<h1>08 · 体三维显示（旋转屏 + 视觉暂留）</h1>
+<span class="badge">2D 截面类比示意 · 非真实设备</span>
+<div class="row">
+  <canvas id="cv" width="820" height="420"></canvas>
+  <div class="side">
+    <div class="panel">
+      <h3>参数</h3>
+      <label>旋转速度 <span id="sv">1.0×</span></label>
+      <input type="range" id="speed" min="0.2" max="3" step="0.1" value="1">
+      <label>余辉/暂留 <span id="tv">60 帧</span></label>
+      <input type="range" id="trail" min="5" max="180" step="5" value="60">
+      <p class="note">左图：俯视看“旋转屏”扫过一个圆形截面；右图：正面看屏幕依次显示不同切片，暂留叠加后重建出形状。真实体三维是把 2D 屏变成 3D 体素。</p>
+    </div>
+  </div>
+</div>
+<script>
+const cv=document.getElementById('cv'),ctx=cv.getContext('2d');
+const W=cv.width,H=cv.height;
+const split=W*0.46;
+const midY=H/2;
+const axis={x:split/2+90,y:midY};
+const R=70, off=42; // 圆心相对轴的偏移
+const center={x:axis.x+off,y:axis.y};
+let hist=[];
+function chord(ang){
+  const dx=Math.cos(ang),dy=Math.sin(ang);
+  // 圆心到直线(过轴)的有符号距离
+  const d=(center.x-axis.x)*dy-(center.y-axis.y)*dx;
+  const h2=R*R-d*d;
+  if(h2<=0) return null;
+  const h=Math.sqrt(h2);
+  // 垂足
+  const t=(center.x-axis.x)*dx+(center.y-axis.y)*dy;
+  const px=axis.x+t*dx, py=axis.y+t*dy;
+  return {px,py,h,dx,dy};
+}
+function draw(){
+  const speed=+document.getElementById('speed').value;
+  const trail=+document.getElementById('trail').value;
+  document.getElementById('sv').textContent=speed.toFixed(1)+'×';
+  document.getElementById('tv').textContent=trail+' 帧';
+  const now=performance.now()/1000;
+  const ang=now*speed;
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle='#0a0f1a';ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle='#2c3750';ctx.setLineDash([4,4]);
+  ctx.beginPath();ctx.moveTo(split,0);ctx.lineTo(split,H);ctx.stroke();ctx.setLineDash([]);
+  // 左：俯视图
+  ctx.fillStyle='#9fb0c8';ctx.font='12px Microsoft YaHei';ctx.fillText('俯视：旋转屏扫过物体截面',30,26);
+  ctx.strokeStyle='#4da3ff';ctx.lineWidth=1.5;
+  ctx.beginPath();ctx.arc(center.x,center.y,R,0,Math.PI*2);ctx.stroke();
+  // 旋转屏（过轴的直线）
+  const c=chord(ang);
+  const ex=Math.cos(ang),ey=Math.sin(ang);
+  ctx.strokeStyle='rgba(255,255,255,0.18)';ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(axis.x-ex*150,axis.y-ey*150);ctx.lineTo(axis.x+ex*150,axis.y+ey*150);ctx.stroke();
+  // 当前截面（弦）
+  if(c){
+    ctx.strokeStyle='#ffc857';ctx.lineWidth=4;
+    ctx.beginPath();ctx.moveTo(c.px-c.dx*c.h,c.py-c.dy*c.h);ctx.lineTo(c.px+c.dx*c.h,c.py+c.dy*c.h);ctx.stroke();
+    hist.push({h:c.h,age:0});
+  }
+  // 右：正面视图
+  const rcx=split+(W-split)/2;
+  ctx.fillStyle='#9fb0c8';ctx.fillText('正面：屏幕依次显示切片（暂留叠加）',split+30,26);
+  // 屏幕线
+  ctx.strokeStyle='#eaf0fa';ctx.lineWidth=2;
+  ctx.beginPath();ctx.moveTo(rcx,60);ctx.lineTo(rcx,H-60);ctx.stroke();
+  // 历史切片
+  hist=hist.filter(x=>{x.age++;return x.age<trail;});
+  for(const h of hist){
+    const a=1-h.age/trail;
+    ctx.strokeStyle=`rgba(255,201,87,${(a*0.9).toFixed(3)})`;
+    ctx.lineWidth=6;
+    ctx.lineCap='round';
+    ctx.beginPath();
+    ctx.moveTo(rcx, midY - h.h);
+    ctx.lineTo(rcx, midY + h.h);
+    ctx.stroke();
+  }
+  requestAnimationFrame(draw);
+}
+// 简化：直接用 hist 画垂直线段
+requestAnimationFrame(draw);
+</script>
+</body>
+</html>
