@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>03 · 6DoF 自由度演示</title>
+<style>
+  :root{--bg:#0f1420;--card:#1b2233;--line:#2c3750;--txt:#eaf0fa;--sub:#9fb0c8;--acc:#4da3ff;--good:#57d39a;--warn:#ffc857;--bad:#ff8f8f;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--txt);font-family:"Microsoft YaHei",system-ui,sans-serif;line-height:1.65;padding:26px;}
+  h1{font-size:22px;margin-bottom:4px;}
+  .badge{display:inline-block;background:#132a3d;color:var(--acc);border:1px solid #2b5b85;border-radius:6px;padding:2px 8px;font-size:12px;margin-bottom:16px;}
+  .wrap{max-width:1000px;}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px;margin-bottom:16px;}
+  .modes button{background:#111827;color:var(--txt);border:1px solid var(--line);border-radius:8px;padding:9px 14px;margin:0 8px 8px 0;cursor:pointer;font-size:14px;}
+  .modes button.on{border-color:var(--acc);color:var(--acc);background:#132a3d;}
+  .ctrls{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px;margin-top:12px;}
+  .ctrl label{display:flex;justify-content:space-between;color:var(--sub);font-size:13px;margin-bottom:3px;}
+  .ctrl input[type=range]{width:100%;}
+  .ctrl.off{opacity:.32;}
+  .hint{color:var(--warn);font-size:13px;margin-top:10px;}
+  canvas{background:#0b1120;border:1px solid var(--line);border-radius:10px;display:block;max-width:100%;}
+  .cols{display:grid;grid-template-columns:1fr 260px;gap:16px;}
+  table{width:100%;border-collapse:collapse;margin-top:12px;font-size:13px;}
+  th,td{border:1px solid var(--line);padding:7px 9px;text-align:left;}
+  th{background:#162032;color:var(--sub);}
+  .note{color:var(--sub);font-size:12.5px;margin-top:12px;line-height:1.75;}
+  .dof{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;}
+  .dof span{padding:3px 9px;border-radius:6px;font-size:12px;border:1px solid var(--line);background:#111827;color:var(--sub);}
+  .dof span.on{color:var(--good);border-color:#2c6b4c;background:#123528;}
+  .dof span.off{opacity:.3;}
+</style>
+</head>
+<body>
+<h1>03 · 6DoF 自由度演示</h1>
+<span class="badge">第3次课 · 输入设备 · 3DoF vs 6DoF</span>
+<div class="wrap">
+
+  <div class="panel">
+    <div class="modes">
+      <button data-d="3" class="on">3DoF（只能转头）</button>
+      <button data-d="6">6DoF（转头 + 走动）</button>
+    </div>
+    <div class="dof" id="dof"></div>
+    <div class="hint" id="hint"></div>
+  </div>
+
+  <div class="panel">
+    <div class="cols">
+      <div><canvas id="cv" width="640" height="400"></canvas></div>
+      <div><canvas id="top" width="240" height="240"></canvas>
+        <p style="color:var(--sub);font-size:12px;margin-top:8px;">↑ 俯视图：蓝点是相机位置，箭头是朝向，红点是目标物。</p></div>
+    </div>
+    <div class="ctrls">
+      <div class="ctrl" id="c-yaw"><label>偏航 Yaw（左右转头）<span id="v-yaw">0°</span></label><input type="range" id="yaw" min="-180" max="180" value="0"></div>
+      <div class="ctrl" id="c-pit"><label>俯仰 Pitch（上下点头）<span id="v-pit">0°</span></label><input type="range" id="pit" min="-60" max="60" value="0"></div>
+      <div class="ctrl" id="c-rol"><label>翻滚 Roll（歪头）<span id="v-rol">0°</span></label><input type="range" id="rol" min="-45" max="45" value="0"></div>
+      <div class="ctrl" id="c-x"><label>左右平移 X<span id="v-x">0.0 m</span></label><input type="range" id="x" min="-3" max="3" step="0.05" value="0"></div>
+      <div class="ctrl" id="c-z"><label>前后平移 Z（走近/后退）<span id="v-z">0.0 m</span></label><input type="range" id="z" min="-1" max="5" step="0.05" value="0"></div>
+      <div class="ctrl" id="c-y"><label>上下平移 Y（蹲下/站起）<span id="v-y">1.6 m</span></label><input type="range" id="y" min="0.4" max="2.2" step="0.05" value="1.6"></div>
+    </div>
+    <div style="margin-top:10px;"><button id="reset" style="background:#111827;color:var(--txt);border:1px solid var(--line);border-radius:8px;padding:8px 14px;cursor:pointer;">重置视角</button></div>
+  </div>
+
+  <div class="panel">
+    <h3 style="font-size:16px;margin-bottom:6px;">为什么 6DoF 对 VR 是分水岭？</h3>
+    <table>
+      <thead><tr><th></th><th>3DoF</th><th>6DoF</th></tr></thead>
+      <tbody>
+        <tr><td>能测什么</td><td>3 个旋转：俯仰 / 偏航 / 翻滚</td><td>3 个旋转 <strong>+ 3 个平移</strong>：前后 / 左右 / 上下</td></tr>
+        <tr><td>代表设备</td><td>手机纸盒 VR、早期 Cardboard、3DoF 小手柄</td><td>PICO 4 Ultra、Quest 3、Vive、Vision Pro</td></tr>
+        <tr><td>你能做什么</td><td>原地转头看四周</td><td><strong>走近看细节、侧身躲障碍、蹲下钻桌子</strong></td></tr>
+        <tr><td>运动视差</td><td>没有（头不动就没有视差）</td><td>有 → 深度感真实</td></tr>
+        <tr><td>眩晕风险</td><td>低（但沉浸感差）</td><td>低（因为可以自然走动）；<strong>反而"用摇杆移动"更容易晕</strong></td></tr>
+        <tr><td>定位方案</td><td>只需 IMU（陀螺仪）</td><td>需要 Outside-In 基站 或 Inside-Out SLAM + IMU 融合</td></tr>
+      </tbody>
+    </table>
+    <div class="note">
+      <strong>课堂动作</strong>：切到 3DoF，试着"走近"红色目标球——你会发现拉不动 Z 轴，只能干看着。这正是纸盒 VR 的根本局限。<br>
+      <strong>与第2章的联动</strong>：6DoF 带来的<strong>运动视差</strong>是第2章讲过的重要深度线索；没有 6DoF，双目视差还在，但运动视差没了，沉浸感大打折扣。<br>
+      <strong>IMU 为什么必须和视觉融合</strong>：IMU 高频（数百 Hz）但会漂移；摄像头/SLAM 低频（30–60 Hz）但不漂移。两者互补，这就是为什么所有现代头显都是"视觉 + 惯性"多模态融合。
+    </div>
+  </div>
+</div>
+
+<script>
+const cv=document.getElementById('cv'), ctx=cv.getContext('2d');
+const cvTop=document.getElementById('top'), tctx=cvTop.getContext('2d');
+let dof=3;
+const els={yaw:document.getElementById('yaw'),pit:document.getElementById('pit'),rol:document.getElementById('rol'),
+           x:document.getElementById('x'),z:document.getElementById('z'),y:document.getElementById('y')};
+const labs={yaw:document.getElementById('v-yaw'),pit:document.getElementById('v-pit'),rol:document.getElementById('v-rol'),
+            x:document.getElementById('v-x'),z:document.getElementById('v-z'),y:document.getElementById('v-y')};
+const ctrls={x:document.getElementById('c-x'),z:document.getElementById('c-z'),y:document.getElementById('c-y')};
+const DOF_TAGS=[['俯仰','yaw'],['偏航','pit'],['翻滚','rol'],['前后','z'],['左右','x'],['上下','y']];
+
+function setDof(d){
+  dof=d;
+  const off=(d===3);
+  ['x','z','y'].forEach(k=>ctrls[k].classList.toggle('off',off));
+  ['x','z','y'].forEach(k=>els[k].disabled=off);
+  if(off){els.x.value=0;els.z.value=0;els.y.value=1.6;}
+  document.getElementById('hint').innerHTML = off
+    ? '⚠️ 3DoF：平移滑块已锁定。你<strong>只能转头</strong>，无法走近目标物，也没有运动视差。'
+    : '✅ 6DoF：平移解锁。试着把 Z 拉到 3–4，<strong>走近</strong>红色目标球，注意近处的柱子相对远处移动得更快（运动视差）。';
+  const box=document.getElementById('dof');
+  box.innerHTML=DOF_TAGS.map((t,i)=>{
+    const on = (i<3) || !off;
+    return `<span class="${on?'on':'off'}">${t[0]}</span>`;
+  }).join('')+`<span style="border:none;background:none;color:var(--sub);">共 <strong style="color:var(--acc)">${off?3:6}</strong> 个自由度</span>`;
+}
+
+function project(p, cam){
+  let dx=p[0]-cam.x, dy=p[1]-cam.y, dz=p[2]-cam.z;
+  const cy=Math.cos(cam.yaw), sy=Math.sin(cam.yaw);
+  let x1=dx*cy - dz*sy, z1=dx*sy + dz*cy;
+  const cp=Math.cos(cam.pit), sp=Math.sin(cam.pit);
+  let y2=dy*cp - z1*sp, z2=dy*sp + z1*cp;
+  const cr=Math.cos(cam.rol), sr=Math.sin(cam.rol);
+  let x3=x1*cr - y2*sr, y3=x1*sr + y2*cr;
+  if(z2<0.05) return null;
+  const f=520;
+  return [320 + f*x3/z2, 200 - f*y3/z2, z2];
+}
+
+function draw(){
+  const cam={x:+els.x.value, y:+els.y.value, z:+els.z.value,
+             yaw:+els.yaw.value*Math.PI/180, pit:+els.pit.value*Math.PI/180, rol:+els.rol.value*Math.PI/180};
+  labs.yaw.textContent=els.yaw.value+'°'; labs.pit.textContent=els.pit.value+'°'; labs.rol.textContent=els.rol.value+'°';
+  labs.x.textContent=(+els.x.value).toFixed(2)+' m'; labs.z.textContent=(+els.z.value).toFixed(2)+' m'; labs.y.textContent=(+els.y.value).toFixed(2)+' m';
+
+  ctx.clearRect(0,0,640,400);
+  ctx.fillStyle='#0b1120'; ctx.fillRect(0,0,640,400);
+  // floor grid
+  ctx.lineWidth=1; ctx.strokeStyle='rgba(77,163,255,.22)';
+  for(let gx=-6;gx<=6;gx++){
+    const a=project([gx,0,-2],cam), b=project([gx,0,10],cam);
+    if(a&&b){ctx.beginPath();ctx.moveTo(a[0],a[1]);ctx.lineTo(b[0],b[1]);ctx.stroke();}
+  }
+  for(let gz=-2;gz<=10;gz++){
+    const a=project([-6,0,gz],cam), b=project([6,0,gz],cam);
+    if(a&&b){ctx.beginPath();ctx.moveTo(a[0],a[1]);ctx.lineTo(b[0],b[1]);ctx.stroke();}
+  }
+  // pillars (sorted far->near)
+  const pillars=[];
+  for(let i=0;i<8;i++){
+    const ang=i/8*Math.PI*2;
+    pillars.push([Math.cos(ang)*4.2, 0, 6+Math.sin(ang)*3.2, i]);
+  }
+  pillars.sort((p,q)=>{
+    const dp=Math.hypot(p[0]-cam.x,p[2]-cam.z), dq=Math.hypot(q[0]-cam.x,q[2]-cam.z);
+    return dq-dp;
+  });
+  pillars.forEach(p=>{
+    const bot=project([p[0],0,p[2]],cam), tp=project([p[0],2.6,p[2]],cam);
+    if(bot&&tp){
+      const d=Math.hypot(p[0]-cam.x,p[2]-cam.z);
+      const a=Math.max(.18, 1-d/12);
+      ctx.strokeStyle=`rgba(120,160,220,${a})`; ctx.lineWidth=Math.max(2, 26/bot[2]);
+      ctx.beginPath(); ctx.moveTo(bot[0],bot[1]); ctx.lineTo(tp[0],tp[1]); ctx.stroke();
+      ctx.fillStyle=`rgba(120,160,220,${a})`;
+      ctx.beginPath(); ctx.arc(tp[0],tp[1],Math.max(2,14/bot[2]),0,7); ctx.fill();
+    }
+  });
+  // target ball
+  const tb=project([0,1.4,6.5],cam);
+  if(tb){
+    const r=Math.max(4, 300/tb[2]);
+    ctx.fillStyle='#ff6b6b'; ctx.beginPath(); ctx.arc(tb[0],tb[1],r,0,7); ctx.fill();
+    ctx.strokeStyle='#ffd0d0'; ctx.lineWidth=1.5; ctx.stroke();
+    ctx.fillStyle='#ffd0d0'; ctx.font='13px Microsoft YaHei';
+    ctx.fillText('目标物', tb[0]+r+6, tb[1]+4);
+  }
+  // crosshair
+  ctx.strokeStyle='rgba(255,255,255,.35)';
+  ctx.beginPath();ctx.moveTo(312,200);ctx.lineTo(328,200);ctx.moveTo(320,192);ctx.lineTo(320,208);ctx.stroke();
+  ctx.fillStyle='#9fb0c8'; ctx.font='12px Microsoft YaHei';
+  ctx.fillText(`相机位置 (${cam.x.toFixed(2)}, ${cam.y.toFixed(2)}, ${cam.z.toFixed(2)})　自由度: ${dof}`, 12, 22);
+
+  // top view
+  tctx.clearRect(0,0,240,240); tctx.fillStyle='#0b1120'; tctx.fillRect(0,0,240,240);
+  const S=18, OX=120, OZ=190;
+  tctx.strokeStyle='#2c3750'; tctx.strokeRect(20,20,200,200);
+  tctx.fillStyle='#ff6b6b'; tctx.beginPath(); tctx.arc(OX+0*S, OZ-6.5*S, 5,0,7); tctx.fill();
+  for(let i=0;i<8;i++){const ang=i/8*Math.PI*2;
+    tctx.fillStyle='rgba(120,160,220,.6)';
+    tctx.beginPath(); tctx.arc(OX+Math.cos(ang)*4.2*S, OZ-(6+Math.sin(ang)*3.2)*S, 3,0,7); tctx.fill();}
+  const cxp=OX+cam.x*S, czp=OZ-cam.z*S;
+  tctx.fillStyle='#4da3ff'; tctx.beginPath(); tctx.arc(cxp,czp,6,0,7); tctx.fill();
+  const ax=-Math.sin(cam.yaw), az=-Math.cos(cam.yaw);
+  tctx.strokeStyle='#4da3ff'; tctx.lineWidth=2.5;
+  tctx.beginPath(); tctx.moveTo(cxp,czp); tctx.lineTo(cxp+ax*34, czp+az*34); tctx.stroke();
+  tctx.fillStyle='#4da3ff'; tctx.beginPath();
+  tctx.moveTo(cxp+ax*40, czp+az*40);
+  tctx.lineTo(cxp+ax*30-ax*0+ -az*7, czp+az*30+ax*7);
+  tctx.lineTo(cxp+ax*30+az*7, czp+az*30-ax*7);
+  tctx.closePath(); tctx.fill();
+  tctx.fillStyle='#9fb0c8'; tctx.font='11px Microsoft YaHei'; tctx.fillText('俯视图（上=远）', 24, 34);
+}
+
+Object.values(els).forEach(e=>e.addEventListener('input',draw));
+document.getElementById('reset').addEventListener('click',()=>{
+  els.yaw.value=0;els.pit.value=0;els.rol.value=0;els.x.value=0;els.z.value=0;els.y.value=1.6;draw();
+});
+document.querySelectorAll('.modes button').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.modes button').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on'); setDof(+b.dataset.d); draw();
+}));
+setDof(3); draw();
+</script>
+</body>
+</html>

@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>06 · WebXR 能力检测</title>
+<style>
+  :root{--bg:#0f1420;--card:#1b2233;--line:#2c3750;--txt:#eaf0fa;--sub:#9fb0c8;--acc:#4da3ff;--good:#57d39a;--warn:#ffc857;--bad:#ff8f8f;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--txt);font-family:"Microsoft YaHei",system-ui,sans-serif;line-height:1.65;padding:26px;}
+  h1{font-size:22px;margin-bottom:4px;}
+  .badge{display:inline-block;background:#132a3d;color:var(--acc);border:1px solid #2b5b85;border-radius:6px;padding:2px 8px;font-size:12px;margin-bottom:16px;}
+  .wrap{max-width:860px;}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px;margin-bottom:16px;}
+  table{width:100%;border-collapse:collapse;margin-top:12px;font-size:13.5px;}
+  th,td{border:1px solid var(--line);padding:8px 10px;text-align:left;}
+  th{background:#162032;color:var(--sub);}
+  .yes{color:var(--good);font-weight:700;} .no{color:var(--bad);font-weight:700;} .unk{color:var(--warn);font-weight:700;}
+  .big{font-size:20px;font-weight:800;margin:8px 0;}
+  .note{color:var(--sub);font-size:12.5px;margin-top:12px;line-height:1.75;}
+  button{background:#111827;color:var(--txt);border:1px solid var(--line);border-radius:8px;padding:9px 16px;cursor:pointer;font-size:14px;margin-top:10px;}
+  button:hover{border-color:var(--acc);}
+  code{background:#0d1320;padding:2px 6px;border-radius:5px;color:var(--warn);font-size:12.5px;}
+  .ua{color:var(--sub);font-size:12px;word-break:break-all;margin-top:10px;}
+</style>
+</head>
+<body>
+<h1>06 · WebXR 能力检测</h1>
+<span class="badge">第3次课 · 同一个网页，结果由硬件决定</span>
+<div class="wrap">
+
+  <div class="panel">
+    <div class="big" id="headline">检测中…</div>
+    <div id="summary" style="color:var(--sub);font-size:14px;"></div>
+    <button id="btn">重新检测</button>
+    <div class="ua">User-Agent：<span id="ua"></span></div>
+  </div>
+
+  <div class="panel">
+    <h3 style="font-size:16px;margin-bottom:6px;">能力清单</h3>
+    <table>
+      <thead><tr><th>能力</th><th>结果</th><th>说明</th></tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </div>
+
+  <div class="panel">
+    <h3 style="font-size:16px;margin-bottom:6px;">怎么读这张表</h3>
+    <div class="note">
+      <strong>在机房 PC 上</strong>：<code>navigator.xr</code> 可能存在，但 <code>immersive-vr</code> 通常是 <strong>不支持</strong>——因为没有头显。这就是"同一个网页，结果由硬件决定"。<br>
+      <strong>在 PICO 浏览器里</strong>：<code>immersive-vr</code> 通常为 <strong>支持</strong>，可以一键进入 VR 模式；若支持 <code>hand-tracking</code>，说明这台设备能把手势传给网页。<br>
+      <strong>WebXR 的意义</strong>：浏览器即平台——不用装应用、不用过商店审核，一个链接就能分发 3D/VR 内容。对内容创作者是<strong>门槛最低</strong>的发布方式。<br>
+      <strong>局限</strong>：性能与系统能力（眼动、深度、空间锚定的高级用法）通常不如原生应用；重度游戏仍以原生为主。<br>
+      <strong>本学期用得上</strong>：第5章全景漫游、第8章 AR 都可以用 WebXR 做轻量版本做快速验证。
+    </div>
+  </div>
+</div>
+
+<script>
+const rows=document.getElementById('rows');
+const headline=document.getElementById('headline');
+const summary=document.getElementById('summary');
+document.getElementById('ua').textContent=navigator.userAgent;
+
+const FEATURES=[
+  ['hand-tracking','手部追踪','把手势关节点交给网页'],
+  ['hit-test','命中测试','从画面射线打到真实平面（AR 放物体）'],
+  ['anchors','空间锚点','把虚拟物体固定在空间某处并保持稳定'],
+  ['depth-sensing','深度感知','拿到深度图，实现更真实的遮挡'],
+  ['dom-overlay','DOM 覆盖层','在 VR 画面上叠加 HTML 界面'],
+  ['light-estimation','光照估计','按真实环境光照渲染虚拟物体'],
+  ['bounded-floor','有界地面','用于房间级体验与边界'],
+  ['local-floor','本地地面','用于站定/房间级体验'],
+  ['layers','图层','合成层，提升渲染质量']
+];
+
+const MODES=[
+  ['inline','内联模式（页面里嵌 3D）'],
+  ['immersive-vr','沉浸式 VR（头显全屏）'],
+  ['immersive-ar','沉浸式 AR（透视叠加）']
+];
+
+function mark(v){ return v===true?'<span class="yes">支持</span>' : v===false?'<span class="no">不支持</span>' : '<span class="unk">未知</span>'; }
+
+async function detect(){
+  rows.innerHTML='<tr><td colspan="3">检测中…</td></tr>';
+  const hasXR = !!navigator.xr;
+  let html='';
+  html+=`<tr><td><strong>navigator.xr</strong> 是否存在</td><td>${mark(hasXR)}</td><td>浏览器是否提供 WebXR API</td></tr>`;
+
+  if(!hasXR){
+    headline.innerHTML='<span class="no">此设备/浏览器不支持 WebXR</span>';
+    summary.textContent='若你在机房 PC 上看到这条，属正常：没有头显。请到 PICO 浏览器里再打开同一页面对比结果。';
+    rows.innerHTML=html;
+    return;
+  }
+
+  let vrOk=false, arOk=false, mode=null;
+  for(const [m,desc] of MODES){
+    let r=false;
+    try{ r = await navigator.xr.isSessionSupported(m); }catch(e){ r='err'; }
+    if(m==='immersive-vr' && r===true) vrOk=true;
+    if(m==='immersive-ar' && r===true) arOk=true;
+    html+=`<tr><td><strong>${m}</strong><br><span style="color:var(--sub);font-size:12px">${desc}</span></td><td>${mark(r==='err'?undefined:r)}</td><td></td></tr>`;
+  }
+  mode = vrOk?'immersive-vr':(arOk?'immersive-ar':null);
+
+  // features: not probed by default (starting a session unprompted is intrusive)
+  FEATURES.forEach(f=>{
+    html+=`<tr><td><strong>${f[0]}</strong><br><span style="color:var(--sub);font-size:12px">${f[1]}</span></td><td id="f_${f[0]}"><span class="unk">未探测</span></td><td>${f[2]}</td></tr>`;
+  });
+  html+=`<tr><td colspan="3" style="text-align:center;padding:14px"><button id="probe" ${mode?'':'disabled'} style="margin:0">${mode?'探测会话特性（会短暂进入 VR 模式）':'无可用沉浸式会话，无法探测'}</button></td></tr>`;
+  rows.innerHTML=html;
+
+  const pb=document.getElementById('probe');
+  if(mode){
+    pb.addEventListener('click', async ()=>{
+      pb.disabled=true; pb.textContent='探测中…';
+      let enabled=null;
+      try{
+        const s=await navigator.xr.requestSession(mode,{optionalFeatures:FEATURES.map(f=>f[0])});
+        enabled = s.enabledFeatures ? [...s.enabledFeatures] : null;
+        await s.end();
+      }catch(e){ enabled=null; pb.textContent='探测失败（用户拒绝或设备不支持）：'+e.message; }
+      if(enabled){
+        FEATURES.forEach(f=>{
+          document.getElementById('f_'+f[0]).innerHTML = mark(enabled.includes(f[0]));
+        });
+        pb.textContent='探测完成 · 点击上方"重新检测"可再来一次';
+      }else if(pb.textContent==='探测中…'){
+        pb.textContent='未拿到 enabledFeatures（浏览器未暴露）';
+      }
+    });
+  }
+
+  if(vrOk && arOk){ headline.innerHTML='<span class="yes">支持沉浸式 VR 与 AR</span>'; summary.textContent='这台设备可以运行完整的 WebXR 内容（VR 全沉浸 + AR 透视叠加）。'; }
+  else if(vrOk){ headline.innerHTML='<span class="yes">支持沉浸式 VR</span>'; summary.textContent='可以进入 VR 全屏模式；AR（透视）不可用或未被浏览器暴露。'; }
+  else if(arOk){ headline.innerHTML='<span class="yes">支持沉浸式 AR</span>'; summary.textContent='可以进入 AR 透视模式（多为手机 ARCore 设备）。'; }
+  else { headline.innerHTML='<span class="no">不支持沉浸式会话</span>'; summary.textContent='只能使用 inline 模式（页面内嵌 3D）。机房 PC 上看到这条是正常的。'; }
+}
+
+document.getElementById('btn').addEventListener('click',detect);
+detect();
+</script>
+</body>
+</html>

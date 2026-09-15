@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第3次课 · 演示中心（硬件 + 软件）</title>
+<style>
+  :root{--bg:#0f1420;--card:#1b2233;--line:#2c3750;--txt:#eaf0fa;--sub:#9fb0c8;--acc:#4da3ff;--warn:#ffc857;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--txt);font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif;line-height:1.6;padding:28px;}
+  h1{font-size:26px;margin-bottom:6px;}
+  .lead{color:var(--sub);margin-bottom:22px;max-width:940px;}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;max-width:1200px;}
+  a.card{display:block;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;color:var(--txt);text-decoration:none;transition:.15s;}
+  a.card:hover{border-color:var(--acc);transform:translateY(-2px);}
+  .num{display:inline-block;background:var(--acc);color:#07101f;font-weight:700;border-radius:6px;padding:2px 8px;font-size:13px;margin-right:8px;}
+  .title{font-size:17px;font-weight:700;margin:8px 0 6px;}
+  .tech{color:var(--warn);font-size:13px;margin-bottom:6px;}
+  .desc{color:var(--sub);font-size:13px;}
+  .note{max-width:940px;margin-top:26px;padding:14px 16px;border-left:3px solid var(--warn);background:#1a1f2b;color:var(--sub);font-size:13px;border-radius:0 8px 8px 0;line-height:1.8;}
+</style>
+</head>
+<body>
+<h1>课堂演示中心 · 硬件 + 软件</h1>
+<p class="lead">第3次课配套。<strong>全部离线可用，无外部依赖</strong>。01—06 为<strong>硬件设备</strong>主题（虚拟现实系统的硬件设备）；<strong>07 为软件主题</strong>（虚拟现实开发常用软件）。除 06 需真实 XR 设备才能返回"支持"外，其余均为<strong>原理示意与计算工具</strong>——真实效果请以 PICO 4 Ultra 实机为准。</p>
+<p class="lead" style="margin-top:-14px;"><a href="../../vr-2026-lesson3.html" style="color:var(--acc);">← 返回《虚拟现实技术》第 3 次课课堂内容</a></p>
+
+<div class="grid">
+  <a class="card" href="01_PPD与参数对比计算器.html">
+    <span class="num">01</span><div class="title">PPD 与设备参数对比计算器</div>
+    <div class="tech">清晰度 = PPD，不是分辨率</div>
+    <div class="desc">输入像素数与视场角算 PPD，内置 6 款设备预设；附"三套口径"对照表，训练参数口径意识。</div>
+  </a>
+  <a class="card" href="02_定位方式对比.html">
+    <span class="num">02</span><div class="title">定位方式对比</div>
+    <div class="tech">Outside-In / Inside-Out / SLAM</div>
+    <div class="desc">切换三种定位方案 × 六种环境场景（弱光、白墙、遮挡、快速运动…），实时显示追踪状态。</div>
+  </a>
+  <a class="card" href="03_6DoF自由度演示.html">
+    <span class="num">03</span><div class="title">6DoF 自由度演示</div>
+    <div class="tech">3 旋转 + 3 平移</div>
+    <div class="desc">3DoF 下平移被锁死——你只能转头，走不近目标。切到 6DoF 体会运动视差与"走近看细节"。</div>
+  </a>
+  <a class="card" href="04_手部追踪与交互方式.html">
+    <span class="num">04</span><div class="title">手部追踪与交互方式</div>
+    <div class="tech">手柄 / 手势 / 眼动 / 语音 / 动捕</div>
+    <div class="desc">五类输入的原理、延迟、优劣对比；含 22 关节点手骨图与六种手势失效场景模拟。</div>
+  </a>
+  <a class="card" href="05_MR透视与空间网格.html">
+    <span class="num">05</span><div class="title">MR 透视与空间网格</div>
+    <div class="tech">彩色透视 / iToF / 语义分割</div>
+    <div class="desc">叠加开关：透视画质、空间网格、AI 语义标签、虚实遮挡、深度图；拖 PPD 滑块看画质劣化。</div>
+  </a>
+  <a class="card" href="06_WebXR能力检测.html">
+    <span class="num">06</span><div class="title">WebXR 能力检测</div>
+    <div class="tech">浏览器即平台</div>
+    <div class="desc">检测当前设备的 WebXR 会话与特性支持。<strong>机房 PC 与 PICO 浏览器结果对比</strong>，是 A7/B4 任务。</div>
+  </a>
+  <a class="card" href="07_软件生态与管线决策台.html">
+    <span class="num">07</span><div class="title">软件生态与管线决策台</div>
+    <div class="tech">建模 / 引擎 / 资产 / 验证 · 五道关</div>
+    <div class="desc">五个标签：<strong>软件生态地图</strong>、<strong>硬件↔软件对照</strong>（第3章与第4章的接口）、<strong>资产管线五道关</strong>、<strong>选题决策助手</strong>、<strong>今晚必须装的东西</strong>。软件主题课的主线演示。</div>
+  </a>
+</div>
+
+<p class="note">
+⚠️ <strong>口径提醒</strong>：所有参数为 2026 年 9 月公开口径，厂商会更新；跨品牌比较必须统一口径（官方标称 / 按 FOV 计算 / 第三方实测）。<br>
+⚠️ <strong>演示边界</strong>：这些页面是原理示意，不是真实设备效果。真机体验请完成《应用操作手册》A 类九项任务。<br>
+✅ <strong>建议节奏</strong>：01 配合第三节讲 HMD 指标；02/03 配合第二节讲输入设备；04 配合 A4 任务；05 配合 A3/A8；06 用于 A7 与 B4 的对照实验。
+</p>
+</body>
+</html>

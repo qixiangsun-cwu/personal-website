@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>05 · MR 透视与空间网格</title>
+<style>
+  :root{--bg:#0f1420;--card:#1b2233;--line:#2c3750;--txt:#eaf0fa;--sub:#9fb0c8;--acc:#4da3ff;--good:#57d39a;--warn:#ffc857;--bad:#ff8f8f;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--txt);font-family:"Microsoft YaHei",system-ui,sans-serif;line-height:1.65;padding:26px;}
+  h1{font-size:22px;margin-bottom:4px;}
+  .badge{display:inline-block;background:#132a3d;color:var(--acc);border:1px solid #2b5b85;border-radius:6px;padding:2px 8px;font-size:12px;margin-bottom:16px;}
+  .wrap{max-width:1000px;}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px;margin-bottom:16px;}
+  .sw{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px;}
+  .sw label{display:flex;align-items:center;gap:6px;background:#111827;border:1px solid var(--line);border-radius:8px;padding:7px 12px;cursor:pointer;font-size:13.5px;}
+  .sw input{accent-color:#4da3ff;}
+  canvas{background:#0b1120;border:1px solid var(--line);border-radius:10px;display:block;max-width:100%;}
+  table{width:100%;border-collapse:collapse;margin-top:12px;font-size:13px;}
+  th,td{border:1px solid var(--line);padding:7px 9px;text-align:left;}
+  th{background:#162032;color:var(--sub);}
+  .note{color:var(--sub);font-size:12.5px;margin-top:12px;line-height:1.75;}
+  .pill{display:inline-block;padding:3px 9px;border-radius:6px;font-size:12px;margin:4px 6px 0 0;background:#111827;border:1px solid var(--line);color:var(--sub);}
+</style>
+</head>
+<body>
+<h1>05 · MR 彩色透视与空间网格</h1>
+<span class="badge">第3次课 · 输出设备 / 传感器 · MR 是怎么"看见"现实的</span>
+<div class="wrap">
+
+  <div class="panel">
+    <div class="sw">
+      <label><input type="checkbox" id="cam" checked> 彩色透视（真实画面）</label>
+      <label><input type="checkbox" id="mesh" checked> 空间网格（Mesh）</label>
+      <label><input type="checkbox" id="label"> 语义标签（AI 识别）</label>
+      <label><input type="checkbox" id="occ" checked> 虚实遮挡</label>
+      <label><input type="checkbox" id="obj" checked> 虚拟物体</label>
+      <label><input type="checkbox" id="depth"> 深度图（iToF）</label>
+    </div>
+    <div class="sw">
+      <label style="background:none;border:none;padding-left:0;">透视清晰度模拟：<input type="range" id="ppd" min="8" max="30" value="22" style="width:180px;"> <span id="ppdv" style="color:var(--acc);">22 PPD</span></label>
+    </div>
+    <div style="margin-top:14px;"><canvas id="cv" width="900" height="420"></canvas></div>
+    <p style="color:var(--sub);font-size:12.5px;margin-top:8px;">
+      这是一张<strong>原理示意图</strong>：左侧模拟"摄像头看到的真实房间"，右侧叠加系统重建的网格、语义标签与虚拟物体。真实效果请以 PICO 4 Ultra 实机为准（A3 / A8 任务）。
+    </p>
+  </div>
+
+  <div class="panel">
+    <h3 style="font-size:16px;margin-bottom:6px;">MR 需要三类传感器，缺一不可</h3>
+    <table>
+      <thead><tr><th>传感器</th><th>PICO 4 Ultra 配置</th><th>解决什么问题</th><th>缺了会怎样</th></tr></thead>
+      <tbody>
+        <tr><td><strong>环境追踪摄像头</strong></td><td>4 颗</td><td>SLAM 定位：头显自己在哪（见演示02）</td><td>无法定位，虚拟内容会"漂"</td></tr>
+        <tr><td><strong>彩色透视摄像头</strong></td><td>3200 万像素 × 2</td><td>把真实世界"拍"给你看，中心约 22.5 PPD</td><td>只能黑屏沉浸，做不了 MR</td></tr>
+        <tr><td><strong>深度传感器（iToF）</strong></td><td>1 颗</td><td>测距离 → 建空间网格 → 实现<strong>虚实遮挡</strong></td><td>虚拟物体会"穿模"，无法真实地落在桌面上</td></tr>
+      </tbody>
+    </table>
+    <div class="note">
+      <strong>空间网格（Spatial Mesh）做什么</strong>：把房间表面重建为三角网格，虚拟物体才能 ①<strong>放得住</strong>（落在桌面上而不是浮空）②<strong>被遮住</strong>（人走到虚拟物体前面时，虚拟物体被真实人体遮挡）③<strong>会碰撞</strong>（虚拟球从桌上滚落到地上）。<br>
+      <strong>AI 在哪</strong>：从网格到"语义"（这是桌面 / 地板 / 墙 / 沙发）靠的是<strong>语义分割模型</strong>——没有它，系统只知道"这里有个平面"，不知道"这是能放东西的桌子"。<br>
+      <strong>72 Hz 帧对齐</strong>：MR 最难的不是"看得见"，而是真实画面与虚拟内容<strong>同步</strong>——两者差几毫秒，走路时虚拟物体就会"游移"。PICO 4 Ultra 支持透视帧对齐最高 72 Hz（官方口径）。
+    </div>
+  </div>
+
+  <div class="panel">
+    <h3 style="font-size:16px;margin-bottom:6px;">透视画质的三个"体感"指标</h3>
+    <div>
+      <span class="pill">清晰度（PPD）：能不能看清手机上的字</span>
+      <span class="pill">延迟：转头时真实画面跟不跟得上</span>
+      <span class="pill">畸变：边缘的直线是不是弯的</span>
+      <span class="pill">色彩/亮度：与真实环境是否一致</span>
+      <span class="pill">噪点：暗处是否满是雪花</span>
+    </div>
+    <div class="note">
+      课堂任务 A3 就是让你用这五个词评价透视画面。<strong>不要只说"清楚/不清楚"</strong>，要说清是哪一个维度不行。<br>
+      PICO 4 Ultra 官方口径：彩色透视中心约 <strong>22.5 PPD</strong>，支持最高 <strong>72 Hz</strong> 帧对齐，具备低畸变与色彩校正。
+    </div>
+  </div>
+</div>
+
+<script>
+const cv=document.getElementById('cv'), ctx=cv.getContext('2d');
+const S={cam:1,mesh:1,label:0,occ:1,obj:1,depth:0};
+Object.keys(S).forEach(k=>{
+  const el=document.getElementById(k);
+  el.addEventListener('change',()=>{S[k]=el.checked?1:0;draw();});
+});
+const ppdEl=document.getElementById('ppd'), ppdv=document.getElementById('ppdv');
+ppdEl.addEventListener('input',()=>{ppdv.textContent=ppdEl.value+' PPD';draw();});
+
+function noise(w,h,amount){
+  const c=document.createElement('canvas'); c.width=w; c.height=h;
+  const x=c.getContext('2d'); const img=x.createImageData(w,h);
+  for(let i=0;i<img.data.length;i+=4){
+    const v=(Math.random()*255)|0;
+    img.data[i]=img.data[i+1]=img.data[i+2]=v; img.data[i+3]=amount;
+  }
+  x.putImageData(img,0,0); return c;
+}
+
+function draw(){
+  const W=900,H=420;
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle='#05070d'; ctx.fillRect(0,0,W,H);
+  const ppp=+ppdEl.value;
+
+  // ---- real room (passthrough) ----
+  if(S.cam){
+    // wall gradient
+    let g=ctx.createLinearGradient(0,0,0,H);
+    g.addColorStop(0,'#37323a'); g.addColorStop(0.62,'#4a4450'); g.addColorStop(0.63,'#5c5450'); g.addColorStop(1,'#3a352f');
+    ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+    // window
+    ctx.fillStyle='rgba(200,220,255,.55)'; ctx.fillRect(60,60,190,150);
+    ctx.strokeStyle='#6b6470'; ctx.lineWidth=6; ctx.strokeRect(60,60,190,150);
+    // desk
+    ctx.fillStyle='#6d5a45'; ctx.fillRect(320,270,340,22);
+    ctx.fillRect(340,292,16,110); ctx.fillRect(624,292,16,110);
+    // floor
+    ctx.fillStyle='#4a4038'; ctx.fillRect(0,340,W,80);
+    ctx.strokeStyle='rgba(0,0,0,.18)'; ctx.lineWidth=1;
+    for(let i=0;i<12;i++){ctx.beginPath();ctx.moveTo(i*90,H);ctx.lineTo(300+i*40,340);ctx.stroke();}
+    // lamp
+    ctx.fillStyle='#2f2a2a'; ctx.fillRect(760,120,14,150);
+    ctx.fillStyle='#e8d9a8'; ctx.beginPath(); ctx.arc(767,112,26,0,7); ctx.fill();
+    // person (real)
+    ctx.fillStyle='#2b2b33';
+    ctx.beginPath(); ctx.arc(180,300,34,0,7); ctx.fill();
+    ctx.fillRect(146,334,68,86);
+    ctx.fillStyle='#9fb0c8'; ctx.font='13px Microsoft YaHei'; ctx.fillText('真实的人',152,300);
+
+    // passthrough quality simulation: blur + noise + edge vignette
+    if(ppp<24){
+      // draw the current frame into an offscreen canvas first (self-drawImage with filter is unreliable)
+      const off=document.createElement('canvas'); off.width=W; off.height=H;
+      off.getContext('2d').drawImage(cv,0,0);
+      ctx.clearRect(0,0,W,H);
+      ctx.filter=`blur(${(24-ppp)*0.6}px)`;
+      ctx.drawImage(off,0,0);
+      ctx.filter='none';
+    }
+    // scanline / pixel grid to emulate low PPD
+    const step=Math.max(2, Math.round(30/ppp*3));
+    if(step>2){
+      ctx.globalAlpha=0.16; ctx.strokeStyle='#000'; ctx.lineWidth=1;
+      for(let y=0;y<H;y+=step){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+      for(let x=0;x<W;x+=step){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+      ctx.globalAlpha=1;
+    }
+    if(ppp<18){
+      const n=noise(W,H,Math.round((18-ppp)*7));
+      ctx.globalAlpha=.5; ctx.drawImage(n,0,0); ctx.globalAlpha=1;
+    }
+    // edge darkening / distortion hint
+    const vg=ctx.createRadialGradient(W/2,H/2,120,W/2,H/2,560);
+    vg.addColorStop(0,'rgba(0,0,0,0)'); vg.addColorStop(1,'rgba(0,0,0,.45)');
+    ctx.fillStyle=vg; ctx.fillRect(0,0,W,H);
+    ctx.fillStyle='rgba(255,255,255,.75)'; ctx.font='12px Microsoft YaHei';
+    ctx.fillText('模拟透视画质：'+ppp+' PPD', 14, 22);
+  }
+
+  // ---- spatial mesh ----
+  if(S.mesh){
+    ctx.strokeStyle='rgba(77,163,255,.55)'; ctx.lineWidth=1;
+    const gs=34;
+    for(let x=0;x<=W;x+=gs){
+      ctx.beginPath();
+      for(let y=0;y<=H;y+=8){
+        const off=Math.sin((x+y)/70)*3;
+        y===0?ctx.moveTo(x+off,y):ctx.lineTo(x+off,y);
+      }
+      ctx.stroke();
+    }
+    for(let y=0;y<=H;y+=gs){
+      ctx.beginPath();
+      for(let x=0;x<=W;x+=8){
+        const off=Math.sin((x+y)/70)*3;
+        x===0?ctx.moveTo(x,y+off):ctx.lineTo(x,y+off);
+      }
+      ctx.stroke();
+    }
+  }
+
+  // ---- depth map ----
+  if(S.depth){
+    const d=ctx.createLinearGradient(0,240,0,420);
+    d.addColorStop(0,'#00e0ff'); d.addColorStop(0.5,'#3a7bd5'); d.addColorStop(1,'#101820');
+    ctx.globalAlpha=.55; ctx.fillStyle=d; ctx.fillRect(0,240,W,180); ctx.globalAlpha=1;
+    ctx.fillStyle='#0b1120'; ctx.font='12px Microsoft YaHei';
+    ctx.fillText('iToF 深度图：近=亮青，远=深蓝', 14, 262);
+  }
+
+  // ---- virtual object on desk ----
+  const bx=470, by=270;
+  ctx.save();
+  if(S.occ && S.cam){
+    // real person occludes nothing here; desk edge occludes lower part
+    ctx.beginPath(); ctx.rect(0,0,W,292); ctx.clip();
+  }
+  if(S.obj){
+    // shadow
+    ctx.fillStyle='rgba(0,0,0,.35)'; ctx.beginPath(); ctx.ellipse(bx,272,46,10,0,0,7); ctx.fill();
+    // cube
+    ctx.fillStyle='rgba(87,211,154,.9)'; ctx.strokeStyle='#d6ffe9'; ctx.lineWidth=2;
+    ctx.beginPath();
+    ctx.moveTo(bx,by-70); ctx.lineTo(bx+40,by-52); ctx.lineTo(bx+40,by-8); ctx.lineTo(bx,by-26); ctx.closePath();
+    ctx.fill(); ctx.stroke();
+    ctx.fillStyle='rgba(120,240,180,.9)';
+    ctx.beginPath(); ctx.moveTo(bx,by-26); ctx.lineTo(bx+40,by-8); ctx.lineTo(bx,by+18); ctx.lineTo(bx-40,by); ctx.closePath();
+    ctx.fill(); ctx.stroke();
+    ctx.fillStyle='rgba(70,180,130,.9)';
+    ctx.beginPath(); ctx.moveTo(bx-40,by); ctx.lineTo(bx,by-26); ctx.lineTo(bx,by-70); ctx.lineTo(bx-40,by-44); ctx.closePath();
+    ctx.fill(); ctx.stroke();
+    ctx.fillStyle='#eaf0fa'; ctx.font='13px Microsoft YaHei';
+    ctx.fillText('虚拟物体（锚定在桌面）', bx-90, by-90);
+  }
+  ctx.restore();
+
+  // ---- semantic labels ----
+  if(S.label){
+    const tags=[[405,262,'桌面 · 可放置'],[120,382,'地板 · 可行走'],[70,120,'窗户 · 光源'],[770,100,'灯 · 光源'],[180,300,'人 · 动态障碍']];
+    tags.forEach(([x,y,t])=>{
+      ctx.font='12px Microsoft YaHei';
+      const w=ctx.measureText(t).width+14;
+      ctx.fillStyle='rgba(20,40,30,.85)'; ctx.strokeStyle='#57d39a'; ctx.lineWidth=1;
+      ctx.beginPath(); ctx.roundRect ? ctx.roundRect(x,y-16,w,20,5) : ctx.rect(x,y-16,w,20);
+      ctx.fill(); ctx.stroke();
+      ctx.fillStyle='#57d39a'; ctx.fillText(t,x+7,y-2);
+    });
+    ctx.fillStyle='#57d39a'; ctx.font='12px Microsoft YaHei';
+    ctx.fillText('★ 语义标签来自 AI 语义分割，不是摄像头直接"拍"出来的',14,H-12);
+  }
+}
+draw();
+</script>
+</body>
+</html>

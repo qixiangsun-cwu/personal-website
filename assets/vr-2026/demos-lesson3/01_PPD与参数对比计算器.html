@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>01 · PPD 与设备参数对比计算器</title>
+<style>
+  :root{--bg:#0f1420;--card:#1b2233;--line:#2c3750;--txt:#eaf0fa;--sub:#9fb0c8;--acc:#4da3ff;--good:#57d39a;--warn:#ffc857;--bad:#ff8f8f;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--txt);font-family:"Microsoft YaHei",system-ui,sans-serif;line-height:1.65;padding:26px;}
+  h1{font-size:22px;margin-bottom:4px;}
+  .badge{display:inline-block;background:#132a3d;color:var(--acc);border:1px solid #2b5b85;border-radius:6px;padding:2px 8px;font-size:12px;margin-bottom:16px;}
+  .wrap{max-width:1000px;}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px;margin-bottom:16px;}
+  label{display:block;color:var(--sub);font-size:13px;margin:10px 0 4px;}
+  input[type=number]{width:170px;padding:8px 10px;border-radius:8px;border:1px solid var(--line);background:#111827;color:var(--txt);font-size:15px;}
+  .presets button{background:#111827;color:var(--txt);border:1px solid var(--line);border-radius:8px;padding:7px 10px;margin:6px 6px 0 0;cursor:pointer;font-size:13px;}
+  .presets button:hover{border-color:var(--acc);}
+  .presets button.on{border-color:var(--acc);color:var(--acc);}
+  .result{font-size:38px;font-weight:800;color:var(--acc);margin:6px 0 2px;}
+  .formula{color:var(--sub);font-size:14px;background:#0d1320;border-radius:8px;padding:10px 12px;margin-top:8px;}
+  .verdict{font-size:15px;margin-top:8px;font-weight:600;}
+  table{width:100%;border-collapse:collapse;margin-top:10px;font-size:13px;}
+  th,td{border:1px solid var(--line);padding:7px 9px;text-align:left;}
+  th{background:#162032;color:var(--sub);font-weight:600;}
+  td.num{text-align:right;font-variant-numeric:tabular-nums;}
+  .hl{color:var(--warn);font-weight:700;}
+  .note{color:var(--sub);font-size:12.5px;margin-top:12px;line-height:1.7;}
+  .bars{margin-top:14px;}
+  .row{display:flex;align-items:center;gap:10px;margin:7px 0;font-size:13px;}
+  .row .nm{width:150px;color:var(--sub);}
+  .row .tr{flex:1;height:14px;background:#111827;border:1px solid var(--line);border-radius:7px;overflow:hidden;}
+  .row .fl{height:100%;background:linear-gradient(90deg,#4da3ff,#57d39a);}
+  .row .vv{width:96px;text-align:right;font-variant-numeric:tabular-nums;}
+</style>
+</head>
+<body>
+<h1>01 · PPD 与设备参数对比计算器</h1>
+<span class="badge">第3次课 · 硬件设备 · 口径意识训练</span>
+<div class="wrap">
+
+  <div class="panel">
+    <div class="formula"><strong>核心公式：PPD ≈ 单眼横向像素数 ÷ 单眼水平视场角（°）</strong><br>
+    它回答的是"每一度视角分到多少像素"——<strong>这才是清晰度</strong>，不是分辨率。</div>
+    <label>单眼横向像素数（px）</label>
+    <input type="number" id="px" value="2160" min="200" step="2">
+    <label>单眼水平视场角（°）</label>
+    <input type="number" id="fov" value="105" min="20" max="180" step="1">
+    <div class="presets">
+      <button data-px="2160" data-fov="105" class="on">PICO 4 Ultra</button>
+      <button data-px="2064" data-fov="104">Quest 3（可见FOV）</button>
+      <button data-px="1832" data-fov="96">Quest 3S（可见FOV）</button>
+      <button data-px="3662" data-fov="100">Vision Pro M5</button>
+      <button data-px="3552" data-fov="109">Galaxy XR</button>
+      <button data-px="960" data-fov="90">手机纸盒 VR</button>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="result" id="ppd">20.6</div>
+    <div class="verdict" id="verdict"></div>
+    <div class="bars" id="bars"></div>
+    <div class="note">★ 关键：<strong>把视场角拉大，像素就被摊薄</strong>。拖动上面的 FOV 到 140° 试试——同样是 2160 像素，画面立刻变糊。<br>
+    这就是为什么"4K 超高清"是营销话术，<strong>PPD 才是技术指标</strong>。</div>
+  </div>
+
+  <div class="panel">
+    <h3 style="font-size:16px;margin-bottom:4px;">口径警告：同一个设备，三套算法能差 20%</h3>
+    <table>
+      <thead><tr><th>设备</th><th>单眼横向像素</th><th>水平 FOV</th><th class="num">按公式计算</th><th class="num">官方标称</th><th class="num">第三方实测</th></tr></thead>
+      <tbody>
+        <tr><td>PICO 4 Ultra</td><td>2160</td><td>105°</td><td class="num">20.6</td><td class="num">平均 20.6 / 中心 22.5</td><td class="num">—</td></tr>
+        <tr><td>Meta Quest 3</td><td>2064</td><td>110°(官方) / 104°(可见)</td><td class="num">18.8 / 19.8</td><td class="num hl">25（PPI 口径）</td><td class="num">约 21</td></tr>
+        <tr><td>Quest 3S</td><td>1832</td><td>96°</td><td class="num">19.1</td><td class="num">20</td><td class="num">—</td></tr>
+        <tr><td>Vision Pro (M5)</td><td>3662</td><td>100°(可见)</td><td class="num">36.6</td><td class="num">—</td><td class="num">34–35.5</td></tr>
+        <tr><td>Samsung Galaxy XR</td><td>3552</td><td>109°</td><td class="num">32.6</td><td class="num">—</td><td class="num">约 35.5</td></tr>
+      </tbody>
+    </table>
+    <div class="note">
+      ⚠️ <strong>三套常见口径</strong>：①官方标称（常用 PPI 折算或峰值密度，最好听）；②按官方 FOV 计算；③第三方按"可见 FOV"（被面罩遮掉一部分）实测。<br>
+      ⚠️ <strong>FOV 也有三套</strong>：对角 FOV、水平 FOV、可见 FOV。厂商一般报最好听的那个。<br>
+      ✅ <strong>正确姿势</strong>：跨品牌比较时，必须<strong>统一口径</strong>；写作业时注明你用的是哪一套。<br>
+      ⚠️ 另有陷阱：<strong>物理分辨率 ≠ 渲染分辨率</strong>。PICO 4 Ultra 物理 2160×2160，默认渲染 1920×1920；SteamVR 里还可按百分比再缩放。
+    </div>
+  </div>
+</div>
+
+<script>
+  const pxEl=document.getElementById('px'), fovEl=document.getElementById('fov');
+  const ppdEl=document.getElementById('ppd'), verdictEl=document.getElementById('verdict'), barsEl=document.getElementById('bars');
+  const REF=[{n:'PICO 4 Ultra',v:20.6},{n:'Quest 3(可见口径)',v:19.8},{n:'Quest 3S',v:19.1},{n:'Vision Pro M5',v:34.0},{n:'Galaxy XR',v:35.5},{n:'手机纸盒 VR',v:10.7}];
+  function calc(){
+    const px=+pxEl.value||0, fov=+fovEl.value||1;
+    const ppd=px/fov;
+    ppdEl.textContent=ppd.toFixed(1);
+    let v,c;
+    if(ppd<15){v='低于 15 PPD：纱窗效应很明显，文字难以辨认。';c='var(--bad)';}
+    else if(ppd<20){v='15–20 PPD：基本可用，但细看仍有颗粒感与纱窗。';c='var(--warn)';}
+    else if(ppd<45){v='20–45 PPD：明显改善纱窗效应，主流一体机所在区间。';c='var(--good)';}
+    else{v='≥45 PPD：接近视网膜级，micro-OLED 高端机所在区间。';c='var(--good)';}
+    verdictEl.textContent='结论：'+v; verdictEl.style.color=c;
+    const max=Math.max(60, ppd, ...REF.map(r=>r.v));
+    let html='';
+    html+=`<div class="row"><span class="nm" style="color:var(--acc);font-weight:700">当前输入</span><span class="tr"><span class="fl" style="width:${Math.min(100,ppd/max*100)}%"></span></span><span class="vv" style="color:var(--acc)">${ppd.toFixed(1)}</span></div>`;
+    REF.forEach(r=>{
+      html+=`<div class="row"><span class="nm">${r.n}</span><span class="tr"><span class="fl" style="width:${Math.min(100,r.v/max*100)}%;opacity:.65"></span></span><span class="vv">${r.v.toFixed(1)}</span></div>`;
+    });
+    html+=`<div class="row" style="margin-top:10px;color:var(--sub)"><span class="nm">参考线</span><span class="tr" style="position:relative"><span style="position:absolute;left:${20/max*100}%;top:-3px;bottom:-3px;width:2px;background:var(--warn)"></span><span style="position:absolute;left:${60/max*100}%;top:-3px;bottom:-3px;width:2px;background:var(--good)"></span></span><span class="vv">20 / 60</span></div>`;
+    barsEl.innerHTML=html;
+  }
+  document.querySelectorAll('.presets button').forEach(b=>{
+    b.addEventListener('click',()=>{
+      document.querySelectorAll('.presets button').forEach(x=>x.classList.remove('on'));
+      b.classList.add('on');
+      pxEl.value=b.dataset.px; fovEl.value=b.dataset.fov; calc();
+    });
+  });
+  pxEl.addEventListener('input',calc); fovEl.addEventListener('input',calc);
+  calc();
+</script>
+</body>
+</html>

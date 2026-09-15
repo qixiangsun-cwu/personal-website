@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>VR/AR 软件生态与管线决策台</title>
+<style>
+  :root{
+    --ink:#10141A; --muted:#5C6673; --primary:#004181; --primary2:#003E7E;
+    --accent:#F26B43; --accent2:#FBAE40; --wash:#E8EFF8; --panel:#F5F7FA;
+    --rule:#D5DBE2; --ok:#2E7D4F;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif;
+       color:var(--ink);background:#EEF1F4;line-height:1.6}
+  header{background:var(--primary);color:#fff;padding:22px 28px}
+  header h1{margin:0;font-size:22px;letter-spacing:.5px}
+  header p{margin:6px 0 0;color:#C9D8EA;font-size:13px}
+  .wrap{max-width:1180px;margin:0 auto;padding:22px 18px 60px}
+  .tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+  .tab{padding:8px 16px;border-radius:999px;border:1px solid var(--rule);
+       background:#fff;cursor:pointer;font-size:14px;color:var(--muted)}
+  .tab.on{background:var(--primary);border-color:var(--primary);color:#fff;font-weight:600}
+  section{display:none}
+  section.on{display:block}
+  h2{font-size:17px;color:var(--primary2);margin:22px 0 10px;
+     padding-left:10px;border-left:4px solid var(--accent)}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(258px,1fr));gap:14px}
+  .card{background:#fff;border:1px solid var(--rule);border-radius:10px;padding:14px 16px;
+        transition:box-shadow .15s,transform .15s}
+  .card:hover{box-shadow:0 6px 18px rgba(0,65,129,.12);transform:translateY(-2px)}
+  .card h3{margin:0 0 6px;font-size:15px;color:var(--primary)}
+  .card .tag{display:inline-block;font-size:11px;padding:1px 8px;border-radius:999px;
+             background:var(--wash);color:var(--primary);margin-bottom:8px}
+  .card .tag.free{background:#E3F2E8;color:var(--ok)}
+  .card .tag.web{background:#FDEBE4;color:#B2451F}
+  .card p{margin:6px 0 0;font-size:13px;color:var(--muted)}
+  .card a{font-size:12px;color:var(--primary);text-decoration:none;
+          border-bottom:1px dashed var(--primary)}
+  table{width:100%;border-collapse:collapse;background:#fff;font-size:13.5px;
+        border:1px solid var(--rule);border-radius:8px;overflow:hidden}
+  th{background:var(--primary);color:#fff;text-align:left;padding:10px 12px;font-weight:600}
+  td{padding:9px 12px;border-top:1px solid var(--rule);vertical-align:top}
+  tr:nth-child(even) td{background:var(--panel)}
+  .decide{background:#fff;border:1px solid var(--rule);border-radius:10px;padding:18px}
+  .q{font-weight:600;color:var(--primary2);margin-bottom:10px}
+  .opts{display:flex;flex-wrap:wrap;gap:10px}
+  .opt{padding:9px 16px;border:1px solid var(--rule);border-radius:8px;background:#fff;
+       cursor:pointer;font-size:14px}
+  .opt:hover{border-color:var(--primary);color:var(--primary)}
+  .result{margin-top:16px;padding:14px 16px;border-radius:8px;background:var(--wash);
+          font-size:14px;display:none}
+  .result.on{display:block}
+  .result b{color:var(--primary2)}
+  .pipe{display:flex;align-items:stretch;gap:0;flex-wrap:wrap;margin:14px 0 6px}
+  .step{flex:1 1 150px;background:#fff;border:1px solid var(--rule);padding:12px;
+        position:relative;min-width:140px}
+  .step:not(:last-child){border-right:none}
+  .step b{display:block;color:var(--primary);font-size:14px;margin-bottom:4px}
+  .step span{font-size:12px;color:var(--muted)}
+  .step em{display:block;margin-top:6px;font-style:normal;font-size:11.5px;color:var(--accent)}
+  footer{max-width:1180px;margin:0 auto;padding:0 18px 40px;font-size:12px;color:var(--muted)}
+  .warn{background:#FFF6E8;border-left:4px solid var(--accent2);padding:11px 14px;
+        font-size:13px;border-radius:0 8px 8px 0;margin:12px 0}
+  .kbd{font-family:Consolas,monospace;background:#EDF1F5;padding:1px 6px;border-radius:4px;
+       font-size:12.5px;color:var(--primary2)}
+</style>
+</head>
+<body>
+<header>
+  <h1>VR/AR 软件生态与管线决策台</h1>
+  <p>第 3 次课 · 虚拟现实开发常用软件（第 4 章）｜ 鼠标点击即可，离线可用</p>
+</header>
+
+<div class="wrap">
+  <div class="tabs">
+    <button class="tab on" data-t="eco">① 软件生态地图</button>
+    <button class="tab" data-t="map">② 硬件 ↔ 软件对照</button>
+    <button class="tab" data-t="pipe">③ 资产管线</button>
+    <button class="tab" data-t="decide">④ 选题决策助手</button>
+    <button class="tab" data-t="install">⑤ 机房环境与核对清单</button>
+  </div>
+
+  <!-- ① 生态地图 -->
+  <section id="eco" class="on">
+    <h2>四类工具，各管一段</h2>
+    <p style="font-size:13.5px;color:var(--muted);margin-top:-4px">
+      上一节课讲的是硬件（装在哪），这一节讲软件（怎么用起来）。四类工具的分工不能混：
+      <b>建模型的不做交互，做引擎的不建模，跑测试的不是引擎</b>。
+    </p>
+    <div class="grid" id="ecoGrid"></div>
+    <div class="warn">
+      <b>选型原则（给学生的一句话）：</b>先问"我缺的是什么"——缺模型就去建模工具，缺逻辑就去引擎，
+      缺真实感就去重建工具。别一上来就装十个软件。
+    </div>
+  </section>
+
+  <!-- ② 硬件-软件对照 -->
+  <section id="map">
+    <h2>上节课的硬件参数，会变成这节课的软件设置</h2>
+    <p style="font-size:13.5px;color:var(--muted);margin-top:-4px">
+      这就是两节课的接口：硬件指标不是背的，是要在软件里"设"的。
+    </p>
+    <table>
+      <thead><tr><th style="width:22%">硬件指标（第 3 章）</th><th style="width:30%">对应的软件设置</th><th>不设好会怎样</th></tr></thead>
+      <tbody id="mapBody"></tbody>
+    </table>
+  </section>
+
+  <!-- ③ 管线 -->
+  <section id="pipe">
+    <h2>一个模型从软件到 VR，要过五道关</h2>
+    <p style="font-size:13.5px;color:var(--muted);margin-top:-4px">
+      这是本课程后面所有实验的通用流程。任何一步跳过，都会在头显里翻车。
+    </p>
+    <div class="pipe" id="pipeBox"></div>
+    <div class="warn">
+      <b>最常见的三个坑：</b>
+      ① 单位不对（Blender 默认米/厘米差异）导致模型进 Unity 后小得像蚂蚁或大得像楼房；
+      ② 模型面数几百万，头显里直接掉帧卡成幻灯片；
+      ③ 贴图路径用了中文或绝对路径，换台机器就变成粉红色。
+    </div>
+  </section>
+
+  <!-- ④ 决策助手 -->
+  <section id="decide">
+    <h2>你们组该用哪些软件？</h2>
+    <p style="font-size:13.5px;color:var(--muted);margin-top:-4px">
+      按你们期末大作业的方向点一下，看系统推荐的工具组合。<b>没有标准答案</b>，这是帮你缩小范围。
+    </p>
+    <div class="decide">
+      <div class="q">第一问：你们组想做什么方向？</div>
+      <div class="opts" id="q1"></div>
+      <div class="result" id="r1"></div>
+    </div>
+  </section>
+
+  <!-- ⑤ 安装 -->
+  <section id="install">
+    <h2>机房环境与核对清单</h2>
+    <div class="warn">
+      <b>机房已经装好：</b>本次课<b>不安装</b> Unity，核对版本与插件是否齐全即可开工，课上不预留安装时间。
+      若想在家打开自己的工程，需要与机房<b>同版本或更高版本</b>的编辑器——Unity 官网直链不可用，必须经 Unity Hub 下载。
+    </div>
+    <div class="grid" id="installGrid"></div>
+    <h2>安装路径三条铁律</h2>
+    <table>
+      <thead><tr><th style="width:34%">规则</th><th>原因</th></tr></thead>
+      <tbody>
+        <tr><td>路径 <b>不含中文、不含空格</b></td><td>Unity 及部分插件对中文路径处理不良，打包时报错难以定位</td></tr>
+        <tr><td>不要装在 <span class="kbd">C:\Program Files</span> 或 <span class="kbd">C:\Windows</span></td><td>权限受限，创建项目和导入包时会失败</td></tr>
+        <tr><td>预留 <b>20 GB 以上</b>（含 Android 支持则 30 GB）</td><td>编辑器本身 + 项目缓存 + 后续打包产物</td></tr>
+      </tbody>
+    </table>
+    <h2>装完先做这三个检查</h2>
+    <table>
+      <thead><tr><th style="width:34%">检查项</th><th>通过标准</th></tr></thead>
+      <tbody>
+        <tr><td>Unity Hub 里能看到已安装的 6000.0.x</td><td>版本号显示为 6000.0.83f1（或你选定的 6000.0 线版本）</td></tr>
+        <tr><td>能新建一个 3D (Built-in) 项目并打开</td><td>看到 Scene 视图里有地面和主相机，无红色报错</td></tr>
+        <tr><td>Package Manager 能列出 XR Interaction Toolkit</td><td>Window → Package Manager → Unity Registry 里能搜到</td></tr>
+      </tbody>
+    </table>
+  </section>
+</div>
+
+<footer>
+  中华女子学院《虚拟现实技术》2026 秋 · 第 3 次课配套演示 ｜ 纯离线 HTML，无外部依赖
+</footer>
+
+<script>
+const ECO = [
+  {cat:"① 三维建模", tag:"建模型", tagCls:"", title:"Blender", desc:"免费开源，课程推荐。建场景物件、道具、简单角色。导出 FBX 进 Unity。", url:"blender.org", note:"教学首推：零成本、全平台"},
+  {cat:"① 三维建模", tag:"建模型", tagCls:"", title:"3ds Max / Maya", desc:"行业主流但收费昂贵。教材第 4 章列为代表工具，了解即可，不要求上手。", url:"autodesk.com", note:"了解定位，不要求安装"},
+  {cat:"② 游戏引擎", tag:"做交互", tagCls:"", title:"Unity 6", desc:"本课程主引擎。负责场景搭建、物理交互、UI、动画、打包发布。", url:"unity.cn", note:"★ 本课程核心工具"},
+  {cat:"② 游戏引擎", tag:"做交互", tagCls:"", title:"Unreal Engine", desc:"画面更强，适合高保真场景；但学习曲线陡、对硬件要求高。本科教学以 Unity 为主。", url:"unrealengine.com", note:"备选，暂不要求"},
+  {cat:"② 游戏引擎", tag:"做交互", tagCls:"", title:"Godot", desc:"轻量免费开源引擎，可做简单 VR 原型，但 XR 生态与教学资料少于 Unity。", url:"godotengine.org", note:"扩展了解"},
+  {cat:"③ 资产与素材", tag:"找素材", tagCls:"free", title:"Sketchfab", desc:"海量 3D 模型，可筛选免费与 CC 授权。毕设找文物、场景素材的首选。", url:"sketchfab.com", note:"免费可商用需看许可"},
+  {cat:"③ 资产与素材", tag:"找素材", tagCls:"free", title:"Poly Haven", desc:"免费高清贴图、HDRI 环境光。显著提升场景真实感，且完全免费。", url:"polyhaven.com", note:"CC0 授权，可商用"},
+  {cat:"③ 资产与素材", tag:"找素材", tagCls:"free", title:"Mixamo", desc:"免费角色与动画库，可做 NPC 走路、挥手等动作，直接用于 Unity。", url:"mixamo.com", note:"需 Adobe 账号"},
+  {cat:"④ AI 生成", tag:"补产能", tagCls:"web", title:"Meshy", desc:"文生 3D / 图生 3D。输入描述直接生成模型，再导入 Unity。", url:"meshy.ai", note:"网页版，注意额度"},
+  {cat:"④ AI 生成", tag:"补产能", tagCls:"web", title:"Tripo / Hunyuan3D 等", desc:"同类文生 3D 工具。2026 年这类工具迭代很快，重点掌握「能生成+会修」的思路。", url:"——", note:"可不装，按需使用"},
+  {cat:"⑤ 运行与验证", tag:"验证效果", tagCls:"", title:"PICO 互联 / SteamVR", desc:"把 PC 上做好的内容串流到头显，或让头显作为 PC VR 的显示器。", url:"picoxr.com", note:"已在本机安装 PICO 互联"},
+  {cat:"⑤ 运行与验证", tag:"验证效果", tagCls:"", title:"XR Device Simulator", desc:"Unity 官方组件。没有头显也能在 PC 上模拟头显视角与手柄操作。", url:"——", note:"★ 轻设备版课程的关键"}
+];
+
+const MAP = [
+  ["刷新率（90Hz）","Unity：Application.targetFrameRate / XR 显示刷新设置","画面撕裂、眩晕感明显"],
+  ["PPD / 渲染分辨率","Unity：XR Plugin 的 Render Scale、抗锯齿设置","画面糊，或白白浪费性能"],
+  ["定位方式（Inside-Out）","Unity：XR Origin + Tracked Pose Driver 组件","头显位置不动，视角卡死"],
+  ["视野角 FOV","Unity：Camera 的 FOV 与 XR 相机设置","视野被压窄，沉浸感消失"],
+  ["延迟（Motion-to-Photon）","Unity：减少每帧计算量、开启动态分辨率/注视点渲染","转头时画面滞后，容易晕"],
+  ["手柄/手势输入","Unity：XR Interaction Toolkit 的 Interactor 组件","抓不住东西、射线不响应"]
+];
+
+const PIPE = [
+  {n:"1 建模/获取",d:"Blender 自建，或 Sketchfab / AI 生成获取",w:"注意单位与坐标系"},
+  {n:"2 减面优化",d:"控制面数，LOD 分级",w:"面数过高 → 头显掉帧"},
+  {n:"3 导出 FBX",d:"统一单位、轴向、贴图打包",w:"路径禁中文"},
+  {n:"4 导入 Unity",d:"设置 Scale、材质、碰撞体",w:"比例错乱最常见"},
+  {n:"5 头显/模拟器验证",d:"XR Device Simulator 先测，再上真机",w:"舒适度只能真机判断"}
+];
+
+const Q1 = [
+  {k:"VR 文化场景漫游",tools:["Blender（自建或改模型）","Sketchfab / Poly Haven（素材）","Unity 6（场景与交互）","XR Device Simulator → PICO 验证"],tip:"重点在场景组织与导航，别在建模上耗光时间"},
+  {k:"AR 文物 / 博物馆识别",tools:["Sketchfab（文物模型）","Meshy（缺的模型可生成）","Unity 6 + Vuforia（识别与注册）","手机或摄像头验证"],tip:"模型精度优先于数量，3—5 个展品做扎实就够"},
+  {k:"交互小游戏（解谜/节奏）",tools:["Blender（机关与道具）","Unity 6（逻辑、物理、UI）","Mixamo（角色动作）","PICO 验证手感"],tip:"手感靠反复真机调，计划里要留验证时间"},
+  {k:"安全 / 应急演练类",tools:["Blender 或素材库（场景）","Unity 6（流程、评分、反馈）","UI 与状态机是重点","PC 模式演示即可"],tip:"场景规模克制在一层楼，重点做决策反馈"}
+];
+
+const INSTALL = [
+  {t:"1 · Unity Hub",cls:"",d:"管理器。本机已装（3.21.2）。用 Unity 账号登录后即可安装编辑器。",u:"unity.cn/download"},
+  {t:"2 · Unity 6 编辑器",cls:"",d:"选 6000.0 线 LTS 版本（本课建议 6000.0.83f1）。勾选 Windows Build Support；需要打包安卓再加 Android Build Support。",u:"约 3.7 GB 起"},
+  {t:"3 · 脚本编辑器",cls:"",d:"Visual Studio Community（Unity 安装时可一并勾选）或 VS Code（本机已装）+ C# 扩展。",u:"二选一"},
+  {t:"4 · Blender",cls:"free",d:"建模工具，免费。课上只做「看一眼界面 + 导出一个 FBX」，不要求精通。",u:"blender.org（清华镜像更快）"},
+  {t:"5 · 显卡驱动",cls:"",d:"NVIDIA / AMD 官网更新到最新。驱动过旧会导致 Unity 编辑器闪退或 XR 初始化失败。",u:"本学期务必更新一次"}
+];
+
+// 渲染
+document.getElementById("ecoGrid").innerHTML = ECO.map(c=>`
+  <div class="card">
+    <span class="tag ${c.tagCls}">${c.cat}</span>
+    <h3>${c.title}</h3>
+    <p>${c.desc}</p>
+    <p style="margin-top:8px"><a href="https://${c.url}" target="_blank" rel="noopener">${c.url}</a>
+       <span style="color:var(--accent);margin-left:6px;font-size:12px">${c.note}</span></p>
+  </div>`).join("");
+
+document.getElementById("mapBody").innerHTML = MAP.map(r=>`
+  <tr><td><b>${r[0]}</b></td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join("");
+
+document.getElementById("pipeBox").innerHTML = PIPE.map(p=>`
+  <div class="step"><b>${p.n}</b><span>${p.d}</span><em>${p.w}</em></div>`).join("");
+
+document.getElementById("q1").innerHTML = Q1.map((q,i)=>`
+  <div class="opt" data-i="${i}">${q.k}</div>`).join("");
+document.getElementById("q1").addEventListener("click",e=>{
+  const el = e.target.closest(".opt"); if(!el) return;
+  const q = Q1[+el.dataset.i];
+  const box = document.getElementById("r1");
+  box.innerHTML = `<b>推荐工具组合：</b><br>` +
+    q.tools.map(t=>`&nbsp;&nbsp;• ${t}`).join("<br>") +
+    `<br><br><b>提醒：</b>${q.tip}`;
+  box.classList.add("on");
+});
+
+document.getElementById("installGrid").innerHTML = INSTALL.map(c=>`
+  <div class="card">
+    <span class="tag ${c.cls||''}">${c.u}</span>
+    <h3>${c.t}</h3>
+    <p>${c.d}</p>
+  </div>`).join("");
+
+document.querySelectorAll(".tab").forEach(b=>{
+  b.addEventListener("click",()=>{
+    document.querySelectorAll(".tab").forEach(x=>x.classList.remove("on"));
+    document.querySelectorAll("section").forEach(x=>x.classList.remove("on"));
+    b.classList.add("on");
+    document.getElementById(b.dataset.t).classList.add("on");
+  });
+});
+</script>
+</body>
+</html>

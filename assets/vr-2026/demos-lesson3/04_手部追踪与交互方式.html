@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>04 · 手部追踪与交互方式</title>
+<style>
+  :root{--bg:#0f1420;--card:#1b2233;--line:#2c3750;--txt:#eaf0fa;--sub:#9fb0c8;--acc:#4da3ff;--good:#57d39a;--warn:#ffc857;--bad:#ff8f8f;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--txt);font-family:"Microsoft YaHei",system-ui,sans-serif;line-height:1.65;padding:26px;}
+  h1{font-size:22px;margin-bottom:4px;}
+  .badge{display:inline-block;background:#132a3d;color:var(--acc);border:1px solid #2b5b85;border-radius:6px;padding:2px 8px;font-size:12px;margin-bottom:16px;}
+  .wrap{max-width:1000px;}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px;margin-bottom:16px;}
+  .tabs button{background:#111827;color:var(--txt);border:1px solid var(--line);border-radius:8px;padding:9px 14px;margin:0 8px 8px 0;cursor:pointer;font-size:14px;}
+  .tabs button.on{border-color:var(--acc);color:var(--acc);background:#132a3d;}
+  svg{background:#0b1120;border:1px solid var(--line);border-radius:10px;display:block;max-width:100%;}
+  .cols{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  .kv{display:grid;grid-template-columns:88px 1fr;gap:6px 10px;font-size:13.5px;margin-top:10px;}
+  .kv .k{color:var(--sub);}
+  .pros{color:var(--good);} .cons{color:var(--bad);}
+  table{width:100%;border-collapse:collapse;margin-top:12px;font-size:13px;}
+  th,td{border:1px solid var(--line);padding:7px 9px;text-align:left;}
+  th{background:#162032;color:var(--sub);}
+  .note{color:var(--sub);font-size:12.5px;margin-top:12px;line-height:1.75;}
+  .sim button{background:#111827;color:var(--sub);border:1px solid var(--line);border-radius:8px;padding:7px 11px;margin:6px 6px 0 0;cursor:pointer;font-size:13px;}
+  .sim button.on{border-color:var(--warn);color:var(--warn);}
+  .st{display:inline-block;padding:4px 10px;border-radius:7px;font-size:13px;font-weight:700;}
+</style>
+</head>
+<body>
+<h1>04 · 手部追踪与交互方式</h1>
+<span class="badge">第3次课 · 输入设备 · 手柄 / 手势 / 眼动 / 语音</span>
+<div class="wrap">
+
+  <div class="panel">
+    <div class="tabs">
+      <button data-t="ctrl" class="on">手柄（Controller）</button>
+      <button data-t="hand">手势（Hand Tracking）</button>
+      <button data-t="eye">眼动（Eye Tracking）</button>
+      <button data-t="voice">语音（Voice）</button>
+      <button data-t="other">数据手套 / 动捕 / 体感追踪器</button>
+    </div>
+    <div class="cols">
+      <div>
+        <svg id="fig" viewBox="0 0 460 320" width="460" height="320"></svg>
+      </div>
+      <div>
+        <h3 id="t-title" style="font-size:17px;"></h3>
+        <div class="kv" id="t-kv"></div>
+        <div style="margin-top:14px;">
+          <div class="pros" id="t-pros"></div>
+          <div class="cons" id="t-cons"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h3 style="font-size:16px;margin-bottom:6px;">手势追踪失效场景模拟</h3>
+    <div class="sim">
+      <button data-f="ok" class="on">正常：光线充足、背景有纹理</button>
+      <button data-f="dark">弱光</button>
+      <button data-f="back">背景杂乱 / 与肤色相近</button>
+      <button data-f="fast">快速挥动（运动模糊）</button>
+      <button data-f="occl">手被遮挡 / 双手重叠</button>
+      <button data-f="far">手离头显太远（>1m）</button>
+    </div>
+    <div style="margin-top:12px;"><span class="st" id="f-st"></span> <span id="f-tx" style="color:var(--sub);font-size:13.5px;margin-left:8px;"></span></div>
+    <div class="note">
+      手势识别不是"摄像头看得见就行"：它要从 2D 图像里回归出 <strong>每只手 22 个关节点的 3D 坐标</strong>，靠的是模型，不是像素。<br>
+      <strong>工程结论</strong>：手势适合<strong>轻量选择、滑动、捏合</strong>；手柄适合<strong>精细操作、长时间使用、需要力反馈</strong>的场景。生产级 VR 应用几乎都是"手柄为主 + 手势为辅"。
+    </div>
+  </div>
+
+  <div class="panel">
+    <h3 style="font-size:16px;margin-bottom:6px;">四类输入方式对比</h3>
+    <table>
+      <thead><tr><th>方式</th><th>传感器</th><th>典型延迟</th><th>最强场景</th><th>致命弱点</th></tr></thead>
+      <tbody>
+        <tr><td>手柄</td><td>6DoF 追踪（红外/摄像头）+ 按键 + 线性马达</td><td>10–30 ms</td><td>游戏、建模、精细 UI、需要震动反馈</td><td>要握着，学习成本（按键布局）</td></tr>
+        <tr><td>手势</td><td>RGB/红外摄像头 + 手部关键点模型</td><td>30–60 ms</td><td>轻量选择、演示、零学习成本</td><td>无物理反馈、举手易累（"大猩猩臂"）、受光照/背景影响</td></tr>
+        <tr><td>眼动</td><td>头显内红外摄像头（4 颗）</td><td>10–20 ms</td><td>凝视选择、注视点渲染省算力、无障碍交互</td><td>"米达斯触碰"问题（看着就被选中）、需标定</td></tr>
+        <tr><td>语音</td><td>4 麦克风阵列 + ASR + 意图理解</td><td>300–800 ms（含云端）</td><td>输入文字、下达指令、长列表导航</td><td>嘈杂环境、隐私顾虑、延迟高、需联网</td></tr>
+        <tr><td>数据手套 / 动捕</td><td>弯曲传感器 / IMU / 光学标记 / 体感追踪器</td><td>10–30 ms</td><td>医疗康复、手语、全身动捕、影视</td><td>穿戴麻烦、标定耗时、成本高</td></tr>
+      </tbody>
+    </table>
+    <div class="note">
+      <strong>没有最好的输入方式，只有最合适的场景。</strong>这就是本章的核心结论。<br>
+      <strong>与本学期项目的关系</strong>：第6章密室逃脱以手柄抓取为主；第7章 LLM 导览 NPC 用语音 + 手柄菜单；第8章 AR 用触屏 + 手势。<br>
+      <strong>PICO 体感追踪器</strong>（选配）：27 g，IMU + 12 颗红外传感器，6DoF 追踪最高 200 Hz，全身 24 个骨骼点，延迟约 20 ms，步频识别准确率 ≥98%（官方口径）——这是"头显看不见的部位"如何被补齐的典型方案。
+    </div>
+  </div>
+</div>
+
+<script>
+const fig=document.getElementById('fig');
+const DATA={
+  ctrl:{title:'手柄：6DoF + 按键 + 触觉反馈',
+    kv:[['本质','被追踪的刚体 + 输入事件'],['定位','Inside-Out 摄像头追踪 / 红外 / 基站'],['反馈','线性马达（TruTouch 类可变震动）'],
+        ['代表','PICO 4 Ultra 无环手柄、Quest Touch Plus'],['注意','PICO 4 Ultra 手柄用 2 节 AA 电池']],
+    pros:'✅ 稳定、可盲操、有物理反馈、精度高、长时间不累',
+    cons:'❌ 需要握持与学习按键；放下一会儿会自动休眠'},
+  hand:{title:'手势：22 个关节点 / 手，无需任何设备',
+    kv:[['本质','图像 → 手部关键点 3D 回归'],['传感器','头显 RGB/红外摄像头'],['关节点','每只手约 22 个'],
+        ['典型交互','捏合（Pinch）选择、拖拽、滑动、虚拟键盘'],['开关','设置 → 交互 → 交互方式'],
+        ['技巧','把手柄放下静止几秒，系统自动切到手势']],
+    pros:'✅ 零学习成本、自然、无需额外设备、MR 下"手就是手"',
+    cons:'❌ 无物理反馈、举手累、受光照/背景/遮挡影响、精度低于手柄'},
+  eye:{title:'眼动：4 颗红外摄像头盯着你的瞳孔',
+    kv:[['本质','瞳孔-角膜反射法（PCCR）测注视点'],['传感器','头显内 4 颗红外摄像头'],['两大用途','① 凝视选择 ② 注视点渲染（Foveated Rendering）'],
+        ['代表','Apple Vision Pro、Samsung Galaxy XR、PlayStation VR2'],['PICO/Quest','不支持（这也是价格差距的来源之一）']],
+    pros:'✅ 最快的选择方式；注视点渲染可省 30–50% 算力；无障碍交互',
+    cons:'❌ "米达斯触碰"（看着就被选中）；需要个人标定；增加成本与重量'},
+  voice:{title:'语音：麦克风阵列 → ASR → 意图理解 → TTS',
+    kv:[['链路','麦克风阵列 → 降噪 → ASR → NLP → TTS'],['麦克风','PICO 4 Ultra 4 麦克风，支持空间音频录制'],
+        ['典型延迟','300–800 ms（含云端往返）'],['最强场景','输入文字、长列表导航、免手操作'],['本学期用在哪','第7章 LLM 智能导览 NPC']],
+    pros:'✅ 输入效率最高的"文本"方式；免手；适合无障碍',
+    cons:'❌ 延迟高；嘈杂环境失效；隐私顾虑；多需联网'},
+  other:{title:'数据手套 / 光学动捕 / 体感追踪器',
+    kv:[['数据手套','弯曲传感器或 IMU，测每根手指关节角，用于康复与手语'],
+        ['光学动捕','Outside-In 多相机 + 反光标记点，影视级精度'],
+        ['惯性动捕','IMU 套装，无遮挡问题，但会漂移'],
+        ['体感追踪器','PICO：27 g，IMU + 12 红外，最高 200 Hz，全身 24 骨骼点'],
+        ['用途','全身动捕、虚拟主播、运动训练、影视预演']],
+    pros:'✅ 能捕捉头显"看不见"的下半身与手指细节',
+    cons:'❌ 穿戴与标定耗时；成本高；不适合大众消费场景'}
+};
+
+function drawFig(kind){
+  let g='';
+  if(kind==='ctrl'){
+    g+=`<rect x="150" y="90" width="160" height="190" rx="34" fill="#1f2a40" stroke="#6b7c9c" stroke-width="2"/>`;
+    g+=`<circle cx="230" cy="132" r="20" fill="#2b3a56" stroke="#8fa4c6"/>`;
+    g+=`<circle cx="230" cy="196" r="14" fill="#2b3a56" stroke="#8fa4c6"/>`;
+    g+=`<rect x="196" y="240" width="68" height="14" rx="7" fill="#4da3ff" opacity=".7"/>`;
+    g+=`<text x="230" y="128" text-anchor="middle" fill="#9fb0c8" font-size="12">摇杆</text>`;
+    g+=`<text x="230" y="200" text-anchor="middle" fill="#9fb0c8" font-size="11">按键</text>`;
+    g+=`<text x="230" y="262" text-anchor="middle" fill="#9fb0c8" font-size="11">扳机</text>`;
+    for(let i=0;i<6;i++){
+      const a=-Math.PI/2 + i*0.5;
+      g+=`<path d="M ${230+Math.cos(a)*34} ${150+Math.sin(a)*34} l ${Math.cos(a)*22} ${Math.sin(a)*22}" stroke="#4da3ff" stroke-width="1.6" opacity=".55"/>`;
+    }
+    g+=`<text x="230" y="60" text-anchor="middle" fill="#eaf0fa" font-size="14">6DoF 追踪：位置 + 姿态</text>`;
+    g+=`<text x="230" y="305" text-anchor="middle" fill="#57d39a" font-size="13">射线 + 抓取 + 震动反馈</text>`;
+  }else if(kind==='hand'){
+    const pts=[[150,250],[168,205],[176,165],[184,140],
+               [190,232],[198,190],[204,158],[210,132],
+               [216,224],[226,186],[234,154],[242,130],
+               [244,226],[254,192],[262,162],[270,140],
+               [272,238],[286,214],[296,196],[306,180],
+               [128,236],[112,214],[104,196],[100,182]];
+    g+=`<path d="M 150 250 L 128 236 L 112 214 L 104 196 L 100 182" fill="none" stroke="#8fa4c6" stroke-width="3"/>`;
+    const bones=[[0,1,2,3],[0,4,5,6,7],[0,8,9,10,11],[0,12,13,14,15],[0,16,17,18,19]];
+    bones.forEach(b=>{
+      for(let i=0;i<b.length-1;i++){
+        const a=pts[b[i]], c=pts[b[i+1]];
+        g+=`<line x1="${a[0]}" y1="${a[1]}" x2="${c[0]}" y2="${c[1]}" stroke="#4da3ff" stroke-width="3.2" stroke-linecap="round"/>`;
+      }
+    });
+    pts.forEach((p,i)=>{g+=`<circle cx="${p[0]}" cy="${p[1]}" r="4.6" fill="#57d39a"/>`;
+      if(i<4||i%4===0) g+=`<text x="${p[0]+7}" y="${p[1]+4}" fill="#5f7594" font-size="9">${i}</text>`;});
+    g+=`<path d="M 150 250 q 40 26 96 6 q 26 -8 30 -30 l -6 -54 q -6 -30 -40 -34 q -46 -6 -80 22 z" fill="#2b3a56" opacity=".35"/>`;
+    g+=`<text x="230" y="60" text-anchor="middle" fill="#eaf0fa" font-size="14">每只手约 22 个关节点</text>`;
+    g+=`<circle cx="184" cy="140" r="16" fill="none" stroke="#ffc857" stroke-width="2" stroke-dasharray="4 3"/>`;
+    g+=`<circle cx="100" cy="182" r="16" fill="none" stroke="#ffc857" stroke-width="2" stroke-dasharray="4 3"/>`;
+    g+=`<text x="60" y="120" fill="#ffc857" font-size="12">拇指尖</text>`;
+    g+=`<text x="196" y="112" fill="#ffc857" font-size="12">食指尖</text>`;
+    g+=`<text x="150" y="300" text-anchor="middle" fill="#57d39a" font-size="13">捏合（Pinch）= 点击；捏住拖动 = 拖拽</text>`;
+  }else if(kind==='eye'){
+    g+=`<ellipse cx="230" cy="160" rx="120" ry="80" fill="#1f2a40" stroke="#6b7c9c" stroke-width="2"/>`;
+    g+=`<circle cx="230" cy="160" r="34" fill="#2b3a56" stroke="#8fa4c6" stroke-width="2"/>`;
+    g+=`<circle cx="230" cy="160" r="14" fill="#0b1120"/>`;
+    [[140,110],[320,110],[140,215],[320,215]].forEach(p=>{
+      g+=`<circle cx="${p[0]}" cy="${p[1]}" r="9" fill="#3a2b1a" stroke="#ffc857"/>`;
+      g+=`<line x1="${p[0]}" y1="${p[1]}" x2="230" y2="160" stroke="#ffc857" stroke-width="1" opacity=".35"/>`;
+    });
+    g+=`<text x="230" y="60" text-anchor="middle" fill="#eaf0fa" font-size="14">4 颗红外摄像头 + 注视点估计</text>`;
+    g+=`<circle cx="330" cy="200" r="46" fill="none" stroke="#57d39a" stroke-width="2.5" opacity=".8"/>`;
+    g+=`<circle cx="330" cy="200" r="120" fill="none" stroke="#4da3ff" stroke-width="1" opacity=".3"/>`;
+    g+=`<text x="230" y="285" text-anchor="middle" fill="#57d39a" font-size="13">注视点渲染：中心高清、周边降分辨率 → 省算力</text>`;
+    g+=`<text x="230" y="305" text-anchor="middle" fill="#ffc857" font-size="12">⚠ 米达斯触碰：看着就被选中，需配合"捏合确认"</text>`;
+  }else if(kind==='voice'){
+    g+=`<rect x="60" y="130" width="70" height="60" rx="10" fill="#1f2a40" stroke="#6b7c9c"/>`;
+    g+=`<text x="95" y="165" text-anchor="middle" fill="#9fb0c8" font-size="12">麦克风</text>`;
+    g+=`<text x="95" y="215" text-anchor="middle" fill="#9fb0c8" font-size="12">ASR</text>`;
+    g+=`<rect x="170" y="130" width="70" height="60" rx="10" fill="#1f2a40" stroke="#4da3ff"/>`;
+    g+=`<text x="205" y="165" text-anchor="middle" fill="#9fb0c8" font-size="12">云端</text>`;
+    g+=`<text x="205" y="215" text-anchor="middle" fill="#9fb0c8" font-size="12">LLM/NLP</text>`;
+    g+=`<rect x="280" y="130" width="70" height="60" rx="10" fill="#1f2a40" stroke="#57d39a"/>`;
+    g+=`<text x="315" y="165" text-anchor="middle" fill="#9fb0c8" font-size="12">TTS</text>`;
+    g+=`<text x="315" y="215" text-anchor="middle" fill="#9fb0c8" font-size="12">扬声器</text>`;
+    [[130,160],[165,160]].forEach(([x1,x2])=>{g+=`<line x1="${x1}" y1="${x2-10}" x2="${x1+25}" y2="${x2-10}" stroke="#4da3ff" stroke-width="2"/>`;});
+    g+=`<text x="230" y="60" text-anchor="middle" fill="#eaf0fa" font-size="14">语音链路：采集 → 识别 → 理解 → 合成</text>`;
+    g+=`<text x="230" y="250" text-anchor="middle" fill="#ffc857" font-size="13">端到端 300–800 ms：这是"对话感"的最大障碍</text>`;
+    g+=`<text x="230" y="280" text-anchor="middle" fill="#9fb0c8" font-size="12">第7章 LLM 智能导览 NPC 就要解决这个延迟问题</text>`;
+  }else{
+    g+=`<circle cx="120" cy="170" r="26" fill="#1f2a40" stroke="#8fa4c6"/>`;
+    g+=`<circle cx="230" cy="120" r="30" fill="#1f2a40" stroke="#8fa4c6"/>`;
+    g+=`<circle cx="340" cy="170" r="26" fill="#1f2a40" stroke="#8fa4c6"/>`;
+    g+=`<circle cx="230" cy="230" r="26" fill="#1f2a40" stroke="#57d39a" stroke-width="2.5"/>`;
+    g+=`<text x="230" y="234" text-anchor="middle" fill="#57d39a" font-size="11">腰</text>`;
+    g+=`<circle cx="190" cy="290" r="20" fill="#1f2a40" stroke="#57d39a" stroke-width="2.5"/>`;
+    g+=`<circle cx="270" cy="290" r="20" fill="#1f2a40" stroke="#57d39a" stroke-width="2.5"/>`;
+    g+=`<text x="190" y="294" text-anchor="middle" fill="#57d39a" font-size="11">踝</text>`;
+    g+=`<text x="270" y="294" text-anchor="middle" fill="#57d39a" font-size="11">踝</text>`;
+    g+=`<line x1="230" y1="150" x2="230" y2="204" stroke="#57d39a" stroke-width="2"/>`;
+    g+=`<line x1="215" y1="250" x2="196" y2="272" stroke="#57d39a" stroke-width="2"/>`;
+    g+=`<line x1="245" y1="250" x2="264" y2="272" stroke="#57d39a" stroke-width="2"/>`;
+    g+=`<text x="230" y="60" text-anchor="middle" fill="#eaf0fa" font-size="14">体感追踪器补齐"头显看不见"的部位</text>`;
+    g+=`<text x="230" y="318" text-anchor="middle" fill="#9fb0c8" font-size="12">27 g · IMU + 12 红外 · 最高 200Hz · 全身 24 骨骼点（官方口径）</text>`;
+  }
+  fig.innerHTML=g;
+}
+
+document.querySelectorAll('.tabs button').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.tabs button').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on');
+  const d=DATA[b.dataset.t];
+  document.getElementById('t-title').textContent=d.title;
+  document.getElementById('t-kv').innerHTML=d.kv.map(([k,v])=>`<div class="k">${k}</div><div>${v}</div>`).join('');
+  document.getElementById('t-pros').textContent=d.pros;
+  document.getElementById('t-cons').textContent=d.cons;
+  drawFig(b.dataset.t);
+}));
+
+const FAIL={
+  ok:['ok','✅ 识别稳定，关节点平滑'],
+  dark:['err','❌ 弱光下图像噪声大，关键点抖动甚至丢失 —— 开灯或换环境'],
+  back:['warn','⚠ 背景与肤色接近 / 杂物多，分割困难，出现"手指粘连"'],
+  fast:['warn','⚠ 运动模糊 → 短时间丢帧，靠预测外推，松手瞬间可能误触发'],
+  occl:['err','❌ 双手交叉或手被物体遮挡 → 关键点跳变，捏合失效'],
+  far:['warn','⚠ 超出摄像头有效范围（通常 ≈0.3–1 m），识别精度下降']
+};
+document.querySelectorAll('.sim button').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.sim button').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on');
+  const [cls,tx]=FAIL[b.dataset.f];
+  const st=document.getElementById('f-st');
+  st.textContent = cls==='ok'?'识别正常':(cls==='warn'?'降级':'丢失');
+  st.style.background = cls==='ok'?'#123528':(cls==='warn'?'#3a2f14':'#3a1b1b');
+  st.style.color = cls==='ok'?'#57d39a':(cls==='warn'?'#ffc857':'#ff8f8f');
+  document.getElementById('f-tx').textContent=tx;
+}));
+
+document.querySelector('.tabs button').click();
+document.querySelector('.sim button').click();
+</script>
+</body>
+</html>

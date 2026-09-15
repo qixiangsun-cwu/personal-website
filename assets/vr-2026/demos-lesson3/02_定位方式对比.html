@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>02 · 定位方式对比：Outside-In vs Inside-Out</title>
+<style>
+  :root{--bg:#0f1420;--card:#1b2233;--line:#2c3750;--txt:#eaf0fa;--sub:#9fb0c8;--acc:#4da3ff;--good:#57d39a;--warn:#ffc857;--bad:#ff8f8f;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--txt);font-family:"Microsoft YaHei",system-ui,sans-serif;line-height:1.65;padding:26px;}
+  h1{font-size:22px;margin-bottom:4px;}
+  .badge{display:inline-block;background:#132a3d;color:var(--acc);border:1px solid #2b5b85;border-radius:6px;padding:2px 8px;font-size:12px;margin-bottom:16px;}
+  .wrap{max-width:1040px;}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px;margin-bottom:16px;}
+  .modes button{background:#111827;color:var(--txt);border:1px solid var(--line);border-radius:8px;padding:9px 14px;margin:0 8px 8px 0;cursor:pointer;font-size:14px;}
+  .modes button.on{border-color:var(--acc);color:var(--acc);background:#132a3d;}
+  .scenes button{background:#111827;color:var(--sub);border:1px solid var(--line);border-radius:8px;padding:7px 11px;margin:6px 6px 0 0;cursor:pointer;font-size:13px;}
+  .scenes button.on{border-color:var(--warn);color:var(--warn);}
+  svg{background:#0b1120;border:1px solid var(--line);border-radius:10px;display:block;max-width:100%;}
+  .status{display:inline-block;padding:5px 12px;border-radius:8px;font-weight:700;font-size:14px;margin-left:12px;}
+  .ok{background:#123528;color:var(--good);border:1px solid #2c6b4c;}
+  .warn{background:#3a2f14;color:var(--warn);border:1px solid #6d5a22;}
+  .err{background:#3a1b1b;color:var(--bad);border:1px solid #7a3232;}
+  table{width:100%;border-collapse:collapse;margin-top:12px;font-size:13px;}
+  th,td{border:1px solid var(--line);padding:7px 9px;text-align:left;}
+  th{background:#162032;color:var(--sub);}
+  .note{color:var(--sub);font-size:12.5px;margin-top:12px;line-height:1.75;}
+  .desc{font-size:14px;margin:8px 0;color:var(--txt);}
+  .kv{color:var(--sub);font-size:13px;}
+</style>
+</head>
+<body>
+<h1>02 · 定位方式对比</h1>
+<span class="badge">第3次课 · 输入设备 · 核心难点</span>
+<div class="wrap">
+
+  <div class="panel">
+    <div class="modes">
+      <button data-m="out" class="on">Outside-In（外向内·基站）</button>
+      <button data-m="in">Inside-Out（内向外·SLAM）</button>
+      <button data-m="hyb">混合 / 自追踪外设</button>
+    </div>
+    <div class="scenes">
+      <span class="kv">环境场景：</span>
+      <button data-s="normal" class="on">正常房间</button>
+      <button data-s="dark">光线很暗</button>
+      <button data-s="white">纯白墙·无纹理</button>
+      <button data-s="occl">有人挡住视线</button>
+      <button data-s="fast">快速甩头</button>
+      <button data-s="large">100㎡ 大空间</button>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div style="display:flex;align-items:center;">
+      <strong id="mtitle" style="font-size:16px;">Outside-In：基站发射，头显被动接收</strong>
+      <span id="status" class="status ok">追踪正常</span>
+    </div>
+    <div class="desc" id="mdesc"></div>
+    <svg id="scene" viewBox="0 0 900 380" width="900" height="380"></svg>
+  </div>
+
+  <div class="panel">
+    <h3 style="font-size:16px;margin-bottom:6px;">三种方案对比</h3>
+    <table>
+      <thead><tr><th>方案</th><th>代表设备</th><th>原理</th><th>优点</th><th>代价 / 局限</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Outside-In</strong><br>（外向内）</td><td>HTC Vive（基站）、OptiTrack 光学动捕</td><td>基站/相机固定在环境里，"看着"头显与手柄上的标记点</td><td>精度高（亚毫米级）、延迟低、抗遮挡、多设备天然同一坐标系</td><td><strong>要部署基站</strong>（三角架/打孔）、搬运麻烦、空间大小受基站覆盖限制、成本与维护高</td></tr>
+        <tr><td><strong>Inside-Out</strong><br>（内向外）</td><td>PICO 4 Ultra、Quest 3、Vision Pro、Galaxy XR</td><td>头显自带摄像头看环境 → 提取特征点 → SLAM 实时建图并估计自身位姿</td><td><strong>开箱即用</strong>、无需外设、可随时换房间、适合大规模部署（教室）</td><td>怕<strong>弱光、纯白墙（无特征点）、快速运动（运动模糊）、遮挡</strong>；算力在头显上；长时间漂移</td></tr>
+        <tr><td><strong>混合</strong></td><td>PICO 体感追踪器（腰/踝）、Vive 追踪器</td><td>头显 Inside-Out 定位自身，外设自带 IMU + 红外传感器自追踪，再与头显坐标系融合</td><td>补齐下半身/道具/乐器等"头显看不见"的部位，实现全身动捕</td><td>需额外购买与配对校准；多模态融合算法复杂</td></tr>
+      </tbody>
+    </table>
+    <div class="note">
+      <strong>SLAM 一句话</strong>：Simultaneous Localization and Mapping——"我一边画地图，一边在地图里找自己"。摄像头提取墙角、纹理等特征点，帧间匹配推算运动，同时累积误差靠回环检测修正。<br>
+      <strong>为什么教室选 Inside-Out</strong>：40 人、10 台设备，若用 Outside-In 需要架基站、划场地、每次上课重新校准；Inside-Out 开机 5 秒建边界就能用。<strong>教学场景的指标是"人均有效使用时长"，不是单机精度极限。</strong><br>
+      <strong>AI 在哪</strong>：特征点匹配、场景理解（识别桌面/地板）、多传感器融合（IMU + 摄像头 + 深度），都靠模型而不是单纯堆摄像头数量。
+    </div>
+  </div>
+</div>
+
+<script>
+const svg=document.getElementById('scene');
+const mtitle=document.getElementById('mtitle'), mdesc=document.getElementById('mdesc'), statusEl=document.getElementById('status');
+let mode='out', scene='normal';
+
+const MODE_INFO={
+  out:{t:'Outside-In：基站发射，头显被动接收',
+       d:'基站（Lighthouse）向房间扫射红外激光，头显与手柄上的光敏传感器接收并计算角度 → 得到自身精确位姿。头显"被看着"，自己不认识环境。'},
+  in:{t:'Inside-Out：头显自带摄像头 + SLAM 实时建图',
+       d:'头显上的 4–6 颗摄像头采集环境图像，提取特征点（墙角、纹理、物体边缘），帧间匹配推算自身运动，同时构建环境地图。头显"自己看着环境和自己"。'},
+  hyb:{t:'混合：头显 Inside-Out + 外设自追踪融合',
+       d:'头显用 SLAM 定位自身；腰/踝上的体感追踪器自带 IMU 与红外传感器独立追踪，再与头显坐标系对齐融合，补齐下半身与道具。'}
+};
+
+const VERDICT={
+  out:{normal:['ok','追踪正常'],dark:['ok','追踪正常（不受光照影响）'],white:['ok','追踪正常（不需要纹理）'],
+       occl:['warn','部分遮挡：基站被挡的区域定位丢失'],fast:['ok','追踪正常（高刷新率扫描）'],
+       large:['warn','需增加基站数量，成本上升']},
+  in:{normal:['ok','追踪正常'],dark:['err','弱光：摄像头提取不到特征点 → 追踪丢失'],
+      white:['warn','纯白墙：特征点稀少 → 漂移/抖动'],occl:['warn','遮挡：可见特征点不足 → 位姿跳变'],
+      fast:['warn','快速运动：运动模糊 → 短暂丢失，靠 IMU 外推'],
+      large:['warn','大空间：累积漂移增大，需回环校正']},
+  hyb:{normal:['ok','追踪正常，全身骨骼稳定'],dark:['warn','头显可能丢追踪，外设靠 IMU 短时维持'],
+       white:['warn','头显漂移，外设相对位姿仍准'],occl:['ok','外设自追踪不受头显遮挡影响'],
+       fast:['ok','IMU 高频（最高 200Hz）抗快速运动'],
+       large:['ok','多设备各自定位，适合大空间']}
+};
+
+function draw(){
+  const S={
+    dark:['#0a0d16','#1a2033'], white:['#e8ecf4','#f6f8fc'],
+    normal:['#111827','#1b2233'], occl:['#111827','#221b2b'],
+    fast:['#111827','#1b2233'], large:['#111827','#1b2233']
+  }[scene] || ['#111827','#1b2233'];
+  let g=`<rect x="0" y="0" width="900" height="380" fill="${S[0]}"/>`;
+  // room
+  g+=`<rect x="60" y="40" width="780" height="300" fill="${S[1]}" stroke="#2c3750" stroke-width="2"/>`;
+  // texture features (hidden for white wall)
+  const showFeat = scene!=='white';
+  if(showFeat){
+    for(let i=0;i<26;i++){
+      const x=90+((i*137)%740), y=70+((i*83)%250);
+      g+=`<circle cx="${x}" cy="${y}" r="2.4" fill="#4da3ff" opacity="${scene==='dark'?0.12:0.75}"/>`;
+    }
+  }
+  if(scene==='dark'){
+    g+=`<rect x="60" y="40" width="780" height="300" fill="#000" opacity="0.72"/>`;
+  }
+  // person & headset
+  const person = `<g>
+    <circle cx="450" cy="170" r="30" fill="#2b3650" stroke="#6b7c9c"/>
+    <rect x="424" y="150" width="52" height="26" rx="7" fill="#4da3ff" opacity=".85"/>
+    <rect x="440" y="200" width="20" height="70" rx="8" fill="#3b4a6b"/>
+    <rect x="410" y="212" width="16" height="52" rx="6" fill="#3b4a6b"/>
+    <rect x="474" y="212" width="16" height="52" rx="6" fill="#3b4a6b"/>
+    <text x="450" y="292" text-anchor="middle" fill="#9fb0c8" font-size="13">头显</text></g>`;
+  g+=person;
+
+  if(mode==='out'){
+    // base stations at corners
+    const bs=[[95,65],[805,65]];
+    bs.forEach(([bx,by],i)=>{
+      g+=`<g><rect x="${bx-16}" y="${by-12}" width="32" height="24" rx="5" fill="#3a2b1a" stroke="#ffc857"/>
+        <text x="${bx}" y="${by+5}" text-anchor="middle" fill="#ffc857" font-size="13">基站${i+1}</text></g>`;
+      g+=`<path d="M ${bx} ${by} L 450 170" stroke="#ffc857" stroke-width="1.5" opacity=".55" stroke-dasharray="6 5"/>`;
+    });
+    // fan sweep
+    g+=`<path d="M 95 65 L 450 60 L 450 280 Z" fill="#ffc857" opacity=".07"/>`;
+    g+=`<path d="M 805 65 L 450 60 L 450 280 Z" fill="#ffc857" opacity=".07"/>`;
+    if(scene==='occl'){
+      g+=`<rect x="330" y="120" width="46" height="120" rx="10" fill="#5a2b3a" stroke="#ff8f8f"/>
+          <text x="353" y="185" text-anchor="middle" fill="#ff8f8f" font-size="12">遮挡物</text>`;
+      g+=`<line x1="95" y1="65" x2="330" y2="150" stroke="#ff8f8f" stroke-width="2.5"/>`;
+      g+=`<text x="200" y="120" fill="#ff8f8f" font-size="12">光路被挡 ×</text>`;
+    }
+  }else if(mode==='in'){
+    // camera FOV cones from headset
+    g+=`<path d="M 450 170 L 200 60 L 200 300 Z" fill="#4da3ff" opacity=".08"/>`;
+    g+=`<path d="M 450 170 L 700 60 L 700 300 Z" fill="#4da3ff" opacity=".08"/>`;
+    // slam map
+    if(showFeat && scene!=='dark'){
+      g+=`<polyline points="120,90 200,70 300,120 420,80 540,110 660,70 760,120" fill="none" stroke="#57d39a" stroke-width="1.5" opacity=".6"/>`;
+      g+=`<text x="300" y="112" fill="#57d39a" font-size="12">SLAM 地图（特征点云）</text>`;
+    }
+    if(scene==='dark'){
+      g+=`<text x="450" y="330" text-anchor="middle" fill="#ff8f8f" font-size="14">摄像头看不到特征点 → 位姿丢失</text>`;
+    }
+    if(scene==='white'){
+      g+=`<text x="450" y="330" text-anchor="middle" fill="#ffc857" font-size="14">纯白墙无纹理 → 特征点稀少，位姿漂移</text>`;
+    }
+    if(scene==='occl'){
+      g+=`<rect x="640" y="120" width="46" height="120" rx="10" fill="#5a2b3a" stroke="#ff8f8f"/>
+          <text x="663" y="185" text-anchor="middle" fill="#ff8f8f" font-size="12">遮挡物</text>`;
+      g+=`<text x="450" y="330" text-anchor="middle" fill="#ffc857" font-size="14">大片视野被挡 → 可见特征点不足</text>`;
+    }
+    if(scene==='fast'){
+      g+=`<path d="M 380 170 q 70 -50 140 0" stroke="#ffc857" stroke-width="2" fill="none" stroke-dasharray="8 6"/>
+          <text x="450" y="330" text-anchor="middle" fill="#ffc857" font-size="14">快速运动 → 运动模糊，短暂靠 IMU 外推</text>`;
+    }
+  }else{
+    // hybrid: headset SLAM + trackers
+    g+=`<path d="M 450 170 L 200 60 L 200 300 Z" fill="#4da3ff" opacity=".07"/>`;
+    g+=`<path d="M 450 170 L 700 60 L 700 300 Z" fill="#4da3ff" opacity=".07"/>`;
+    [[450,250,'腰'],[440,300,'左踝'],[470,300,'右踝']].forEach(([tx,ty,lb])=>{
+      g+=`<circle cx="${tx}" cy="${ty}" r="10" fill="#122c22" stroke="#57d39a" stroke-width="2"/>
+          <text x="${tx+16}" y="${ty+4}" fill="#57d39a" font-size="12">追踪器·${lb}</text>`;
+    });
+    g+=`<path d="M 440 300 L 450 250 L 470 300" fill="none" stroke="#57d39a" stroke-width="1.5" opacity=".7" stroke-dasharray="4 4"/>`;
+    g+=`<text x="450" y="345" text-anchor="middle" fill="#57d39a" font-size="13">PICO 体感追踪器：IMU + 12 红外传感器，最高 200Hz，全身 24 个骨骼点</text>`;
+  }
+  if(scene==='large'){
+    g+=`<text x="450" y="365" text-anchor="middle" fill="#9fb0c8" font-size="12">场景尺度：100㎡ 大空间</text>`;
+  }
+  svg.innerHTML=g;
+  const [cls,txt]=VERDICT[mode][scene];
+  statusEl.className='status '+cls; statusEl.textContent=txt;
+  mtitle.textContent=MODE_INFO[mode].t; mdesc.textContent=MODE_INFO[mode].d;
+}
+document.querySelectorAll('.modes button').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.modes button').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on'); mode=b.dataset.m; draw();
+}));
+document.querySelectorAll('.scenes button').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.scenes button').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on'); scene=b.dataset.s; draw();
+}));
+draw();
+</script>
+</body>
+</html>
