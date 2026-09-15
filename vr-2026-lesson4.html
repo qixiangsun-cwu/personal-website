@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第4次课 · 虚拟现实开发常用软件（Unity 环境搭建）| 2026年虚拟现实技术</title>
+<meta name="description" content="《虚拟现实技术》第4次课课堂内容：软件生态与工具选型、资产导入五道关、Unity XR 环境配置（XR Origin + Device Simulator）、导入模型与第一个 C# 脚本、模拟器→头显双轨验证。">
+<link rel="stylesheet" href="assets/vr-2026/course.css">
+</head>
+<body>
+
+<!-- ===== 顶部 ===== -->
+<header class="hero">
+  <div class="hero-inner">
+    <span class="kicker">虚拟现实技术 · 第 4 次课 · 案例 01</span>
+    <h1>虚拟现实开发常用软件</h1>
+    <p class="sub">第 4 章（软件为主 · 结合第 3 章硬件）· 软件生态与工具选型 · Unity XR 环境配置 · 导入模型与第一个脚本 · 模拟器 → 头显双轨验证</p>
+    <div class="meta">
+      <span>中华女子学院</span><span>4 学时 · 180 分钟（理论 2 + 实验 2）</span><span>授课人：孙琪翔</span><span>2026-09-23 · 第 4 周</span><span>数字媒体技术实验室</span>
+    </div>
+  </div>
+</header>
+
+<!-- ===== 目录导航 ===== -->
+<nav class="nav" id="nav">
+  <div class="nav-inner" id="navInner">
+    <a href="vr-2026.html" class="nav-back">← 课程主页</a>
+    <a href="#guide" data-sec="guide" class="on">本讲导览</a>
+    <a href="#c1" data-sec="c1">一、软件生态与选型</a>
+    <a href="#c2" data-sec="c2">二、资产与五道关</a>
+    <a href="#c3" data-sec="c3">三、环境核对与界面</a>
+    <a href="#c4" data-sec="c4">四、XR 环境配置</a>
+    <a href="#c5" data-sec="c5">五、模型与第一个脚本</a>
+    <a href="#c6" data-sec="c6">六、双轨验证</a>
+    <a href="#demo" data-sec="demo">演示中心</a>
+    <a href="#practice" data-sec="practice">速查 · 达标</a>
+  </div>
+</nav>
+
+<main>
+
+<!-- ===== 导览 ===== -->
+<section id="guide">
+  <div class="sec-head">
+    <div class="sec-num">导</div>
+    <div>
+      <h2>本讲导览</h2>
+      <p class="sec-sub">上次课回答“硬件能做什么”，这次课回答“用什么软件把它做出来”</p>
+    </div>
+  </div>
+
+  <p>这节课以<strong>第 4 章“虚拟现实开发常用软件”</strong>为骨架，把上一课（第 3 次课）讲过的硬件关键指标作为“软件设置的依据”贯穿全课。课堂产出不是“听懂”，而是<strong>一台机器上一个能跑起来的 VR 场景</strong>。</p>
+
+  <div class="key"><strong>本课产出 = 期末大作业的第 1 个案例（案例 01）。</strong>本学期采用“12 次课 = 8 个课堂案例”的模型：<strong>8 个案例从本课开始逐个积累</strong>，第 12 次课（12-02）整理成合集整体演示，期末大作业（40%）即该合集。</div>
+
+  <h3>今天要走完的四步</h3>
+  <pre>① 核对版本与插件  →  ② 配置 XR  →  ③ 导入模型 + 写脚本  →  ④ 用 PICO 看一眼
+    12 分钟              30 分钟         25 分钟                25 分钟</pre>
+
+  <h3>本讲学习目标（可观测）</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr><th>目标</th><th>内容</th><th>怎么检验</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>T1</td><td>说出 VR/AR 开发的四类工具（建模 / 引擎 / 资产 / 验证）各管什么，每类举 2 例</td><td>提问 + 生态地图</td></tr>
+        <tr><td>T2</td><td>解释本课程为何选 Unity 而非 Unreal；Blender 与 3ds Max 的定位差异</td><td>投票 + 讨论</td></tr>
+        <tr><td>T3</td><td>说明模型从建模软件到 VR 场景的<strong>五道关</strong>，指出三个常见错误</td><td>管线页 + 测验</td></tr>
+        <tr><td>T4</td><td>查到自己机位上的 <strong>Unity 版本号</strong>并记录</td><td>任务卡填写</td></tr>
+        <tr><td>T5</td><td>配置 XR 环境：XR Plugin + Interaction Toolkit + XR Origin + Device Simulator</td><td>逐台巡视</td></tr>
+        <tr><td>T6</td><td>导入一个模型并修正比例</td><td>场景截图</td></tr>
+        <tr><td>T7</td><td>写出并运行第一个 C# 脚本，让物体动起来</td><td>课堂验收</td></tr>
+        <tr><td>T8</td><td>说出上节课的硬件指标（PPD / 刷新率 / 定位方式）在 Unity 里对应哪个设置</td><td>测验</td></tr>
+        <tr><td>T9</td><td>完成案例 01 的验收</td><td>验收清单</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>180 分钟时间轴</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr><th>时段</th><th>时长</th><th>环节</th><th>主要动作</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>0:00–0:08</td><td>8'</td><td>开场</td><td>本学期模型与今日产出：讲清“期末 = 8 个案例的合集”，今天的产出是第 1 个案例</td></tr>
+        <tr><td>0:08–0:20</td><td>12'</td><td>4.1 软件生态地图</td><td>四类工具分工；资产模型的“轻重”直接决定设备能否跑满 90Hz</td></tr>
+        <tr><td>0:20–0:31</td><td>11'</td><td>4.2 建模与引擎选型</td><td>Blender vs 3ds Max、Unity vs Unreal；引擎选择与“生成设备”的关系</td></tr>
+        <tr><td>0:31–0:42</td><td>11'</td><td>4.3 资产从哪来</td><td>三条来路 + 导入五道关；面数过高 → 掉帧 → 眩晕</td></tr>
+        <tr><td>0:42–0:53</td><td>11'</td><td>4.4 编程入门与机房环境</td><td>C# 最小认知（GameObject / Component / Start-Update）；本机已装好什么、版本怎么查</td></tr>
+        <tr><td>0:53–1:03</td><td>10'</td><td>课间</td><td>教师巡查机房：插件是否齐全、能否新建项目</td></tr>
+        <tr><td>1:03–1:15</td><td>12'</td><td>实验 A · 核对版本 + 认界面</td><td>Help → About Unity 查版本号；Package Manager 查插件；认六个面板</td></tr>
+        <tr><td>1:15–1:45</td><td>30'</td><td>实验 B · XR 环境配置 ★</td><td>XR Plugin Management → Interaction Toolkit → XR Origin → Device Simulator</td></tr>
+        <tr><td>1:45–2:10</td><td>25'</td><td>实验 C · 模型 + 第一个脚本 ★</td><td>导入 FBX、修比例、写最小脚本让物体转起来</td></tr>
+        <tr><td>2:10–2:35</td><td>25'</td><td>双轨验证 ★</td><td>8 组轮换戴 PICO 看“自己做的场景”，对比模拟器与真机差异</td></tr>
+        <tr><td>2:35–2:50</td><td>15'</td><td>收束</td><td>案例 01 逐项验收、记录本机版本、预告下次课</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>模块地图</h3>
+  <div class="map-grid">
+    <a class="map-card" href="#c1"><div class="mc-num">4.1 / 4.2</div><div class="mc-title">软件生态与工具选型</div><div class="mc-desc">四类工具分工、Blender/3ds Max、Unity/Unreal</div></a>
+    <a class="map-card" href="#c2"><div class="mc-num">4.3</div><div class="mc-title">资产从哪来：五道关</div><div class="mc-desc">素材库 / 自建 / AI 生成，导入与优化</div></a>
+    <a class="map-card" href="#c3"><div class="mc-num">实验 A</div><div class="mc-title">环境核对与界面</div><div class="mc-desc">版本号、已装插件、六个面板、保存</div></a>
+    <a class="map-card" href="#c4"><div class="mc-num">实验 B ★</div><div class="mc-title">XR 环境配置</div><div class="mc-desc">OpenXR → Toolkit → XR Origin → Device Simulator</div></a>
+    <a class="map-card" href="#c5"><div class="mc-num">实验 C ★</div><div class="mc-title">模型与第一个脚本</div><div class="mc-desc">导入 FBX、修比例、写出 SpinObject</div></a>
+    <a class="map-card" href="#c6"><div class="mc-num">双轨验证</div><div class="mc-title">模拟器 → PICO 真机</div><div class="mc-desc">看 / 转 / 走，记录差异</div></a>
+    <a class="map-card" href="#demo"><div class="mc-num">演示中心</div><div class="mc-title">7 个课堂演示</div><div class="mc-desc">浏览器直接打开，全离线</div></a>
+    <a class="map-card" href="#practice"><div class="mc-num">收束</div><div class="mc-title">故障速查与达标线</div><div class="mc-desc">八类常见故障、案例 01 验收</div></a>
+  </div>
+</section>
+
+<!-- ===== 一、软件生态与选型 ===== -->
+<section id="c1">
+  <div class="sec-head">
+    <div class="sec-num">一</div>
+    <div>
+      <h2>软件生态与工具选型</h2>
+      <p class="sec-sub">4.1 四类工具各管一段 · 4.2 建模与引擎怎么选</p>
+    </div>
+  </div>
+
+  <h3>1.1 四类工具：一类工具只干一件事</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr><th>类别</th><th>它负责什么</th><th>典型工具</th><th>本课程会用到</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>建模</strong></td><td>造出物体的形状</td><td>Blender、3ds Max、Maya</td><td>Blender（看一眼界面 + 导出一个 FBX）</td></tr>
+        <tr><td><strong>引擎</strong></td><td>把内容组织成可运行的应用</td><td>Unity、Unreal Engine</td><td>Unity 6（全程）</td></tr>
+        <tr><td><strong>资产</strong></td><td>提供现成的模型、贴图、动画、音效</td><td>Sketchfab、Poly Haven、Mixamo、AI 生成工具</td><td>素材库 + AI 生成</td></tr>
+        <tr><td><strong>验证</strong></td><td>检查“在真机上到底行不行”</td><td>XR Device Simulator（PC 模拟）、头显真机</td><td>模拟器为主 + 头显验证</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="key">“一类工具只干一件事”是本课的第一条原则：建模软件不做交互逻辑，引擎不做精细建模，资产库不负责优化。<strong>知道边界，才知道遇到问题该找哪一环。</strong></div>
+
+  <h3>1.2 建模软件：Blender 与 3ds Max</h3>
+  <div class="grid2">
+    <div class="cell">
+      <h4>Blender（免费 · 开源）</h4>
+      <p>免费、跨平台、更新快，建模/雕刻/渲染/动画一体；社区教程极多，适合个人开发与课程作业。本课程用它做“建模—导出 FBX”的最小闭环。</p>
+    </div>
+    <div class="cell">
+      <h4>3ds Max / Maya（行业标准 · 商业授权）</h4>
+      <p>在建筑可视化、影视与游戏公司中使用广泛，插件生态成熟、团队协作流程完善；代价是授权成本与学习曲线。</p>
+    </div>
+  </div>
+
+  <h3>1.3 引擎：Unity 与 Unreal 怎么选</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr><th>维度</th><th>Unity 6（本课程选择）</th><th>Unreal Engine</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>上手成本</td><td>较低，C# 语法友好，教学资料多</td><td>较高，C++ 与蓝图双轨</td></tr>
+        <tr><td>XR 支持</td><td>OpenXR + XR Interaction Toolkit，跨 PICO / Quest / Vive</td><td>内置 XR 框架，偏向高保真与主机级画面</td></tr>
+        <tr><td>画面保真</td><td>够用，移动端一体机表现稳定</td><td>更强，但<strong>更吃 GPU</strong></td></tr>
+        <tr><td>一体机性能</td><td>移动端优化路径成熟</td><td>对头显算力要求更高</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="note"><strong>为什么本课程选 Unity</strong>：C# 上手快、XR Interaction Toolkit 提供现成交互组件、OpenXR 一次配置可跨品牌设备，且对移动端一体机（PICO 4 Ultra）的性能优化路径更成熟。Unreal 更强的是画面上限，但“画面更好”往往意味着更高的 GPU 开销——这正是上次课讲的<strong>生成设备</strong>的现实意义。</div>
+
+  <div class="key"><strong>硬件接口 ①②</strong>：① 资产产出的模型有多“重”（面数、贴图），直接决定设备能不能跑满 90Hz；② 引擎越追求画面，越吃 GPU——生成设备（也就是“算力在哪”）不是抽象概念，它决定了你能选哪条技术路线。</div>
+</section>
+
+<!-- ===== 二、资产与五道关 ===== -->
+<section id="c2">
+  <div class="sec-head">
+    <div class="sec-num">二</div>
+    <div>
+      <h2>资产从哪来：一个模型到 VR 的五道关</h2>
+      <p class="sec-sub">4.3 三条来路 + 五道关 + 三个最常翻车的坑</p>
+    </div>
+  </div>
+
+  <h3>2.1 三条来路</h3>
+  <div class="grid3">
+    <div class="cell">
+      <h4>素材库（最快）</h4>
+      <p>Sketchfab 模型库、Poly Haven 贴图与 HDRI、Mixamo 角色动画。适合快速搭场景，注意授权与命名规范。</p>
+    </div>
+    <div class="cell">
+      <h4>自己建（最可控）</h4>
+      <p>用 Blender 从零建模，尺寸、拓扑、UV 自己说了算。代价是时间——课程里只在必要的小物件上使用。</p>
+    </div>
+    <div class="cell">
+      <h4>AI 生成（最新）</h4>
+      <p>Meshy、Hunyuan3D、TRELLIS 等文/图生 3D，适合快速原型。<strong>但要检查拓扑、UV、比例与版权</strong>，通常需要二次修整。</p>
+    </div>
+  </div>
+
+  <h3>2.2 五道关：模型从建模软件到 VR 场景</h3>
+  <pre>① 建模  →  ② 减面  →  ③ 导出 FBX  →  ④ 导入设置  →  ⑤ 在场景里验证
+            控制面数      禁中文路径      单位与缩放 ↑         戴上头显看
+                                         最常翻车的一关</pre>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr><th>关卡</th><th>要做什么</th><th>没做好会怎样</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>① 建模</td><td>按真实比例建模，统一单位</td><td>进 Unity 后比例不对</td></tr>
+        <tr><td>② 减面</td><td>控制在合理面数（一体机尤其敏感）</td><td>掉帧、发热、眩晕</td></tr>
+        <tr><td>③ 导出 FBX</td><td>路径与文件名<strong>不含中文</strong></td><td>导入失败、材质丢失</td></tr>
+        <tr><td>④ 导入设置</td><td>检查 Scale / 轴向 / 材质</td><td>模型躺倒、悬空、变成粉色</td></tr>
+        <tr><td>⑤ 验证</td><td>先在模拟器看，再戴头显看</td><td>“在 PC 上明明没问题”</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>2.3 最常见的三个坑</h3>
+  <ol>
+    <li><strong>缩放不对</strong>：模型小到看不见、或大到撑爆场景 → 改 <code class="inline">Transform → Scale</code>（常用 <code class="inline">1</code> 或 <code class="inline">0.01</code>）；</li>
+    <li><strong>贴图变粉红</strong>：材质丢失或路径含中文 → 重新指定材质，并把素材放到纯英文路径；</li>
+    <li><strong>轴向搞错</strong>：模型躺倒或漂在空中 → Blender 默认 <strong>Z 轴向上</strong>，Unity 是 <strong>Y 轴向上</strong>，需要旋转或导出时校正。</li>
+  </ol>
+  <div class="warn"><strong>硬件接口 ③</strong>：面数过高 → 掉帧 → 眩晕。这不是“画面问题”，而是接上了上次课的<strong>刷新率与 Motion-to-Photon 延迟</strong>：延迟一旦超标，人就会不适，再好的内容也救不回来。</div>
+</section>
+
+<!-- ===== 三、环境核对与界面 ===== -->
+<section id="c3">
+  <div class="sec-head">
+    <div class="sec-num">三</div>
+    <div>
+      <h2>实验 A · 环境核对与界面认知</h2>
+      <p class="sec-sub">12 分钟 · 不安装，只核对：确认版本与插件齐全就能开工</p>
+    </div>
+  </div>
+
+  <div class="note">本次课<strong>不安装、不下载</strong> Unity——机房已部署好 Unity 及整套 XR 环境。你要做的是把版本与插件<strong>核对清楚</strong>，然后直接开工。</div>
+
+  <h3>A1 查 Unity 版本号（今天的第一个任务）</h3>
+  <div class="tbl-wrap">
+    <table>
+      <tbody>
+        <tr><td style="width:22%"><strong>路径</strong></td><td>打开 Unity → 顶部菜单 <strong>Help → About Unity</strong>，弹窗里能看到完整版本号，例如 <code class="inline">6000.0.83f1</code></td></tr>
+        <tr><td><strong>要做的</strong></td><td>把这个版本号抄到任务卡上（教师会收齐全班版本号，用于排查工程兼容问题）</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="key">为什么第一件事就查版本：<strong>Unity 只能升级工程，不能降级</strong>。如果现在记录的版本低于你以后使用的版本，工程就可能打不开——这是真实工程里最常见的坑之一。</div>
+
+  <h3>A2 确认项目里装了哪些包</h3>
+  <ul>
+    <li>路径：<strong>Window → Package Manager</strong> → 左上角下拉框选 <strong>In Project</strong>；</li>
+    <li>要找的包：<code class="inline">XR Plugin Management</code>、<code class="inline">XR Interaction Toolkit</code>；</li>
+    <li>顺带看：列表中若有 <code class="inline">Input System</code>，说明输入系统已就绪；</li>
+    <li>若缺包：下拉框切到 <strong>Unity Registry</strong> 搜索安装；若机房不能联网，用教师提供的 <code class="inline">.unitypackage</code> 本地导入（Assets → Import Package → Custom Package）。</li>
+  </ul>
+
+  <h3>A3 打开或新建项目</h3>
+  <ul>
+    <li>打开已有：Unity Hub → <strong>项目</strong> → 点机房提供的模板项目；</li>
+    <li>若需新建：Hub → <strong>新建项目</strong> → 模板选 <strong>3D (Built-In Render Pipeline)</strong>；</li>
+    <li>工程命名用英文（如 <code class="inline">VRCase01</code>），<strong>工程路径必须是纯英文</strong>。</li>
+  </ul>
+
+  <h3>A4 认识六个面板（必记）</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr><th>面板</th><th>位置</th><th>作用</th><th>一句话记忆</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>Hierarchy</strong> 层级</td><td>左侧</td><td>列出场景里所有物体</td><td>场景里“有什么”</td></tr>
+        <tr><td><strong>Scene</strong> 场景</td><td>中央</td><td>编辑视角，搭建场景</td><td>你工作的地方</td></tr>
+        <tr><td><strong>Game</strong> 游戏</td><td>中央</td><td>运行时真实画面（相机视角）</td><td>玩家“看到什么”</td></tr>
+        <tr><td><strong>Inspector</strong> 检视</td><td>右侧</td><td>选中物体的组件与属性</td><td>选中什么改什么</td></tr>
+        <tr><td><strong>Project</strong> 项目</td><td>底部</td><td>工程里所有资源文件</td><td>素材“存在哪”</td></tr>
+        <tr><td><strong>Console</strong> 控制台</td><td>底部</td><td>报错、警告、调试输出</td><td><strong>出问题先看这里</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>自测三个问题：运行时报错先看哪个面板？哪个面板显示“玩家实际看到的画面”？哪个面板列出场景里“有什么物体”？</p>
+
+  <h3>A5 保存场景</h3>
+  <p><strong>File → Save</strong>（<code class="inline">Ctrl+S</code>）。场景文件是 <code class="inline">Assets/</code> 下的 <code class="inline">.unity</code> 文件，养成随时保存的习惯。</p>
+
+  <div class="key"><strong>硬件接口 ④</strong>：稍后要加的 <strong>XR Origin</strong>，就是上次课讲的 <strong>Inside-Out 定位</strong>在软件里的落点——硬件负责“知道自己在哪”，软件负责“把位置用起来”。</div>
+</section>
+
+<!-- ===== 四、XR 环境配置 ===== -->
+<section id="c4">
+  <div class="sec-head">
+    <div class="sec-num">四</div>
+    <div>
+      <h2>实验 B · XR 环境配置 ★</h2>
+      <p class="sec-sub">30 分钟 · 把普通 3D 项目变成 VR 项目的一步，后面 9 次课的地基</p>
+    </div>
+  </div>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr><th>#</th><th>操作</th><th>路径</th><th>说明 / 注意事项</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>B1</td><td>启用 <strong>OpenXR</strong></td><td>Edit → Project Settings → <strong>XR Plug-in Management</strong></td><td>在 Windows 标签页勾选 OpenXR；OpenXR 是跨设备开放标准，一次配置可支持 PICO / Vive / Quest。若提示需重启编辑器，按提示重启后继续</td></tr>
+        <tr><td>B2</td><td>确认 <strong>XR Interaction Toolkit</strong></td><td>Package Manager → In Project</td><td>它提供抓取、射线、传送、UI 交互等现成交互组件；清单里若出现 <strong>Samples</strong>，展开能看到 <code class="inline">Starter Assets</code> 与 <code class="inline">XR Device Simulator</code> 就说明示例包已就绪</td></tr>
+        <tr><td>B3</td><td>添加 <strong>XR Origin (VR)</strong></td><td>Hierarchy 空白处右键 → XR → <strong>XR Origin (VR)</strong></td><td>它替代普通相机，负责跟随头显位置与朝向。<strong>必须禁用或删除场景里原有的 Main Camera</strong>，否则两个相机打架、画面异常</td></tr>
+        <tr><td>B4</td><td>添加 <strong>XR Device Simulator</strong></td><td>Project → <code class="inline">Assets/Samples/XR Interaction Toolkit/&lt;版本&gt;/XR Device Simulator</code> → 把预制体拖进 Hierarchy</td><td>用键盘 + 鼠标模拟头显转头与手柄操作。本课程“PC 开发为主、头显验证为辅”，这个组件就是“PC 上开发”的支柱</td></tr>
+        <tr><td>B5</td><td>Play 验证</td><td>点击顶部 <strong>▶ Play</strong></td><td>期望结果：Game 视图里视角能随 WASD 与鼠标转动而移动</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>XR Device Simulator 常用模拟按键（默认）</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>按键</th><th>作用</th></tr></thead>
+      <tbody>
+        <tr><td><code class="inline">W / A / S / D</code></td><td>模拟头显前后左右移动</td></tr>
+        <tr><td>按住鼠标右键拖动</td><td>模拟转头</td></tr>
+        <tr><td><code class="inline">Tab</code>（按住）</td><td>切换左右手</td></tr>
+        <tr><td><code class="inline">G</code>（按住）</td><td>模拟手柄握持（Grip）</td></tr>
+        <tr><td>鼠标左键</td><td>模拟手柄触发（Trigger）</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="warn">按键以你机器上模拟器预制体显示的提示为准（版本不同可能略有差异）。<strong>按了没反应？先用鼠标点一下 Game 视图</strong>，让焦点落在游戏窗口里。</div>
+
+  <div class="key">B 环节的思考题：<strong>XR Origin 解决的是上次课讲的哪个硬件问题？</strong>——提示：和“头显怎么知道自己在哪”有关，也就是跟踪定位。</div>
+</section>
+
+<!-- ===== 五、模型与第一个脚本 ===== -->
+<section id="c5">
+  <div class="sec-head">
+    <div class="sec-num">五</div>
+    <div>
+      <h2>实验 C · 导入模型与第一个脚本 ★</h2>
+      <p class="sec-sub">25 分钟 · 让场景里真的有东西，而且它会动</p>
+    </div>
+  </div>
+
+  <h3>C1 导入 FBX 模型</h3>
+  <ul>
+    <li>Project 面板右键 → <strong>Create → Folder</strong>，先建一个 <code class="inline">Models</code> 文件夹；</li>
+    <li>把教师提供的 <code class="inline">.fbx</code>（或 <code class="inline">.obj</code>）拖进 <code class="inline">Assets/Models</code>；</li>
+    <li>选中模型，Inspector 里会出现 <strong>Model / Rig / Materials</strong> 三个标签页。</li>
+  </ul>
+  <div class="note">本次课<strong>不依赖联网下载模型</strong>（避免机房网络问题），统一使用教师提供的模型文件。</div>
+
+  <h3>C2 放进场景并修正比例</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>检查项</th><th>怎么做</th></tr></thead>
+      <tbody>
+        <tr><td>比例是否合理</td><td>与场景里的 Cube / Plane 对比；不对就改 <strong>Transform → Scale</strong>（<code class="inline">1</code> 或 <code class="inline">0.01</code>）</td></tr>
+        <tr><td>位置是否合适</td><td>调整 <strong>Transform → Position</strong> 的 Y 值（Unity 是 <strong>Y 轴向上</strong>）</td></tr>
+        <tr><td>材质是否正常</td><td>若呈粉红色，说明材质丢失或贴图路径含中文，需重新指定</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>C3 写出第一个脚本</h3>
+  <p>Project 面板空白处右键 → <strong>Create → C# Script</strong>，命名为 <code class="inline">SpinObject</code>——<strong>首字母大写、不能有中文、不能有空格</strong>。</p>
+  <pre>using UnityEngine;
+
+public class SpinObject : MonoBehaviour
+{
+    public float speed = 60f;   // 每秒旋转的角度
+
+    // Start 在物体第一次被激活时调用一次
+    void Start()
+    {
+        Debug.Log("SpinObject 启动了");
+    }
+
+    // Update 每帧调用一次（适合做持续运动）
+    void Update()
+    {
+        transform.Rotate(0f, speed * Time.deltaTime, 0f);
+    }
+}</pre>
+
+  <h4>挂载与运行</h4>
+  <ol>
+    <li>选中场景里的模型（或任意物体）；</li>
+    <li>把 <code class="inline">SpinObject</code> 从 Project 面板拖到 Inspector 下方空白处；</li>
+    <li>点 ▶ Play，物体开始旋转；</li>
+    <li>Play 状态下可以在 Inspector 里实时改 <code class="inline">Speed</code>，看转速变化（试试从 60 改成 600）。</li>
+  </ol>
+
+  <h4>读代码要点（对应 4.3 开发语言）</h4>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>概念</th><th>在这个脚本里的体现</th></tr></thead>
+      <tbody>
+        <tr><td><strong>GameObject</strong></td><td>你挂脚本的那个物体</td></tr>
+        <tr><td><strong>Component</strong></td><td><code class="inline">SpinObject</code> 本身就是挂在物体上的一个组件</td></tr>
+        <tr><td><strong>MonoBehaviour</strong></td><td>Unity 所有脚本的基类，必须继承</td></tr>
+        <tr><td><strong>Start()</strong></td><td>只执行一次，适合初始化</td></tr>
+        <tr><td><strong>Update()</strong></td><td>每帧执行，适合持续动作</td></tr>
+        <tr><td><strong>Time.deltaTime</strong></td><td>让转动速度与帧率无关——快慢机器上转得一样</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="key"><code class="inline">Time.deltaTime</code> 是本课最值得记住的细节：没有它，高刷新率的机器上物体会转得更快。这和上次课讲的<strong>帧率、延迟</strong>是同一件事的两面。</div>
+</section>
+
+<!-- ===== 六、双轨验证 ===== -->
+<section id="c6">
+  <div class="sec-head">
+    <div class="sec-num">六</div>
+    <div>
+      <h2>双轨验证：模拟器 → PICO 真机 ★</h2>
+      <p class="sec-sub">25 分钟 · 同一个场景，在 PC 与头显里各看一遍</p>
+    </div>
+  </div>
+
+  <p>你已经在 PC 上用 Device Simulator 跑通了场景。现在戴上 PICO 看<strong>同一个场景</strong>，体会<strong>软件设置与硬件体验之间的差距</strong>——这就是本课程“双轨流程”的核心。</p>
+
+  <div class="grid2">
+    <div class="cell">
+      <h4>组织形式</h4>
+      <ul>
+        <li>8 组轮换，10 台 PICO；</li>
+        <li>每人约 <strong>2—3 分钟</strong>（只看一眼，不是完整体验）；</li>
+        <li>未轮到的小组：继续完善自己的场景，或帮同组同学排错。</li>
+      </ul>
+    </div>
+    <div class="cell">
+      <h4>戴上头显做三个动作</h4>
+      <ul>
+        <li><strong>看</strong>：画面清不清晰？和 PC 上的 Game 视图比，差别在哪？</li>
+        <li><strong>转</strong>：快速转头——画面跟得上吗？有没有拖影或延迟？</li>
+        <li><strong>走</strong>：瞬移一步，感受移动时的舒适度。</li>
+      </ul>
+    </div>
+  </div>
+
+  <h4>记录对比（课堂任务卡填写）</h4>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>对比项</th><th>PC 模拟器</th><th>PICO 真机</th></tr></thead>
+      <tbody>
+        <tr><td>画面清晰度</td><td></td><td></td></tr>
+        <tr><td>转头时的延迟感</td><td></td><td></td></tr>
+        <tr><td>眩晕 / 不适感</td><td></td><td></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="key"><strong>思考题</strong>：同一个场景，为什么在 PC 上看着没问题，戴到头显里可能出现不适？提示——回想上次课的 <strong>PPD、刷新率、Motion-to-Photon 延迟</strong>。</div>
+  <div class="note"><strong>板书收束句</strong>：<strong>硬件决定上限，软件决定你能不能碰到这个上限。</strong></div>
+</section>
+
+<!-- ===== 演示中心 ===== -->
+<section id="demo">
+  <div class="sec-head">
+    <div class="sec-num">演</div>
+    <div>
+      <h2>课堂演示中心</h2>
+      <p class="sec-sub">7 个演示 · 浏览器直接打开 · 全部离线可用、无外部依赖</p>
+    </div>
+  </div>
+
+  <p>本节课的主线演示是 <strong>07 软件生态与管线决策台</strong>，它的五个标签分别对应 4.1—4.4 的讲授环节与收束。<strong>01—06 为硬件主题</strong>，属于上一课（第 3 次课）：其中 07 的标签②「硬件 ↔ 软件对照」正好用来回指上次课学过的参数。</p>
+  <div class="btn-row">
+    <a class="btn" href="assets/vr-2026/demos-xr/index.html" target="_blank" rel="noopener">打开演示中心总入口</a>
+  </div>
+  <div class="demo-grid">
+    <a class="demo-card" href="assets/vr-2026/demos-xr/07_软件生态与管线决策台.html" target="_blank" rel="noopener"><div class="dc-no">07 · 本课主线</div><div class="dc-title">软件生态与管线决策台</div><div class="dc-desc">五个标签：软件生态地图 / 硬件 ↔ 软件对照 / 资产管线五道关 / 选题决策助手 / 机房环境与核对清单</div></a>
+    <a class="demo-card" href="assets/vr-2026/demos-xr/01_PPD与参数对比计算器.html" target="_blank" rel="noopener"><div class="dc-no">01</div><div class="dc-title">PPD 与设备参数对比计算器</div><div class="dc-desc">清晰度 = PPD，不是分辨率；含多种设备预设与口径对照</div></a>
+    <a class="demo-card" href="assets/vr-2026/demos-xr/02_定位方式对比.html" target="_blank" rel="noopener"><div class="dc-no">02</div><div class="dc-title">定位方式对比</div><div class="dc-desc">Outside-In / Inside-Out / SLAM × 六种环境场景</div></a>
+    <a class="demo-card" href="assets/vr-2026/demos-xr/03_6DoF自由度演示.html" target="_blank" rel="noopener"><div class="dc-no">03</div><div class="dc-title">6DoF 自由度演示</div><div class="dc-desc">3 旋转 + 3 平移；3DoF 下走不近目标，6DoF 才有运动视差</div></a>
+    <a class="demo-card" href="assets/vr-2026/demos-xr/04_手部追踪与交互方式.html" target="_blank" rel="noopener"><div class="dc-no">04</div><div class="dc-title">手部追踪与交互方式</div><div class="dc-desc">手柄 / 手势 / 眼动 / 语音 / 动捕五类输入对比</div></a>
+    <a class="demo-card" href="assets/vr-2026/demos-xr/05_MR透视与空间网格.html" target="_blank" rel="noopener"><div class="dc-no">05</div><div class="dc-title">MR 透视与空间网格</div><div class="dc-desc">彩色透视 / iToF / 语义标签 / 虚实遮挡</div></a>
+    <a class="demo-card" href="assets/vr-2026/demos-xr/06_WebXR能力检测.html" target="_blank" rel="noopener"><div class="dc-no">06</div><div class="dc-title">WebXR 能力检测</div><div class="dc-desc">检测当前浏览器的 WebXR 支持情况；机房 PC 与 PICO 浏览器结果不同属正常</div></a>
+  </div>
+</section>
+
+<!-- ===== 故障速查与达标 ===== -->
+<section id="practice">
+  <div class="sec-head">
+    <div class="sec-num">结</div>
+    <div>
+      <h2>故障速查 · 课堂达标线</h2>
+      <p class="sec-sub">课上照做，出问题先查这两张表</p>
+    </div>
+  </div>
+
+  <h3>故障速查表</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>症状</th><th>最可能原因</th><th>处理</th></tr></thead>
+      <tbody>
+        <tr><td>Project Settings 里找不到 XR Plug-in Management</td><td>包未安装</td><td>Package Manager → Unity Registry 安装 <code class="inline">XR Plugin Management</code></td></tr>
+        <tr><td>勾选 OpenXR 后报错</td><td>需要重启编辑器</td><td>按提示重启，重开项目</td></tr>
+        <tr><td>Play 后视角不动</td><td>XR Origin 没加 / 旧主相机还在 / 模拟器没加</td><td>依次检查这三项</td></tr>
+        <tr><td>模拟器按键没反应</td><td>焦点不在 Game 视图</td><td>先用鼠标点一下 Game 视图再按键</td></tr>
+        <tr><td>物体悬空或穿地</td><td>轴向差异 / Y 位置不对</td><td>调整 Transform 的 Position Y</td></tr>
+        <tr><td>模型是粉红色</td><td>材质丢失 / 贴图路径含中文</td><td>重新指定材质；把素材放到纯英文路径</td></tr>
+        <tr><td>场景重开后东西没了</td><td>没保存</td><td><code class="inline">Ctrl+S</code> 或 File → Save</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>案例 01 的课堂达标线</h3>
+  <p>以下四项在课堂上全部通过，即完成<strong>案例 01</strong>：</p>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>#</th><th>达标项</th><th>通过标准</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>版本记录</td><td>任务卡上填写了本机 Unity 版本号</td></tr>
+        <tr><td>2</td><td>XR 环境</td><td>场景含 XR Origin + Device Simulator，Play 后视角可动</td></tr>
+        <tr><td>3</td><td>模型导入</td><td>至少 1 个外部模型导入且比例正常</td></tr>
+        <tr><td>4</td><td>脚本运行</td><td>物体按自己写的脚本转动</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="note"><strong>本课不布置课后任务</strong>——课程自第 3 次课起采用“课内完成”模式，课堂时间就是唯一窗口，所以每节课都设有达标线，核心产出在课内完成。没做完的部分，下次课开头会留时间继续。</div>
+
+  <h3>下次课预告（2026-09-30）</h3>
+  <p>下次课进入<strong>第 5 章 三维全景技术</strong>（8 学时，分两次课）：全景概念与分类、全景拍摄（节点、重叠率、曝光）、PTGui 拼接与 VR 全景漫游制作，最后在头显里验证——用最低门槛做出一个完整的可漫游作品。</p>
+</section>
+
+</main>
+
+<footer>
+  <div class="f-main">中华女子学院 · 2026年虚拟现实技术 · 第 4 次课</div>
+  <div>第 4 章 虚拟现实开发常用软件（承接第 3 章硬件）· 4 学时 · 授课教师：孙琪翔 · 2026-09-23</div>
+  <div style="margin-top:6px;font-size:12px;opacity:.75;">本页依据第 4 次课教学方案、软件操作手册与学生任务卡整理，用于课后复习。</div>
+  <div style="margin-top:12px;font-size:14px;"><a href="vr-2026.html">← 返回课程主页</a> · <a href="index.html">返回个人网站</a></div>
+</footer>
+
+<button id="toTop" title="回到顶部">↑</button>
+
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+  var navLinks = {};
+  document.querySelectorAll('#nav a[data-sec]').forEach(function(a){
+    navLinks[a.getAttribute('data-sec')] = a;
+  });
+  var sections = ['guide','c1','c2','c3','c4','c5','c6','demo','practice'];
+  if ('IntersectionObserver' in window) {
+    var obs = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        if (en.isIntersecting) {
+          document.querySelectorAll('#nav a').forEach(function(a){ a.classList.remove('on'); });
+          var a = navLinks[en.target.id];
+          if (a) a.classList.add('on');
+        }
+      });
+    }, {rootMargin:'-15% 0px -70% 0px'});
+    sections.forEach(function(s){
+      var el = document.getElementById(s);
+      if (el) obs.observe(el);
+    });
+  }
+  var toTop = document.getElementById('toTop');
+  if (toTop) {
+    window.addEventListener('scroll', function(){
+      toTop.classList.toggle('show', window.pageYOffset > 400);
+    }, {passive:true});
+    toTop.addEventListener('click', function(){ window.scrollTo({top:0, behavior:'smooth'}); });
+  }
+});
+</script>
+
+</body>
+</html>

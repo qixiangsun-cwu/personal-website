@@ -163,6 +163,11 @@ tbody tr:last-child td{border-bottom:none;}
 .btn:hover{background:var(--accent-deep);}
 .btn.ghost{background:#fff;color:var(--accent-deep);border:1px solid #d8d4ef;}
 .btn.ghost:hover{background:var(--accent-soft);}
+/* ===== 折叠答案（details） ===== */
+details{background:#faf8fd;border:1px solid var(--line-soft);border-radius:10px;padding:12px 16px;margin:10px 0;}
+details summary{cursor:pointer;font-size:15px;color:var(--accent-deep);line-height:1.8;}
+details[open] summary{margin-bottom:6px;}
+details p{font-size:15px;color:var(--ink-soft);margin:6px 0 2px;}
 /* ===== 页脚 ===== */
 footer{background:#221f45;color:#c3bfdd;text-align:center;padding:26px 20px;font-size:14px;}
 footer .f-main{color:#fff;font-size:16px;margin-bottom:4px;}
