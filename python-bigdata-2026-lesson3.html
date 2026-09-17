@@ -1,0 +1,2269 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第3次课 · 第3章 程序控制结构 | Python大数据分析基础</title>
+<style>
+/* ===== 基础 ===== */
+:root{
+  --ink:#2b2820; --ink-soft:#5d594c; --ink-faint:#8a8577;
+  --paper:#f6f3ec; --card:#fffdf8; --line:#e4ddcc; --line-soft:#efe9dc;
+  --blue:#306998; --blue-deep:#1f3864; --blue-soft:#eaf1f8;
+  --gold:#b8860b; --amber:#b45309; --amber-soft:#fdf3e3;
+  --green:#2e7d32; --green-soft:#eaf5eb;
+  --red:#b3392f; --red-soft:#fbeceb;
+  --code-bg:#191b24; --code-hd:#232533; --code-txt:#e8e6de;
+  --radius:14px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;scroll-padding-top:86px;}
+body{
+  font-family:"Times New Roman","宋体",SimSun,"Songti SC","SimSun-ExtB",serif;
+  font-size:16px;line-height:1.95;color:var(--ink);background:var(--paper);
+  -webkit-font-smoothing:antialiased;
+}
+/* ===== 顶部 Hero ===== */
+.hero{
+  background:linear-gradient(120deg,#1b3157 0%,#264a7e 55%,#306998 100%);
+  color:#fff;padding:46px 20px 40px;position:relative;overflow:hidden;
+}
+.hero::after{
+  content:"";position:absolute;right:-60px;top:-60px;width:300px;height:300px;
+  border-radius:50%;background:rgba(255,212,59,.08);pointer-events:none;
+}
+.hero-inner{max-width:1060px;margin:0 auto;position:relative;z-index:1;}
+.hero .kicker{
+  display:inline-block;font-size:13px;letter-spacing:2px;color:#ffd43b;
+  border:1px solid rgba(255,212,59,.5);border-radius:999px;padding:3px 14px;margin-bottom:16px;
+}
+.hero h1{font-size:38px;font-weight:700;line-height:1.35;margin-bottom:10px;}
+.hero .sub{font-size:18px;color:#dbe6f5;margin-bottom:18px;}
+.hero .meta{display:flex;flex-wrap:wrap;gap:10px;}
+.hero .meta span{
+  font-size:13px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);
+  border-radius:999px;padding:4px 14px;color:#f2f6fb;
+}
+/* ===== 导航 ===== */
+.nav{
+  position:sticky;top:0;z-index:50;background:rgba(253,251,246,.94);
+  backdrop-filter:blur(8px);border-bottom:1px solid var(--line);
+}
+.nav-inner{max-width:1060px;margin:0 auto;display:flex;align-items:center;gap:6px;overflow-x:auto;padding:10px 16px;}
+.nav-inner::-webkit-scrollbar{height:0;}
+.nav a{
+  flex:0 0 auto;font-size:14px;color:var(--ink-soft);text-decoration:none;
+  padding:6px 14px;border-radius:999px;border:1px solid transparent;white-space:nowrap;
+  transition:all .18s;
+}
+.nav a:hover{color:var(--blue);background:var(--blue-soft);}
+.nav a.on{color:#fff;background:var(--blue);border-color:var(--blue);}
+.nav a.nav-back{color:var(--blue-deep);font-weight:700;border-color:#cfe0f0;background:#fff;margin-right:6px;}
+/* ===== 主区域 ===== */
+main{max-width:1060px;margin:0 auto;padding:30px 16px 60px;}
+section{margin-bottom:34px;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:30px 34px;box-shadow:0 1px 4px rgba(60,50,20,.05);}
+.sec-head{display:flex;align-items:flex-start;gap:14px;margin-bottom:6px;}
+.sec-num{
+  flex:0 0 auto;min-width:46px;height:46px;border-radius:12px;background:var(--blue-deep);color:#fff;
+  display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:700;margin-top:4px;
+}
+.sec-head h2{font-size:26px;font-weight:700;line-height:1.3;}
+.sec-sub{font-size:14px;color:var(--ink-soft);margin:2px 0 18px;}
+h3{font-size:20px;font-weight:700;margin:30px 0 10px;padding-left:12px;border-left:5px solid var(--blue);line-height:1.5;}
+h4{font-size:17px;font-weight:700;margin:18px 0 8px;color:var(--blue-deep);}
+p{margin:8px 0;}
+ul,ol{margin:8px 0 8px 24px;}
+li{margin:5px 0;}
+strong{color:var(--blue-deep);}
+code.inline{
+  font-family:"Times New Roman","宋体",SimSun,serif;font-size:15px;background:var(--blue-soft);
+  color:var(--blue-deep);padding:1px 7px;border-radius:6px;border:1px solid #d5e2f0;white-space:nowrap;
+}
+/* 标签 */
+.tag{display:inline-block;font-size:12px;color:var(--blue);background:var(--blue-soft);border:1px solid #d2e2f2;border-radius:999px;padding:1px 10px;margin:2px 4px 2px 0;}
+.tag.gold{color:var(--amber);background:var(--amber-soft);border-color:#f0dcb8;}
+.tag.green{color:var(--green);background:var(--green-soft);border-color:#cfe6d1;}
+.tag.red{color:var(--red);background:var(--red-soft);border-color:#ecd0cd;}
+/* 提示框 */
+.note,.warn,.danger,.key,.ai{
+  border-radius:10px;padding:12px 16px 12px 44px;margin:14px 0;position:relative;font-size:15px;
+}
+.note{background:var(--blue-soft);border:1px solid #cfe0f0;color:#234a72;}
+.warn{background:var(--amber-soft);border:1px solid #efdcb5;color:#7a4a0a;}
+.danger{background:var(--red-soft);border:1px solid #ecd0cd;color:#8c2f28;}
+.key{background:#f4efe2;border:1px solid #e5dcc0;color:#5d5230;}
+.ai{background:#eef0fa;border:1px solid #d7dbef;color:#333a63;}
+.note::before,.warn::before,.danger::before,.key::before,.ai::before{
+  position:absolute;left:14px;top:12px;width:20px;height:20px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;
+}
+.note::before{content:"i";background:var(--blue);}
+.warn::before{content:"!";background:var(--amber);}
+.danger::before{content:"×";background:var(--red);}
+.key::before{content:"★";background:#9c8a4a;}
+.ai::before{content:"AI";font-size:10px;background:#4c5691;letter-spacing:0;}
+/* 本节小结 */
+.sumline{
+  background:var(--green-soft);border:1px solid #cfe6d1;border-left:5px solid var(--green);
+  border-radius:10px;padding:10px 16px;margin:12px 0 6px;font-size:15px;color:#215c26;
+}
+.sumline b{color:#1b4d1f;}
+/* 配套视频 */
+.vid{
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:10px 0 4px;
+  background:#f7f4ec;border:1px solid var(--line-soft);border-left:5px solid var(--blue);
+  border-radius:10px;padding:9px 14px;font-size:14px;
+}
+.vid .vtag{font-size:12px;color:#fff;background:var(--blue);border-radius:999px;padding:1px 10px;flex:0 0 auto;}
+.vid a{color:var(--blue-deep);font-weight:700;text-decoration:none;border-bottom:1px solid #cfe0f0;}
+.vid a:hover{border-bottom-color:var(--blue);}
+.vid .vmeta{color:var(--ink-faint);font-size:12.5px;}
+/* ===== 表格 ===== */
+.tbl-wrap{overflow-x:auto;margin:14px 0;border:1px solid var(--line);border-radius:10px;}
+table{width:100%;border-collapse:collapse;font-size:15px;background:#fff;}
+th,td{padding:9px 14px;border-bottom:1px solid var(--line-soft);text-align:left;vertical-align:top;}
+th{background:var(--blue-soft);color:var(--blue-deep);font-weight:700;white-space:nowrap;}
+tbody tr:nth-child(even){background:#faf7f0;}
+tbody tr:last-child td{border-bottom:none;}
+td code.inline,th code.inline{white-space:nowrap;}
+.mini-table td{font-size:14px;}
+/* ===== 演示代码 ===== */
+.demo{border-radius:12px;overflow:hidden;border:1px solid #33364a;margin:16px 0;background:var(--code-bg);}
+.demo-head{
+  display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;
+  background:var(--code-hd);padding:8px 14px;border-bottom:1px solid #2e3142;
+}
+.demo-title{font-size:14px;color:#c8cde0;}
+.demo-actions{display:flex;gap:8px;}
+.btn{
+  font-family:inherit;font-size:13px;cursor:pointer;border-radius:8px;padding:4px 14px;
+  border:1px solid #3d4157;color:#d7dae8;background:#2b2e40;transition:all .15s;
+}
+.btn:hover{background:#383c52;}
+.btn-run{background:#1f6f43;border-color:#2b8a57;color:#fff;}
+.btn-run:hover{background:#26804f;}
+.btn.ok{background:var(--green);border-color:var(--green);color:#fff;}
+pre.code{
+  font-family:"Times New Roman","宋体",SimSun,serif;font-size:15px;line-height:1.75;
+  color:var(--code-txt);padding:14px 18px;overflow-x:auto;tab-size:4;
+}
+pre.code .c-kw{color:#ff7b72;}
+pre.code .c-str{color:#a5d6a5;}
+pre.code .c-num{color:#79c0ff;}
+pre.code .c-fn{color:#d2a8ff;}
+pre.code .c-com{color:#8b949e;font-style:italic;}
+.demo-out{border-top:1px solid #2e3142;background:#12141c;padding:0 0 10px;}
+.out-label{font-size:12px;color:#6b7288;letter-spacing:1px;padding:8px 18px 4px;border-bottom:1px solid #232634;}
+pre.out{
+  font-family:"Times New Roman","宋体",SimSun,serif;font-size:15px;line-height:1.7;
+  padding:10px 18px;color:#d6d9e4;overflow-x:auto;white-space:pre-wrap;
+}
+.demo.flash .demo-out{background:#16202c;}
+/* ===== 网格 ===== */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:16px 0;}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:16px 0;}
+.grid2 .cell,.grid3 .cell{background:#faf7f0;border:1px solid var(--line-soft);border-radius:12px;padding:16px 18px;}
+.cell h4{margin-top:0;}
+.cell ul{margin-left:20px;}
+.cell li{font-size:15px;}
+@media(max-width:860px){.grid2,.grid3{grid-template-columns:1fr;}}
+/* ===== 步骤 ===== */
+.step-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:16px 0;}
+.step-card{background:#faf7f0;border:1px solid var(--line-soft);border-radius:12px;padding:14px 16px;}
+.step-card .sc-no{font-size:12px;color:var(--blue);font-weight:700;letter-spacing:1px;}
+.step-card .sc-title{font-size:16px;font-weight:700;color:var(--blue-deep);margin:4px 0;}
+.step-card .sc-desc{font-size:14px;color:var(--ink-soft);line-height:1.7;}
+@media(max-width:860px){.step-grid{grid-template-columns:1fr 1fr;}}
+@media(max-width:560px){.step-grid{grid-template-columns:1fr;}}
+/* ===== 知识树 ===== */
+.tree{font-size:15px;line-height:1.7;border:1px solid var(--line);border-radius:12px;background:#fbf8f1;padding:16px 14px;}
+.tree .root-node{
+  display:inline-block;background:var(--blue-deep);color:#fff;font-weight:700;
+  border-radius:999px;padding:5px 22px;margin:4px 0 12px;
+}
+.tree .tn{display:flex;align-items:center;gap:6px;padding:4px 10px;border-radius:8px;cursor:pointer;color:var(--ink);transition:background .15s;}
+.tree .tn:hover{background:#f0ecdf;}
+.tree .tn .tw{flex:0 0 auto;width:14px;height:14px;display:inline-flex;align-items:center;justify-content:center;color:#9a937f;font-size:10px;transition:transform .2s;user-select:none;}
+.tree .tn.open .tw{transform:rotate(90deg);}
+.tree .tn.branch{font-weight:700;}
+.tree .tn .golink{color:#7a9cc7;font-size:11px;border:1px solid #c9d8ea;border-radius:999px;padding:0 6px;margin-left:auto;background:#fff;flex:0 0 auto;}
+.tree .tn.leaf{cursor:pointer;color:var(--ink-soft);}
+.tree .kids{border-left:2px solid #e0d9c6;margin-left:16px;padding-left:6px;display:none;}
+.tree .kids.show{display:block;}
+.tree .b-blue .tn.branch{color:var(--blue-deep);}
+.tree .b-amber .tn.branch{color:var(--amber);}
+.tree .b-green .tn.branch{color:var(--green);}
+.tree .b-purple .tn.branch{color:#6d4fa8;}
+.tree .legend{font-size:12px;color:var(--ink-faint);margin-top:10px;padding-top:8px;border-top:1px dashed var(--line);}
+/* ===== 卡片网格 ===== */
+.map-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;margin:16px 0;}
+.map-card{
+  background:#faf7f0;border:1px solid var(--line-soft);border-radius:12px;padding:16px 18px;
+  transition:all .2s;text-decoration:none;color:var(--ink);display:block;
+}
+.map-card:hover{border-color:var(--blue);box-shadow:0 4px 14px rgba(48,105,152,.12);transform:translateY(-2px);}
+.map-card .mc-num{font-size:13px;color:var(--blue);font-weight:700;}
+.map-card .mc-title{font-size:18px;font-weight:700;color:var(--blue-deep);margin:4px 0 6px;}
+.map-card .mc-desc{font-size:14px;color:var(--ink-soft);line-height:1.7;}
+/* ===== 交互演示 ===== */
+.inter{background:#faf7f0;border:1px solid var(--line-soft);border-radius:12px;padding:16px 18px;margin:16px 0;}
+.inter h4{margin-top:0;}
+.inter-row{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;margin:10px 0;}
+.inter-row label{font-size:14px;color:var(--ink-soft);display:flex;align-items:center;gap:6px;}
+.inter-row input{
+  font-family:inherit;font-size:14px;color:var(--ink);background:#fff;border:1px solid var(--line);
+  border-radius:8px;padding:5px 10px;width:120px;
+}
+.inter-row input:focus{outline:none;border-color:var(--blue);}
+.inter-btn{
+  font-family:inherit;font-size:14px;cursor:pointer;border-radius:8px;padding:5px 16px;
+  border:1px solid var(--blue);background:var(--blue);color:#fff;
+}
+.inter-btn:hover{background:var(--blue-deep);border-color:var(--blue-deep);}
+.inter-out{
+  font-family:"Times New Roman","宋体",SimSun,serif;font-size:14.5px;line-height:1.7;
+  background:#12141c;color:#d6d9e4;border-radius:8px;padding:10px 14px;margin-top:10px;
+  white-space:pre-wrap;min-height:44px;
+}
+.inter-out .ok{color:#a5d6a5;}
+.inter-out .err{color:#ff8f88;}
+.inter-out .dim{color:#8b949e;}
+/* ===== 小结 / 作业 ===== */
+.recap{background:#faf7f0;border:1px solid var(--line-soft);border-radius:12px;padding:16px 20px;margin:14px 0;}
+.homework{border:1px dashed var(--blue);border-radius:12px;background:var(--blue-soft);padding:16px 22px;margin:14px 0;}
+.homework h4{color:var(--blue-deep);margin-top:0;}
+.nextcard{
+  display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;
+  background:linear-gradient(120deg,#1b3157,#306998);color:#fff;border-radius:12px;padding:18px 22px;margin:16px 0;
+  text-decoration:none;
+}
+.nextcard .nc-title{font-size:18px;font-weight:700;}
+.nextcard .nc-desc{font-size:14px;color:#dbe6f5;}
+.nextcard .nc-go{font-size:14px;border:1px solid rgba(255,255,255,.5);border-radius:999px;padding:4px 16px;color:#fff;}
+.nextcard:hover .nc-go{background:#fff;color:var(--blue-deep);}
+/* 页脚 */
+footer{background:#1c2b44;color:#b9c6dc;text-align:center;padding:26px 20px;font-size:14px;}
+footer .f-main{color:#fff;font-size:16px;margin-bottom:4px;}
+footer a{color:#dfe7f4;text-decoration:none;}
+footer a:hover{text-decoration:underline;}
+/* 回到顶部 */
+#toTop{
+  position:fixed;right:22px;bottom:26px;width:44px;height:44px;border-radius:50%;border:none;
+  font-family:"Times New Roman","宋体",SimSun,serif;font-weight:700;
+  background:var(--blue-deep);color:#fff;font-size:18px;cursor:pointer;box-shadow:0 4px 14px rgba(31,56,100,.35);
+  opacity:0;pointer-events:none;transition:all .25s;z-index:60;
+}
+#toTop.show{opacity:1;pointer-events:auto;}
+#toTop:hover{background:var(--blue);}
+/* ===== 响应式 ===== */
+@media(max-width:720px){
+  body{font-size:15px;}
+  .hero h1{font-size:27px;}
+  .hero{padding:34px 16px 30px;}
+  section{padding:22px 18px;}
+  .sec-head h2{font-size:21px;}
+  .sec-num{min-width:38px;height:38px;font-size:15px;}
+  pre.code{font-size:14px;padding:12px 14px;}
+  pre.out{font-size:14px;padding:8px 14px;}
+  .demo-head{flex-direction:column;align-items:flex-start;}
+}
+</style>
+</head>
+<body>
+
+<!-- ===== 顶部 ===== -->
+<header class="hero">
+  <div class="hero-inner">
+    <span class="kicker">Python 大数据分析基础 · 第 3 次课</span>
+    <h1>第 3 章　程序控制结构</h1>
+    <p class="sub">顺序结构 · 选择结构（if / elif / else / 嵌套）· 循环结构（while / for / range / break / continue / else / 嵌套）· 综合应用</p>
+    <div class="meta">
+      <span>中华女子学院</span><span>6 学时（讲授 2 + 上机 4）</span><span>授课人：孙琪翔</span><span>2026 年秋季学期 · 第 3—4 周</span>
+    </div>
+  </div>
+</header>
+
+<!-- ===== 目录导航 ===== -->
+<nav class="nav" id="nav">
+  <div class="nav-inner" id="navInner">
+    <a href="python-bigdata-2026.html" class="nav-back">← 课程主页</a>
+    <a href="#guide" data-sec="guide" class="on">本讲导览</a>
+    <a href="#c1" data-sec="c1">一、顺序与选择结构</a>
+    <a href="#c2" data-sec="c2">二、循环结构</a>
+    <a href="#c3" data-sec="c3">三、综合应用</a>
+    <a href="#c4" data-sec="c4">四、AI 渗透</a>
+    <a href="#lab" data-sec="lab">五、交互演示</a>
+    <a href="#summary" data-sec="summary">小结 · 易错 · 作业</a>
+  </div>
+</nav>
+
+<main>
+
+<!-- ===== 导览 ===== -->
+<section id="guide">
+  <div class="sec-head">
+    <div class="sec-num">导</div>
+    <div>
+      <h2>本讲导览</h2>
+      <p class="sec-sub">Lesson Overview · 本章共 21 个知识点 + 9 个综合案例</p>
+    </div>
+  </div>
+
+  <p>前两章写的程序都是"从上到下一条道走到底"，这种程序只能处理一种情况。本章给程序装上<strong>岔路口</strong>（选择）和<strong>重复器</strong>（循环）——这是"会写程序"和"只会抄程序"的分界线。</p>
+
+  <div class="step-grid">
+    <div class="step-card">
+      <div class="sc-no">第 1 讲 · 45 分钟</div>
+      <div class="sc-title">顺序结构与选择结构</div>
+      <div class="sc-desc">顺序结构 · 条件表达式 · 单分支 if · 双分支 if-else · 多分支 if-elif-else · 嵌套分支 · 三元表达式</div>
+    </div>
+    <div class="step-card">
+      <div class="sc-no">第 2 讲 · 45 分钟</div>
+      <div class="sc-title">循环结构</div>
+      <div class="sc-desc">while 三要素 · 累加器模式 · for 遍历 · range 函数 · break / continue · 循环 else · 嵌套循环</div>
+    </div>
+    <div class="step-card">
+      <div class="sc-no">上机一 · 90 分钟</div>
+      <div class="sc-title">选择结构 + 基础循环</div>
+      <div class="sc-desc">奇偶判断、成绩等级、BMI、分段函数、三角形判定、折纸珠峰、1—100 求和</div>
+    </div>
+    <div class="step-card">
+      <div class="sc-no">上机二 · 90 分钟</div>
+      <div class="sc-title">综合应用</div>
+      <div class="sc-desc">猜数字四连、简易登录系统、5 的倍数累加和、个人所得税、小明学单词</div>
+    </div>
+  </div>
+
+  <div class="note">
+    <strong>学习目标</strong>：理解顺序、选择、循环三种基本控制结构；能根据问题<strong>正确选择</strong>单分支 / 双分支 / 多分支 / 嵌套；掌握 while 三要素与 for 遍历；会用 range 控制区间与步长；理解 break、continue、循环 else 的区别；能用嵌套循环解决图形与矩阵类问题；能用本章语法解释 AI 的决策树、训练迭代与注意力计算。
+  </div>
+
+  <h3>本课地图</h3>
+  <div class="map-grid">
+    <a class="map-card" href="#c1"><div class="mc-num">模块一</div><div class="mc-title">选择结构</div><div class="mc-desc">if / if-else / if-elif-else / 嵌套 / 三元表达式</div></a>
+    <a class="map-card" href="#c2"><div class="mc-num">模块二</div><div class="mc-title">循环结构</div><div class="mc-desc">while / for / range / break / continue / else / 嵌套</div></a>
+    <a class="map-card" href="#c3"><div class="mc-num">模块三</div><div class="mc-title">综合应用</div><div class="mc-desc">三角形判定、折纸珠峰、猜数字四连、登录系统、个税</div></a>
+    <a class="map-card" href="#c4"><div class="mc-num">模块四</div><div class="mc-title">AI 渗透（A 类）</div><div class="mc-desc">决策树、训练迭代、准确率、分批、早停、注意力矩阵</div></a>
+    <a class="map-card" href="#lab"><div class="mc-num">模块五</div><div class="mc-title">交互演示</div><div class="mc-desc">在网页上直接改参数、看结果（JS 模拟）</div></a>
+  </div>
+
+  <h3>本章知识点总览</h3>
+  <p>点击节点可跳转到对应讲解位置，点击三角可展开 / 收起分支。</p>
+  <div class="tree" id="knowledgeTree">
+    <div class="root-node">第 3 章　程序控制结构</div>
+    <div class="kids show">
+      <div class="b-blue">
+        <div class="tn branch open" data-target="c1"><span class="tw">▶</span>选择结构<span class="golink">模块一</span></div>
+        <div class="kids show">
+          <div class="tn leaf" data-target="c1-1">顺序结构：默认从上往下一行行执行</div>
+          <div class="tn leaf" data-target="c1-2">条件表达式：非零即真、非空即真</div>
+          <div class="tn leaf" data-target="c1-3">单分支 if：满足才做</div>
+          <div class="tn leaf" data-target="c1-4">双分支 if-else：二选一，else 不写条件</div>
+          <div class="tn leaf" data-target="c1-5">多分支 if-elif-else：从严到宽，命中即停</div>
+          <div class="tn leaf" data-target="c1-6">elif 顺序陷阱：85 分被判成 B</div>
+          <div class="tn leaf" data-target="c1-7">嵌套分支与连续区间陷阱</div>
+          <div class="tn leaf" data-target="c1-8">三元表达式：一句话的二选一（选讲）</div>
+        </div>
+      </div>
+      <div class="b-amber">
+        <div class="tn branch open" data-target="c2"><span class="tw">▶</span>循环结构<span class="golink">模块二</span></div>
+        <div class="kids show">
+          <div class="tn leaf" data-target="c2-1">循环 = 循环体 + 终止条件</div>
+          <div class="tn leaf" data-target="c2-2">while：初值 / 条件 / 更新，三要素缺一不可</div>
+          <div class="tn leaf" data-target="c2-3">累加器与计数器：清零在外，累加在内</div>
+          <div class="tn leaf" data-target="c2-4">for：把序列里的元素一个个取出来</div>
+          <div class="tn leaf" data-target="c2-5">range()：含头不含尾，步长可为负</div>
+          <div class="tn leaf" data-target="c2-6">break / continue：结束整个循环 vs 跳过本轮</div>
+          <div class="tn leaf" data-target="c2-7">循环 else：有 break 就没 else</div>
+          <div class="tn leaf" data-target="c2-8">嵌套循环：总次数是 n × m</div>
+        </div>
+      </div>
+      <div class="b-green">
+        <div class="tn branch open" data-target="c3"><span class="tw">▶</span>综合应用<span class="golink">模块三</span></div>
+        <div class="kids show">
+          <div class="tn leaf" data-target="c3-1">三角形判定（while 重复 5 次）</div>
+          <div class="tn leaf" data-target="c3-2">折纸珠峰（指数增长）</div>
+          <div class="tn leaf" data-target="c3-3">猜数字四连：if / while / for / while True + break</div>
+          <div class="tn leaf" data-target="c3-4">简易登录系统（for-else）</div>
+          <div class="tn leaf" data-target="c3-6">个人所得税（简化三档）</div>
+        </div>
+      </div>
+      <div class="b-purple">
+        <div class="tn branch open" data-target="c4"><span class="tw">▶</span>AI 渗透（A 类）<span class="golink">模块四</span></div>
+        <div class="kids show">
+          <div class="tn leaf" data-target="c4-1">if / elif / else → 决策树</div>
+          <div class="tn leaf" data-target="c4-2">while → 训练迭代（本章高潮）</div>
+          <div class="tn leaf" data-target="c4-3">for → 遍历数据集与准确率</div>
+          <div class="tn leaf" data-target="c4-4">range 步长 → 分批 batch</div>
+          <div class="tn leaf" data-target="c4-5">break → 早停 Early Stopping</div>
+          <div class="tn leaf" data-target="c4-6">continue → 跳过脏数据</div>
+          <div class="tn leaf" data-target="c4-7">循环 else → 这一轮完整跑完了吗</div>
+          <div class="tn leaf" data-target="c4-8">嵌套循环 → 注意力矩阵的平方代价</div>
+        </div>
+      </div>
+    </div>
+    <div class="legend">说明：本章依据课程课件《3-程序控制结构》与《Python 编程与数据分析基础》（陈洁、刘姝，清华大学出版社）第 3 章整理；页面中每段代码均为真实运行后回填的结果。</div>
+  </div>
+
+  <h3>进度表点名的 7 项 → 本节落点</h3>
+  <div class="tbl-wrap">
+    <table class="mini-table">
+      <thead><tr><th>#</th><th>进度表点名内容</th><th>本页位置</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>双分支选择结构</td><td>模块一 §1.4</td></tr>
+        <tr><td>2</td><td>多分支结构选择结构</td><td>模块一 §1.5 / §1.6</td></tr>
+        <tr><td>3</td><td>While 循环结构</td><td>模块二 §2.2 / §2.3</td></tr>
+        <tr><td>4</td><td>for 循环结构</td><td>模块二 §2.4 / §2.5</td></tr>
+        <tr><td>5</td><td>break、continue、else</td><td>模块二 §2.6 / §2.7</td></tr>
+        <tr><td>6</td><td>嵌套的循环结构</td><td>模块二 §2.8</td></tr>
+        <tr><td>7</td><td>程序控制结构综合应用</td><td>模块三</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="warn">本节还保留了教材里有、但进度表未点名的 <strong>顺序结构、单分支 if、range()、嵌套分支</strong>——按"原有内容不能少"的原则全部讲，但顺序结构与单分支会讲得快一些。</div>
+</section>
+
+<!-- ===== 模块一：顺序结构与选择结构 ===== -->
+<section id="c1">
+  <div class="sec-head">
+    <div class="sec-num">一</div>
+    <div>
+      <h2>顺序结构与选择结构</h2>
+      <p class="sec-sub">第 1 讲 · 45 分钟 · 顺序结构 · 条件表达式 · 单分支 · 双分支 · 多分支 · 嵌套 · 三元表达式</p>
+    </div>
+  </div>
+
+  <!-- 1.1 顺序结构 -->
+  <h3 id="c1-1">1.1　顺序结构：程序的默认形态</h3>
+  <p>程序<strong>从上往下、一行一行、不跳过、不回头</strong>地执行——这就是顺序结构，它是所有程序的默认形态。分支和循环都是在这个"默认流水"上打岔：先认清默认，才知道岔在哪儿。</p>
+  <div class="demo" data-demo="k1-1-area">
+    <div class="demo-head">
+      <span class="demo-title">例 2-8（复习）计算圆的面积</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code"># 顺序结构：三条语句依次执行
+r = 5
+pi = 3.14159
+area = pi * r * r
+print("圆的面积：", area)</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+圆的面积： 78.53975
+</pre></div>
+  </div>
+  <div class="sumline">✅ <b>本节小结</b>：顺序结构 = 从上到下一行行执行。它是"默认流水"，分支和循环都是在这条流水上"打岔"，所以判断一段代码有没有写歪，先看它是不是默认从上到下。</div>
+  <div class="vid">
+    <span class="vtag">配套视频</span>
+    <a href="https://www.bilibili.com/video/BV1pW4y157K7/" target="_blank" rel="noopener">会考 Python 系列 · 顺序结构及应用</a>
+    <span class="vmeta">B站 · 12:22 · 用流程图讲清"一条道走到底"</span>
+  </div>
+
+  <!-- 1.2 条件表达式 -->
+  <h3 id="c1-2">1.2　条件表达式：什么东西能当条件</h3>
+  <p>教材原话："所有的 Python 合法表达式（算术表达式、关系表达式、逻辑表达式等，包括单个常量、变量或函数）都可以作为条件表达式。"也就是说，<code class="inline">if</code> 后面<strong>不一定要写</strong> <code class="inline">&gt;</code> <code class="inline">&lt;</code> <code class="inline">==</code>，任何值都能当条件，Python 会把它转成 <code class="inline">True</code> / <code class="inline">False</code>。</p>
+  <div class="tbl-wrap">
+    <table class="mini-table">
+      <thead><tr><th>值</th><th>当条件时</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td><code class="inline">0</code>、<code class="inline">0.0</code></td><td><strong>False</strong></td><td>数字"非零即真"</td></tr>
+        <tr><td>非零数字</td><td><strong>True</strong></td><td><code class="inline">if x % 2:</code> 等价于 <code class="inline">if x % 2 != 0:</code></td></tr>
+        <tr><td><code class="inline">""</code>（空串）</td><td><strong>False</strong></td><td>字符串"非空即真"</td></tr>
+        <tr><td>非空字符串</td><td><strong>True</strong></td><td>常用作"用户到底输入了没有"</td></tr>
+        <tr><td><code class="inline">None</code></td><td><strong>False</strong></td><td>空值</td></tr>
+        <tr><td>空列表 <code class="inline">[]</code>、空字典 <code class="inline">{}</code></td><td><strong>False</strong></td><td>第 4 章还会遇到</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="demo" data-demo="k1-2-truth">
+    <div class="demo-head">
+      <span class="demo-title">用 bool() 验证"什么算真、什么算假"</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">print(bool(0), bool(2), bool(-1))
+print(bool(""), bool("hi"))
+print(bool(None), bool([]), bool([0]))</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+False True True
+False True
+False False True
+</pre></div>
+  </div>
+  <div class="sumline">✅ <b>本节小结</b>：条件的判定结果只有 True / False 两种；<strong>数字非零即真，字符串非空即真</strong>，<code class="inline">None</code> 与空容器为假。这一条到第 8 章 Pandas 的 <code class="inline">dropna()</code> 还在用。</div>
+  <div class="vid">
+    <span class="vtag">配套视频</span>
+    <a href="https://www.bilibili.com/video/BV1qW4y1a7fU/?p=29" target="_blank" rel="noopener">黑马程序员《Python 零基础全套教程》第 29 讲 · 布尔类型和比较运算符</a>
+    <span class="vmeta">B站 · 2542 万播放</span>
+  </div>
+
+  <!-- 1.3 单分支 -->
+  <h3 id="c1-3">1.3　单分支选择结构：满足才做</h3>
+  <p>语法：<code class="inline">if 条件表达式:</code> 换行缩进写语句块。三条铁律（教材原文）：① Python 靠<strong>缩进</strong>表达代码层次，不是靠大括号；② 行尾<strong>冒号表示缩进开始</strong>，缩进结束表示代码块结束；③ 同一级别的语句块，<strong>缩进量必须相同</strong>。</p>
+  <div class="demo" data-demo="k1-3-single" data-stdin="8">
+    <div class="demo-head">
+      <span class="demo-title">单分支：输入 8（偶数时会多打印一行）</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">x = int(input("输入一个数字："))
+if x % 2 == 0:
+    print("偶数")
+print("判断结束")        # 这一行已经退出 if 了，无论如何都执行</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测 · 输入 8）</div><pre class="out">
+输入一个数字：8
+偶数
+判断结束
+</pre></div>
+  </div>
+  <div class="demo" data-demo="k1-3-single2" data-stdin="7">
+    <div class="demo-head">
+      <span class="demo-title">同一段代码：输入 7（奇数时不打印"偶数"）</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">x = int(input("输入一个数字："))
+if x % 2 == 0:
+    print("偶数")
+print("判断结束")</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测 · 输入 7）</div><pre class="out">
+输入一个数字：7
+判断结束
+</pre></div>
+  </div>
+  <div class="danger"><strong>缩进写错，两种下场</strong>：一种是直接报 <code class="inline">IndentationError</code>（好办，报错就改）；另一种是不报错、但逻辑悄悄错了（难查）。把 <code class="inline">print("判断结束")</code> 缩进到 <code class="inline">if</code> 里面，它就变成"只有偶数才打印"——程序照跑，答案错了。</div>
+  <div class="sumline">✅ <b>本节小结</b>：<strong>冒号起缩进，去缩进结束代码块，同级必须对齐。</strong> 单分支只处理"满足时做什么"，不满足就什么都不做、直接往下走。</div>
+  <div class="vid">
+    <span class="vtag">配套视频</span>
+    <a href="https://www.bilibili.com/video/BV1qW4y1a7fU/?p=30" target="_blank" rel="noopener">黑马程序员 · 第 30 讲 if 语句的基本格式</a>
+    <span class="vmeta">B站</span>
+  </div>
+
+  <!-- 1.4 双分支 -->
+  <h3 id="c1-4">1.4　双分支选择结构 <span class="tag gold">进度表点名</span></h3>
+  <p>两个分支<strong>互斥且穷尽</strong>：条件成立走语句块 1，否则走语句块 2，二选一，没有第三种可能。</p>
+  <div class="demo" data-demo="k1-4-dual" data-stdin="7">
+    <div class="demo-head">
+      <span class="demo-title">例 3-1：判断奇偶数（输入 7）</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">x = int(input())
+if x % 2 == 0:
+    print("偶数")
+else:
+    print("奇数")</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测 · 输入 7）</div><pre class="out">
+7
+奇数
+</pre></div>
+  </div>
+  <div class="warn"><strong>最常见的错法：给 else 加条件。</strong> <code class="inline">else x % 2 == 1:</code> 会直接 <code class="inline">SyntaxError</code>。记住：<strong>else 的含义是"以上都不成立"，所以它后面永远不写条件</strong>。</div>
+  <div class="sumline">✅ <b>本节小结</b>：二选一用 if-else；<strong>else 后面不写条件</strong>，写了就是语法错误。两个分支互斥且穷尽，程序一定会走其中一条。</div>
+  <div class="vid">
+    <span class="vtag">配套视频</span>
+    <a href="https://www.bilibili.com/video/BV1qW4y1a7fU/?p=32" target="_blank" rel="noopener">黑马程序员 · 第 32 讲 if-else 组合判断语句</a>
+    <span class="vmeta">B站 · 另有第 31、33 讲配套案例（成年人判断、我要买票吗）</span>
+  </div>
+
+  <!-- 1.5 多分支 -->
+  <h3 id="c1-5">1.5　多分支选择结构 <span class="tag gold">进度表点名</span></h3>
+  <p>语法为 <code class="inline">if / elif / elif / … / else</code>，其中 <strong>else 部分可选</strong>。教材原话："如果所有表达式都为 False，且存在 else 部分，则执行语句块 n。"</p>
+  <div class="demo" data-demo="k1-5-grade" data-stdin="85">
+    <div class="demo-head">
+      <span class="demo-title">例 3-2：成绩等级判断（输入 85）</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">score = int(input("请输入成绩："))
+if score &gt; 100 or score &lt; 0:
+    result = "输入错误，成绩必须在 0 到 100 之间"
+elif 80 &lt;= score &lt;= 100:
+    result = "A"
+elif 60 &lt;= score &lt; 80:
+    result = "B"
+else:
+    result = "C"
+print("成绩等级：", result)</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测 · 输入 85）</div><pre class="out">
+请输入成绩：85
+成绩等级： A
+</pre></div>
+  </div>
+  <div class="demo" data-demo="k1-5-boundary">
+    <div class="demo-head">
+      <span class="demo-title">边界值全测：把 8 个关键值一次性验完</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code"># 合法性检查必须放在第一个：否则 101 会被后面的分支"接走"
+for score in [101, -1, 100, 80, 79, 60, 59, 0]:
+    if score &gt; 100 or score &lt; 0:
+        result = "输入错误"
+    elif 80 &lt;= score &lt;= 100:
+        result = "A"
+    elif 60 &lt;= score &lt; 80:
+        result = "B"
+    else:
+        result = "C"
+    print("输入", score, "→", result)</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+输入 101 → 输入错误
+输入 -1 → 输入错误
+输入 100 → A
+输入 80 → A
+输入 79 → B
+输入 60 → B
+输入 59 → C
+输入 0 → C
+</pre></div>
+  </div>
+  <div class="sumline">✅ <b>本节小结</b>：多分支是"从上往下、命中即停"，所以<strong>条件必须从最严格排到最宽泛</strong>；<strong>合法性检查（&gt;100 或 &lt;0）永远放第一个</strong>。省略 else 时，可能出现"一个分支都不执行"的情况。</div>
+  <div class="vid">
+    <span class="vtag">配套视频</span>
+    <a href="https://www.bilibili.com/video/BV1qW4y1a7fU/?p=34" target="_blank" rel="noopener">黑马程序员 · 第 34 讲 if-elif-else 组合使用的语法</a>
+    <span class="vmeta">B站 · 案例见第 35 讲"猜猜心里数字"</span>
+  </div>
+
+  <!-- 1.6 elif 顺序陷阱 -->
+  <h3 id="c1-6">1.6　必做演示：elif 顺序陷阱 <span class="tag red">学生 100% 会踩</span></h3>
+  <p>把宽条件写在前面，后面的严格条件就<strong>永远没有机会判断</strong>。下面把错版和正版并排跑一遍。</p>
+  <div class="demo" data-demo="k1-6-trap">
+    <div class="demo-head">
+      <span class="demo-title">错版 vs 正版：同样 6 个分数，两套结果</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">for score in [95, 85, 80, 75, 60, 45]:
+    # ❌ 错版：宽条件在前，85 分被"及格"先截走
+    if score &gt;= 60:
+        wrong = "B"
+    elif score &gt;= 80:
+        wrong = "A"        # 永远到不了这里
+    else:
+        wrong = "C"
+
+    # ✅ 正版：严格条件在前
+    if score &gt;= 80:
+        right = "A"
+    elif score &gt;= 60:
+        right = "B"
+    else:
+        right = "C"
+
+    print(score, "分 → 错版:", wrong, " 正版:", right)</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+95 分 → 错版: B  正版: A
+85 分 → 错版: B  正版: A
+80 分 → 错版: B  正版: A
+75 分 → 错版: B  正版: B
+60 分 → 错版: B  正版: B
+45 分 → 错版: C  正版: C
+</pre></div>
+  </div>
+  <div class="sumline">✅ <b>本节小结</b>：<strong>elif 从上往下互斥匹配，命中就停</strong>，所以顺序错了答案就错，而且程序不会报错——这类错误只能靠"边界值测试"抓出来。记住口诀：<strong>严格在前，宽泛在后</strong>。</div>
+  <div class="vid">
+    <span class="vtag">配套视频</span>
+    <a href="https://www.bilibili.com/video/BV1qW4y1a7fU/?p=35" target="_blank" rel="noopener">黑马程序员 · 第 35 讲 案例：猜猜心里数字（含条件顺序的讲解）</a>
+    <span class="vmeta">B站</span>
+  </div>
+
+  <!-- 1.7 嵌套分支 -->
+  <h3 id="c1-7">1.7　嵌套的分支结构 <span class="tag">教材有 · 进度表未点名</span></h3>
+  <p>多分支能做的事，嵌套分支也能做，但可读性差得多。判断标准很简单：<strong>条件是"平级互斥"（A / B / C 选一个）就用 elif；条件有"层次"（先分类、类内再细分）才用嵌套</strong>。</p>
+  <div class="demo" data-demo="k1-7-metro" data-stdin="y|10">
+    <div class="demo-head">
+      <span class="demo-title">嵌套分支：地铁票价（先判断是否学生，再按里程计价）</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">is_student = input("是否学生(y/n)：") == "y"
+distance = float(input("请输入里程(km)："))
+
+if is_student:
+    # 外层 if 的语句块里，又套了一整套 if-elif-else
+    if distance &lt;= 6:
+        price = 2.0
+    elif distance &lt;= 12:
+        price = 3.0
+    else:
+        price = 4.0
+    price = price * 0.5          # 学生半价
+    note = "学生票五折"
+else:
+    if distance &lt;= 6:
+        price = 2.0
+    elif distance &lt;= 12:
+        price = 3.0
+    else:
+        price = 4.0
+    note = "全价"
+
+print("票价：%.1f 元（%s）" % (price, note))</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测 · 学生 y，里程 10 km）</div><pre class="out">
+是否学生(y/n)：y
+请输入里程(km)：10
+票价：1.5 元（学生票五折）
+</pre></div>
+  </div>
+  <h4>例：BMI 判断（连续区间用"单边比较链"）</h4>
+  <div class="demo" data-demo="k1-7-bmi" data-stdin="70|1.70">
+    <div class="demo-head">
+      <span class="demo-title">BMI 判断（体重 70 kg，身高 1.70 m）</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">weight = float(input("请输入体重(kg)："))
+height = float(input("请输入身高(m)："))
+bmi = weight / (height ** 2)
+print("BMI = %.2f" % bmi)
+
+# 连续区间：只写下界，上界由上一行"继承"
+if bmi &lt; 18.5:
+    print("过轻")
+elif bmi &lt; 24:
+    print("正常")
+elif bmi &lt; 28:
+    print("过重")
+else:
+    print("肥胖")</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+请输入体重(kg)：70
+请输入身高(m)：1.70
+BMI = 24.22
+过重
+</pre></div>
+  </div>
+  <div class="demo" data-demo="k1-7-bmigap">
+    <div class="demo-head">
+      <span class="demo-title">关键对比：BMI = 23.95 时，两种写法结果不一样</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">bmi = 23.95          # 明明属于"正常"范围
+
+# PPT 风格：显式写双端区间 —— 会漏掉 23.91~23.99 这一小段
+if bmi &lt; 18.5:
+    r1 = "过轻"
+elif 18.5 &lt;= bmi &lt;= 23.9:
+    r1 = "正常"
+elif 24 &lt;= bmi &lt; 28:
+    r1 = "过重"
+else:
+    r1 = "肥胖"      # ← 掉进这里了
+
+# 推荐写法：单边比较 + elif 链，区间无缝衔接
+if bmi &lt; 18.5:
+    r2 = "过轻"
+elif bmi &lt; 24:
+    r2 = "正常"
+elif bmi &lt; 28:
+    r2 = "过重"
+else:
+    r2 = "肥胖"
+
+print("BMI =", bmi)
+print("双端区间写法 →", r1)
+print("单边比较写法 →", r2)</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+BMI = 23.95
+双端区间写法 → 肥胖
+单边比较写法 → 正常
+</pre></div>
+  </div>
+  <div class="sumline">✅ <b>本节小结</b>：嵌套能实现多分支，但<strong>层次一多就没人看得懂</strong>。写连续区间时用"单边比较 + elif 链"（<code class="inline">bmi &lt; 18.5</code> / <code class="inline">&lt; 24</code> / <code class="inline">&lt; 28</code>）比写双端区间安全——<strong>双端区间会在两个端点之间留下缝</strong>，数据掉进缝里就被 else 兜走了。</div>
+  <div class="vid">
+    <span class="vtag">配套视频</span>
+    <a href="https://www.bilibili.com/video/BV1qW4y1a7fU/?p=36" target="_blank" rel="noopener">黑马程序员 · 第 36 讲 判断语句的嵌套</a>
+    <span class="vmeta">B站 · 综合案例见第 37 讲</span>
+  </div>
+
+  <!-- 1.8 三元表达式 -->
+  <h3 id="c1-8">1.8　三元表达式：一句话的二选一 <span class="tag gold">拓展 · 教材未收录</span></h3>
+  <p>写法：<code class="inline">结果 = 值1 if 条件 else 值2</code>。等价于 4 行 if-else，但只适合<strong>一行能装下的简单二选一</strong>；嵌套三元表达式是著名的"可读性杀手"，不提倡。</p>
+  <div class="demo" data-demo="k1-8-ternary" data-stdin="8">
+    <div class="demo-head">
+      <span class="demo-title">三元表达式（输入 8）</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">x = int(input("请输入一个整数："))
+result = "偶数" if x % 2 == 0 else "奇数"
+print(result)</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+请输入一个整数：8
+偶数
+</pre></div>
+  </div>
+  <div class="sumline">✅ <b>本节小结</b>：三元表达式是 if-else 的"一句话写法"，<strong>只在简单二选一赋值时使用</strong>；超过一层嵌套就老老实实写 if-else。考试如果没要求，用它不加分，写错要扣分。</div>
+  <div class="vid">
+    <span class="vtag">配套视频</span>
+    <a href="https://www.bilibili.com/video/BV1qW4y1a7fU/?p=34" target="_blank" rel="noopener">黑马程序员 · 第 34 讲 if-elif-else 组合使用的语法</a>
+    <span class="vmeta">B站 · 先看 if-else，再理解"三元表达式就是把 if-else 写成一行"</span>
+  </div>
+</section>
+
+<!-- ===== 模块二：循环结构 ===== -->
+<section id="c2">
+  <div class="sec-head">
+    <div class="sec-num">二</div>
+    <div>
+      <h2>循环结构</h2>
+      <p class="sec-sub">第 2 讲 · 45 分钟 · while · 累加器 · for · range · break / continue · else · 嵌套循环</p>
+    </div>
+  </div>
+
+  <h3 id="c2-1">2.1　什么是循环</h3>
+  <p>教材原话："循环结构是指在一定条件下重复执行某段代码的流程结构。其中，被重复执行的代码块称为<strong>循环体</strong>，判断是否继续执行的条件称为<strong>终止条件</strong>。" Python 只有两种循环语句：<strong>while</strong> 和 <strong>for</strong>。</p>
+  <div class="sumline">✅ <b>本节小结</b>：<strong>循环 = 循环体 + 终止条件</strong>。缺了终止条件就是死循环——这是初学者把电脑跑飞的唯一原因。</div>
+  <div class="vid">
+    <span class="vtag">配套视频</span>
+    <a href="https://www.bilibili.com/video/BV1qW4y1a7fU/?p=38" target="_blank" rel="noopener">黑马程序员 · 第 38 讲 while 循环的基础应用</a>
+    <span class="vmeta">B站 · 先建立"重复做"的直觉</span>
+  </div>
+
+  <h3 id="c2-2">2.2　while 语句 <span class="tag gold">进度表点名</span></h3>
+  <p><strong>while 三要素</strong>（写在黑板上的那种）：① 设置循环变量并赋初值 → ② 根据循环变量判断条件 → ③ 在循环体中更新循环变量。教材特别强调：<strong>循环体中必须有改变循环条件的语句，否则会进入死循环</strong>。</p>
+  <div class="demo" data-demo="k2-2-while5">
+    <div class="demo-head">
+      <span class="demo-title">用 while 打印 5 次 Hello</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">i = 1                # ① 初值
+while i &lt;= 5:        # ② 条件
+    print("Hello!", i)
+    i = i + 1        # ③ 更新（少了这一句就是死循环）</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+Hello! 1
+Hello! 2
+Hello! 3
+Hello! 4
+Hello! 5
+</pre></div>
+  </div>
+  <div class="tbl-wrap">
+    <table class="mini-table">
+      <thead><tr><th>循环次数</th><th>i</th><th>条件 i &lt;= 5</th><th>是否进入循环</th><th>执行</th><th>更新后 i</th></tr></thead>
+      <tbody>
+        <tr><td>①</td><td>1</td><td>True</td><td>进入</td><td>print</td><td>2</td></tr>
+        <tr><td>②</td><td>2</td><td>True</td><td>进入</td><td>print</td><td>3</td></tr>
+        <tr><td>③</td><td>3</td><td>True</td><td>进入</td><td>print</td><td>4</td></tr>
+        <tr><td>④</td><td>4</td><td>True</td><td>进入</td><td>print</td><td>5</td></tr>
+        <tr><td>⑤</td><td>5</td><td>True</td><td>进入</td><td>print</td><td>6</td></tr>
+        <tr><td>退出</td><td>6</td><td>False</td><td>不进入</td><td>—</td><td>—</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>把上面这张表带学生走一遍，比讲十遍语法管用。下面这段是<strong>故意写错的死循环反例</strong>（别运行，或在 IDLE 里用 <code class="inline">Ctrl + C</code> 停）：</p>
+  <div class="demo">
+    <div class="demo-head"><span class="demo-title">❌ 死循环反例：忘了更新循环变量</span><span class="tag red">不要运行</span></div>
+    <pre class="code">i = 1
+while i &lt;= 5:
+    print("Hello!", i)
+    # 忘了写 i = i + 1  →  条件永远成立</pre>
+  </div>
+  <div class="sumline">✅ <b>本节小结</b>：<strong>while 三要素：初值、条件、更新</strong>。少第三个要素就是死循环；少第一个要素直接 <code class="inline">NameError</code>。判断该不该用 while 只问一句："我一开始就知道要跑几遍吗？"</div>
+  <div class="vid">
+    <span class="vtag">配套视频</span>
+    <a href="https://www.bilibili.com/video/BV1qW4y1a7fU/?p=38" target="_blank" rel="noopener">黑马程序员 · 第 38 讲 while 循环的基础应用</a>
+    <span class="vmeta">B站 · 第 41 讲为 while 嵌套</span>
+  </div>
+
+  <h3 id="c2-3">2.3　累加器与计数器模式 <span class="tag green">本章最核心的套路</span></h3>
+  <p>"求和、求平均、统计个数"这三件事占课后作业的一半，写法都是同一个套路：<strong>计数器 <code class="inline">i</code> 负责数到几，累加器 <code class="inline">total</code> 负责把结果攒起来</strong>。</p>
+  <div class="demo" data-demo="k2-3-sum">
+    <div class="demo-head">
+      <span class="demo-title">例 3-7：1 + 2 + … + 100（while 版 + for 版）</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code"># while 版
+total = 0                 # 累加器：清零必须放在循环外面
+i = 1
+while i &lt;= 100:
+    total += i
+    i += 1
+print("while 版：", total)
+
+# for 版：同样的事，计数交给 Python 管
+total = 0
+for i in range(1, 101):
+    total += i
+print("for 版：", total)</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+while 版： 5050
+for 版： 5050
+</pre></div>
+  </div>
+  <div class="demo" data-demo="k2-3-bug">
+    <div class="demo-head">
+      <span class="demo-title">经典错误：total = 0 写进了循环体</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code"># ✅ 正确：清零在循环外
+total = 0
+i = 1
+while i &lt;= 10:
+    total += i
+    i += 1
+print("正确写法 1~10 累加：", total)
+
+# ❌ 错误：清零写进了循环体，每轮都从头开始
+i = 1
+while i &lt;= 10:
+    total = 0            # ← 位置错了
+    total += i
+    i += 1
+print("错误写法 1~10 累加：", total)</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+正确写法 1~10 累加： 55
+错误写法 1~10 累加： 10
+</pre></div>
+  </div>
+  <div class="sumline">✅ <b>本节小结</b>：<strong>清零在外，累加在内</strong>。累加器 <code class="inline">total = 0</code> 必须在循环之前，计数器更新 <code class="inline">i = i + 1</code> 必须在循环体里面。错误写法不报错、只是答案不对——所以要养成"用已知答案的小数据自测"的习惯。</div>
+  <div class="vid">
+    <span class="vtag">配套视频</span>
+    <a href="https://www.bilibili.com/video/BV1qW4y1a7fU/?p=39" target="_blank" rel="noopener">黑马程序员 · 第 39 讲 案例：求 1—100 的和</a>
+    <span class="vmeta">B站</span>
+  </div>
+
+  <h3 id="c2-4">2.4　for 语句 <span class="tag gold">进度表点名</span></h3>
+  <p>语法：<code class="inline">for 变量 in 序列或迭代对象:</code> 循环体。变量从序列中<strong>依次取值</strong>，取完就结束——所以 for 循环<strong>永远不会死循环</strong>。</p>
+  <div class="demo" data-demo="k2-4-fornames">
+    <div class="demo-head">
+      <span class="demo-title">for 遍历一个列表</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">for name in ['zhang', 'li', 'wang', 'zhao']:
+    print(name)</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+zhang
+li
+wang
+zhao
+</pre></div>
+  </div>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>场景</th><th>用哪个</th><th>理由</th></tr></thead>
+      <tbody>
+        <tr><td>次数<strong>已知</strong>（跑 5 次、遍历列表）</td><td><code class="inline">for</code></td><td>计数交给 Python，不会写错、不会死循环</td></tr>
+        <tr><td>次数<strong>未知</strong>（猜到才停、输入 q 才停）</td><td><code class="inline">while</code></td><td>条件要运行时才知道</td></tr>
+        <tr><td>退出条件在循环体<strong>中间</strong></td><td><code class="inline">while True</code> + <code class="inline">break</code></td><td>for 做不到"中途退出"的通用写法</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="sumline">✅ <b>本节小结</b>：<strong>for 是"把序列里的东西一个个取出来"</strong>，计数由 Python 管，所以不会死循环。<strong>已知次数用 for，未知次数用 while</strong>——这句话是本章选择题的常客。</div>
+  <div class="vid">
+    <span class="vtag">配套视频</span>
+    <a href="https://www.bilibili.com/video/BV1qW4y1a7fU/?p=43" target="_blank" rel="noopener">黑马程序员 · 第 43 讲 for 循环的基础语法</a>
+    <span class="vmeta">B站 · 案例见第 44 讲；变量作用域见第 46 讲</span>
+  </div>
+
+  <h3 id="c2-5">2.5　range() 函数 <span class="tag">教材专页</span></h3>
+  <p>写法 <code class="inline">range(start, stop, step)</code>：start 起始值（默认 0）、stop 终止值（<strong>取不到</strong>）、step 步长（默认 1，可为负）。</p>
+  <div class="demo" data-demo="k2-5-range">
+    <div class="demo-head">
+      <span class="demo-title">range 六种写法实测（用 list() 才能看见内容）</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">print("range(5)          →", list(range(5)))
+print("range(0, 5)       →", list(range(0, 5)))
+print("range(0, 5, 2)    →", list(range(0, 5, 2)))
+print("range(10, 0, -2)  →", list(range(10, 0, -2)))
+print("range(0, -10, -1) →", list(range(0, -10, -1)))
+print("range(1, 10) 一共几个数？→", len(range(1, 10)))</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+range(5)          → [0, 1, 2, 3, 4]
+range(0, 5)       → [0, 1, 2, 3, 4]
+range(0, 5, 2)    → [0, 2, 4]
+range(10, 0, -2)  → [10, 8, 6, 4, 2]
+range(0, -10, -1) → [0, -1, -2, -3, -4, -5, -6, -7, -8, -9]
+range(1, 10) 一共几个数？→ 9
+</pre></div>
+  </div>
+  <div class="warn"><strong>四个必讲的坑</strong>：① <code class="inline">stop</code> 取不到——<code class="inline">range(1, 11)</code> 才是 1 到 10；② <code class="inline">range()</code> 返回的是 range 对象，要看得见就套 <code class="inline">list()</code>；③ 步长不能为 0，否则 <code class="inline">ValueError: range() arg 3 must not be zero</code>；④ 递减时 start 必须大于 stop，<code class="inline">range(0, 10, -1)</code> 一个数都不产生。</div>
+  <div class="sumline">✅ <b>本节小结</b>：<strong>含头不含尾，步长默认 1，可以为负</strong>。想数到几，stop 就写"几 + 1"；想只要偶数，用 <code class="inline">range(0, n, 2)</code>，比在循环里 <code class="inline">if</code> 筛一遍更省事。</div>
+  <div class="vid">
+    <span class="vtag">配套视频</span>
+    <a href="https://www.bilibili.com/video/BV1qW4y1a7fU/?p=45" target="_blank" rel="noopener">黑马程序员 · 第 45 讲 range 语句</a>
+    <span class="vmeta">B站</span>
+  </div>
+
+  <h3 id="c2-6">2.6　break 与 continue <span class="tag gold">进度表点名</span></h3>
+  <p>教材原文：<strong>continue</strong> 跳过本次循环剩余语句、进入下一轮循环；<strong>break</strong> 跳出循环、进入循环结构后面的语句。多重循环中 <strong>break 只能跳出自己所属的那一层</strong>；两者通常和 <code class="inline">if</code> 配合使用。</p>
+  <div class="demo" data-demo="k2-6-bc">
+    <div class="demo-head">
+      <span class="demo-title">break：遇到 5 就停 ｜ continue：跳过奇数</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code"># break：i 到 5 就整个结束，后面的 5~9 都不打印
+for i in range(10):
+    if i == 5:
+        break
+    print(i, end=",")
+print()
+
+# continue：奇数跳过这一轮，偶数照常打印
+for i in range(1, 11):
+    if i % 2 == 1:
+        continue
+    print(i, end=",")
+print()</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+0,1,2,3,4,
+2,4,6,8,10,
+</pre></div>
+  </div>
+  <div class="demo" data-demo="k2-6-nested">
+    <div class="demo-head">
+      <span class="demo-title">多重循环里，break 只跳出一层</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">for i in range(5):
+    for j in range(3):
+        if j == 2:
+            break            # 只跳出内层 j 循环，外层 i 继续
+        print(i, j)</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+0 0
+0 1
+1 0
+1 1
+2 0
+2 1
+3 0
+3 1
+4 0
+4 1
+</pre></div>
+  </div>
+  <div class="danger"><strong>while + continue 的坑</strong>：如果 <code class="inline">i = i + 1</code> 写在 <code class="inline">continue</code> 后面，那一句永远轮不到执行 → 死循环。<strong>在 while 里用 continue 之前，先确认递增语句不会被跳过。</strong></div>
+  <div class="sumline">✅ <b>本节小结</b>：<strong>break = 整个撂挑子不干了；continue = 这一次跳过、下一轮照常。</strong> 多重循环里 break 只跳一层，要跳多层得用标志变量；while 里用 continue 要格外小心递增语句。</div>
+  <div class="vid">
+    <span class="vtag">配套视频</span>
+    <a href="https://www.bilibili.com/video/BV1qW4y1a7fU/?p=49" target="_blank" rel="noopener">黑马程序员 · 第 49 讲 continue 和 break</a>
+    <span class="vmeta">B站</span>
+  </div>
+
+  <h3 id="c2-7">2.7　循环的 else 子句 <span class="tag gold">进度表点名</span></h3>
+  <p>教材三条说明：① else 子句是<strong>可选</strong>的；② <strong>遍历完毕自然结束</strong>的会执行 else；③ <strong>执行了 break 提前结束</strong>的不会执行 else。</p>
+  <div class="demo" data-demo="k2-7-else">
+    <div class="demo-head">
+      <span class="demo-title">同样两个循环，一个有 break、一个只有 continue</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">print("—— 有 break：else 不执行 ——")
+for i in range(10):
+    if i == 5:
+        break
+    print(i, end=",")
+else:
+    print("Finish！")
+print()
+
+print("—— 没有 break：else 执行（continue 不影响 else）——")
+for i in range(10):
+    if i == 5:
+        continue
+    print(i, end=",")
+else:
+    print("Finish！")
+print()</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+—— 有 break：else 不执行 ——
+0,1,2,3,4,
+—— 没有 break：else 执行（continue 不影响 else）——
+0,1,2,3,4,6,7,8,9,Finish！
+</pre></div>
+  </div>
+  <div class="demo" data-demo="k2-7-prime" data-stdin="17">
+    <div class="demo-head">
+      <span class="demo-title">经典应用：素数判断（输入 17）</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">n = int(input("请输入一个大于 1 的整数："))
+for i in range(2, int(n ** 0.5) + 1):
+    if n % i == 0:
+        print(n, "不是素数")
+        break
+else:
+    print(n, "是素数")        # 找了一圈都没找到因子 → 是素数</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测 · 输入 17；输入 91 会输出"91 不是素数"）</div><pre class="out">
+请输入一个大于 1 的整数：17
+17 是素数
+</pre></div>
+  </div>
+  <div class="sumline">✅ <b>本节小结</b>：<strong>有 break 就没 else，没 break 才有 else</strong>。else 挂在<strong>循环</strong>后面而不是 if 后面，含义是"完整跑完了 / 找了一圈没找到"——这是 Python 独有、也最容易考倒人的写法。</div>
+  <div class="vid">
+    <span class="vtag">配套视频</span>
+    <a href="https://www.bilibili.com/video/BV1mT411s7at/" target="_blank" rel="noopener">python 中 for 循环和 else 的搭配使用</a>
+    <span class="vmeta">B站 · 7:48 · 专门讲循环 else 的少见短片</span>
+  </div>
+
+  <h3 id="c2-8">2.8　嵌套的循环结构 <span class="tag gold">进度表点名</span></h3>
+  <p>教材原话："如果外层循环执行 n 次，内层循环执行 m 次，则整个循环要执行 <strong>n × m 次</strong>。"图形题（三角、矩形、菱形）全靠嵌套循环。</p>
+  <div class="demo" data-demo="k2-8-multable">
+    <div class="demo-head">
+      <span class="demo-title">例 3-10：九九乘法口诀表</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">for i in range(1, 10):
+    for j in range(1, i + 1):       # ← 内层次数随外层变化，这是"三角形"
+        print(j, "×", i, "=", i * j, end="\t")
+    print()                          # 外层每走一步就换行</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测，9 行）</div><pre class="out">
+1 × 1 = 1	
+1 × 2 = 2	2 × 2 = 4	
+1 × 3 = 3	2 × 3 = 6	3 × 3 = 9	
+1 × 4 = 4	2 × 4 = 8	3 × 4 = 12	4 × 4 = 16	
+1 × 5 = 5	2 × 5 = 10	3 × 5 = 15	4 × 5 = 20	5 × 5 = 25	
+1 × 6 = 6	2 × 6 = 12	3 × 6 = 18	4 × 6 = 24	5 × 6 = 30	6 × 6 = 36	
+1 × 7 = 7	2 × 7 = 14	3 × 7 = 21	4 × 7 = 28	5 × 7 = 35	6 × 7 = 42	7 × 7 = 49	
+1 × 8 = 8	2 × 8 = 16	3 × 8 = 24	4 × 8 = 32	5 × 8 = 40	6 × 8 = 48	7 × 8 = 56	8 × 8 = 64	
+1 × 9 = 9	2 × 9 = 18	3 × 9 = 27	4 × 9 = 36	5 × 9 = 45	6 × 9 = 54	7 × 9 = 63	8 × 9 = 72	9 × 9 = 81	
+</pre></div>
+  </div>
+  <div class="sumline">✅ <b>本节小结</b>：<strong>外层走一步、内层跑一圈，总次数是乘法不是加法</strong>。内层用 <code class="inline">range(1, i + 1)</code> 依赖外层变量，就能打出三角形；两层都写固定范围就是矩形。</div>
+  <div class="vid">
+    <span class="vtag">配套视频</span>
+    <a href="https://www.bilibili.com/video/BV1qW4y1a7fU/?p=47" target="_blank" rel="noopener">黑马程序员 · 第 47 讲 for 循环的嵌套使用</a>
+    <span class="vmeta">B站 · 打印九九乘法表见第 48 讲；while 嵌套见第 41、42 讲</span>
+  </div>
+</section>
+
+<!-- ===== 模块三：综合应用 ===== -->
+<section id="c3">
+  <div class="sec-head">
+    <div class="sec-num">三</div>
+    <div>
+      <h2>综合应用（上机 4 学时）</h2>
+      <p class="sec-sub">对应进度表第 7 项：程序控制结构综合应用 · 9 个案例 · 2 次上机</p>
+    </div>
+  </div>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>编号</th><th>任务</th><th>对应知识点</th><th>难度</th><th>要求</th></tr></thead>
+      <tbody>
+        <tr><td>U1-01</td><td>判断奇偶数（例 3-1 复现）</td><td>双分支</td><td>★</td><td>必做</td></tr>
+        <tr><td>U1-02</td><td>成绩等级（例 3-2），测 8 个边界值</td><td>多分支</td><td>★★</td><td>必做</td></tr>
+        <tr><td>U1-03</td><td>BMI 判断，用<strong>单边比较</strong>写法</td><td>多分支</td><td>★★</td><td>必做</td></tr>
+        <tr><td>U1-04</td><td>分段函数（习题 1）</td><td>多分支</td><td>★★</td><td>必做</td></tr>
+        <tr><td>U1-05</td><td>三角形判定，<strong>重复执行 5 次</strong></td><td>分支 + while</td><td>★★★</td><td>必做</td></tr>
+        <tr><td>U1-06</td><td>打印 5 次 Hello + 手填执行过程表</td><td>while 三要素</td><td>★</td><td>必做</td></tr>
+        <tr><td>U1-07</td><td>折纸珠峰（例 3-6）</td><td>while</td><td>★★</td><td>必做</td></tr>
+        <tr><td>U1-08</td><td>1+2+…+100（while 版 + for 版）</td><td>累加器</td><td>★★</td><td>必做</td></tr>
+        <tr><td>U1-09</td><td>故意写一个死循环，用 Ctrl+C 停</td><td>死循环识别</td><td>★</td><td>必做</td></tr>
+        <tr><td>U2-01~04</td><td>猜数字四连（if / while / for / while True + break）</td><td>综合</td><td>★★~★★★</td><td>必做</td></tr>
+        <tr><td>U2-05</td><td>简易登录系统（最多 3 次）</td><td>for-else</td><td>★★★</td><td>必做</td></tr>
+        <tr><td>U2-06</td><td>作业 1：1—100 中 5 的倍数累加和</td><td>for + range 步长</td><td>★★</td><td>必做</td></tr>
+        <tr><td>U2-07</td><td>作业 2：个人所得税（简化三档）</td><td>多分支</td><td>★★★</td><td>必做</td></tr>
+        <tr><td>U2-08/09</td><td>小明学单词（while 版 / for 版）</td><td>while vs for</td><td>★★★</td><td>选做</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 id="c3-1">3.1　三角形判定（while 重复执行 5 次）</h3>
+  <p>根据三边判断能否构成三角形：可以则用海伦公式算面积（保留 2 位小数），否则提示"无法构成三角形"，并要求<strong>重复执行 5 次</strong>——这里正好把"分支 + 循环"合起来用。</p>
+  <div class="demo" data-demo="k3-1-triangle" data-stdin="3|4|5|1|2|3|6|8|10|2|2|5|5|5|5">
+    <div class="demo-head">
+      <span class="demo-title">例 3-3（PPT S10 原题）：循环 5 次版（依次输入 3 4 5｜1 2 3｜6 8 10｜2 2 5｜5 5 5）</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">import math
+
+i = 1
+while i &lt;= 5:
+    a = float(input("请输入第 1 条边："))
+    b = float(input("请输入第 2 条边："))
+    c = float(input("请输入第 3 条边："))
+
+    if a + b &gt; c and a + c &gt; b and b + c &gt; a:
+        p = (a + b + c) / 2
+        area = math.sqrt(p * (p - a) * (p - b) * (p - c))
+        print("可以构成三角形，面积为：%.2f" % area)
+    else:
+        print("无法构成三角形")
+
+    i = i + 1</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测 · 5 组输入）</div><pre class="out">
+请输入第 1 条边：3
+请输入第 2 条边：4
+请输入第 3 条边：5
+可以构成三角形，面积为：6.00
+请输入第 1 条边：1
+请输入第 2 条边：2
+请输入第 3 条边：3
+无法构成三角形
+请输入第 1 条边：6
+请输入第 2 条边：8
+请输入第 3 条边：10
+可以构成三角形，面积为：24.00
+请输入第 1 条边：2
+请输入第 2 条边：2
+请输入第 3 条边：5
+无法构成三角形
+请输入第 1 条边：5
+请输入第 2 条边：5
+请输入第 3 条边：5
+可以构成三角形，面积为：10.83
+</pre></div>
+  </div>
+  <div class="sumline">✅ <b>本节小结</b>：<strong>判三角形看"任意两边之和大于第三边"</strong>，写成 <code class="inline">a+b&gt;c and a+c&gt;b and b+c&gt;a</code> 最稳；<strong>循环负责"做几遍"，分支负责"这一遍怎么办"</strong>——这是综合题的标准骨架。</div>
+  <div class="vid">
+    <span class="vtag">配套视频</span>
+    <a href="https://www.bilibili.com/video/BV1qW4y1a7fU/?p=37" target="_blank" rel="noopener">黑马程序员 · 第 37 讲 判断语句综合案例</a>
+    <span class="vmeta">B站 · 先看判断逻辑，再套 while 循环</span>
+  </div>
+
+  <h3 id="c3-2">3.2　折纸珠峰：指数增长的威力</h3>
+  <p>一张 0.1 毫米厚的纸对折多少次能超过珠峰（8848.86 米）？答案会让学生吃惊。</p>
+  <div class="demo" data-demo="k3-2-paperfold">
+    <div class="demo-head">
+      <span class="demo-title">例 3-6：折纸珠峰</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">h = 0.0001            # 0.1 毫米换算成米
+count = 0
+while h &lt; 8848.86:    # 次数未知 → 用 while
+    h = h * 2
+    count = count + 1
+print("需要对折", count, "次")
+print("此时厚度为", round(h, 2), "米")</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+需要对折 27 次
+此时厚度为 13421.77 米
+</pre></div>
+  </div>
+  <div class="sumline">✅ <b>本节小结</b>：<strong>次数未知的"翻倍/减半"问题一律用 while</strong>；因为每次翻倍是指数增长（2²⁷ ≈ 1.34 亿），所以只需要 27 次。同一个数学模型还出现在 AI 算力增长、病毒传播里。</div>
+  <div class="vid">
+    <span class="vtag">配套视频</span>
+    <a href="https://www.bilibili.com/video/BV1qW4y1a7fU/?p=38" target="_blank" rel="noopener">黑马程序员 · 第 38 讲 while 循环的基础应用</a>
+    <span class="vmeta">B站 · 与本节"次数未知用 while"的判断标准一致</span>
+  </div>
+
+  <h3 id="c3-3">3.3　猜数字四连：同一个需求，四种写法</h3>
+  <p>把四份代码并排看，就能体会到"什么时候该用哪个结构"。为了课堂可复现，下面用 <code class="inline">seed(1)</code> 固定随机种子（随机数 x = 17）；你自己的程序不要写 seed，否则每次答案都一样。</p>
+  <div class="demo" data-demo="k3-3-guess-if" data-stdin="50">
+    <div class="demo-head">
+      <span class="demo-title">① 例 3-3：只猜一次（if）</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">from random import randint, seed
+seed(1)                       # 课堂演示用；自己写程序时删掉这一行
+x = randint(0, 100)
+
+guess_number = int(input("输入一个 0~100 之间的整数："))
+if guess_number == x:
+    print("Bingo!")
+elif guess_number &gt; x:
+    print("Too large!")
+else:
+    print("Too small!")
+print("（演示提示：随机数 x =", x, "）")</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测 · 猜 50）</div><pre class="out">
+输入一个 0~100 之间的整数：50
+Too large!
+（演示提示：随机数 x = 17 ）
+</pre></div>
+  </div>
+  <div class="demo" data-demo="k3-3-guess-while" data-stdin="50|25|12|17|1">
+    <div class="demo-head">
+      <span class="demo-title">② 例 3-5：while 版，可以猜 5 次</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">from random import randint, seed
+seed(1)
+x = randint(0, 100)
+
+i = 0
+while i &lt; 5:
+    guess = int(input("请输入一个 0~100 的整数："))
+    if guess == x:
+        print("Bingo!")
+    elif guess &gt; x:
+        print("Too large!")
+    else:
+        print("Too small!")
+    i = i + 1
+print("（演示提示：随机数 x =", x, "）")</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测 · 依次猜 50 25 12 17 1）</div><pre class="out">
+请输入一个 0~100 的整数：50
+Too large!
+请输入一个 0~100 的整数：25
+Too large!
+请输入一个 0~100 的整数：12
+Too small!
+请输入一个 0~100 的整数：17
+Bingo!
+请输入一个 0~100 的整数：1
+Too small!
+（演示提示：随机数 x = 17 ）
+</pre></div>
+  </div>
+  <div class="demo" data-demo="k3-3-guess-for" data-stdin="50|25|12|17|1">
+    <div class="demo-head">
+      <span class="demo-title">③ 例 3-8：for 版，同样猜 5 次（计数交给 Python）</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">from random import randint, seed
+seed(1)
+x = randint(0, 100)
+
+for i in range(5):            # 与上面的 while 版完全等价
+    guess = int(input("请输入一个 0~100 的整数："))
+    if guess == x:
+        print("Bingo!")
+    elif guess &gt; x:
+        print("Too large!")
+    else:
+        print("Too small!")
+print("（演示提示：随机数 x =", x, "）")</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+请输入一个 0~100 的整数：50
+Too large!
+请输入一个 0~100 的整数：25
+Too large!
+请输入一个 0~100 的整数：12
+Too small!
+请输入一个 0~100 的整数：17
+Bingo!
+请输入一个 0~100 的整数：1
+Too small!
+（演示提示：随机数 x = 17 ）
+</pre></div>
+  </div>
+  <div class="demo" data-demo="k3-3-guess-break" data-stdin="50|17">
+    <div class="demo-head">
+      <span class="demo-title">④ 例 3-9：while True + break，猜中或输入 q 才结束</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">from random import randint, seed
+seed(1)
+x = randint(0, 100)
+
+while True:                                   # 次数完全未知
+    s = input("请输入一个 0~100 的整数（输入 q 退出）：")
+    if s == "q":
+        print("游戏结束，答案是", x)
+        break
+    guess = int(s)
+    if guess == x:
+        print("Bingo!")
+        break                                 # 猜中就停
+    elif guess &gt; x:
+        print("Too large!")
+    else:
+        print("Too small!")</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测 · 先猜 50，再猜 17）</div><pre class="out">
+请输入一个 0~100 的整数（输入 q 退出）：50
+Too large!
+请输入一个 0~100 的整数（输入 q 退出）：17
+Bingo!
+</pre></div>
+  </div>
+  <div class="sumline">✅ <b>本节小结</b>：同一个需求四种写法——<strong>只猜一次用 if；次数已知用 for（或 while 计数）；次数未知用 while True + break</strong>。区别只在"什么时候停"，判断逻辑完全一样。</div>
+  <div class="vid">
+    <span class="vtag">配套视频</span>
+    <a href="https://www.bilibili.com/video/BV1qW4y1a7fU/?p=40" target="_blank" rel="noopener">黑马程序员 · 第 40 讲 while 循环猜数字案例</a>
+    <span class="vmeta">B站 · 第 35 讲为 if 版猜数字</span>
+  </div>
+
+  <h3 id="c3-4">3.4　简易登录系统（for-else 的漂亮用法）</h3>
+  <p>要求：用户名密码正确提示"登录成功"；最多输入三次；三次都错提示"失败超过三次，请稍后再试！"——"三次都没 break"这件事，<strong>正好用 for 的 else 表达</strong>。</p>
+  <div class="demo" data-demo="k3-4-login" data-stdin="admin|wrong|admin|123456wrong|admin|123456">
+    <div class="demo-head">
+      <span class="demo-title">前两次输错、第三次输对</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">USERNAME = "admin"
+PASSWORD = "123456"
+
+for i in range(3):
+    u = input("用户名：")
+    p = input("密码：")
+    if u == USERNAME and p == PASSWORD:
+        print("登录成功")
+        break
+    else:
+        left = 2 - i
+        if left &gt; 0:
+            print("用户名或密码错误，还剩", left, "次机会")
+else:
+    print("失败超过三次，请稍后再试！")</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+用户名：admin
+密码：wrong
+用户名或密码错误，还剩 2 次机会
+用户名：admin
+密码：123456wrong
+用户名或密码错误，还剩 1 次机会
+用户名：admin
+密码：123456
+登录成功
+</pre></div>
+  </div>
+  <div class="demo" data-demo="k3-4-login-fail" data-stdin="admin|x|admin|y|admin|z">
+    <div class="demo-head">
+      <span class="demo-title">三次全错：for-else 生效</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">USERNAME = "admin"
+PASSWORD = "123456"
+
+for i in range(3):
+    u = input("用户名：")
+    p = input("密码：")
+    if u == USERNAME and p == PASSWORD:
+        print("登录成功")
+        break
+    else:
+        left = 2 - i
+        if left &gt; 0:
+            print("用户名或密码错误，还剩", left, "次机会")
+else:
+    print("失败超过三次，请稍后再试！")</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测 · 三次全错）</div><pre class="out">
+用户名：admin
+密码：x
+用户名或密码错误，还剩 2 次机会
+用户名：admin
+密码：y
+用户名或密码错误，还剩 1 次机会
+用户名：admin
+密码：z
+失败超过三次，请稍后再试！
+</pre></div>
+  </div>
+  <div class="sumline">✅ <b>本节小结</b>：<strong>"三次都没成功"用 for-else 表达最优雅</strong>——break 表示成功提前退出，else 表示全错。这也是循环 else 在真实代码里最常见的用途。</div>
+  <div class="vid">
+    <span class="vtag">配套视频</span>
+    <a href="https://www.bilibili.com/video/BV1qW4y1a7fU/?p=50" target="_blank" rel="noopener">黑马程序员 · 第 50 讲 循环综合案例</a>
+    <span class="vmeta">B站 · 循环 + 分支的综合运用</span>
+  </div>
+
+  <h3 id="c3-5">3.5　作业 1：1—100 中 5 的倍数的累加和</h3>
+  <p>同一道题三种写法，正好对比"用 if 筛"和"用步长直接生成"的差别。</p>
+  <div class="demo" data-demo="k3-5-multiple5">
+    <div class="demo-head">
+      <span class="demo-title">三种写法对比（正确答案 1050）</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">total = 0
+for i in range(1, 101):       # 写法 1：全部遍历 + if 筛选
+    if i % 5 == 0:
+        total += i
+print("写法 1（if 筛选）    ：", total)
+
+total = 0
+for i in range(5, 101, 5):    # 写法 2：直接用步长（最优）
+    total += i
+print("写法 2（range 步长） ：", total)
+
+print("写法 3（一行搞定）   ：", sum(range(5, 101, 5)))</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+写法 1（if 筛选）    ： 1050
+写法 2（range 步长） ： 1050
+写法 3（一行搞定）   ： 1050
+</pre></div>
+  </div>
+  <div class="sumline">✅ <b>本节小结</b>：<strong>能控制步长的场景就不要用 if 再筛一遍</strong>——<code class="inline">range(5, 101, 5)</code> 直接生成 5, 10, …, 100，代码更短、跑得更快。三种写法答案必须一致（1050），不一致就说明写错了。</div>
+  <div class="vid">
+    <span class="vtag">配套视频</span>
+    <a href="https://www.bilibili.com/video/BV1qW4y1a7fU/?p=45" target="_blank" rel="noopener">黑马程序员 · 第 45 讲 range 语句</a>
+    <span class="vmeta">B站 · 重点看步长参数</span>
+  </div>
+
+  <h3 id="c3-6">3.6　作业 2：个人所得税（简化三档）</h3>
+  <p>税率分三档（<strong>单位：万元</strong>）：x ≤ 3.6 时 x × 3%；3.6 &lt; x ≤ 14.4 时 3.6 × 3% + (x − 3.6) × 10%；x &gt; 14.4 时再加 (x − 14.4) × 20%。输入为负数时提示"输入值错误"。</p>
+  <div class="warn"><strong>三点必须说清</strong>：① 单位是<strong>万元</strong>，按元算必错；② 这是<strong>简化的三档模型</strong>，真实个税是七级超额累进、还有起征点和专项扣除，<strong>不要拿去真算工资</strong>；③ 题目要求"定义函数"，而函数要到第 5 章才讲——这里只要求<strong>会调用</strong>，看懂结构即可。</div>
+  <div class="demo" data-demo="k3-6-tax" data-stdin="20">
+    <div class="demo-head">
+      <span class="demo-title">输入应纳税所得额 20（万元）</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">def tax(x):                  # 函数第 5 章才正式讲，这里先"会用"
+    if x &lt; 0:
+        return "输入值错误"
+    if x &lt;= 3.6:
+        y = x * 0.03
+    elif x &lt;= 14.4:
+        y = 3.6 * 0.03 + (x - 3.6) * 0.10
+    else:
+        y = 3.6 * 0.03 + (14.4 - 3.6) * 0.10 + (x - 14.4) * 0.20
+    return round(y, 4)
+
+x = float(input("请输入应纳税所得额（万元）："))
+print("应缴个税：", tax(x))</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测 · 输入 20 → 2.308 万元）</div><pre class="out">
+请输入应纳税所得额（万元）：20
+应缴个税： 2.308
+</pre></div>
+  </div>
+  <div class="sumline">✅ <b>本节小结</b>：<strong>超额累进 = 分段计算再相加</strong>，用 if-elif-else 从"最低档"往上写；<strong>边界值（3.6、14.4）必须单独测</strong>。单位、模型适用范围要在题目里写清楚——这题不改单位就会被学生当成真实税单。</div>
+  <div class="vid">
+    <span class="vtag">配套视频</span>
+    <a href="https://www.bilibili.com/video/BV1qW4y1a7fU/?p=34" target="_blank" rel="noopener">黑马程序员 · 第 34 讲 if-elif-else 组合使用的语法</a>
+    <span class="vmeta">B站 · 多分支写法直接复用</span>
+  </div>
+
+  <h3 id="c3-7">3.7　选做题：小明学单词（while 版 vs for 版）</h3>
+  <p>学习 1000 个单词，每天随机学 0—50 个：while 版是"学到 1000 个或满 30 天为止"，for 版是"固定 30 天"。这两题是<strong>while（条件未知）vs for（次数已知）</strong>最好的对照。</p>
+  <div class="demo" data-demo="k3-7-words-while">
+    <div class="demo-head">
+      <span class="demo-title">while 版：累计 ≥ 1000 或满 30 天就停（固定随机种子 7）</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">from random import randint, seed
+seed(7)                       # 固定种子，方便课堂复现；自己写时删掉
+
+total = 0
+day = 0
+while total &lt; 1000 and day &lt; 30:
+    day += 1
+    n = randint(0, 50)
+    total += n
+print("共用", day, "天，累计学习", total, "个单词")</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+共用 30 天，累计学习 576 个单词
+</pre></div>
+  </div>
+  <div class="demo" data-demo="k3-7-words-for">
+    <div class="demo-head">
+      <span class="demo-title">for 版：固定 30 天</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">from random import randint, seed
+seed(7)
+
+total = 0
+for day in range(1, 31):
+    n = randint(0, 50)
+    total += n
+print("30 天共学习", total, "个单词")</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+30 天共学习 576 个单词
+</pre></div>
+  </div>
+  <div class="sumline">✅ <b>本节小结</b>：<strong>同一个问题，"什么时候停"决定了用哪个循环</strong>：条件是"累计够 1000 就停"→ 用 while；"固定跑 30 天"→ 用 for。随机函数每次结果不同是正常的，加了 <code class="inline">seed()</code> 才能复现。</div>
+  <div class="vid">
+    <span class="vtag">配套视频</span>
+    <a href="https://www.bilibili.com/video/BV1qW4y1a7fU/?p=43" target="_blank" rel="noopener">黑马程序员 · 第 43 讲 for 循环的基础语法</a>
+    <span class="vmeta">B站 · 与 while 版第 38 讲对照看</span>
+  </div>
+</section>
+
+<!-- ===== 模块四：AI 渗透 ===== -->
+<section id="c4">
+  <div class="sec-head">
+    <div class="sec-num">四</div>
+    <div>
+      <h2>AI 渗透（A 类 · 手写 AI 原理）</h2>
+      <p class="sec-sub">本章属于基础阶段：<strong>学生不使用 AI 工具</strong>，只用手写的循环与分支，把 AI 的内部机制跑出来看</p>
+    </div>
+  </div>
+
+  <div class="note">这 8 个演示<strong>不需要任何 AI 库、不联网、不调用任何模型</strong>——全部用本章的 if 和循环手写。目的是让学生明白：AI 内部最核心的机制，其实是你这两节课学的语法。</div>
+
+  <h3 id="c4-1">AI-1　决策树 = 一串 if / elif / else</h3>
+  <p>决策树的每一个节点就是一次 <code class="inline">if</code> 判断，每一条从根到叶的路径就是一串 <code class="inline">elif</code>。机器学习里最"可解释"的模型，本质就是嵌套分支。</p>
+  <div class="demo" data-demo="k4-1-tree" data-stdin="4.6|2">
+    <div class="demo-head">
+      <span class="demo-title">用"是否录取"举例（输入 GPA 4.6、论文 2 篇）</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">gpa = float(input("请输入 GPA（0-5）："))
+paper = int(input("请输入论文数量："))
+
+if gpa &gt;= 4.5:
+    if paper &gt;= 2:
+        print("决策：直接录取")
+    else:
+        print("决策：待定，需面试")
+elif gpa &gt;= 3.5:
+    if paper &gt;= 3:
+        print("决策：待定，需面试")
+    else:
+        print("决策：不录取")
+else:
+    print("决策：不录取")</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+请输入 GPA（0-5）：4.6
+请输入论文数量：2
+决策：直接录取
+</pre></div>
+  </div>
+  <div class="sumline">✅ <b>本节小结</b>：<strong>决策树 = 嵌套 if-else 树</strong>，节点判断特征、叶子给出结论；<strong>随机森林 = 很多棵这样的树投票</strong>。你今天写的嵌套 if，就是机器学习里最可解释的模型。</div>
+  <div class="vid">
+    <span class="vtag">配套视频</span>
+    <a href="https://www.bilibili.com/video/BV1qW4y1a7fU/?p=36" target="_blank" rel="noopener">黑马程序员 · 第 36 讲 判断语句的嵌套</a>
+    <span class="vmeta">B站 · 决策树的外形就是嵌套判断</span>
+  </div>
+
+  <h3 id="c4-2">AI-2　while = 训练迭代 <span class="tag red">本章 AI 高潮</span></h3>
+  <p>AI"训练"的本质：<strong>重复同一件事，每次改一点点，直到误差够小</strong>。已知 y = 5x，让程序从 w = 1.0 开始自己把 w 学到 5.0。</p>
+  <div class="demo" data-demo="k4-2-train">
+    <div class="demo-head">
+      <span class="demo-title">三要素对上训练：初值 = 参数初始化，条件 = 收敛判据，更新 = 梯度下降</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">x = 2.0
+y_true = 10.0
+w = 1.0            # 循环变量：权重初值（参数初始化）
+lr = 0.1           # 学习率
+epoch = 0          # 训练轮数计数器
+
+while abs(w * x - y_true) &gt; 0.01:        # 终止条件：误差足够小
+    pred = w * x
+    w = w - lr * (pred - y_true) * x     # 更新：梯度下降
+    epoch += 1
+    print("第 %2d 轮：w = %.4f，预测值 = %.4f，误差 = %.4f"
+          % (epoch, w, w * x, abs(w * x - y_true)))
+
+print("收敛！共训练 %d 轮，最终 w = %.4f（理论答案 5.0）" % (epoch, w))</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+第  1 轮：w = 2.6000，预测值 = 5.2000，误差 = 4.8000
+第  2 轮：w = 3.5600，预测值 = 7.1200，误差 = 2.8800
+第  3 轮：w = 4.1360，预测值 = 8.2720，误差 = 1.7280
+第  4 轮：w = 4.4816，预测值 = 8.9632，误差 = 1.0368
+第  5 轮：w = 4.6890，预测值 = 9.3779，误差 = 0.6221
+第  6 轮：w = 4.8134，预测值 = 9.6268，误差 = 0.3732
+第  7 轮：w = 4.8880，预测值 = 9.7761，误差 = 0.2239
+第  8 轮：w = 4.9328，预测值 = 9.8656，误差 = 0.1344
+第  9 轮：w = 4.9597，预测值 = 9.9194，误差 = 0.0806
+第 10 轮：w = 4.9758，预测值 = 9.9516，误差 = 0.0484
+第 11 轮：w = 4.9855，预测值 = 9.9710，误差 = 0.0290
+第 12 轮：w = 4.9913，预测值 = 9.9826，误差 = 0.0174
+第 13 轮：w = 4.9948，预测值 = 9.9896，误差 = 0.0104
+第 14 轮：w = 4.9969，预测值 = 9.9937，误差 = 0.0063
+收敛！共训练 14 轮，最终 w = 4.9969（理论答案 5.0）
+</pre></div>
+  </div>
+  <div class="warn">把 <code class="inline">lr</code> 从 0.1 改成 0.05，收敛轮数立刻变多；改成 1.5 甚至可能"飞出去"不收敛——<strong>这就是调参</strong>。改一个数字、看结果怎么变，是最直观的"超参数"体验。</div>
+  <div class="sumline">✅ <b>本节小结</b>：<strong>while 循环 = 训练迭代</strong>：初值是参数初始化，条件是"误差还不够小"，更新是梯度下降。<strong>漏掉更新语句就是死循环；训练里忘了更新参数，模型永远学不会——一模一样。</strong></div>
+  <div class="vid">
+    <span class="vtag">配套视频</span>
+    <a href="https://www.bilibili.com/video/BV18P4y1j7uH/" target="_blank" rel="noopener">【梯度下降】3D 可视化讲解通俗易懂</a>
+    <span class="vmeta">B站 · 12:09 · 29.6 万播放 · 看"w 一轮轮被调整"的直观过程</span>
+  </div>
+
+  <h3 id="c4-3">AI-3　for = 遍历数据集 + 统计准确率</h3>
+  <p>模型评测的骨架只有三行：<strong>for 遍历一条条数据 → 累加器统计对的个数 → 除以总数</strong>。</p>
+  <div class="demo" data-demo="k4-3-acc">
+    <div class="demo-head">
+      <span class="demo-title">10 条预测，算准确率</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">pred = [1, 0, 1, 1, 0, 1, 1, 1, 0, 1]   # 模型的预测（1 = 正类）
+gold = [1, 0, 1, 0, 0, 1, 1, 1, 0, 1]   # 真实标签
+
+correct = 0
+for p, g in zip(pred, gold):            # 遍历一条条数据 = 一个 epoch
+    if p == g:
+        correct += 1                    # 累加器
+
+accuracy = correct / len(gold)
+print("正确率：%d/%d = %.1f%%" % (correct, len(gold), accuracy * 100))</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+正确率：9/10 = 90.0%
+</pre></div>
+  </div>
+  <div class="sumline">✅ <b>本节小结</b>：<strong>for 遍历一遍数据 = 一个 epoch；累加器 + 除法 = 准确率</strong>。后面所有机器学习评测代码的骨架就是这三行——你已经会写了。</div>
+  <div class="vid">
+    <span class="vtag">配套视频</span>
+    <a href="https://www.bilibili.com/video/BV1qW4y1a7fU/?p=39" target="_blank" rel="noopener">黑马程序员 · 第 39 讲 案例：求 1—100 的和</a>
+    <span class="vmeta">B站 · 累加器写法与本节完全一致</span>
+  </div>
+
+  <h3 id="c4-4">AI-4　range 的步长 = 分批（batch）</h3>
+  <p>数据太多，一次喂不进模型，所以要<strong>分批</strong>。分批最朴素的写法就是给 <code class="inline">range()</code> 一个步长。</p>
+  <div class="demo" data-demo="k4-4-batch">
+    <div class="demo-head">
+      <span class="demo-title">20 条数据，每批 4 条</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">n = 20            # 共 20 条数据
+batch_size = 4    # 每批处理 4 条
+
+for start in range(0, n, batch_size):     # 步长就是批大小
+    end = min(start + batch_size, n)      # 最后一批可能不满
+    print("本批处理：第", start, "到", end - 1, "条")
+
+print("一共分了", n // batch_size, "批")</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+本批处理：第 0 到 3 条
+本批处理：第 4 到 7 条
+本批处理：第 8 到 11 条
+本批处理：第 12 到 15 条
+本批处理：第 16 到 19 条
+一共分了 5 批
+</pre></div>
+  </div>
+  <div class="sumline">✅ <b>本节小结</b>：<strong><code class="inline">range(0, n, batch_size)</code> 就是最朴素的分批写法</strong>。步长越大，每批数据越多、更新次数越少——这就是显存和训练速度的取舍。</div>
+  <div class="vid">
+    <span class="vtag">配套视频</span>
+    <a href="https://www.bilibili.com/video/BV1qW4y1a7fU/?p=45" target="_blank" rel="noopener">黑马程序员 · 第 45 讲 range 语句</a>
+    <span class="vmeta">B站 · 重点看第三个参数（步长）</span>
+  </div>
+
+  <h3 id="c4-5">AI-5　break = 早停（Early Stopping）</h3>
+  <p>验证集准确率连续几轮不涨了就停——再练只会过拟合，还白烧电费。代码上就是一句 <code class="inline">break</code>。</p>
+  <div class="demo" data-demo="k4-5-earlystop">
+    <div class="demo-head">
+      <span class="demo-title">连续 3 轮没有进步就提前结束（名义上最多 100 轮）</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">x = 2.0
+y_true = 10.0
+w = 1.0
+lr = 0.1
+patience = 3             # 容许"连续几轮没有进步"
+best_loss = 999
+no_improve = 0
+
+for epoch in range(1, 101):               # 名义上最多训练 100 轮
+    pred = w * x
+    loss = abs(pred - y_true)
+
+    if epoch &lt;= 6:                        # 前 6 轮正常学习
+        w = w - lr * (pred - y_true) * x
+    # 第 7 轮起模型"学不动了"（真实训练里常见：学习率衰减到 0、
+    # 数据重复没有新信息、或已经到精度极限）
+
+    if loss &lt; best_loss - 1e-6:           # 比历史最好还低 → 有进步
+        best_loss = loss
+        no_improve = 0
+    else:                                 # 没进步
+        no_improve += 1
+
+    print("第 %2d 轮：loss = %.6f，连续 %d 轮没进步"
+          % (epoch, loss, no_improve))
+
+    if no_improve &gt;= patience:
+        print("&gt;&gt;&gt; 连续 %d 轮没有进步，触发早停！" % patience)
+        break                             # 关键：提前跳出循环
+
+print("实际只训练了 %d 轮，而不是 100 轮" % epoch)</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+第  1 轮：loss = 8.000000，连续 0 轮没进步
+第  2 轮：loss = 4.800000，连续 0 轮没进步
+第  3 轮：loss = 2.880000，连续 0 轮没进步
+第  4 轮：loss = 1.728000，连续 0 轮没进步
+第  5 轮：loss = 1.036800，连续 0 轮没进步
+第  6 轮：loss = 0.622080，连续 0 轮没进步
+第  7 轮：loss = 0.373248，连续 0 轮没进步
+第  8 轮：loss = 0.373248，连续 1 轮没进步
+第  9 轮：loss = 0.373248，连续 2 轮没进步
+第 10 轮：loss = 0.373248，连续 3 轮没进步
+&gt;&gt;&gt; 连续 3 轮没有进步，触发早停！
+实际只训练了 10 轮，而不是 100 轮
+</pre></div>
+  </div>
+  <div class="sumline">✅ <b>本节小结</b>：<strong>"不再进步就停"就是 break</strong>。AI 训练里的 Early Stopping 和循环里的提前退出是同一个动作——省时间，也防止过拟合。</div>
+  <div class="vid">
+    <span class="vtag">配套视频</span>
+    <a href="https://www.bilibili.com/video/BV1qW4y1a7fU/?p=49" target="_blank" rel="noopener">黑马程序员 · 第 49 讲 continue 和 break</a>
+    <span class="vmeta">B站 · break 的语法基础</span>
+  </div>
+
+  <h3 id="c4-6">AI-6　continue = 跳过脏数据</h3>
+  <p>真实数据里总有缺失值、异常值。数据清洗的最小单元就是一行 <code class="inline">continue</code>：不合格的数据跳过，不计入统计。</p>
+  <div class="demo" data-demo="k4-6-dirty">
+    <div class="demo-head">
+      <span class="demo-title">8 条成绩里混了 3 条脏数据，只统计有效的 5 条</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">scores = [88, 95, -1, 76, None, 92, 103, 85]
+total = 0
+count = 0
+
+for s in scores:
+    if s is None or s &lt; 0 or s &gt; 100:     # 脏数据判定
+        continue                           # 跳过，不计入统计
+    total += s
+    count += 1
+
+print("原始数据", len(scores), "条，有效", count, "条")
+print("有效成绩平均分：", round(total / count, 2))</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+原始数据 8 条，有效 5 条
+有效成绩平均分： 87.2
+</pre></div>
+  </div>
+  <div class="sumline">✅ <b>本节小结</b>：<strong>continue 是数据清洗的最小单元</strong>。第 8 章 Pandas 的 <code class="inline">dropna()</code>、爬虫的异常兜底，底层逻辑都是"不合格就跳过这一条"。</div>
+  <div class="vid">
+    <span class="vtag">配套视频</span>
+    <a href="https://www.bilibili.com/video/BV1qW4y1a7fU/?p=49" target="_blank" rel="noopener">黑马程序员 · 第 49 讲 continue 和 break</a>
+    <span class="vmeta">B站 · continue 的语法基础</span>
+  </div>
+
+  <h3 id="c4-7">AI-7　循环 else = "这一轮完整跑完了吗"</h3>
+  <p>训练日志里"共 N 轮，全部完成"和"在第 k 轮被中断"是两种完全不同的含义——正是 <code class="inline">else</code> 子句要表达的。</p>
+  <div class="demo" data-demo="k4-7-else">
+    <div class="demo-head">
+      <span class="demo-title">两种情况对比：跑满 3 轮 vs 第 2 轮被中断</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">print("情况一：正常跑完 3 轮")
+for epoch in range(1, 4):
+    print("  epoch", epoch, "：loss =", round(1.0 / epoch, 4))
+else:
+    print("  === 训练完整完成（未早停）===")
+
+print("情况二：第 2 轮触发早停")
+for epoch in range(1, 4):
+    print("  epoch", epoch, "：loss =", round(1.0 / epoch, 4))
+    if epoch == 2:
+        print("  >>> 触发早停！")
+        break
+else:
+    print("  === 训练完整完成（未早停）===")</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+情况一：正常跑完 3 轮
+  epoch 1 ：loss = 1.0
+  epoch 2 ：loss = 0.5
+  epoch 3 ：loss = 0.3333
+  === 训练完整完成（未早停）===
+情况二：第 2 轮触发早停
+  epoch 1 ：loss = 1.0
+  epoch 2 ：loss = 0.5
+  &gt;&gt;&gt; 触发早停！
+</pre></div>
+  </div>
+  <div class="sumline">✅ <b>本节小结</b>：<strong>else 子句是 Python 专门用来标记"循环有没有被提前打断"的语法糖</strong>：自然结束才走 else，被 break 打断就不走。做"是否完整跑完"的判断时，它比设标志变量更清爽。</div>
+  <div class="vid">
+    <span class="vtag">配套视频</span>
+    <a href="https://www.bilibili.com/video/BV1mT411s7at/" target="_blank" rel="noopener">python 中 for 循环和 else 的搭配使用</a>
+    <span class="vmeta">B站 · 7:48</span>
+  </div>
+
+  <h3 id="c4-8">AI-8　嵌套循环 = 注意力矩阵的平方代价</h3>
+  <p>一句话 27 个字 → 每个字都要和所有字算一遍相关度 → 27 × 27 = 729 次；字数翻倍到 54 → 54 × 54 = 2916 次（<strong>4 倍</strong>）。这就是长文本又慢又贵、按 token 收费的根因。</p>
+  <div class="demo" data-demo="k4-8-attention">
+    <div class="demo-head">
+      <span class="demo-title">3 个词、每个词 4 维：手算注意力矩阵</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">vectors = [
+    [1, 0, 0, 1],   # 词 1
+    [0, 1, 1, 0],   # 词 2
+    [1, 1, 0, 0],   # 词 3
+]
+names = ["我", "爱", "你"]
+
+print("注意力矩阵（每个词对每个词的相关度）：")
+print("      " + "".join("%6s" % n for n in names))
+
+count = 0
+for i in range(len(vectors)):             # 外层：每个词
+    row = []
+    for j in range(len(vectors)):         # 内层：和每个词算一次
+        score = 0
+        for k in range(len(vectors[i])):  # 最内层：点积
+            score += vectors[i][k] * vectors[j][k]
+        row.append(score)
+        count += 1
+    print("  %2s  " % names[i] + "".join("%6d" % v for v in row))
+
+print("总共执行了 %d 次点积 = 3 x 3" % count)
+print("三层嵌套一共 %d 次乘法 = 3 x 3 x 4" % (3 * 3 * 4))</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+注意力矩阵（每个词对每个词的相关度）：
+           我     爱     你
+   我       2     0     1
+   爱       0     2     1
+   你       1     1     2
+总共执行了 9 次点积 = 3 x 3
+三层嵌套一共 36 次乘法 = 3 x 3 x 4
+</pre></div>
+  </div>
+  <div class="sumline">✅ <b>本节小结</b>：<strong>嵌套循环 = 每个元素都要和所有元素算一遍，计算量按平方增长</strong>。Transformer 的注意力矩阵就是这么算出来的——这就是"长文本贵"的数学原因。</div>
+  <div class="vid">
+    <span class="vtag">配套视频</span>
+    <a href="https://www.bilibili.com/video/BV1nogs6qEZn/" target="_blank" rel="noopener">从词向量到 Transformer：AI 大模型背后的原理</a>
+    <span class="vmeta">B站 · 动画讲解 · 帮助理解"注意力"在算什么</span>
+  </div>
+</section>
+
+<!-- ===== 模块五：交互演示 ===== -->
+<section id="lab">
+  <div class="sec-head">
+    <div class="sec-num">五</div>
+    <div>
+      <h2>交互演示区</h2>
+      <p class="sec-sub">改参数、点按钮，立刻看结果 · 浏览器内 JS 模拟（已与 Python 运行结果逐一对齐）</p>
+    </div>
+  </div>
+
+  <div class="inter">
+    <h4>演示 1：成绩等级判定（多分支）</h4>
+    <div class="inter-row">
+      <label>成绩 <input id="sc-in" type="number" value="85"></label>
+      <button class="inter-btn" id="sc-btn" type="button">判定</button>
+    </div>
+    <div class="inter-out" id="sc-out">点"判定"：先试 85，再试试 101、-1、80、79、60、59。</div>
+  </div>
+
+  <div class="inter">
+    <h4>演示 2：BMI 判定（单边比较链）</h4>
+    <div class="inter-row">
+      <label>体重 kg <input id="bmi-w" type="number" value="70" step="0.1"></label>
+      <label>身高 m <input id="bmi-h" type="number" value="1.70" step="0.01"></label>
+      <button class="inter-btn" id="bmi-btn" type="button">计算</button>
+    </div>
+    <div class="inter-out" id="bmi-out">试试 70 / 1.70（结果是"过重"），再试 55 / 1.65。</div>
+  </div>
+
+  <div class="inter">
+    <h4>演示 3：素数判断（for-else）</h4>
+    <div class="inter-row">
+      <label>整数 n <input id="pr-in" type="number" value="91"></label>
+      <button class="inter-btn" id="pr-btn" type="button">判断</button>
+    </div>
+    <div class="inter-out" id="pr-out">试 17（素数）、91（= 7 × 13）、97、1。</div>
+  </div>
+
+  <div class="inter">
+    <h4>演示 4：九九乘法表（嵌套循环）</h4>
+    <div class="inter-row">
+      <label>最大行数 <input id="mt-in" type="number" value="9" min="1" max="9"></label>
+      <button class="inter-btn" id="mt-btn" type="button">生成</button>
+    </div>
+    <div class="inter-out" id="mt-out">把 9 改成 3 看看前 3 行长什么样。</div>
+  </div>
+
+  <div class="inter">
+    <h4>演示 5：while 训练迭代（AI-2）</h4>
+    <div class="inter-row">
+      <label>x <input id="tr-x" type="number" value="2" step="0.5"></label>
+      <label>y_true <input id="tr-y" type="number" value="10" step="0.5"></label>
+      <label>学习率 lr <input id="tr-lr" type="number" value="0.1" step="0.05"></label>
+      <label>误差阈值 <input id="tr-th" type="number" value="0.01" step="0.01"></label>
+      <button class="inter-btn" id="tr-btn" type="button">开始训练</button>
+    </div>
+    <div class="inter-out" id="tr-out">默认参数会在 14 轮后收敛到 w ≈ 5.0。把学习率改成 0.05 试试，轮数会明显变多。</div>
+  </div>
+
+  <div class="note">这 5 个面板的逻辑与页面上对应的 Python 代码<strong>完全一致</strong>，只是用 JavaScript 重写以便在网页上直接运行；每一段的输出都与 Python 实跑结果对过账。</div>
+</section>
+
+<!-- ===== 小结 · 易错 · 作业 ===== -->
+<section id="summary">
+  <div class="sec-head">
+    <div class="sec-num">结</div>
+    <div>
+      <h2>知识点总结卡 · 易错清单 · 作业</h2>
+      <p class="sec-sub">Summary · 学生速查 / 可打印</p>
+    </div>
+  </div>
+
+  <h3>选择结构总结卡</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>结构</th><th>写法</th><th>何时用</th><th>一句话</th></tr></thead>
+      <tbody>
+        <tr><td>单分支</td><td><code class="inline">if 条件:</code></td><td>满足才做，不满足就算了</td><td>一条路，可选</td></tr>
+        <tr><td>双分支</td><td><code class="inline">if 条件: … else: …</code></td><td>二选一</td><td>else 后面不写条件</td></tr>
+        <tr><td>多分支</td><td><code class="inline">if / elif / else</code></td><td>三选一以上</td><td>条件从严到宽，命中即停</td></tr>
+        <tr><td>嵌套</td><td>if 里套 if</td><td>判断有先后依赖</td><td>能 elif 就别嵌套</td></tr>
+        <tr><td>三元</td><td><code class="inline">a if 条件 else b</code></td><td>简单二选一赋值</td><td>只装得下一行才用</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>循环结构总结卡</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>结构</th><th>写法</th><th>何时用</th><th>一句话</th></tr></thead>
+      <tbody>
+        <tr><td>while</td><td><code class="inline">while 条件:</code></td><td>次数未知</td><td>初值 / 条件 / 更新，缺一不可</td></tr>
+        <tr><td>for</td><td><code class="inline">for i in 序列:</code></td><td>次数已知、遍历</td><td>计数交给 Python，不会死循环</td></tr>
+        <tr><td>range</td><td><code class="inline">range(start, stop, step)</code></td><td>生成整数序列</td><td>含头不含尾，步长默认 1</td></tr>
+        <tr><td>break</td><td>满足条件即跳出</td><td>提前结束</td><td>多重循环只跳一层</td></tr>
+        <tr><td>continue</td><td>跳过本轮剩余</td><td>跳过个别数据</td><td>while 里别跳过递增语句</td></tr>
+        <tr><td>else</td><td>挂在循环后</td><td>"跑完了吗"</td><td>有 break 就没 else</td></tr>
+        <tr><td>嵌套</td><td>循环里套循环</td><td>图形、矩阵</td><td>总次数 = n × m</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>本章语法 ↔ AI 概念对照卡</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>本章语法</th><th>AI 里的对应物</th><th>本页演示</th></tr></thead>
+      <tbody>
+        <tr><td>if / elif / else</td><td>决策树的节点与路径</td><td>AI-1</td></tr>
+        <tr><td>嵌套 if</td><td>随机森林里的多棵树</td><td>AI-1</td></tr>
+        <tr><td>while</td><td>训练迭代（epoch 循环）</td><td>AI-2</td></tr>
+        <tr><td>for</td><td>遍历数据集（一个 epoch）</td><td>AI-3</td></tr>
+        <tr><td>累加器 + 除法</td><td>准确率 accuracy</td><td>AI-3</td></tr>
+        <tr><td>range 的步长</td><td>批大小 batch size</td><td>AI-4</td></tr>
+        <tr><td>break</td><td>Early Stopping 早停</td><td>AI-5</td></tr>
+        <tr><td>continue</td><td>跳过脏数据（dropna）</td><td>AI-6</td></tr>
+        <tr><td>循环 else</td><td>"训练是否完整跑完"</td><td>AI-7</td></tr>
+        <tr><td>嵌套循环</td><td>注意力矩阵（计算量平方增长）</td><td>AI-8</td></tr>
+        <tr><td>猜数字的"猜—反馈—修正"</td><td>RLHF 人类反馈强化学习</td><td>§3.3</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>易错清单（巡机速查）</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>编号</th><th>症状</th><th>原因</th><th>一句话诊断</th></tr></thead>
+      <tbody>
+        <tr><td>E-01</td><td><code class="inline">IndentationError</code></td><td>缩进不一致</td><td>空格和 Tab 混用了</td></tr>
+        <tr><td>E-02</td><td>逻辑悄悄错了，不报错</td><td>缩进层级写偏</td><td>看 print 应该在第几层</td></tr>
+        <tr><td>E-03</td><td><code class="inline">SyntaxError</code> 指向 else</td><td>else 后面写了条件</td><td>else 不跟条件</td></tr>
+        <tr><td>E-04</td><td>高分被判低等级</td><td>elif 顺序从宽到严</td><td>严格条件要放前面</td></tr>
+        <tr><td>E-05</td><td>程序停不下来</td><td>循环体里没更新循环变量</td><td>补上 <code class="inline">i = i + 1</code></td></tr>
+        <tr><td>E-06</td><td>累加结果只剩最后一个数</td><td><code class="inline">total = 0</code> 写进了循环体</td><td>清零要放在循环外</td></tr>
+        <tr><td>E-07</td><td>range 少跑一次</td><td>忘了 stop 取不到</td><td>数到 n 就写 n+1</td></tr>
+        <tr><td>E-08</td><td><code class="inline">ValueError: range() arg 3 must not be zero</code></td><td>步长写了 0</td><td>步长不能为 0</td></tr>
+        <tr><td>E-09</td><td>break 只跳出一层</td><td>只作用于所属层</td><td>需要多层退出用标志变量</td></tr>
+        <tr><td>E-10</td><td>continue 后死循环</td><td>while 里跳过了递增语句</td><td>递增写在 continue 之前</td></tr>
+        <tr><td>E-11</td><td>else 子句不执行</td><td>循环里执行了 break</td><td>有 break 就没 else</td></tr>
+        <tr><td>E-12</td><td>还没分等级就报错</td><td>把 <code class="inline">=</code> 写成 <code class="inline">==</code>，或括号没配平</td><td>看报错指的那一行</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>课后作业</h3>
+  <div class="homework">
+    <h4>必做（下次课课前检查）</h4>
+    <ol>
+      <li>求 1—100 之间 <strong>5 的倍数</strong>的累加和（答案应为 <strong>1050</strong>，用两种写法各做一遍）。</li>
+      <li>求个人所得税（简化三档，<strong>单位万元</strong>），至少测试 3.6、14.4 两个边界值。</li>
+    </ol>
+    <h4>加分题</h4>
+    <ul>
+      <li>把本章任意一个例子改成 <code class="inline">while True + break</code> 的写法，并说明改了什么、为什么。</li>
+    </ul>
+  </div>
+
+  <h3>课堂自测（8 题 · 5 分钟）</h3>
+  <ol>
+    <li><code class="inline">range(1, 10)</code> 产生几个数？</li>
+    <li><code class="inline">list(range(0, 5, 2))</code> 的结果是什么？</li>
+    <li>while 的三要素是什么？</li>
+    <li><code class="inline">break</code> 和 <code class="inline">continue</code> 的区别是什么？</li>
+    <li>循环的 <code class="inline">else</code> 什么时候执行？</li>
+    <li><code class="inline">for i in range(3): for j in range(4)</code> 一共循环几次？</li>
+    <li>成绩 85 分，按"先判断 ≥60 再判断 ≥80"的顺序写，结果是什么？</li>
+    <li>1—100 的奇数和是多少？</li>
+  </ol>
+  <details class="recap">
+    <summary style="cursor:pointer;font-weight:700;color:var(--blue-deep);">查看 8 题答案</summary>
+    <ol style="margin-top:10px;">
+      <li>9 个（1 到 9，stop 取不到）</li>
+      <li><code class="inline">[0, 2, 4]</code></li>
+      <li>初值、条件、更新</li>
+      <li>break 结束整个循环；continue 只跳过本轮</li>
+      <li>循环自然结束（没有遇到 break）时执行</li>
+      <li>12 次（3 × 4）</li>
+      <li>B（错的，应该是 A —— 宽条件在前，85 ≥ 60 先命中）</li>
+      <li>2500</li>
+    </ol>
+  </details>
+
+  <div class="recap">
+    <h4 style="margin-top:0;">备课提醒：本讲课件（PPT）需要注意的几处</h4>
+    <ul>
+      <li><strong>S01 目录页</strong>写的是第 2 章内容，讲课时跳过，用 S03/S04 开场。</li>
+      <li><strong>S04 与 S16 有两套章节编号</strong>（S04：3.1 顺序 / 3.2 选择 / 3.3 循环；S16：3.1 选择 / 3.2 循环），以 S04 为准。</li>
+      <li><strong>S10 的三角形题</strong>要求"重复执行 5 次"，但循环到 S17 才讲——建议移到上机一，本页已按此安排。</li>
+      <li><strong>例题编号有重复</strong>：S10 与 S37 都叫例 3-3，S24 与 S28 都叫例 3-7，讲课时说清楚"两个 3-3"。S23 是空页，直接跳过。</li>
+      <li><strong>S29 / S34 的代码里混入了中文全角引号</strong>（如 <code class="inline">print(i,end=’,’)</code>），复制到 IDLE 会直接 <code class="inline">SyntaxError</code>——让学生手打，不要复制。</li>
+      <li><strong>S42 的个税题</strong>："调佣函数"应为"调用函数"；单位是万元但没标注；且真实个税是七级超额累进，这里是<strong>简化三档</strong>，不要拿去真算工资。</li>
+    </ul>
+  </div>
+
+  <div class="warn"><strong>学时提示</strong>：本章共 21 个知识点 + 9 个综合案例，按"讲授 2 学时 + 上机 4 学时"排，讲授环节大约缺 1 学时。建议把"顺序结构 + 单分支 + 三元表达式"下放为自学 + 上机验证，或把综合应用只精讲"猜数字四连 + 登录系统"两例，其余留作作业。</div>
+
+  <h3>下讲预告</h3>
+  <a class="nextcard" href="python-bigdata-2026.html">
+    <div>
+      <div class="nc-title">第 4 次课 · 第 4 章 组合数据结构</div>
+      <div class="nc-desc">列表 · 元组 · 字符串 · 集合 · 字典 · 序列的切片与通用操作</div>
+    </div>
+    <span class="nc-go">回到课程主页查看课次 →</span>
+  </a>
+</section>
+
+</main>
+
+<footer>
+  <div class="f-main">中华女子学院 · Python大数据分析基础</div>
+  <div>第 3 次课 · 第 3 章 程序控制结构 · 6 学时（讲授 2 + 上机 4）· 授课人：孙琪翔</div>
+  <div style="margin-top:6px;font-size:12px;opacity:.7;">本页依据课程课件《3-程序控制结构》与《Python 编程与数据分析基础》（陈洁、刘姝，清华大学出版社）第 3 章整理；页面中 42 段示例代码全部实际运行后回填结果。</div>
+  <div style="margin-top:12px;font-size:14px;">
+    <a href="python-bigdata-2026.html">课程主页</a>
+    <span style="opacity:.45;margin:0 8px;">|</span>
+    <a href="python-bigdata-2026-lesson1.html">第1次课 · 课程介绍与Python概述</a>
+    <span style="opacity:.45;margin:0 8px;">|</span>
+    <a href="python-bigdata-2026-lesson2.html">第2次课 · Python语言基础</a>
+  </div>
+</footer>
+
+<button id="toTop" title="回到顶部">↑</button>
+
+<script>
+/* ===== 演示代码：复制 / 重放运行结果 ===== */
+document.addEventListener('DOMContentLoaded', function () {
+  document.querySelectorAll('.btn-copy').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var box = btn.closest('.demo');
+      var pre = box ? box.querySelector('pre.code') : null;
+      if (!pre) return;
+      var text = pre.textContent;
+      var done = function () {
+        var old = btn.textContent;
+        btn.textContent = '已复制 ✓';
+        btn.classList.add('ok');
+        setTimeout(function () { btn.textContent = old; btn.classList.remove('ok'); }, 1500);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done, function () { fallback(text, done); });
+      } else { fallback(text, done); }
+    });
+  });
+  function fallback(text, done) {
+    var ta = document.createElement('textarea');
+    ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); done(); } catch (e) {}
+    document.body.removeChild(ta);
+  }
+
+  /* "运行"：把已经实测过的输出逐行重放一遍，模拟程序执行过程 */
+  document.querySelectorAll('.btn-run').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var box = btn.closest('.demo');
+      if (!box) return;
+      var out = box.querySelector('pre.out');
+      if (!out) return;
+      var full = out.getAttribute('data-full') || out.textContent;
+      out.setAttribute('data-full', full);
+      var lines = full.replace(/\n$/, '').split('\n');
+      out.textContent = '';
+      box.classList.add('flash');
+      var i = 0;
+      (function step() {
+        if (i >= lines.length) { box.classList.remove('flash'); return; }
+        out.textContent += lines[i++] + '\n';
+        setTimeout(step, 80);
+      })();
+    });
+  });
+});
+
+/* ===== 交互演示（与对应 Python 代码逻辑一致） ===== */
+function setOut(id, text) { document.getElementById(id).textContent = text; }
+function num(id, dflt) {
+  var v = parseFloat(document.getElementById(id).value);
+  return isNaN(v) ? dflt : v;
+}
+
+/* 演示 1：成绩等级 */
+function levelOf(s) {
+  if (s > 100 || s < 0) return '输入错误，成绩必须在 0 到 100 之间';
+  if (s >= 80) return 'A';
+  if (s >= 60) return 'B';
+  return 'C';
+}
+document.getElementById('sc-btn').addEventListener('click', function () {
+  var s = num('sc-in', 0);
+  var text = '>>> score = ' + s + '\n成绩等级： ' + levelOf(s);
+  if (s > 100 || s < 0) text += '\n（提示：合法性检查放在第一个 if，所以 101 和 -1 都被拦住了）';
+  setOut('sc-out', text);
+});
+
+/* 演示 2：BMI 判定 */
+document.getElementById('bmi-btn').addEventListener('click', function () {
+  var w = num('bmi-w', 70), h = num('bmi-h', 1.70);
+  if (h <= 0) { setOut('bmi-out', '身高必须大于 0'); return; }
+  var bmi = w / (h * h);
+  var r;
+  if (bmi < 18.5) r = '过轻';
+  else if (bmi < 24) r = '正常';
+  else if (bmi < 28) r = '过重';
+  else r = '肥胖';
+  setOut('bmi-out', 'BMI = ' + bmi.toFixed(2) + '\n判定： ' + r +
+    '\n（用的是单边比较链：<18.5 / <24 / <28，区间不会漏）');
+});
+
+/* 演示 3：素数判断（对应 for-else 版本） */
+document.getElementById('pr-btn').addEventListener('click', function () {
+  var n = Math.floor(num('pr-in', 0));
+  if (n <= 1) { setOut('pr-out', '请输入大于 1 的整数'); return; }
+  var isPrime = true, lines = [];
+  for (var i = 2; i <= Math.floor(Math.sqrt(n)); i++) {
+    if (n % i === 0) { isPrime = false; lines.push('发现因子 ' + i + '：' + n + ' = ' + i + ' × ' + (n / i)); break; }
+  }
+  lines.push(n + (isPrime ? ' 是素数' : ' 不是素数'));
+  lines.push(isPrime ? '（循环自然结束，走到 else 分支 → 是素数）' : '（循环里执行了 break，else 分支不执行）');
+  setOut('pr-out', lines.join('\n'));
+});
+
+/* 演示 4：九九乘法表 */
+document.getElementById('mt-btn').addEventListener('click', function () {
+  var n = Math.floor(num('mt-in', 9));
+  n = Math.max(1, Math.min(9, n));
+  var rows = [];
+  for (var i = 1; i <= n; i++) {
+    var line = [];
+    for (var j = 1; j <= i; j++) line.push(j + ' × ' + i + ' = ' + (i * j));
+    rows.push(line.join('    '));
+  }
+  setOut('mt-out', rows.join('\n'));
+});
+
+/* 演示 5：while 训练迭代 */
+document.getElementById('tr-btn').addEventListener('click', function () {
+  var x = num('tr-x', 2), y = num('tr-y', 10), lr = num('tr-lr', 0.1), th = num('tr-th', 0.01);
+  if (x === 0) { setOut('tr-out', 'x 不能为 0（否则 w * x 永远是 0，学不出来）'); return; }
+  var w = 1.0, epoch = 0, lines = [];
+  while (Math.abs(w * x - y) > th && epoch < 500) {
+    var pred = w * x;
+    w = w - lr * (pred - y) * x;
+    epoch++;
+    lines.push('第 ' + epoch + ' 轮：w = ' + w.toFixed(4) + '，预测值 = ' + (w * x).toFixed(4) + '，误差 = ' + Math.abs(w * x - y).toFixed(4));
+  }
+  lines.push('收敛！共训练 ' + epoch + ' 轮，最终 w = ' + w.toFixed(4) + '（理论答案 ' + (y / x).toFixed(1) + '）');
+  setOut('tr-out', lines.join('\n'));
+});
+
+/* ===== 知识树交互 ===== */
+function jumpTarget(id) { var el = document.getElementById(id); if (el) el.scrollIntoView({ behavior: 'smooth' }); }
+document.addEventListener('DOMContentLoaded', function () {
+  document.querySelectorAll('#knowledgeTree .tn.branch').forEach(function (el) {
+    el.addEventListener('click', function (e) {
+      var link = e.target.closest('.golink');
+      if (link) { jumpTarget(link.getAttribute('data-target')); return; }
+      var kids = el.nextElementSibling;
+      if (kids && kids.classList.contains('kids')) { kids.classList.toggle('show'); el.classList.toggle('open'); }
+    });
+  });
+  document.querySelectorAll('#knowledgeTree .tn.leaf').forEach(function (el) {
+    el.addEventListener('click', function () { jumpTarget(el.getAttribute('data-target')); });
+  });
+});
+
+/* ===== 导航滚动高亮 ===== */
+document.addEventListener('DOMContentLoaded', function () {
+  var navLinks = {};
+  document.querySelectorAll('#nav a[data-sec]').forEach(function (a) { navLinks[a.getAttribute('data-sec')] = a; });
+  var sections = ['guide', 'c1', 'c2', 'c3', 'c4', 'lab', 'summary'];
+  if ('IntersectionObserver' in window) {
+    var obs = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        if (en.isIntersecting) {
+          document.querySelectorAll('#nav a').forEach(function (a) { a.classList.remove('on'); });
+          var a = navLinks[en.target.id];
+          if (a) a.classList.add('on');
+        }
+      });
+    }, { rootMargin: '-15% 0px -70% 0px' });
+    sections.forEach(function (s) { var el = document.getElementById(s); if (el) obs.observe(el); });
+  }
+});
+
+/* ===== 回到顶部 ===== */
+document.addEventListener('DOMContentLoaded', function () {
+  var toTop = document.getElementById('toTop');
+  window.addEventListener('scroll', function () {
+    if (window.scrollY > 600) toTop.classList.add('show');
+    else toTop.classList.remove('show');
+  });
+  toTop.addEventListener('click', function () { window.scrollTo({ top: 0, behavior: 'smooth' }); });
+});
+</script>
+</body>
+</html>
