@@ -152,7 +152,9 @@ pre.code .c-str{color:#a5d6a5;}
 pre.code .c-num{color:#79c0ff;}
 pre.code .c-fn{color:#d2a8ff;}
 pre.code .c-com{color:#8b949e;font-style:italic;}
-.demo-out{border-top:1px solid #2e3142;background:#12141c;padding:0 0 10px;}
+/* 运行结果默认隐藏：点"运行"才显示（与第 2 次课页面一致） */
+.demo-out{display:none;border-top:1px solid #2e3142;background:#12141c;padding:0 0 10px;}
+.demo.shown .demo-out{display:block;}
 .out-label{font-size:12px;color:#6b7288;letter-spacing:1px;padding:8px 18px 4px;border-bottom:1px solid #232634;}
 pre.out{
   font-family:"Times New Roman","宋体",SimSun,serif;font-size:15px;line-height:1.7;
@@ -2131,6 +2133,8 @@ document.addEventListener('DOMContentLoaded', function () {
       if (!out) return;
       var full = out.getAttribute('data-full') || out.textContent;
       out.setAttribute('data-full', full);
+      box.classList.add('shown');          /* 首次点击才把结果区显示出来 */
+      btn.textContent = '▶ 重新运行';
       var lines = full.replace(/\n$/, '').split('\n');
       out.textContent = '';
       box.classList.add('flash');

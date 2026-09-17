@@ -217,6 +217,13 @@ pre.out{font-family:"Times New Roman","宋体",SimSun,serif;font-size:15px;line-
 .map-card .mc-desc{font-size:14px;color:var(--ink-soft);line-height:1.7;}
 /* 上节回顾 */
 .recap{background:#faf7f0;border:1px solid var(--line-soft);border-radius:12px;padding:16px 20px;margin:14px 0;}
+/* 本节小结 */
+.sumline{
+  background:var(--green-soft);border:1px solid #cfe6d1;border-left:5px solid var(--green);
+  border-radius:10px;padding:12px 18px;margin:16px 0 6px;font-size:15px;color:#215c26;line-height:1.85;
+}
+.sumline b{color:#1b4d1f;}
+.sumline code.inline{background:#fff;border-color:#cfe6d1;color:#215c26;}
 /* 配套资料入口 */
 .nextcard{
   display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;
@@ -560,6 +567,8 @@ print("正确答案 w = 5.0")</pre>
     <div class="demo-out hidden" id="out-d21-7"><div class="out-label">程序输出</div><pre class="out"></pre></div>
   </div>
   <div class="key">核心洞察：AI的学习 = 变量 w 被反复赋值。没有循环、没有AI库，只有<strong>赋值 + 算术</strong>。思考：如果学习率 lr 太大或太小，会发生什么？</div>
+
+  <div class="sumline">✅ <b>本节小结</b>：<strong>变量是"便利贴"，不是"盒子"</strong>——它存的是值的地址，重新赋值就是换一张便利贴。命名记四条：字母/数字/下划线、<strong>数字不开头</strong>、区分大小写、不用关键字与内置函数名。变量类型跟着值走（动态类型），<code class="inline">age = 18</code> 之后写 <code class="inline">age = "十八"</code> 不会报错，但会让人看不懂。<strong>先赋值后使用</strong>，否则 <code class="inline">NameError</code>。</div>
 </section>
 <!-- ===== 2.2 运算符与表达式 ===== -->
 <section id="s22">
@@ -777,6 +786,8 @@ result = loan_approve(25, 8000, 700, True)
 print("审批结果：", "通过" if result else "拒绝")</pre>
     <div class="demo-out hidden" id="out-d22-8"><div class="out-label">程序输出</div><pre class="out"></pre></div>
   </div>
+
+  <div class="sumline">✅ <b>本节小结</b>：① <code class="inline">//</code> 是<strong>向下取整</strong>、<code class="inline">%</code> 的余数符号<strong>跟除数一致</strong>：<code class="inline">-7 // 2 = -4</code>、<code class="inline">-7 % 2 = 1</code>（不是 -3 和 -1）；② <code class="inline">and</code> / <code class="inline">or</code> 返回的是<strong>操作数本身</strong>而不是 True/False：<code class="inline">0 or 'x'</code> 得到 <code class="inline">'x'</code>；③ 它们<strong>惰性求值</strong>：<code class="inline">False and 1/0</code> 不报错，因为右边压根没算；④ 优先级记不住就<strong>加括号</strong>。</div>
 </section>
 <!-- ===== 2.3 数据类型 ===== -->
 <section id="s23">
@@ -980,6 +991,8 @@ type({1, 2, 3})          # 集合 set</pre>
     <span class="ai-tag">AI渗透 · AI-05</span><strong>Prompt = 字符串</strong><br>
     你给AI的提示词Prompt，本质就是一个<strong>字符串</strong>。AI接收字符串、输出字符串；字符串拼接 = 组合Prompt，字符串替换 = 修改Prompt参数。
   </div>
+
+  <div class="sumline">✅ <b>本节小结</b>：本章打交道的就四类——int、float、str、bool。<strong>转换要防坑</strong>：<code class="inline">int('3.5')</code> 直接报 <code class="inline">ValueError</code>，得先 <code class="inline">float('3.5')</code> 再取整；<strong>bool 是 int 的子类</strong>，所以 <code class="inline">True + 1</code> 等于 <code class="inline">2</code>；字符串用引号定界，可以用索引和切片取子串——<strong>含头不含尾</strong>，<code class="inline">'abc'[0:2]</code> 得到 <code class="inline">ab</code>，<code class="inline">'abc'[-1]</code> 得到 <code class="inline">c</code>。</div>
 </section>
 <!-- ===== 2.4 内置函数 ===== -->
 <section id="s24">
@@ -1057,6 +1070,8 @@ pow(2, 10)           # 幂运算</pre>
 <pre class="code">help(round)    # 查看round函数的帮助信息</pre>
     <div class="demo-out hidden" id="out-d24-3"><div class="out-label">程序输出</div><pre class="out"></pre></div>
   </div>
+
+  <div class="sumline">✅ <b>本节小结</b>：函数的调用格式永远是 <strong>函数名(参数)</strong>；本章高频的是 type / len / print / input / int / float / str / bool / abs / round / max / min。<strong>help() 是最好的老师</strong>——不会用的先 <code class="inline">help(函数名)</code>，再问人。最容易翻车的一条：<strong>别用内置函数名当变量名</strong>，写了 <code class="inline">sum = 0</code> 之后，<code class="inline">sum([1,2,3])</code> 就再也用不了了。</div>
 </section>
 
 <!-- ===== 2.5 基本输入输出 ===== -->
@@ -1257,6 +1272,8 @@ print(prompt)</pre>
     </div>
     <div class="demo-out hidden" id="out-prompt"><div class="out-label">生成的Prompt</div><pre class="out"></pre></div>
   </div>
+
+  <div class="sumline">✅ <b>本节小结</b>：<strong><code class="inline">input()</code> 拿到的一定是字符串</strong>——这是零基础第一号错误源，要数字就得用 <code class="inline">int()</code> / <code class="inline">float()</code> 转换；<code class="inline">print()</code> 用 <code class="inline">sep</code> 控制分隔、<code class="inline">end</code> 控制结尾；格式化三种写法里 <strong>f-string 最推荐</strong>，<code class="inline">f"{score:.2f}"</code> 顺手就把小数位控制住了。</div>
 </section>
 <!-- ===== 2.6 模块的使用 ===== -->
 <section id="s26">
@@ -1399,6 +1416,8 @@ print(word)</pre>
     </div>
     <div class="demo-out hidden" id="out-wordgen"><div class="out-label">程序输出</div><pre class="out"></pre></div>
   </div>
+
+  <div class="sumline">✅ <b>本节小结</b>：模块 = 别人写好的工具箱，用之前必须<strong>先导入</strong>。三种方式：<code class="inline">import 模块名</code>（调用要写 <code class="inline">模块名.函数()</code>）、<code class="inline">from 模块名 import 函数名</code>（直接写函数名）、<code class="inline">import 模块名 as 别名</code>（名字太长时用）。本课最常用 <code class="inline">random.randint()</code> 与 <code class="inline">math.sqrt()</code>；<strong>随机数每次运行结果不同是正常的</strong>，想复现就固定随机种子。</div>
 </section>
 
 <!-- ===== 2.7 综合应用 ===== -->
@@ -1582,6 +1601,8 @@ print(f"健康建议：{advice}")</pre>
       </tbody>
     </table>
   </div>
+
+  <div class="sumline">✅ <b>本节小结</b>：综合题的标准骨架只有四步——<strong>输入 → 转换类型 → 计算 → 输出</strong>。本章所有例子（闰年判断、表达式求值、圆面积、猜数字、BMI）都是这个骨架套不同公式。检验自己有没有真懂：把输入的数字换成任意一个，能不能提前说出输出是什么？</div>
 </section>
 <!-- ===== 本章小结 ===== -->
 <section id="summary">
@@ -1592,6 +1613,8 @@ print(f"健康建议：{advice}")</pre>
       <p class="sec-sub">Summary · 7大模块知识图谱 + 10个高频错误 + 课后任务</p>
     </div>
   </div>
+
+  <div class="sumline">✅ <b>本课三句话收尾</b>：① <strong>变量是便利贴，不是盒子</strong>（存的是地址，不是值）；② <strong><code class="inline">input()</code> 拿到的一定是字符串</strong>（"1020" 这个坑记一学期）；③ <strong>加括号不丢人</strong>——AI 最核心的那行代码也只有加减乘。</div>
 
   <h3>7大模块知识图谱</h3>
   <div class="tbl-wrap summary-tbl">
