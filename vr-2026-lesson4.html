@@ -136,7 +136,7 @@
         <tr><td>T6</td><td>指出本项目采用的三种屋顶形制，并说出自定义几何体需要提供哪三组数组</td><td>提问</td></tr>
         <tr><td>T7</td><td>读出自己机器上的 FPS / DrawCalls / 三角面，并判断瓶颈在哪里</td><td>记录表</td></tr>
         <tr><td>T8</td><td>说出"snap turn 与传送"为什么比"持续平移与连续旋转"更舒适</td><td>提问</td></tr>
-        <tr><td>T9</td><td>完成课堂作业的三项改造（两项必做 + 一项选做）</td><td>课堂验收</td></tr>
+        <tr><td>T9</td><td>完成六项课堂任务（跑通最小场景 / 比例校核 / 新增构件 / 光照实验 / 性能实验 / 真机观察与分发）</td><td>两轮举手验收</td></tr>
         <tr><td>T10</td><td>说出 VR 里退出会话的三条路径，并解释为什么"在网页上放一个普通按钮"在沉浸模式下不管用</td><td>提问 + 演示</td></tr>
       </tbody>
     </table>
@@ -1159,7 +1159,7 @@ npx serve -l 8080</pre>
     <div class="sec-num">实</div>
     <div>
       <h2>课堂实操与成果验收</h2>
-      <p class="sec-sub">六项课堂任务（逐项有操作步骤与验收点）+ 三张规定截图 + 两轮举手验收 + 一张记录表</p>
+      <p class="sec-sub">六项课堂任务（逐项有操作步骤与验收点，<strong>不卡时间、做完为止</strong>）+ 三张规定截图 + 两轮举手验收 + 一张记录表</p>
     </div>
   </div>
 
@@ -1182,7 +1182,7 @@ npx serve -l 8080</pre>
 
   <h3>三、六项课堂任务（逐项都有操作步骤与验收点）</h3>
 
-  <h4>任务 1 · 跑通最小场景并改一处（0:30—0:50 内的 10 分钟）</h4>
+  <h4>任务 1 · 跑通最小场景并改一处（参考 10 分钟，不卡时间）</h4>
   <p><strong>做什么</strong>：把 2.5 节的 30 行代码存成 <code class="inline">hello-webxr.html</code>，与 <code class="inline">three.min.js</code> 放在同一目录，然后改一处参数。</p>
   <ol>
     <li>新建文件夹 <code class="inline">学号-姓名</code>，把两个文件放进去（<strong>必须同目录</strong>）；</li>
@@ -1193,7 +1193,7 @@ npx serve -l 8080</pre>
   <div class="note"><strong>验收点（必须三条全中）</strong>：① 画面里能看到一个球，且大小/颜色是你改过的；② 控制台无红字；③ 你能说出"<strong>按钮为什么显示不支持</strong>"——因为 <code class="inline">file://</code> 不是安全上下文。</div>
   <div class="warn"><strong>常见错误</strong>：文件不在同一目录（报 404）；双击后改了文件却没刷新（浏览器缓存）；把半径写在材质里（改错对象）。</div>
 
-  <h4>任务 2 · 比例校核：改一处真实尺寸（1:00—1:20，20 分钟）</h4>
+  <h4>任务 2 · 比例校核：改一处真实尺寸（参考 20 分钟，不卡时间）</h4>
   <p><strong>做什么</strong>：打开故宫场景源码，找一处尺寸，<strong>查证它的真实数值</strong>，把代码改成真实值，并写下依据。</p>
   <ol>
     <li>选一处构件：台基高度 / 台阶层数 / 柱子高度 / 围墙高度 / 屋顶高度，任选一处；</li>
@@ -1205,7 +1205,7 @@ npx serve -l 8080</pre>
   <div class="note"><strong>验收点</strong>：① 改动肉眼可见；② 依据写清了来源（不是"我觉得"）；③ 能回答"这个改动属于几何、材质还是位置？"<br><strong>参考量级</strong>：太和殿总高约 35 m，三层台基 2.4 / 2.8 / 3.5 m，午门城台约 11 m，围墙约 6.5 m。</div>
   <div class="warn"><strong>常见错误</strong>：改的数值被别处覆盖（同一个尺寸在代码里出现多次）；改了但忘了记改前值；把"屋顶高度"和"建筑总高"混为一谈。</div>
 
-  <h4>任务 3 · 新增一组构件（1:20—1:32，12 分钟）</h4>
+  <h4>任务 3 · 新增一组构件（参考 12 分钟，不卡时间）</h4>
   <p><strong>做什么</strong>：在场景里<strong>加入一组原来没有的东西</strong>，并用一句话说清它怎么做的。</p>
   <ol>
     <li>从这五样里选一样：<strong>灯笼 / 望柱 / 栏板 / 甬道 / 导览牌</strong>（也可以做一面照壁）；</li>
@@ -1216,7 +1216,16 @@ npx serve -l 8080</pre>
   <div class="note"><strong>验收点</strong>：① 新构件在场景里看得见、位置合理；② 能说出<strong>用了什么几何体、什么材质、放在哪个坐标</strong>；③ 没有引入报错。</div>
   <div class="warn"><strong>常见错误</strong>：坐标用错单位（写成厘米，飞到天上）；只复制了代码没加到场景里（忘 <code class="inline">scene.add</code>）；加了但没有父容器，位置对不上。</div>
 
-  <h4>任务 4 · 性能实验：合批到底省了什么（2:36—2:46，10 分钟）</h4>
+  <h4>任务 4 · 光照实验：三个时辰（参考 8 分钟，不卡时间）</h4>
+  <p><strong>做什么</strong>：把"时辰"滑块从 5:00 拉到 21:00，记录三个时刻的画面差异。</p>
+  <ol>
+    <li>分别在 <strong>5:00 / 15:00 / 21:00</strong> 各截一张图（同一个机位，用"广场远眺"）；</li>
+    <li>记录每个时刻的：<strong>色温（暖/冷）、影子长度与方向、灯火有无</strong>；</li>
+    <li>回答：哪些变化属于<strong>光照参数</strong>，哪些属于<strong>材质参数</strong>；21:00 时灯笼为什么没让帧率明显下降。</li>
+  </ol>
+  <div class="note"><strong>验收点</strong>：三行记录填满；能区分"光照参数 vs 材质参数"；能说出"夜间灯火只改材质自发光，不新增光源"。</div>
+
+  <h4>任务 5 · 性能实验：合批到底省了什么（参考 10 分钟，不卡时间）</h4>
   <p><strong>做什么</strong>：用 <a href="assets/vr-2026/webxr/demos/06_性能对比_合批.html" target="_blank" rel="noopener">06 号演示</a>做一次对照实验，抄下 4 个数字。</p>
   <ol>
     <li>把"物体数量"拖到 <strong>3000</strong>，模式选<strong>独立 Mesh</strong>，等半秒，记下 <strong>DrawCall</strong> 与 <strong>三角面</strong>；</li>
@@ -1226,16 +1235,7 @@ npx serve -l 8080</pre>
   </ol>
   <div class="note"><strong>验收点</strong>：① 4 个数字都记下；② 能答出"合批后整体只做一次视锥剔除，远处实例也被一起提交，所以三角面升高"；③ 能说出结论：<strong>Draw Call 比三角面更致命</strong>。<br><strong>实测参考</strong>：3000 个物体时，独立 Mesh 约 <strong>930 次</strong> DrawCall、三角面 18.6k；合批后 <strong>2 次</strong> DrawCall、三角面 60.0k。</div>
 
-  <h4>任务 5 · 光照实验：三个时辰（1:32—1:50 内的 8 分钟）</h4>
-  <p><strong>做什么</strong>：把"时辰"滑块从 5:00 拉到 21:00，记录三个时刻的画面差异。</p>
-  <ol>
-    <li>分别在 <strong>5:00 / 15:00 / 21:00</strong> 各截一张图（同一个机位，用"广场远眺"）；</li>
-    <li>记录每个时刻的：<strong>色温（暖/冷）、影子长度与方向、灯火有无</strong>；</li>
-    <li>回答：哪些变化属于<strong>光照参数</strong>，哪些属于<strong>材质参数</strong>；21:00 时灯笼为什么没让帧率明显下降。</li>
-  </ol>
-  <div class="note"><strong>验收点</strong>：三行记录填满；能区分"光照参数 vs 材质参数"；能说出"夜间灯火只改材质自发光，不新增光源"。</div>
-
-  <h4>任务 6 · 真机观察与分发（1:50—2:36 传看与深测 + 2:51—2:58 部署环节）</h4>
+  <h4>任务 6 · 真机观察与分发（随传看环节完成，下课前补完）</h4>
   <ol>
     <li><strong>传看时</strong>：轮到你戴 → 只转头环视 → 说一句话 → 摘下传下一位；<strong>没轮到也要看投屏</strong>，把看到的不同写进观察卡；</li>
     <li><strong>看/听完 4 位定岗同学的数据</strong>后，把四岗数据抄进观察卡；</li>
@@ -1268,14 +1268,15 @@ npx serve -l 8080</pre>
   <div class="tbl-wrap">
     <table>
       <thead>
-        <tr><th>轮次</th><th>时间</th><th>验什么</th><th>怎么验</th></tr>
+        <tr><th>轮次</th><th>什么时候收</th><th>验什么</th><th>怎么验</th></tr>
       </thead>
       <tbody>
-        <tr><td><strong>第 1 轮</strong></td><td>1:32</td><td>任务 1 + 任务 2</td><td>完成的<strong>举手</strong> → <strong>同桌互检</strong>（按下面 3 条互查）→ 在记录表签字</td></tr>
-        <tr><td><strong>第 2 轮</strong></td><td>2:36</td><td>任务 3 + 4 + 5</td><td>完成的<strong>举手</strong> → 教师<strong>抽验 8 台</strong>（每台约 20 秒）→ 未过的登记课后补</td></tr>
+        <tr><td><strong>第 1 轮</strong></td><td>任务 1—2 <strong>大体做完时</strong>（一般在 PART 3 讲完前后）</td><td>任务 1 + 任务 2</td><td>完成的<strong>举手</strong> → <strong>同桌互检</strong>（按下面 3 条互查）→ 在记录表签字</td></tr>
+        <tr><td><strong>第 2 轮</strong></td><td>任务 3—5 <strong>大体做完时</strong>（一般在性能那一节结束前后）</td><td>任务 3 + 4 + 5</td><td>完成的<strong>举手</strong> → 教师<strong>抽验 8 台</strong>（每台约 20 秒）→ 未过的登记课后补</td></tr>
       </tbody>
     </table>
   </div>
+  <div class="note"><strong>不卡时间</strong>：上面写的"什么时候收"只是时机参考，实际以<strong>完成情况</strong>为准——教师看现场节奏决定什么时候喊这两轮。任务本身也不设截止时间，<strong>做完为止</strong>；确实做不完的，登记后课后到实验室补做。</div>
   <p><strong>同桌互检三条</strong>（互相查，查完签字）：① 你的页面能打开且没有红字报错吗？② 改动看得见吗？③ 记录表里的数字和 HUD 上的一致吗？</p>
   <p><strong>教师抽验看什么</strong>（20 秒一台）：① 页面能跑；② 改动痕迹可见（不是原版）；③ 记录表的数据与 HUD 对得上。<strong>抽验不是抽查作业量，而是抽查"数据是不是编的"。</strong></p>
 
@@ -1392,8 +1393,8 @@ npx serve -l 8080</pre>
   <div class="sec-head">
     <div class="sec-num">作</div>
     <div>
-      <h2>课堂作业 · 紫禁城场景的三项改造</h2>
-      <p class="sec-sub">两项必做 + 一项选做，全部课内完成</p>
+  <h2>课堂作业 · 六项任务 + 一项加分（与上一节表格对应）</h2>
+      <p class="sec-sub">全部课内完成，<strong>不卡时间、做完为止</strong>；逐项的操作步骤、验收点与常见错误见上面《课堂实操与成果验收》</p>
     </div>
   </div>
 
@@ -1417,13 +1418,13 @@ npx serve -l 8080</pre>
         <tr><th>编号</th><th>任务</th><th>要求</th><th>难度</th></tr>
       </thead>
       <tbody>
-        <tr><td><strong>T1</strong><br>必做</td><td>跑通最小场景</td><td>把 30 行最小场景跑起来、改一处参数、控制台无报错，并说清"为什么按钮显示不支持"</td><td>★</td></tr>
-        <tr><td><strong>T2</strong><br>必做</td><td>比例校核</td><td>选一处构件（台基、屋顶、柱子、围墙皆可），查证一个真实尺寸，把代码中的数值改为该尺寸，并写明<strong>依据来源</strong>与改动前后的差异</td><td>★★</td></tr>
-        <tr><td><strong>T3</strong><br>必做</td><td>新增一组构件</td><td>在中轴、月台或廊庑处新增一组构件（灯笼 / 望柱 / 栏板 / 甬道 / 照壁 / 导览牌），说明用了什么几何体、什么材质、如何定位</td><td>★★</td></tr>
-        <tr><td><strong>T4</strong><br>必做</td><td>性能实验与判断</td><td>用 06 号演示做一次"独立 Mesh ⇄ InstancedMesh"对照实验，记录两组 DrawCall 与三角面，并解释<strong>为什么合批后三角面反而变多</strong></td><td>★★★</td></tr>
-        <tr><td><strong>T5</strong><br>必做</td><td>光照实验</td><td>记录 5:00 / 15:00 / 21:00 三个时刻的色温、影子与灯火，并区分"光照参数"与"材质参数"</td><td>★</td></tr>
-        <tr><td><strong>T6</strong><br>必做</td><td>真机观察与分发</td><td>填写观察卡（戴过或看过都写），把场景链接发给自己并确认能打开，尝试"安装为应用"并如实记录结果</td><td>★</td></tr>
-        <tr><td><strong>T7</strong><br>加分</td><td>30 秒现场演示</td><td>按"我改了什么 / 前后有什么不同 / 我的性能读数"三句话讲清自己的改动</td><td>★★★</td></tr>
+        <tr><td><strong>任务 1</strong><br>必做</td><td>跑通最小场景</td><td>把 30 行最小场景跑起来、改一处参数、控制台无报错，并说清"为什么按钮显示不支持"</td><td>★</td></tr>
+        <tr><td><strong>任务 2</strong><br>必做</td><td>比例校核</td><td>选一处构件（台基、屋顶、柱子、围墙皆可），查证一个真实尺寸，把代码中的数值改为该尺寸，并写明<strong>依据来源</strong>与改动前后的差异</td><td>★★</td></tr>
+        <tr><td><strong>任务 3</strong><br>必做</td><td>新增一组构件</td><td>在中轴、月台或廊庑处新增一组构件（灯笼 / 望柱 / 栏板 / 甬道 / 照壁 / 导览牌），说明用了什么几何体、什么材质、如何定位</td><td>★★</td></tr>
+        <tr><td><strong>任务 4</strong><br>必做</td><td>光照实验</td><td>记录 5:00 / 15:00 / 21:00 三个时刻的色温、影子与灯火，并区分"光照参数"与"材质参数"</td><td>★</td></tr>
+        <tr><td><strong>任务 5</strong><br>必做</td><td>性能实验与判断</td><td>用 06 号演示做一次"独立 Mesh ⇄ InstancedMesh"对照实验，记录两组 DrawCall 与三角面，并解释<strong>为什么合批后三角面反而变多</strong></td><td>★★★</td></tr>
+        <tr><td><strong>任务 6</strong><br>必做</td><td>真机观察与分发</td><td>填写观察卡（戴过或看过都写），把场景链接发给自己并确认能打开，尝试"安装为应用"并如实记录结果</td><td>★</td></tr>
+        <tr><td><strong>加分</strong></td><td>30 秒现场演示</td><td>按"我改了什么 / 前后有什么不同 / 我的性能读数"三句话讲清自己的改动</td><td>★★★</td></tr>
       </tbody>
     </table>
   </div>
@@ -1432,12 +1433,12 @@ npx serve -l 8080</pre>
   <div class="tbl-wrap">
     <table>
       <thead>
-        <tr><th>任务</th><th>T1</th><th>T2</th><th>T3</th><th>T4</th><th>T5</th><th>T6</th><th>T7</th></tr>
+        <tr><th>任务</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>加分</th></tr>
       </thead>
       <tbody>
-        <tr><td>时间窗</td><td>0:30—0:50</td><td>1:00—1:20</td><td>1:20—1:32</td><td>2:36—2:46</td><td>1:32—1:50</td><td>1:50—2:36 / 2:51—2:58</td><td>2:46—2:58</td></tr>
-        <tr><td>提交物</td><td>截图 1</td><td>截图 2 + 记录表</td><td>截图 2 + 记录表</td><td>截图 3 + 记录表</td><td>记录表</td><td>观察卡 + 链接</td><td>现场演示</td></tr>
-        <tr><td>验收轮次</td><td colspan="2">第 1 轮（1:32 举手 + 同桌互检）</td><td colspan="3">第 2 轮（2:36 举手 + 教师抽验 8 台）</td><td>看观察卡</td><td>自愿申请</td></tr>
+        <tr><td>建议顺序</td><td>①</td><td>②</td><td>③</td><td>④</td><td>⑤</td><td>⑥</td><td>⑦</td></tr>
+        <tr><td>提交物</td><td>截图 01</td><td>截图 02 + 记录表</td><td>截图 02 + 记录表</td><td>记录表</td><td>截图 03 + 记录表</td><td>观察卡 + 链接</td><td>现场演示</td></tr>
+        <tr><td>验收轮次</td><td colspan="2">第 1 轮（做完 ①② 后举手 + 同桌互检）</td><td colspan="3">第 2 轮（做完 ③④⑤ 后举手 + 教师抽验 8 台）</td><td>看观察卡</td><td>自愿申请</td></tr>
       </tbody>
     </table>
   </div>
@@ -1511,7 +1512,7 @@ npx serve -l 8080</pre>
     <li>能指出至少两处程序化生成的证据；</li>
     <li>能说清 WebXR 的三个前提与 <code class="inline">file://</code> 的假结论；</li>
     <li>能说出退出 VR 的三条路，并知道"安装为应用"能带来什么、不能带来什么；</li>
-    <li>完成课堂作业的两项必做任务，记录表填写完整。</li>
+    <li>完成六项课堂任务的必做部分，三张规定截图与记录表齐全。</li>
   </ol>
 
   <h3>三、下次课预告（2026-09-30）</h3>
