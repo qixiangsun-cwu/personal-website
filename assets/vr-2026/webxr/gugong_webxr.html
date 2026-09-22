@@ -4,6 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>故宫 · 紫禁城 WebXR 沉浸漫游（PICO Neo3）</title>
+<!-- 可安装应用（PWA）：加到主屏幕 / 头显应用列表后，可全屏启动、离线可用 -->
+<link rel="manifest" href="./manifest.webmanifest">
+<meta name="theme-color" content="#100a06">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="紫禁城 WebXR">
+<link rel="icon" href="./icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="./icon-192.png">
 <style>
   html,body{margin:0;padding:0;overflow:hidden;background:#000;font-family:"Microsoft YaHei","PingFang SC",sans-serif;}
   #c{position:fixed;inset:0;display:block;}
@@ -31,10 +40,20 @@
     color:#fff;border:none;border-radius:24px;padding:12px 22px;font-size:15px;letter-spacing:2px;
     cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.5);display:none;}
   #enterVR:disabled{background:#5a5248;cursor:not-allowed;}
-  #vrhint{position:fixed;right:18px;top:74px;z-index:20;color:rgba(255,255,255,.75);font-size:11px;
+  #installBtn{position:fixed;right:18px;top:76px;z-index:20;display:none;
+    background:rgba(16,12,8,.78);color:#efe4cf;border:1px solid rgba(217,164,65,.55);
+    border-radius:20px;padding:8px 16px;font-size:13px;letter-spacing:1px;cursor:pointer;
+    backdrop-filter:blur(6px);}
+  #installBtn:hover{background:rgba(217,164,65,.3);}
+  #vrhint{position:fixed;right:18px;top:126px;z-index:20;color:rgba(255,255,255,.75);font-size:11px;
     max-width:230px;text-align:right;text-shadow:0 1px 3px #000;display:none;}
+  #toast{position:fixed;left:50%;bottom:34px;z-index:60;transform:translateX(-50%) translateY(12px);
+    background:rgba(16,12,8,.88);color:#f4e8d2;border:1px solid rgba(217,164,65,.5);border-radius:10px;
+    padding:10px 20px;font-size:14px;line-height:1.7;text-align:center;white-space:pre-line;
+    opacity:0;pointer-events:none;transition:opacity .35s,transform .35s;}
+  #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
   .XR .pcOnly{display:none!important;}
-  body.XR #hud,body.XR #enterVR,body.XR #vrhint{display:none!important;}
+  body.XR #hud,body.XR #enterVR,body.XR #vrhint,body.XR #installBtn,body.XR #toast{display:none!important;}
 </style>
 </head>
 <body>
@@ -56,7 +75,9 @@
   <div class="sec">
     <b>PICO 头显</b>：扳机指向地面=传送<br>
     左摇杆=移动 ｜ 右摇杆左右=转向<br>
-    转动头部=环视
+    转动头部=环视<br>
+    <b>退出 VR</b>：低头看控制面板→点「退出 VR」<br>
+    或<b>长按手柄握把 2 秒</b>／按系统键
   </div>
   <div class="sec">
     <b>时辰</b> <span id="todLabel">12:00</span>
@@ -72,7 +93,9 @@
 </div>
 
 <button id="enterVR">进入 VR</button>
+<button id="installBtn">安装为应用</button>
 <div id="vrhint"></div>
+<div id="toast"></div>
 
 <script src="./three.min.js"></script>
 <script>
@@ -85,6 +108,8 @@
  *  - InstancedMesh 合批（望柱/栏板/立柱/斗拱/灯笼），draw call < 90
  *  - 单平行光动态昼夜 + 2048 PCFSoft 阴影 + 半球环境光
  *  - 传送(teleport) + 摇杆平滑移动 + snap 转向
+ *  - VR 内控制面板：扳机点「退出 VR」；另支持长按握把 2 秒兜底退出
+ *  - 可安装为应用（PWA：manifest + service worker），全屏启动、离线可用
  * ========================================================================= */
 (function(){
 'use strict';
@@ -968,6 +993,7 @@ var yaw=0, pitch=0;
 var keys={};
 var vrMove={x:0,z:0};
 var lastSnap=0;
+var gripHeld=0, exiting=false, panelHover=false;
 
 function buildTeleportMarker(){
   marker=new THREE.Group();
@@ -1056,14 +1082,24 @@ function setupVRControls(){
       var line=new THREE.Line(lg,new THREE.LineBasicMaterial({color:0xffcf7a,transparent:true,opacity:0}));
       line.scale.z=6; c.add(line); c.userData.line=line;
       c.addEventListener('selectstart',function(){ c.userData.selecting=true; });
-      c.addEventListener('selectend',function(){ c.userData.selecting=false; doTeleport(); });
+      c.addEventListener('selectend',function(){
+        c.userData.selecting=false;
+        if(c.userData.hitUI){ exitVR('控制面板'); return; }   // 指到「退出 VR」按钮 = 退出，不传送
+        doTeleport();
+      });
       controllers.push(c);
     })(i);
   }
-  renderer.xr.addEventListener('sessionstart',function(){ document.body.classList.add('XR'); });
+  renderer.xr.addEventListener('sessionstart',function(){
+    document.body.classList.add('XR');
+    gripHeld=0; exiting=false; panelReveal=9;   // 进入后先把控制面板举到眼前 9 秒：教你怎么退出去
+    if(vrPanel){ vrPanel.position.set(0,1.24,-1.55); vrPanel.rotation.x=-deg(12); }
+  });
   renderer.xr.addEventListener('sessionend',function(){
     document.body.classList.remove('XR');
     player.position.set(0,0,105); yaw=0; pitch=0; player.rotation.y=0; camera.rotation.set(0,0,0);
+    gripHeld=0; exiting=false; panelReveal=0; panelHover=false;
+    if(vrPanel) vrPanel.visible=false;
   });
 }
 function updateVRInput(session,dt){
@@ -1097,22 +1133,181 @@ function updateVRInput(session,dt){
     player.rotation.y=yaw;
     lastSnap=now;
   }
-  // 传送射线（任一按住扳机的手柄）
-  var aiming=false,best=null,bestDist=1e9;
+  // 传送射线 / 控制面板命中（任一按住扳机的手柄）
+  player.updateMatrixWorld(true);
+  var aiming=false, onUI=false;
   for(var j=0;j<controllers.length;j++){
     var c=controllers[j];
+    var o=new THREE.Vector3(), d=new THREE.Vector3(0,0,-1);
+    c.getWorldPosition(o);
+    d.applyQuaternion(c.getWorldQuaternion(new THREE.Quaternion())).normalize();
+    var hitUI=hitPanelButton(o,d);
+    c.userData.hitUI=hitUI;
     if(c.userData.selecting){
       aiming=true;
       c.userData.line.material.opacity=0.85;
-      var o=new THREE.Vector3(), d=new THREE.Vector3(0,0,-1);
-      c.getWorldPosition(o);
-      d.applyQuaternion(c.getWorldQuaternion(new THREE.Quaternion())).normalize();
-      tryTeleportFrom(o,d);
-    }else c.userData.line.material.opacity=0;
+      if(hitUI){ onUI=true; marker.visible=false; }   // 指在面板上：只点亮按钮，不摆传送标记
+      else tryTeleportFrom(o,d);
+    }else{
+      c.userData.line.material.opacity=0;
+    }
   }
-  if(aiming) doTeleport();
-  else if(!teleporting) marker.visible=false;
+  if(aiming && !onUI) doTeleport();
+  else if(!aiming && !teleporting) marker.visible=false;
+
+  // 逃生通道：长按任意一只手柄的握把（squeeze）2 秒 → 退出 VR
+  var grips=0;
+  for(var k=0;k<session.inputSources.length;k++){
+    var gp=session.inputSources[k].gamepad;
+    if(gp && gp.buttons && gp.buttons[1] && gp.buttons[1].pressed) grips++;
+  }
+  gripHeld = grips>0 ? gripHeld+dt : 0;
+  if(gripHeld>2) exitVR('握把长按');
   // VR 模式下 camera 姿态完全交给头显，脚本不干预
+}
+
+/* =========================================================================
+ * 6.5 VR 控制面板 · 退出 VR · 页面提示条
+ *  - 面板挂在玩家 rig 上：进入 VR 后先举到眼前 9 秒（教怎么退出），随后落到视线下方
+ *  - 「退出 VR」按钮用扳机点；另有"长按握把 2 秒"的兜底通道
+ * ========================================================================= */
+var vrPanel=null, panelBtn=null, panelCv=null, panelTex=null, panelReveal=0, panelForce=false;
+
+function roundRect(g,x,y,w,h,r){
+  g.beginPath();
+  g.moveTo(x+r,y); g.lineTo(x+w-r,y); g.quadraticCurveTo(x+w,y,x+w,y+r);
+  g.lineTo(x+w,y+h-r); g.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+  g.lineTo(x+r,y+h); g.quadraticCurveTo(x,y+h,x,y+h-r);
+  g.lineTo(x,y+r); g.quadraticCurveTo(x,y,x+r,y); g.closePath();
+}
+function drawPanel(hover){
+  if(!panelCv) return;
+  var g=panelCv.getContext('2d'), W=panelCv.width, H=panelCv.height;
+  g.clearRect(0,0,W,H);
+  var grd=g.createLinearGradient(0,0,0,H);
+  grd.addColorStop(0,'rgba(30,21,13,.94)'); grd.addColorStop(1,'rgba(12,8,5,.94)');
+  g.fillStyle=grd; roundRect(g,6,6,W-12,H-12,30); g.fill();
+  g.strokeStyle='rgba(217,164,65,.85)'; g.lineWidth=6; roundRect(g,9,9,W-18,H-18,28); g.stroke();
+
+  g.fillStyle='#d9a441'; g.font='bold 46px "Microsoft YaHei","PingFang SC",sans-serif';
+  g.fillText('控制面板', 46, 86);
+  g.fillStyle='#efe4cf'; g.font='33px "Microsoft YaHei","PingFang SC",sans-serif';
+  g.fillText('扳机指向地面 = 传送到该处', 46, 158);
+  g.fillText('左摇杆 = 移动　｜　右摇杆左右 = 转向', 46, 208);
+  g.fillStyle='#f0b45a';
+  g.fillText('长按手柄握把 2 秒 = 直接退出 VR', 46, 258);
+  g.fillStyle='rgba(239,228,207,.62)'; g.font='25px "Microsoft YaHei","PingFang SC",sans-serif';
+  g.fillText('也可以按头显系统键 → 退出 VR', 46, 452);
+
+  // 「退出 VR」按钮（与射线目标 panelBtn 的位置一一对应）
+  g.fillStyle = hover ? 'rgba(242,153,74,.98)' : 'rgba(217,164,65,.92)';
+  roundRect(g,629,316,341,148,18); g.fill();
+  if(hover){ g.strokeStyle='#fff2d8'; g.lineWidth=6; roundRect(g,629,316,341,148,18); g.stroke(); }
+  g.fillStyle='#2a1a0c'; g.font='bold 52px "Microsoft YaHei","PingFang SC",sans-serif';
+  g.textAlign='center'; g.textBaseline='middle';
+  g.fillText('退出 VR', 799, 390);
+  g.textAlign='left'; g.textBaseline='alphabetic';
+  panelTex.needsUpdate=true;
+}
+function buildVRPanel(){
+  panelCv=document.createElement('canvas'); panelCv.width=1024; panelCv.height=512;
+  panelTex=new THREE.CanvasTexture(panelCv);
+  drawPanel(false);
+  vrPanel=new THREE.Group();
+  var plane=new THREE.Mesh(new THREE.PlaneGeometry(0.9,0.45),
+    new THREE.MeshBasicMaterial({map:panelTex,transparent:true,depthWrite:false,fog:false}));
+  vrPanel.add(plane);
+  // 射线目标：透明但可被 raycast 命中（three.js 只跳过 visible=false 的对象）
+  panelBtn=new THREE.Mesh(new THREE.PlaneGeometry(0.30,0.13),
+    new THREE.MeshBasicMaterial({color:0xffd27a,transparent:true,opacity:0,depthWrite:false,fog:false}));
+  panelBtn.position.set(0.252,-0.118,0.004);
+  vrPanel.add(panelBtn);
+  vrPanel.position.set(0,0.66,-0.95);
+  vrPanel.rotation.x=-deg(52);
+  vrPanel.visible=false;
+  player.add(vrPanel);
+}
+function hitPanelButton(origin,dir){
+  if(!vrPanel || !vrPanel.visible || !panelBtn) return false;
+  raycaster.set(origin,dir); raycaster.far=6;
+  return raycaster.intersectObject(panelBtn,false).length>0;
+}
+function updateVRPanel(dt){
+  if(!vrPanel) return;
+  var inXR=renderer.xr.isPresenting;
+  vrPanel.visible = inXR || panelForce;   // panelForce：调试用，在 PC 端把面板调出来看
+  if(!inXR) return;
+  if(panelReveal>0) panelReveal-=dt;
+  var up=panelReveal>0;                                   // 举起阶段：正对视线
+  var k=1-Math.exp(-dt*4);
+  vrPanel.position.y += ((up?1.24:0.66) - vrPanel.position.y)*k;
+  vrPanel.position.z += ((up?-1.55:-0.95) - vrPanel.position.z)*k;
+  vrPanel.rotation.x += ((up?-deg(12):-deg(52)) - vrPanel.rotation.x)*k;
+  var hover=false;
+  for(var i=0;i<controllers.length;i++){ if(controllers[i].userData.hitUI) hover=true; }
+  if(hover!==panelHover){ panelHover=hover; drawPanel(hover); }
+  panelBtn.material.opacity = hover ? 0.18 : 0;
+}
+function showToast(msg,ms){
+  var el=document.getElementById('toast'); if(!el) return;
+  el.textContent=msg; el.classList.add('show');
+  if(showToast._t) clearTimeout(showToast._t);
+  showToast._t = ms ? setTimeout(function(){ el.classList.remove('show'); },ms) : null;
+}
+function exitVR(reason){
+  if(exiting) return;
+  var s = renderer.xr.getSession ? renderer.xr.getSession() : null;
+  if(!s){ showToast('当前不在 VR 会话中',3000); return; }
+  exiting=true;
+  showToast('正在退出 VR…');
+  var p;
+  try { p = s.end(); } catch(e){ p = null; }
+  var done=function(ok){
+    exiting=false;
+    showToast(ok
+      ? ('已退出 VR'+(reason?'（'+reason+'）':'')+'\n可继续用鼠标拖拽 / WASD 漫游，或点右上角「进入 VR」再次进入')
+      : '退出失败：请按头显系统键 → 退出 VR', 5000);
+  };
+  if(p && p.then) p.then(function(){ done(true); }).catch(function(){ done(false); });
+  else done(true);
+}
+
+/* =========================================================================
+ * 6.6 安装为应用（PWA）：全屏启动 + 离线可用
+ * ========================================================================= */
+function setupPWA(){
+  var btn=document.getElementById('installBtn');
+  var deferred=null;
+  var standalone = false;
+  try{
+    standalone = (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches)
+      || window.navigator.standalone===true;
+  }catch(e){}
+  if(btn && !standalone){
+    btn.style.display='block';
+    btn.onclick=function(){
+      if(deferred){
+        deferred.prompt();
+        deferred.userChoice.then(function(){ deferred=null; btn.style.display='none'; });
+      }else{
+        showToast('这个浏览器没有直接安装入口。\n请在浏览器菜单里选「安装应用 / 添加到主屏幕 / 添加到桌面」，\n装好后可全屏启动并离线使用。',7000);
+      }
+    };
+  }
+  window.addEventListener('beforeinstallprompt',function(e){
+    e.preventDefault(); deferred=e;
+    if(btn) btn.style.display='block';
+  });
+  window.addEventListener('appinstalled',function(){
+    if(btn) btn.style.display='none';
+    showToast('已安装为应用：回到主屏幕 / 应用列表即可全屏启动',4000);
+  });
+  if('serviceWorker' in navigator){
+    window.addEventListener('load',function(){
+      // file:// 与非 https 源会注册失败，静默忽略（不影响场景运行）
+      navigator.serviceWorker.register('./sw.js').catch(function(){});
+    });
+  }
 }
 
 /* =========================================================================
@@ -1196,6 +1391,7 @@ function animate(){
   }else{
     stepPC(dt);
   }
+  updateVRPanel(dt);
   stepTeleport(dt);
   // 传送标记动画
   if(marker.visible){ markerRing.rotation.z+=dt*2; }
@@ -1217,10 +1413,26 @@ function init(){
   buildMaterials();
   buildScene();
   buildTeleportMarker();
+  buildVRPanel();
   setupPCControls();
   setupVRControls();
   setupVRButton();
   setupHUD();
+  setupPWA();
+
+  // 调试钩子：地址后加 ?debug=1 才会挂到 window，正式使用不受影响。
+  // 用途：① PC 端核对控制面板外观（__gugong.showPanel()）；② 头显控制台里核对退出逻辑。
+  if(location.search.indexOf('debug')>=0){
+    window.__gugong={
+      scene:scene, camera:camera, renderer:renderer, player:player, controllers:controllers,
+      panelRef:function(){ return vrPanel; }, panelBtn:panelBtn,
+      hitPanelButton:hitPanelButton, exitVR:exitVR,
+      showPanel:function(){ panelForce=true; vrPanel.visible=true; vrPanel.position.set(0,1.32,-1.15); vrPanel.rotation.x=-deg(14); },
+      hidePanel:function(){ panelForce=false; vrPanel.visible=false; },
+      isPresenting:function(){ return renderer.xr.isPresenting; },
+      info:function(){ var i=renderer.info.render; return {calls:i.calls, triangles:i.triangles, textures:renderer.info.memory.textures}; }
+    };
+  }
 
   var loader=document.getElementById('loader');
   loader.style.opacity='0';

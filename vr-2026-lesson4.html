@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>第4次课 · 用 WebXR 生成一座故宫 | 2026年虚拟现实技术</title>
-<meta name="description" content="《虚拟现实技术》第4次课课堂内容：网页端 VR 路线——WebXR 标准与安全上下文、Three.js 最小可运行场景、用代码程序化生成紫禁城（屋顶几何/程序化贴图/单光方案）、移动头显的性能预算与量测、PC 与 VR 两套输入、部署发布与故障速查，含 4 学时时间轴、随堂实操与课堂作业。">
+<meta name="description" content="《虚拟现实技术》第4次课课堂内容：网页端 VR 路线——WebXR 标准与安全上下文、Three.js 最小可运行场景、用代码程序化生成紫禁城（屋顶几何/程序化贴图/单光方案）、移动头显的性能预算与量测、PC 与 VR 两套输入与退出会话的三条路径、安装为应用（PWA）、部署发布与故障速查，含 4 学时时间轴、随堂实操与课堂作业。">
 <link rel="stylesheet" href="assets/vr-2026/course.css">
 </head>
 <body>
@@ -111,8 +111,8 @@
         <tr><td>1:10—1:45</td><td>35′</td><td><strong>PART 3</strong> 程序化生成故宫</td><td>坐标系与比例 · 中轴布局 · 三种屋顶几何 · <strong>实操 B</strong></td></tr>
         <tr><td>1:45—2:05</td><td>20′</td><td><strong>PART 4</strong> 材质与光照</td><td>程序化贴图 · 单平行光方案 · 雾与昼夜 · <strong>实操 C</strong></td></tr>
         <tr><td>2:05—2:25</td><td>20′</td><td><strong>PART 5</strong> 性能预算</td><td>帧预算 · 合批与取舍 · 三个读数入口</td></tr>
-        <tr><td>2:25—2:45</td><td>20′</td><td><strong>PART 6</strong> 交互与输入</td><td>两套控制 · 舒适度设计 · VR 姿态的坑</td></tr>
-        <tr><td>2:45—2:55</td><td>10′</td><td><strong>PART 7</strong> 部署与发布</td><td>安全上下文三条路 · 头显浏览器打开流程</td></tr>
+        <tr><td>2:25—2:45</td><td>20′</td><td><strong>PART 6</strong> 交互与输入</td><td>两套控制 · 舒适度设计 · VR 姿态的坑 · <strong>退出会话的三条路</strong></td></tr>
+        <tr><td>2:45—2:55</td><td>10′</td><td><strong>PART 7</strong> 部署与发布</td><td>安全上下文三条路 · 头显打开与退出流程 · <strong>安装为应用（PWA）</strong></td></tr>
         <tr><td>2:55—3:00</td><td>5′</td><td>收束</td><td>达标线 · 课堂作业 · 下次课预告</td></tr>
       </tbody>
     </table>
@@ -135,6 +135,7 @@
         <tr><td>T7</td><td>读出自己机器上的 FPS / DrawCalls / 三角面，并判断瓶颈在哪里</td><td>记录表</td></tr>
         <tr><td>T8</td><td>说出"snap turn 与传送"为什么比"持续平移与连续旋转"更舒适</td><td>提问</td></tr>
         <tr><td>T9</td><td>完成课堂作业的三项改造（两项必做 + 一项选做）</td><td>课堂验收</td></tr>
+        <tr><td>T10</td><td>说出 VR 里退出会话的三条路径，并解释为什么"在网页上放一个普通按钮"在沉浸模式下不管用</td><td>提问 + 演示</td></tr>
       </tbody>
     </table>
   </div>
@@ -710,10 +711,12 @@ el.innerHTML = 'FPS &lt;b&gt;' + fps + '&lt;/b&gt; ｜ DrawCalls &lt;b&gt;' + in
         <tr><td>W / A / S / D 或方向键</td><td>沿视线方向行走，<strong>Shift 加速（6 → 14 m/s）</strong></td></tr>
         <tr><td>单击地面</td><td>射线命中可落脚面 → 显示落点环 → 松开执行传送</td></tr>
         <tr><td>HUD 面板</td><td>时辰滑块（5:00—21:00）、暂停昼夜、4 个预设机位</td></tr>
-        <tr><td rowspan="4">VR<br>（头显 + 手柄）</td><td>头部</td><td>自然环视（由头显姿态直接驱动）</td></tr>
+        <tr><td rowspan="6">VR<br>（头显 + 手柄）</td><td>头部</td><td>自然环视（由头显姿态直接驱动）</td></tr>
         <tr><td><strong>扳机</strong></td><td>按住 → 手柄发出橙色射线、地面显示绿色落点环；松开 → 传送到该点</td></tr>
         <tr><td><strong>左摇杆</strong></td><td>按头朝向平滑行走（约 4.2 m/s）</td></tr>
         <tr><td><strong>右摇杆左右</strong></td><td>Snap turn，每次 30°，350 ms 冷却</td></tr>
+        <tr><td><strong>控制面板</strong></td><td>低头看身前下方的控制面板 → 扳机点「退出 VR」→ 退出会话（见 6.5）</td></tr>
+        <tr><td><strong>长按握把 2 秒</strong></td><td>任意一只手柄按住握把 → 兜底退出，不用瞄准、不用找菜单</td></tr>
       </tbody>
     </table>
   </div>
@@ -749,11 +752,35 @@ camera.rotation.y += 30 * Math.PI / 180;
 player.rotation.y += 30 * Math.PI / 180;</pre>
   <div class="warn">症状很有欺骗性：<strong>画面抖动、视点漂移、转向失灵，甚至戴上头显后画面"粘"在脸上</strong>。原因是你和头显在抢同一个属性。正确做法是把玩家做成一个 <code class="inline">Group</code>（rig），<strong>所有转身、位移都作用在 rig 上</strong>；相机作为它的子节点，只负责"被头显驱动"。</div>
 
-  <h3>6.5 课堂追问</h3>
+  <h3>6.5 退出 VR：三条路，一条都不能省</h3>
+  <p>这是本讲最容易被忽略、但在课堂上最容易出事的一环：<strong>学生进去以后出不来</strong>。网页端 VR 的退出入口由浏览器提供，页面无权代替；但页面必须给出<strong>用户自己找得到的出口</strong>。</p>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr><th>方式</th><th>操作</th><th>定位</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>控制面板按钮</strong></td><td>低头看身前下方的控制面板 → 扳机射线指向「退出 VR」→ 按下扳机</td><td>主路径：看得见、摸得着</td></tr>
+        <tr><td><strong>长按握把 2 秒</strong></td><td>任意一只手柄按住握把（squeeze）2 秒</td><td>兜底路径：不用瞄准、不用找菜单</td></tr>
+        <tr><td><strong>系统键</strong></td><td>按头显系统键 → 选「退出 VR」</td><td>官方出口：规范强制浏览器提供，永远可用；位置随固件版本变化</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>进入 VR 后的<strong>前 9 秒</strong>，控制面板会先被举到眼前——不是为了好看，而是让第一次戴上头显的人<strong>在教师还没来得及讲之前就知道怎么退出去</strong>。9 秒后它平滑落到视线下方（前方 0.95 m、高 0.66 m、倾斜 52°），低头可见、不挡景观。</p>
+  <pre>面板 = 挂在玩家 rig 上的普通物体，「退出 VR」按钮是它的一个子网格
+  · 每帧用射线判定是否命中按钮；命中时只点亮按钮，不摆传送标记
+  · 松开扳机：命中按钮 → exitVR() → session.end()；否则 → 传送
+  · 另有兜底：updateVRInput() 中检测握把（buttons[1]）长按 2 秒
+  · 退出失败时提示"请按系统键退出"，避免把人困在里面</pre>
+  <div class="key">一条值得记住的设计经验：<strong>凡是"只有一条退出路径"的沉浸式应用，在真实课堂上迟早会出问题</strong>——因为那条路径依赖"用户知道它在哪"。设计时要反着问自己：如果用户什么提示都没看见、什么菜单都找不到，他还能不能出来？</div>
+  <div class="warn"><strong>在网页里放一个普通按钮是没用的</strong>：沉浸模式下页面 DOM 一般不渲染到头显里（DOM Overlay 主要面向 <code class="inline">immersive-ar</code>）。想给用户一个看得见的按钮，就必须把它做成<strong>场景里的 3D 物体</strong>。这一条要在下周设备实测时一并确认。</div>
+
+  <h3>6.6 课堂追问</h3>
   <ol>
     <li>右摇杆转向为什么要加 350 ms 冷却？不加会发生什么？</li>
     <li>如果把活动范围放开到围墙之外，会出现哪两类问题（一类是体验，一类是性能）？</li>
     <li>PC 端与 VR 端的代码，哪一部分是共用的？哪一部分必须分开写？</li>
+    <li>为什么"握把长按退出"必须存在，即使已经有控制面板按钮和系统键？</li>
   </ol>
 </section>
 
@@ -782,16 +809,41 @@ player.rotation.y += 30 * Math.PI / 180;</pre>
   </div>
   <div class="warn">再强调一次：<strong>双击 <code class="inline">file://</code> 打开，永远进不了 VR</strong>——它能看画面，但那只是"预览"，不是"运行"。判断方式很简单：如果按钮显示"当前浏览器不支持 WebXR"，先查安全上下文，再查设备。</div>
 
-  <h3>7.2 在头显上打开场景：五步</h3>
+  <h3>7.2 在头显上打开场景：六步</h3>
   <ol>
     <li>确认两个文件在<strong>同一目录</strong>：主程序 <code class="inline">.html</code> 与 <code class="inline">three.min.js</code>（改名、移动都会导致加载失败）；</li>
     <li>用方式①或②把它变成安全上下文；</li>
     <li>在头显浏览器地址栏输入链接；</li>
     <li>先看 HUD 上的<strong>统计面板有没有读数</strong>（FPS / DrawCalls）——有读数说明渲染正常，没有读数说明脚本报错了；</li>
     <li>点<strong>"进入 VR"</strong>，戴好头显、确认手柄已连接，先原地环视一圈再尝试移动。</li>
+    <li><strong>退出</strong>：按 6.5 的三条路任选一条。<strong>第一次必须由教师完整走一遍并计时</strong>，再交给学生。</li>
   </ol>
 
-  <h3>7.3 故障速查</h3>
+  <h3>7.3 退出 VR 与「安装为应用」</h3>
+  <div class="grid2">
+    <div class="cell">
+      <h4>退出 VR 的三条路</h4>
+      <ul>
+        <li><strong>控制面板</strong>：低头 → 扳机点「退出 VR」（进入后前 9 秒面板会主动举到眼前）；</li>
+        <li><strong>长按握把 2 秒</strong>：不用瞄准的兜底通道；</li>
+        <li><strong>系统键</strong>：浏览器提供的官方出口，永远可用。</li>
+      </ul>
+      <p>退出后页面自动回到 PC 漫游状态，并在下方弹出「已退出 VR」提示，可直接再次进入。</p>
+    </div>
+    <div class="cell">
+      <h4>安装为应用（PWA）</h4>
+      <ul>
+        <li>页面右上角<strong>「安装为应用」</strong>按钮：Chrome / Edge 会弹原生安装框；其他浏览器按其菜单手动「添加到主屏幕 / 桌面」；</li>
+        <li>装好后<strong>全屏启动</strong>（没有地址栏），首次访问之后<strong>断网也能打开</strong>；</li>
+        <li><strong>做不到"打开就自动进 VR"</strong>：规范要求进入 VR 必须由用户手势触发，仍要点一次「进入 VR」；</li>
+        <li>一体机浏览器对 PWA 安装的支持程度不一，属于需要实测的项目。</li>
+      </ul>
+    </div>
+  </div>
+  <div class="note">实现上就是三样东西：<code class="inline">manifest.webmanifest</code>（应用名 / 图标 / 全屏启动）、<code class="inline">sw.js</code>（Service Worker：首次访问后离线可用）、一套图标。<strong>前提仍然是安全上下文</strong>——<code class="inline">file://</code> 下 Service Worker 不会注册，"安装"与"离线"都不会生效。</div>
+  <div class="key">为什么值得做这一步：装成应用之后，学生那边的情况变成<strong>"桌面上多了一个紫禁城图标"</strong>，而不是"要去群里翻一个链接"。占用的还是同一个网址，成本只有三个文件。</div>
+
+  <h3>7.4 故障速查</h3>
   <div class="tbl-wrap">
     <table>
       <thead>
@@ -802,6 +854,8 @@ player.rotation.y += 30 * Math.PI / 180;</pre>
         <tr><td><code class="inline">isSessionSupported</code> 返回 <code class="inline">false</code></td><td>当前设备不支持沉浸式 VR 会话</td><td>换浏览器或换设备；先在 PC 端把内容做完</td></tr>
         <tr><td>会话启动失败，出现错误信息</td><td>把设备不支持的能力写进了 <code class="inline">requiredFeatures</code></td><td>改成 <code class="inline">optionalFeatures</code></td></tr>
         <tr><td>进入 VR 后画面抖动 / 漂移</td><td>代码在每帧改写相机姿态</td><td>改为旋转玩家 rig（见 6.4）</td></tr>
+        <tr><td><strong>进入 VR 后找不到怎么退出</strong></td><td>控制面板在视线下方，没低头看；或系统键菜单不熟</td><td>长按手柄握把 2 秒即可退出（见 6.5）</td></tr>
+        <tr><td>点「安装为应用」没弹出安装框</td><td>该浏览器不支持自动安装，或已处于全屏应用模式</td><td>按页面提示，在浏览器菜单里手动「添加到主屏幕 / 桌面」</td></tr>
         <tr><td>页面空白</td><td><code class="inline">three.min.js</code> 路径错误或不在同目录；脚本报错</td><td>开控制台看 404 与报错信息</td></tr>
         <tr><td>画面很糊、明显掉帧</td><td>像素比过高 / 阴影范围过大 / Draw Call 过多</td><td>限制 <code class="inline">setPixelRatio</code>、收小阴影相机、做合批</td></tr>
         <tr><td>画面看得见，但物体位置错乱</td><td>把局部坐标当世界坐标使用（父容器没换算）</td><td>合批或复制前先换算到世界坐标</td></tr>
@@ -809,7 +863,7 @@ player.rotation.y += 30 * Math.PI / 180;</pre>
     </table>
   </div>
 
-  <h3>7.4 本地最小服务</h3>
+  <h3>7.5 本地最小服务</h3>
   <pre># 方式一：Python 自带（机房电脑一般都有）
 python -m http.server 8080
 然后浏览器打开 http://127.0.0.1:8080/主程序.html
@@ -818,9 +872,10 @@ python -m http.server 8080
 npx serve -l 8080</pre>
   <div class="key">课堂上的实用做法：<strong>本课程网站已经放了这份场景的可直接打开版本</strong>（见本页顶部按钮），它本身就运行在 HTTPS 上——等于顺手解决了安全上下文这个前提。把它发给同学、发给家人，一个链接就够。</div>
 
-  <h3>7.5 下一周：设备到位后要做的第一件事</h3>
-  <div class="warn"><strong>在头显上做一次"安全上下文成立"的支持性实测</strong>，并且只记录四行结果：① 是否安全上下文；② <code class="inline">navigator.xr</code> 是否存在；③ <code class="inline">isSessionSupported('immersive-vr')</code> 的返回值；④"进入 VR"按钮能不能点。这四行决定了我们是继续走网页端路线，还是把这条线降级为"PC 端演示 + 引擎路线为主"。</div>
+  <h3>7.6 下一周：设备到位后要做的第一件事</h3>
+  <div class="warn"><strong>在头显上做一次"安全上下文成立"的支持性实测</strong>，并且只记录五行结果：① 是否安全上下文；② <code class="inline">navigator.xr</code> 是否存在；③ <code class="inline">isSessionSupported('immersive-vr')</code> 的返回值；④"进入 VR"按钮能不能点；⑤ <strong>进去之后按哪条路退出来、用了几秒</strong>。<strong>前四行决定这条路线能不能走，第五行决定课堂上敢不敢把设备交到学生手里。</strong></div>
   <p>这不是多此一举：<strong>WebXR 的可用性取决于设备系统版本与浏览器版本，同一型号不同固件都可能结果不同</strong>。没有实测之前，"能进 VR"只是一个假设，而工程上不拿假设当结论。</p>
+  <div class="note"><strong>给教师的一行操作</strong>：场景地址后加上 <code class="inline">?debug=1</code> 会挂出一个调试钩子 <code class="inline">window.__gugong</code>（不写这个参数时完全不影响正式使用）。在头显浏览器控制台里用 <code class="inline">__gugong.isPresenting()</code> 可以确认是否真的进入了会话；想在 PC 端先看控制面板长什么样，用 <code class="inline">__gugong.showPanel()</code> 把它调出来。</div>
 </section>
 
 <!-- ===== 课堂实操 ===== -->
@@ -855,6 +910,7 @@ npx serve -l 8080</pre>
     <li>把"时辰"滑块从 5:00 拉到 21:00，在各时刻各截一张图；</li>
     <li>依次切换到 4 个预设机位（广场远眺 / 月台近景 / 午门仰视 / 全景俯瞰）；</li>
     <li>抄下 HUD 上的一次性能读数。</li>
+    <li>点右上角<strong>「安装为应用」</strong>，看本机浏览器是否弹出安装框（装好后可从桌面 / 主屏幕全屏启动，断网也能打开）。</li>
   </ol>
 
   <h3>三、课堂记录表（每人填写）</h3>
@@ -875,11 +931,12 @@ npx serve -l 8080</pre>
     </table>
   </div>
 
-  <h3>四、达标线（三条）</h3>
+  <h3>四、达标线（四条）</h3>
   <ol>
     <li>场景在浏览器里正常渲染，<strong>HUD 有实时读数</strong>；</li>
     <li>能指出至少两处"程序化生成"的证据（例如自定义屋顶几何、Canvas 生成的贴图、实例化合批的栏杆）；</li>
     <li>能说出 WebXR 的三个前提，并说明<b>为什么 <code class="inline">file://</code> 测不出真实结论</b>。</li>
+    <li>能说出<strong>退出 VR 的三条路</strong>，并说明为什么"在网页上放一个普通按钮"在沉浸模式下不管用。</li>
   </ol>
   <div class="key">三条全过 = 本讲的课堂实操部分完成。第 3 条是本讲的"核心考点"：<strong>它考的不是记性，而是你有没有真的踩过那个坑。</strong></div>
 </section>
@@ -980,6 +1037,7 @@ npx serve -l 8080</pre>
         <tr><td>程序化建模三步</td><td>定坐标系与单位 → 定比例（可校核）→ 写几何（顶点 / 法线 / UV）</td></tr>
         <tr><td>性能优先级</td><td><strong>Draw Call &gt; 填充率 &gt; 三角面</strong></td></tr>
         <tr><td>最容易犯的两个错</td><td>在非安全上下文里判断"不支持 WebXR"；在 VR 里每帧写相机姿态</td></tr>
+        <tr><td>退出与分发</td><td>退出的三条路：<strong>控制面板按钮 / 长按握把 2 秒 / 系统键</strong>；分发：<strong>装成应用（PWA）= 一个图标 + 全屏 + 离线</strong></td></tr>
       </tbody>
     </table>
   </div>
@@ -989,6 +1047,7 @@ npx serve -l 8080</pre>
     <li>场景能在浏览器中正常渲染并显示性能读数；</li>
     <li>能指出至少两处程序化生成的证据；</li>
     <li>能说清 WebXR 的三个前提与 <code class="inline">file://</code> 的假结论；</li>
+    <li>能说出退出 VR 的三条路，并知道"安装为应用"能带来什么、不能带来什么；</li>
     <li>完成课堂作业的两项必做任务，记录表填写完整。</li>
   </ol>
 

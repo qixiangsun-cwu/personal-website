@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="紫禁城 WebXR">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#26180a"/>
+      <stop offset="1" stop-color="#0b0703"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f2c964"/>
+      <stop offset="1" stop-color="#c48c1c"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="96" fill="url(#bg)"/>
+  <circle cx="256" cy="258" r="190" fill="none" stroke="#d9a441" stroke-opacity="0.28" stroke-width="6"/>
+  <path d="M256 76 l15 21 -15 13 -15 -13 z" fill="url(#gold)"/>
+  <path d="M228 112 h56 l58 56 h-172 z" fill="url(#gold)"/>
+  <path d="M214 168 h84 l118 84 h-320 z" fill="url(#gold)"/>
+  <rect x="150" y="252" width="212" height="18" fill="#8d6712"/>
+  <rect x="170" y="270" width="172" height="110" fill="#a63a2a"/>
+  <rect x="232" y="292" width="48" height="88" fill="#3a2115"/>
+  <rect x="136" y="380" width="240" height="34" rx="6" fill="#ddd6c6"/>
+  <rect x="112" y="414" width="288" height="30" rx="6" fill="#c6bda9"/>
+</svg>
