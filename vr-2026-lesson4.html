@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>第4次课 · 虚拟现实开发常用软件（Unity 环境搭建）| 2026年虚拟现实技术</title>
-<meta name="description" content="《虚拟现实技术》第4次课课堂内容：软件生态与工具选型、资产导入五道关、Unity XR 环境配置（XR Origin + Device Simulator）、导入模型与第一个 C# 脚本、模拟器→头显双轨验证。">
+<title>第4次课 · 用 WebXR 生成一座故宫 | 2026年虚拟现实技术</title>
+<meta name="description" content="《虚拟现实技术》第4次课课堂内容：网页端 VR 路线——WebXR 标准与安全上下文、Three.js 最小可运行场景、用代码程序化生成紫禁城（屋顶几何/程序化贴图/单光方案）、移动头显的性能预算与量测、PC 与 VR 两套输入、部署发布与故障速查，含 4 学时时间轴、随堂实操与课堂作业。">
 <link rel="stylesheet" href="assets/vr-2026/course.css">
 </head>
 <body>
@@ -12,9 +12,9 @@
 <!-- ===== 顶部 ===== -->
 <header class="hero">
   <div class="hero-inner">
-    <span class="kicker">虚拟现实技术 · 第 4 次课 · 案例 01</span>
-    <h1>虚拟现实开发常用软件</h1>
-    <p class="sub">第 4 章（软件为主 · 结合第 3 章硬件）· 软件生态与工具选型 · Unity XR 环境配置 · 导入模型与第一个脚本 · 模拟器 → 头显双轨验证</p>
+    <span class="kicker">虚拟现实技术 · 第 4 次课 · 课堂案例</span>
+    <h1>用 WebXR 生成一座故宫</h1>
+    <p class="sub">第 4 章 虚拟现实开发常用软件 · 网页端路线：HTML + JavaScript + Three.js + WebXR —— 不装引擎、不导模型，整座紫禁城由代码在运行时算出来</p>
     <div class="meta">
       <span>中华女子学院</span><span>4 学时 · 180 分钟（理论 2 + 实验 2）</span><span>授课人：孙琪翔</span><span>2026-09-23 · 第 4 周</span><span>数字媒体技术实验室</span>
     </div>
@@ -26,15 +26,14 @@
   <div class="nav-inner" id="navInner">
     <a href="vr-2026.html" class="nav-back">← 课程主页</a>
     <a href="#guide" data-sec="guide" class="on">本讲导览</a>
-    <a href="#c1" data-sec="c1">一、软件生态与选型</a>
-    <a href="#c2" data-sec="c2">二、资产与五道关</a>
-    <a href="#c3" data-sec="c3">三、环境核对与界面</a>
-    <a href="#c4" data-sec="c4">四、XR 环境配置</a>
-    <a href="#c5" data-sec="c5">五、模型与第一个脚本</a>
-    <a href="#c6" data-sec="c6">六、双轨验证</a>
-    <a href="#demo" data-sec="demo">演示中心</a>
-    <a href="#udemo" data-sec="udemo">演示设计</a>
-    <a href="#video" data-sec="video">视频资料</a>
+    <a href="#c1" data-sec="c1">一、WebXR 是什么</a>
+    <a href="#c2" data-sec="c2">二、最小可运行场景</a>
+    <a href="#c3" data-sec="c3">三、程序化生成故宫</a>
+    <a href="#c4" data-sec="c4">四、材质与光照</a>
+    <a href="#c5" data-sec="c5">五、性能预算</a>
+    <a href="#c6" data-sec="c6">六、交互与输入</a>
+    <a href="#c7" data-sec="c7">七、部署与发布</a>
+    <a href="#demo" data-sec="demo">课堂实操</a>
     <a href="#hw" data-sec="hw">课堂作业</a>
     <a href="#practice" data-sec="practice">速查 · 达标</a>
   </div>
@@ -44,6 +43,979 @@
 
 <!-- ===== 导览 ===== -->
 <section id="guide">
+  <div class="sec-head">
+    <div class="sec-num">导</div>
+    <div>
+      <h2>本讲导览</h2>
+      <p class="sec-sub">上次课回答"用什么软件做 VR"（Unity 路线），这一课回答"不装引擎，能不能做 VR"</p>
+    </div>
+  </div>
+
+  <p>这一讲换了一条技术路线：<strong>不安装引擎、不写 C#、不导入模型</strong>，只在浏览器里用 HTML + JavaScript 把一座紫禁城"算"出来，然后把它推进头显漫游。原因很实际——原计划这一课要在头显上做真机验证，<strong>设备本周不可用，下周到位</strong>；与其空等，不如把平时容易被跳过、但工程价值很高的<strong>网页端 VR（WebXR）</strong>路线完整讲一遍。</p>
+
+  <div class="key"><strong>本讲产出 = 一个能在浏览器里漫游的紫禁城场景。</strong>它不依赖任何 3D 模型文件：午门、内金水桥、太和门、三大殿、东西廊庑、围墙全部由代码在运行时生成，连贴图都是画出来的——整份工程只有 <strong>2 个文件、约 660 KB</strong>，断网也能跑。</div>
+
+  <div class="btn-row">
+    <a class="btn" href="assets/vr-2026/webxr/gugong_webxr.html" target="_blank" rel="noopener">打开紫禁城 WebXR 场景 →</a>
+    <a class="btn ghost" href="#demo">跳到课堂实操</a>
+  </div>
+  <p style="font-size:14px;color:var(--ink-soft);">场景支持鼠标环视、WASD 行走、点击地面传送、时辰滑块与 4 个预设机位；接上头显（或支持 WebXR 的浏览器）后可点"进入 VR"。<strong>本周先以 PC 端演示与观察为主，头显环节待设备到位后合并安排。</strong></p>
+
+  <h3>一、为什么这节课值得单独讲 WebXR</h3>
+  <div class="grid3">
+    <div class="cell">
+      <h4>① 分发成本几乎为零</h4>
+      <p>做 Unity 项目要经历"打包 → 安装 → 启动"；网页端只要一个<strong>链接</strong>。同学、家人、评委的浏览器都能直接打开，不需要装任何东西，也不经过应用商店审核。</p>
+    </div>
+    <div class="cell">
+      <h4>② 迭代成本极低</h4>
+      <p>改一行代码、刷新页面就是一次完整迭代，不必等构建与部署。做<strong>原型验证</strong>时，这条路线的时间成本通常是引擎路线的几分之一。</p>
+    </div>
+    <div class="cell">
+      <h4>③ 它把第 3、4 章缝在一起</h4>
+      <p>刷新率、分辨率、定位方式这些硬件指标，在浏览器里变成了可以现场读到的数字：FPS 面板、像素比、WebXR 的参考空间。<strong>硬件不再是纸上的参数。</strong></p>
+    </div>
+  </div>
+
+  <h3>二、两条路线对照：Unity（上次课）与 WebXR（本讲）</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr><th>对比项</th><th>Unity 引擎路线</th><th>WebXR 网页路线（本讲）</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>运行环境</td><td>独立可执行程序（EXE / APK）</td><td><strong>浏览器</strong>（桌面 / 头显一体机）</td></tr>
+        <tr><td>开发语言</td><td>C#</td><td>HTML + JavaScript</td></tr>
+        <tr><td>场景来源</td><td>导入模型资产（FBX 等）+ 编辑器摆放</td><td><strong>代码程序化生成</strong>（也可加载外部模型）</td></tr>
+        <tr><td>部署方式</td><td>打包、安装、更新</td><td><strong>一个 URL</strong>，零安装、零更新</td></tr>
+        <tr><td>性能上限</td><td>高，可承载复杂场景与精细美术</td><td>中，受浏览器与移动 GPU 限制</td></tr>
+        <tr><td>硬件接入</td><td>官方 SDK（PICO / Quest 等），功能最全</td><td>标准 WebXR API，跨设备通用；设备专属能力较少</td></tr>
+        <tr><td>典型用途</td><td>商业项目、复杂交互、重型应用</td><td>展示与漫游、教学、快速原型、跨设备分发</td></tr>
+        <tr><td>本课程定位</td><td>第 6 章主线（16 学时）</td><td>本讲（第 4 章）的第二条路线，也是期末合集的备选形式</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="note">两条路线不是"谁替代谁"。判断标准只有一条：<strong>这个作品要不要脱离浏览器、要不要跑重美术、要不要用设备专属能力</strong>。要，就走引擎；不要，网页端往往更快更省。</div>
+
+  <h3>三、180 分钟时间轴</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr><th>时段</th><th>时长</th><th>环节</th><th>干什么</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>0:00—0:10</td><td>10′</td><td>开场</td><td>设备变更说明 · 本讲地图与产出 · 两条路线对照</td></tr>
+        <tr><td>0:10—0:35</td><td>25′</td><td><strong>PART 1</strong> WebXR 是什么</td><td>标准与能力边界 · 安全上下文 · 支持现状</td></tr>
+        <tr><td>0:35—1:00</td><td>25′</td><td><strong>PART 2</strong> 最小可运行场景</td><td>三件套 + Three.js · 30 行代码 · 进入 VR 的四步 · <strong>实操 A</strong></td></tr>
+        <tr><td>1:00—1:10</td><td>10′</td><td>课间</td><td>——</td></tr>
+        <tr><td>1:10—1:45</td><td>35′</td><td><strong>PART 3</strong> 程序化生成故宫</td><td>坐标系与比例 · 中轴布局 · 三种屋顶几何 · <strong>实操 B</strong></td></tr>
+        <tr><td>1:45—2:05</td><td>20′</td><td><strong>PART 4</strong> 材质与光照</td><td>程序化贴图 · 单平行光方案 · 雾与昼夜 · <strong>实操 C</strong></td></tr>
+        <tr><td>2:05—2:25</td><td>20′</td><td><strong>PART 5</strong> 性能预算</td><td>帧预算 · 合批与取舍 · 三个读数入口</td></tr>
+        <tr><td>2:25—2:45</td><td>20′</td><td><strong>PART 6</strong> 交互与输入</td><td>两套控制 · 舒适度设计 · VR 姿态的坑</td></tr>
+        <tr><td>2:45—2:55</td><td>10′</td><td><strong>PART 7</strong> 部署与发布</td><td>安全上下文三条路 · 头显浏览器打开流程</td></tr>
+        <tr><td>2:55—3:00</td><td>5′</td><td>收束</td><td>达标线 · 课堂作业 · 下次课预告</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="warn"><strong>超时压缩优先级</strong>：① 先保 <strong>PART 3 与 PART 5</strong>（程序化建模思路 + 性能预算，是本讲最核心的两块能力）；② 再保 <strong>实操 A/B/C</strong>（学生要亲手跑通一次）；③ 可压缩 PART 1 的支持现状表与 PART 7 的故障速查（课后自行阅读）。</div>
+
+  <h3>四、本讲学习目标（可观测）</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr><th>目标</th><th>内容</th><th>怎么检验</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>T1</td><td>说出 WebXR 的三个前提：安全上下文、浏览器支持、设备会话</td><td>提问 + 测验</td></tr>
+        <tr><td>T2</td><td>解释为什么 <code class="inline">file://</code> 与局域网 <code class="inline">http://</code> 测不出真实的 WebXR 支持情况</td><td>提问</td></tr>
+        <tr><td>T3</td><td>比较引擎路线与网页路线的适用边界，各举一个该走哪条路的场景</td><td>讨论</td></tr>
+        <tr><td>T4</td><td>写出一个最小 WebXR + Three.js 页面，并说明 XR 下为什么必须改用 <code class="inline">setAnimationLoop</code></td><td>实操 A + 巡视</td></tr>
+        <tr><td>T5</td><td>说明程序化建模在本项目中的三条收益（体积、离线、可控）</td><td>提问</td></tr>
+        <tr><td>T6</td><td>指出本项目采用的三种屋顶形制，并说出自定义几何体需要提供哪三组数组</td><td>提问</td></tr>
+        <tr><td>T7</td><td>读出自己机器上的 FPS / DrawCalls / 三角面，并判断瓶颈在哪里</td><td>记录表</td></tr>
+        <tr><td>T8</td><td>说出"snap turn 与传送"为什么比"持续平移与连续旋转"更舒适</td><td>提问</td></tr>
+        <tr><td>T9</td><td>完成课堂作业的三项改造（两项必做 + 一项选做）</td><td>课堂验收</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>五、模块地图</h3>
+  <div class="map-grid">
+    <a class="map-card" href="#c1">
+      <div class="mc-num">PART 1</div>
+      <div class="mc-title">WebXR 是什么</div>
+      <div class="mc-desc">navigator.xr · 会话模式 · 参考空间 · 安全上下文 · 支持现状 · 能力边界</div>
+    </a>
+    <a class="map-card" href="#c2">
+      <div class="mc-num">PART 2</div>
+      <div class="mc-title">最小可运行场景</div>
+      <div class="mc-desc">三件套 · Three.js r128 · 七类核心对象 · 渲染循环 · 30 行代码 · 进入 VR 四步</div>
+    </a>
+    <a class="map-card" href="#c3">
+      <div class="mc-num">PART 3</div>
+      <div class="mc-title">程序化生成故宫</div>
+      <div class="mc-desc">坐标系与单位 · 中轴布局与比例校核 · 庑殿/歇山/攒尖 · 台基柱网斗拱</div>
+    </a>
+    <a class="map-card" href="#c4">
+      <div class="mc-num">PART 4</div>
+      <div class="mc-title">材质与光照</div>
+      <div class="mc-desc">CanvasTexture 程序化贴图 · 材质复用 · 单平行光 + 半球光 · 阴影裁剪 · 雾与昼夜</div>
+    </a>
+    <a class="map-card" href="#c5">
+      <div class="mc-num">PART 5</div>
+      <div class="mc-title">性能预算</div>
+      <div class="mc-desc">72 Hz 帧预算 · 实测读数 · InstancedMesh 合批 · 阴影取舍 · renderer.info</div>
+    </a>
+    <a class="map-card" href="#c6">
+      <div class="mc-num">PART 6</div>
+      <div class="mc-title">交互与输入</div>
+      <div class="mc-desc">PC 与 VR 两套控制 · 传送与 snap turn · 可落脚面 · 不要写相机姿态</div>
+    </a>
+    <a class="map-card" href="#c7">
+      <div class="mc-num">PART 7</div>
+      <div class="mc-title">部署与发布</div>
+      <div class="mc-desc">安全上下文三条路 · 头显打开流程 · 故障速查 · 本地最小服务</div>
+    </a>
+    <a class="map-card" href="#hw">
+      <div class="mc-num">作业</div>
+      <div class="mc-title">课堂作业</div>
+      <div class="mc-desc">比例校核 · 新增构件 · 性能记录，三选两项必做 + 一项选做</div>
+    </a>
+  </div>
+</section>
+
+<!-- ===== PART 1 ===== -->
+<section id="c1">
+  <div class="sec-head">
+    <div class="sec-num">一</div>
+    <div>
+      <h2>WebXR 是什么：把 VR 放进浏览器</h2>
+      <p class="sec-sub">浏览器不再只是"看网页的软件"，它可以是一台 VR 运行时</p>
+    </div>
+  </div>
+
+  <h3>1.1 一句话定义</h3>
+  <p><strong>WebXR Device API</strong> 是由 W3C 制定的浏览器标准接口，让网页代码直接驱动头显、手柄与空间追踪能力。它取代了早期的 WebVR（只做 VR、接口零散），把 <strong>VR 与 AR 统一到同一套 API</strong> 之下。</p>
+  <p>这句话的真正含义是：<strong>做 VR 应用，不再是引擎的专利。</strong>一个 HTML 文件加上几百行 JavaScript，就能在头显里跑起来——这也是本讲要亲手验证的事。</p>
+
+  <h3>1.2 七个必须记住的概念</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr><th>概念</th><th>写法 / 取值</th><th>含义与用途</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>能力入口</strong></td><td><code class="inline">navigator.xr</code></td><td>浏览器是否具备 XR 能力。<strong>它是 undefined，后面的一切都无从谈起</strong></td></tr>
+        <tr><td><strong>会话模式</strong></td><td><code class="inline">immersive-vr</code> / <code class="inline">immersive-ar</code> / <code class="inline">inline</code></td><td>沉浸式 VR / 沉浸式 AR / 页面内嵌（不接管显示）</td></tr>
+        <tr><td><strong>参考空间</strong></td><td><code class="inline">local-floor</code> / <code class="inline">bounded-floor</code> / <code class="inline">local</code> / <code class="inline">viewer</code></td><td>世界原点定在哪里。<code class="inline">local-floor</code> 以用户脚下的地面为原点，最符合"站着的人"的直觉</td></tr>
+        <tr><td><strong>输入源</strong></td><td><code class="inline">inputSources</code></td><td>手柄、手势、眼动等输入设备，以及它们的姿态与按键</td></tr>
+        <tr><td><strong>帧循环</strong></td><td><code class="inline">renderer.setAnimationLoop()</code></td><td>进入 XR 后渲染节奏由头显接管，<strong>必须改用它</strong></td></tr>
+        <tr><td><strong>安全上下文</strong></td><td>HTTPS 或 <code class="inline">localhost</code></td><td>WebXR 的硬性前提，不满足时 <code class="inline">navigator.xr</code> 会被藏起来</td></tr>
+        <tr><td><strong>会话生命周期</strong></td><td><code class="inline">requestSession()</code> → <code class="inline">session.end()</code></td><td>进入与退出 VR；退出后要交还控制权给页面</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>1.3 最重要的一条工程约束：安全上下文</h3>
+  <div class="warn"><strong>WebXR 只在"安全上下文"里可用</strong>：<code class="inline">https://…</code> 或 <code class="inline">http://localhost</code>（含 <code class="inline">127.0.0.1</code>）。<br>用 <code class="inline">file://</code> 双击打开、或用局域网地址 <code class="inline">http://192.168.x.x</code> 访问时，浏览器会把 <code class="inline">navigator.xr</code> 直接藏起来 —— 这时你测出来"这个设备不支持 WebXR"，<strong>是一个假结论</strong>。</div>
+  <p>为什么浏览器要这么做？因为 VR 会读取头显与手柄的空间姿态，属于敏感能力，标准要求它必须运行在可验证来源的页面里。这条规则没有例外，也不看你的设备有多贵。<strong>它是本讲最容易误判、也最容易浪费半天时间的一个点。</strong></p>
+  <p>第七节会给出三条绕行路线（HTTPS 托管、端口转发、浏览器白名单）。请记住排查顺序：<strong>先问"是不是安全上下文"，再问"设备支不支持"。</strong></p>
+
+  <h3>1.4 支持现状（2026 年 9 月）</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr><th>平台 / 浏览器</th><th>沉浸式 VR</th><th>说明</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>桌面 Chrome / Edge（Windows）</td><td>支持</td><td>PC 接头显（含一体机串流）可进入 VR；没有头显时，可用开发者工具或模拟扩展调试 XR 流程</td></tr>
+        <tr><td>Meta Quest 系列浏览器</td><td>支持</td><td>移动端 WebXR 生态最成熟的一支</td></tr>
+        <tr><td>PICO 浏览器（PICO 4 / Neo 3 等）</td><td>以设备实测为准</td><td><strong>与系统版本、浏览器版本强相关</strong>，同一型号不同固件可能结果不同——课前必须实测一次</td></tr>
+        <tr><td>Android Chrome</td><td>部分支持</td><td>移动 AR 能力较完整；VR 需要外接头显</td></tr>
+        <tr><td>iOS Safari</td><td>有限 / 逐步开放</td><td>以系统版本为准，不要想当然</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="note">表里的"支持"是<strong>能力层面</strong>的描述，不等于"你手上这台设备一定能进 VR"。唯一可靠的判断方法：<strong>在目标设备上打开页面，看 <code class="inline">navigator.xr</code> 与 <code class="inline">isSessionSupported('immersive-vr')</code> 的实际返回值</strong>——这也是下周设备到位后要做的第一件事。</div>
+
+  <h3>1.5 网页端路线能做什么、做不到什么</h3>
+  <div class="grid2">
+    <div class="cell">
+      <h4>✅ 很合适</h4>
+      <ul>
+        <li>展览、漫游、导览类场景（本讲就是）；</li>
+        <li>课堂演示与快速原型：改一行、刷一下就能看；</li>
+        <li>跨设备分发：PC 浏览器、头显浏览器、手机同一条链接；</li>
+        <li>与网页生态打通：二维码、微信、课件页面直接嵌入；</li>
+        <li>轻量交互：传送、抓取、面板 UI、开关与滑块。</li>
+      </ul>
+    </div>
+    <div class="cell">
+      <h4>⚠️ 代价高或不合适</h4>
+      <ul>
+        <li>复杂实时全局光照、电影级写实美术（算力不够）；</li>
+        <li>超大场景（GB 级模型与贴图，加载时间不可接受）；</li>
+        <li>需要离线包、本地文件系统或设备专属能力的重型应用；</li>
+        <li>对延迟与稳定性要求极高的竞技类内容；</li>
+        <li>完全依赖某个厂商专属 SDK 的功能（网页端只能走标准 API）。</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>1.6 随堂一测（口头抢答，不计分）</h3>
+  <ol>
+    <li>我用 <code class="inline">file://</code> 打开页面，按钮显示"不支持 WebXR"，能得出"这台设备不支持 WebXR"的结论吗？为什么？</li>
+    <li>想让世界原点落在脚底下，应该请求哪个参考空间？</li>
+    <li>一个同事说"网页做不出 VR"。请用一句话说出他这句话哪里不准确。</li>
+  </ol>
+</section>
+
+<!-- ===== PART 2 ===== -->
+<section id="c2">
+  <div class="sec-head">
+    <div class="sec-num">二</div>
+    <div>
+      <h2>技术栈与最小可运行场景</h2>
+      <p class="sec-sub">30 行代码，把一个球体放进 VR —— 先跑通骨架，再谈故宫</p>
+    </div>
+  </div>
+
+  <h3>2.1 三件套：页面、样式、逻辑</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr><th>层</th><th>技术</th><th>在本项目里负责什么</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>页面层</td><td>HTML</td><td>画布容器、HUD 面板、加载进度、"进入 VR"按钮</td></tr>
+        <tr><td>样式层</td><td>CSS</td><td>HUD 排版、按钮状态、提示浮层</td></tr>
+        <tr><td>逻辑层</td><td>JavaScript</td><td>建场景、算几何、画贴图、处理输入、驱动 XR 会话</td></tr>
+        <tr><td>3D 库</td><td><strong>Three.js</strong>（r128，UMD 版）</td><td>把 WebGL 的复杂细节封装成 Scene / Mesh / Material / Light</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>浏览器本身已经提供了两套底层能力：<strong>WebGL</strong>（画三角形）与 <strong>WebXR</strong>（接管头显）。但直接用原生 WebGL 画一座故宫，意味着你要自己写着色器、自己算矩阵、自己管理缓冲区。Three.js 的作用就是把这些收起来，让我们把精力放在<strong>"宫殿应该长什么样"</strong>，而不是"投影矩阵怎么乘"。</p>
+
+  <h3>2.2 先说一个必须提前知道的坑：库的加载方式</h3>
+  <pre>&lt;!-- ✅ 本项目采用：UMD 单文件，双击 file:// 也能加载 --&gt;
+&lt;script src="./three.min.js"&gt;&lt;/script&gt;
+
+// ❌ ES Module 版：在 file:// 下会被浏览器的同源策略拦下
+import * as THREE from 'three';</pre>
+  <p>本项目用的是 Three.js <strong>r128 的 UMD 构建</strong>（单文件 603 KB），用普通 <code class="inline">&lt;script src&gt;</code> 引入。两者的区别直接影响调试体验：<strong>UMD 能在 <code class="inline">file://</code> 下加载，ES Module 不能</strong>——这是"双击就能预览"和"必须先开服务器"的分界线。</p>
+  <p>但要再说一次：<code class="inline">file://</code> 只能<strong>预览画面</strong>，进不了 VR。进 VR 仍然需要安全上下文。</p>
+
+  <h3>2.3 七类核心对象</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr><th>对象</th><th>作用</th><th>在本项目里对应什么</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code class="inline">Scene</code></td><td>场景根节点，所有物体的容器</td><td>整座紫禁城</td></tr>
+        <tr><td><code class="inline">PerspectiveCamera</code></td><td>观察者（投影方式与视锥）</td><td>你的眼睛；<strong>进入 VR 后姿态由头显驱动</strong></td></tr>
+        <tr><td><code class="inline">WebGLRenderer</code></td><td>每帧把场景画出来</td><td>输出到画布或头显的双眼视图</td></tr>
+        <tr><td><code class="inline">Mesh</code></td><td>可渲染物体 = 几何体 + 材质</td><td>一根柱子、一片瓦顶、一块台基</td></tr>
+        <tr><td><code class="inline">Group</code></td><td>物体的分组容器</td><td>一座单体建筑（太和殿、午门……）</td></tr>
+        <tr><td><code class="inline">Light</code></td><td>光照</td><td>1 盏平行光 + 1 盏半球光</td></tr>
+        <tr><td><code class="inline">Raycaster</code></td><td>射线拾取，判断"指着谁"</td><td>点击地面 / 扳机传送的落点判定</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>2.4 渲染循环：两行代码的差别</h3>
+  <pre>// 普通网页动画：浏览器按刷新率回调
+requestAnimationFrame(tick);
+
+// 进入 VR 之后：渲染节奏交给头显，必须改用这一行
+renderer.setAnimationLoop(tick);</pre>
+  <div class="warn">在 XR 会话里继续用 <code class="inline">requestAnimationFrame</code>，典型症状是<strong>戴上头显就黑屏或卡住</strong>：头显的合成器要求每个 XR 帧都提交画面，而这个节奏由 <code class="inline">setAnimationLoop</code> 保证。Three.js 会自动为左右眼各渲染一次，并把结果交给头显合成器。</div>
+
+  <h3>2.5 最小可运行场景（完整 30 行）</h3>
+  <pre>&lt;!DOCTYPE html&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta charset="utf-8"&gt;&lt;style&gt;body{margin:0;overflow:hidden}#vr{position:fixed;left:12px;bottom:12px}&lt;/style&gt;&lt;/head&gt;
+&lt;body&gt;
+&lt;button id="vr"&gt;进入 VR&lt;/button&gt;
+&lt;script src="./three.min.js"&gt;&lt;/script&gt;
+&lt;script&gt;
+  // 1) 三个基本对象
+  var scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x9ec9f0);
+  var camera = new THREE.PerspectiveCamera(70, innerWidth/innerHeight, 0.1, 2000);
+  camera.position.set(0, 1.6, 4);            // 1.6 m ≈ 人眼高度
+  var renderer = new THREE.WebGLRenderer({antialias:true});
+  renderer.setSize(innerWidth, innerHeight);
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 1.5));
+  document.body.appendChild(renderer.domElement);
+
+  // 2) 一盏灯 + 一个物体
+  scene.add(new THREE.HemisphereLight(0xbcd8f0, 0x6b5a44, 0.9));
+  var ball = new THREE.Mesh(
+    new THREE.SphereGeometry(0.6, 32, 24),
+    new THREE.MeshStandardMaterial({color:0xb22222})
+  );
+  ball.position.y = 1.2;
+  scene.add(ball);
+
+  // 3) 让渲染器接管帧循环（XR 必需）
+  renderer.xr.enabled = true;
+  renderer.setAnimationLoop(function(){
+    ball.rotation.y += 0.01;
+    renderer.render(scene, camera);
+  });
+
+  // 4) 进入 VR
+  var btn = document.getElementById('vr');
+  if(!navigator.xr){ btn.disabled = true; btn.textContent = '当前浏览器不支持 WebXR'; }
+  else navigator.xr.isSessionSupported('immersive-vr').then(function(ok){
+    if(!ok){ btn.disabled = true; btn.textContent = '本设备不支持沉浸式 VR'; return; }
+    btn.onclick = function(){
+      navigator.xr.requestSession('immersive-vr', {optionalFeatures:['local-floor']})
+        .then(function(s){ renderer.xr.setSession(s); })
+        .catch(function(e){ btn.textContent = '启动失败：' + e.message; });
+    };
+  });
+&lt;/script&gt;
+&lt;/body&gt;&lt;/html&gt;</pre>
+
+  <h3>2.6 进入 VR 的四步</h3>
+  <ol>
+    <li><strong>检测能力</strong>：<code class="inline">navigator.xr</code> 是否存在（不存在 = 浏览器或安全上下文不满足）；</li>
+    <li><strong>检测会话模式</strong>：<code class="inline">navigator.xr.isSessionSupported('immersive-vr')</code>；</li>
+    <li><strong>请求会话</strong>：<code class="inline">navigator.xr.requestSession('immersive-vr', {optionalFeatures:[...]})</code>；</li>
+    <li><strong>交给渲染器</strong>：<code class="inline">renderer.xr.setSession(session)</code>。</li>
+  </ol>
+  <div class="note"><strong><code class="inline">optionalFeatures</code> 与 <code class="inline">requiredFeatures</code> 的区别很关键</strong>：写进 <code class="inline">requiredFeatures</code> 的能力如果设备不支持，会话会<strong>直接失败</strong>；写进 <code class="inline">optionalFeatures</code>，设备有就用、没有就降级。本项目请求的是 <code class="inline">local-floor</code>（地面原点）、<code class="inline">bounded-floor</code>（安全边界）、<code class="inline">hand-tracking</code>（手势），<strong>全部写成可选</strong>——这样即使头显没有手势追踪，场景照样能进。</div>
+
+  <h3>2.7 随堂实操 A（约 10 分钟）</h3>
+  <ol>
+    <li>把上面的最小场景存成 <code class="inline">hello-webxr.html</code>，与 <code class="inline">three.min.js</code> 放在同一目录；</li>
+    <li>双击打开（<code class="inline">file://</code>）——<strong>画面应该能出来，但按钮会显示"不支持 WebXR"</strong>。先亲眼看到这个"假结论"；</li>
+    <li>把 <code class="inline">SphereGeometry</code> 的半径从 <code class="inline">0.6</code> 改成 <code class="inline">1.5</code>，把材质颜色改成自己喜欢的颜色，刷新；</li>
+    <li>按 <code class="inline">F12</code> 打开控制台，确认没有红色报错。</li>
+  </ol>
+  <div class="key">这一步的目的不是"做出东西"，而是<strong>亲手确认两件事</strong>：① WebXR 的可用性受安全上下文控制；② 改一行代码、刷一下页面就是一次完整迭代——网页端路线快在哪里，你自己感受得到。</div>
+</section>
+
+<!-- ===== PART 3 ===== -->
+<section id="c3">
+  <div class="sec-head">
+    <div class="sec-num">三</div>
+    <div>
+      <h2>程序化生成故宫：几何</h2>
+      <p class="sec-sub">没有一砖一瓦的模型文件，宫殿是"算"出来的</p>
+    </div>
+  </div>
+
+  <h3>3.1 为什么选择"用代码建模"</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr><th>方案</th><th>体积</th><th>网络依赖</th><th>可控性</th><th>适合本讲吗</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>下载现成模型（素材库 / AI 生成）</td><td>几十 MB ～ GB</td><td>需要下载</td><td>受精度与授权限制</td><td>不适合：课堂网络不可控，版权也不清楚</td></tr>
+        <tr><td>建模软件自制（Blender）</td><td>中等</td><td>需要分发</td><td>高</td><td>不适合本次课：40 人在一节课里做不完</td></tr>
+        <tr><td><strong>程序化生成（本讲）</strong></td><td><strong>约 660 KB</strong></td><td><strong>零请求，断网可用</strong></td><td><strong>每个尺寸都是一个可调变量</strong></td><td><strong>✓ 采用</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>程序化建模还有一个隐藏收益：<strong>它是"可解释"的</strong>。模型文件里的一根柱子是几万个顶点坐标；而程序里的一根柱子是 <code class="inline">addPillar(x, z, y0, h, r)</code>——想让它高一点，改一个数就行，还能顺便讲清"高多少算合理"。</p>
+
+  <h3>3.2 先把坐标系定死</h3>
+  <ul>
+    <li><strong>1 个世界单位 = 1 米</strong>，与历史资料上的尺寸可以直接对话；</li>
+    <li><strong>y 轴朝上</strong>；中轴线取 <code class="inline">x = 0</code>；本项目取 <strong>+z 为南、−z 为北</strong>（午门在南、三大殿在北）；</li>
+    <li>每座建筑一个 <code class="inline">Group</code>：Group 只负责"整体落位"，内部构件一律用<strong>局部坐标</strong>，之后整体移动、旋转、复制都不会散架；</li>
+    <li>玩家活动范围单独用一个常量圈住：<code class="inline">{ wallX: 82, southZ: 170, northZ: −178 }</code>。</li>
+  </ul>
+  <div class="key"><strong>单位先定，比例才不会乱。</strong>建模最常见的灾难不是"面太多"，而是"不知道自己用的是厘米还是米"——最后做出来的人比柱子高，或者柱子比宫殿还粗。</div>
+
+  <h3>3.3 中轴布局：从午门到保和殿</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr><th>建筑</th><th>中心坐标（z）</th><th>建模要点</th><th>尺寸校核</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>午门</strong></td><td>+150</td><td>凹字形城台（三座门洞）+ 重檐庑殿正楼 + 两翼廊屋 + 两座攒尖角亭</td><td>城台顶 11 m ✓</td></tr>
+        <tr><td>内金水河 · 五桥</td><td>+112</td><td>河道 + 汉白玉栏杆 + 5 座石拱桥（中央主桥最宽）</td><td>主桥宽 7.4 m</td></tr>
+        <tr><td><strong>太和门</strong></td><td>+78</td><td>单层台基 + 九间门殿 + 重檐歇山顶（含山花）</td><td>屋脊 ≈ 20 m</td></tr>
+        <tr><td><strong>太和殿</strong></td><td>−55</td><td>三层须弥座（2.4 / 2.8 / 3.5 m）+ 三层望柱栏板 + 32 根红柱 + 青绿彩绘额枋 + 两圈斗拱 + 重檐庑殿 + 正脊鸱吻 + 月台鎏金铜缸</td><td><strong>总高 35.4 m（实测 35.05 m）✓</strong></td></tr>
+        <tr><td>中和殿</td><td>−98</td><td>方形台基 + 单檐四角攒尖 + 鎏金宝顶</td><td>约 19 m</td></tr>
+        <tr><td>保和殿</td><td>−140</td><td>台基 + 重檐（下庑殿 / 上歇山带山花）</td><td>约 29.5 m</td></tr>
+        <tr><td>东西廊庑</td><td>x = ±62</td><td>185 m 连檐走廊红墙 + 窗棂 + 单向坡灰瓦顶 + 檐下红灯笼</td><td>纵深贯通全院</td></tr>
+        <tr><td>体仁阁 / 弘义阁</td><td>x = ±52</td><td>两重檐楼阁（灰瓦）</td><td>——</td></tr>
+        <tr><td>四周围墙</td><td>x = ±88 / z = ±176</td><td>6.5 m 红墙 + 黄琉璃墙帽</td><td>6.5 m ✓</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="note"><strong>比例校核是这一步的隐藏训练。</strong>比如太和殿，把"三层台基 + 屋身 + 重檐屋顶"逐段加起来，程序里算出的总高是 35.4 m，查证的历史数据是 35.05 m——误差 1%，说明坐标、单位与分段还原是站得住的。这类校核会原样出现在你的课堂作业里。</div>
+
+  <h3>3.4 中式屋顶：三种形制，三段自定义几何</h3>
+  <p>Three.js 提供了立方体、球、圆柱等基础几何体，但<strong>没有"庑殿顶"</strong>。中式屋顶必须自己写：给出<strong>顶点、法线、UV</strong>三组数组，组装成 <code class="inline">BufferGeometry</code>。</p>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr><th>形制</th><th>用在哪</th><th>几何特征</th><th>代码入口</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>庑殿顶</strong>（四阿顶）</td><td>午门正楼、太和殿</td><td>四坡：前后为<strong>梯形</strong>、左右为三角形，五条脊（正脊 + 四条垂脊）</td><td><code class="inline">hipGeo()</code> / <code class="inline">addHipRoof()</code></td></tr>
+        <tr><td><strong>歇山顶</strong></td><td>太和门、保和殿上层</td><td>上半为两坡，下半四面坡，两端带<strong>山花</strong></td><td><code class="inline">gableGeo()</code> / <code class="inline">addGableRoof()</code></td></tr>
+        <tr><td><strong>四角攒尖顶</strong></td><td>中和殿、午门角亭</td><td>四坡汇于一点，顶部加鎏金宝顶</td><td><code class="inline">addPyramidRoof()</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <pre>// 庑殿顶的骨架：手写顶点 / 法线 / UV（节选，已简化）
+function hipGeo(w, d, h, spine){
+  var hw = w/2, hd = d/2, s = Math.max(0.5, spine)/2;
+  var pos = [], uvs = [], nors = [];
+  var slopeF = Math.sqrt(h*h + hd*hd);          // 前后坡的斜长 → 用于 UV 纵向比例
+  var slopeS = Math.sqrt(h*h + (hw-s)*(hw-s));  // 侧坡
+
+  function quad(a, b, c, dd, nrm, uvArr){       // 一个面：3 或 4 个顶点
+    var ids = [a, b, c]; if(dd) ids.push(a, c, dd);   // 四边形 → 两个三角形
+    ...
+  }
+
+  var A = [-s, h, 0], B = [s, h, 0];            // 正脊两端
+  var F1 = [ hw, 0,  hd], F2 = [-hw, 0,  hd];   // 南侧檐口
+  var Bk1 = [-hw, 0, -hd], Bk2 = [ hw, 0, -hd]; // 北侧檐口
+
+  var nf = [0,  hd,  h], nb = [0,  hd, -h];     // 前后坡法线（手算）
+  var nl = [-h, hw-s, 0], nr = [ h, hw-s, 0];   // 左右坡法线
+  ...
+  var g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  g.setAttribute('normal',   new THREE.Float32BufferAttribute(nors, 3));
+  g.setAttribute('uv',       new THREE.Float32BufferAttribute(uvs, 2));
+  return g;
+}</pre>
+  <p>注意 <code class="inline">quad()</code> 里的 <code class="inline">ids.push(a, c, dd)</code>：<strong>四边形要拆成两个三角形</strong>。前后坡是梯形（不是三角形），必须给 6 个顶点、6 组 UV 才能铺满——这是本项目最早踩到的坑之一（详见 3.6）。</p>
+
+  <h3>3.5 让建筑"站得住"的四类构件</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr><th>构件</th><th>做法</th><th>本项目数量级</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>台基与须弥座</strong></td><td>逐层用 Box 叠上去，层高就是历史尺寸</td><td>太和殿三层：2.4 / 2.8 / 3.5 m</td></tr>
+        <tr><td><strong>望柱与栏板</strong></td><td>沿台基边缘等距排布，间距约 1.9 m 生成一组</td><td>望柱 966 根、栏板 930 块</td></tr>
+        <tr><td><strong>柱网与斗拱</strong></td><td>立柱按开间分布；檐下沿长度生成"斗拱线"</td><td>红柱 146 根、斗拱 356 组</td></tr>
+        <tr><td><strong>匾额、灯笼、窗棂</strong></td><td>贴图 + 简单几何体（Box / Sphere）</td><td>灯笼 35 盏 × 两庑</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>这里有一处关键的工程判断：这些构件<strong>单看都很简单，数量却上千</strong>。如果一根柱子一个 <code class="inline">Mesh</code>，光是提交次数就会拖垮帧率。解决方式是<strong>实例化合批</strong>（<code class="inline">InstancedMesh</code>），详见 PART 5。</p>
+
+  <h3>3.6 三个一定会踩的坑</h3>
+  <div class="warn">
+    <ol style="margin:0 0 0 20px;">
+      <li><strong>梯形屋面不是三角形。</strong>庑殿顶的前后坡是梯形，需要 6 个顶点、6 组 UV；只按 3 个顶点写，屋面会缺一大块。</li>
+      <li><strong>法线要自己算。</strong>手写几何体不会自动获得正确法线；法线错了，屋顶会"一块亮一块黑"，看起来像贴图坏了，其实是光照方向错了。</li>
+      <li><strong>UV 要按实际尺寸。</strong>贴图的重复次数应随构件的米数计算（<code class="inline">repeat.set(宽/6, 高/4)</code> 这类写法）。否则同一张瓦片贴图，在小屋上被拉长、在大殿上被压扁，砖缝大小对不上。</li>
+    </ol>
+  </div>
+  <p>还有一个更"隐蔽"的坑写在 PART 6：把局部坐标当成世界坐标用。当物体带父容器（Group）时，它的坐标是局部的，合批前必须先换算到世界坐标，否则上千根柱子会整体错位。</p>
+
+  <h3>3.7 随堂实操 B（约 15 分钟）</h3>
+  <ol>
+    <li>打开场景源码，找到太和殿的屋顶高度参数，把它改成原来的 <strong>±20%</strong>，刷新页面，观察形制变化；改回原值；</li>
+    <li>把中轴上一座建筑整体沿 z 轴移动 20 m，检查它与地面、台基的关系有没有错位；</li>
+    <li>回答：<strong>你刚才改动的到底是哪一个变量？</strong>它影响的是几何、材质，还是位置？</li>
+  </ol>
+  <div class="note">第 3 问是本讲的"分水岭"：<strong>能说清"我改的是什么"，才说明你真的看懂了这段代码</strong>，而不是在碰运气调数字。</div>
+</section>
+
+<!-- ===== PART 4 ===== -->
+<section id="c4">
+  <div class="sec-head">
+    <div class="sec-num">四</div>
+    <div>
+      <h2>材质、贴图与光照</h2>
+      <p class="sec-sub">一张贴图都不下载：所有纹理都是运行时画出来的</p>
+    </div>
+  </div>
+
+  <h3>4.1 为什么不用一张图片贴图</h3>
+  <p>本项目的贴图不是图片文件，而是运行时用 <strong>Canvas 2D 画出来</strong>、再交给 GPU 的 <code class="inline">CanvasTexture</code>。四个好处：</p>
+  <ul>
+    <li><strong>零网络请求</strong>：不下载任何素材，断网也能跑，课堂网络不可靠也不怕；</li>
+    <li><strong>体积几乎为零</strong>：整份工程 660 KB，其中 603 KB 还是 Three.js 库本身；</li>
+    <li><strong>随时可调</strong>：想换瓦色，改一个颜色值就行，不用重做贴图；</li>
+    <li><strong>无版权风险</strong>：所有纹理都是程序生成的，不涉及素材授权。</li>
+  </ul>
+  <p>代价也很直接：<strong>程序化贴图做不到照片级写实</strong>。它擅长表现"重复的、有规律的"表面——瓦、砖、墙、栏杆，正好是古建筑的主体。</p>
+
+  <h3>4.2 八种程序化贴图</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr><th>贴图</th><th>画法要点</th><th>用在哪些构件</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>黄琉璃瓦</td><td>逐行错缝排布 + 顶部高光带</td><td>三大殿、午门正楼的屋顶</td></tr>
+        <tr><td>灰瓦</td><td>低饱和青灰 + 颗粒噪点</td><td>东西廊庑、两翼楼阁</td></tr>
+        <tr><td>朱红墙</td><td>底色 + 竖向色差（模拟雨水冲刷）</td><td>宫墙、立柱、门扇</td></tr>
+        <tr><td>汉白玉</td><td>浅色底 + 云纹噪点</td><td>台基、栏杆、石桥</td></tr>
+        <tr><td>金砖地面</td><td>方格分块 + 亮度扰动</td><td>广场铺装</td></tr>
+        <tr><td>青绿彩绘</td><td>条带 + 云纹</td><td>额枋、梁枋</td></tr>
+        <tr><td>冰裂纹窗棂</td><td>网格线</td><td>门窗、廊庑墙面</td></tr>
+        <tr><td>匾额</td><td>文字 + 描边 + 底色</td><td>各殿门楣、广场导览牌</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>4.3 材质复用：把纹理 clone 出来改重复次数</h3>
+  <pre>// 生纹理一次，改 repeat 复用；用 key 缓存，避免重复创建材质
+var matCache = {};
+function wallMat(w, h){
+  var key = 'w' + (w|0) + '_' + (h|0);
+  if(matCache[key]) return matCache[key];
+  var t = tex.wallR.clone();                 // 克隆纹理，各自设置平铺次数
+  t.needsUpdate = true;
+  t.repeat.set(Math.max(1, w/6), Math.max(1, h/4));
+  return (matCache[key] = new THREE.MeshStandardMaterial({map:t, roughness:0.9}));
+}</pre>
+  <div class="note"><strong>为什么必须缓存？</strong>材质对象在渲染时对应着色器程序与提交批次。同样的墙面每出现一次就新建一个材质，会让 <strong>Draw Call 成倍膨胀</strong>——这正是 PART 5 要处理的问题。记住一条经验：<strong>能复用的材质就复用，能让纹理 <code class="inline">repeat</code> 解决的就别新建材质</strong>。</div>
+
+  <h3>4.4 光照：两盏灯打完全场</h3>
+  <ul>
+    <li><strong>1 盏平行光</strong>（<code class="inline">DirectionalLight</code>）：模拟日光，负责明暗与投影；</li>
+    <li><strong>1 盏半球光</strong>（<code class="inline">HemisphereLight</code>）：模拟天光与环境补色，避免背光面死黑；</li>
+    <li><strong>没有实时点光源</strong>：夜间的灯笼与灯火<strong>不新增光源</strong>，只调材质的自发光强度。</li>
+  </ul>
+  <p>阴影用一张 <strong>2048 的 PCFSoft 阴影贴图</strong>，正交阴影相机按中轴范围裁剪，并设置 <code class="inline">bias / normalBias</code> 抑制摩尔纹。</p>
+  <div class="warn"><strong>阴影范围是一个必须做的取舍。</strong>阴影贴图的分辨率被摊在整个阴影相机范围内：范围开得越大，单个像素覆盖的地面越大，阴影就越糊、越抖。开得太小，远处的建筑又投不出影子。所以正确做法是<strong>让阴影相机只包住视野中必须投影的部分</strong>（本项目取中轴一带约 ±210 m × 140～190 m），而不是无脑盖住全场。</div>
+
+  <h3>4.5 雾、天空与昼夜</h3>
+  <ul>
+    <li><strong>雾（Fog 220 m → 780 m）</strong>：让远景自然淡出。它的作用不只是好看——<strong>可以用更近的渲染距离而不穿帮</strong>，等价于省算力；</li>
+    <li><strong>天空球</strong>：一个从内侧观察的球体，颜色随时间变化，同时作为雾色与整体色温的来源；</li>
+    <li><strong>昼夜插值</strong>：用一组时间变量在"白天 / 黄昏 / 夜晚"三套颜色之间平滑过渡，<strong>只改 uniform 与材质自发光强度，不重建几何与材质</strong>；</li>
+    <li>默认取下午 15:00——斜阳下屋檐投影最长，立体感最好。</li>
+  </ul>
+  <div class="key">把"时间"做成一个可以滑动的变量，是这类场景性价比最高的一招：<strong>几行插值代码，换来一整套"晨昏四季"的可讲内容</strong>，而且几乎不增加渲染负担。</div>
+
+  <h3>4.6 随堂实操 C（约 10 分钟）</h3>
+  <ol>
+    <li>把 HUD 上的"时辰"滑块从 <strong>5:00 拉到 21:00</strong>，记录三个时刻（清晨 / 正午 / 黄昏后）的画面差异：色温、影子长度与方向、灯火；</li>
+    <li>指出哪些变化属于<strong>光照参数</strong>（光源强度、颜色、阴影），哪些属于<strong>材质参数</strong>（自发光、反射率）；</li>
+    <li>把画面停在 21:00，回答：为什么夜间灯笼没有让帧率明显下降？</li>
+  </ol>
+</section>
+
+<!-- ===== PART 5 ===== -->
+<section id="c5">
+  <div class="sec-head">
+    <div class="sec-num">五</div>
+    <div>
+      <h2>性能预算：为什么它能跑在移动头显上</h2>
+      <p class="sec-sub">这一节把第 3 课的硬件指标，变成浏览器里可以读到的数字</p>
+    </div>
+  </div>
+
+  <h3>5.1 先算一笔帧预算</h3>
+  <p>头显刷新率 <strong>72 Hz</strong> 意味着每帧只有约 <strong>13.9 ms</strong>（1000 ÷ 72）。这 13.9 ms 里要同时完成：CPU 逻辑与物理、<strong>Draw Call 提交</strong>、GPU 渲染、以及双眼画面的合成。移动头显用的是移动芯片级 GPU，没有独立显卡，也不能靠风扇长时间压散热。</p>
+  <div class="note">把这句话和上节课的硬件内容连起来看：<strong>刷新率不是一个抽象的规格数字，它是一份必须按时交卷的时间预算。</strong>超了就掉帧，掉帧就眩晕——这是第 2 章讲过的 Motion-to-Photon 延迟在工程上的真实来源。</div>
+
+  <h3>5.2 本课程的资产预算（承接第 3 次课）</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr><th>项目</th><th>参考预算</th><th>为什么是这条线</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>单个物体面数</td><td>≤ 5 万三角面</td><td>单个物体过大，视锥剔除就失去意义</td></tr>
+        <tr><td>全场景面数</td><td>≤ 50 万三角面</td><td>移动 GPU 的顶点与光栅化压力上限</td></tr>
+        <tr><td>单张贴图</td><td>≤ 2K</td><td>显存与带宽；本项目实际只用 ≤ 256×256</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>5.3 本项目的读数记录</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr><th>指标</th><th>项目记录</th><th>说明</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>Draw Calls</strong></td><td>43 — 114</td><td>随视锥内物体数量变化；这是本项目最关键的读数</td></tr>
+        <tr><td><strong>三角面</strong></td><td>约 3.8 万</td><td>远低于 50 万预算，说明"减面"不是本项目的瓶颈</td></tr>
+        <tr><td>纹理</td><td>运行时生成，零下载</td><td>全部由 Canvas 绘制，单张 ≤ 256×256</td></tr>
+        <tr><td>光源</td><td>2 盏</td><td>1 平行光（投影）+ 1 半球光，无实时点光源</td></tr>
+        <tr><td>像素比</td><td>min(devicePixelRatio, 1.5)</td><td>限制填充率——高分屏上这是最直接的省算力开关</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="note"><strong>这些数字只作量级参考，不要当成常数背。</strong>HUD 面板显示的是<strong>你这一刻、这个视角</strong>的读数：转头、走近、把时辰调到夜晚，数值都会变。课堂上请记录<strong>你自己机器上的一次真实读数</strong>，并写清是在哪个机位、哪个时辰取的——这比抄一个"标准答案"有价值得多。</div>
+
+  <h3>5.4 六条优化手段</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr><th>手段</th><th>具体做法</th><th>收益</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>实例化合批</strong><br>InstancedMesh</td><td>望柱 966、栏板 930、红柱 146、斗拱 356、灯笼 70 —— 每类只用一个 draw call</td><td><strong>把上千次提交压成几次</strong>，本项收益最大的一条</td></tr>
+        <tr><td>低面数几何</td><td>立柱用 10 边圆柱（<code class="inline">openEnded</code>）、斗拱用 24 顶点盒体、自定义屋顶 12—18 顶点</td><td>三角面数量级下降</td></tr>
+        <tr><td>阴影只给该给的物体</td><td>望柱、栏板、斗拱关闭 <code class="inline">castShadow</code></td><td>直接缩小阴影 pass 的绘制量</td></tr>
+        <tr><td>限制像素比</td><td><code class="inline">setPixelRatio(min(dpr, 1.5))</code></td><td>减少填充像素，对移动 GPU 效果明显</td></tr>
+        <tr><td>雾 + 天空球</td><td>220—780 m 淡出</td><td>允许更近的渲染距离，远景不必精细</td></tr>
+        <tr><td>昼夜不重建</td><td>只写 uniform 与自发光强度</td><td>避免运行时的卡顿尖峰</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>5.5 怎么量：三个读数入口</h3>
+  <ol>
+    <li><strong>页面内置面板</strong>：本项目 HUD 直接显示 FPS、DrawCalls、三角面、纹理数——课堂上先用它；</li>
+    <li><strong>代码读数</strong>：<code class="inline">renderer.info.render.calls</code>、<code class="inline">renderer.info.render.triangles</code>、<code class="inline">renderer.info.memory.textures</code>；</li>
+    <li><strong>开发者工具</strong>：Chrome DevTools 的 Performance 与 Rendering 面板，看帧时间构成（脚本 / 渲染 / 合成）。</li>
+  </ol>
+  <pre>// 把性能读数显示在页面上（本项目 HUD 的做法）
+var info = renderer.info.render;
+el.innerHTML = 'FPS &lt;b&gt;' + fps + '&lt;/b&gt; ｜ DrawCalls &lt;b&gt;' + info.calls +
+               '&lt;/b&gt; ｜ 三角面 &lt;b&gt;' + (info.triangles/1000).toFixed(0) + 'k&lt;/b&gt;' +
+               ' ｜ 纹理 &lt;b&gt;' + renderer.info.memory.textures + '&lt;/b&gt;';</pre>
+  <div class="key"><strong>结论一句话</strong>：在 VR 里，<strong>Draw Call 往往比三角面更致命</strong>。每一个物体一次提交都有固定开销，几百次提交就能吃掉整个帧预算——所以你才会看到"明明只有 3 万面，却卡得不行"的情况。优化的第一顺位永远是<strong>减少提交次数</strong>，其次才是减面、砍纹理、降分辨率。</div>
+
+  <h3>5.6 课堂追问</h3>
+  <ol>
+    <li>为什么"合批"要排在"减面"前面？请用帧预算里的时间构成解释。</li>
+    <li>如果把 966 根望柱的 <code class="inline">castShadow</code> 全部打开，最可能先出问题的是哪一项读数？</li>
+    <li>这个场景原封不动搬到一台三年前的手机上打开，不做任何优化，你觉得会先卡在哪一步？</li>
+  </ol>
+</section>
+
+<!-- ===== PART 6 ===== -->
+<section id="c6">
+  <div class="sec-head">
+    <div class="sec-num">六</div>
+    <div>
+      <h2>交互与输入：一套场景，两套控制</h2>
+      <p class="sec-sub">同一份代码，既要能在机房里用鼠标键盘跑，也要能在头显里用手柄跑</p>
+    </div>
+  </div>
+
+  <h3>6.1 总览：PC 与 VR 的输入映射</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr><th>场景</th><th>输入</th><th>行为</th></tr>
+      </thead>
+      <tbody>
+        <tr><td rowspan="4">PC 预览<br>（备课 / 投屏 / 无头显时）</td><td>鼠标拖拽</td><td>环视（俯仰限幅 ±77°，避免翻转）</td></tr>
+        <tr><td>W / A / S / D 或方向键</td><td>沿视线方向行走，<strong>Shift 加速（6 → 14 m/s）</strong></td></tr>
+        <tr><td>单击地面</td><td>射线命中可落脚面 → 显示落点环 → 松开执行传送</td></tr>
+        <tr><td>HUD 面板</td><td>时辰滑块（5:00—21:00）、暂停昼夜、4 个预设机位</td></tr>
+        <tr><td rowspan="4">VR<br>（头显 + 手柄）</td><td>头部</td><td>自然环视（由头显姿态直接驱动）</td></tr>
+        <tr><td><strong>扳机</strong></td><td>按住 → 手柄发出橙色射线、地面显示绿色落点环；松开 → 传送到该点</td></tr>
+        <tr><td><strong>左摇杆</strong></td><td>按头朝向平滑行走（约 4.2 m/s）</td></tr>
+        <tr><td><strong>右摇杆左右</strong></td><td>Snap turn，每次 30°，350 ms 冷却</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="note">为什么 PC 端也值得认真做？因为<strong>本课程的大部分开发与演示都在 PC 上完成</strong>：备课、投屏、课堂讲解、以及设备不可用时（比如本周），PC 端就是唯一能让学生亲手操作的入口。</div>
+
+  <h3>6.2 可落脚面的设计</h3>
+  <p>传送不是"想传哪传哪"。本项目把所有允许落脚的表面登记进一个集合，射线只对这个集合求交：</p>
+  <ul>
+    <li>广场金砖地面；</li>
+    <li>太和门、太和殿（三层）、中和殿、保和殿的台基顶面；</li>
+    <li>内金水河五座桥面；</li>
+    <li>午门城台与两翼顶面。</li>
+  </ul>
+  <p>玩家的活动范围再整体夹紧在围墙之内（<code class="inline">wallX / southZ / northZ</code> 三个上限），避免"一脚踏空到场景外"，也避免穿墙。</p>
+
+  <h3>6.3 舒适度：为什么是"传送 + 分步转身"</h3>
+  <div class="grid2">
+    <div class="cell">
+      <h4>为什么用传送，而不是连续行走</h4>
+      <p>VR 里"人没动、画面在动"最容易引发不适：前庭系统感觉没动，视觉系统却报告在加速。<strong>瞬移把连续的加减速打断</strong>，是当前最稳的移动方案。本项目 VR 里保留的平滑行走也刻意压到 4.2 m/s，并只在"沿头朝向"这一个方向上生效。</p>
+    </div>
+    <div class="cell">
+      <h4>为什么是 30° 一档，还要 350 ms 冷却</h4>
+      <p>连续旋转同样容易晕。Snap turn 把转动切成 30° 一档，一档一档转；<strong>350 ms 冷却</strong>是为了防止摇杆轻微漂移被识别成连续输入，导致画面一直转个不停——这类"小概率但高频"的手感问题，靠参数调，不靠运气。</p>
+    </div>
+  </div>
+
+  <h3>6.4 一个必须绕开的坑：不要在 VR 里每帧写相机姿态</h3>
+  <pre>// ❌ 错误：进入 XR 后，相机姿态由头显每帧写入，你写它 = 两边互相覆盖
+camera.rotation.y += 30 * Math.PI / 180;
+
+// ✅ 正确：旋转"玩家"这一层父节点，相机保持由头显驱动
+player.rotation.y += 30 * Math.PI / 180;</pre>
+  <div class="warn">症状很有欺骗性：<strong>画面抖动、视点漂移、转向失灵，甚至戴上头显后画面"粘"在脸上</strong>。原因是你和头显在抢同一个属性。正确做法是把玩家做成一个 <code class="inline">Group</code>（rig），<strong>所有转身、位移都作用在 rig 上</strong>；相机作为它的子节点，只负责"被头显驱动"。</div>
+
+  <h3>6.5 课堂追问</h3>
+  <ol>
+    <li>右摇杆转向为什么要加 350 ms 冷却？不加会发生什么？</li>
+    <li>如果把活动范围放开到围墙之外，会出现哪两类问题（一类是体验，一类是性能）？</li>
+    <li>PC 端与 VR 端的代码，哪一部分是共用的？哪一部分必须分开写？</li>
+  </ol>
+</section>
+
+<!-- ===== PART 7 ===== -->
+<section id="c7">
+  <div class="sec-head">
+    <div class="sec-num">七</div>
+    <div>
+      <h2>部署与发布：怎么让头显打开它</h2>
+      <p class="sec-sub">工程做完只是"能跑"，能发出去才叫"能用"</p>
+    </div>
+  </div>
+
+  <h3>7.1 安全上下文的三条路</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr><th>方式</th><th>做法</th><th>适用</th><th>限制</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>① HTTPS 托管</strong><br>（推荐）</td><td>把 <code class="inline">.html</code> 与 <code class="inline">three.min.js</code> 放进任意 HTTPS 空间（本课程网站就是一份），得到一个短链接</td><td>课堂演示、课后分享、给同学和家人看</td><td>需要一个能放静态文件的空间</td></tr>
+        <tr><td><strong>② 本地服务 + 端口转发</strong></td><td>在电脑上跑 <code class="inline">python -m http.server 8080</code>，头显通过 USB 端口转发访问 <code class="inline">http://127.0.0.1:8080</code></td><td>开发调试（改一次看一次）</td><td>需要数据线、驱动与端口转发配置</td></tr>
+        <tr><td><strong>③ 局域网 HTTP + 白名单</strong></td><td>浏览器打开 <code class="inline">chrome://flags/#unsafely-treat-insecure-origin-as-secure</code>，填入 <code class="inline">http://192.168.x.x:端口</code>，设为 Enabled 后重启浏览器</td><td>应急（没有公网空间时）</td><td>该开关<strong>随浏览器与固件版本变化</strong>，不一定存在；只适合临时使用</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="warn">再强调一次：<strong>双击 <code class="inline">file://</code> 打开，永远进不了 VR</strong>——它能看画面，但那只是"预览"，不是"运行"。判断方式很简单：如果按钮显示"当前浏览器不支持 WebXR"，先查安全上下文，再查设备。</div>
+
+  <h3>7.2 在头显上打开场景：五步</h3>
+  <ol>
+    <li>确认两个文件在<strong>同一目录</strong>：主程序 <code class="inline">.html</code> 与 <code class="inline">three.min.js</code>（改名、移动都会导致加载失败）；</li>
+    <li>用方式①或②把它变成安全上下文；</li>
+    <li>在头显浏览器地址栏输入链接；</li>
+    <li>先看 HUD 上的<strong>统计面板有没有读数</strong>（FPS / DrawCalls）——有读数说明渲染正常，没有读数说明脚本报错了；</li>
+    <li>点<strong>"进入 VR"</strong>，戴好头显、确认手柄已连接，先原地环视一圈再尝试移动。</li>
+  </ol>
+
+  <h3>7.3 故障速查</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr><th>现象</th><th>最可能的原因</th><th>处理</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>按钮显示"当前浏览器不支持 WebXR"</td><td>不在安全上下文，或浏览器没有 WebXR</td><td>换 HTTPS / localhost；确认浏览器版本</td></tr>
+        <tr><td><code class="inline">isSessionSupported</code> 返回 <code class="inline">false</code></td><td>当前设备不支持沉浸式 VR 会话</td><td>换浏览器或换设备；先在 PC 端把内容做完</td></tr>
+        <tr><td>会话启动失败，出现错误信息</td><td>把设备不支持的能力写进了 <code class="inline">requiredFeatures</code></td><td>改成 <code class="inline">optionalFeatures</code></td></tr>
+        <tr><td>进入 VR 后画面抖动 / 漂移</td><td>代码在每帧改写相机姿态</td><td>改为旋转玩家 rig（见 6.4）</td></tr>
+        <tr><td>页面空白</td><td><code class="inline">three.min.js</code> 路径错误或不在同目录；脚本报错</td><td>开控制台看 404 与报错信息</td></tr>
+        <tr><td>画面很糊、明显掉帧</td><td>像素比过高 / 阴影范围过大 / Draw Call 过多</td><td>限制 <code class="inline">setPixelRatio</code>、收小阴影相机、做合批</td></tr>
+        <tr><td>画面看得见，但物体位置错乱</td><td>把局部坐标当世界坐标使用（父容器没换算）</td><td>合批或复制前先换算到世界坐标</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>7.4 本地最小服务</h3>
+  <pre># 方式一：Python 自带（机房电脑一般都有）
+python -m http.server 8080
+然后浏览器打开 http://127.0.0.1:8080/主程序.html
+
+# 方式二：Node 环境
+npx serve -l 8080</pre>
+  <div class="key">课堂上的实用做法：<strong>本课程网站已经放了这份场景的可直接打开版本</strong>（见本页顶部按钮），它本身就运行在 HTTPS 上——等于顺手解决了安全上下文这个前提。把它发给同学、发给家人，一个链接就够。</div>
+
+  <h3>7.5 下一周：设备到位后要做的第一件事</h3>
+  <div class="warn"><strong>在头显上做一次"安全上下文成立"的支持性实测</strong>，并且只记录四行结果：① 是否安全上下文；② <code class="inline">navigator.xr</code> 是否存在；③ <code class="inline">isSessionSupported('immersive-vr')</code> 的返回值；④"进入 VR"按钮能不能点。这四行决定了我们是继续走网页端路线，还是把这条线降级为"PC 端演示 + 引擎路线为主"。</div>
+  <p>这不是多此一举：<strong>WebXR 的可用性取决于设备系统版本与浏览器版本，同一型号不同固件都可能结果不同</strong>。没有实测之前，"能进 VR"只是一个假设，而工程上不拿假设当结论。</p>
+</section>
+
+<!-- ===== 课堂实操 ===== -->
+<section id="demo">
+  <div class="sec-head">
+    <div class="sec-num">实</div>
+    <div>
+      <h2>课堂实操与成果验收</h2>
+      <p class="sec-sub">三个随堂实操 + 一张记录表 + 三条达标线</p>
+    </div>
+  </div>
+
+  <h3>一、三个随堂实操</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr><th>编号</th><th>时间</th><th>任务</th><th>通过标准</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>实操 A</strong></td><td>0:35—1:00</td><td>跑通最小 WebXR 场景，改一处参数</td><td>画面正常 + 控制台无红色报错 + 改动可见</td></tr>
+        <tr><td><strong>实操 B</strong></td><td>1:10—1:45</td><td>改一座建筑的尺寸或位置，观察形制变化并复原</td><td>能说出"改的是哪个变量、影响几何还是材质"</td></tr>
+        <tr><td><strong>实操 C</strong></td><td>1:45—2:05</td><td>记录三个时辰的画面差异，完成记录表</td><td>记录表三行填满，数据能复现</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>二、PC 端操作清单（跟着做一遍）</h3>
+  <ol>
+    <li>打开本课程网站的<strong>紫禁城 WebXR 场景</strong>；</li>
+    <li>按住鼠标拖拽环视；用 <code class="inline">W</code> <code class="inline">A</code> <code class="inline">S</code> <code class="inline">D</code> 行走，按住 <code class="inline">Shift</code> 加速；</li>
+    <li>单击地面，看落点环出现后完成一次传送；</li>
+    <li>把"时辰"滑块从 5:00 拉到 21:00，在各时刻各截一张图；</li>
+    <li>依次切换到 4 个预设机位（广场远眺 / 月台近景 / 午门仰视 / 全景俯瞰）；</li>
+    <li>抄下 HUD 上的一次性能读数。</li>
+  </ol>
+
+  <h3>三、课堂记录表（每人填写）</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr><th>记录项</th><th>我的记录</th><th>说明</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>浏览器与版本</td><td></td><td>说明"在什么环境里测的"</td></tr>
+        <tr><td>是否安全上下文</td><td></td><td>是 HTTPS / localhost，还是 file:// 或局域网 http</td></tr>
+        <tr><td>FPS / DrawCalls / 三角面</td><td></td><td>抄 HUD 面板的实时读数</td></tr>
+        <tr><td>5:00 的画面特征</td><td></td><td>色温、影子长度与方向</td></tr>
+        <tr><td>15:00 的画面特征</td><td></td><td>同上</td></tr>
+        <tr><td>21:00 的画面特征</td><td></td><td>同上，并注明灯火变化</td></tr>
+        <tr><td>我改的一处参数</td><td></td><td>改前值 → 改后值 → 可见的变化</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>四、达标线（三条）</h3>
+  <ol>
+    <li>场景在浏览器里正常渲染，<strong>HUD 有实时读数</strong>；</li>
+    <li>能指出至少两处"程序化生成"的证据（例如自定义屋顶几何、Canvas 生成的贴图、实例化合批的栏杆）；</li>
+    <li>能说出 WebXR 的三个前提，并说明<b>为什么 <code class="inline">file://</code> 测不出真实结论</b>。</li>
+  </ol>
+  <div class="key">三条全过 = 本讲的课堂实操部分完成。第 3 条是本讲的"核心考点"：<strong>它考的不是记性，而是你有没有真的踩过那个坑。</strong></div>
+</section>
+
+<!-- ===== 课堂作业 ===== -->
+<section id="hw">
+  <div class="sec-head">
+    <div class="sec-num">作</div>
+    <div>
+      <h2>课堂作业 · 紫禁城场景的三项改造</h2>
+      <p class="sec-sub">两项必做 + 一项选做，全部课内完成</p>
+    </div>
+  </div>
+
+  <h3>一、基本信息</h3>
+  <div class="tbl-wrap">
+    <table>
+      <tbody>
+        <tr><th>作业名称</th><td>网页端沉浸场景改造：从看懂到改懂</td></tr>
+        <tr><th>完成形式</th><td>个人独立完成 · 课内完成 · 随课验收</td></tr>
+        <tr><th>时间安排</th><td>随 PART 3—6 边讲边做，合计约 20 分钟</td></tr>
+        <tr><th>提交内容</th><td>改造后的源码或截图 + 课堂记录表 + 一段 100 字以内的说明</td></tr>
+        <tr><th>与期末关系</th><td>计入本学期课堂案例合集；网页端形式可作为期末大作业的呈现方式之一</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>二、任务清单</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr><th>编号</th><th>任务</th><th>要求</th><th>难度</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>T1</strong><br>必做</td><td>比例校核</td><td>选一处构件（台基、屋顶、柱子、围墙皆可），查证一个真实尺寸，把代码中的数值改为该尺寸，并写明<strong>依据来源</strong>与改动前后的差异</td><td>★</td></tr>
+        <tr><td><strong>T2</strong><br>必做</td><td>新增一组构件</td><td>在中轴、月台或廊庑处新增一组构件（灯笼 / 望柱 / 栏板 / 甬道 / 照壁 / 导览牌），说明用了什么几何体、什么材质、如何定位</td><td>★★</td></tr>
+        <tr><td><strong>T3</strong><br>选做</td><td>性能记录与判断</td><td>记录改造前后的 DrawCalls、三角面、FPS，写一句你的判断：<strong>瓶颈在提交次数、填充率还是面数？</strong>依据是什么</td><td>★★★</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="note"><strong>关于"查证真实尺寸"</strong>：可以查故宫官方资料、建筑史教材或可靠科普来源。<strong>关键不是数字本身，而是你写清楚了它从哪来</strong>——这就是工程上"可追溯"的习惯，也是评分里"理解"一项的主要依据。</div>
+
+  <h3>三、评分量规</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr><th>维度</th><th>权重</th><th>看什么</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>完成度</td><td>40%</td><td>场景能跑起来，改造效果肉眼可见，没有引入报错</td></tr>
+        <tr><td>规范</td><td>20%</td><td>尺寸写成<strong>变量</strong>而不是散落的数字；命名清晰；有注释说明"改了什么"</td></tr>
+        <tr><td>理解</td><td>20%</td><td>能说清几何、材质、性能三件事的因果关系（例如"为什么这个改动会增加 Draw Call"）</td></tr>
+        <tr><td>记录</td><td>20%</td><td>记录表完整、数据真实、别人能照着复现</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>四、常见错误（提前避坑）</h3>
+  <div class="warn">
+    <ul style="margin:0 0 0 20px;">
+      <li><strong>改了但没记改前的值</strong>——回不去，也没法说明"变化了多少"；</li>
+      <li><strong>把尺寸写成魔法数字</strong>——同一份代码里出现 5 个 <code class="inline">3.5</code>，没人知道哪个是台基高度；</li>
+      <li><strong>只截图不记数据</strong>——"看着挺好"不是工程记录；</li>
+      <li><strong>控制台有红色报错却当没看见</strong>——很多"画面看起来还行"的场景，其实已经在报错；</li>
+      <li><strong>把性能数据抄成理想值</strong>——读数本来就随视角变化，如实记录反而更容易拿分。</li>
+    </ul>
+  </div>
+
+  <h3>五、想做得更好（自选加分方向）</h3>
+  <ul>
+    <li>把"时辰"默认值改成你最喜欢的一个时刻，并说明为什么那个时刻最好看（涉及光照方向与阴影长度）；</li>
+    <li>给场景加一块导览牌，写清操作方式（本项目已有这一件，可以改成你自己的版本）；</li>
+    <li>让某个构件动起来（灯笼轻摆、旗帜飘动），并说明它每一帧都做了什么、有没有增加 Draw Call；</li>
+    <li>把场景中某一处替换成你自己建的低模资产，写清它是怎么导入的。</li>
+  </ul>
+</section>
+
+<!-- ===== 速查 · 达标 ===== -->
+<section id="practice">
+  <div class="sec-head">
+    <div class="sec-num">查</div>
+    <div>
+      <h2>一页速查 · 达标线 · 下次课预告</h2>
+      <p class="sec-sub">把这一页抄在笔记本上，本讲的骨架就齐了</p>
+    </div>
+  </div>
+
+  <h3>一、六句话速查</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr><th>主题</th><th>要记住的</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>WebXR 三前提</td><td>安全上下文（HTTPS / localhost）· 浏览器支持 · 设备会话支持</td></tr>
+        <tr><td>最小技术栈</td><td>HTML + JavaScript + Three.js + <code class="inline">renderer.xr</code></td></tr>
+        <tr><td>两条渲染循环</td><td>普通页面用 <code class="inline">requestAnimationFrame</code>；XR 用 <code class="inline">setAnimationLoop</code></td></tr>
+        <tr><td>程序化建模三步</td><td>定坐标系与单位 → 定比例（可校核）→ 写几何（顶点 / 法线 / UV）</td></tr>
+        <tr><td>性能优先级</td><td><strong>Draw Call &gt; 填充率 &gt; 三角面</strong></td></tr>
+        <tr><td>最容易犯的两个错</td><td>在非安全上下文里判断"不支持 WebXR"；在 VR 里每帧写相机姿态</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>二、本讲达标线</h3>
+  <ol>
+    <li>场景能在浏览器中正常渲染并显示性能读数；</li>
+    <li>能指出至少两处程序化生成的证据；</li>
+    <li>能说清 WebXR 的三个前提与 <code class="inline">file://</code> 的假结论；</li>
+    <li>完成课堂作业的两项必做任务，记录表填写完整。</li>
+  </ol>
+
+  <h3>三、下次课预告（2026-09-30）</h3>
+  <ul>
+    <li><strong>第 5 章 三维全景技术</strong>：从拍摄到拼接，做出一个"不写代码也能看"的完整作品；</li>
+    <li>本周未完成的<strong>头显真机环节</strong>，将与设备到位后合并安排——先在头显上做一次 WebXR 支持性实测，再决定这条路线的下一步；</li>
+    <li>把今天的记录表带上，下次课会用到其中的性能读数。</li>
+  </ul>
+</section>
+
+<!-- ===== 附录：上次课存档 ===== -->
+<section id="appendix">
+  <div class="sec-head">
+    <div class="sec-num">附</div>
+    <div>
+      <h2>附录 · 上次课（09-16）内容存档</h2>
+      <p class="sec-sub">引擎路线：《虚拟现实开发常用软件》与 Unity 案例 01 的完整课堂内容</p>
+    </div>
+  </div>
+  <p>上一次课走的是<strong>引擎路线（Unity）</strong>：软件生态与工具选型、资产导入的五道关、编辑环境核对、XR 环境配置、模型与第一个 C# 脚本、模拟器 → 头显双轨验证。这一节把完整内容整段存档，复习时可以对照着看。<strong>本讲（09-23）走的是网页端路线，两条路线共用同一章的知识框架。</strong></p>
+  <details>
+    <summary>展开查看完整存档（6 个内容板块 + 课堂演示中心 + 演示设计 + 视频资料）</summary>
+
+
+<!-- ===== 导览 ===== -->
+<section id="old-guide">
   <div class="sec-head">
     <div class="sec-num">导</div>
     <div>
@@ -104,19 +1076,19 @@
 
   <h3>模块地图</h3>
   <div class="map-grid">
-    <a class="map-card" href="#c1"><div class="mc-num">4.1 / 4.2</div><div class="mc-title">软件生态与工具选型</div><div class="mc-desc">四类工具分工、Blender/3ds Max、Unity/Unreal</div></a>
-    <a class="map-card" href="#c2"><div class="mc-num">4.3</div><div class="mc-title">资产从哪来：五道关</div><div class="mc-desc">素材库 / 自建 / AI 生成，导入与优化</div></a>
-    <a class="map-card" href="#c3"><div class="mc-num">实验 A</div><div class="mc-title">环境核对与界面</div><div class="mc-desc">版本号、已装插件、六个面板、保存</div></a>
-    <a class="map-card" href="#c4"><div class="mc-num">实验 B ★</div><div class="mc-title">XR 环境配置</div><div class="mc-desc">OpenXR → Toolkit → XR Origin → Device Simulator</div></a>
-    <a class="map-card" href="#c5"><div class="mc-num">实验 C ★</div><div class="mc-title">模型与第一个脚本</div><div class="mc-desc">导入 FBX、修比例、写出 SpinObject</div></a>
-    <a class="map-card" href="#c6"><div class="mc-num">双轨验证</div><div class="mc-title">模拟器 → PICO 真机</div><div class="mc-desc">看 / 转 / 走，记录差异</div></a>
-    <a class="map-card" href="#demo"><div class="mc-num">演示中心</div><div class="mc-title">7 个课堂演示</div><div class="mc-desc">浏览器直接打开，全离线</div></a>
+    <a class="map-card" href="#old-c1"><div class="mc-num">4.1 / 4.2</div><div class="mc-title">软件生态与工具选型</div><div class="mc-desc">四类工具分工、Blender/3ds Max、Unity/Unreal</div></a>
+    <a class="map-card" href="#old-c2"><div class="mc-num">4.3</div><div class="mc-title">资产从哪来：五道关</div><div class="mc-desc">素材库 / 自建 / AI 生成，导入与优化</div></a>
+    <a class="map-card" href="#old-c3"><div class="mc-num">实验 A</div><div class="mc-title">环境核对与界面</div><div class="mc-desc">版本号、已装插件、六个面板、保存</div></a>
+    <a class="map-card" href="#old-c4"><div class="mc-num">实验 B ★</div><div class="mc-title">XR 环境配置</div><div class="mc-desc">OpenXR → Toolkit → XR Origin → Device Simulator</div></a>
+    <a class="map-card" href="#old-c5"><div class="mc-num">实验 C ★</div><div class="mc-title">模型与第一个脚本</div><div class="mc-desc">导入 FBX、修比例、写出 SpinObject</div></a>
+    <a class="map-card" href="#old-c6"><div class="mc-num">双轨验证</div><div class="mc-title">模拟器 → PICO 真机</div><div class="mc-desc">看 / 转 / 走，记录差异</div></a>
+    <a class="map-card" href="#old-demo"><div class="mc-num">演示中心</div><div class="mc-title">7 个课堂演示</div><div class="mc-desc">浏览器直接打开，全离线</div></a>
     <a class="map-card" href="#practice"><div class="mc-num">收束</div><div class="mc-title">故障速查与达标线</div><div class="mc-desc">八类常见故障、案例 01 验收</div></a>
   </div>
 </section>
 
 <!-- ===== 一、软件生态与选型 ===== -->
-<section id="c1">
+<section id="old-c1">
   <div class="sec-head">
     <div class="sec-num">一</div>
     <div>
@@ -173,7 +1145,7 @@
 </section>
 
 <!-- ===== 二、资产与五道关 ===== -->
-<section id="c2">
+<section id="old-c2">
   <div class="sec-head">
     <div class="sec-num">二</div>
     <div>
@@ -227,7 +1199,7 @@
 </section>
 
 <!-- ===== 三、环境核对与界面 ===== -->
-<section id="c3">
+<section id="old-c3">
   <div class="sec-head">
     <div class="sec-num">三</div>
     <div>
@@ -289,7 +1261,7 @@
 </section>
 
 <!-- ===== 四、XR 环境配置 ===== -->
-<section id="c4">
+<section id="old-c4">
   <div class="sec-head">
     <div class="sec-num">四</div>
     <div>
@@ -332,7 +1304,7 @@
 </section>
 
 <!-- ===== 五、模型与第一个脚本 ===== -->
-<section id="c5">
+<section id="old-c5">
   <div class="sec-head">
     <div class="sec-num">五</div>
     <div>
@@ -347,7 +1319,7 @@
     <li>把教师提供的 <code class="inline">.fbx</code>（或 <code class="inline">.obj</code>）拖进 <code class="inline">Assets/Models</code>；</li>
     <li>选中模型，Inspector 里会出现 <strong>Model / Rig / Materials</strong> 三个标签页。</li>
   </ul>
-  <div class="note">本次课<strong>不依赖联网下载模型</strong>（避免机房网络问题），统一使用教师提供的模型文件。</div>
+  <div class="note">本次课<strong>不依赖联网下载模型</strong>，统一使用教师提供的模型文件。</div>
 
   <h3>C2 放进场景并修正比例</h3>
   <div class="tbl-wrap">
@@ -408,7 +1380,7 @@ public class SpinObject : MonoBehaviour
 </section>
 
 <!-- ===== 六、双轨验证 ===== -->
-<section id="c6">
+<section id="old-c6">
   <div class="sec-head">
     <div class="sec-num">六</div>
     <div>
@@ -456,7 +1428,7 @@ public class SpinObject : MonoBehaviour
 </section>
 
 <!-- ===== 演示中心 ===== -->
-<section id="demo">
+<section id="old-demo">
   <div class="sec-head">
     <div class="sec-num">演</div>
     <div>
@@ -481,7 +1453,7 @@ public class SpinObject : MonoBehaviour
 </section>
 
 <!-- ===== 课堂演示设计（Unity 实装环境） ===== -->
-<section id="udemo">
+<section id="old-udemo">
   <div class="sec-head">
     <div class="sec-num">演</div>
     <div>
@@ -508,7 +1480,7 @@ public class SpinObject : MonoBehaviour
     </table>
   </div>
 
-  <div class="warn"><strong>为什么把"核对版本"排成第一个演示</strong>：这不是客套。机房有还原卡、教师机与机房机版本可能不同，而<strong>版本不一致是唯一一种"后面所有步骤都白做"的故障</strong>。先用 3 分钟把它排除掉，后面 150 分钟才安全。</div>
+  <div class="warn"><strong>为什么把"核对版本"排成第一个演示</strong>：这不是客套。教师机与机房机版本可能不同，而<strong>版本不一致是唯一一种"后面所有步骤都白做"的故障</strong>。先用 3 分钟把它排除掉，后面 150 分钟才安全。</div>
 
   <h3>二、7 个课堂演示（U1—U7）</h3>
   <div class="step-grid">
@@ -578,7 +1550,7 @@ public class SpinObject : MonoBehaviour
 </section>
 
 <!-- ===== 视频资料 ===== -->
-<section id="video">
+<section id="old-video">
   <div class="sec-head">
     <div class="sec-num">视</div>
     <div>
@@ -665,161 +1637,22 @@ public class SpinObject : MonoBehaviour
 </section>
 
 <!-- ===== 课堂作业设计 ===== -->
-<section id="hw">
-  <div class="sec-head">
-    <div class="sec-num">作</div>
-    <div>
-      <h2>课堂作业设计 · 案例 01：第一个可运行的 VR 场景</h2>
-      <p class="sec-sub">课内完成 · 个人独立完成 · 期末 8 个案例合集的第 1 个</p>
-    </div>
-  </div>
 
-  <div class="key"><strong>为什么这样设计</strong>：这学期的期末大作业<strong>不是最后一节课才开始的</strong>——它就是"8 个课堂案例的合集"。所以第一次作业的目标不是做得多漂亮，而是<strong>把一条完整链路走通，并留下能复现的证据</strong>：环境是什么版本、场景里有什么、脚本干了什么、性能数字是多少。这四样东西后面 7 次课都会反复用到。</div>
-
-  <h3>一、基本信息</h3>
-  <div class="tbl-wrap">
-    <table>
-      <thead><tr><th>项目</th><th>内容</th></tr></thead>
-      <tbody>
-        <tr><td>作业编号</td><td>第 4 次课课堂作业 · <strong>案例 01</strong>（期末 8 个案例合集的第 1 个）</td></tr>
-        <tr><td>对应章节</td><td>第 4 章 虚拟现实开发常用软件</td></tr>
-        <tr><td>形式</td><td><strong>个人独立完成</strong>：每人一套工程、一份记录</td></tr>
-        <tr><td>完成方式</td><td><strong>课内完成</strong>：实验 A + B + C 共约 67 分钟；本次课不布置课后任务</td></tr>
-        <tr><td>计分</td><td>计入课堂作业 30% 中的一次，同时作为期末 8 个案例合集的第 1 个案例</td></tr>
-        <tr><td>提交</td><td>下课前把<strong>截图 + 一页记录</strong>交到课程群；工程文件夹按"成果带出"流程自行带走</td></tr>
-      </tbody>
-    </table>
-  </div>
-
-  <h3>二、任务清单（六项，全部课内完成）</h3>
-  <div class="tbl-wrap">
-    <table>
-      <thead><tr><th>#</th><th>任务</th><th>具体动作</th><th>产出（要能拿出来给别人看）</th></tr></thead>
-      <tbody>
-        <tr><td>一</td><td><strong>环境登记</strong></td><td>Help → About Unity 读编辑器版本；Package Manager → In Project 读四个包版本</td><td>一张版本表（5 个版本号）</td></tr>
-        <tr><td>二</td><td><strong>XR 环境</strong></td><td>勾 OpenXR；加 XR Origin (VR)；删掉旧的 Main Camera；加 XR Device Simulator</td><td>Play 后视角能走、能转的截图</td></tr>
-        <tr><td>三</td><td><strong>模型导入</strong></td><td>导入至少 1 个外部模型（FBX），修正比例，必要时重新指定材质</td><td>模型与 XR Origin 同框的截图（能看出比例合理）</td></tr>
-        <tr><td>四</td><td><strong>第一个脚本</strong></td><td>给物体挂脚本让它按参数旋转；在 Inspector 里改一次转速并说明差异</td><td>脚本代码截图 + 改参数前后的两张截图</td></tr>
-        <tr><td>五</td><td><strong>性能读数</strong></td><td>按 F2 读 <strong>FPS / Triangles / Draw Calls</strong>；把场景物体复制成 10 份再读一次</td><td>两组数字（改前 / 改后）</td></tr>
-        <tr><td>六</td><td><strong>成果带出</strong></td><td>把工程文件夹与截图打包带走（机房有还原卡：<strong>不带出 = 下课后消失</strong>）</td><td>带出后的压缩包（自己留存，第 12 次课要用）</td></tr>
-      </tbody>
-    </table>
-  </div>
-
-  <h3>三、课堂达标线（四项，课内可验）</h3>
-  <p>以下四项在全班下课前<strong>逐项通过</strong>，即视为完成案例 01：</p>
-  <div class="tbl-wrap">
-    <table>
-      <thead><tr><th>#</th><th>达标项</th><th>通过标准</th></tr></thead>
-      <tbody>
-        <tr><td>1</td><td>版本记录</td><td>任务卡上填了本机 Unity 版本号，并能说出"为什么版本不能降"</td></tr>
-        <tr><td>2</td><td>XR 环境</td><td>场景含 XR Origin + XR Device Simulator，Play 后视角可移动、可转头</td></tr>
-        <tr><td>3</td><td>模型导入</td><td>至少 1 个外部模型导入且比例正常（没有放大 100 倍或躺倒）</td></tr>
-        <tr><td>4</td><td>脚本运行</td><td>物体按自己设定的参数旋转，并能说清 <code class="inline">Start</code> 与 <code class="inline">Update</code> 的区别</td></tr>
-      </tbody>
-    </table>
-  </div>
-
-  <h3>四、评分量规（同一份作业，四个等级看增量）</h3>
-  <div class="tbl-wrap">
-    <table>
-      <thead><tr><th>等级</th><th>运行效果</th><th>记录与说明</th></tr></thead>
-      <tbody>
-        <tr><td>及格</td><td>四项达标线全部通过</td><td>版本表齐全，截图能对应上六项任务</td></tr>
-        <tr><td>中</td><td>及格 + 性能读数完整</td><td>两组 FPS / Triangles / Draw Calls 数字齐全，并能说出三者关系（物体变多 → 帧率下降）</td></tr>
-        <tr><td>良</td><td>中 + 场景里有可交互物体</td><td>用 <code class="inline">InteractButton</code> 或射线交互做出悬停 / 按下反馈，并解释"交互 = 事件 + 反馈"</td></tr>
-        <tr><td>优</td><td>良 + 有主动优化动作</td><td>能指出本机环境里某一个包或版本的具体作用，并提出一条可验证的改进（例如"把材质合并后 Draw Call 从 X 降到 Y"），且说明验证方法</td></tr>
-      </tbody>
-    </table>
-  </div>
-  <div class="note">评分口径：<strong>能复现、能解释，比"做得多"更重要</strong>。只交截图不写说明的按及格档计；数字对不上但能讲清原因的<strong>不扣分</strong>——那恰好说明你真的在自己机器上跑过。</div>
-
-  <h3>五、作业示例（照这个格式写）</h3>
-  <h4>示例 1 · 版本记录（任务一）</h4>
-  <div class="tbl-wrap">
-    <table>
-      <thead><tr><th>项目</th><th>填写内容</th></tr></thead>
-      <tbody>
-        <tr><td>编辑器版本</td><td>6000.6.0f1（Help → About Unity）</td></tr>
-        <tr><td>四个包版本</td><td>Input System 1.20.0 / XR Interaction Toolkit 3.6.0 / XR Plug-in Management 4.7.0 / OpenXR 1.18.0（Package Manager → In Project）</td></tr>
-        <tr><td>一句话结论</td><td>Unity 只能升不能降，所以第一天就要记下版本号，否则换一台机器工程可能直接打不开</td></tr>
-      </tbody>
-    </table>
-  </div>
-
-  <h4>示例 2 · 性能记录（任务五）</h4>
-  <div class="tbl-wrap">
-    <table>
-      <thead><tr><th>步骤</th><th>FPS</th><th>Triangles</th><th>Draw Calls</th><th>说明</th></tr></thead>
-      <tbody>
-        <tr><td>初测</td><td>142</td><td>38.6k</td><td>41</td><td>场景里只有 1 间木屋 + 1 棵树</td></tr>
-        <tr><td>把木屋与树各复制 5 份</td><td>96</td><td>386k</td><td>391</td><td>位置不重叠，避免遮挡影响判断</td></tr>
-      </tbody>
-    </table>
-  </div>
-  <p><strong>结论怎么写</strong>：三角面约 ×10、Draw Call 约 ×9.5，帧率从 142 掉到 96。PC 上 96 fps 还算流畅，但 VR 的底线是 72 fps、推荐 90 fps——<strong>同样的场景直接搬到头显里就会掉到线下</strong>。所以"优化"不是做完再补，而是每加一批物体就复测一次。（上面数字是示例格式，实际以你自己机器读到的为准。）</p>
-
-  <h3>六、常见错误（提前避坑）</h3>
-  <div class="tbl-wrap">
-    <table>
-      <thead><tr><th>症状</th><th>原因</th><th>处理</th></tr></thead>
-      <tbody>
-        <tr><td>Play 后视角完全不动</td><td>OpenXR 没勾 / 没有 XR Origin / 旧 Main Camera 还在</td><td>按这三项依次检查</td></tr>
-        <tr><td>模拟器按键没反应</td><td>焦点不在 Game 视图</td><td>先用鼠标点一下 Game 视图</td></tr>
-        <tr><td>模型是粉红色</td><td>材质丢失，或贴图路径含中文</td><td>重新指定材质；素材放到纯英文路径</td></tr>
-        <tr><td>模型比房子还大 / 躺倒</td><td>导出单位不一致、坐标轴不同（Blender 的 Z 轴向上，Unity 的 Y 轴向上）</td><td>调 Scale Factor 与 Rotation</td></tr>
-        <tr><td>重开工程东西全没了</td><td>没保存场景</td><td><code class="inline">Ctrl + S</code>；养成"做完一个小步骤就存一次"的习惯</td></tr>
-        <tr><td>下课回来工程不见了</td><td>机房有还原卡，成果没带出</td><td>下课前必须走"成果带出"流程</td></tr>
-      </tbody>
-    </table>
-  </div>
-
-  <h3>七、与期末大作业的关系</h3>
-  <p>第 4—11 次课共 8 次课，每次课产出 1 个案例，<strong>案例 01 是这 8 个里的第一个</strong>：它定下的是"工程怎么建、版本怎么记、成果怎么带出"这套规矩。后面每个案例都在这套地基上加东西——交互、动画、网络、AR。到第 12 次课（2026-12-02），你要做的是把这 8 个案例整理成一份合集并现场演示，<strong>不需要在最后重新做一个项目</strong>。所以：<strong>今天带走的那份工程，就是你期末作品的第一页。</strong></p>
-</section>
 
 <!-- ===== 故障速查与达标 ===== -->
-<section id="practice">
-  <div class="sec-head">
-    <div class="sec-num">结</div>
-    <div>
-      <h2>故障速查 · 课堂达标线</h2>
-      <p class="sec-sub">课上照做，出问题先查这两张表</p>
-    </div>
-  </div>
 
-  <h3>故障速查表</h3>
-  <div class="tbl-wrap">
-    <table>
-      <thead><tr><th>症状</th><th>最可能原因</th><th>处理</th></tr></thead>
-      <tbody>
-        <tr><td>Project Settings 里找不到 XR Plug-in Management</td><td>包未安装</td><td>Package Manager → Unity Registry 安装 <code class="inline">XR Plugin Management</code></td></tr>
-        <tr><td>勾选 OpenXR 后报错</td><td>需要重启编辑器</td><td>按提示重启，重开项目</td></tr>
-        <tr><td>Play 后视角不动</td><td>XR Origin 没加 / 旧主相机还在 / 模拟器没加</td><td>依次检查这三项</td></tr>
-        <tr><td>模拟器按键没反应</td><td>焦点不在 Game 视图</td><td>先用鼠标点一下 Game 视图再按键</td></tr>
-        <tr><td>物体悬空或穿地</td><td>轴向差异 / Y 位置不对</td><td>调整 Transform 的 Position Y</td></tr>
-        <tr><td>模型是粉红色</td><td>材质丢失 / 贴图路径含中文</td><td>重新指定材质；把素材放到纯英文路径</td></tr>
-        <tr><td>场景重开后东西没了</td><td>没保存</td><td><code class="inline">Ctrl+S</code> 或 File → Save</td></tr>
-      </tbody>
-    </table>
-  </div>
 
-  <h3>案例 01 的课堂达标线</h3>
-  <p>四项达标线、六项任务清单、四级评分量规与作业示例，已合并到本页的<a href="#hw">《课堂作业设计》</a>一节，避免两处表述不一致。</p>
 
-  <div class="note"><strong>本课不布置课后任务</strong>——课程自第 3 次课起采用“课内完成”模式，课堂时间就是唯一窗口，所以每节课都设有达标线，核心产出在课内完成。没做完的部分，下次课开头会留时间继续。</div>
-
-  <h3>下次课预告（2026-09-30）</h3>
-  <p>下次课进入<strong>第 5 章 三维全景技术</strong>（8 学时，分两次课）：全景概念与分类、全景拍摄（节点、重叠率、曝光）、PTGui 拼接与 VR 全景漫游制作，最后在头显里验证——用最低门槛做出一个完整的可漫游作品。</p>
+  </details>
 </section>
 
 </main>
 
 <footer>
   <div class="f-main">中华女子学院 · 2026年虚拟现实技术 · 第 4 次课</div>
-  <div>第 4 章 虚拟现实开发常用软件（承接第 3 章硬件）· 4 学时 · 授课教师：孙琪翔 · 2026-09-23</div>
-  <div style="margin-top:6px;font-size:12px;opacity:.75;">本页依据第 4 次课教学方案、软件操作手册与学生任务卡整理，用于课后复习。</div>
-  <div style="margin-top:12px;font-size:14px;"><a href="vr-2026.html">← 返回课程主页</a> · <a href="index.html">返回个人网站</a></div>
+  <div>数据科学与信息技术学院 · 授课教师：孙琪翔 · 2026-09-23 · 第 4 章 虚拟现实开发常用软件（网页端路线）</div>
+  <div style="margin-top:6px;font-size:12px;opacity:.75;">本页内容依据课堂实施与项目源码整理（故宫场景：Three.js r128 + WebXR，全程序化建模与贴图）；AI 前沿内容随技术发展动态更新。</div>
+  <div style="margin-top:12px;font-size:14px;"><a href="vr-2026.html">← 返回课程主页</a></div>
 </footer>
 
 <button id="toTop" title="回到顶部">↑</button>
@@ -830,7 +1663,7 @@ document.addEventListener('DOMContentLoaded', function(){
   document.querySelectorAll('#nav a[data-sec]').forEach(function(a){
     navLinks[a.getAttribute('data-sec')] = a;
   });
-  var sections = ['guide','c1','c2','c3','c4','c5','c6','demo','udemo','video','hw','practice'];
+  var sections = ['guide','c1','c2','c3','c4','c5','c6','c7','demo','hw','practice'];
   if ('IntersectionObserver' in window) {
     var obs = new IntersectionObserver(function(entries){
       entries.forEach(function(en){
