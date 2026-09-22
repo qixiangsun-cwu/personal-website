@@ -182,7 +182,7 @@
     <a class="map-card" href="#hw">
       <div class="mc-num">作业</div>
       <div class="mc-title">课堂作业</div>
-      <div class="mc-desc">比例校核 · 新增构件 · 性能记录，三选两项必做 + 一项选做</div>
+      <div class="mc-desc">六项必做任务（逐项有步骤与验收点）· 三张规定截图 · 两轮举手验收 · 加分现场演示</div>
     </a>
   </div>
 </section>
@@ -1159,36 +1159,136 @@ npx serve -l 8080</pre>
     <div class="sec-num">实</div>
     <div>
       <h2>课堂实操与成果验收</h2>
-      <p class="sec-sub">三个随堂实操 + 一张记录表 + 三条达标线</p>
+      <p class="sec-sub">六项课堂任务（逐项有操作步骤与验收点）+ 三张规定截图 + 两轮举手验收 + 一张记录表</p>
     </div>
   </div>
 
-  <h3>一、三个随堂实操</h3>
+  <h3>一、这一节的作业总要求（先看这一段）</h3>
+  <div class="key">
+    <strong>所有任务课内完成，本课程不布置课后任务。</strong><br>
+    <strong>你要交的 5 样东西</strong>：① 你改过的<strong>最小场景</strong>（能跑）；② <strong>改造后的故宫场景</strong>（至少两处改动）；③ <strong>3 张规定截图</strong>（见第三节，命名要规范）；④ <strong>课堂记录表</strong>（数据真实、可复现）；⑤ <strong>真机观察卡</strong>（戴过或看过都要填）。<br>
+    <strong>验收方式</strong>：<strong>两轮举手验收 + 同桌互检 + 教师抽验 8 台</strong>。抽验只看 20 秒：页面能不能跑、改动能不能看出来、数据是不是编的。
+  </div>
+  <div class="warn"><strong>三条硬性规矩</strong>：① <strong>改动必须有依据</strong>——改了尺寸，就要写清依据来自哪里（不准写"我觉得好看"）；② <strong>数据必须真实</strong>——HUD 读数会随视角变化，如实记录比抄一个"标准答案"得分高；③ <strong>截图必须能看清读数</strong>——看不清读数的截图直接退回重截。</div>
+
+  <h3>二、先熟悉场景（3 分钟，人人必做）</h3>
+  <ol>
+    <li>打开本课程网站的<strong>紫禁城 WebXR 场景</strong>（顶部按钮那个链接）；</li>
+    <li>按住鼠标拖拽环视；用 <code class="inline">W</code> <code class="inline">A</code> <code class="inline">S</code> <code class="inline">D</code> 行走，按住 <code class="inline">Shift</code> 加速；</li>
+    <li>单击地面，看到绿色落点环后再松开鼠标，完成一次传送；</li>
+    <li>依次点 4 个预设机位：<strong>广场远眺 / 月台近景 / 午门仰视 / 全景俯瞰</strong>，感受"同一个场景换个机位就是另一张图"；</li>
+    <li>最后按 <code class="inline">F12</code> 打开控制台看一眼：<strong>有红色报错吗？</strong>（这是我们查问题的第一动作）</li>
+  </ol>
+
+  <h3>三、六项课堂任务（逐项都有操作步骤与验收点）</h3>
+
+  <h4>任务 1 · 跑通最小场景并改一处（0:30—0:50 内的 10 分钟）</h4>
+  <p><strong>做什么</strong>：把 2.5 节的 30 行代码存成 <code class="inline">hello-webxr.html</code>，与 <code class="inline">three.min.js</code> 放在同一目录，然后改一处参数。</p>
+  <ol>
+    <li>新建文件夹 <code class="inline">学号-姓名</code>，把两个文件放进去（<strong>必须同目录</strong>）；</li>
+    <li>双击打开 <code class="inline">hello-webxr.html</code>，记下按钮显示的是"进入 VR"还是"当前浏览器不支持 WebXR"；</li>
+    <li>把球体半径从 <code class="inline">0.6</code> 改成 <code class="inline">1.5</code>，颜色改成你喜欢的色值，保存后刷新；</li>
+    <li>按 <code class="inline">F12</code> 确认控制台<strong>没有红色报错</strong>。</li>
+  </ol>
+  <div class="note"><strong>验收点（必须三条全中）</strong>：① 画面里能看到一个球，且大小/颜色是你改过的；② 控制台无红字；③ 你能说出"<strong>按钮为什么显示不支持</strong>"——因为 <code class="inline">file://</code> 不是安全上下文。</div>
+  <div class="warn"><strong>常见错误</strong>：文件不在同一目录（报 404）；双击后改了文件却没刷新（浏览器缓存）；把半径写在材质里（改错对象）。</div>
+
+  <h4>任务 2 · 比例校核：改一处真实尺寸（1:00—1:20，20 分钟）</h4>
+  <p><strong>做什么</strong>：打开故宫场景源码，找一处尺寸，<strong>查证它的真实数值</strong>，把代码改成真实值，并写下依据。</p>
+  <ol>
+    <li>选一处构件：台基高度 / 台阶层数 / 柱子高度 / 围墙高度 / 屋顶高度，任选一处；</li>
+    <li>查一个<strong>可引用的来源</strong>（故宫官方资料、建筑史教材、可靠科普站），记下数值与出处；</li>
+    <li>在代码里找到对应变量，把数值改掉（<strong>不要直接写数字，先在注释里写清依据</strong>）；</li>
+    <li>刷新页面，截一张"改动后"的图，与改动前对比；</li>
+    <li>在记录表写下：<strong>改动项 → 改前值 → 改后值 → 依据来源</strong>。</li>
+  </ol>
+  <div class="note"><strong>验收点</strong>：① 改动肉眼可见；② 依据写清了来源（不是"我觉得"）；③ 能回答"这个改动属于几何、材质还是位置？"<br><strong>参考量级</strong>：太和殿总高约 35 m，三层台基 2.4 / 2.8 / 3.5 m，午门城台约 11 m，围墙约 6.5 m。</div>
+  <div class="warn"><strong>常见错误</strong>：改的数值被别处覆盖（同一个尺寸在代码里出现多次）；改了但忘了记改前值；把"屋顶高度"和"建筑总高"混为一谈。</div>
+
+  <h4>任务 3 · 新增一组构件（1:20—1:32，12 分钟）</h4>
+  <p><strong>做什么</strong>：在场景里<strong>加入一组原来没有的东西</strong>，并用一句话说清它怎么做的。</p>
+  <ol>
+    <li>从这五样里选一样：<strong>灯笼 / 望柱 / 栏板 / 甬道 / 导览牌</strong>（也可以做一面照壁）；</li>
+    <li>用现成的工具函数或 <code class="inline">BoxGeometry</code> / <code class="inline">CylinderGeometry</code> 把它加进去（位置要和周围对齐）；</li>
+    <li>给它一个材质（纯色也行，能解释就行）；</li>
+    <li>刷新看效果，确认<strong>没有穿模、没有悬空、比例正常</strong>。</li>
+  </ol>
+  <div class="note"><strong>验收点</strong>：① 新构件在场景里看得见、位置合理；② 能说出<strong>用了什么几何体、什么材质、放在哪个坐标</strong>；③ 没有引入报错。</div>
+  <div class="warn"><strong>常见错误</strong>：坐标用错单位（写成厘米，飞到天上）；只复制了代码没加到场景里（忘 <code class="inline">scene.add</code>）；加了但没有父容器，位置对不上。</div>
+
+  <h4>任务 4 · 性能实验：合批到底省了什么（2:36—2:46，10 分钟）</h4>
+  <p><strong>做什么</strong>：用 <a href="assets/vr-2026/webxr/demos/06_性能对比_合批.html" target="_blank" rel="noopener">06 号演示</a>做一次对照实验，抄下 4 个数字。</p>
+  <ol>
+    <li>把"物体数量"拖到 <strong>3000</strong>，模式选<strong>独立 Mesh</strong>，等半秒，记下 <strong>DrawCall</strong> 与 <strong>三角面</strong>；</li>
+    <li>切到 <strong>InstancedMesh 合批</strong>，同样记下这两个数字；</li>
+    <li>把两组数字填进记录表，并回答一个问题：<strong>为什么合批后三角面反而变多了？</strong></li>
+    <li>再打开故宫场景，抄一次 HUD 上的 DrawCall / 三角面 / FPS，作为"真实项目"的对照。</li>
+  </ol>
+  <div class="note"><strong>验收点</strong>：① 4 个数字都记下；② 能答出"合批后整体只做一次视锥剔除，远处实例也被一起提交，所以三角面升高"；③ 能说出结论：<strong>Draw Call 比三角面更致命</strong>。<br><strong>实测参考</strong>：3000 个物体时，独立 Mesh 约 <strong>930 次</strong> DrawCall、三角面 18.6k；合批后 <strong>2 次</strong> DrawCall、三角面 60.0k。</div>
+
+  <h4>任务 5 · 光照实验：三个时辰（1:32—1:50 内的 8 分钟）</h4>
+  <p><strong>做什么</strong>：把"时辰"滑块从 5:00 拉到 21:00，记录三个时刻的画面差异。</p>
+  <ol>
+    <li>分别在 <strong>5:00 / 15:00 / 21:00</strong> 各截一张图（同一个机位，用"广场远眺"）；</li>
+    <li>记录每个时刻的：<strong>色温（暖/冷）、影子长度与方向、灯火有无</strong>；</li>
+    <li>回答：哪些变化属于<strong>光照参数</strong>，哪些属于<strong>材质参数</strong>；21:00 时灯笼为什么没让帧率明显下降。</li>
+  </ol>
+  <div class="note"><strong>验收点</strong>：三行记录填满；能区分"光照参数 vs 材质参数"；能说出"夜间灯火只改材质自发光，不新增光源"。</div>
+
+  <h4>任务 6 · 真机观察与分发（1:50—2:36 传看与深测 + 2:51—2:58 部署环节）</h4>
+  <ol>
+    <li><strong>传看时</strong>：轮到你戴 → 只转头环视 → 说一句话 → 摘下传下一位；<strong>没轮到也要看投屏</strong>，把看到的不同写进观察卡；</li>
+    <li><strong>看/听完 4 位定岗同学的数据</strong>后，把四岗数据抄进观察卡；</li>
+    <li>把场景链接<strong>发给自己</strong>（微信文件传输助手 / 邮件），并当场确认能打开；</li>
+    <li>点一次右上角<strong>「安装为应用」</strong>：弹安装框就装，没弹就在浏览器菜单里手动"添加到主屏幕 / 桌面"；</li>
+    <li>记录结果：<strong>装成功 / 不支持手动添加 / 没找到入口</strong>，如实写。</li>
+  </ol>
+  <div class="note"><strong>验收点</strong>：① 观察卡有内容（不是空白）；② 手机或邮箱里确实收到了链接；③ 安装结果如实记录——<strong>"我这边不支持"也是有效答案</strong>。</div>
+
+  <h3>四、三张规定截图与提交规范</h3>
   <div class="tbl-wrap">
     <table>
       <thead>
-        <tr><th>编号</th><th>时间</th><th>任务</th><th>通过标准</th></tr>
+        <tr><th>编号</th><th>截什么</th><th>必须能看清</th><th>对应任务</th></tr>
       </thead>
       <tbody>
-        <tr><td><strong>实操 A</strong></td><td>0:35—1:00</td><td>跑通最小 WebXR 场景，改一处参数</td><td>画面正常 + 控制台无红色报错 + 改动可见</td></tr>
-        <tr><td><strong>实操 B</strong></td><td>1:10—1:45</td><td>改一座建筑的尺寸或位置，观察形制变化并复原</td><td>能说出"改的是哪个变量、影响几何还是材质"</td></tr>
-        <tr><td><strong>实操 C</strong></td><td>1:45—2:05</td><td>记录三个时辰的画面差异，完成记录表</td><td>记录表三行填满，数据能复现</td></tr>
+        <tr><td><strong>截图 1</strong></td><td>你的最小场景全屏</td><td>你改过的球体 + 页面没有任何报错</td><td>任务 1</td></tr>
+        <tr><td><strong>截图 2</strong></td><td>故宫场景"改动前 / 改动后"对比（同一机位）</td><td>改动的那一处看得出来</td><td>任务 2 / 3</td></tr>
+        <tr><td><strong>截图 3</strong></td><td>合批实验：两种模式各一张</td><td><strong>右边面板上的 DrawCall 数字</strong>（这是关键证据）</td><td>任务 4</td></tr>
       </tbody>
     </table>
   </div>
+  <ul>
+    <li><strong>命名</strong>：<code class="inline">学号-姓名-01.png</code> / <code class="inline">-02.png</code> / <code class="inline">-03.png</code>（两张对比图可以合成一张，命名 <code class="inline">-02.png</code>）；</li>
+    <li><strong>提交</strong>：下课前 5 分钟交到课堂群（或机房共享盘，以当堂宣布为准）；</li>
+    <li><strong>不合格的两条</strong>：看不清读数的截图、没有命名的截图——当场重截。</li>
+  </ul>
 
-  <h3>二、PC 端操作清单（跟着做一遍）</h3>
+  <h3>五、两轮举手验收（40 人怎么在课内验完）</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr><th>轮次</th><th>时间</th><th>验什么</th><th>怎么验</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>第 1 轮</strong></td><td>1:32</td><td>任务 1 + 任务 2</td><td>完成的<strong>举手</strong> → <strong>同桌互检</strong>（按下面 3 条互查）→ 在记录表签字</td></tr>
+        <tr><td><strong>第 2 轮</strong></td><td>2:36</td><td>任务 3 + 4 + 5</td><td>完成的<strong>举手</strong> → 教师<strong>抽验 8 台</strong>（每台约 20 秒）→ 未过的登记课后补</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p><strong>同桌互检三条</strong>（互相查，查完签字）：① 你的页面能打开且没有红字报错吗？② 改动看得见吗？③ 记录表里的数字和 HUD 上的一致吗？</p>
+  <p><strong>教师抽验看什么</strong>（20 秒一台）：① 页面能跑；② 改动痕迹可见（不是原版）；③ 记录表的数据与 HUD 对得上。<strong>抽验不是抽查作业量，而是抽查"数据是不是编的"。</strong></p>
+
+  <h4>加分项 · 30 秒现场演示</h4>
+  <p>完成全部任务的同学可自愿申请现场演示（约 3—5 人），照着这三句话讲：</p>
   <ol>
-    <li>打开本课程网站的<strong>紫禁城 WebXR 场景</strong>；</li>
-    <li>按住鼠标拖拽环视；用 <code class="inline">W</code> <code class="inline">A</code> <code class="inline">S</code> <code class="inline">D</code> 行走，按住 <code class="inline">Shift</code> 加速；</li>
-    <li>单击地面，看落点环出现后完成一次传送；</li>
-    <li>把"时辰"滑块从 5:00 拉到 21:00，在各时刻各截一张图；</li>
-    <li>依次切换到 4 个预设机位（广场远眺 / 月台近景 / 午门仰视 / 全景俯瞰）；</li>
-    <li>抄下 HUD 上的一次性能读数。</li>
-    <li>点右上角<strong>「安装为应用」</strong>，看本机浏览器是否弹出安装框（装好后可从桌面 / 主屏幕全屏启动，断网也能打开）。</li>
+    <li>"<strong>我改了什么</strong>：把 XX 从 X 米改成 Y 米，依据是 XX 资料。"</li>
+    <li>"<strong>改动前后有什么不同</strong>：这是同一机位的两张图，差别在……"</li>
+    <li>"<strong>我的性能读数</strong>：DrawCall X、三角面 Y、FPS Z；我认为瓶颈在……"</li>
   </ol>
+  <div class="key">三句话里最关键的是第三句。**能读出数字、并说出瓶颈在哪里**，说明你已经从"会做"走到"会判断"——这是这门课真正要考的能力。</div>
 
-  <h3>三、课堂记录表（每人填写）</h3>
+  <h3>六、课堂记录表（每人填写，两轮验收都要看这张表）</h3>
   <div class="tbl-wrap">
     <table>
       <thead>
@@ -1204,23 +1304,35 @@ npx serve -l 8080</pre>
         <tr><td>我改的一处参数</td><td></td><td>改前值 → 改后值 → 可见的变化</td></tr>
         <tr><td><strong>我戴上时的一句话</strong></td><td></td><td>清楚 / 有点糊、有无拖影、晕不晕，任选一项如实记录</td></tr>
         <tr><td><strong>真机对比（看投屏填）</strong></td><td></td><td>清晰度 / 转头延迟 / 移动舒适度 / 人体比例，各写一句"和 PC 上有什么不同"</td></tr>
+        <tr><td><strong>合批实验 · 独立 Mesh（3000 个）</strong></td><td></td><td>DrawCall = ____　三角面 = ____</td></tr>
+        <tr><td><strong>合批实验 · InstancedMesh（3000 个）</strong></td><td></td><td>DrawCall = ____　三角面 = ____；为什么三角面反而更多？</td></tr>
+        <tr><td>改动依据（来源）</td><td></td><td>写明来自故宫官方资料 / 教材 / 可靠科普站（不准写"我觉得"）</td></tr>
+        <tr><td>安装为应用的结果</td><td></td><td>装成功 / 不支持手动添加 / 没找到入口（如实写）</td></tr>
+        <tr><td>同桌互检签字</td><td></td><td>同桌姓名：__________（互检三条例全过才签）</td></tr>
       </tbody>
     </table>
   </div>
 
-  <h3>四、达标线（四条）</h3>
+  <h3>七、达标线（必过四条 + 加分三条）</h3>
+  <h4>必过（四条，缺一条即未达标）</h4>
   <ol>
     <li>场景在浏览器里正常渲染，<strong>HUD 有实时读数</strong>；</li>
-    <li>能指出至少两处"程序化生成"的证据（例如自定义屋顶几何、Canvas 生成的贴图、实例化合批的栏杆）；</li>
-    <li>能说出 WebXR 的三个前提，并说明<b>为什么 <code class="inline">file://</code> 测不出真实结论</b>。</li>
+    <li><strong>至少两处改动</strong>（一处比例校核 + 一处新增构件），且改动有依据、记录表能对上；</li>
+    <li>能说出 WebXR 的三个前提，并说明<b>为什么 <code class="inline">file://</code> 测不出真实结论</b>；</li>
     <li>能说出<strong>退出 VR 的三条路</strong>，并说明为什么"在网页上放一个普通按钮"在沉浸模式下不管用。</li>
+  </ol>
+  <h4>加分（三条，任选一条即可申请现场演示）</h4>
+  <ol>
+    <li><strong>能解释合批的代价</strong>：不只说"DrawCall 变小"，还能说清"为什么三角面反而变多"；</li>
+    <li><strong>能指出至少两处"程序化生成"的证据</strong>（自定义屋顶几何、Canvas 生成的贴图、实例化合批的栏杆）；</li>
+    <li><strong>能把链接安装成应用</strong>，并说清"为什么装成应用也做不到打开即进 VR"。</li>
   </ol>
   <div class="key">三条全过 = 本讲的课堂实操部分完成。第 3 条是本讲的"核心考点"：<strong>它考的不是记性，而是你有没有真的踩过那个坑。</strong></div>
 
-  <h3>五、更多例子：免费 3D 库与在线示例</h3>
+  <h3>八、更多例子：免费 3D 库与在线示例</h3>
   <p>一个故宫不够看。下面这些全部是免费的，链接都已逐个核验可打开（2026-09-22）。建议每个至少点开一次，<strong>看别人怎么做，比只看故宫一个例子更快建立判断力</strong>。</p>
 
-  <h4>5.1 免费 3D 库 / 引擎（都能在浏览器里跑）</h4>
+  <h4>8.1 免费 3D 库 / 引擎（都能在浏览器里跑）</h4>
   <div class="tbl-wrap">
     <table>
       <thead>
@@ -1239,7 +1351,7 @@ npx serve -l 8080</pre>
     </table>
   </div>
 
-  <h4>5.2 在线示例（点开就能看，最适合"照着改"）</h4>
+  <h4>8.2 在线示例（点开就能看，最适合"照着改"）</h4>
   <div class="tbl-wrap">
     <table>
       <thead>
@@ -1255,7 +1367,7 @@ npx serve -l 8080</pre>
     </table>
   </div>
 
-  <h4>5.3 免费模型 / 贴图资源（注意看授权）</h4>
+  <h4>8.3 免费模型 / 贴图资源（注意看授权）</h4>
   <div class="tbl-wrap">
     <table>
       <thead>
@@ -1305,13 +1417,30 @@ npx serve -l 8080</pre>
         <tr><th>编号</th><th>任务</th><th>要求</th><th>难度</th></tr>
       </thead>
       <tbody>
-        <tr><td><strong>T1</strong><br>必做</td><td>比例校核</td><td>选一处构件（台基、屋顶、柱子、围墙皆可），查证一个真实尺寸，把代码中的数值改为该尺寸，并写明<strong>依据来源</strong>与改动前后的差异</td><td>★</td></tr>
-        <tr><td><strong>T2</strong><br>必做</td><td>新增一组构件</td><td>在中轴、月台或廊庑处新增一组构件（灯笼 / 望柱 / 栏板 / 甬道 / 照壁 / 导览牌），说明用了什么几何体、什么材质、如何定位</td><td>★★</td></tr>
-        <tr><td><strong>T3</strong><br>选做</td><td>性能记录与判断</td><td>记录改造前后的 DrawCalls、三角面、FPS，写一句你的判断：<strong>瓶颈在提交次数、填充率还是面数？</strong>依据是什么</td><td>★★★</td></tr>
+        <tr><td><strong>T1</strong><br>必做</td><td>跑通最小场景</td><td>把 30 行最小场景跑起来、改一处参数、控制台无报错，并说清"为什么按钮显示不支持"</td><td>★</td></tr>
+        <tr><td><strong>T2</strong><br>必做</td><td>比例校核</td><td>选一处构件（台基、屋顶、柱子、围墙皆可），查证一个真实尺寸，把代码中的数值改为该尺寸，并写明<strong>依据来源</strong>与改动前后的差异</td><td>★★</td></tr>
+        <tr><td><strong>T3</strong><br>必做</td><td>新增一组构件</td><td>在中轴、月台或廊庑处新增一组构件（灯笼 / 望柱 / 栏板 / 甬道 / 照壁 / 导览牌），说明用了什么几何体、什么材质、如何定位</td><td>★★</td></tr>
+        <tr><td><strong>T4</strong><br>必做</td><td>性能实验与判断</td><td>用 06 号演示做一次"独立 Mesh ⇄ InstancedMesh"对照实验，记录两组 DrawCall 与三角面，并解释<strong>为什么合批后三角面反而变多</strong></td><td>★★★</td></tr>
+        <tr><td><strong>T5</strong><br>必做</td><td>光照实验</td><td>记录 5:00 / 15:00 / 21:00 三个时刻的色温、影子与灯火，并区分"光照参数"与"材质参数"</td><td>★</td></tr>
+        <tr><td><strong>T6</strong><br>必做</td><td>真机观察与分发</td><td>填写观察卡（戴过或看过都写），把场景链接发给自己并确认能打开，尝试"安装为应用"并如实记录结果</td><td>★</td></tr>
+        <tr><td><strong>T7</strong><br>加分</td><td>30 秒现场演示</td><td>按"我改了什么 / 前后有什么不同 / 我的性能读数"三句话讲清自己的改动</td><td>★★★</td></tr>
       </tbody>
     </table>
   </div>
   <div class="note"><strong>关于"查证真实尺寸"</strong>：可以查故宫官方资料、建筑史教材或可靠科普来源。<strong>关键不是数字本身，而是你写清楚了它从哪来</strong>——这就是工程上"可追溯"的习惯，也是评分里"理解"一项的主要依据。</div>
+  <div class="key"><strong>七项任务全部在课内完成</strong>，时间怎么分配看下面这张表；<strong>逐项的操作步骤、验收点与常见错误写在上面「课堂实操与成果验收」一节</strong>，两处内容一致，任选一处照着做即可。</div>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr><th>任务</th><th>T1</th><th>T2</th><th>T3</th><th>T4</th><th>T5</th><th>T6</th><th>T7</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>时间窗</td><td>0:30—0:50</td><td>1:00—1:20</td><td>1:20—1:32</td><td>2:36—2:46</td><td>1:32—1:50</td><td>1:50—2:36 / 2:51—2:58</td><td>2:46—2:58</td></tr>
+        <tr><td>提交物</td><td>截图 1</td><td>截图 2 + 记录表</td><td>截图 2 + 记录表</td><td>截图 3 + 记录表</td><td>记录表</td><td>观察卡 + 链接</td><td>现场演示</td></tr>
+        <tr><td>验收轮次</td><td colspan="2">第 1 轮（1:32 举手 + 同桌互检）</td><td colspan="3">第 2 轮（2:36 举手 + 教师抽验 8 台）</td><td>看观察卡</td><td>自愿申请</td></tr>
+      </tbody>
+    </table>
+  </div>
 
   <h3>三、评分量规</h3>
   <div class="tbl-wrap">
