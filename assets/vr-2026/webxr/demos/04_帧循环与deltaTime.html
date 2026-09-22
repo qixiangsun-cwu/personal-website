@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>04 · 帧循环与 deltaTime：为什么两台机器速度不一样</title>
+<style>
+  *{box-sizing:border-box;}
+  html,body{margin:0;height:100%;background:#0f0b07;color:#efe4cf;
+    font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif;overflow:hidden;}
+  #app{display:flex;height:100%;}
+  #left{position:relative;flex:1 1 auto;min-width:0;}
+  canvas{display:block;}
+  #right{flex:0 0 400px;background:#14100a;border-left:1px solid rgba(217,164,65,.25);padding:16px 18px;overflow:auto;}
+  h1{font-size:16px;margin:0 0 6px;color:#d9a441;letter-spacing:2px;}
+  p.sub{font-size:12px;color:#a89b7c;margin:0 0 14px;line-height:1.7;}
+  .ctl{margin-bottom:12px;}
+  .ctl label{display:flex;justify-content:space-between;font-size:12.5px;color:#cbbf9f;margin-bottom:4px;}
+  .ctl label b{color:#f0b45a;font-family:Consolas,monospace;}
+  input[type=range]{width:100%;}
+  .note{font-size:12px;color:#a89b7c;line-height:1.7;border-left:3px solid rgba(217,164,65,.5);padding-left:10px;margin:10px 0;}
+  .note b{color:#f0b45a;}
+  code{font-family:Consolas,monospace;color:#ffe9b8;background:rgba(217,164,65,.12);padding:1px 5px;border-radius:4px;}
+  #fps{font-family:Consolas,monospace;font-size:13px;color:#9fb88a;margin-top:8px;}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="left"></div>
+  <div id="right">
+    <h1>04 · 帧循环与 deltaTime</h1>
+    <p class="sub">两个方块用两种写法转动。把右边的"模拟设备帧率"调低，看哪一个先乱掉。</p>
+
+    <div class="ctl"><label>模拟设备帧率<b id="vf">60</b> fps</label><input id="f" type="range" min="10" max="60" step="5" value="60"></div>
+    <div class="ctl"><label>每秒转速（正确写法的目标）<b id="vs">90</b>°/s</label><input id="s" type="range" min="10" max="360" step="10" value="90"></div>
+    <div id="fps">FPS: --</div>
+
+    <div class="note">
+      <b>左边（红）</b>：<code>rotation.y += 0.01</code> —— 每帧转固定角度。<br>
+      <b>右边（蓝）</b>：<code>rotation.y += speed * dt</code> —— 每秒转固定角度。
+    </div>
+    <div class="note">
+      把帧率拖到 <b>15 fps</b>：左边明显变慢，右边几乎不变。<br>
+      这就是为什么 VR 里<b>所有运动都必须乘 deltaTime</b>——否则在跑得动的机器上一个速度，掉帧的机器上又是另一个速度，最后表现为"手感不对/晕"。
+    </div>
+    <div class="note">
+      还有一条更重要的：<b>进入 XR 后不能用 <code>requestAnimationFrame</code></b>，
+      必须用 <code>renderer.setAnimationLoop()</code>，因为头显的刷新节奏要接管渲染。
+    </div>
+  </div>
+</div>
+
+<script src="../three.min.js"></script>
+<script>
+(function(){
+  'use strict';
+  var left = document.getElementById('left');
+  var scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x1b2230);
+  var camera = new THREE.PerspectiveCamera(55, left.clientWidth/left.clientHeight, 0.1, 100);
+  camera.position.set(0, 3.2, 6.5); camera.lookAt(0, 1, 0);
+
+  var renderer = new THREE.WebGLRenderer({antialias:true});
+  renderer.setSize(left.clientWidth, left.clientHeight);
+  renderer.setPixelRatio(Math.min(devicePixelRatio||1, 1.5));
+  left.appendChild(renderer.domElement);
+
+  scene.add(new THREE.HemisphereLight(0xbcd8f0, 0x223344, 1.0));
+  var sun = new THREE.DirectionalLight(0xffffff, 1.1); sun.position.set(4, 8, 6); scene.add(sun);
+  var ground = new THREE.Mesh(new THREE.PlaneGeometry(30,30), new THREE.MeshStandardMaterial({color:0x5b6674, roughness:1}));
+  ground.rotation.x = -Math.PI/2; scene.add(ground);
+
+  function makeBox(x, color){
+    var g = new THREE.Group();
+    var m = new THREE.Mesh(new THREE.BoxGeometry(1.4, 1.4, 1.4),
+      new THREE.MeshStandardMaterial({color:color, roughness:0.55}));
+    m.position.y = 1.2; m.castShadow = true;
+    g.add(m);
+    var mark = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.35, 0.9),
+      new THREE.MeshStandardMaterial({color:0xffe08a, roughness:0.4}));
+    mark.position.set(0, 1.2, 0.85); g.add(mark);
+    g.position.x = x;
+    scene.add(g);
+    return m;
+  }
+  var red  = makeBox(-1.8, 0xcc4444);
+  var blue = makeBox( 1.8, 0x2e6fd0);
+
+  function tag(x, text){
+    var c = document.createElement('canvas'); c.width = 512; c.height = 128;
+    var g = c.getContext('2d');
+    g.fillStyle = '#efe4cf'; g.font = '52px "Microsoft YaHei",sans-serif'; g.textAlign='center';
+    g.fillText(text, 256, 84);
+    var t = new THREE.CanvasTexture(c);
+    var sp = new THREE.Sprite(new THREE.SpriteMaterial({map:t, transparent:true, depthWrite:false}));
+    sp.scale.set(3.2, 0.8, 1); sp.position.set(x, 3.0, 0); scene.add(sp);
+  }
+  tag(-1.8, '+= 0.01（按帧）');
+  tag( 1.8, '+= speed*dt（按秒）');
+
+  var $ = function(id){ return document.getElementById(id); };
+  var targetFps = 60, speedDeg = 90;
+  $('f').addEventListener('input', function(){ targetFps = parseInt(this.value,10); $('vf').textContent = targetFps; });
+  $('s').addEventListener('input', function(){ speedDeg = parseFloat(this.value); $('vs').textContent = speedDeg; });
+
+  var last = performance.now(), acc = 0, frames = 0, fpsTimer = 0;
+
+  // 这里故意用 requestAnimationFrame 来"模拟设备帧率"；真实项目里 XR 用 setAnimationLoop
+  function loop(){
+    requestAnimationFrame(loop);
+    var now = performance.now();
+    var dtReal = (now - last) / 1000;
+    // 模拟低帧率：不足一帧的时间就直接返回，什么都不更新
+    if(dtReal < 1 / targetFps) return;
+    last = now;
+    var dt = Math.min(dtReal, 0.1);
+
+    red.rotation.y  += 0.01;                    // ❌ 帧率相关
+    blue.rotation.y += (speedDeg * Math.PI/180) * dt;   // ✅ 帧率无关
+
+    renderer.render(scene, camera);
+
+    frames++; fpsTimer += dt;
+    if(fpsTimer >= 0.5){
+      $('fps').textContent = 'FPS: ' + Math.round(frames / fpsTimer) + '（模拟上限 ' + targetFps + '）';
+      frames = 0; fpsTimer = 0;
+    }
+  }
+  loop();
+
+  window.addEventListener('resize', function(){
+    camera.aspect = left.clientWidth/left.clientHeight; camera.updateProjectionMatrix();
+    renderer.setSize(left.clientWidth, left.clientHeight);
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>05 · 程序化几何与贴图：每个尺寸都是变量</title>
+<style>
+  *{box-sizing:border-box;}
+  html,body{margin:0;height:100%;background:#0f0b07;color:#efe4cf;
+    font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif;overflow:hidden;}
+  #app{display:flex;height:100%;}
+  #left{position:relative;flex:1 1 auto;min-width:0;}
+  canvas{display:block;}
+  #right{flex:0 0 400px;background:#14100a;border-left:1px solid rgba(217,164,65,.25);padding:16px 18px;overflow:auto;}
+  h1{font-size:16px;margin:0 0 6px;color:#d9a441;letter-spacing:2px;}
+  p.sub{font-size:12px;color:#a89b7c;margin:0 0 14px;line-height:1.7;}
+  .ctl{margin-bottom:10px;}
+  .ctl label{display:flex;justify-content:space-between;font-size:12.5px;color:#cbbf9f;margin-bottom:4px;}
+  .ctl label b{color:#f0b45a;font-family:Consolas,monospace;}
+  input[type=range]{width:100%;}
+  .note{font-size:12px;color:#a89b7c;line-height:1.7;border-left:3px solid rgba(217,164,65,.5);padding-left:10px;margin:10px 0;}
+  .note b{color:#f0b45a;}
+  code{font-family:Consolas,monospace;color:#ffe9b8;background:rgba(217,164,65,.12);padding:1px 5px;border-radius:4px;}
+  #stat{font-family:Consolas,monospace;font-size:13px;color:#9fb88a;margin-top:8px;}
+  button{background:rgba(217,164,65,.16);color:#efe4cf;border:1px solid rgba(217,164,65,.5);
+    border-radius:8px;padding:6px 12px;cursor:pointer;font-size:13px;font-family:inherit;margin:4px 6px 0 0;}
+  button:hover{background:rgba(217,164,65,.34);}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="left"></div>
+  <div id="right">
+    <h1>05 · 程序化几何与贴图</h1>
+    <p class="sub">这座"殿"没有用任何模型文件：屋顶是手写顶点算出来的，瓦片贴图是 Canvas 画出来的。全部尺寸都是变量。</p>
+
+    <div class="ctl"><label>面阔（宽）<b id="vw">18</b> m</label><input id="w" type="range" min="6" max="40" step="1" value="18"></div>
+    <div class="ctl"><label>进深（深）<b id="vd">12</b> m</label><input id="d" type="range" min="5" max="30" step="1" value="12"></div>
+    <div class="ctl"><label>屋顶高度<b id="vh">6</b> m</label><input id="h" type="range" min="1" max="14" step="0.5" value="6"></div>
+    <div class="ctl"><label>正脊长度<b id="vs">5</b> m</label><input id="s" type="range" min="1" max="14" step="0.5" value="5"></div>
+
+    <button id="b1">太和殿比例（宽 64 / 深 37 / 高 12）</button>
+    <button id="b2">角亭比例（宽 8 / 深 8 / 高 5）</button>
+    <button id="b3">切换贴图（程序化瓦片 ⇄ 纯色）</button>
+
+    <div class="note">
+      <b>屋顶是"庑殿顶"</b>：前后两个<b>梯形</b>坡 + 左右两个三角坡。<br>
+      注意梯形是 4 个顶点、要拆成 2 个三角形——这是手写几何最容易漏的地方。
+    </div>
+    <div class="note">
+      <b>贴图是画出来的</b>：<code>CanvasTexture</code> 用 Canvas 2D 画瓦垄，再按构件实际尺寸设置 <code>repeat</code>。
+      好处是零下载、断网可用、随时改色。
+    </div>
+    <div id="stat"></div>
+  </div>
+</div>
+
+<script src="../three.min.js"></script>
+<script>
+(function(){
+  'use strict';
+  var left = document.getElementById('left');
+  var scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x9ec9f0);
+  var camera = new THREE.PerspectiveCamera(50, left.clientWidth/left.clientHeight, 0.1, 500);
+  camera.position.set(22, 14, 30); camera.lookAt(0, 6, 0);
+
+  var renderer = new THREE.WebGLRenderer({antialias:true});
+  renderer.setSize(left.clientWidth, left.clientHeight);
+  renderer.setPixelRatio(Math.min(devicePixelRatio||1, 1.5));
+  left.appendChild(renderer.domElement);
+
+  scene.add(new THREE.HemisphereLight(0xbcd8f0, 0x6b5a44, 1.0));
+  var sun = new THREE.DirectionalLight(0xffffff, 1.1); sun.position.set(18, 26, 14); scene.add(sun);
+  scene.add(new THREE.GridHelper(80, 80, 0x888888, 0xbbbbbb));
+
+  /* ---------- 程序化贴图：黄琉璃瓦 ---------- */
+  function makeTileTexture(){
+    var c = document.createElement('canvas'); c.width = 128; c.height = 128;
+    var g = c.getContext('2d');
+    for(var y = 0; y < 128; y += 16){
+      g.fillStyle = ((y/16) % 2) ? '#c8901f' : '#e5b440';
+      g.fillRect(0, y, 128, 14);
+      g.fillStyle = 'rgba(255,255,255,.22)'; g.fillRect(0, y, 128, 2);
+    }
+    g.strokeStyle = 'rgba(90,60,10,.45)'; g.lineWidth = 1;
+    for(var x = 0; x < 128; x += 16){ g.beginPath(); g.moveTo(x,0); g.lineTo(x,128); g.stroke(); }
+    var t = new THREE.CanvasTexture(c);
+    t.wrapS = t.wrapT = THREE.RepeatWrapping;
+    return t;
+  }
+  var tileTex = makeTileTexture();
+
+  /* ---------- 自定义几何：庑殿顶 ---------- */
+  function hipGeo(w, d, h, spine){
+    var hw = w/2, hd = d/2, s = Math.max(0.5, spine)/2;
+    var pos = [], nors = [], uvs = [];
+    function push(p, n, uv){ pos.push(p[0],p[1],p[2]); nors.push(n[0],n[1],n[2]); uvs.push(uv[0],uv[1]); }
+    function tri(a,b,c,n,u){ push(a,n,u[0]); push(b,n,u[1]); push(c,n,u[2]); }
+    function quad(a,b,c,dd,n,u){ tri(a,b,c,n,[u[0],u[1],u[2]]); tri(a,c,dd,n,[u[0],u[2],u[3]]); }
+    var A=[-s,h,0], B=[s,h,0];                       // 正脊两端
+    var F1=[ hw,0, hd], F2=[-hw,0, hd];              // 南侧檐口
+    var K1=[-hw,0,-hd], K2=[ hw,0,-hd];              // 北侧檐口
+    var nf=[0,hd,h], nb=[0,hd,-h], nl=[-h,hw-s,0], nr=[h,hw-s,0];
+    quad(A, B, F1, F2, nf, [0,1, 0,0, 1,0, 1,1]);    // 前坡（梯形 → 两个三角形）
+    quad(B, A, K1, K2, nb, [0,1, 0,0, 1,0, 1,1]);    // 后坡
+    tri(A, F2, K1, nl, [0,0, 1,0, 1,1]);             // 左坡（三角）
+    tri(B, K2, F1, nr, [0,0, 1,0, 1,1]);             // 右坡（三角）
+    var g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+    g.setAttribute('normal',   new THREE.Float32BufferAttribute(nors, 3));
+    g.setAttribute('uv',       new THREE.Float32BufferAttribute(uvs, 2));
+    return g;
+  }
+
+  var group = new THREE.Group(); scene.add(group);
+  var roofMat = new THREE.MeshStandardMaterial({map: tileTex, roughness: 0.55, metalness: 0.05});
+  var wallMat = new THREE.MeshStandardMaterial({color: 0xa63a2a, roughness: 0.85});
+  var baseMat = new THREE.MeshStandardMaterial({color: 0xded7c6, roughness: 0.9});
+  var goldMat = new THREE.MeshStandardMaterial({color: 0xd9a441, roughness: 0.35, metalness: 0.5});
+
+  var roof, ridge, base, wall, plaque;
+
+  function rebuild(w, d, h, spine){
+    while(group.children.length) group.remove(group.children[0]);
+    base = new THREE.Mesh(new THREE.BoxGeometry(w*1.15, 1.2, d*1.15), baseMat);
+    base.position.y = 0.6; group.add(base);
+    wall = new THREE.Mesh(new THREE.BoxGeometry(w, h*0.55, d), wallMat);
+    wall.position.y = 1.2 + h*0.275; group.add(wall);
+    roof = new THREE.Mesh(hipGeo(w*1.25, d*1.25, h, spine), roofMat);
+    roof.position.y = 1.2 + h*0.55; group.add(roof);
+    ridge = new THREE.Mesh(new THREE.BoxGeometry(spine + 1.2, 0.7, 0.7), goldMat);
+    ridge.position.y = 1.2 + h*0.55 + h + 0.2; group.add(ridge);
+
+    // 贴图按实际尺寸设置平铺次数
+    tileTex.repeat.set(Math.max(1, w/3), Math.max(1, d/3));
+
+    var tri = roof.geometry.attributes.position.count / 3;
+    document.getElementById('stat').textContent =
+      '屋顶顶点数 ' + roof.geometry.attributes.position.count +
+      ' ｜ 屋顶三角面 ' + tri +
+      ' ｜ 整组 DrawCall 约 ' + group.children.length + '（各占一次）';
+  }
+
+  var $ = function(id){ return document.getElementById(id); };
+  function sync(){
+    var w = parseFloat($('w').value), d = parseFloat($('d').value);
+    var h = parseFloat($('h').value), s = parseFloat($('s').value);
+    $('vw').textContent = w; $('vd').textContent = d; $('vh').textContent = h; $('vs').textContent = s;
+    rebuild(w, d, h, s);
+  }
+  ['w','d','h','s'].forEach(function(id){ $(id).addEventListener('input', sync); });
+  $('b1').onclick = function(){ $('w').value=64; $('d').value=37; $('h').value=12; $('s').value=28; sync(); };
+  $('b2').onclick = function(){ $('w').value=8;  $('d').value=8;  $('h').value=5;  $('s').value=2;  sync(); };
+  $('b3').onclick = function(){
+    if(roofMat.map){ roofMat.map = null; }
+    else { roofMat.map = tileTex; }
+    roofMat.needsUpdate = true;
+  };
+  sync();
+
+  var ang = 0;
+  renderer.setAnimationLoop(function(){
+    ang += 0.003;
+    camera.position.set(Math.sin(ang)*30, 16, Math.cos(ang)*30);
+    camera.lookAt(0, 6, 0);
+    renderer.render(scene, camera);
+  });
+  window.addEventListener('resize', function(){
+    camera.aspect = left.clientWidth/left.clientHeight; camera.updateProjectionMatrix();
+    renderer.setSize(left.clientWidth, left.clientHeight);
+  });
+})();
+</script>
+</body>
+</html>

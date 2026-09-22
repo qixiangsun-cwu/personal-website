@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>06 · 性能对比：独立 Mesh 与 InstancedMesh</title>
+<style>
+  *{box-sizing:border-box;}
+  html,body{margin:0;height:100%;background:#0f0b07;color:#efe4cf;
+    font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif;overflow:hidden;}
+  #app{display:flex;height:100%;}
+  #left{position:relative;flex:1 1 auto;min-width:0;}
+  canvas{display:block;}
+  #right{flex:0 0 420px;background:#14100a;border-left:1px solid rgba(217,164,65,.25);padding:16px 18px;overflow:auto;}
+  h1{font-size:16px;margin:0 0 6px;color:#d9a441;letter-spacing:2px;}
+  p.sub{font-size:12px;color:#a89b7c;margin:0 0 14px;line-height:1.7;}
+  .ctl{margin-bottom:10px;}
+  .ctl label{display:flex;justify-content:space-between;font-size:12.5px;color:#cbbf9f;margin-bottom:4px;}
+  .ctl label b{color:#f0b45a;font-family:Consolas,monospace;}
+  input[type=range]{width:100%;}
+  .modes{display:flex;gap:8px;margin:10px 0;}
+  .modes button{flex:1;}
+  button{background:rgba(217,164,65,.16);color:#efe4cf;border:1px solid rgba(217,164,65,.5);
+    border-radius:8px;padding:7px 12px;cursor:pointer;font-size:13px;font-family:inherit;}
+  button.on{background:linear-gradient(135deg,#d9a441,#c1502e);color:#1a1208;font-weight:700;border:none;}
+  button:hover{background:rgba(217,164,65,.34);}
+  .stat{font-family:Consolas,monospace;font-size:13px;line-height:1.9;color:#9fb88a;
+    background:rgba(217,164,65,.08);border:1px solid rgba(217,164,65,.25);border-radius:8px;padding:10px 12px;margin-top:10px;}
+  .stat b{color:#f0b45a;}
+  .note{font-size:12px;color:#a89b7c;line-height:1.7;border-left:3px solid rgba(217,164,65,.5);padding-left:10px;margin:10px 0;}
+  .note b{color:#f0b45a;}
+  code{font-family:Consolas,monospace;color:#ffe9b8;background:rgba(217,164,65,.12);padding:1px 5px;border-radius:4px;}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="left"></div>
+  <div id="right">
+    <h1>06 · 性能对比：合批的收益</h1>
+    <p class="sub">同样的物体数量、同样的画面，只改"怎么提交给 GPU"，看 DrawCall 的变化。</p>
+
+    <div class="ctl"><label>物体数量<b id="vn">200</b></label>
+      <input id="n" type="range" min="1" max="3000" step="1" value="200"></div>
+
+    <div class="modes">
+      <button id="mSep" class="on">独立 Mesh</button>
+      <button id="mInst">InstancedMesh 合批</button>
+    </div>
+
+    <div class="stat" id="stat">测量中…</div>
+
+    <div class="note">
+      <b>怎么读</b>：把数量拖到 3000，两种模式画面几乎一样，但 <b>DrawCall 差了几千倍</b>，
+      而三角面数几乎不变 —— 这就是"<b>Draw Call 比三角面更致命</b>"的直接证据。
+    </div>
+    <div class="note">
+      <b>实测参考（本页 3000 个物体）</b>：独立 Mesh → <b>DrawCall 约 930</b>、三角面 18.6k；
+      InstancedMesh → <b>DrawCall 2</b>、三角面 60.0k。<br>
+      注意三角面<b>变多了</b>：合批之后整体只做一次视锥剔除，远处的实例也被一起提交。
+      <b>合批换的是提交次数，代价是剔除粒度变粗</b>——这就是"没有免费的性能优化"。
+    </div>
+    <div class="note">
+      <b>本项目的用法</b>：故宫里望柱 966 根、栏板 930 块、红柱 146 根、斗拱 356 组、灯笼 70 盏，
+      全部用 <code>InstancedMesh</code> 合批 —— 上千次提交被压成几次。
+    </div>
+    <div class="note">
+      <b>什么时候不能用合批</b>：如果每个物体需要独立的颜色 / 贴图 / 动画状态，就要做"多实例属性"或拆成几组合批。
+      合批换的是"提交次数"，代价是"独立控制变弱"。
+    </div>
+  </div>
+</div>
+
+<script src="../three.min.js"></script>
+<script>
+(function(){
+  'use strict';
+  var left = document.getElementById('left');
+  var scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x1b2230);
+  scene.fog = new THREE.Fog(0x1b2230, 60, 200);
+
+  var camera = new THREE.PerspectiveCamera(60, left.clientWidth/left.clientHeight, 0.1, 500);
+  camera.position.set(0, 26, 52); camera.lookAt(0, 0, 0);
+
+  var renderer = new THREE.WebGLRenderer({antialias:true});
+  renderer.setSize(left.clientWidth, left.clientHeight);
+  renderer.setPixelRatio(Math.min(devicePixelRatio||1, 1.5));
+  left.appendChild(renderer.domElement);
+
+  scene.add(new THREE.HemisphereLight(0xbcd8f0, 0x223344, 1.0));
+  var sun = new THREE.DirectionalLight(0xffffff, 1.1); sun.position.set(20, 40, 20); scene.add(sun);
+
+  var ground = new THREE.Mesh(new THREE.PlaneGeometry(600, 600),
+    new THREE.MeshStandardMaterial({color:0x3a4450, roughness:1}));
+  ground.rotation.x = -Math.PI/2; ground.position.y = -0.5; scene.add(ground);
+
+  // 共享几何体与材质：注意——即使共享，独立 Mesh 仍然每个物体一次 DrawCall
+  var geo = new THREE.CylinderGeometry(0.35, 0.42, 2.4, 10, 1, true);
+  var mat = new THREE.MeshStandardMaterial({color:0xd8cfae, roughness:0.75});
+
+  var holder = new THREE.Group(); scene.add(holder);
+  var mode = 'sep', count = 200;
+  var inst = null;
+
+  function layout(i, n){
+    var perRow = Math.ceil(Math.sqrt(n));
+    var x = (i % perRow) - perRow/2;
+    var z = Math.floor(i / perRow) - perRow/2;
+    return [x * 3.2, 1.2, z * 3.2];
+  }
+
+  function build(){
+    while(holder.children.length) holder.remove(holder.children[0]);
+    inst = null;
+    var m4 = new THREE.Matrix4(), q = new THREE.Quaternion(), s = new THREE.Vector3(1,1,1), p = new THREE.Vector3();
+    if(mode === 'sep'){
+      for(var i = 0; i < count; i++){
+        var m = new THREE.Mesh(geo, mat);
+        var L = layout(i, count); m.position.set(L[0], L[1], L[2]);
+        holder.add(m);
+      }
+    }else{
+      inst = new THREE.InstancedMesh(geo, mat, count);
+      for(var j = 0; j < count; j++){
+        var L2 = layout(j, count);
+        p.set(L2[0], L2[1], L2[2]);
+        m4.compose(p, q, s);
+        inst.setMatrixAt(j, m4);
+      }
+      inst.instanceMatrix.needsUpdate = true;
+      holder.add(inst);
+    }
+    document.getElementById('stat').textContent = '测量中…（等半秒读数）';
+  }
+
+  var $ = function(id){ return document.getElementById(id); };
+  $('n').addEventListener('input', function(){
+    count = parseInt(this.value, 10); $('vn').textContent = count; build();
+  });
+  $('mSep').onclick = function(){
+    mode = 'sep'; this.classList.add('on'); $('mInst').classList.remove('on'); build();
+  };
+  $('mInst').onclick = function(){
+    mode = 'inst'; this.classList.add('on'); $('mSep').classList.remove('on'); build();
+  };
+
+  var frames = 0, t0 = performance.now(), fps = 0;
+  renderer.setAnimationLoop(function(){
+    holder.rotation.y += 0.002;
+    renderer.render(scene, camera);
+    var info = renderer.info.render;
+    frames++;
+    var now = performance.now();
+    if(now - t0 > 500){
+      fps = frames * 1000 / (now - t0);
+      frames = 0; t0 = now;
+      $('stat').innerHTML =
+        '模式：<b>' + (mode === 'sep' ? '独立 Mesh' : 'InstancedMesh 合批') + '</b><br>' +
+        '物体数量：<b>' + count + '</b><br>' +
+        'DrawCall：<b>' + info.calls + '</b>　← 关键读数<br>' +
+        '三角面：<b>' + (info.triangles/1000).toFixed(1) + 'k</b><br>' +
+        'FPS：<b>' + fps.toFixed(0) + '</b>';
+    }
+  });
+
+  build();
+  window.addEventListener('resize', function(){
+    camera.aspect = left.clientWidth/left.clientHeight; camera.updateProjectionMatrix();
+    renderer.setSize(left.clientWidth, left.clientHeight);
+  });
+})();
+</script>
+</body>
+</html>

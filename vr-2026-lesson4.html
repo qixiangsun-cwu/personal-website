@@ -271,6 +271,22 @@
     <li>想让世界原点落在脚底下，应该请求哪个参考空间？</li>
     <li>一个同事说"网页做不出 VR"。请用一句话说出他这句话哪里不准确。</li>
   </ol>
+
+  <h3>1.7 本模块配套：看视频 · 动手演示 · 权威文档</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr><th>类型</th><th>资源</th><th>怎么用</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>📺 视频</td><td><a href="https://www.bilibili.com/video/BV1Bm421378a" target="_blank" rel="noopener">WebXR 在 3D 引擎中的实践</a>（W3C 中国 · 29:03）</td><td>标准制定方讲的 WebXR 定位与能力边界，对应 1.1—1.2</td></tr>
+        <tr><td>📺 视频</td><td><a href="https://www.bilibili.com/video/BV1Tw4m1e7NH" target="_blank" rel="noopener">使用 WebXR 打造沉浸式网站体验</a>（26:17）</td><td>看"网页端 VR 能做成什么样"，对应 1.5 的能力边界</td></tr>
+        <tr><td>📺 视频</td><td><a href="https://www.bilibili.com/video/BV1KY411x7Jp" target="_blank" rel="noopener">HTTPS 是什么？加密原理和证书</a>（11:32）</td><td>理解 1.3 的安全上下文：为什么浏览器要"藏起" <code class="inline">navigator.xr</code></td></tr>
+        <tr><td>🧪 演示</td><td><a href="assets/vr-2026/webxr/demos/07_进入VR四步与安全上下文.html" target="_blank" rel="noopener">07 进入 VR 四步检查</a></td><td>当场看你这台设备的真实返回值</td></tr>
+        <tr><td>🔗 官方示例</td><td><a href="https://immersive-web.github.io/webxr-samples/" target="_blank" rel="noopener">W3C WebXR Samples</a> · <a href="https://threejs.org/examples/?q=webxr" target="_blank" rel="noopener">Three.js WebXR 示例集</a></td><td>官方示例，可直接打开对照</td></tr>
+      </tbody>
+    </table>
+  </div>
 </section>
 
 <!-- ===== PART 2 ===== -->
@@ -381,7 +397,66 @@ renderer.setAnimationLoop(tick);</pre>
 &lt;/script&gt;
 &lt;/body&gt;&lt;/html&gt;</pre>
 
-  <h3>2.6 进入 VR 的四步</h3>
+  <h3>2.6 逐行拆解：每一行代码到底管什么</h3>
+  <p>把上面 30 行拆成 8 个细节，每个细节都给一个"关掉它会发生什么"的例子。<strong>配套演示：<a href="assets/vr-2026/webxr/demos/01_最小场景_逐行讲解.html" target="_blank" rel="noopener">01 号演示 · 最小场景逐行讲解</a>——点右侧任意一行代码，就能把那一行打开或关掉，亲眼看见它的作用。</strong></p>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr><th>细节</th><th>代码</th><th>关掉它会发生什么（这就是它的作用）</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>① 场景底色</td><td><code class="inline">scene.background = new THREE.Color(...)</code></td><td>背景变黑，但物体还在——<strong>说明"黑屏"不等于"没渲染"</strong></td></tr>
+        <tr><td>② 相机</td><td><code class="inline">new THREE.PerspectiveCamera(70, w/h, 0.1, 2000)</code></td><td>整块画面消失。<strong>这是"看不见东西"的第一嫌疑</strong></td></tr>
+        <tr><td>③ 相机位置</td><td><code class="inline">camera.position.set(0, 1.6, 4)</code></td><td>改成 (0, 0.2, 1) 就从地上贴着看——<strong>位置决定构图</strong></td></tr>
+        <tr><td>④ 像素比</td><td><code class="inline">setPixelRatio(min(dpr, 1.5))</code></td><td>去掉上限，高分屏更清晰但更吃性能——<strong>清晰度换帧率的开关</strong></td></tr>
+        <tr><td>⑤ 光照</td><td><code class="inline">HemisphereLight</code> + <code class="inline">DirectionalLight</code></td><td>标准材质全黑。<strong>99% 的"我的模型是黑的"都是这条</strong></td></tr>
+        <tr><td>⑥ 物体</td><td><code class="inline">new THREE.Mesh(Geometry, Material)</code></td><td>场景里少一个东西。几何体管形状，材质管外观</td></tr>
+        <tr><td>⑦ 位置与单位</td><td><code class="inline">ball.position.y = 1.2</code></td><td><strong>1 单位 = 1 米</strong>：1.2 m 约是胸口高度，1.6 m 约是人眼高度</td></tr>
+        <tr><td>⑧ 渲染循环</td><td><code class="inline">renderer.setAnimationLoop(fn)</code></td><td>画面冻住。<strong>XR 下用 <code class="inline">requestAnimationFrame</code> 会黑屏</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h4>细节 A · 相机：为什么"第一件事永远先查相机"</h4>
+  <p>新手最常见的报错是"我建了物体却什么都看不见"。按下面顺序查，基本一次命中：</p>
+  <pre>// 排查三连（本项目在 ?debug=1 下也能这样查）
+console.log(camera.position);              // ① 相机在哪：是不是在物体里面/后面
+console.log(camera.rotation);              // ② 相机朝哪：有没有 lookAt 目标
+console.log(camera.near, camera.far);      // ③ 近/远裁剪面：near 太大，近处物体直接被剪掉
+
+// 最典型的错误：只写位置，不写朝向
+camera.position.set(0, 1.6, 4);            // 相机在 z=4 看着 −z 方向（three.js 默认朝 −z）
+camera.lookAt(0, 1.2, 0);                  // 想让相机看目标，必须显式 lookAt</pre>
+  <p><strong>动手看：<a href="assets/vr-2026/webxr/demos/02_坐标系与相机.html" target="_blank" rel="noopener">02 号演示 · 坐标系与相机</a></strong>——四个滑块分别是相机 X/Y/Z 与视野 FOV，把高度调到 1.7 就是"站着看"，调到 0.6 就是"蹲下看"，FOV 拉到 100° 就能看到明显的边缘拉伸。</p>
+
+  <h4>细节 B · 光照与材质：为什么"我的模型是黑的"</h4>
+  <pre>// 对比：同一种红色，两种材质
+new THREE.MeshBasicMaterial({color:0xb22222})   // 不受光：永远是这个颜色，适合画 UI、标线
+new THREE.MeshStandardMaterial({color:0xb22222}) // 受光：没灯就是全黑（VR 场景用这个）
+
+scene.add(new THREE.HemisphereLight(0xbcd8f0, 0x6b5a44, 0.9));  // 天光补色，避免背光面死黑
+var sun = new THREE.DirectionalLight(0xffffff, 1.2);            // 主光（太阳），负责明暗与投影
+sun.position.set(4, 6, 3); scene.add(sun);</pre>
+  <p><strong>动手看：<a href="assets/vr-2026/webxr/demos/03_光照与材质.html" target="_blank" rel="noopener">03 号演示 · 光照与材质</a></strong>——四个球并排对比"基础材质 / 平行光 / 半球光 / 两盏灯+阴影"，把两盏灯都拖到 0，就能复现"全黑"的现象。</p>
+
+  <h4>细节 C · 单位与比例：1 单位 = 1 米</h4>
+  <p>这条看起来是常识，但它决定了整个工程能不能讲得通：<strong>紫禁城的每一个尺寸都是"米"</strong>，所以"太和殿 35.4 m"这样的历史资料可以直接抄进代码，后面才能做比例校核。</p>
+  <div class="warn"><strong>反例</strong>：如果按"厘米"建模，人高就会写成 170，相机高度写成 165，光照距离、阴影范围、移动速度全部要放大 100 倍——最后必然出现"人比台阶还高""走出去三步就到了另一个城市"这类问题。<strong>先定单位，再动手。</strong></div>
+
+  <h4>细节 D · 帧循环：为什么一定要乘 deltaTime</h4>
+  <pre>// ❌ 帧率相关：60 fps 的机器比 30 fps 的机器快一倍
+ball.rotation.y += 0.01;
+
+// ✅ 帧率无关：每秒转固定角度，跟机器性能无关
+var dt = Math.min(clock.getDelta(), 0.1);         // 每帧耗时（秒），并夹住上限防跳帧
+ball.rotation.y += (90 * Math.PI/180) * dt;       // 每秒转 90°
+
+// 进入 XR 后还必须换掉循环方式
+renderer.setAnimationLoop(animate);   // ✅ 头显刷新节奏接管
+// requestAnimationFrame(animate);    // ❌ 戴上头显就黑屏/卡住</pre>
+  <p><strong>动手看：<a href="assets/vr-2026/webxr/demos/04_帧循环与deltaTime.html" target="_blank" rel="noopener">04 号演示 · 帧循环与 deltaTime</a></strong>——把"模拟设备帧率"拖到 15 fps，左边的方块明显变慢、右边几乎不变。这就是"手感不对/晕"的技术原因。</p>
+
+  <h3>2.7 进入 VR 的四步（配 07 号演示）</h3>
   <ol>
     <li><strong>检测能力</strong>：<code class="inline">navigator.xr</code> 是否存在（不存在 = 浏览器或安全上下文不满足）；</li>
     <li><strong>检测会话模式</strong>：<code class="inline">navigator.xr.isSessionSupported('immersive-vr')</code>；</li>
@@ -389,8 +464,9 @@ renderer.setAnimationLoop(tick);</pre>
     <li><strong>交给渲染器</strong>：<code class="inline">renderer.xr.setSession(session)</code>。</li>
   </ol>
   <div class="note"><strong><code class="inline">optionalFeatures</code> 与 <code class="inline">requiredFeatures</code> 的区别很关键</strong>：写进 <code class="inline">requiredFeatures</code> 的能力如果设备不支持，会话会<strong>直接失败</strong>；写进 <code class="inline">optionalFeatures</code>，设备有就用、没有就降级。本项目请求的是 <code class="inline">local-floor</code>（地面原点）、<code class="inline">bounded-floor</code>（安全边界）、<code class="inline">hand-tracking</code>（手势），<strong>全部写成可选</strong>——这样即使头显没有手势追踪，场景照样能进。</div>
+  <p><strong>动手看：<a href="assets/vr-2026/webxr/demos/07_进入VR四步与安全上下文.html" target="_blank" rel="noopener">07 号演示 · 进入 VR 的四步检查</a></strong>——页面上把每一步的实际返回值都打出来（协议、<code class="inline">navigator.xr</code>、<code class="inline">isSessionSupported</code>、按钮状态），这一步失败了该查什么，页面上直接写着。</p>
 
-  <h3>2.7 随堂实操 A（约 10 分钟）</h3>
+  <h3>2.8 随堂实操 A（约 10 分钟）</h3>
   <ol>
     <li>把上面的最小场景存成 <code class="inline">hello-webxr.html</code>，与 <code class="inline">three.min.js</code> 放在同一目录；</li>
     <li>双击打开（<code class="inline">file://</code>）——<strong>画面应该能出来，但按钮会显示"不支持 WebXR"</strong>。先亲眼看到这个"假结论"；</li>
@@ -398,6 +474,26 @@ renderer.setAnimationLoop(tick);</pre>
     <li>按 <code class="inline">F12</code> 打开控制台，确认没有红色报错。</li>
   </ol>
   <div class="key">这一步的目的不是"做出东西"，而是<strong>亲手确认两件事</strong>：① WebXR 的可用性受安全上下文控制；② 改一行代码、刷一下页面就是一次完整迭代——网页端路线快在哪里，你自己感受得到。</div>
+
+  <h3>2.9 本模块配套：看视频 · 动手演示</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr><th>类型</th><th>资源</th><th>说明</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>🧪 演示</td><td><a href="assets/vr-2026/webxr/demos/01_最小场景_逐行讲解.html" target="_blank" rel="noopener">01 最小场景逐行讲解</a></td><td>点一行代码 = 开关一个细节（本站演示，离线可用）</td></tr>
+        <tr><td>🧪 演示</td><td><a href="assets/vr-2026/webxr/demos/02_坐标系与相机.html" target="_blank" rel="noopener">02 坐标系与相机</a></td><td>滑块调相机位置与 FOV，体会"1 单位 = 1 米"</td></tr>
+        <tr><td>🧪 演示</td><td><a href="assets/vr-2026/webxr/demos/03_光照与材质.html" target="_blank" rel="noopener">03 光照与材质</a></td><td>四个球对比四种光照方案，复现"模型全黑"</td></tr>
+        <tr><td>🧪 演示</td><td><a href="assets/vr-2026/webxr/demos/04_帧循环与deltaTime.html" target="_blank" rel="noopener">04 帧循环与 deltaTime</a></td><td>模拟 15 fps 低性能设备，看两种写法差多少</td></tr>
+        <tr><td>🧪 演示</td><td><a href="assets/vr-2026/webxr/demos/07_进入VR四步与安全上下文.html" target="_blank" rel="noopener">07 进入 VR 四步检查</a></td><td>把"进不去 VR"的排查顺序做成可交互页面</td></tr>
+        <tr><td>📺 视频</td><td><a href="https://www.bilibili.com/video/BV1zU4y1L7Go" target="_blank" rel="noopener">快速上手 Three.js —— 浏览器中的 3D 渲染引擎</a>（11:30）</td><td>与本模块 2.1—2.5 完全对应，最适合课前看</td></tr>
+        <tr><td>📺 视频</td><td><a href="https://www.bilibili.com/video/BV1qY4y1V79z" target="_blank" rel="noopener">什么是渲染管线？如何绘制 3D 物体？</a>（9:20）</td><td>讲清"三角形是怎么变成屏幕像素的"，回答"为什么这一切叫 WebGL"</td></tr>
+        <tr><td>📺 视频</td><td><a href="https://www.bilibili.com/video/BV13u411U7Ka" target="_blank" rel="noopener">three.js 添加坐标轴、光源和阴影效果</a>（15:29）</td><td>与 2.6 细节 A/B 对应：坐标轴、光源、阴影</td></tr>
+        <tr><td>🔗 文档</td><td><a href="https://threejs.org/docs/" target="_blank" rel="noopener">Three.js 官方文档</a> · <a href="https://developer.mozilla.org/zh-CN/docs/Web/API/WebXR_Device_API" target="_blank" rel="noopener">MDN：WebXR Device API（中文）</a></td><td>查 API 用，比看视频快</td></tr>
+      </tbody>
+    </table>
+  </div>
 </section>
 
 <!-- ===== PART 3 ===== -->
@@ -529,6 +625,21 @@ function hipGeo(w, d, h, spine){
     <li>回答：<strong>你刚才改动的到底是哪一个变量？</strong>它影响的是几何、材质，还是位置？</li>
   </ol>
   <div class="note">第 3 问是本讲的"分水岭"：<strong>能说清"我改的是什么"，才说明你真的看懂了这段代码</strong>，而不是在碰运气调数字。</div>
+
+  <h3>3.8 本模块配套：看视频 · 动手演示</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr><th>类型</th><th>资源</th><th>怎么用</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>🧪 演示</td><td><a href="assets/vr-2026/webxr/demos/05_程序化几何与贴图.html" target="_blank" rel="noopener">05 程序化几何与贴图</a></td><td>拖滑块改面阔/进深/层高/正脊，屋顶实时重建，并显示顶点数与 DrawCall</td></tr>
+        <tr><td>📺 视频</td><td><a href="https://www.bilibili.com/video/BV1ku4y1X7wU" target="_blank" rel="noopener">用 three.js 制作你的第一个 3D 地图</a>（12:04）</td><td>另一条"用代码生成几何"的思路，对照故宫的做法</td></tr>
+        <tr><td>📺 视频</td><td><a href="https://www.bilibili.com/video/BV1Vv4y1A78y" target="_blank" rel="noopener">低模 UV 该给多大才合适？UV 像素原理</a>（19:05）</td><td>解释 3.6 第三条坑：为什么 UV 要按实际尺寸设置</td></tr>
+        <tr><td>📺 视频</td><td><a href="https://www.bilibili.com/video/BV1pi4y1D7iw" target="_blank" rel="noopener">Blender 几何节点程序化建模</a>（10:15）</td><td>对照组：不用代码、用节点也能程序化生成，理解两种路线的差别</td></tr>
+      </tbody>
+    </table>
+  </div>
 </section>
 
 <!-- ===== PART 4 ===== -->
@@ -607,6 +718,21 @@ function wallMat(w, h){
     <li>指出哪些变化属于<strong>光照参数</strong>（光源强度、颜色、阴影），哪些属于<strong>材质参数</strong>（自发光、反射率）；</li>
     <li>把画面停在 21:00，回答：为什么夜间灯笼没有让帧率明显下降？</li>
   </ol>
+
+  <h3>4.7 本模块配套：看视频 · 动手演示</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr><th>类型</th><th>资源</th><th>怎么用</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>🧪 演示</td><td><a href="assets/vr-2026/webxr/demos/03_光照与材质.html" target="_blank" rel="noopener">03 光照与材质</a></td><td>四个球对比四种方案；两盏灯拖到 0 复现"全黑"</td></tr>
+        <tr><td>🧪 演示</td><td><a href="assets/vr-2026/webxr/demos/05_程序化几何与贴图.html" target="_blank" rel="noopener">05 程序化几何与贴图</a></td><td>切"程序化瓦片 ⇄ 纯色"，看同一几何体的两种外观</td></tr>
+        <tr><td>📺 视频</td><td><a href="https://www.bilibili.com/video/BV1Tu4y1479G" target="_blank" rel="noopener">使用 Canvas 完成基本绘图</a>（12:26）</td><td>程序化贴图的前置技能：Canvas 2D 画图（本项目的瓦/砖/墙都靠它）</td></tr>
+        <tr><td>📺 视频</td><td><a href="https://www.bilibili.com/video/BV1Rx4y1o75r" target="_blank" rel="noopener">PBR 材质贴图最全详解</a>（35:49）</td><td>选看：粗糙度/金属度/法线这些参数到底在干什么</td></tr>
+      </tbody>
+    </table>
+  </div>
 </section>
 
 <!-- ===== PART 5 ===== -->
@@ -690,6 +816,20 @@ el.innerHTML = 'FPS &lt;b&gt;' + fps + '&lt;/b&gt; ｜ DrawCalls &lt;b&gt;' + in
     <li>如果把 966 根望柱的 <code class="inline">castShadow</code> 全部打开，最可能先出问题的是哪一项读数？</li>
     <li>这个场景原封不动搬到一台三年前的手机上打开，不做任何优化，你觉得会先卡在哪一步？</li>
   </ol>
+
+  <h3>5.7 本模块配套：看视频 · 动手演示</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr><th>类型</th><th>资源</th><th>怎么用</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>🧪 演示</td><td><a href="assets/vr-2026/webxr/demos/06_性能对比_合批.html" target="_blank" rel="noopener">06 性能对比：独立 Mesh 与 InstancedMesh</a></td><td><strong>本讲最值得动手的一个演示</strong>：把数量拖到 3000，对比 DrawCall</td></tr>
+        <tr><td>📺 视频</td><td><a href="https://www.bilibili.com/video/BV1LS4y1D7B4" target="_blank" rel="noopener">合批渲染 &amp; SpriteBatch 原理</a>（26:31）</td><td>解释"为什么合批能省时间"的底层机制</td></tr>
+        <tr><td>📺 视频</td><td><a href="https://www.bilibili.com/video/BV1UV411B79X" target="_blank" rel="noopener">GPU Instancing：降低 DrawCall</a>（12:02）</td><td>Unity 视角讲同一个概念，概念是通用的</td></tr>
+      </tbody>
+    </table>
+  </div>
 </section>
 
 <!-- ===== PART 6 ===== -->
@@ -784,6 +924,19 @@ player.rotation.y += 30 * Math.PI / 180;</pre>
     <li>PC 端与 VR 端的代码，哪一部分是共用的？哪一部分必须分开写？</li>
     <li>为什么"握把长按退出"必须存在，即使已经有控制面板按钮和系统键？</li>
   </ol>
+
+  <h3>6.7 本模块配套：看视频</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr><th>类型</th><th>资源</th><th>怎么用</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>📺 视频</td><td><a href="https://www.bilibili.com/video/BV1ha4y1x7E4" target="_blank" rel="noopener">《半条命：Alyx》移动方式官方深入解读（中字）</a>（10:33）</td><td>顶级 VR 大作为什么同时保留"传送"和"平滑移动"——正对应 6.3 的舒适度设计</td></tr>
+        <tr><td>📺 视频</td><td><a href="https://www.bilibili.com/video/BV1Y94y1p7dQ" target="_blank" rel="noopener">XR 眼镜戴久了头晕？晕动症的成因与缓解</a>（13:54）</td><td>选看：把"为什么会晕"讲到生理层面，解释为什么传送与 snap turn 更稳</td></tr>
+      </tbody>
+    </table>
+  </div>
 </section>
 
 <!-- ===== PART 7 ===== -->
@@ -810,6 +963,31 @@ player.rotation.y += 30 * Math.PI / 180;</pre>
     </table>
   </div>
   <div class="warn">再强调一次：<strong>双击 <code class="inline">file://</code> 打开，永远进不了 VR</strong>——它能看画面，但那只是"预览"，不是"运行"。判断方式很简单：如果按钮显示"当前浏览器不支持 WebXR"，先查安全上下文，再查设备。</div>
+
+  <h4>为什么"必须放到网络上"——四种打开方式对照</h4>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr><th>打开方式</th><th>是安全上下文吗</th><th>能进 VR 吗</th><th>课堂能不能用</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code class="inline">file://</code> 双击本地文件</td><td><strong>否</strong></td><td><strong>不能</strong>（只能看画面，<code class="inline">navigator.xr</code> 被隐藏）</td><td>只能用来检查"画面渲染对不对"</td></tr>
+        <tr><td><code class="inline">http://192.168.x.x</code>（局域网）</td><td><strong>否</strong></td><td>默认不能（除非给浏览器加白名单 flag）</td><td>应急，依赖固件版本，不推荐</td></tr>
+        <tr><td><code class="inline">http://127.0.0.1</code>（本机服务 / USB 转发）</td><td>是</td><td>能</td><td>开发调试用；头显要通过 USB 端口转发</td></tr>
+        <tr><td><code class="inline">https://…</code>（放到网站上）</td><td>是</td><td><strong>能</strong></td><td><strong>课堂首选：一个链接，全班都能开</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>把这件事讲透，只需要一句话：<strong>VR 会读取你头部的空间姿态，属于敏感能力，所以浏览器规定它只能运行在"可验证来源"的页面上。</strong>这条规则不看设备贵不贵，也不看你是不是在做教学演示——<code class="inline">file://</code> 就是不行。</p>
+  <pre># 本机临时起一个"算安全"的服务（开发/调试用）
+python -m http.server 8080
+# 电脑访问 http://127.0.0.1:8080/你的页面.html  → 可以进 VR
+# 头显访问：USB 连接后做端口转发，或把它放到 https 上
+& 'D:\VRLab\Android\platform-tools\adb.exe' reverse tcp:8080 tcp:8080   # 头显侧的 8080 指向电脑
+
+# 课堂最省事的做法：直接用它已经发布好的 https 地址
+https://www.qixiangsun.com.cn/assets/vr-2026/webxr/gugong_webxr.html</pre>
+  <div class="key">所以"部署"这一步不是形式主义：<strong>不放到网络上，前面所有工作都只能在电脑上看，进不了头显。</strong>而一旦放上去，顺带还得到了三件事：① 一个可以发给任何人的链接；② 可以"安装为应用"（PWA）；③ 装了之后断网也能打开。</div>
 
   <h3>7.2 在头显上打开场景：六步</h3>
   <ol>
@@ -873,6 +1051,21 @@ python -m http.server 8080
 # 方式二：Node 环境
 npx serve -l 8080</pre>
   <div class="key">课堂上的实用做法：<strong>本课程网站已经放了这份场景的可直接打开版本</strong>（见本页顶部按钮），它本身就运行在 HTTPS 上——等于顺手解决了安全上下文这个前提。把它发给同学、发给家人，一个链接就够。</div>
+
+  <h3>7.6 本模块配套：看视频 · 动手演示</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr><th>类型</th><th>资源</th><th>怎么用</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>🧪 演示</td><td><a href="assets/vr-2026/webxr/demos/07_进入VR四步与安全上下文.html" target="_blank" rel="noopener">07 进入 VR 四步检查</a></td><td>把本机是 <code class="inline">file://</code> / 局域网 http / https 三种情况都跑一遍，对着表格填</td></tr>
+        <tr><td>📺 视频</td><td><a href="https://www.bilibili.com/video/BV1CW4y1B7Xs" target="_blank" rel="noopener">增进 Web App 体验：充分利用 PWA 及其能力</a>（Google 中国 · 12:10）</td><td>官方讲 PWA：为什么"网页能变成应用"、能得到什么</td></tr>
+        <tr><td>📺 视频</td><td><a href="https://www.bilibili.com/video/BV1tAKozuEkd" target="_blank" rel="noopener">你管这破玩意叫 HTTPS？</a>（7:57）</td><td>轻松看懂 HTTPS 与证书，理解"必须放到网络上"的由来</td></tr>
+        <tr><td>🔗 工具</td><td><a href="https://modelviewer.dev/editor/" target="_blank" rel="noopener">model-viewer 在线编辑器</a></td><td>把任意 .glb 拖进去就能看、能导出一段网页代码——做作品集封面很好用</td></tr>
+      </tbody>
+    </table>
+  </div>
 
   <h3>7.6 一台设备怎么让 40 个人都戴上：全员传看 + 定岗深测（1:50—2:36）</h3>
   <p>教室里只有 <strong>1 台 PICO Neo 3</strong>。把时间全给它，每人也就 4.5 分钟——连戴卸和消毒都不够。所以这个环节分两段：<strong>先让全班每个人亲手戴上一次（覆盖面），再由 4 个人把数据测准（质量）</strong>。</p>
@@ -1023,6 +1216,63 @@ npx serve -l 8080</pre>
     <li>能说出<strong>退出 VR 的三条路</strong>，并说明为什么"在网页上放一个普通按钮"在沉浸模式下不管用。</li>
   </ol>
   <div class="key">三条全过 = 本讲的课堂实操部分完成。第 3 条是本讲的"核心考点"：<strong>它考的不是记性，而是你有没有真的踩过那个坑。</strong></div>
+
+  <h3>五、更多例子：免费 3D 库与在线示例</h3>
+  <p>一个故宫不够看。下面这些全部是免费的，链接都已逐个核验可打开（2026-09-22）。建议每个至少点开一次，<strong>看别人怎么做，比只看故宫一个例子更快建立判断力</strong>。</p>
+
+  <h4>5.1 免费 3D 库 / 引擎（都能在浏览器里跑）</h4>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr><th>库 / 引擎</th><th>特点</th><th>适合拿来做什么</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><a href="https://threejs.org/examples/" target="_blank" rel="noopener">Three.js</a></td><td>最主流的 WebGL 库，示例几百个，中文资料最多</td><td><strong>本课程选用</strong>；写代码控制一切</td></tr>
+        <tr><td><a href="https://aframe.io/examples/" target="_blank" rel="noopener">A-Frame</a></td><td>用 HTML 标签写 VR（<code class="inline">&lt;a-box&gt;</code>），不用写渲染代码</td><td>半天做出一个能进头显的场景；适合第一次接触 VR 的人</td></tr>
+        <tr><td><a href="https://playground.babylonjs.com/" target="_blank" rel="noopener">Babylon.js</a></td><td>功能比 three.js 更"开箱即用"，自带在线 Playground（改完即看）</td><td>想快速试一个玩法；企业级项目</td></tr>
+        <tr><td><a href="https://developer.playcanvas.com/" target="_blank" rel="noopener">PlayCanvas</a></td><td>完整的网页版编辑器，像"网页里的 Unity"</td><td>不想写太多代码、想用编辑器搭场景</td></tr>
+        <tr><td><a href="https://modelviewer.dev/" target="_blank" rel="noopener">&lt;model-viewer&gt;</a></td><td>一行 HTML 标签就能展示 3D 模型，Google 出品</td><td>给网页/电商/课程加一个可旋转的 3D 模型</td></tr>
+        <tr><td><a href="https://tresjs.org/" target="_blank" rel="noopener">TresJS</a></td><td>Vue 风格的 Three.js 封装</td><td>前端同学做课程网站里的 3D 展台</td></tr>
+        <tr><td><a href="https://needle.tools/" target="_blank" rel="noopener">Needle Engine</a></td><td>把 Unity 工程直接导出成网页</td><td>已有 Unity 项目，想一键上网页</td></tr>
+        <tr><td><a href="https://zzz.dog/" target="_blank" rel="noopener">Zdog</a></td><td>极简伪 3D（没有真正的透视），画风可爱</td><td>做图标、插画式 3D，几乎不占性能</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h4>5.2 在线示例（点开就能看，最适合"照着改"）</h4>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr><th>示例站</th><th>里面有什么</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><a href="https://immersive-web.github.io/webxr-samples/" target="_blank" rel="noopener">W3C WebXR Samples</a></td><td>标准组织给的官方示例，最权威；可用来对照"你的设备到底支持哪一项能力"</td></tr>
+        <tr><td><a href="https://threejs.org/examples/?q=webxr" target="_blank" rel="noopener">Three.js WebXR 示例集</a></td><td>官方示例里所有 WebXR 相关的（手柄、传送、绘画、体积雾…），点开即运行</td></tr>
+        <tr><td><a href="https://aframe.io/examples/" target="_blank" rel="noopener">A-Frame 示例</a></td><td>几十个"打开就进 VR"的小场景，代码量极小，适合当模板</td></tr>
+        <tr><td><a href="https://playground.babylonjs.com/" target="_blank" rel="noopener">Babylon Playground</a></td><td>在线改代码即时预览，示例按功能分类</td></tr>
+        <tr><td><a href="https://github.com/KhronosGroup/glTF-Sample-Assets" target="_blank" rel="noopener">Khronos glTF 官方样例模型</a></td><td>标准的 3D 格式测试模型（含材质、骨骼动画），用来测试"我的加载器对不对"</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h4>5.3 免费模型 / 贴图资源（注意看授权）</h4>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr><th>站点</th><th>内容</th><th>授权</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><a href="https://polyhaven.com/" target="_blank" rel="noopener">Poly Haven</a></td><td>HDRI 环境图、PBR 材质、模型</td><td><strong>CC0（可商用、免署名）</strong></td></tr>
+        <tr><td><a href="https://ambientcg.com/" target="_blank" rel="noopener">ambientCG</a></td><td>上千套 PBR 材质与贴图</td><td>CC0</td></tr>
+        <tr><td><a href="https://kenney.nl/assets" target="_blank" rel="noopener">Kenney</a></td><td>低模游戏素材包（角色、道具、场景）</td><td>CC0</td></tr>
+        <tr><td><a href="https://quaternius.com/" target="_blank" rel="noopener">Quaternius</a></td><td>低模建筑、角色、自然素材</td><td>CC0</td></tr>
+        <tr><td><a href="https://sketchfab.com/" target="_blank" rel="noopener">Sketchfab</a></td><td>海量模型，可按"可下载 + CC 授权"筛选</td><td><strong>逐件看授权</strong>（CC BY 需署名）</td></tr>
+        <tr><td><a href="https://www.mixamo.com/" target="_blank" rel="noopener">Mixamo</a></td><td>角色骨骼动画（走路、挥手等）</td><td>免费（需注册）；用于教学演示</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="warn"><strong>两条使用纪律</strong>：① 下载素材前先看授权，<strong>课堂上必须养成习惯</strong>——CC0 随便用，CC BY 要署名，标"非商用"的不能进商业作品；② 外部站点会变（有的需要科学上网、有的会关站），<strong>所以本课程的课堂演示都用自建页面，外链只作为扩展阅读</strong>。</div>
+  <div class="key"><strong>怎么用这些例子做自己的场景（三步）</strong>：① 先在示例站里找一个最接近你想法的，<strong>打开、改一个数字、刷新</strong>；② 把它的核心几行抄进自己的页面，跑通；③ 再回头改比例、换素材、加交互。<strong>不要从空白文件开始写</strong>——那是效率最低的路。</div>
 </section>
 
 <!-- ===== 课堂作业 ===== -->

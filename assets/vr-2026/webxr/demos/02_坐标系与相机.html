@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>02 · 坐标系与相机：1 单位 = 1 米</title>
+<style>
+  *{box-sizing:border-box;}
+  html,body{margin:0;height:100%;background:#0f0b07;color:#efe4cf;
+    font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif;overflow:hidden;}
+  #app{display:flex;height:100%;}
+  #left{position:relative;flex:1 1 auto;min-width:0;}
+  canvas{display:block;}
+  #right{flex:0 0 380px;background:#14100a;border-left:1px solid rgba(217,164,65,.25);padding:16px 18px;overflow:auto;}
+  h1{font-size:16px;margin:0 0 6px;color:#d9a441;letter-spacing:2px;}
+  p.sub{font-size:12px;color:#a89b7c;margin:0 0 14px;line-height:1.7;}
+  .ctl{margin-bottom:12px;}
+  .ctl label{display:flex;justify-content:space-between;font-size:12.5px;color:#cbbf9f;margin-bottom:4px;}
+  .ctl label b{color:#f0b45a;font-family:Consolas,monospace;}
+  input[type=range]{width:100%;}
+  .note{font-size:12px;color:#a89b7c;line-height:1.7;border-left:3px solid rgba(217,164,65,.5);padding-left:10px;margin:10px 0;}
+  .note b{color:#f0b45a;}
+  button{background:rgba(217,164,65,.16);color:#efe4cf;border:1px solid rgba(217,164,65,.5);
+    border-radius:8px;padding:6px 12px;cursor:pointer;font-size:13px;font-family:inherit;margin:4px 6px 0 0;}
+  button:hover{background:rgba(217,164,65,.34);}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="left"></div>
+  <div id="right">
+    <h1>02 · 坐标系与相机</h1>
+    <p class="sub">左边是场景，右边是相机参数。每个滑块改的都是"你从哪里、用什么镜头看"。</p>
+
+    <div class="ctl"><label>相机 X（左右，米）<b id="vx">0.0</b></label><input id="x" type="range" min="-8" max="8" step="0.1" value="0"></div>
+    <div class="ctl"><label>相机 Y（高度，米）<b id="vy">1.6</b></label><input id="y" type="range" min="0.1" max="6" step="0.1" value="1.6"></div>
+    <div class="ctl"><label>相机 Z（前后，米）<b id="vz">6.0</b></label><input id="z" type="range" min="-8" max="12" step="0.1" value="6"></div>
+    <div class="ctl"><label>视野 FOV（度）<b id="vf">70</b></label><input id="f" type="range" min="20" max="110" step="1" value="70"></div>
+    <div class="ctl"><label>物体高度 Y（米）<b id="vo">1.7</b></label><input id="o" type="range" min="0" max="4" step="0.1" value="1.7"></div>
+
+    <button id="b1">站到物体旁边（1.7 m）</button>
+    <button id="b2">蹲下看（0.6 m）</button>
+    <button id="b3">远景（Z=10）</button>
+
+    <div class="note">
+      <b>1 单位 = 1 米</b>：把高度调到 1.7，正好是一个成年人的眼睛高度；调到 0.6 就是蹲下。<br>
+      <b>红=X、绿=Y、蓝=Z</b>；本项目约定 <b>+Z 朝南</b>（午门在南），相机默认朝 −Z 看。
+    </div>
+    <div class="note">
+      <b>为什么相机很重要</b>：同一个场景，"看不见东西"十有八九是相机位置/朝向不对，而不是模型没建出来。先查相机，再查物体。
+    </div>
+    <div class="note" id="fovNote"></div>
+  </div>
+</div>
+
+<script src="../three.min.js"></script>
+<script>
+(function(){
+  'use strict';
+  var left = document.getElementById('left');
+  var scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x8fc0e8);
+  scene.fog = new THREE.Fog(0x8fc0e8, 30, 90);
+
+  var camera = new THREE.PerspectiveCamera(70, left.clientWidth/left.clientHeight, 0.1, 500);
+  var renderer = new THREE.WebGLRenderer({antialias:true});
+  renderer.setSize(left.clientWidth, left.clientHeight);
+  renderer.setPixelRatio(Math.min(devicePixelRatio||1, 1.5));
+  left.appendChild(renderer.domElement);
+
+  scene.add(new THREE.HemisphereLight(0xbcd8f0, 0x6b5a44, 1.0));
+  var sun = new THREE.DirectionalLight(0xffffff, 1.1);
+  sun.position.set(6, 10, 6); scene.add(sun);
+
+  // 地面网格：每格 1 米
+  var grid = new THREE.GridHelper(40, 40, 0x556677, 0x99aabb);
+  scene.add(grid);
+  // 坐标轴：红X 绿Y 蓝Z
+  scene.add(new THREE.AxesHelper(3));
+
+  // 一个 1.7 m 高的"人"（用圆柱近似；r128 没有 CapsuleGeometry）和一排标尺柱
+  var person = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.25, 1.7, 16),
+    new THREE.MeshStandardMaterial({color:0xb22222, roughness:0.6}));
+  person.position.set(0, 0.85, 0);   // 身高 1.7 m，中心在 0.85
+  scene.add(person);
+
+  for(var i=0;i<6;i++){
+    var h = (i+1)*0.5;
+    var post = new THREE.Mesh(new THREE.BoxGeometry(0.12, h, 0.12),
+      new THREE.MeshStandardMaterial({color:0xc8a24a, roughness:0.8}));
+    post.position.set(1.6 + i*0.5, h/2, 0);
+    scene.add(post);
+    var box = new THREE.Mesh(new THREE.BoxGeometry(1.2, 1, 1.2),
+      new THREE.MeshStandardMaterial({color:0x2e6fd8, roughness:0.7}));
+    box.position.set(1.6 + i*0.5, h/2, -1.8);
+    scene.add(box);
+  }
+  // 远处一排参照屋：越远越小（透视）
+  for(var j=0;j<5;j++){
+    var hall = new THREE.Mesh(new THREE.BoxGeometry(6, 4, 6),
+      new THREE.MeshStandardMaterial({color:0x8a3b2a, roughness:0.9}));
+    hall.position.set(-14 + j*7, 2, -22);
+    scene.add(hall);
+  }
+
+  var $ = function(id){ return document.getElementById(id); };
+  function sync(){
+    camera.position.set(parseFloat($('x').value), parseFloat($('y').value), parseFloat($('z').value));
+    camera.fov = parseFloat($('f').value);
+    camera.updateProjectionMatrix();
+    camera.lookAt(0, 1.2, 0);
+    person.position.y = parseFloat($('o').value)/2;
+    $('vx').textContent = camera.position.x.toFixed(1);
+    $('vy').textContent = camera.position.y.toFixed(1);
+    $('vz').textContent = camera.position.z.toFixed(1);
+    $('vf').textContent = camera.fov.toFixed(0);
+    $('vo').textContent = parseFloat($('o').value).toFixed(1);
+    $('fovNote').innerHTML = '<b>FOV 现在 ' + camera.fov.toFixed(0) + '°</b>：' +
+      (camera.fov < 40 ? '远处像被"拉近"了，这是望远镜效果，VR 里会很不自然。'
+       : camera.fov > 90 ? '视野很广，但边缘拉伸明显（VR 头显一般 90°—110°）。'
+       : '人眼舒适区间，VR 里常用 90° 左右。');
+  }
+  ['x','y','z','f','o'].forEach(function(id){ $(id).addEventListener('input', sync); });
+  $('b1').onclick = function(){ $('y').value = 1.7; $('z').value = 3; sync(); };
+  $('b2').onclick = function(){ $('y').value = 0.6; $('z').value = 3; sync(); };
+  $('b3').onclick = function(){ $('z').value = 10; $('y').value = 1.6; sync(); };
+  sync();
+
+  renderer.setAnimationLoop(function(){ renderer.render(scene, camera); });
+  window.addEventListener('resize', function(){
+    camera.aspect = left.clientWidth/left.clientHeight; camera.updateProjectionMatrix();
+    renderer.setSize(left.clientWidth, left.clientHeight);
+  });
+})();
+</script>
+</body>
+</html>

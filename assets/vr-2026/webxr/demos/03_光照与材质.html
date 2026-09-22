@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>03 · 光照与材质：为什么物体是黑的</title>
+<style>
+  *{box-sizing:border-box;}
+  html,body{margin:0;height:100%;background:#0f0b07;color:#efe4cf;
+    font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif;overflow:hidden;}
+  #app{display:flex;height:100%;}
+  #left{position:relative;flex:1 1 auto;min-width:0;}
+  canvas{display:block;}
+  #right{flex:0 0 400px;background:#14100a;border-left:1px solid rgba(217,164,65,.25);padding:16px 18px;overflow:auto;}
+  h1{font-size:16px;margin:0 0 6px;color:#d9a441;letter-spacing:2px;}
+  p.sub{font-size:12px;color:#a89b7c;margin:0 0 14px;line-height:1.7;}
+  .ctl{margin-bottom:12px;}
+  .ctl label{display:flex;justify-content:space-between;font-size:12.5px;color:#cbbf9f;margin-bottom:4px;}
+  .ctl label b{color:#f0b45a;font-family:Consolas,monospace;}
+  input[type=range]{width:100%;}
+  .note{font-size:12px;color:#a89b7c;line-height:1.7;border-left:3px solid rgba(217,164,65,.5);padding-left:10px;margin:10px 0;}
+  .note b{color:#f0b45a;}
+  button{background:rgba(217,164,65,.16);color:#efe4cf;border:1px solid rgba(217,164,65,.5);
+    border-radius:8px;padding:6px 12px;cursor:pointer;font-size:13px;font-family:inherit;margin:4px 6px 0 0;}
+  button:hover{background:rgba(217,164,65,.34);}
+  code{font-family:Consolas,monospace;color:#ffe9b8;}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="left"></div>
+  <div id="right">
+    <h1>03 · 光照与材质</h1>
+    <p class="sub">四个球，同样的形状，只改"光"和"材质"，得到完全不同的结果。左边看效果，右边调参数。</p>
+
+    <div class="ctl"><label>平行光强度<b id="vs">1.2</b></label><input id="s" type="range" min="0" max="3" step="0.1" value="1.2"></div>
+    <div class="ctl"><label>半球光强度<b id="vh">0.9</b></label><input id="h" type="range" min="0" max="2" step="0.1" value="0.9"></div>
+    <div class="ctl"><label>粗糙度 roughness<b id="vr">0.5</b></label><input id="r" type="range" min="0" max="1" step="0.05" value="0.5"></div>
+    <div class="ctl"><label>光照方向（绕 Y 轴）<b id="va">45</b>°</label><input id="a" type="range" min="0" max="360" step="5" value="45"></div>
+    <div class="ctl"><label>阴影贴图分辨率<b id="vd">2048</b></label><input id="d" type="range" min="256" max="4096" step="256" value="2048"></div>
+
+    <button id="b1">标准：两盏灯 + 阴影</button>
+    <button id="b2">只剩环境光（很平）</button>
+    <button id="b3">全关（全黑）</button>
+
+    <div class="note">
+      <b>为什么我的模型是全黑的？</b> 99% 是没有灯：<code>MeshStandardMaterial</code> 必须被光照到才可见。
+      把下面两盏灯的强度都拖到 0，你会看到四个球全黑——这就是"忘加灯"的现象。
+    </div>
+    <div class="note">
+      <b>四种球从左到右</b>：① 基础材质（不受光）② 标准材质 + 平行光 ③ 标准材质 + 半球光 ④ 标准材质 + 两盏灯 + 阴影。<br>
+      第 ④ 个才是 VR 场景里最常见的样子：<b>一盏主光 + 一盏补光</b>。
+    </div>
+    <div class="note">
+      <b>阴影分辨率是取舍</b>：调到 4096 更细腻但更吃性能；VR 里通常 1024—2048。
+    </div>
+  </div>
+</div>
+
+<script src="../three.min.js"></script>
+<script>
+(function(){
+  'use strict';
+  var left = document.getElementById('left');
+  var scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x2a2f3a);
+  var camera = new THREE.PerspectiveCamera(60, left.clientWidth/left.clientHeight, 0.1, 200);
+  camera.position.set(0, 2.2, 7.2);
+  camera.lookAt(0, 1.1, 0);
+
+  var renderer = new THREE.WebGLRenderer({antialias:true});
+  renderer.setSize(left.clientWidth, left.clientHeight);
+  renderer.setPixelRatio(Math.min(devicePixelRatio||1, 1.5));
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  left.appendChild(renderer.domElement);
+
+  var hemi = new THREE.HemisphereLight(0xbcd8f0, 0x6b5a44, 0.9);
+  var sun = new THREE.DirectionalLight(0xffffff, 1.2);
+  sun.position.set(5, 8, 5);
+  sun.castShadow = true;
+  sun.shadow.mapSize.set(2048, 2048);
+  sun.shadow.camera.left = -8; sun.shadow.camera.right = 8;
+  sun.shadow.camera.top = 8; sun.shadow.camera.bottom = -8;
+  scene.add(hemi, sun);
+
+  var ground = new THREE.Mesh(new THREE.PlaneGeometry(40, 40),
+    new THREE.MeshStandardMaterial({color:0x9aa3ad, roughness:1}));
+  ground.rotation.x = -Math.PI/2;
+  ground.receiveShadow = true;
+  scene.add(ground);
+
+  var labels = ['① 基础材质（不受光）', '② 平行光', '③ 半球光', '④ 两盏灯 + 阴影'];
+  var mats = [
+    new THREE.MeshBasicMaterial({color:0xcc4444}),
+    null, null, null
+  ];
+  var matsStd = function(){ return new THREE.MeshStandardMaterial({color:0xcc4444, roughness:0.5}); };
+  var balls = [];
+  for(var i=0;i<4;i++){
+    var mat = i === 0 ? mats[0] : matsStd();
+    var m = new THREE.Mesh(new THREE.SphereGeometry(0.75, 32, 24), mat);
+    m.position.set(-3.6 + i*2.4, 1.1, 0);
+    m.castShadow = true; m.receiveShadow = true;
+    scene.add(m);
+    balls.push(m);
+    var c = document.createElement('canvas'); c.width = 512; c.height = 96;
+    var g = c.getContext('2d');
+    g.fillStyle = 'rgba(0,0,0,0)'; g.fillRect(0,0,512,96);
+    g.fillStyle = '#efe4cf'; g.font = '34px "Microsoft YaHei",sans-serif'; g.textAlign = 'center';
+    g.fillText(labels[i], 256, 60);
+    var t = new THREE.CanvasTexture(c);
+    var sp = new THREE.Sprite(new THREE.SpriteMaterial({map:t, transparent:true, depthWrite:false}));
+    sp.scale.set(3.2, 0.6, 1); sp.position.set(m.position.x, 2.35, 0);
+    scene.add(sp);
+  }
+
+  var $ = function(id){ return document.getElementById(id); };
+  function sync(){
+    var s = parseFloat($('s').value), h = parseFloat($('h').value);
+    var r = parseFloat($('r').value), a = parseFloat($('a').value) * Math.PI/180;
+    var d = parseInt($('d').value, 10);
+    sun.intensity = s; hemi.intensity = h;
+    sun.position.set(Math.cos(a)*8, 8, Math.sin(a)*8);
+    if(sun.shadow.mapSize.x !== d){ sun.shadow.mapSize.set(d, d); if(sun.shadow.map){ sun.shadow.map.dispose(); sun.shadow.map = null; } }
+    balls.forEach(function(b, i){
+      if(b.material.type === 'MeshStandardMaterial') b.material.roughness = r;
+      if(i === 1){ b.visible = s > 0.001; }       // 只受平行光
+      if(i === 2){ b.visible = h > 0.001; }       // 只受半球光
+      if(i === 3){ b.visible = true; }            // 两盏灯
+    });
+    $('vs').textContent = s.toFixed(1); $('vh').textContent = h.toFixed(1);
+    $('vr').textContent = r.toFixed(2); $('va').textContent = $('a').value;
+    $('vd').textContent = d;
+  }
+  ['s','h','r','a','d'].forEach(function(id){ $(id).addEventListener('input', sync); });
+  $('b1').onclick = function(){ $('s').value=1.2; $('h').value=0.9; $('r').value=0.5; sync(); };
+  $('b2').onclick = function(){ $('s').value=0; $('h').value=1.4; sync(); };
+  $('b3').onclick = function(){ $('s').value=0; $('h').value=0; sync(); };
+  sync();
+
+  renderer.setAnimationLoop(function(){ renderer.render(scene, camera); });
+  window.addEventListener('resize', function(){
+    camera.aspect = left.clientWidth/left.clientHeight; camera.updateProjectionMatrix();
+    renderer.setSize(left.clientWidth, left.clientHeight);
+  });
+})();
+</script>
+</body>
+</html>

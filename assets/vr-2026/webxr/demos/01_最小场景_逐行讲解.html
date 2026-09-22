@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>01 · 最小可运行场景：逐行讲解</title>
+<style>
+  *{box-sizing:border-box;}
+  html,body{margin:0;height:100%;background:#0f0b07;color:#efe4cf;
+    font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif;overflow:hidden;}
+  #app{display:flex;height:100%;}
+  #left{position:relative;flex:1 1 auto;min-width:0;}
+  canvas{display:block;}
+  #tip{position:absolute;left:14px;bottom:14px;font-size:13px;color:#cbbf9f;
+    background:rgba(15,11,7,.7);border:1px solid rgba(217,164,65,.35);border-radius:8px;padding:8px 12px;line-height:1.7;}
+  #hud{position:absolute;left:14px;top:14px;font-size:12px;color:#9fb88a;
+    background:rgba(15,11,7,.7);border:1px solid rgba(217,164,65,.25);border-radius:8px;padding:6px 10px;}
+  #right{flex:0 0 520px;background:#14100a;border-left:1px solid rgba(217,164,65,.25);
+    padding:16px 18px;overflow:auto;}
+  h1{font-size:16px;margin:0 0 4px;color:#d9a441;letter-spacing:2px;}
+  p.sub{font-size:12px;color:#a89b7c;margin:0 0 14px;line-height:1.7;}
+  .row{display:flex;gap:10px;align-items:flex-start;padding:7px 8px;border-radius:8px;cursor:pointer;
+    border:1px solid transparent;}
+  .row:hover{background:rgba(217,164,65,.10);border-color:rgba(217,164,65,.3);}
+  .row.off{opacity:.45;}
+  .code{flex:0 0 46%;font-family:Consolas,"Courier New",monospace;font-size:12.5px;color:#ffe9b8;
+    white-space:pre-wrap;word-break:break-all;line-height:1.6;}
+  .desc{flex:1 1 auto;font-size:12.5px;color:#cbbf9f;line-height:1.65;}
+  .desc b{color:#f0b45a;}
+  .tag{display:inline-block;font-size:11px;border:1px solid rgba(217,164,65,.5);border-radius:6px;
+    padding:0 6px;margin-right:6px;color:#d9a441;}
+  #actions{margin-top:14px;display:flex;gap:8px;flex-wrap:wrap;}
+  button{background:rgba(217,164,65,.16);color:#efe4cf;border:1px solid rgba(217,164,65,.5);
+    border-radius:8px;padding:6px 12px;cursor:pointer;font-size:13px;font-family:inherit;}
+  button:hover{background:rgba(217,164,65,.34);}
+  #err{margin-top:12px;font-size:12px;color:#f0b45a;min-height:18px;}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="left">
+    <div id="hud">点击右侧任意一行 → 场景里对应的东西会打开/关闭</div>
+    <div id="tip">这就是"最小可运行场景"：一个场景 + 一个相机 + 一个渲染器 + 一盏灯 + 一个物体 + 一个循环。<br>
+      把每一行都关掉看一遍，就知道哪一行少了会出现什么现象。</div>
+  </div>
+  <div id="right">
+    <h1>01 · 最小可运行场景</h1>
+    <p class="sub">右侧每一行代码 = 一个细节。点一下就能"关掉/打开"它，亲眼看见这一行到底管什么。</p>
+    <div id="rows"></div>
+    <div id="actions">
+      <button id="allOn">全部打开</button>
+      <button id="onlyMin">只留最小（关掉所有可选）</button>
+      <button id="resetCam">相机复位</button>
+    </div>
+    <div id="err"></div>
+  </div>
+</div>
+
+<script src="../three.min.js"></script>
+<script>
+(function(){
+  'use strict';
+  var left = document.getElementById('left');
+
+  /* ---------- 1) 场景 Scene：所有物体的容器 ---------- */
+  var scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x9ec9f0);      // 背景色（关掉就变黑）
+  var useBg = true;
+
+  /* ---------- 2) 相机 Camera：你的眼睛 ---------- */
+  var camera = new THREE.PerspectiveCamera(70, left.clientWidth / left.clientHeight, 0.1, 2000);
+  camera.position.set(0, 1.6, 4);                    // 1.6 m ≈ 人眼高度
+  camera.lookAt(0, 1.2, 0);
+
+  /* ---------- 3) 渲染器 Renderer：每帧把场景画出来 ---------- */
+  var renderer = new THREE.WebGLRenderer({antialias:true});
+  renderer.setSize(left.clientWidth, left.clientHeight);
+  renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 1.5));
+  left.appendChild(renderer.domElement);
+
+  /* ---------- 4) 光照：没有光，标准材质就是全黑 ---------- */
+  var hemi = new THREE.HemisphereLight(0xbcd8f0, 0x6b5a44, 0.9);   // 天光/环境补色
+  var sun  = new THREE.DirectionalLight(0xffffff, 1.2);            // 平行光（太阳）
+  sun.position.set(4, 6, 3);
+  scene.add(hemi, sun);
+
+  /* ---------- 5) 物体：几何体 + 材质 = Mesh ---------- */
+  var ball = new THREE.Mesh(
+    new THREE.SphereGeometry(0.6, 32, 24),                          // 半径 0.6 m
+    new THREE.MeshStandardMaterial({color:0xb22222, roughness:0.5}) // 标准材质（受光影响）
+  );
+  ball.position.y = 1.2;
+  scene.add(ball);
+
+  /* ---------- 6) 辅助物：坐标轴与地面网格（调试用，正式发布时删掉） ---------- */
+  var axes   = new THREE.AxesHelper(2);                              // 红=X 绿=Y 蓝=Z
+  var grid   = new THREE.GridHelper(20, 20, 0x808080, 0x505050);
+  var ground = new THREE.Mesh(new THREE.PlaneGeometry(20, 20),
+                 new THREE.MeshStandardMaterial({color:0xcfd6d9, roughness:1}));
+  ground.rotation.x = -Math.PI / 2;
+  ground.receiveShadow = true;
+  axes.position.y = 0.01;
+  scene.add(axes, grid, ground);
+
+  /* ---------- 7) 渲染循环：每帧调用一次 ---------- */
+  renderer.setAnimationLoop(function(){
+    ball.rotation.y += 0.01;                 // ❌ 帧率相关：不同机器转速不同（见 04 号演示）
+    renderer.render(scene, camera);
+  });
+
+  /* ---------- 8) WebXR：让渲染器允许接管头显 ---------- */
+  renderer.xr.enabled = true;
+
+  /* ================= 交互：每一行代码对应一个可开关的细节 ================= */
+  var ROWS = [
+    {code:'scene.background = new THREE.Color(0x9ec9f0)',
+     desc:'<span class="tag">Scene</span>背景色。关掉它，画面变黑——<b>不是物体没了，是没有背景</b>。',
+     on:true,  act:function(v){ useBg = v; scene.background = v ? new THREE.Color(0x9ec9f0) : null; }},
+    {code:'new THREE.PerspectiveCamera(70, w/h, 0.1, 2000)',
+     desc:'<span class="tag">Camera</span>视野 70°、近裁 0.1 m、远裁 2000 m。关掉相机整个画面就没了——这是"看不见"的第一嫌疑。',
+     on:true,  act:function(v){ camera.visible = v; }},
+    {code:'camera.position.set(0, 1.6, 4)',
+     desc:'<span class="tag">Camera</span>相机在人眼高度、离原点 4 m。改成 (0,0.2,1) 就是从地上仰视——<b>位置决定你看到的构图</b>。',
+     on:true,  act:function(v){ camera.position.set(v ? 0 : 0.2, v ? 1.6 : 0.2, v ? 4 : 1.2); }},
+    {code:'renderer.setPixelRatio(min(dpr, 1.5))',
+     desc:'<span class="tag">Renderer</span>像素比上限 1.5。关掉它用浏览器默认值，高分屏上会更清晰但更吃性能——<b>这就是"清晰度换帧率"的开关</b>。',
+     on:true,  act:function(v){ renderer.setPixelRatio(v ? Math.min(devicePixelRatio||1, 1.5) : 1); }},
+    {code:'hemi = new THREE.HemisphereLight(...)',
+     desc:'<span class="tag">Light</span>半球光负责"天光补色"，关掉后背光面会变死黑。',
+     on:true,  act:function(v){ hemi.visible = v; }},
+    {code:'sun = new THREE.DirectionalLight(0xffffff, 1.2)',
+     desc:'<span class="tag">Light</span>平行光=太阳，负责明暗与投影方向。关掉它，只剩环境光，物体会变得很平。',
+     on:true,  act:function(v){ sun.visible = v; }},
+    {code:'new THREE.Mesh(SphereGeometry, MeshStandardMaterial)',
+     desc:'<span class="tag">Mesh</span>几何体(形状) + 材质(外观) = 可渲染物体。关掉它，场景里就只剩地面和网格。',
+     on:true,  act:function(v){ ball.visible = v; }},
+    {code:'ball.position.y = 1.2',
+     desc:'<span class="tag">位置</span>单位是米。1.2 m 大约是人抬手的胸口高度——<b>单位定死，比例才不会乱</b>。',
+     on:true,  act:function(v){ ball.position.y = v ? 1.2 : 0.6; }},
+    {code:'new THREE.AxesHelper(2)  // 红X 绿Y 蓝Z',
+     desc:'<span class="tag">调试</span>坐标轴辅助。正式发布前一定删掉——新手最常见的"漏删调试对象"就是它。',
+     on:false, act:function(v){ axes.visible = v; }},
+    {code:'new THREE.GridHelper(20, 20)  // 地面网格',
+     desc:'<span class="tag">调试</span>地面网格，用来判断比例与位置。发布前删。',
+     on:false, act:function(v){ grid.visible = v; }},
+    {code:'renderer.setAnimationLoop(fn)',
+     desc:'<span class="tag">循环</span>每帧执行一次。关掉它球就停转——<b>但注意：XR 下必须用它，不能用 requestAnimationFrame</b>。',
+     on:true,  act:function(v){ running = v; }},
+    {code:'ball.rotation.y += 0.01',
+     desc:'<span class="tag">动画</span>每帧转 0.01 弧度。这是"帧率相关"的写法（60 fps 和 30 fps 转速差一倍），正确写法见 04 号演示。',
+     on:true,  act:function(v){ spinning = v; }},
+    {code:'renderer.xr.enabled = true',
+     desc:'<span class="tag">WebXR</span>允许渲染器接管头显。关掉它，头显里就只有一块平面画布，不是沉浸式画面。',
+     on:true,  act:function(v){ showErr(v ? 'renderer.xr.enabled = true（可以进入 VR）' : 'renderer.xr.enabled = false → 无法进入沉浸式 VR'); }}
+  ];
+
+  var running = true, spinning = true, rowsEl = document.getElementById('rows');
+  ROWS.forEach(function(r, i){
+    var el = document.createElement('div');
+    el.className = 'row' + (r.on ? '' : ' off');
+    el.innerHTML = '<div class="code">' + r.code.replace(/</g,'&lt;') + '</div><div class="desc">' + r.desc + '</div>';
+    el.onclick = function(){
+      r.on = !r.on;
+      el.classList.toggle('off', !r.on);
+      r.act(r.on);
+    };
+    rowsEl.appendChild(el);
+  });
+
+  document.getElementById('allOn').onclick = function(){ ROWS.forEach(function(r, i){
+    if(!r.on){ r.on = true; rowsEl.children[i].classList.remove('off'); r.act(true); } }); };
+  document.getElementById('onlyMin').onclick = function(){ ROWS.forEach(function(r, i){
+    if(r.on && /调试|AxesHelper|GridHelper/.test(r.code)){ r.on = false; rowsEl.children[i].classList.add('off'); r.act(false); } }); };
+  document.getElementById('resetCam').onclick = function(){ camera.position.set(0, 1.6, 4); camera.lookAt(0, 1.2, 0); };
+
+  var errEl = document.getElementById('err');
+  function showErr(t){ errEl.textContent = t; }
+
+  // 每帧仍要渲染（即使"循环"被关掉，也保持画面不黑屏，只是不再动）
+  var last = performance.now();
+  (function tick(){
+    requestAnimationFrame(tick);
+    var dt = Math.min((performance.now() - last) / 1000, 0.1); last = performance.now();
+    if(!running) return;                       // "关掉循环" = 不再渲染，画面冻住
+    if(spinning) ball.rotation.y += 0.01;
+    if(!scene.background) renderer.setClearColor(0x000000, 1);
+    renderer.render(scene, camera);
+  })();
+
+  window.addEventListener('resize', function(){
+    camera.aspect = left.clientWidth / left.clientHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(left.clientWidth, left.clientHeight);
+  });
+})();
+</script>
+</body>
+</html>
