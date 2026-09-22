@@ -52,7 +52,7 @@
   </div>
 
   <p>这一讲换了一条技术路线：<strong>不安装引擎、不写 C#、不导入模型</strong>，只在浏览器里用 HTML + JavaScript 把一座紫禁城"算"出来，然后把它推进头显漫游。</p>
-  <p>还有一个更现实的理由：这节课的教室里有 <strong>40 个人、36 个机位，但只有 1 台 PICO Neo 3</strong>。按"每人戴一次"来算，平均每人 4.5 分钟——连戴卸和消毒都不够。<strong>所以这节课的组织方式是：人人做出 VR，少数人替全班验证 VR。</strong>设备的价值不是"让 4 个人玩一下"，而是把全班在电脑上看不到的东西（掉帧、延迟、比例、眩晕）变成可以讨论的数据。</p>
+  <p>还有一个更现实的理由：这节课的教室里有 <strong>40 个人、36 个机位，但只有 1 台 PICO Neo 3</strong>。把 180 分钟全给设备，每人也就 4.5 分钟——连戴卸和消毒都不够。<strong>所以这节课的组织方式是：人人做出 VR，人人也戴上一次；再用 4 个人替全班测出数据。</strong>设备不是"排队体验"，而是一条与作业并行的传递流水线：<strong>设备一直在传，人不能一直等。</strong></p>
 
   <div class="key"><strong>本讲产出 = 一个能在浏览器里漫游的紫禁城场景。</strong>它不依赖任何 3D 模型文件：午门、内金水桥、太和门、三大殿、东西廊庑、围墙全部由代码在运行时生成，连贴图都是画出来的——整份工程只有 <strong>2 个文件、约 660 KB</strong>，断网也能跑。</div>
 
@@ -60,7 +60,7 @@
     <a class="btn" href="assets/vr-2026/webxr/gugong_webxr.html" target="_blank" rel="noopener">打开紫禁城 WebXR 场景 →</a>
     <a class="btn ghost" href="#demo">跳到课堂实操</a>
   </div>
-  <p style="font-size:14px;color:var(--ink-soft);">场景支持鼠标环视、WASD 行走、点击地面传送、时辰滑块与 4 个预设机位；用支持 WebXR 的浏览器打开后可点"进入 VR"。<strong>本节课的第 1:50—2:10 是"真机验证"环节：投屏演示 + 4 个定岗验证（清晰度 / 延迟 / 舒适度 / 比例与退出），其余同学在 PC 上继续改造自己的场景，并填写观察卡。</strong></p>
+  <p style="font-size:14px;color:var(--ink-soft);">场景支持鼠标环视、WASD 行走、点击地面传送、时辰滑块与 4 个预设机位；用支持 WebXR 的浏览器打开后可点"进入 VR"。<strong>本节课的 1:50—2:26 是"全员传看"环节：按座位顺序传着看，每人 45 秒，戴上后只做两件事——环视一眼、说一句话；其余时间大家在 PC 上继续改造自己的场景。2:26—2:36 由 4 位同学做定岗深测（清晰度 / 延迟 / 舒适度 / 比例与退出），全班看投屏。</strong></p>
 
   <h3>一、为什么这节课值得单独讲 WebXR</h3>
   <div class="grid3">
@@ -105,20 +105,21 @@
         <tr><th>时段</th><th>时长</th><th>环节</th><th>干什么</th></tr>
       </thead>
       <tbody>
-        <tr><td>0:00—0:15</td><td>15′</td><td>开场</td><td>约束说明（40 人 / 36 机位 / <strong>1 台设备</strong>）· 本讲地图与产出 · 两条路线对照 · 点清机位</td></tr>
-        <tr><td>0:15—0:45</td><td>30′</td><td><strong>PART 1</strong> WebXR 是什么</td><td>标准与能力边界 · 安全上下文 · <strong>头显当场做支持性检测（投屏）</strong></td></tr>
-        <tr><td>0:45—1:05</td><td>20′</td><td><strong>PART 2</strong> 最小可运行场景</td><td>三件套 + Three.js · 30 行代码 · 进入 VR 的四步 · <strong>实操 A</strong></td></tr>
-        <tr><td>1:05—1:15</td><td>10′</td><td>课间</td><td>教师接设备、开投屏、试 USB —— <strong>设备上机的唯一准备窗口</strong></td></tr>
-        <tr><td>1:15—1:50</td><td>35′</td><td><strong>PART 3</strong> 程序化生成故宫</td><td>坐标系与比例 · 中轴布局 · 三种屋顶几何 · <strong>实操 B</strong></td></tr>
-        <tr><td>1:50—2:10</td><td>20′</td><td><strong>★ 真机验证</strong></td><td>投屏演示 + <strong>4 个定岗验证</strong>（清晰度 / 延迟 / 舒适度 / 比例与退出）+ 全班观察卡</td></tr>
-        <tr><td>2:10—2:35</td><td>25′</td><td><strong>PART 4+5</strong> 材质光照 / 性能</td><td>程序化贴图 · 单平行光方案 · 昼夜 · 帧预算与合批 · <strong>实操 C</strong> · 用真机数据回填 PC 读数</td></tr>
-        <tr><td>2:35—2:50</td><td>15′</td><td><strong>PART 6</strong> 交互与退出</td><td>两套控制 · 舒适度设计 · VR 姿态的坑 · <strong>退出会话的三条路</strong></td></tr>
-        <tr><td>2:50—2:57</td><td>7′</td><td><strong>PART 7</strong> 部署与发布</td><td>安全上下文三条路 · 头显打开与退出流程 · <strong>安装为应用（PWA）</strong></td></tr>
-        <tr><td>2:57—3:00</td><td>3′</td><td>收束</td><td>达标线 · 课堂作业 · 下次课预告</td></tr>
+        <tr><td>0:00—0:08</td><td>8′</td><td>开场</td><td>约束说明（40 人 / 36 机位 / <strong>1 台设备</strong>）· 本讲地图与产出 · 点清机位与<strong>传看顺序</strong></td></tr>
+        <tr><td>0:08—0:30</td><td>22′</td><td><strong>PART 1</strong> WebXR 是什么</td><td>标准与能力边界 · 安全上下文 · <strong>头显当场做支持性检测（投屏）</strong></td></tr>
+        <tr><td>0:30—0:50</td><td>20′</td><td><strong>PART 2</strong> 最小可运行场景</td><td>三件套 + Three.js · 30 行代码 · 进入 VR 的四步 · <strong>实操 A</strong></td></tr>
+        <tr><td>0:50—1:00</td><td>10′</td><td>课间</td><td>教师接设备、开投屏、<strong>眼罩与传递计时器就位</strong> —— 设备上机的唯一准备窗口</td></tr>
+        <tr><td>1:00—1:32</td><td>32′</td><td><strong>PART 3</strong> 程序化生成故宫</td><td>坐标系与比例 · 中轴布局 · 三种屋顶几何 · <strong>实操 B</strong></td></tr>
+        <tr><td>1:32—1:50</td><td>18′</td><td><strong>PART 4 + 6</strong> 材质光照 / 交互与退出</td><td>程序化贴图 · 单平行光 · 昼夜 · <strong>实操 C</strong> · 退出三条路 · <strong>传看三条纪律</strong></td></tr>
+        <tr><td>1:50—2:26</td><td>36′</td><td><strong>★ 全员传看</strong></td><td><strong>40 人按座位顺序传着看，45 秒/人</strong>（计划 30′ + 6′ 缓冲）：戴上 → 环视 → 说一句话 → 摘下</td></tr>
+        <tr><td>2:26—2:36</td><td>10′</td><td><strong>★ 4 人定岗深测</strong></td><td>清晰度 / 延迟 / 舒适度 / 比例与退出，全班看投屏</td></tr>
+        <tr><td>2:36—2:51</td><td>15′</td><td><strong>PART 5</strong> 性能预算</td><td>帧预算 · 合批与取舍 · 读数入口 · <strong>用真机数据回填 PC 读数</strong></td></tr>
+        <tr><td>2:51—2:58</td><td>7′</td><td><strong>PART 7</strong> 部署与发布</td><td>安全上下文三条路 · 头显打开与退出流程 · <strong>安装为应用（PWA）</strong></td></tr>
+        <tr><td>2:58—3:00</td><td>2′</td><td>收束</td><td>达标线 · 课堂作业 · 下次课预告</td></tr>
       </tbody>
     </table>
   </div>
-  <div class="warn"><strong>超时压缩优先级</strong>：① <strong>真机验证 20 分钟不可压</strong>（一节课只有一次机会，且是最稀缺资源，到点即停）；② 再保 <strong>PART 3 与 PART 4+5</strong>（程序化建模思路 + 性能预算）；③ 可压缩 PART 1 的支持现状表与 PART 7 的故障速查（课后自行阅读）。</div>
+  <div class="warn"><strong>时间账</strong>：40 人 × 45 秒 = <strong>30 分钟</strong>，窗口给 36 分钟、留 6 分钟缓冲（有人卡住、换电、擦镜片）。这是"全员传看"能塞进 180 分钟的唯一排法——<strong>必须与大家的 PC 作业并行，不能单独占一段让人干等</strong>。<br><strong>超时压缩优先级</strong>：① 传看<strong>只压缩人数，不压缩秒数</strong>（宁可 34 人各 45 秒，也不要 40 人各 25 秒）；② 再保 PART 3 与 PART 5；③ 可压 PART 1 的支持现状表与 PART 7 的故障速查（课后自行阅读）。</div>
 
   <h3>四、本讲学习目标（可观测）</h3>
   <div class="tbl-wrap">
@@ -873,21 +874,58 @@ python -m http.server 8080
 npx serve -l 8080</pre>
   <div class="key">课堂上的实用做法：<strong>本课程网站已经放了这份场景的可直接打开版本</strong>（见本页顶部按钮），它本身就运行在 HTTPS 上——等于顺手解决了安全上下文这个前提。把它发给同学、发给家人，一个链接就够。</div>
 
-  <h3>7.6 一台设备怎么服务 40 人：真机验证环节（1:50—2:10）</h3>
-  <p>教室里只有 <strong>1 台 PICO Neo 3</strong>。如果按"排队体验"来组织，每人只能分到 4.5 分钟——连戴卸和消毒都不够。所以这个环节的组织逻辑是：<strong>投屏是主线，轮转是补充，到点就停。</strong></p>
+  <h3>7.6 一台设备怎么让 40 个人都戴上：全员传看 + 定岗深测（1:50—2:36）</h3>
+  <p>教室里只有 <strong>1 台 PICO Neo 3</strong>。把时间全给它，每人也就 4.5 分钟——连戴卸和消毒都不够。所以这个环节分两段：<strong>先让全班每个人亲手戴上一次（覆盖面），再由 4 个人把数据测准（质量）</strong>。</p>
   <div class="tbl-wrap">
     <table>
       <thead>
-        <tr><th>时刻</th><th>时长</th><th>动作</th><th>全班在做什么</th></tr>
+        <tr><th>阶段</th><th>时间</th><th>谁上机</th><th>目标</th></tr>
       </thead>
       <tbody>
-        <tr><td>1:50—1:55</td><td>5′</td><td><strong>教师投屏演示</strong>：戴入 → 指出控制面板 → 传送一次 → 快速转头 → 退出</td><td>看投屏，记录"PC 上看不到的东西"</td></tr>
-        <tr><td>1:55—2:06</td><td>11′</td><td><strong>4 人轮转</strong>，每人 2 分钟 + 45 秒交接消毒</td><td>未轮到的同学：继续改造自己的场景 + 填观察卡</td></tr>
-        <tr><td>2:06—2:10</td><td>4′</td><td>4 人报数据，全班填表，板书结论</td><td>把真机数据填进性能记录表</td></tr>
+        <tr><td><strong>全员传看</strong></td><td>1:50—2:26（36′）</td><td><strong>全班 40 人，按座位顺序，45 秒/人</strong></td><td>每个人都亲手看见一次；每人留一句话</td></tr>
+        <tr><td><strong>定岗深测</strong></td><td>2:26—2:36（10′）</td><td>4 人，每人 2 分钟</td><td>测数据、走完整交互与退出</td></tr>
       </tbody>
     </table>
   </div>
-  <p>不设"体验名额"，设<strong>4 个定岗验证</strong>——每人只测一件事、只说一句话，全班就得到 4 个维度的证据：</p>
+  <div class="note"><strong>时间账</strong>：45 秒 × 40 人 = <strong>30 分钟</strong>，窗口给 36 分钟、留 6 分钟缓冲（有人卡住、换电、擦镜片）。而且它<strong>必须与大家的 PC 作业并行</strong>——设备在传，其他人在做作业，不能单独占一段让人干等。45 秒只能"看"，不能"玩"：这就是取舍。</div>
+  <h4>传看三条纪律（1:50 之前讲完，并写上黑板）</h4>
+  <div class="warn">
+    <ol style="margin:0 0 0 20px;">
+      <li><strong>只转头环视，不碰扳机、不碰摇杆</strong>——一碰就会传送，后面的人看到的画面就变了，40 个人的观察立刻不可比；</li>
+      <li><strong>坐着看，不站起来</strong>；</li>
+      <li><strong>任何不适立刻摘下</strong>，不要硬撑。</li>
+    </ol>
+  </div>
+  <p><strong>每人只说一句话</strong>（三选一）："<strong>清楚 / 有点糊</strong>，远处屋脊我看到的是一句话描述" ｜ "<strong>转头跟得上 / 有拖影</strong>" ｜ "<strong>有点晕 / 不晕</strong>"。40 个人 × 一句话，就是 40 个数据点——教师现场把它们变成板书统计。</p>
+  <h4>现场谁做什么</h4>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr><th>角色</th><th>职责</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>学生管理员 ①</td><td>擦拭镜片、换一次性眼罩、在相邻两人之间递送设备（不走动过道）</td></tr>
+        <tr><td>学生管理员 ②</td><td>看大屏计时器（45 秒一档），喊"时间到"，在名单上打勾</td></tr>
+        <tr><td><strong>教师</strong></td><td>站在传递区旁边<strong>讲评</strong>：每人对下一句话，立刻接成知识点（清晰度 → PPD；拖影 → 帧率与延迟；晕 → 舒适度设计）</td></tr>
+        <tr><td>其余同学</td><td><strong>继续做课堂作业 T1 / T2</strong>，并填观察卡——不是干等</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <h4>容易翻车的三件事</h4>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr><th>项目</th><th>处理</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>卫生</strong></td><td>一次性眼罩一人一片（3 秒换好）；每 10 人擦一次镜片；由学生管理员执行，不占教师时间</td></tr>
+        <tr><td><strong>戴眼镜</strong></td><td>允许戴着试，但提醒"先摘眼镜戴头显、确认不顶镜片"；顶着不舒服就直接摘镜体验（画面会糊，如实记录）</td></tr>
+        <tr><td><strong>发热与电量</strong></td><td>连续 40 分钟会热、会掉电：能边充边用就接充电宝；明显烫手就暂停 1 分钟</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <h4>定岗深测：4 个人把数据测准</h4>
+  <p>人选规则当场公布（作业先完成者 4 位），每人 2 分钟，全班看投屏。每人只测一件事：</p>
   <div class="tbl-wrap">
     <table>
       <thead>
@@ -902,6 +940,7 @@ npx serve -l 8080</pre>
     </table>
   </div>
   <h4>班级结论表（板书，全班一起填）</h4>
+  <div class="warn"><strong>到点即停</strong>：2:26 一到立刻停止传看，没轮到的同学登记后课后补做。不要为了"让所有人都戴上"挤掉后面的性能与部署环节——那两块同样要考。</div>
   <div class="tbl-wrap">
     <table>
       <thead>
@@ -970,6 +1009,7 @@ npx serve -l 8080</pre>
         <tr><td>15:00 的画面特征</td><td></td><td>同上</td></tr>
         <tr><td>21:00 的画面特征</td><td></td><td>同上，并注明灯火变化</td></tr>
         <tr><td>我改的一处参数</td><td></td><td>改前值 → 改后值 → 可见的变化</td></tr>
+        <tr><td><strong>我戴上时的一句话</strong></td><td></td><td>45 秒：清楚 / 有点糊、有无拖影、晕不晕，任选一项如实记录</td></tr>
         <tr><td><strong>真机对比（看投屏填）</strong></td><td></td><td>清晰度 / 转头延迟 / 移动舒适度 / 人体比例，各写一句"和 PC 上有什么不同"</td></tr>
       </tbody>
     </table>
