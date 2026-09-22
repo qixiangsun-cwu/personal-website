@@ -51,7 +51,8 @@
     </div>
   </div>
 
-  <p>这一讲换了一条技术路线：<strong>不安装引擎、不写 C#、不导入模型</strong>，只在浏览器里用 HTML + JavaScript 把一座紫禁城"算"出来，然后把它推进头显漫游。原因很实际——原计划这一课要在头显上做真机验证，<strong>设备本周不可用，下周到位</strong>；与其空等，不如把平时容易被跳过、但工程价值很高的<strong>网页端 VR（WebXR）</strong>路线完整讲一遍。</p>
+  <p>这一讲换了一条技术路线：<strong>不安装引擎、不写 C#、不导入模型</strong>，只在浏览器里用 HTML + JavaScript 把一座紫禁城"算"出来，然后把它推进头显漫游。</p>
+  <p>还有一个更现实的理由：这节课的教室里有 <strong>40 个人、36 个机位，但只有 1 台 PICO Neo 3</strong>。按"每人戴一次"来算，平均每人 4.5 分钟——连戴卸和消毒都不够。<strong>所以这节课的组织方式是：人人做出 VR，少数人替全班验证 VR。</strong>设备的价值不是"让 4 个人玩一下"，而是把全班在电脑上看不到的东西（掉帧、延迟、比例、眩晕）变成可以讨论的数据。</p>
 
   <div class="key"><strong>本讲产出 = 一个能在浏览器里漫游的紫禁城场景。</strong>它不依赖任何 3D 模型文件：午门、内金水桥、太和门、三大殿、东西廊庑、围墙全部由代码在运行时生成，连贴图都是画出来的——整份工程只有 <strong>2 个文件、约 660 KB</strong>，断网也能跑。</div>
 
@@ -59,7 +60,7 @@
     <a class="btn" href="assets/vr-2026/webxr/gugong_webxr.html" target="_blank" rel="noopener">打开紫禁城 WebXR 场景 →</a>
     <a class="btn ghost" href="#demo">跳到课堂实操</a>
   </div>
-  <p style="font-size:14px;color:var(--ink-soft);">场景支持鼠标环视、WASD 行走、点击地面传送、时辰滑块与 4 个预设机位；接上头显（或支持 WebXR 的浏览器）后可点"进入 VR"。<strong>本周先以 PC 端演示与观察为主，头显环节待设备到位后合并安排。</strong></p>
+  <p style="font-size:14px;color:var(--ink-soft);">场景支持鼠标环视、WASD 行走、点击地面传送、时辰滑块与 4 个预设机位；用支持 WebXR 的浏览器打开后可点"进入 VR"。<strong>本节课的第 1:50—2:10 是"真机验证"环节：投屏演示 + 4 个定岗验证（清晰度 / 延迟 / 舒适度 / 比例与退出），其余同学在 PC 上继续改造自己的场景，并填写观察卡。</strong></p>
 
   <h3>一、为什么这节课值得单独讲 WebXR</h3>
   <div class="grid3">
@@ -104,20 +105,20 @@
         <tr><th>时段</th><th>时长</th><th>环节</th><th>干什么</th></tr>
       </thead>
       <tbody>
-        <tr><td>0:00—0:10</td><td>10′</td><td>开场</td><td>设备变更说明 · 本讲地图与产出 · 两条路线对照</td></tr>
-        <tr><td>0:10—0:35</td><td>25′</td><td><strong>PART 1</strong> WebXR 是什么</td><td>标准与能力边界 · 安全上下文 · 支持现状</td></tr>
-        <tr><td>0:35—1:00</td><td>25′</td><td><strong>PART 2</strong> 最小可运行场景</td><td>三件套 + Three.js · 30 行代码 · 进入 VR 的四步 · <strong>实操 A</strong></td></tr>
-        <tr><td>1:00—1:10</td><td>10′</td><td>课间</td><td>——</td></tr>
-        <tr><td>1:10—1:45</td><td>35′</td><td><strong>PART 3</strong> 程序化生成故宫</td><td>坐标系与比例 · 中轴布局 · 三种屋顶几何 · <strong>实操 B</strong></td></tr>
-        <tr><td>1:45—2:05</td><td>20′</td><td><strong>PART 4</strong> 材质与光照</td><td>程序化贴图 · 单平行光方案 · 雾与昼夜 · <strong>实操 C</strong></td></tr>
-        <tr><td>2:05—2:25</td><td>20′</td><td><strong>PART 5</strong> 性能预算</td><td>帧预算 · 合批与取舍 · 三个读数入口</td></tr>
-        <tr><td>2:25—2:45</td><td>20′</td><td><strong>PART 6</strong> 交互与输入</td><td>两套控制 · 舒适度设计 · VR 姿态的坑 · <strong>退出会话的三条路</strong></td></tr>
-        <tr><td>2:45—2:55</td><td>10′</td><td><strong>PART 7</strong> 部署与发布</td><td>安全上下文三条路 · 头显打开与退出流程 · <strong>安装为应用（PWA）</strong></td></tr>
-        <tr><td>2:55—3:00</td><td>5′</td><td>收束</td><td>达标线 · 课堂作业 · 下次课预告</td></tr>
+        <tr><td>0:00—0:15</td><td>15′</td><td>开场</td><td>约束说明（40 人 / 36 机位 / <strong>1 台设备</strong>）· 本讲地图与产出 · 两条路线对照 · 点清机位</td></tr>
+        <tr><td>0:15—0:45</td><td>30′</td><td><strong>PART 1</strong> WebXR 是什么</td><td>标准与能力边界 · 安全上下文 · <strong>头显当场做支持性检测（投屏）</strong></td></tr>
+        <tr><td>0:45—1:05</td><td>20′</td><td><strong>PART 2</strong> 最小可运行场景</td><td>三件套 + Three.js · 30 行代码 · 进入 VR 的四步 · <strong>实操 A</strong></td></tr>
+        <tr><td>1:05—1:15</td><td>10′</td><td>课间</td><td>教师接设备、开投屏、试 USB —— <strong>设备上机的唯一准备窗口</strong></td></tr>
+        <tr><td>1:15—1:50</td><td>35′</td><td><strong>PART 3</strong> 程序化生成故宫</td><td>坐标系与比例 · 中轴布局 · 三种屋顶几何 · <strong>实操 B</strong></td></tr>
+        <tr><td>1:50—2:10</td><td>20′</td><td><strong>★ 真机验证</strong></td><td>投屏演示 + <strong>4 个定岗验证</strong>（清晰度 / 延迟 / 舒适度 / 比例与退出）+ 全班观察卡</td></tr>
+        <tr><td>2:10—2:35</td><td>25′</td><td><strong>PART 4+5</strong> 材质光照 / 性能</td><td>程序化贴图 · 单平行光方案 · 昼夜 · 帧预算与合批 · <strong>实操 C</strong> · 用真机数据回填 PC 读数</td></tr>
+        <tr><td>2:35—2:50</td><td>15′</td><td><strong>PART 6</strong> 交互与退出</td><td>两套控制 · 舒适度设计 · VR 姿态的坑 · <strong>退出会话的三条路</strong></td></tr>
+        <tr><td>2:50—2:57</td><td>7′</td><td><strong>PART 7</strong> 部署与发布</td><td>安全上下文三条路 · 头显打开与退出流程 · <strong>安装为应用（PWA）</strong></td></tr>
+        <tr><td>2:57—3:00</td><td>3′</td><td>收束</td><td>达标线 · 课堂作业 · 下次课预告</td></tr>
       </tbody>
     </table>
   </div>
-  <div class="warn"><strong>超时压缩优先级</strong>：① 先保 <strong>PART 3 与 PART 5</strong>（程序化建模思路 + 性能预算，是本讲最核心的两块能力）；② 再保 <strong>实操 A/B/C</strong>（学生要亲手跑通一次）；③ 可压缩 PART 1 的支持现状表与 PART 7 的故障速查（课后自行阅读）。</div>
+  <div class="warn"><strong>超时压缩优先级</strong>：① <strong>真机验证 20 分钟不可压</strong>（一节课只有一次机会，且是最稀缺资源，到点即停）；② 再保 <strong>PART 3 与 PART 4+5</strong>（程序化建模思路 + 性能预算）；③ 可压缩 PART 1 的支持现状表与 PART 7 的故障速查（课后自行阅读）。</div>
 
   <h3>四、本讲学习目标（可观测）</h3>
   <div class="tbl-wrap">
@@ -872,9 +873,51 @@ python -m http.server 8080
 npx serve -l 8080</pre>
   <div class="key">课堂上的实用做法：<strong>本课程网站已经放了这份场景的可直接打开版本</strong>（见本页顶部按钮），它本身就运行在 HTTPS 上——等于顺手解决了安全上下文这个前提。把它发给同学、发给家人，一个链接就够。</div>
 
-  <h3>7.6 下一周：设备到位后要做的第一件事</h3>
-  <div class="warn"><strong>在头显上做一次"安全上下文成立"的支持性实测</strong>，并且只记录五行结果：① 是否安全上下文；② <code class="inline">navigator.xr</code> 是否存在；③ <code class="inline">isSessionSupported('immersive-vr')</code> 的返回值；④"进入 VR"按钮能不能点；⑤ <strong>进去之后按哪条路退出来、用了几秒</strong>。<strong>前四行决定这条路线能不能走，第五行决定课堂上敢不敢把设备交到学生手里。</strong></div>
-  <p>这不是多此一举：<strong>WebXR 的可用性取决于设备系统版本与浏览器版本，同一型号不同固件都可能结果不同</strong>。没有实测之前，"能进 VR"只是一个假设，而工程上不拿假设当结论。</p>
+  <h3>7.6 一台设备怎么服务 40 人：真机验证环节（1:50—2:10）</h3>
+  <p>教室里只有 <strong>1 台 PICO Neo 3</strong>。如果按"排队体验"来组织，每人只能分到 4.5 分钟——连戴卸和消毒都不够。所以这个环节的组织逻辑是：<strong>投屏是主线，轮转是补充，到点就停。</strong></p>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr><th>时刻</th><th>时长</th><th>动作</th><th>全班在做什么</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>1:50—1:55</td><td>5′</td><td><strong>教师投屏演示</strong>：戴入 → 指出控制面板 → 传送一次 → 快速转头 → 退出</td><td>看投屏，记录"PC 上看不到的东西"</td></tr>
+        <tr><td>1:55—2:06</td><td>11′</td><td><strong>4 人轮转</strong>，每人 2 分钟 + 45 秒交接消毒</td><td>未轮到的同学：继续改造自己的场景 + 填观察卡</td></tr>
+        <tr><td>2:06—2:10</td><td>4′</td><td>4 人报数据，全班填表，板书结论</td><td>把真机数据填进性能记录表</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>不设"体验名额"，设<strong>4 个定岗验证</strong>——每人只测一件事、只说一句话，全班就得到 4 个维度的证据：</p>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr><th>岗</th><th>只测这一件事</th><th>记录</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>① 清晰度</td><td>远处屋脊、斗拱是否看得清（和 PC 上比）</td><td>1—5 分 + 一句话</td></tr>
+        <tr><td>② 延迟</td><td>快速左右转头，画面跟不跟得上</td><td>有 / 无拖影</td></tr>
+        <tr><td>③ 舒适度</td><td>扳机传送一次 + 摇杆走两步</td><td>眩晕 0—3 级</td></tr>
+        <tr><td>④ 比例与退出</td><td>台基相对自己身高有多高；再按三条退出路径各走一遍</td><td>退出用时（秒）+ 用了哪条路</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <h4>班级结论表（板书，全班一起填）</h4>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr><th>#</th><th>检查项</th><th>结果</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>1</td><td>是否安全上下文（协议是 <code class="inline">https:</code> 吗）</td><td></td></tr>
+        <tr><td>2</td><td><code class="inline">navigator.xr</code> 是否存在</td><td></td></tr>
+        <tr><td>3</td><td><code class="inline">isSessionSupported('immersive-vr')</code> 的返回值</td><td></td></tr>
+        <tr><td>4</td><td>"进入 VR"按钮能不能点</td><td></td></tr>
+        <tr><td>5</td><td>退出用了哪条路、几秒</td><td></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="key">这一步不是形式主义：<strong>WebXR 的可用性取决于设备系统版本与浏览器版本，同一型号不同固件都可能结果不同</strong>。前四项决定这条路线能不能走，第五项决定课堂上敢不敢把设备交给学生——所以要在全班面前把结论测出来，而不是写完再说。</div>
+  <div class="warn"><strong>设备出问题时的三级降级</strong>：① 页面打不开 → 换手机热点，或打开<strong>已安装的应用图标</strong>（PWA 离线可用）；② 能进但退不出来 → 长按握把 2 秒 → 系统键 → 长按电源强制重启；③ 投屏失败 → 改用 USB 镜像，再不行改为"教师口述 + 学生看自己 PC 上的同一页面"。<strong>设备可以坏，课不能停。</strong></div>
   <div class="note"><strong>给教师的一行操作</strong>：场景地址后加上 <code class="inline">?debug=1</code> 会挂出一个调试钩子 <code class="inline">window.__gugong</code>（不写这个参数时完全不影响正式使用）。在头显浏览器控制台里用 <code class="inline">__gugong.isPresenting()</code> 可以确认是否真的进入了会话；想在 PC 端先看控制面板长什么样，用 <code class="inline">__gugong.showPanel()</code> 把它调出来。</div>
 </section>
 
@@ -927,6 +970,7 @@ npx serve -l 8080</pre>
         <tr><td>15:00 的画面特征</td><td></td><td>同上</td></tr>
         <tr><td>21:00 的画面特征</td><td></td><td>同上，并注明灯火变化</td></tr>
         <tr><td>我改的一处参数</td><td></td><td>改前值 → 改后值 → 可见的变化</td></tr>
+        <tr><td><strong>真机对比（看投屏填）</strong></td><td></td><td>清晰度 / 转头延迟 / 移动舒适度 / 人体比例，各写一句"和 PC 上有什么不同"</td></tr>
       </tbody>
     </table>
   </div>
