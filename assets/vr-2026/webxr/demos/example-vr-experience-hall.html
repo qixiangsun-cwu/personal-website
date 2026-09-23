@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<title>WebXR 实验馆 · 课堂示例（第 4 次课）</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  :root{
+    --acc:#00d2ff; --acc2:#3a7bd5; --gold:#d9a441; --ink:#eef3f8; --muted:#8d9aab;
+    --panel:rgba(16,22,32,.86); --line:rgba(120,160,200,.22);
+  }
+  html,body{height:100%;}
+  body{overflow:hidden;background:#07090f;color:var(--ink);
+    font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif;-webkit-font-smoothing:antialiased;}
+  canvas{display:block;}
+
+  /* ---------- 顶栏（课堂示例标识） ---------- */
+  #topbar{
+    position:fixed;top:0;left:0;right:0;z-index:120;display:flex;align-items:center;gap:14px;
+    padding:9px 16px;background:linear-gradient(180deg,rgba(6,10,16,.92),rgba(6,10,16,.35));
+    border-bottom:1px solid rgba(120,160,200,.14);backdrop-filter:blur(8px);
+  }
+  #topbar .tag{font-size:12px;letter-spacing:2px;color:var(--gold);border:1px solid rgba(217,164,65,.5);
+    border-radius:999px;padding:2px 10px;white-space:nowrap;}
+  #topbar .ttl{font-size:14px;font-weight:700;white-space:nowrap;}
+  #topbar .sub{font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  #topbar .grow{flex:1 1 auto;}
+  #topbar a{font-size:12.5px;color:#cfe6ff;text-decoration:none;border:1px solid rgba(120,160,200,.3);
+    border-radius:999px;padding:5px 12px;white-space:nowrap;transition:.18s;}
+  #topbar a:hover{border-color:var(--acc);color:#fff;background:rgba(0,210,255,.12);}
+  body.inXr #topbar,body.inXr #exp-controls,body.inXr #score-bar,body.inXr #info-bar{display:none!important;}
+
+  /* ---------- 加载遮罩 ---------- */
+  #loading-overlay{position:fixed;inset:0;z-index:300;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;gap:16px;
+    background:linear-gradient(135deg,#0b1020,#141a2c 55%,#0b1020);color:#dfe8f3;}
+  #loading-overlay .row{display:flex;align-items:center;gap:14px;font-size:15px;}
+  #loading-overlay .spinner{width:34px;height:34px;border:3px solid rgba(255,255,255,.15);
+    border-top-color:var(--acc);border-radius:50%;animation:spin .8s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  #loading-overlay .hint{font-size:12.5px;color:var(--muted);max-width:560px;text-align:center;line-height:1.9;}
+  #loading-overlay .hint b{color:var(--gold);}
+
+  /* ---------- 菜单 ---------- */
+  #menu-overlay{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;
+    background:radial-gradient(1200px 600px at 50% 20%,rgba(0,80,140,.28),transparent 70%),
+               linear-gradient(135deg,#0b1020,#141a2c 55%,#0b1020);padding:70px 20px 30px;overflow:auto;}
+  .menu-container{text-align:center;max-width:940px;width:100%;}
+  .menu-container h1{font-size:clamp(24px,3.4vw,40px);font-weight:800;letter-spacing:1px;margin-bottom:8px;
+    background:linear-gradient(90deg,#7fe6ff,#4f9bf0);-webkit-background-clip:text;background-clip:text;
+    -webkit-text-fill-color:transparent;}
+  .menu-container .lead{color:var(--muted);font-size:14.5px;line-height:1.9;margin-bottom:26px;}
+  .menu-container .lead b{color:#cfe6ff;}
+  .experience-cards{display:flex;gap:18px;justify-content:center;flex-wrap:wrap;}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:24px 22px;width:268px;
+    cursor:pointer;text-align:left;transition:transform .22s,border-color .22s,box-shadow .22s;}
+  .card:hover{transform:translateY(-5px);border-color:var(--acc);box-shadow:0 14px 34px rgba(0,150,220,.18);}
+  .card .ico{font-size:30px;line-height:1;margin-bottom:10px;}
+  .card h2{font-size:18px;margin-bottom:8px;}
+  .card .desc{color:#a9b6c6;font-size:13px;line-height:1.85;min-height:52px;}
+  .card .ops{margin-top:12px;padding-top:12px;border-top:1px dashed rgba(120,160,200,.22);
+    font-size:12px;color:var(--muted);line-height:1.9;}
+  .card .ops b{color:#9fd8ff;font-weight:600;}
+  .tips{margin-top:26px;display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;text-align:left;}
+  .tips div{background:rgba(14,20,30,.7);border:1px solid var(--line);border-left:3px solid var(--gold);
+    border-radius:10px;padding:12px 14px;font-size:12.5px;color:#b9c6d6;line-height:1.9;}
+  .tips b{color:var(--gold);}
+
+  /* ---------- 体验中控制条 ---------- */
+  #exp-controls{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:50;
+    display:flex;gap:10px;align-items:center;flex-wrap:nowrap;max-width:calc(100vw - 24px);
+    background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:8px 12px;
+    backdrop-filter:blur(8px);}
+  #exp-controls button{padding:9px 18px;font-size:13.5px;border:none;border-radius:999px;cursor:pointer;
+    font-family:inherit;transition:.18s;white-space:nowrap;flex:0 0 auto;}
+  #enter-vr-btn{background:linear-gradient(135deg,var(--acc),var(--acc2));color:#04121c;font-weight:700;}
+  #enter-vr-btn:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(0,180,255,.3);}
+  #enter-vr-btn:disabled{background:#2a3340;color:#6c7887;cursor:not-allowed;transform:none;box-shadow:none;}
+  #back-menu-btn{background:#243040;color:#dfe8f3;}
+  #reset-btn{background:#1f6f45;color:#eafff2;}
+  #hit-btn{background:linear-gradient(135deg,#e2603a,#c0392b);color:#fff;font-weight:700;}
+  #exp-controls .keys{font-size:11.5px;color:var(--muted);padding:0 6px;white-space:nowrap;flex:0 0 auto;}
+
+  /* ---------- HUD ---------- */
+  #score-bar{position:fixed;top:56px;left:18px;z-index:50;background:var(--panel);border:1px solid var(--line);
+    color:#fff;padding:10px 18px;border-radius:10px;font-size:15px;font-variant-numeric:tabular-nums;display:none;}
+  #info-bar{position:fixed;top:56px;right:18px;z-index:50;background:var(--panel);border:1px solid var(--line);
+    color:#dfe8f3;padding:10px 16px;border-radius:10px;font-size:13px;max-width:340px;line-height:1.8;display:none;}
+  #stats{position:fixed;bottom:16px;left:18px;z-index:50;background:rgba(10,14,20,.72);
+    border:1px solid rgba(120,160,200,.18);color:#8fb0c8;padding:6px 12px;border-radius:8px;
+    font-size:11.5px;font-family:Consolas,monospace;display:none;line-height:1.7;}
+  #crosshair{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:40;
+    width:26px;height:26px;pointer-events:none;display:none;}
+  #crosshair::before,#crosshair::after{content:'';position:absolute;background:rgba(120,255,170,.9);}
+  #crosshair::before{width:2px;height:26px;left:12px;}
+  #crosshair::after{width:26px;height:2px;top:12px;}
+  #power{position:fixed;bottom:74px;left:50%;transform:translateX(-50%);z-index:50;width:220px;height:8px;
+    background:rgba(10,14,20,.7);border:1px solid var(--line);border-radius:999px;overflow:hidden;display:none;}
+  #power i{display:block;height:100%;width:0%;background:linear-gradient(90deg,#5fd08a,#d9a441,#e2603a);}
+</style>
+</head>
+<body>
+
+<div id="topbar">
+  <span class="tag">课堂示例</span>
+  <span class="ttl">WebXR 实验馆</span>
+  <span class="sub">虚拟现实技术 · 第 4 次课 · 网页端 VR 小例子（已本地化，不依赖网络）</span>
+  <span class="grow"></span>
+  <a href="../../../vr-2026-lesson4.html">← 返回第 4 次课</a>
+  <a href="../gugong_webxr.html">紫禁城场景 →</a>
+</div>
+
+<div id="loading-overlay">
+  <div class="row"><div class="spinner"></div><span id="loadmsg">正在加载 Three.js…</span></div>
+  <div class="hint">本示例已把 Three.js 放在<b>本地</b>，不依赖任何 CDN。若长时间停在这里，请按下面顺序检查：<br>
+    ① 浏览器是不是 Chrome / Edge（不要用 IE 兼容模式）；② 浏览器设置里是否打开了"使用硬件加速"。</div>
+</div>
+
+<div id="menu-overlay" style="display:none">
+  <div class="menu-container">
+    <h1>WebXR 实验馆</h1>
+    <p class="lead">两个能进头显的小实验：<b>高尔夫</b>（挥杆击球，看球飞多远）与 <b>射击</b>（瞄准打靶，比拼得分）。<br>
+      电脑上就能玩，接上头显可以进 VR。</p>
+    <div class="experience-cards">
+      <div class="card" id="golf-card">
+        <div class="ico">⛳</div>
+        <h2>高尔夫体验</h2>
+        <div class="desc">挥动控制器击打高尔夫球，看它能飞多远；桌面端按住"击球"蓄力。</div>
+        <div class="ops"><b>桌面：</b>按住「击球」蓄力 → 松开击球<br><b>VR：</b>挥动手柄击球，扳机键重置球</div>
+      </div>
+      <div class="card" id="shooting-card">
+        <div class="ico">🎯</div>
+        <h2>射击体验</h2>
+        <div class="desc">瞄准并射击漂浮的靶子，每中一靶得 10 分，挑战最高分。</div>
+        <div class="ops"><b>桌面：</b>移动鼠标瞄准 → 点击射击<br><b>VR：</b>手柄射线瞄准，扣扳机射击</div>
+      </div>
+    </div>
+    <div class="tips">
+      <div><b>这份例子的看点</b>：场景里没有一张图片、没有一个模型文件——地面、球、旗杆、树、靶子全是代码生成的几何体与材质。</div>
+      <div><b>和紫禁城对比</b>：紫禁城用"程序化贴图 + 合批"撑起上万构件；这里用最简单的几何体讲清"一个 VR 场景最小要有什么"。</div>
+      <div><b>课堂提示</b>：进 VR 后，低头能看见「退出 VR」按钮；也可以<b>长按手柄握把 2 秒</b>随时退出。</div>
+    </div>
+  </div>
+</div>
+
+<div id="exp-controls" style="display:none">
+  <button id="back-menu-btn">返回菜单</button>
+  <button id="enter-vr-btn">进入 VR</button>
+  <button id="reset-btn" style="display:none">重置球</button>
+  <button id="hit-btn" style="display:none">按住蓄力 · 松手击球</button>
+  <span class="keys">快捷键：Esc 返回菜单 / R 重置</span>
+</div>
+
+<div id="score-bar"></div>
+<div id="crosshair"></div>
+<div id="power"><i></i></div>
+<div id="info-bar"></div>
+<div id="stats"></div>
+
+<!-- 依赖全部在本地：three.min.js 与 OrbitControls.js 与本页同源，机房断网也能跑 -->
+<script src="../three.min.js"></script>
+<script src="./OrbitControls.js"></script>
+<script>
+(function(){
+  'use strict';
+
+  /* ---------- 0. 兜底检查：库里没加载成功 / 没有 WebGL，都不让它停在黑屏 ---------- */
+  var loadmsg = document.getElementById('loadmsg');
+  function fatal(html){
+    var ov = document.getElementById('loading-overlay');
+    ov.innerHTML = '<div class="hint" style="font-size:15px;line-height:2.1;color:#ffd9a0">' + html + '</div>';
+  }
+  if(typeof THREE === 'undefined'){
+    fatal('⚠️ 没有加载到 <b>three.min.js</b>。<br>请确认这个页面和 <code>three.min.js</code> 在同一个目录结构里，' +
+      '并且是从网址打开（<code>file://</code> 也可以，但必须两个文件都在）。');
+    return;
+  }
+  if(!(document.createElement('canvas').getContext('webgl') || document.createElement('canvas').getContext('experimental-webgl'))){
+    fatal('⚠️ 这台电脑的浏览器没有启用 <b>WebGL</b>，3D 场景无法显示。<br>' +
+      '请依次检查：① 用 Chrome / Edge 打开（不要用 IE 兼容模式）；② 浏览器设置里打开"使用硬件加速"；③ 换一台机器。');
+    return;
+  }
+  if(loadmsg) loadmsg.textContent = '正在构建场景…';
+
+  /* ===================== 全局状态 ===================== */
+  var state = {
+    experience: null,
+    inVR: false,
+    score: 0,
+    golfBallHit: false,
+    golfBallVel: new THREE.Vector3(),
+    golfStartPos: new THREE.Vector3(),
+    shootingTargets: [],
+    lastTime: 0,
+    controllerVel: [new THREE.Vector3(), new THREE.Vector3()],
+    controllerPrevPos: [new THREE.Vector3(), new THREE.Vector3()],
+    controllerInit: [false, false]
+  };
+
+  var scene, camera, renderer, controls, raycaster;
+  var controllers = [];
+  var exitButton3D = null, exitButtonHover = false, gripHeld = 0, exiting = false;
+  var golfGroup, shootingGroup, particles = [];
+  var charging = false, power = 0, shotPower = 0.5;
+
+  /* ===================== DOM ===================== */
+  var loadingOverlay = document.getElementById('loading-overlay');
+  var menuOverlay    = document.getElementById('menu-overlay');
+  var expControls    = document.getElementById('exp-controls');
+  var enterVRBtn     = document.getElementById('enter-vr-btn');
+  var backMenuBtn    = document.getElementById('back-menu-btn');
+  var resetBtn       = document.getElementById('reset-btn');
+  var hitBtn         = document.getElementById('hit-btn');
+  var scoreBar       = document.getElementById('score-bar');
+  var crosshair      = document.getElementById('crosshair');
+  var infoBar        = document.getElementById('info-bar');
+  var statsBar       = document.getElementById('stats');
+  var powerBar       = document.getElementById('power');
+  var powerFill      = powerBar.firstElementChild;
+
+  /* ===================== 初始化 ===================== */
+  function init(){
+    scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x000000);
+
+    camera = new THREE.PerspectiveCamera(70, innerWidth/innerHeight, 0.1, 1000);
+    camera.position.set(0, 1.6, 5);
+
+    renderer = new THREE.WebGLRenderer({antialias:true});
+    renderer.setSize(innerWidth, innerHeight);
+    renderer.setPixelRatio(Math.min(devicePixelRatio, 1.5));   // 限制像素比：清晰度换帧率
+    renderer.xr.enabled = true;
+    document.body.appendChild(renderer.domElement);
+
+    raycaster = new THREE.Raycaster();
+
+    controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.target.set(0, 1.5, 0);
+    controls.maxDistance = 20;
+    controls.minDistance = 1;
+    controls.update();
+
+    // 光照：一盏半球光（环境）+ 一盏平行光（主光），和紫禁城用的是同一套思路
+    scene.add(new THREE.HemisphereLight(0xbcd8f0, 0x6b5a44, 0.8));
+    var dir = new THREE.DirectionalLight(0xffffff, 0.6);
+    dir.position.set(5, 10, 5);
+    scene.add(dir);
+
+    golfGroup = new THREE.Group();
+    shootingGroup = new THREE.Group();
+    scene.add(golfGroup, shootingGroup);
+    golfGroup.visible = false;
+    shootingGroup.visible = false;
+
+    buildGolf();
+    buildShooting();
+    setupControllers();
+    createExitButton3D();
+
+    renderer.xr.addEventListener('sessionstart', function(){
+      state.inVR = true; gripHeld = 0; exiting = false;
+      document.body.classList.add('inXr');
+      controls.enabled = false;
+      if(exitButton3D) exitButton3D.visible = true;
+      enterVRBtn.textContent = 'VR 运行中';
+      controllers.forEach(function(c){ c.visible = true; });
+      showInfo('已进入 VR：低头看「退出 VR」按钮，或长按手柄握把 2 秒退出。', 6000);
+    });
+    renderer.xr.addEventListener('sessionend', function(){
+      state.inVR = false;
+      document.body.classList.remove('inXr');
+      controls.enabled = true;
+      if(exitButton3D) exitButton3D.visible = false;
+      enterVRBtn.textContent = '进入 VR';
+      controllers.forEach(function(c){ c.visible = false; });
+      showInfo('已退出 VR，继续用鼠标环视。', 4000);
+    });
+
+    window.addEventListener('resize', onResize);
+    window.addEventListener('keydown', onKey);
+    setupUI();
+    checkVRSupport();
+
+    loadingOverlay.style.display = 'none';
+    menuOverlay.style.display = 'flex';
+    renderer.setAnimationLoop(animate);
+  }
+
+  function onResize(){
+    camera.aspect = innerWidth/innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(innerWidth, innerHeight);
+  }
+
+  function onKey(e){
+    if(e.code === 'Escape'){ backToMenu(); }
+    if(e.code === 'KeyR' && state.experience === 'golf'){ resetGolfBall(); }
+  }
+
+  /* ===================== 高尔夫 ===================== */
+  function buildGolf(){
+    var ground = new THREE.Mesh(new THREE.PlaneGeometry(60, 60),
+      new THREE.MeshStandardMaterial({color:0x4a9b3e, roughness:1}));
+    ground.rotation.x = -Math.PI/2;
+    golfGroup.add(ground);
+
+    var pedestal = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.15, 0.8, 16),
+      new THREE.MeshStandardMaterial({color:0x8b4513, roughness:0.9}));
+    pedestal.position.set(0, 0.4, 0);
+    golfGroup.add(pedestal);
+
+    var tee = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.04, 0.06, 12),
+      new THREE.MeshStandardMaterial({color:0xddccaa}));
+    tee.position.set(0, 0.83, 0);
+    golfGroup.add(tee);
+
+    var ball = new THREE.Mesh(new THREE.SphereGeometry(0.05, 32, 24),
+      new THREE.MeshStandardMaterial({color:0xffffff, roughness:0.3}));
+    ball.position.set(0, 0.92, 0);
+    golfGroup.add(ball);
+    state.golfStartPos.copy(ball.position);
+
+    var pole = new THREE.Mesh(new THREE.CylinderGeometry(0.01, 0.01, 2.5, 8),
+      new THREE.MeshStandardMaterial({color:0x333333}));
+    pole.position.set(0, 1.25, -10);
+    golfGroup.add(pole);
+
+    var flag = new THREE.Mesh(new THREE.PlaneGeometry(0.5, 0.3),
+      new THREE.MeshStandardMaterial({color:0xff0000, side:THREE.DoubleSide}));
+    flag.position.set(0.25, 2.2, -10);
+    golfGroup.add(flag);
+
+    for(var i = 0; i < 12; i++){
+      var tree = new THREE.Group();
+      var trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.18, 1, 8),
+        new THREE.MeshStandardMaterial({color:0x6b4423}));
+      trunk.position.y = 0.5;
+      var leaves = new THREE.Mesh(new THREE.SphereGeometry(0.7, 16, 12),
+        new THREE.MeshStandardMaterial({color:0x2d6b1f}));
+      leaves.position.y = 1.4;
+      tree.add(trunk, leaves);
+      var angle = (i/12) * Math.PI * 2;
+      var r = 12 + Math.random() * 6;
+      tree.position.set(Math.cos(angle) * r, 0, Math.sin(angle) * r);
+      golfGroup.add(tree);
+    }
+
+    // 距离标尺：每 2 米一个刻度（桌面端用来看自己打了多远）
+    for(var d = 2; d <= 10; d += 2){
+      var marker = new THREE.Mesh(new THREE.PlaneGeometry(0.5, 0.1),
+        new THREE.MeshBasicMaterial({color:0xffffff, side:THREE.DoubleSide}));
+      marker.position.set(1.2, 0.01, -d);
+      marker.rotation.x = -Math.PI/2;
+      golfGroup.add(marker);
+    }
+
+    golfGroup.userData.ball = ball;
+    golfGroup.userData.ground = ground;
+  }
+
+  function resetGolfBall(){
+    var ball = golfGroup.userData.ball;
+    if(!ball) return;
+    ball.position.copy(state.golfStartPos);
+    state.golfBallHit = false;
+    state.golfBallVel.set(0, 0, 0);
+    updateScore(0);
+  }
+
+  function hitGolfBall(powerValue){
+    if(state.golfBallHit) return;
+    var dir = new THREE.Vector3();
+    camera.getWorldDirection(dir);
+    state.golfBallHit = true;
+    state.golfBallVel.copy(dir).multiplyScalar(4 + powerValue * 10);
+    state.golfBallVel.y = 2 + powerValue * 5;
+    showInfo('击球！力度 ' + Math.round(powerValue * 100) + '%', 2500);
+  }
+
+  function updateGolf(dt){
+    var ball = golfGroup.userData.ball;
+    if(!ball || !state.golfBallHit) return;
+
+    state.golfBallVel.y -= 9.8 * dt;
+    ball.position.addScaledVector(state.golfBallVel, dt);
+
+    if(ball.position.y < 0.05){
+      ball.position.y = 0.05;
+      state.golfBallVel.y *= -0.4;
+      state.golfBallVel.x *= 0.7;
+      state.golfBallVel.z *= 0.7;
+      if(state.golfBallVel.length() < 0.3){
+        state.golfBallHit = false;
+        var dist = Math.sqrt(ball.position.x*ball.position.x + ball.position.z*ball.position.z);
+        updateScore(Math.round(dist * 10) / 10);
+        showInfo('球停下了！距离 ' + (Math.round(dist*10)/10) + ' 米', 4000);
+      }
+    }
+    if(ball.position.y < -1 || Math.abs(ball.position.x) > 30 || Math.abs(ball.position.z) > 30){
+      resetGolfBall();
+      showInfo('球出界了，已重置', 2500);
+    }
+  }
+
+  function checkGolfSwing(){
+    if(state.golfBallHit || !state.inVR) return;
+    var ball = golfGroup.userData.ball;
+    if(!ball) return;
+    for(var i = 0; i < controllers.length; i++){
+      if(!state.controllerInit[i]) continue;
+      var wp = new THREE.Vector3();
+      controllers[i].getWorldPosition(wp);
+      var dist = wp.distanceTo(ball.position);
+      var speed = state.controllerVel[i].length();
+      if(dist < 0.28 && speed > 1.2){
+        state.golfBallHit = true;
+        state.golfBallVel.copy(state.controllerVel[i]);
+        state.golfBallVel.y = Math.max(state.golfBallVel.y, 2);
+        state.golfBallVel.multiplyScalar(2);
+        showInfo('好球！', 2500);
+        break;
+      }
+    }
+  }
+
+  /* ===================== 射击 ===================== */
+  function buildShooting(){
+    var ground = new THREE.Mesh(new THREE.PlaneGeometry(30, 30),
+      new THREE.MeshStandardMaterial({color:0x2a2a2a, roughness:1}));
+    ground.rotation.x = -Math.PI/2;
+    shootingGroup.add(ground);
+
+    var backWall = new THREE.Mesh(new THREE.PlaneGeometry(20, 6),
+      new THREE.MeshStandardMaterial({color:0x1a1a1a}));
+    backWall.position.set(0, 3, -8);
+    shootingGroup.add(backWall);
+
+    var leftWall = new THREE.Mesh(new THREE.PlaneGeometry(8, 6),
+      new THREE.MeshStandardMaterial({color:0x202020}));
+    leftWall.position.set(-10, 3, -4);
+    leftWall.rotation.y = Math.PI/2;
+    shootingGroup.add(leftWall);
+
+    var rightWall = leftWall.clone();
+    rightWall.position.set(10, 3, -4);
+    rightWall.rotation.y = -Math.PI/2;
+    shootingGroup.add(rightWall);
+
+    var ceiling = new THREE.Mesh(new THREE.PlaneGeometry(20, 8),
+      new THREE.MeshStandardMaterial({color:0x151515}));
+    ceiling.position.set(0, 6, -4);
+    ceiling.rotation.x = Math.PI/2;
+    shootingGroup.add(ceiling);
+
+    for(var i = 0; i < 3; i++){
+      var light = new THREE.PointLight(0xffaa44, 0.6, 15);
+      light.position.set(0, 5.5, -2 - i*2);
+      shootingGroup.add(light);
+      var fixture = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.1, 0.3),
+        new THREE.MeshStandardMaterial({color:0x444444, emissive:0x332200}));
+      fixture.position.set(0, 5.9, -2 - i*2);
+      shootingGroup.add(fixture);
+    }
+
+    var table = new THREE.Mesh(new THREE.BoxGeometry(1.5, 1, 0.8),
+      new THREE.MeshStandardMaterial({color:0x3a3a3a}));
+    table.position.set(0, 0.5, 1);
+    shootingGroup.add(table);
+  }
+
+  function spawnTarget(){
+    var target = new THREE.Mesh(new THREE.SphereGeometry(0.18, 24, 18),
+      new THREE.MeshStandardMaterial({color:0xff3333, emissive:0x660000, roughness:0.4}));
+    target.position.set((Math.random()-0.5)*10, 1 + Math.random()*2.5, -3 - Math.random()*4);
+    target.userData.floatPhase = Math.random() * Math.PI * 2;
+    shootingGroup.add(target);
+    state.shootingTargets.push(target);
+  }
+
+  function hitTarget(hit){
+    shootingGroup.remove(hit);
+    var idx = state.shootingTargets.indexOf(hit);
+    if(idx >= 0) state.shootingTargets.splice(idx, 1);
+    createHitEffect(hit.position);
+    state.score += 10;
+    updateScore();
+    setTimeout(function(){ if(state.experience === 'shooting') spawnTarget(); }, 600);
+  }
+
+  function shootFromController(controller){
+    var tempMatrix = new THREE.Matrix4();
+    tempMatrix.identity().extractRotation(controller.matrixWorld);
+    raycaster.ray.origin.setFromMatrixPosition(controller.matrixWorld);
+    raycaster.ray.direction.set(0, 0, -1).applyMatrix4(tempMatrix);
+
+    var wp = new THREE.Vector3(), wq = new THREE.Quaternion();
+    controller.getWorldPosition(wp);
+    controller.getWorldQuaternion(wq);
+    drawTracer(wp, wq);
+
+    var meshes = state.shootingTargets.filter(function(t){ return t.parent; });
+    var intersects = raycaster.intersectObjects(meshes);
+    if(intersects.length > 0) hitTarget(intersects[0].object);
+  }
+
+  function drawTracer(pos, quat){
+    var geo = new THREE.BufferGeometry().setFromPoints([
+      new THREE.Vector3(0,0,0), new THREE.Vector3(0,0,-15)
+    ]);
+    var tracer = new THREE.Line(geo,
+      new THREE.LineBasicMaterial({color:0xffff00, transparent:true, opacity:0.9}));
+    tracer.position.copy(pos);
+    tracer.quaternion.copy(quat);
+    scene.add(tracer);
+    setTimeout(function(){ scene.remove(tracer); }, 120);
+  }
+
+  function createHitEffect(pos){
+    for(var i = 0; i < 10; i++){
+      var p = new THREE.Mesh(new THREE.SphereGeometry(0.03, 8, 6),
+        new THREE.MeshBasicMaterial({color:0xffaa00, transparent:true, opacity:1}));
+      p.position.copy(pos);
+      p.userData.vel = new THREE.Vector3((Math.random()-0.5)*4, (Math.random()-0.5)*4, (Math.random()-0.5)*4);
+      p.userData.life = 0.6;
+      scene.add(p);
+      particles.push(p);
+    }
+  }
+
+  function desktopShoot(event){
+    if(state.inVR || state.experience !== 'shooting') return;
+    var mouse = new THREE.Vector2(
+      (event.clientX/innerWidth)*2 - 1,
+      -(event.clientY/innerHeight)*2 + 1
+    );
+    raycaster.setFromCamera(mouse, camera);
+    var meshes = state.shootingTargets.filter(function(t){ return t.parent; });
+    var intersects = raycaster.intersectObjects(meshes);
+    if(intersects.length > 0) hitTarget(intersects[0].object);
+  }
+
+  /* ===================== 手柄 ===================== */
+  function setupControllers(){
+    for(var i = 0; i < 2; i++){
+      (function(idx){
+        var controller = renderer.xr.getController(idx);
+        var rayGeo = new THREE.BufferGeometry().setFromPoints([
+          new THREE.Vector3(0,0,0), new THREE.Vector3(0,0,-1)
+        ]);
+        var ray = new THREE.Line(rayGeo,
+          new THREE.LineBasicMaterial({color:0xff5a3c, transparent:true, opacity:0.75}));
+        ray.scale.z = 10;
+        controller.add(ray);
+
+        var tip = new THREE.Mesh(new THREE.SphereGeometry(0.025, 12, 8),
+          new THREE.MeshBasicMaterial({color:0xff5a3c}));
+        controller.add(tip);
+
+        controller.addEventListener('selectstart', function(){ onSelectStart(idx); });
+        controller.addEventListener('connected', function(){
+          state.controllerInit[idx] = true;
+          controller.visible = true;
+        });
+        controller.addEventListener('disconnected', function(){
+          state.controllerInit[idx] = false;
+          controller.visible = false;
+        });
+        controller.visible = false;
+        scene.add(controller);
+        controllers.push(controller);
+      })(i);
+    }
+  }
+
+  function onSelectStart(index){
+    var controller = controllers[index];
+    if(checkExitButtonHit(controller)){ exitVR(); return; }
+    if(state.experience === 'shooting'){ shootFromController(controller); }
+    else if(state.experience === 'golf' && state.golfBallHit){ resetGolfBall(); }
+  }
+
+  /* ===================== VR 内退出（两条路） ===================== */
+  function createExitButton3D(){
+    var canvas = document.createElement('canvas');
+    canvas.width = 512; canvas.height = 256;
+    var ctx = canvas.getContext('2d');
+    function draw(hover){
+      ctx.fillStyle = hover ? '#e2603a' : '#b8352a';
+      ctx.fillRect(0, 0, 512, 256);
+      ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 6;
+      ctx.strokeRect(10, 10, 492, 236);
+      ctx.fillStyle = '#ffffff'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.font = 'bold 60px "Microsoft YaHei",sans-serif';
+      ctx.fillText('退出 VR', 256, 118);
+      ctx.font = '30px "Microsoft YaHei",sans-serif';
+      ctx.fillText('（或长按握把 2 秒）', 256, 186);
+    }
+    draw(false);
+    var texture = new THREE.CanvasTexture(canvas);
+    var mesh = new THREE.Mesh(new THREE.PlaneGeometry(0.6, 0.3),
+      new THREE.MeshBasicMaterial({map:texture, transparent:true}));
+    mesh.position.set(0, 1.1, -1.5);
+    mesh.userData.draw = draw;
+    mesh.visible = false;
+    exitButton3D = mesh;
+    scene.add(mesh);
+  }
+
+  function checkExitButtonHit(controller){
+    if(!exitButton3D || !exitButton3D.visible) return false;
+    var tempMatrix = new THREE.Matrix4();
+    tempMatrix.identity().extractRotation(controller.matrixWorld);
+    raycaster.ray.origin.setFromMatrixPosition(controller.matrixWorld);
+    raycaster.ray.direction.set(0, 0, -1).applyMatrix4(tempMatrix);
+    return raycaster.intersectObject(exitButton3D).length > 0;
+  }
+
+  function updateExitButtonHover(){
+    if(!exitButton3D || !exitButton3D.visible) return;
+    var hovered = false;
+    for(var i = 0; i < controllers.length; i++){
+      if(state.controllerInit[i] && checkExitButtonHit(controllers[i])){ hovered = true; break; }
+    }
+    if(hovered !== exitButtonHover){
+      exitButtonHover = hovered;
+      exitButton3D.userData.draw(hovered);
+      exitButton3D.material.map.needsUpdate = true;
+    }
+  }
+
+  // 兜底：长按任意手柄握把 2 秒 → 直接退出（和紫禁城场景同一套逃生通道）
+  function checkGripExit(session, dt){
+    if(!session) return;
+    var grips = 0;
+    for(var i = 0; i < session.inputSources.length; i++){
+      var gp = session.inputSources[i].gamepad;
+      if(gp && gp.buttons && gp.buttons[1] && gp.buttons[1].pressed) grips++;
+    }
+    gripHeld = grips > 0 ? gripHeld + dt : 0;
+    if(gripHeld > 2 && !exiting){
+      exiting = true;
+      showInfo('长按握把 → 退出 VR', 2500);
+      exitVR();
+    }
+  }
+
+  /* ===================== VR 会话 ===================== */
+  function checkVRSupport(){
+    if(!navigator.xr){
+      enterVRBtn.disabled = true;
+      enterVRBtn.textContent = '当前浏览器不支持 WebXR';
+      return;
+    }
+    navigator.xr.isSessionSupported('immersive-vr').then(function(supported){
+      if(!supported){
+        enterVRBtn.disabled = true;
+        enterVRBtn.textContent = '本设备不支持沉浸式 VR';
+      }
+    }).catch(function(){
+      enterVRBtn.disabled = true;
+      enterVRBtn.textContent = 'VR 检测失败';
+    });
+  }
+
+  function enterVR(){
+    if(!navigator.xr) return;
+    navigator.xr.requestSession('immersive-vr', {optionalFeatures:['local-floor','bounded-floor']})
+      .then(function(session){ renderer.xr.setSession(session); })
+      .catch(function(e){ showInfo('VR 启动失败：' + e.message, 5000); });
+  }
+
+  function exitVR(){
+    var session = renderer.xr.getSession();
+    if(session) session.end();
+  }
+
+  /* ===================== UI ===================== */
+  function setupUI(){
+    document.getElementById('golf-card').addEventListener('click', function(){ loadExperience('golf'); });
+    document.getElementById('shooting-card').addEventListener('click', function(){ loadExperience('shooting'); });
+    enterVRBtn.addEventListener('click', enterVR);
+    backMenuBtn.addEventListener('click', backToMenu);
+    resetBtn.addEventListener('click', resetGolfBall);
+
+    // 桌面高尔夫：按住蓄力、松开击球
+    hitBtn.addEventListener('pointerdown', function(){
+      if(state.inVR || state.experience !== 'golf' || state.golfBallHit) return;
+      charging = true; power = 0;
+      powerBar.style.display = 'block';
+    });
+    function release(){
+      if(!charging) return;
+      charging = false;
+      powerBar.style.display = 'none';
+      shotPower = Math.max(0.25, power);
+      hitGolfBall(shotPower);
+      power = 0; powerFill.style.width = '0%';
+    }
+    hitBtn.addEventListener('pointerup', release);
+    hitBtn.addEventListener('pointerleave', release);
+
+    renderer.domElement.addEventListener('click', function(e){
+      if(state.inVR) return;
+      if(state.experience === 'shooting') desktopShoot(e);
+    });
+  }
+
+  function loadExperience(exp){
+    state.experience = exp;
+    state.score = 0;
+    menuOverlay.style.display = 'none';
+    expControls.style.display = 'flex';
+    scoreBar.style.display = 'block';
+    statsBar.style.display = 'block';
+
+    if(exp === 'golf'){
+      golfGroup.visible = true;
+      shootingGroup.visible = false;
+      scene.background = new THREE.Color(0x87ceeb);
+      scene.fog = new THREE.Fog(0x87ceeb, 15, 50);
+      resetGolfBall();
+      resetBtn.style.display = 'block';
+      hitBtn.style.display = 'block';
+      crosshair.style.display = 'none';
+      camera.position.set(0, 1.6, 3);
+      controls.target.set(0, 0.9, 0);
+      controls.update();
+      updateScore(0);
+      showInfo('桌面：按住「击球」蓄力，松开击球（方向 = 视线方向，可用鼠标环视调整）｜ VR：挥动手柄击球', 8000);
+    }else{
+      golfGroup.visible = false;
+      shootingGroup.visible = true;
+      scene.background = new THREE.Color(0x1a1a2e);
+      scene.fog = new THREE.Fog(0x1a1a2e, 6, 18);
+      resetBtn.style.display = 'none';
+      hitBtn.style.display = 'none';
+      crosshair.style.display = 'block';
+      state.shootingTargets.forEach(function(t){ shootingGroup.remove(t); });
+      state.shootingTargets = [];
+      for(var i = 0; i < 5; i++) spawnTarget();
+      camera.position.set(0, 1.6, 1.5);
+      controls.target.set(0, 1.5, -5);
+      controls.update();
+      updateScore(0);
+      showInfo('桌面：鼠标瞄准 + 点击射击 ｜ VR：手柄射线瞄准 + 扣扳机射击', 8000);
+    }
+  }
+
+  function backToMenu(){
+    state.experience = null;
+    state.score = 0;
+    charging = false; powerBar.style.display = 'none';
+    golfGroup.visible = false;
+    shootingGroup.visible = false;
+    menuOverlay.style.display = 'flex';
+    expControls.style.display = 'none';
+    scoreBar.style.display = 'none';
+    statsBar.style.display = 'none';
+    crosshair.style.display = 'none';
+    infoBar.style.display = 'none';
+    scene.background = new THREE.Color(0x000000);
+    scene.fog = null;
+  }
+
+  function updateScore(val){
+    if(val !== undefined) state.score = val;
+    scoreBar.textContent = (state.experience === 'golf')
+      ? '距离：' + state.score + ' 米'
+      : '得分：' + state.score;
+  }
+
+  function showInfo(text, ms){
+    infoBar.textContent = text;
+    infoBar.style.display = 'block';
+    clearTimeout(infoBar._timer);
+    infoBar._timer = setTimeout(function(){ infoBar.style.display = 'none'; }, ms || 4000);
+  }
+
+  /* ===================== 主循环 ===================== */
+  var frames = 0, fpsTimer = 0, fps = 0;
+  function animate(time){
+    var dt = Math.min((time - state.lastTime)/1000, 0.1);
+    state.lastTime = time;
+
+    if(!state.inVR) controls.update();
+
+    if(charging){
+      power = Math.min(1, power + dt * 1.2);      // 每秒涨 1.2 → 约 0.85 秒充满
+      powerFill.style.width = (power * 100) + '%';
+    }
+
+    if(state.inVR){
+      var session = renderer.xr.getSession();
+      checkGripExit(session, dt);
+      for(var i = 0; i < controllers.length; i++){
+        if(!state.controllerInit[i]) continue;
+        var wp = new THREE.Vector3();
+        controllers[i].getWorldPosition(wp);
+        if(dt > 0) state.controllerVel[i].subVectors(wp, state.controllerPrevPos[i]).divideScalar(dt);
+        state.controllerPrevPos[i].copy(wp);
+      }
+      updateExitButtonHover();
+      checkGolfSwing();
+    }
+
+    if(state.experience === 'golf' && golfGroup.visible) updateGolf(dt);
+
+    if(state.experience === 'shooting' && shootingGroup.visible){
+      state.shootingTargets.forEach(function(t){
+        t.userData.floatPhase += dt * 2;
+        t.position.y += Math.sin(t.userData.floatPhase) * 0.002;
+        t.rotation.y += dt * 0.5;
+      });
+    }
+
+    for(var j = particles.length - 1; j >= 0; j--){
+      var p = particles[j];
+      p.userData.life -= dt;
+      if(p.userData.life <= 0){
+        scene.remove(p); particles.splice(j, 1);
+      }else{
+        p.position.addScaledVector(p.userData.vel, dt);
+        p.userData.vel.y -= 5 * dt;
+        p.material.opacity = p.userData.life / 0.6;
+      }
+    }
+
+    // 退出按钮：始终飘在用户视线前下方，走到哪都够得着
+    if(exitButton3D && exitButton3D.visible){
+      var camPos = new THREE.Vector3(), fwd = new THREE.Vector3();
+      camera.getWorldPosition(camPos);
+      camera.getWorldDirection(fwd);
+      fwd.y = 0;
+      if(fwd.lengthSq() < 1e-4) fwd.set(0, 0, -1);
+      fwd.normalize();
+      exitButton3D.position.copy(camPos).addScaledVector(fwd, 1.5);
+      exitButton3D.position.y -= 0.55;
+      exitButton3D.lookAt(camPos);
+      var pulse = 1 + Math.sin(time * 0.003) * 0.05;
+      exitButton3D.scale.setScalar(pulse);
+    }
+
+    // 性能读数：和课件"性能预算"那一节对应
+    frames++; fpsTimer += dt;
+    if(fpsTimer >= 0.5){
+      fps = Math.round(frames / fpsTimer);
+      frames = 0; fpsTimer = 0;
+      var info = renderer.info.render;
+      statsBar.textContent = 'FPS ' + fps + ' ｜ DrawCall ' + info.calls +
+        ' ｜ 三角面 ' + (info.triangles/1000).toFixed(1) + 'k' +
+        ' ｜ 纹理 ' + renderer.info.memory.textures;
+    }
+
+    renderer.render(scene, camera);
+  }
+
+  init();
+})();
+</script>
+</body>
+</html>

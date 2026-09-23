@@ -22,6 +22,9 @@
   .t{font-size:18px;font-weight:700;margin:4px 0 6px;color:#f5ead4;}
   .d{font-size:13px;color:#a89b7c;line-height:1.85;}
   .f{font-size:12px;color:#6f6857;font-family:Consolas,monospace;margin-top:8px;}
+  a.card.example{border-color:rgba(217,164,65,.55);background:#191309;}
+  a.card.example .no{color:#f0b45a;}
+  a.card.example .t{color:#ffe9b8;}
   .back{margin-top:22px;font-size:14px;}
   .back a{color:#d9a441;text-decoration:none;margin-right:18px;}
   .back a:hover{text-decoration:underline;}
@@ -83,6 +86,14 @@
     <div class="t">进入 VR 的四步检查与安全上下文</div>
     <div class="d">把"进不去 VR"的排查顺序做成页面：协议 / navigator.xr / isSessionSupported / 按钮。不需要 WebGL。</div>
     <div class="f">demo07-webxr-entry.html</div>
+  </a>
+
+  <a class="card example" href="example-vr-experience-hall.html">
+    <div class="no">课堂示例 · 完整小应用</div>
+    <div class="t">WebXR 实验馆：高尔夫 + 射击</div>
+    <div class="d">两个能进头显的小体验：挥杆击球看距离、射线打靶计分。带菜单、得分、退出按钮与性能读数面板——
+      <strong>可以看成"把前面 7 个演示拼起来的一个完整小作品"</strong>。已全部本地化，不依赖网络。</div>
+    <div class="f">example-vr-experience-hall.html（+ OrbitControls.js，共用本地 three.min.js）</div>
   </a>
 
   <div class="back">

@@ -1165,8 +1165,9 @@ npx serve -l 8080</pre>
   </div>
 
   <h3>一、这一节的作业总要求（先看这一段）</h3>
-  <div class="note">本讲用到的 <strong>7 个教学演示都在一个入口里</strong>：<a href="assets/vr-2026/webxr/demos/index.html" target="_blank" rel="noopener"><strong>演示目录</strong></a>。
-    <strong>演示文件名统一用英文</strong>（例如 <code class="inline">demo01-minimal-scene.html</code>）——中文文件名在部分机房电脑上会乱码或打不开，所以中文标题写在页面里，文件名一律用英文。</div>
+  <div class="note">本讲用到的演示都在一个入口里：<a href="assets/vr-2026/webxr/demos/index.html" target="_blank" rel="noopener"><strong>演示目录（7 个教学演示 + 1 个课堂小例子）</strong></a>。
+    <strong>演示文件名统一用英文</strong>（例如 <code class="inline">demo01-minimal-scene.html</code>）——中文文件名在部分机房电脑上会乱码或打不开，所以中文标题写在页面里，文件名一律用英文。<br>
+    其中 <a href="assets/vr-2026/webxr/demos/example-vr-experience-hall.html" target="_blank" rel="noopener"><strong>「WebXR 实验馆」</strong></a>是一个<strong>完整的小应用（高尔夫 + 射击）</strong>，做任务 2、任务 3 时可以先打开它照着改——它就是"把这一课的东西拼起来"的样子。</div>
   <div class="key">
     <strong>所有任务课内完成，本课程不布置课后任务。</strong><br>
     <strong>你要交的 5 样东西</strong>：① 你改过的<strong>最小场景</strong>（能跑）；② <strong>改造后的故宫场景</strong>（至少两处改动）；③ <strong>3 张规定截图</strong>（见第三节，命名要规范）；④ <strong>课堂记录表</strong>（数据真实、可复现）；⑤ <strong>真机观察卡</strong>（戴过或看过都要填）。<br>
@@ -1333,7 +1334,30 @@ npx serve -l 8080</pre>
   </ol>
   <div class="key">三条全过 = 本讲的课堂实操部分完成。第 3 条是本讲的"核心考点"：<strong>它考的不是记性，而是你有没有真的踩过那个坑。</strong></div>
 
-  <h3>八、更多例子：免费 3D 库与在线示例</h3>
+  <h3>八、更多例子：课堂小例子 · 免费 3D 库与在线示例</h3>
+  <h4>8.0 课堂小例子 · WebXR 实验馆（高尔夫 + 射击）</h4>
+  <p>下面这个例子是把前面几个演示<strong>拼起来的一个完整小应用</strong>：一个菜单 + 两个能进头显的体验（挥杆打高尔夫、射线打靶），带得分、退出按钮和性能读数面板。<strong>建议先点开玩两分钟，再回来看它的代码</strong>——你会发现它用到的每一块，你都已经在本课里见过。</p>
+  <div class="btn-row">
+    <a class="btn" href="assets/vr-2026/webxr/demos/example-vr-experience-hall.html" target="_blank" rel="noopener">打开「WebXR 实验馆」→</a>
+    <a class="btn ghost" href="assets/vr-2026/webxr/demos/index.html" target="_blank" rel="noopener">全部 8 个演示目录</a>
+  </div>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr><th>它在演示什么</th><th>对应本课哪一节</th><th>你可以照着改什么</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>一个场景 + 两个体验分组（<code class="inline">Group</code> 切换显隐）</td><td>PART 2 最小可运行场景</td><td>再加第三个体验，比如"投篮"</td></tr>
+        <tr><td>全部几何体由代码生成：球、旗杆、树、靶子、房间</td><td>PART 3 程序化生成</td><td>把树换成别的形状，或改球的半径</td></tr>
+        <tr><td>一盏半球光 + 一盏平行光；用 <code class="inline">emissive</code> 做发光靶子</td><td>PART 4 光照与材质</td><td>改平行光方向，看影子与明暗变化</td></tr>
+        <tr><td>左下角实时显示 <code class="inline">FPS / DrawCall / 三角面 / 纹理</code></td><td>PART 5 性能预算</td><td>把靶子数量从 5 改成 50，看读数怎么变</td></tr>
+        <tr><td>桌面用鼠标、VR 用手柄射线；<strong>两条退出通道</strong></td><td>PART 6 交互与退出</td><td>改击球蓄力速度、或改退出按钮的位置</td></tr>
+        <tr><td>Three.js 放在<strong>本地</strong>，不依赖任何 CDN</td><td>PART 7 部署与发布</td><td>把它放进自己的网站目录一起上传</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="warn"><strong>这个例子和你收到的原文件有什么区别</strong>：原文件用 CDN 加载 Three.js（<code class="inline">cdn.jsdelivr.net</code>），机房网络一慢就会永远卡在"正在加载 Three.js…"；现在已经改成<strong>本地库 + 本地控制器库</strong>，断网也能打开，并补了 WebGL 兜底提示、VR 内退出按钮、长按握把退出、性能读数与快捷键。</div>
+
   <p>一个故宫不够看。下面这些全部是免费的，链接都已逐个核验可打开（2026-09-22）。建议每个至少点开一次，<strong>看别人怎么做，比只看故宫一个例子更快建立判断力</strong>。</p>
 
   <h4>8.1 免费 3D 库 / 引擎（都能在浏览器里跑）</h4>
