@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WebXR 教学演示目录 · 第4次课</title>
+<style>
+  *{box-sizing:border-box;}
+  body{margin:0;background:#0f0b07;color:#efe4cf;
+    font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif;}
+  .wrap{max-width:960px;margin:0 auto;padding:28px 20px 60px;}
+  h1{font-size:24px;color:#d9a441;letter-spacing:2px;margin:0 0 6px;}
+  p.sub{color:#a89b7c;font-size:14px;line-height:1.9;margin:0 0 18px;}
+  .tip{border-left:3px solid rgba(217,164,65,.6);padding:10px 14px;margin:16px 0;
+    background:rgba(217,164,65,.07);color:#cbbf9f;font-size:13px;line-height:1.9;border-radius:0 8px 8px 0;}
+  .tip b{color:#f0b45a;}
+  a.card{display:block;text-decoration:none;color:inherit;background:#15110b;
+    border:1px solid rgba(217,164,65,.28);border-radius:12px;padding:16px 18px;margin-bottom:12px;
+    transition:all .18s;}
+  a.card:hover{border-color:#d9a441;background:#1b150d;transform:translateY(-2px);}
+  .no{font-size:12px;color:#d9a441;letter-spacing:2px;}
+  .t{font-size:18px;font-weight:700;margin:4px 0 6px;color:#f5ead4;}
+  .d{font-size:13px;color:#a89b7c;line-height:1.85;}
+  .f{font-size:12px;color:#6f6857;font-family:Consolas,monospace;margin-top:8px;}
+  .back{margin-top:22px;font-size:14px;}
+  .back a{color:#d9a441;text-decoration:none;margin-right:18px;}
+  .back a:hover{text-decoration:underline;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>WebXR 教学演示目录</h1>
+  <p class="sub">第 4 次课《用 WebXR 生成一座故宫》配套的 7 个可运行演示。全部离线可用，点开即运行。</p>
+
+  <div class="tip">
+    <b>为什么文件名全是英文？</b> 中文文件名在部分机房电脑（IE 兼容模式 / 中文 Windows）会被按 GBK 编码，
+    与服务器上的 UTF-8 文件名对不上，就会"打不开"或显示乱码。<b>所以本站所有演示文件统一用英文名，中文标题写在页面里</b>。
+  </div>
+  <div class="tip">
+    <b>打不开 / 只看到一片黑？</b> 先看 ① 浏览器是不是 Chrome / Edge（不要用 IE 兼容模式）；
+    ② 浏览器设置里是否打开了"使用硬件加速"（部分老机房默认关闭，3D 就会黑屏）。
+    前 6 个演示需要 WebGL，<b>07 号不需要</b>，可以用它先确认网页本身能不能打开。
+  </div>
+
+  <a class="card" href="demo01-minimal-scene.html">
+    <div class="no">DEMO 01</div>
+    <div class="t">最小可运行场景：逐行讲解</div>
+    <div class="d">点右侧任意一行代码 = 打开/关闭那个细节。用来回答"这一行到底管什么"。</div>
+    <div class="f">demo01-minimal-scene.html</div>
+  </a>
+  <a class="card" href="demo02-camera-coordinates.html">
+    <div class="no">DEMO 02</div>
+    <div class="t">坐标系与相机：1 单位 = 1 米</div>
+    <div class="d">滑块调相机 X/Y/Z 与视野 FOV，把高度调到 1.7 就是"站着看"，0.6 就是"蹲下看"。</div>
+    <div class="f">demo02-camera-coordinates.html</div>
+  </a>
+  <a class="card" href="demo03-lighting-material.html">
+    <div class="no">DEMO 03</div>
+    <div class="t">光照与材质：为什么模型是黑的</div>
+    <div class="d">四个球对比四种光照方案；把两盏灯都拖到 0，复现"忘加灯"的经典现象。</div>
+    <div class="f">demo03-lighting-material.html</div>
+  </a>
+  <a class="card" href="demo04-loop-deltatime.html">
+    <div class="no">DEMO 04</div>
+    <div class="t">帧循环与 deltaTime</div>
+    <div class="d">把"模拟设备帧率"拖到 15 fps：左边的方块变慢、右边几乎不变。解释"为什么手感会不一样"。</div>
+    <div class="f">demo04-loop-deltatime.html</div>
+  </a>
+  <a class="card" href="demo05-procedural-geometry.html">
+    <div class="no">DEMO 05</div>
+    <div class="t">程序化几何与贴图</div>
+    <div class="d">拖滑块改面阔 / 进深 / 层高 / 正脊长度，屋顶实时重建；可切换"程序化瓦片 ⇄ 纯色"。</div>
+    <div class="f">demo05-procedural-geometry.html</div>
+  </a>
+  <a class="card" href="demo06-drawcall-batching.html">
+    <div class="no">DEMO 06</div>
+    <div class="t">性能对比：独立 Mesh 与 InstancedMesh 合批</div>
+    <div class="d">3000 个物体：独立 Mesh 约 930 次 DrawCall，合批后只要 2 次。最能说明"Draw Call 比三角面更致命"。</div>
+    <div class="f">demo06-drawcall-batching.html</div>
+  </a>
+  <a class="card" href="demo07-webxr-entry.html">
+    <div class="no">DEMO 07</div>
+    <div class="t">进入 VR 的四步检查与安全上下文</div>
+    <div class="d">把"进不去 VR"的排查顺序做成页面：协议 / navigator.xr / isSessionSupported / 按钮。不需要 WebGL。</div>
+    <div class="f">demo07-webxr-entry.html</div>
+  </a>
+
+  <div class="back">
+    <a href="../../../../vr-2026-lesson4.html">← 回到第 4 次课课件</a>
+    <a href="../gugong_webxr.html">打开紫禁城 WebXR 场景 →</a>
+  </div>
+</div>
+</body>
+</html>

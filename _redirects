@@ -1,2 +1,11 @@
 /workspace /private/workspace 308
 /assets/vr-2026/demos-lesson3/* /assets/vr-2026/demos-xr/:splat 301
+
+# 演示文件已改名为英文（中文文件名在部分机房电脑上会乱码/打不开），旧链接保留跳转
+/assets/vr-2026/webxr/demos/01_最小场景_逐行讲解.html /assets/vr-2026/webxr/demos/demo01-minimal-scene.html 301
+/assets/vr-2026/webxr/demos/02_坐标系与相机.html /assets/vr-2026/webxr/demos/demo02-camera-coordinates.html 301
+/assets/vr-2026/webxr/demos/03_光照与材质.html /assets/vr-2026/webxr/demos/demo03-lighting-material.html 301
+/assets/vr-2026/webxr/demos/04_帧循环与deltaTime.html /assets/vr-2026/webxr/demos/demo04-loop-deltatime.html 301
+/assets/vr-2026/webxr/demos/05_程序化几何与贴图.html /assets/vr-2026/webxr/demos/demo05-procedural-geometry.html 301
+/assets/vr-2026/webxr/demos/06_性能对比_合批.html /assets/vr-2026/webxr/demos/demo06-drawcall-batching.html 301
+/assets/vr-2026/webxr/demos/07_进入VR四步与安全上下文.html /assets/vr-2026/webxr/demos/demo07-webxr-entry.html 301

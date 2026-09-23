@@ -60,6 +60,16 @@
 <script>
 (function(){
   'use strict';
+  /* 机房常见问题：显卡加速被关闭 / 老显卡没有 WebGL —— 与其黑屏，不如直接说明白 */
+  if(!(document.createElement('canvas').getContext('webgl') || document.createElement('canvas').getContext('experimental-webgl'))){
+    var _warn = document.createElement('div');
+    _warn.style.cssText = 'position:fixed;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;padding:40px;background:#0f0b07;color:#f2e8d5;font-size:18px;line-height:2;z-index:9999;';
+    _warn.innerHTML = '⚠️ 这台电脑的浏览器没有启用 <b>WebGL</b>，所以 3D 演示无法显示。<br>' +
+      '请依次检查：① 用 Chrome / Edge 打开（不要用 IE 兼容模式）；② 浏览器设置里打开"使用硬件加速"；' +
+      '③ 换一台机器；④ 或者先看 07 号演示（它不需要 WebGL）。';
+    document.body.appendChild(_warn);
+    return;
+  }
   var left = document.getElementById('left');
 
   /* ---------- 1) 场景 Scene：所有物体的容器 ---------- */

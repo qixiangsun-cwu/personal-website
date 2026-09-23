@@ -58,6 +58,7 @@
 
   <div class="btn-row">
     <a class="btn" href="assets/vr-2026/webxr/gugong_webxr.html" target="_blank" rel="noopener">打开紫禁城 WebXR 场景 →</a>
+    <a class="btn ghost" href="assets/vr-2026/webxr/demos/index.html" target="_blank" rel="noopener">7 个教学演示目录 →</a>
     <a class="btn ghost" href="#demo">跳到课堂实操</a>
   </div>
   <p style="font-size:14px;color:var(--ink-soft);">场景支持鼠标环视、WASD 行走、点击地面传送、时辰滑块与 4 个预设机位；用支持 WebXR 的浏览器打开后可点"进入 VR"。<strong>本节课的 1:50—2:26 是"全员传看"环节：按座位顺序轮着看，谁看完就让给下一位，不卡个人时间；戴上后只做两件事——环视一眼、说一句话。</strong>其余时间大家在 PC 上继续改造自己的场景。<strong>2:26—2:36 由 4 位同学做定岗深测（清晰度 / 延迟 / 舒适度 / 比例与退出），全班看投屏。</strong></p>
@@ -282,7 +283,7 @@
         <tr><td>📺 视频</td><td><a href="https://www.bilibili.com/video/BV1Bm421378a" target="_blank" rel="noopener">WebXR 在 3D 引擎中的实践</a>（W3C 中国 · 29:03）</td><td>标准制定方讲的 WebXR 定位与能力边界，对应 1.1—1.2</td></tr>
         <tr><td>📺 视频</td><td><a href="https://www.bilibili.com/video/BV1Tw4m1e7NH" target="_blank" rel="noopener">使用 WebXR 打造沉浸式网站体验</a>（26:17）</td><td>看"网页端 VR 能做成什么样"，对应 1.5 的能力边界</td></tr>
         <tr><td>📺 视频</td><td><a href="https://www.bilibili.com/video/BV1KY411x7Jp" target="_blank" rel="noopener">HTTPS 是什么？加密原理和证书</a>（11:32）</td><td>理解 1.3 的安全上下文：为什么浏览器要"藏起" <code class="inline">navigator.xr</code></td></tr>
-        <tr><td>🧪 演示</td><td><a href="assets/vr-2026/webxr/demos/07_进入VR四步与安全上下文.html" target="_blank" rel="noopener">07 进入 VR 四步检查</a></td><td>当场看你这台设备的真实返回值</td></tr>
+        <tr><td>🧪 演示</td><td><a href="assets/vr-2026/webxr/demos/demo07-webxr-entry.html" target="_blank" rel="noopener">07 进入 VR 四步检查</a></td><td>当场看你这台设备的真实返回值</td></tr>
         <tr><td>🔗 官方示例</td><td><a href="https://immersive-web.github.io/webxr-samples/" target="_blank" rel="noopener">W3C WebXR Samples</a> · <a href="https://threejs.org/examples/?q=webxr" target="_blank" rel="noopener">Three.js WebXR 示例集</a></td><td>官方示例，可直接打开对照</td></tr>
       </tbody>
     </table>
@@ -398,7 +399,7 @@ renderer.setAnimationLoop(tick);</pre>
 &lt;/body&gt;&lt;/html&gt;</pre>
 
   <h3>2.6 逐行拆解：每一行代码到底管什么</h3>
-  <p>把上面 30 行拆成 8 个细节，每个细节都给一个"关掉它会发生什么"的例子。<strong>配套演示：<a href="assets/vr-2026/webxr/demos/01_最小场景_逐行讲解.html" target="_blank" rel="noopener">01 号演示 · 最小场景逐行讲解</a>——点右侧任意一行代码，就能把那一行打开或关掉，亲眼看见它的作用。</strong></p>
+  <p>把上面 30 行拆成 8 个细节，每个细节都给一个"关掉它会发生什么"的例子。<strong>配套演示：<a href="assets/vr-2026/webxr/demos/demo01-minimal-scene.html" target="_blank" rel="noopener">01 号演示 · 最小场景逐行讲解</a>——点右侧任意一行代码，就能把那一行打开或关掉，亲眼看见它的作用。</strong></p>
   <div class="tbl-wrap">
     <table>
       <thead>
@@ -427,7 +428,7 @@ console.log(camera.near, camera.far);      // ③ 近/远裁剪面：near 太大
 // 最典型的错误：只写位置，不写朝向
 camera.position.set(0, 1.6, 4);            // 相机在 z=4 看着 −z 方向（three.js 默认朝 −z）
 camera.lookAt(0, 1.2, 0);                  // 想让相机看目标，必须显式 lookAt</pre>
-  <p><strong>动手看：<a href="assets/vr-2026/webxr/demos/02_坐标系与相机.html" target="_blank" rel="noopener">02 号演示 · 坐标系与相机</a></strong>——四个滑块分别是相机 X/Y/Z 与视野 FOV，把高度调到 1.7 就是"站着看"，调到 0.6 就是"蹲下看"，FOV 拉到 100° 就能看到明显的边缘拉伸。</p>
+  <p><strong>动手看：<a href="assets/vr-2026/webxr/demos/demo02-camera-coordinates.html" target="_blank" rel="noopener">02 号演示 · 坐标系与相机</a></strong>——四个滑块分别是相机 X/Y/Z 与视野 FOV，把高度调到 1.7 就是"站着看"，调到 0.6 就是"蹲下看"，FOV 拉到 100° 就能看到明显的边缘拉伸。</p>
 
   <h4>细节 B · 光照与材质：为什么"我的模型是黑的"</h4>
   <pre>// 对比：同一种红色，两种材质
@@ -437,7 +438,7 @@ new THREE.MeshStandardMaterial({color:0xb22222}) // 受光：没灯就是全黑�
 scene.add(new THREE.HemisphereLight(0xbcd8f0, 0x6b5a44, 0.9));  // 天光补色，避免背光面死黑
 var sun = new THREE.DirectionalLight(0xffffff, 1.2);            // 主光（太阳），负责明暗与投影
 sun.position.set(4, 6, 3); scene.add(sun);</pre>
-  <p><strong>动手看：<a href="assets/vr-2026/webxr/demos/03_光照与材质.html" target="_blank" rel="noopener">03 号演示 · 光照与材质</a></strong>——四个球并排对比"基础材质 / 平行光 / 半球光 / 两盏灯+阴影"，把两盏灯都拖到 0，就能复现"全黑"的现象。</p>
+  <p><strong>动手看：<a href="assets/vr-2026/webxr/demos/demo03-lighting-material.html" target="_blank" rel="noopener">03 号演示 · 光照与材质</a></strong>——四个球并排对比"基础材质 / 平行光 / 半球光 / 两盏灯+阴影"，把两盏灯都拖到 0，就能复现"全黑"的现象。</p>
 
   <h4>细节 C · 单位与比例：1 单位 = 1 米</h4>
   <p>这条看起来是常识，但它决定了整个工程能不能讲得通：<strong>紫禁城的每一个尺寸都是"米"</strong>，所以"太和殿 35.4 m"这样的历史资料可以直接抄进代码，后面才能做比例校核。</p>
@@ -454,7 +455,7 @@ ball.rotation.y += (90 * Math.PI/180) * dt;       // 每秒转 90°
 // 进入 XR 后还必须换掉循环方式
 renderer.setAnimationLoop(animate);   // ✅ 头显刷新节奏接管
 // requestAnimationFrame(animate);    // ❌ 戴上头显就黑屏/卡住</pre>
-  <p><strong>动手看：<a href="assets/vr-2026/webxr/demos/04_帧循环与deltaTime.html" target="_blank" rel="noopener">04 号演示 · 帧循环与 deltaTime</a></strong>——把"模拟设备帧率"拖到 15 fps，左边的方块明显变慢、右边几乎不变。这就是"手感不对/晕"的技术原因。</p>
+  <p><strong>动手看：<a href="assets/vr-2026/webxr/demos/demo04-loop-deltatime.html" target="_blank" rel="noopener">04 号演示 · 帧循环与 deltaTime</a></strong>——把"模拟设备帧率"拖到 15 fps，左边的方块明显变慢、右边几乎不变。这就是"手感不对/晕"的技术原因。</p>
 
   <h3>2.7 进入 VR 的四步（配 07 号演示）</h3>
   <ol>
@@ -464,7 +465,7 @@ renderer.setAnimationLoop(animate);   // ✅ 头显刷新节奏接管
     <li><strong>交给渲染器</strong>：<code class="inline">renderer.xr.setSession(session)</code>。</li>
   </ol>
   <div class="note"><strong><code class="inline">optionalFeatures</code> 与 <code class="inline">requiredFeatures</code> 的区别很关键</strong>：写进 <code class="inline">requiredFeatures</code> 的能力如果设备不支持，会话会<strong>直接失败</strong>；写进 <code class="inline">optionalFeatures</code>，设备有就用、没有就降级。本项目请求的是 <code class="inline">local-floor</code>（地面原点）、<code class="inline">bounded-floor</code>（安全边界）、<code class="inline">hand-tracking</code>（手势），<strong>全部写成可选</strong>——这样即使头显没有手势追踪，场景照样能进。</div>
-  <p><strong>动手看：<a href="assets/vr-2026/webxr/demos/07_进入VR四步与安全上下文.html" target="_blank" rel="noopener">07 号演示 · 进入 VR 的四步检查</a></strong>——页面上把每一步的实际返回值都打出来（协议、<code class="inline">navigator.xr</code>、<code class="inline">isSessionSupported</code>、按钮状态），这一步失败了该查什么，页面上直接写着。</p>
+  <p><strong>动手看：<a href="assets/vr-2026/webxr/demos/demo07-webxr-entry.html" target="_blank" rel="noopener">07 号演示 · 进入 VR 的四步检查</a></strong>——页面上把每一步的实际返回值都打出来（协议、<code class="inline">navigator.xr</code>、<code class="inline">isSessionSupported</code>、按钮状态），这一步失败了该查什么，页面上直接写着。</p>
 
   <h3>2.8 随堂实操 A（约 10 分钟）</h3>
   <ol>
@@ -482,11 +483,11 @@ renderer.setAnimationLoop(animate);   // ✅ 头显刷新节奏接管
         <tr><th>类型</th><th>资源</th><th>说明</th></tr>
       </thead>
       <tbody>
-        <tr><td>🧪 演示</td><td><a href="assets/vr-2026/webxr/demos/01_最小场景_逐行讲解.html" target="_blank" rel="noopener">01 最小场景逐行讲解</a></td><td>点一行代码 = 开关一个细节（本站演示，离线可用）</td></tr>
-        <tr><td>🧪 演示</td><td><a href="assets/vr-2026/webxr/demos/02_坐标系与相机.html" target="_blank" rel="noopener">02 坐标系与相机</a></td><td>滑块调相机位置与 FOV，体会"1 单位 = 1 米"</td></tr>
-        <tr><td>🧪 演示</td><td><a href="assets/vr-2026/webxr/demos/03_光照与材质.html" target="_blank" rel="noopener">03 光照与材质</a></td><td>四个球对比四种光照方案，复现"模型全黑"</td></tr>
-        <tr><td>🧪 演示</td><td><a href="assets/vr-2026/webxr/demos/04_帧循环与deltaTime.html" target="_blank" rel="noopener">04 帧循环与 deltaTime</a></td><td>模拟 15 fps 低性能设备，看两种写法差多少</td></tr>
-        <tr><td>🧪 演示</td><td><a href="assets/vr-2026/webxr/demos/07_进入VR四步与安全上下文.html" target="_blank" rel="noopener">07 进入 VR 四步检查</a></td><td>把"进不去 VR"的排查顺序做成可交互页面</td></tr>
+        <tr><td>🧪 演示</td><td><a href="assets/vr-2026/webxr/demos/demo01-minimal-scene.html" target="_blank" rel="noopener">01 最小场景逐行讲解</a></td><td>点一行代码 = 开关一个细节（本站演示，离线可用）</td></tr>
+        <tr><td>🧪 演示</td><td><a href="assets/vr-2026/webxr/demos/demo02-camera-coordinates.html" target="_blank" rel="noopener">02 坐标系与相机</a></td><td>滑块调相机位置与 FOV，体会"1 单位 = 1 米"</td></tr>
+        <tr><td>🧪 演示</td><td><a href="assets/vr-2026/webxr/demos/demo03-lighting-material.html" target="_blank" rel="noopener">03 光照与材质</a></td><td>四个球对比四种光照方案，复现"模型全黑"</td></tr>
+        <tr><td>🧪 演示</td><td><a href="assets/vr-2026/webxr/demos/demo04-loop-deltatime.html" target="_blank" rel="noopener">04 帧循环与 deltaTime</a></td><td>模拟 15 fps 低性能设备，看两种写法差多少</td></tr>
+        <tr><td>🧪 演示</td><td><a href="assets/vr-2026/webxr/demos/demo07-webxr-entry.html" target="_blank" rel="noopener">07 进入 VR 四步检查</a></td><td>把"进不去 VR"的排查顺序做成可交互页面</td></tr>
         <tr><td>📺 视频</td><td><a href="https://www.bilibili.com/video/BV1zU4y1L7Go" target="_blank" rel="noopener">快速上手 Three.js —— 浏览器中的 3D 渲染引擎</a>（11:30）</td><td>与本模块 2.1—2.5 完全对应，最适合课前看</td></tr>
         <tr><td>📺 视频</td><td><a href="https://www.bilibili.com/video/BV1qY4y1V79z" target="_blank" rel="noopener">什么是渲染管线？如何绘制 3D 物体？</a>（9:20）</td><td>讲清"三角形是怎么变成屏幕像素的"，回答"为什么这一切叫 WebGL"</td></tr>
         <tr><td>📺 视频</td><td><a href="https://www.bilibili.com/video/BV13u411U7Ka" target="_blank" rel="noopener">three.js 添加坐标轴、光源和阴影效果</a>（15:29）</td><td>与 2.6 细节 A/B 对应：坐标轴、光源、阴影</td></tr>
@@ -633,7 +634,7 @@ function hipGeo(w, d, h, spine){
         <tr><th>类型</th><th>资源</th><th>怎么用</th></tr>
       </thead>
       <tbody>
-        <tr><td>🧪 演示</td><td><a href="assets/vr-2026/webxr/demos/05_程序化几何与贴图.html" target="_blank" rel="noopener">05 程序化几何与贴图</a></td><td>拖滑块改面阔/进深/层高/正脊，屋顶实时重建，并显示顶点数与 DrawCall</td></tr>
+        <tr><td>🧪 演示</td><td><a href="assets/vr-2026/webxr/demos/demo05-procedural-geometry.html" target="_blank" rel="noopener">05 程序化几何与贴图</a></td><td>拖滑块改面阔/进深/层高/正脊，屋顶实时重建，并显示顶点数与 DrawCall</td></tr>
         <tr><td>📺 视频</td><td><a href="https://www.bilibili.com/video/BV1ku4y1X7wU" target="_blank" rel="noopener">用 three.js 制作你的第一个 3D 地图</a>（12:04）</td><td>另一条"用代码生成几何"的思路，对照故宫的做法</td></tr>
         <tr><td>📺 视频</td><td><a href="https://www.bilibili.com/video/BV1Vv4y1A78y" target="_blank" rel="noopener">低模 UV 该给多大才合适？UV 像素原理</a>（19:05）</td><td>解释 3.6 第三条坑：为什么 UV 要按实际尺寸设置</td></tr>
         <tr><td>📺 视频</td><td><a href="https://www.bilibili.com/video/BV1pi4y1D7iw" target="_blank" rel="noopener">Blender 几何节点程序化建模</a>（10:15）</td><td>对照组：不用代码、用节点也能程序化生成，理解两种路线的差别</td></tr>
@@ -726,8 +727,8 @@ function wallMat(w, h){
         <tr><th>类型</th><th>资源</th><th>怎么用</th></tr>
       </thead>
       <tbody>
-        <tr><td>🧪 演示</td><td><a href="assets/vr-2026/webxr/demos/03_光照与材质.html" target="_blank" rel="noopener">03 光照与材质</a></td><td>四个球对比四种方案；两盏灯拖到 0 复现"全黑"</td></tr>
-        <tr><td>🧪 演示</td><td><a href="assets/vr-2026/webxr/demos/05_程序化几何与贴图.html" target="_blank" rel="noopener">05 程序化几何与贴图</a></td><td>切"程序化瓦片 ⇄ 纯色"，看同一几何体的两种外观</td></tr>
+        <tr><td>🧪 演示</td><td><a href="assets/vr-2026/webxr/demos/demo03-lighting-material.html" target="_blank" rel="noopener">03 光照与材质</a></td><td>四个球对比四种方案；两盏灯拖到 0 复现"全黑"</td></tr>
+        <tr><td>🧪 演示</td><td><a href="assets/vr-2026/webxr/demos/demo05-procedural-geometry.html" target="_blank" rel="noopener">05 程序化几何与贴图</a></td><td>切"程序化瓦片 ⇄ 纯色"，看同一几何体的两种外观</td></tr>
         <tr><td>📺 视频</td><td><a href="https://www.bilibili.com/video/BV1Tu4y1479G" target="_blank" rel="noopener">使用 Canvas 完成基本绘图</a>（12:26）</td><td>程序化贴图的前置技能：Canvas 2D 画图（本项目的瓦/砖/墙都靠它）</td></tr>
         <tr><td>📺 视频</td><td><a href="https://www.bilibili.com/video/BV1Rx4y1o75r" target="_blank" rel="noopener">PBR 材质贴图最全详解</a>（35:49）</td><td>选看：粗糙度/金属度/法线这些参数到底在干什么</td></tr>
       </tbody>
@@ -824,7 +825,7 @@ el.innerHTML = 'FPS &lt;b&gt;' + fps + '&lt;/b&gt; ｜ DrawCalls &lt;b&gt;' + in
         <tr><th>类型</th><th>资源</th><th>怎么用</th></tr>
       </thead>
       <tbody>
-        <tr><td>🧪 演示</td><td><a href="assets/vr-2026/webxr/demos/06_性能对比_合批.html" target="_blank" rel="noopener">06 性能对比：独立 Mesh 与 InstancedMesh</a></td><td><strong>本讲最值得动手的一个演示</strong>：把数量拖到 3000，对比 DrawCall</td></tr>
+        <tr><td>🧪 演示</td><td><a href="assets/vr-2026/webxr/demos/demo06-drawcall-batching.html" target="_blank" rel="noopener">06 性能对比：独立 Mesh 与 InstancedMesh</a></td><td><strong>本讲最值得动手的一个演示</strong>：把数量拖到 3000，对比 DrawCall</td></tr>
         <tr><td>📺 视频</td><td><a href="https://www.bilibili.com/video/BV1LS4y1D7B4" target="_blank" rel="noopener">合批渲染 &amp; SpriteBatch 原理</a>（26:31）</td><td>解释"为什么合批能省时间"的底层机制</td></tr>
         <tr><td>📺 视频</td><td><a href="https://www.bilibili.com/video/BV1UV411B79X" target="_blank" rel="noopener">GPU Instancing：降低 DrawCall</a>（12:02）</td><td>Unity 视角讲同一个概念，概念是通用的</td></tr>
       </tbody>
@@ -1059,7 +1060,7 @@ npx serve -l 8080</pre>
         <tr><th>类型</th><th>资源</th><th>怎么用</th></tr>
       </thead>
       <tbody>
-        <tr><td>🧪 演示</td><td><a href="assets/vr-2026/webxr/demos/07_进入VR四步与安全上下文.html" target="_blank" rel="noopener">07 进入 VR 四步检查</a></td><td>把本机是 <code class="inline">file://</code> / 局域网 http / https 三种情况都跑一遍，对着表格填</td></tr>
+        <tr><td>🧪 演示</td><td><a href="assets/vr-2026/webxr/demos/demo07-webxr-entry.html" target="_blank" rel="noopener">07 进入 VR 四步检查</a></td><td>把本机是 <code class="inline">file://</code> / 局域网 http / https 三种情况都跑一遍，对着表格填</td></tr>
         <tr><td>📺 视频</td><td><a href="https://www.bilibili.com/video/BV1CW4y1B7Xs" target="_blank" rel="noopener">增进 Web App 体验：充分利用 PWA 及其能力</a>（Google 中国 · 12:10）</td><td>官方讲 PWA：为什么"网页能变成应用"、能得到什么</td></tr>
         <tr><td>📺 视频</td><td><a href="https://www.bilibili.com/video/BV1tAKozuEkd" target="_blank" rel="noopener">你管这破玩意叫 HTTPS？</a>（7:57）</td><td>轻松看懂 HTTPS 与证书，理解"必须放到网络上"的由来</td></tr>
         <tr><td>🔗 工具</td><td><a href="https://modelviewer.dev/editor/" target="_blank" rel="noopener">model-viewer 在线编辑器</a></td><td>把任意 .glb 拖进去就能看、能导出一段网页代码——做作品集封面很好用</td></tr>
@@ -1164,6 +1165,8 @@ npx serve -l 8080</pre>
   </div>
 
   <h3>一、这一节的作业总要求（先看这一段）</h3>
+  <div class="note">本讲用到的 <strong>7 个教学演示都在一个入口里</strong>：<a href="assets/vr-2026/webxr/demos/index.html" target="_blank" rel="noopener"><strong>演示目录</strong></a>。
+    <strong>演示文件名统一用英文</strong>（例如 <code class="inline">demo01-minimal-scene.html</code>）——中文文件名在部分机房电脑上会乱码或打不开，所以中文标题写在页面里，文件名一律用英文。</div>
   <div class="key">
     <strong>所有任务课内完成，本课程不布置课后任务。</strong><br>
     <strong>你要交的 5 样东西</strong>：① 你改过的<strong>最小场景</strong>（能跑）；② <strong>改造后的故宫场景</strong>（至少两处改动）；③ <strong>3 张规定截图</strong>（见第三节，命名要规范）；④ <strong>课堂记录表</strong>（数据真实、可复现）；⑤ <strong>真机观察卡</strong>（戴过或看过都要填）。<br>
@@ -1226,7 +1229,7 @@ npx serve -l 8080</pre>
   <div class="note"><strong>验收点</strong>：三行记录填满；能区分"光照参数 vs 材质参数"；能说出"夜间灯火只改材质自发光，不新增光源"。</div>
 
   <h4>任务 5 · 性能实验：合批到底省了什么（参考 10 分钟，不卡时间）</h4>
-  <p><strong>做什么</strong>：用 <a href="assets/vr-2026/webxr/demos/06_性能对比_合批.html" target="_blank" rel="noopener">06 号演示</a>做一次对照实验，抄下 4 个数字。</p>
+  <p><strong>做什么</strong>：用 <a href="assets/vr-2026/webxr/demos/demo06-drawcall-batching.html" target="_blank" rel="noopener">06 号演示</a>做一次对照实验，抄下 4 个数字。</p>
   <ol>
     <li>把"物体数量"拖到 <strong>3000</strong>，模式选<strong>独立 Mesh</strong>，等半秒，记下 <strong>DrawCall</strong> 与 <strong>三角面</strong>；</li>
     <li>切到 <strong>InstancedMesh 合批</strong>，同样记下这两个数字；</li>
@@ -1965,13 +1968,13 @@ public class SpinObject : MonoBehaviour
     <a class="btn" href="assets/vr-2026/demos-xr/index.html" target="_blank" rel="noopener">打开演示中心总入口</a>
   </div>
   <div class="demo-grid">
-    <a class="demo-card" href="assets/vr-2026/demos-xr/07_软件生态与管线决策台.html" target="_blank" rel="noopener"><div class="dc-no">07 · 本课主线</div><div class="dc-title">软件生态与管线决策台</div><div class="dc-desc">五个标签：软件生态地图 / 硬件 ↔ 软件对照 / 资产管线五道关 / 选题决策助手 / 机房环境与核对清单</div></a>
-    <a class="demo-card" href="assets/vr-2026/demos-xr/01_PPD与参数对比计算器.html" target="_blank" rel="noopener"><div class="dc-no">01</div><div class="dc-title">PPD 与设备参数对比计算器</div><div class="dc-desc">清晰度 = PPD，不是分辨率；含多种设备预设与口径对照</div></a>
-    <a class="demo-card" href="assets/vr-2026/demos-xr/02_定位方式对比.html" target="_blank" rel="noopener"><div class="dc-no">02</div><div class="dc-title">定位方式对比</div><div class="dc-desc">Outside-In / Inside-Out / SLAM × 六种环境场景</div></a>
-    <a class="demo-card" href="assets/vr-2026/demos-xr/03_6DoF自由度演示.html" target="_blank" rel="noopener"><div class="dc-no">03</div><div class="dc-title">6DoF 自由度演示</div><div class="dc-desc">3 旋转 + 3 平移；3DoF 下走不近目标，6DoF 才有运动视差</div></a>
-    <a class="demo-card" href="assets/vr-2026/demos-xr/04_手部追踪与交互方式.html" target="_blank" rel="noopener"><div class="dc-no">04</div><div class="dc-title">手部追踪与交互方式</div><div class="dc-desc">手柄 / 手势 / 眼动 / 语音 / 动捕五类输入对比</div></a>
-    <a class="demo-card" href="assets/vr-2026/demos-xr/05_MR透视与空间网格.html" target="_blank" rel="noopener"><div class="dc-no">05</div><div class="dc-title">MR 透视与空间网格</div><div class="dc-desc">彩色透视 / iToF / 语义标签 / 虚实遮挡</div></a>
-    <a class="demo-card" href="assets/vr-2026/demos-xr/06_WebXR能力检测.html" target="_blank" rel="noopener"><div class="dc-no">06</div><div class="dc-title">WebXR 能力检测</div><div class="dc-desc">检测当前浏览器的 WebXR 支持情况；机房 PC 与 PICO 浏览器结果不同属正常</div></a>
+    <a class="demo-card" href="assets/vr-2026/demos-xr/xr07-software-pipeline.html" target="_blank" rel="noopener"><div class="dc-no">07 · 本课主线</div><div class="dc-title">软件生态与管线决策台</div><div class="dc-desc">五个标签：软件生态地图 / 硬件 ↔ 软件对照 / 资产管线五道关 / 选题决策助手 / 机房环境与核对清单</div></a>
+    <a class="demo-card" href="assets/vr-2026/demos-xr/xr01-ppd-compare.html" target="_blank" rel="noopener"><div class="dc-no">01</div><div class="dc-title">PPD 与设备参数对比计算器</div><div class="dc-desc">清晰度 = PPD，不是分辨率；含多种设备预设与口径对照</div></a>
+    <a class="demo-card" href="assets/vr-2026/demos-xr/xr02-tracking-compare.html" target="_blank" rel="noopener"><div class="dc-no">02</div><div class="dc-title">定位方式对比</div><div class="dc-desc">Outside-In / Inside-Out / SLAM × 六种环境场景</div></a>
+    <a class="demo-card" href="assets/vr-2026/demos-xr/xr03-6dof.html" target="_blank" rel="noopener"><div class="dc-no">03</div><div class="dc-title">6DoF 自由度演示</div><div class="dc-desc">3 旋转 + 3 平移；3DoF 下走不近目标，6DoF 才有运动视差</div></a>
+    <a class="demo-card" href="assets/vr-2026/demos-xr/xr04-hand-tracking.html" target="_blank" rel="noopener"><div class="dc-no">04</div><div class="dc-title">手部追踪与交互方式</div><div class="dc-desc">手柄 / 手势 / 眼动 / 语音 / 动捕五类输入对比</div></a>
+    <a class="demo-card" href="assets/vr-2026/demos-xr/xr05-mr-passthrough.html" target="_blank" rel="noopener"><div class="dc-no">05</div><div class="dc-title">MR 透视与空间网格</div><div class="dc-desc">彩色透视 / iToF / 语义标签 / 虚实遮挡</div></a>
+    <a class="demo-card" href="assets/vr-2026/demos-xr/xr06-webxr-capability.html" target="_blank" rel="noopener"><div class="dc-no">06</div><div class="dc-title">WebXR 能力检测</div><div class="dc-desc">检测当前浏览器的 WebXR 支持情况；机房 PC 与 PICO 浏览器结果不同属正常</div></a>
   </div>
 </section>
 
