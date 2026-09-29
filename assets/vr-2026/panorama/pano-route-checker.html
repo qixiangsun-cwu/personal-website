@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>漫游路线与连通性检查器 · 别让观众走进死胡同</title>
+<style>
+  html,body{margin:0;background:#0b1016;color:#e8eef6;font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif}
+  .wrap{max-width:1180px;margin:0 auto;padding:22px 20px 60px}
+  h1{font-size:21px;margin:6px 0 4px}
+  .sub{color:#93a6bb;font-size:13px;margin-bottom:16px;line-height:1.85}
+  .row{display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start}
+  .left{flex:1 1 560px;min-width:320px}
+  .right{flex:0 1 460px;min-width:300px}
+  .card{background:rgba(15,22,32,.85);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:14px 16px;margin-bottom:14px}
+  .card h3{margin:0 0 8px;font-size:15px}
+  svg{width:100%;height:auto;display:block;border-radius:10px;background:#05080c}
+  .node{cursor:pointer}
+  .nlabel{font:600 14px "Microsoft YaHei";fill:#e8eef6;pointer-events:none}
+  .edge{stroke:#5f6b7c;stroke-width:3;cursor:pointer}
+  .edge.on{stroke:#d9a441;stroke-width:4}
+  .edge.dir{marker-end:url(#arw)}
+  .chk{font-size:13.5px;line-height:2.1}
+  .ok{color:#7ddc9a}
+  .bad{color:#ff9d80}
+  .warn{color:#ffd166}
+  .kv{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:13px}
+  .kv b{color:#8fa3b8;font-weight:400}
+  pre{background:#05080c;border:1px solid rgba(255,255,255,.16);border-radius:9px;padding:10px 12px;
+    font-size:12.5px;line-height:1.7;overflow:auto;color:#bfe3ff;margin:8px 0 0;max-height:220px}
+  button{font:600 13px/1 "Microsoft YaHei";color:#0b1016;background:linear-gradient(135deg,#ffd27a,#e0a33c);
+    border:0;border-radius:8px;padding:9px 13px;cursor:pointer;margin:4px 6px 0 0}
+  button.ghost{background:transparent;color:#ffd27a;border:1px solid rgba(255,210,122,.5)}
+  .hint{font-size:12px;color:#8fa3b8;line-height:1.8;margin-top:8px}
+  .back{margin-top:26px;font-size:13.5px}
+  .back a{color:#ffd27a;text-decoration:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>漫游路线与连通性检查器</h1>
+  <div class="sub">
+    一个多人漫游作品出问题，十有八九不是画质，而是<b>路子不通</b>：某个房间进得去出不来，或者根本走不到。
+    这一页把六个房间画成一张图—— <b>点两个房间就能连线/断线</b>，右边实时告诉你这张图有没有毛病。
+  </div>
+
+  <div class="row">
+    <div class="left">
+      <div class="card">
+        <h3>把六个房间连成一张图（点击两个房间 = 连一条路）</h3>
+        <svg viewBox="0 0 640 520" id="g">
+          <defs>
+            <marker id="arw" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+              <path d="M0,0 L10,5 L0,10 z" fill="#d9a441"/>
+            </marker>
+          </defs>
+          <g id="edges"></g>
+          <g id="nodes"></g>
+        </svg>
+        <div>
+          <button id="p-stair">当前漫游器的配置</button>
+          <button id="p-star" class="ghost">星形（餐厅当枢纽）</button>
+          <button id="p-dead" class="ghost">故意做个死胡同</button>
+          <button id="p-ring" class="ghost">环形（每个房间两条路）</button>
+          <button id="p-clear" class="ghost">清空</button>
+        </div>
+        <div class="hint">
+          箭头表示“从这个房间能看到那条热点”。<b>双向都要有</b>，否则观众进去就回不来了。
+          现实里一个房间常常不止一条出路——你可以在图上试试“环形”，看右边的提示会不会变。
+        </div>
+      </div>
+    </div>
+
+    <div class="right">
+      <div class="card">
+        <h3>体检结果</h3>
+        <div class="chk" id="checks">正在检查…</div>
+      </div>
+
+      <div class="card">
+        <h3>这会生成什么</h3>
+        <div class="kv">
+          <b>房间数</b><span id="nNode">—</span>
+          <b>连线数</b><span id="nEdge">—</span>
+          <b>最远要走几步</b><span id="nDepth">—</span>
+        </div>
+        <pre id="out">连几条线试试 →</pre>
+        <button id="copy">复制路线清单</button>
+        <div class="hint">
+          复制到你的作品里：每条边就是一条热点。热点的具体位置（u / v）用<a href="./05_热点编辑器.html" style="color:#ffd27a">《热点编辑器》</a>量。
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>为什么这件事值得单独讲</h3>
+        <div class="hint" style="font-size:12.5px;line-height:1.95">
+          多人漫游和单张全景的本质区别是：<b>它是一个图（节点 + 边），不是一张图</b>。<br>
+          一旦承认这一点，三个问题就必须回答：<br>
+          ① <b>可达性</b>——从入口出发能不能走到每一个房间？<br>
+          ② <b>无死胡同</b>——每个房间至少有一条出路？<br>
+          ③ <b>路径长度</b>——观众走到最后一个房间要几步？（步数越多越容易迷路）<br>
+          这三条都是<b>可以先在电脑上算出来</b>的——不用戴头显，也不用请人试。
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="back"><a href="./index.html">← 回演示中心</a></div>
+</div>
+
+<script>
+/* 六个房间的坐标（画布 640×520），位置大致对应样板间的实际方位：
+   餐厅是走廊枢纽，其余房间围着它；客厅和厨房在两端 */
+var POS = {
+  dining : {x:320, y:250, name:'餐厅'},
+  living : {x:110, y:150, name:'客厅'},
+  kitchen: {x:530, y:150, name:'厨房'},
+  study  : {x:110, y:390, name:'书房'},
+  bedroom: {x:530, y:390, name:'卧室'},
+  bath   : {x:320, y:455, name:'卫生间'}
+};
+var START = 'living';
+
+/* 边是有向的：a → b 表示“站在 a 里能看到指向 b 的热点” */
+var edges = [];
+function has(a, b){ return edges.some(function(e){ return e[0]===a && e[1]===b; }); }
+function toggle(a, b){
+  if (a === b) return;
+  if (has(a,b)) edges = edges.filter(function(e){ return !(e[0]===a && e[1]===b); });
+  else edges.push([a,b]);
+  draw(); check();
+}
+
+var pending = null;
+
+function draw(){
+  // 先画边
+  var g = document.getElementById('edges');
+  g.innerHTML = '';
+  edges.forEach(function(e){
+    var a = POS[e[0]], b = POS[e[1]];
+    var dx = b.x - a.x, dy = b.y - a.y, len = Math.sqrt(dx*dx + dy*dy) || 1;
+    var ux = dx/len, uy = dy/len;
+    // 两端各缩进 34px，避免箭头压在节点上
+    var x1 = a.x + ux*34, y1 = a.y + uy*34, x2 = b.x - ux*34, y2 = b.y - uy*34;
+    var ln = document.createElementNS('http://www.w3.org/2000/svg','line');
+    ln.setAttribute('x1',x1); ln.setAttribute('y1',y1);
+    ln.setAttribute('x2',x2); ln.setAttribute('y2',y2);
+    ln.setAttribute('class','edge on dir');
+    ln.addEventListener('click', function(ev){ ev.stopPropagation(); toggle(e[0], e[1]); });
+    g.appendChild(ln);
+  });
+  // 再画节点
+  var gn = document.getElementById('nodes');
+  gn.innerHTML = '';
+  Object.keys(POS).forEach(function(id){
+    var p = POS[id];
+    var c = document.createElementNS('http://www.w3.org/2000/svg','circle');
+    c.setAttribute('cx',p.x); c.setAttribute('cy',p.y); c.setAttribute('r',26);
+    c.setAttribute('fill', id===START ? '#c1502e' : (pending===id ? '#d9a441' : '#2a3442'));
+    c.setAttribute('stroke', id===START ? '#ffd27a' : '#7f8fa3');
+    c.setAttribute('stroke-width','2');
+    c.setAttribute('class','node');
+    c.addEventListener('click', function(){
+      if (pending === null){ pending = id; }
+      else if (pending === id){ pending = null; }
+      else { toggle(pending, id); pending = null; }
+      draw();
+    });
+    gn.appendChild(c);
+    var t = document.createElementNS('http://www.w3.org/2000/svg','text');
+    t.setAttribute('x',p.x); t.setAttribute('y',p.y+5);
+    t.setAttribute('text-anchor','middle'); t.setAttribute('class','nlabel');
+    t.textContent = p.name; gn.appendChild(t);
+  });
+}
+
+/* 体检：可达性 / 死胡同 / 最远步数 */
+function check(){
+  var ids = Object.keys(POS);
+  var adj = {}; ids.forEach(function(i){ adj[i] = []; });
+  edges.forEach(function(e){ adj[e[0]].push(e[1]); });
+
+  // ① 从入口做 BFS
+  var seen = {}, q = [START]; seen[START] = 0;
+  while (q.length){ var cur = q.shift(); adj[cur].forEach(function(n){ if (seen[n] === undefined){ seen[n] = seen[cur]+1; q.push(n); } }); }
+  var unreachable = ids.filter(function(i){ return seen[i] === undefined; });
+
+  // ② 死胡同：有入边但没有出边
+  var incoming = {}; ids.forEach(function(i){ incoming[i] = adj[i].length === 0 ? 0 : incoming[i]; });
+  var dead = ids.filter(function(i){
+    var hasIn = edges.some(function(e){ return e[1]===i; });
+    return hasIn && adj[i].length === 0;
+  });
+
+  // ③ 最远步数
+  var maxd = 0; Object.keys(seen).forEach(function(k){ if (seen[k] > maxd) maxd = seen[k]; });
+
+  var L = [];
+  if (edges.length === 0){
+    L.push('<span class="warn">还没有连线。</span>先点两个房间试试——注意箭头方向。');
+  } else {
+    L.push(unreachable.length
+      ? '<span class="bad">✘ 有 ' + unreachable.length + ' 个房间走不到：' + unreachable.map(function(i){return POS[i].name;}).join('、') + '</span>'
+      : '<span class="ok">✔ 从「客厅」出发，六个房间全都能走到</span>');
+    L.push(dead.length
+      ? '<span class="bad">✘ 有 ' + dead.length + ' 个死胡同（进得去出不来）：' + dead.map(function(i){return POS[i].name;}).join('、') + '</span>'
+      : '<span class="ok">✔ 没有死胡同——每个有入边的房间都有出路</span>');
+    L.push(maxd <= 2
+      ? '<span class="ok">✔ 最远 ' + maxd + ' 步就能走到任意房间（不容易迷路）</span>'
+      : '<span class="warn">△ 最远要走 ' + maxd + ' 步——步数偏多，观众容易迷路</span>');
+  }
+  document.getElementById('checks').innerHTML = L.join('<br>');
+  document.getElementById('nNode').textContent = ids.length;
+  document.getElementById('nEdge').textContent = edges.length;
+  document.getElementById('nDepth').textContent = edges.length ? (maxd + ' 步') : '—';
+
+  // 生成路线清单
+  var lines = ['# 从「' + POS[START].name + '」出发的漫游路线', ''];
+  ids.forEach(function(i){
+    var outs = adj[i];
+    lines.push('## ' + POS[i].name + '（' + i + '）');
+    if (!outs.length) lines.push('  （没有热点指向别处' + (edges.some(function(e){return e[1]===i;}) ? ' —— 这是死胡同！' : '') + '）');
+    else outs.forEach(function(o){ lines.push('  → ' + POS[o].name + '（' + o + '）  {to:\'' + o + '\', u:0.???, v:0.???, label:\'去' + POS[o].name + '\'}'); });
+    lines.push('');
+  });
+  lines.push('提示：u / v 用《热点编辑器》量；把 label 改成给观众看的话。');
+  document.getElementById('out').textContent = lines.join('\n');
+}
+
+/* 预设 */
+function setEdges(list){ edges = list.slice(); pending = null; draw(); check(); }
+document.getElementById('p-stair').addEventListener('click', function(){
+  // 当前漫游器的实际配置：以餐厅为枢纽
+  setEdges([['living','dining'],['dining','living'],['dining','study'],['dining','bedroom'],['dining','kitchen'],['dining','bath'],
+            ['kitchen','dining'],['bedroom','dining'],['study','dining'],['bath','dining']]);
+});
+document.getElementById('p-star').addEventListener('click', function(){
+  setEdges([['living','dining'],['kitchen','dining'],['study','dining'],['bedroom','dining'],['bath','dining'],
+            ['dining','living'],['dining','kitchen'],['dining','study'],['dining','bedroom'],['dining','bath']]);
+});
+document.getElementById('p-dead').addEventListener('click', function(){
+  // 故意：卫生间有入边没有出边 → 死胡同
+  setEdges([['living','dining'],['dining','living'],['dining','study'],['dining','bedroom'],['dining','kitchen'],['dining','bath'],
+            ['kitchen','dining'],['bedroom','dining'],['study','dining']]);
+});
+document.getElementById('p-ring').addEventListener('click', function(){
+  setEdges([['living','dining'],['dining','kitchen'],['kitchen','bedroom'],['bedroom','bath'],['bath','study'],['study','living'],
+            ['dining','living'],['kitchen','dining'],['bedroom','kitchen'],['bath','bedroom'],['study','bath'],['living','study']]);
+});
+document.getElementById('p-clear').addEventListener('click', function(){ setEdges([]); });
+document.getElementById('copy').addEventListener('click', function(){
+  var t = document.getElementById('out').textContent;
+  try { navigator.clipboard.writeText(t); this.textContent = '已复制'; setTimeout(function(){ document.getElementById('copy').textContent = '复制路线清单'; }, 1500); }
+  catch (e) { this.textContent = '浏览器不允许自动复制，请手动选中'; }
+});
+
+setEdges([['living','dining'],['dining','living'],['dining','study'],['dining','bedroom'],['dining','kitchen'],['dining','bath'],
+          ['kitchen','dining'],['bedroom','dining'],['study','dining'],['bath','dining']]);
+</script>
+</body>
+</html>

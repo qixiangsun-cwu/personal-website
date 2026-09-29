@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>作品验收量规 · 自评 / 互评 / 教师抽验</title>
+<style>
+  html,body{margin:0;background:#0b1016;color:#e8eef6;font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif}
+  .wrap{max-width:1080px;margin:0 auto;padding:22px 20px 60px}
+  h1{font-size:21px;margin:6px 0 4px}
+  .sub{color:#93a6bb;font-size:13px;margin-bottom:16px;line-height:1.85}
+  .card{background:rgba(15,22,32,.85);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:14px 16px;margin-bottom:14px}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th,td{border-bottom:1px solid rgba(255,255,255,.1);padding:10px 8px;text-align:left;vertical-align:top}
+  th{color:#8fa3b8;font-weight:600;font-size:12.5px}
+  td.dim{width:26%}
+  td.dim b{color:#ffd27a}
+  td.w{width:8%;color:#8fa3b8;font-family:Consolas,monospace}
+  .lv{display:flex;gap:6px}
+  .lv button{width:34px;height:34px;border-radius:8px;border:1px solid rgba(255,255,255,.22);
+    background:rgba(255,255,255,.06);color:#dbe7f4;font:600 13px Consolas,monospace;cursor:pointer}
+  .lv button.on{background:linear-gradient(135deg,#ffd27a,#e0a33c);border-color:transparent;color:#0b1016}
+  .hintline{font-size:12px;color:#8fa3b8;line-height:1.75;margin-top:4px}
+  .sum{display:flex;gap:22px;flex-wrap:wrap;align-items:center;font-size:14px}
+  .big{font:700 34px Consolas,monospace;color:#ffd27a}
+  .tag{padding:3px 10px;border-radius:999px;font-size:12.5px;border:1px solid rgba(255,255,255,.22)}
+  .tag.ok{color:#7ddc9a;border-color:rgba(125,220,154,.5)}
+  .tag.no{color:#ff9d80;border-color:rgba(255,157,128,.5)}
+  button.act{font:600 13px/1 "Microsoft YaHei";color:#0b1016;background:linear-gradient(135deg,#ffd27a,#e0a33c);
+    border:0;border-radius:8px;padding:10px 16px;cursor:pointer;margin:6px 8px 0 0}
+  button.ghost{background:transparent;color:#ffd27a;border:1px solid rgba(255,210,122,.5)}
+  pre{background:#05080c;border:1px solid rgba(255,255,255,.16);border-radius:9px;padding:10px 12px;
+    font-size:12.5px;line-height:1.7;overflow:auto;color:#bfe3ff;max-height:260px}
+  .back{margin-top:24px;font-size:13.5px}
+  .back a{color:#ffd27a;text-decoration:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>作品验收量规 · 自评 / 互评 / 教师抽验</h1>
+  <div class="sub">
+    给下面每一项打 0—5 分，右边实时出总分。它同时是<b>学生自评表、互评表、和教师抽验表</b>——
+    大家用同一把尺子，争论会少很多。
+  </div>
+
+  <div class="card">
+    <table>
+      <thead><tr><th>维度</th><th>权重</th><th>0—5 分（5 = 完全达到）</th></tr></thead>
+      <tbody id="tb"></tbody>
+    </table>
+    <div class="hintline">打分只填整数；每一项下面写了“5 分长什么样”，照着对就行。不确定就取中间值。</div>
+  </div>
+
+  <div class="card">
+    <div class="sum">
+      <div>总分 <span class="big" id="score">0</span> / 100</div>
+      <div class="tag" id="pass">未达标</div>
+      <div style="flex:1 1 240px">
+        <button class="act" id="save">生成验收记录（可复制）</button>
+        <button class="act ghost" id="reset">清空重填</button>
+      </div>
+    </div>
+    <pre id="out">打分后这里会生成一段可复制的记录 →</pre>
+  </div>
+
+  <div class="card">
+    <div class="hintline" style="font-size:13px">
+      <b style="color:#ffd27a">达标线：总分 ≥ 60，且「连通性」与「舒适与退出」两项都不低于 3 分。</b><br>
+      后一条是硬性的：<b>路子不通或退不出去的作品，画面再好看也不能算完成。</b>
+      （这两条对应本课反复讲的两件事：<b>先怀疑环境</b>、<b>只有一条出口的应用一定会出事</b>。）
+    </div>
+  </div>
+
+  <div class="back"><a href="./index.html">← 回演示中心</a></div>
+</div>
+
+<script>
+var DIMS = [
+  {k:'conn',  name:'连通性', w:30, desc:'5 分：从入口出发能走到每一个房间；没有“进得去出不来”的死胡同；最远不超过 3 步。'},
+  {k:'face',  name:'进门第一眼（朝向设计）', w:20, desc:'5 分：每个房间都设过 yaw——第一眼镜看到房间主体，且至少一条出口在视锥里；没有背对来路。'},
+  {k:'info',  name:'导览信息', w:20, desc:'5 分：出口热点与介绍信息在样式上一眼可分；每条介绍 ≤ 2 行 / 40 字；信息不遮住主体。'},
+  {k:'perf',  name:'技术指标', w:15, desc:'5 分：记录了 FPS / DrawCall / 三角面，并说得出“我改了什么、数字怎么变”；头显里没掉帧。'},
+  {k:'safe',  name:'舒适与退出', w:15, desc:'5 分：三条退出路都试过并记录用时；记录了自己的眩晕等级与触发动作；有异物/眼镜问题的如实记录。'}
+];
+var score = {};
+function render(){
+  var tb = document.getElementById('tb'); tb.innerHTML = '';
+  DIMS.forEach(function(d){
+    var tr = document.createElement('tr');
+    var td1 = document.createElement('td'); td1.className = 'dim';
+    td1.innerHTML = '<b>' + d.name + '</b><div class="hintline">' + d.desc + '</div>';
+    var td2 = document.createElement('td'); td2.className = 'w'; td2.textContent = d.w + '%';
+    var td3 = document.createElement('td');
+    var box = document.createElement('div'); box.className = 'lv';
+    for (var i = 0; i <= 5; i++){
+      (function(v){
+        var b = document.createElement('button');
+        b.textContent = v;
+        if (score[d.k] === v) b.className = 'on';
+        b.addEventListener('click', function(){ score[d.k] = v; render(); });
+        box.appendChild(b);
+      })(i);
+    }
+    td3.appendChild(box);
+    tr.appendChild(td1); tr.appendChild(td2); tr.appendChild(td3);
+    tb.appendChild(tr);
+  });
+  // 总分
+  var total = 0, done = 0;
+  DIMS.forEach(function(d){
+    if (score[d.k] !== undefined){ total += score[d.k] / 5 * d.w; done++; }
+  });
+  document.getElementById('score').textContent = done ? total.toFixed(0) : '0';
+  var pass = done === DIMS.length && total >= 60 && (score.conn || 0) >= 3 && (score.safe || 0) >= 3;
+  var t = document.getElementById('pass');
+  t.textContent = done < DIMS.length ? ('还差 ' + (DIMS.length - done) + ' 项没打分') : (pass ? '达标' : '未达标');
+  t.className = 'tag ' + (pass ? 'ok' : 'no');
+}
+document.getElementById('save').addEventListener('click', function(){
+  var L = ['【全景漫游作品 · 验收记录】' + new Date().toLocaleString('zh-CN'), ''];
+  var total = 0;
+  DIMS.forEach(function(d){
+    var s = score[d.k];
+    if (s !== undefined) total += s / 5 * d.w;
+    L.push('· ' + d.name + '（权重 ' + d.w + '%）：' + (s === undefined ? '未打分' : s + ' / 5'));
+  });
+  var okHard = (score.conn || 0) >= 3 && (score.safe || 0) >= 3;
+  L.push('');
+  L.push('总分：' + total.toFixed(0) + ' / 100');
+  L.push('硬性条件（连通性 ≥3 且 舒适与退出 ≥3）：' + (okHard ? '满足' : '不满足'));
+  L.push('结论：' + (total >= 60 && okHard ? '达标' : '未达标'));
+  L.push('');
+  L.push('下一步改进：________________________________________');
+  var txt = L.join('\n');
+  document.getElementById('out').textContent = txt;
+  try { navigator.clipboard.writeText(txt); } catch(e){}
+});
+document.getElementById('reset').addEventListener('click', function(){
+  score = {}; render(); document.getElementById('out').textContent = '打分后这里会生成一段可复制的记录 →';
+});
+render();
+</script>
+</body>
+</html>

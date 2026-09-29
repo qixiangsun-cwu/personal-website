@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>进门第一眼 · 初始朝向（yaw）设计</title>
+<style>
+  html,body{margin:0;background:#0b1016;color:#e8eef6;font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif}
+  .wrap{max-width:1240px;margin:0 auto;padding:22px 20px 60px}
+  h1{font-size:21px;margin:6px 0 4px}
+  .sub{color:#93a6bb;font-size:13px;margin-bottom:16px;line-height:1.85}
+  .bar{display:flex;gap:16px;align-items:center;flex-wrap:wrap;background:rgba(15,22,32,.85);
+    border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:12px 16px;margin-bottom:16px}
+  .bar label{display:flex;gap:10px;align-items:center;font-size:13.5px;color:#c3d2e3}
+  input[type=range]{width:320px}
+  #yawv{font-family:Consolas,monospace;color:#ffd27a;min-width:160px;display:inline-block}
+  .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+  .card{background:rgba(15,22,32,.85);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:10px}
+  .card h3{margin:0 0 6px;font-size:13.5px;color:#ffd27a}
+  .card h3 .uu{color:#8fa3b8;font-weight:400;font-size:11.5px;margin-left:6px}
+  .card canvas{display:block;width:100%;border-radius:8px;background:#05080c;border:1px solid rgba(255,255,255,.12)}
+  .card .n{font-size:11.5px;color:#8fa3b8;margin-top:6px;line-height:1.7}
+  .legend{margin-top:18px;font-size:13.5px;line-height:2;color:#c3d2e3}
+  .legend b{color:#ffd27a}
+  .kbd{font-family:Consolas,monospace;background:rgba(255,255,255,.1);padding:1px 6px;border-radius:5px}
+  .back{margin-top:26px;font-size:13.5px}
+  .back a{color:#ffd27a;text-decoration:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>进门第一眼 · 初始朝向（yaw）设计</h1>
+  <div class="sub">
+    同一张全景图、同一个房间，<b>只有 yaw 不同</b>——你进门先看到的东西就完全不同。
+    这一页把「客厅」按四个不同 yaw 同时渲染出来，用来回答一个问题：<b>观众踏进这个房间的第一眼，该看见什么？</b>
+  </div>
+
+  <div class="bar">
+    <label>把四个视图一起转 <input id="yaw" type="range" min="-180" max="180" value="-47" step="1">
+      <span id="yawv">yaw = -47° → u = 0.619</span></label>
+    <label style="font-size:12.5px;color:#8fa3b8">（u = 0.75 + yaw ÷ 360）</label>
+  </div>
+
+  <div class="grid">
+    <div class="card"><h3>① 正对走廊（本课用的朝向）<span class="uu" id="u0"></span></h3>
+      <canvas id="v0" width="290" height="180"></canvas>
+      <div class="n">进门先看到通道与远处的餐桌——<b>“房间通向哪里”一眼就懂</b>。本课漫游器就是这一档（yaw = −47）。</div>
+    </div>
+    <div class="card"><h3>② 正对电视墙<span class="uu" id="u1"></span></h3>
+      <canvas id="v1" width="290" height="180"></canvas>
+      <div class="n">画面最完整、最“好看”，但<b>没有任何通向别处的线索</b>——观众不知道还能去哪。</div>
+    </div>
+    <div class="card"><h3>③ 背对门口<span class="uu" id="u2"></span></h3>
+      <canvas id="v2" width="290" height="180"></canvas>
+      <div class="n">一进来就面向房间深处，<b>回头才发现入口</b>——方向感最差的一种。</div>
+    </div>
+    <div class="card"><h3>④ 随手设的朝向<span class="uu" id="u3"></span></h3>
+      <canvas id="v3" width="290" height="180"></canvas>
+      <div class="n">既不是主体，也不是通道。这类朝向等于<b>把选择权丢给了运气</b>。</div>
+    </div>
+  </div>
+
+  <div class="legend">
+    <b>三个判断标准（可以拿去评任何一个漫游作品）：</b><br>
+    ① <b>第一眼要能回答“这里是哪儿”</b>——主体（电视墙、床、餐桌）得在画面里；<br>
+    ② <b>第一眼要能回答“还能去哪儿”</b>——至少一条出口或一个热点要在视锥里，不能让观众自己去转一圈找；<br>
+    ③ <b>不要背对来路</b>——人会本能地想回头确认自己从哪来，背对门口是最容易让人迷失的设。<br>
+    <b>做法</b>：先用<a href="./05_热点编辑器.html" style="color:#ffd27a">《热点编辑器》</a>量出你想让观众看到的那一处的 <span class="kbd">u</span>，
+    再反过来算 <span class="kbd">yaw = (u − 0.75) × 360</span>，填进 <span class="kbd">PANO</span> 里那个房间的 <span class="kbd">yaw:</span>。
+  </div>
+
+  <div class="back"><a href="./index.html">← 回演示中心</a></div>
+</div>
+
+<script>
+var SRC = './pano/living.jpg';
+var SW = 0, SH = 0, srcData = null;
+var img = new Image();
+var BASE = -47;                       // 滑杆基准；四个视图各自再偏移
+/* 四个偏移量是“挑出来的”，不是随手给的——它们分别落在四个不同的 u 上：
+   ① u≈0.62 走廊（能看到出口，本课漫游器用的就是它）
+   ② u≈0.50 电视墙（主体最完整，但画面里没有任何“还能去哪儿”的线索）
+   ③ u≈0.12 背对门口（面向房间深处，方向感最差）
+   ④ u≈0.92 墙角休息区（既不是主体也不是通道——这类朝向等于把选择权交给运气） */
+var OFFSETS = [0, -43, 180, 108];
+
+function dirToUV(x, y, z){
+  var phi = Math.atan2(z, -x); if (phi < 0) phi += Math.PI*2;
+  return [phi/(Math.PI*2), Math.acos(Math.max(-1,Math.min(1,y)))/Math.PI];
+}
+function render(id, yawDeg){
+  var cv = document.getElementById(id), g = cv.getContext('2d');
+  var W = cv.width, H = cv.height;
+  var idata = g.createImageData(W, H), d = idata.data;
+  var fovV = 62 * Math.PI/180;
+  var y0 = yawDeg * Math.PI/180;
+  for (var py = 0; py < H; py++){
+    var ay = (0.5 - (py+0.5)/H) * fovV;
+    for (var px = 0; px < W; px++){
+      var ax = ((px+0.5)/W - 0.5) * fovV * (W/H);
+      /* 相机基底必须与《全景漫游器》里 three.js 的约定一致：forward = −Z、right = +X、up = +Y。
+         这样下面的 yaw 才真的对应 u = 0.75 + yaw/360——否则画面会比说明文字“差 90°”。
+         （我第一次写成了 forward=+X，四张图的说明全部与画面对不上。） */
+      var X = Math.sin(ax)*Math.cos(ay), Y = Math.sin(ay), Z = -Math.cos(ax)*Math.cos(ay);
+      var dx = X*Math.cos(y0) + Z*Math.sin(y0);
+      var dz = -X*Math.sin(y0) + Z*Math.cos(y0);
+      var uv = dirToUV(dx, Y, dz);
+      var tx = Math.min(SW-1, Math.max(0, Math.round(uv[0]*SW-0.5)));
+      var ty = Math.min(SH-1, Math.max(0, Math.round(uv[1]*SH-0.5)));
+      var si = (ty*SW+tx)*4, o = (py*W+px)*4;
+      d[o]=srcData.data[si]; d[o+1]=srcData.data[si+1]; d[o+2]=srcData.data[si+2]; d[o+3]=255;
+    }
+  }
+  g.putImageData(idata, 0, 0);
+}
+function redraw(){
+  var y = parseFloat(document.getElementById('yaw').value);
+  var u = 0.75 + y/360; while (u < 0) u += 1; while (u >= 1) u -= 1;
+  document.getElementById('yawv').textContent = 'yaw = ' + y + '° → u = ' + u.toFixed(3);
+  for (var i = 0; i < 4; i++){
+    render('v'+i, y + OFFSETS[i]);
+    var ui = 0.75 + (y + OFFSETS[i])/360;
+    while (ui < 0) ui += 1; while (ui >= 1) ui -= 1;
+    var el = document.getElementById('u'+i);
+    if (el) el.textContent = 'u≈' + ui.toFixed(2);
+  }
+}
+img.onload = function(){
+  var c = document.createElement('canvas'); c.width = img.width; c.height = img.height;
+  var g = c.getContext('2d'); g.drawImage(img,0,0);
+  SW = img.width; SH = img.height; srcData = g.getImageData(0,0,SW,SH);
+  redraw();
+};
+img.onerror = function(){ document.body.insertAdjacentHTML('afterbegin',
+  '<div style="padding:12px 16px;background:#c1502e;color:#fff">全景图加载失败：'+SRC+'（本文件需与 pano/ 目录同级）</div>'); };
+img.src = SRC;
+document.getElementById('yaw').addEventListener('input', redraw);
+</script>
+</body>
+</html>

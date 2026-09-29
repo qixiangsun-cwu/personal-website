@@ -349,8 +349,8 @@
   <div class="sec-head">
     <div class="sec-num">例</div>
     <div>
-      <h2>案例演示 · 14 个</h2>
-      <p class="sec-sub">按板块排好；课上只放标 ★ 的七个，其余作为课后自查与下次课的地基</p>
+      <h2>案例演示 · 18 个（上节 14 + 下节 4）</h2>
+      <p class="sec-sub">按板块排好；课上只放标 ★ 的七个，其余作为课后自查与下次课的地基。下节新增的四个演示见下面「第 5 章（下）」那一节</p>
     </div>
   </div>
 
@@ -660,26 +660,70 @@
     <div class="sec-num">下</div>
     <div>
       <h2>第 5 章（下）· 2026-10-14</h2>
-      <p class="sec-sub">内容待上线：把“一个点的一圈”连成“一座可以走进去的空间”</p>
+      <p class="sec-sub">把“一个点的一圈”连成“一座可以走进去的空间”：<strong>路子通不通、进门先看什么、信息写多少、怎么算完成</strong></p>
     </div>
   </div>
 
-  <p>这一节（4 学时）要做的事已经定了，具体教案还在准备中，先把方向写在下面，方便你带着问题去练：</p>
-  <div class="grid3">
-    <div class="cell">
-      <h4>① 从“单点”到“多点”</h4>
-      <p>今天你做的是一张全景图加几个热点；下次课要把<strong>多个全景点连成一条能走的路线</strong>，并处理“走进去之后朝向该朝哪”这类只有真走一遍才会暴露的问题。</p>
-    </div>
-    <div class="cell">
-      <h4>② 导览信息怎么摆</h4>
-      <p>热点放哪里、说明写多少、什么时候该给提示——这些都是<strong>设计问题</strong>，不是技术问题。下次课会用“数字校园 / 文化空间”当题材练一遍。</p>
-    </div>
-    <div class="cell">
-      <h4>③ 作品验收</h4>
-      <p>下次课一上来就是<strong>作品验收</strong>：用今天记下的 FPS / DrawCall / 三角面说明你的选择，并在头显里当场演示。</p>
-    </div>
+  <p>上一次课你做出来的是一张全景图加几个热点——<strong>它是一个房间，不是一条路</strong>。这一节（4 学时：理论 1 + 实验 3）把它变成一座能走进去的空间，而真正的难点几乎全在<strong>“设计”</strong>上，不在画质上。</p>
+
+  <div class="key"><strong>本节的核心转向</strong>：多人漫游和单张全景的本质区别是——<strong>它是一个图（节点 + 边），不是一张图</strong>。<br>
+    一旦承认这一点，四个问题就必须回答，而且<strong>全都可以先在电脑上算出来，不用戴头显、也不用请人试</strong>：
+    ① <strong>可达性</strong>（从入口能不能走到每一个房间）② <strong>无死胡同</strong>（进得去也要出得来）
+    ③ <strong>进门第一眼</strong>（每个房间的初始朝向该朝哪）④ <strong>信息密度</strong>（热点与简介放多少、放哪儿）。</div>
+
+  <h3>一、理论（45 分钟）</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>时段</th><th>讲什么</th><th>要记住的</th></tr></thead>
+      <tbody>
+        <tr><td>10′</td><td><strong>从“一个点”到“一条路”：节点与边</strong></td><td>每个全景图是一个<strong>节点</strong>，每条热点是一条<strong>边</strong>；作品是一张有向图。要求：<strong>双向都有边</strong>（进得去、出得来）、<strong>从入口全部可达</strong>、<strong>路径不要超过 3 步</strong></td></tr>
+        <tr><td>10′</td><td><strong>进门第一眼：初始朝向 yaw</strong></td><td>三个判断标准：① 第一眼要能回答“这里是哪儿”（主体在画面里）；② 要能回答“还能去哪儿”（至少一条出口在视锥里）；③ <strong>不要背对来路</strong></td></tr>
+        <tr><td>15′</td><td><strong>导览信息的两层与密度</strong></td><td><strong>热点负责“路”，简介负责“人话”</strong>；样式要一眼可分；<strong>简介 ≤ 2 行 / 40 字</strong>；信息块不许压住主体</td></tr>
+        <tr><td>10′</td><td><strong>两种移动方式与舒适度</strong></td><td>跳转（瞬时切换）适合全景；<strong>步进式漫游</strong>让两点之间“走过去”，但更容易晕。移动范式上<strong>瞬移比平滑更不易晕</strong>，隧道视野会随速度自动出现（本课内核已内置）</td></tr>
+      </tbody>
+    </table>
   </div>
-  <div class="warn"><strong>本节的详细教案、演示与作业尚未定稿</strong>，定稿后会在这里补齐，并在课程主页同步更新。在此之前，你可以先用 <a href="https://www.bilibili.com/video/BV1ED4y197Dg" target="_blank" rel="noopener">全景图多点漫游制作基础教程</a> 和上面的“步进式漫游”那一条做预习。</div>
+
+  <h3>二、实验（135 分钟）——五个任务，从“画图”做到“验收”</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>#</th><th>任务</th><th>怎么做</th><th>产出</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td><strong>把六个房间连成一张图</strong>（30′）</td><td>用<a href="assets/vr-2026/panorama/pano-route-checker.html" target="_blank" rel="noopener">《漫游路线与连通性检查器》</a>连线，直到体检三项全绿；再复制路线清单回到自己的作品</td><td>一张全绿的连通图 + 路线清单</td></tr>
+        <tr><td>2</td><td><strong>给每个房间设计“第一眼”</strong>（20′）</td><td>用<a href="assets/vr-2026/panorama/pano-first-look.html" target="_blank" rel="noopener">《进门第一眼》</a>对比四种朝向，选一个，再反算 <code class="inline">yaw = (u − 0.75) × 360</code> 填进配置</td><td>六个房间各自的 yaw + 一句理由</td></tr>
+        <tr><td>3</td><td><strong>把信息压到两行以内</strong>（20′）</td><td>用<a href="assets/vr-2026/panorama/pano-info-density.html" target="_blank" rel="noopener">《导览信息密度》</a>看三档差别，然后改自己的作品：出口热点与简介分开样式，每条简介 ≤ 40 字</td><td>改过的作品 + 改前/改后截图</td></tr>
+        <tr><td>4</td><td><strong>全流程自验</strong>（30′）</td><td>先在<a href="assets/vr-2026/check/" target="_blank" rel="noopener">《VR 作品自检》</a>确认环境，再戴上头显走完整条路线：<strong>每个房间都进一次、每个热点都点一次、三条退出路都试一遍</strong>；记录 FPS / DrawCall / 三角面与退出用时</td><td>自验记录表（含三率读数与退出用时）</td></tr>
+        <tr><td>5</td><td><strong>互评</strong>（20′）</td><td>用<a href="assets/vr-2026/panorama/pano-rubric.html" target="_blank" rel="noopener">《作品验收量规》</a>给同伴的作品打分，写完“下一步改进”那一行，再交给对方</td><td>一份互评记录</td></tr>
+        <tr><td>收束</td><td><strong>验收</strong>（15′）</td><td>教师抽验：现场走一条路线 + 口头说出“我改了什么、为什么”；宣布达标名单</td><td>达标线判定</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>三、本节的四个新演示（都是可点的 HTML，离线可用）</h3>
+  <div class="btn-row">
+    <a class="btn" href="assets/vr-2026/panorama/pano-route-checker.html" target="_blank" rel="noopener">★ 路线与连通性检查器 →</a>
+    <a class="btn ghost" href="assets/vr-2026/panorama/pano-first-look.html" target="_blank" rel="noopener">★ 进门第一眼 →</a>
+    <a class="btn ghost" href="assets/vr-2026/panorama/pano-info-density.html" target="_blank" rel="noopener">★ 导览信息密度 →</a>
+    <a class="btn ghost" href="assets/vr-2026/panorama/pano-rubric.html" target="_blank" rel="noopener">★ 作品验收量规 →</a>
+  </div>
+
+  <h3>四、达标线（本节）</h3>
+  <ol>
+    <li><strong>路子通</strong>：从入口出发六个房间全部可达，<strong>没有死胡同</strong>，最远不超过 3 步；</li>
+    <li><strong>第一眼有设计</strong>：每个房间都设过 <code class="inline">yaw</code>，并且说得出为什么这么设；</li>
+    <li><strong>信息不抢戏</strong>：出口热点与简介样式可分、每条简介 ≤ 2 行 / 40 字、不遮主体；</li>
+    <li><strong>能自验也能被验</strong>：三条退出路都走通并记录用时；有 FPS / DrawCall / 三角面记录；</li>
+    <li><strong>环境判断能力</strong>：出问题时能先说清是<strong>环境、作品还是设备</strong>哪一环。</li>
+  </ol>
+  <div class="warn"><strong>两条硬性条件</strong>（写成量规里的硬门槛）：
+    <strong>连通性 ≥ 3 分</strong>、<strong>舒适与退出 ≥ 3 分</strong>——<strong>路子不通或退不出去的作品，画面再好看也不能算完成。</strong></div>
+
+  <h3>五、预习与延伸</h3>
+  <ul>
+    <li>把上次课的 <strong>FPS / DrawCall / 三角面</strong>记录带上——本节第 4 个任务要用；</li>
+    <li>想先感受“两根点之间走过去”的效果，看<a href="https://www.bilibili.com/video/BV1484y1r7LH" target="_blank" rel="noopener">官方 krpano 步进式漫游教程</a>（见上面「配套视频」一节）或官方的 <a href="https://immersive-web.github.io/webxr-samples/teleportation.html" target="_blank" rel="noopener">Teleportation 样例</a>——后者本站也有一份<a href="assets/vr-2026/panorama/samples/teleportation.html" target="_blank" rel="noopener">本地副本</a>；</li>
+    <li>题材预告：下一章（第 6 章 Unity 开发，16 学时）会把“密室逃脱·敦煌寻宝”做成完整项目——<strong>本节这张“节点 + 边”的图，就是那个项目的地图</strong>。</li>
+  </ul>
 </section>
 
 </main>

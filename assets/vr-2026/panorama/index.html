@@ -76,6 +76,44 @@
     <div class="f">pano-hotspot-editor.html</div>
   </a>
 
+  <h2 style="color:#f0b45a;font-size:17px;margin:30px 0 8px;letter-spacing:1px">第 5 章（下）· 2026-10-14 的四个演示</h2>
+  <p class="sub" style="color:#a89b7c;font-size:13px;line-height:1.9">
+    下节把“一个房间”变成“一条路”。难点几乎全在设计上：<strong>路子通不通、进门先看什么、信息写多少、怎么算完成</strong>。
+  </p>
+
+  <a class="card" href="pano-route-checker.html">
+    <div class="no">演示 06 · 下节旗舰</div>
+    <div class="t">漫游路线与连通性检查器</div>
+    <div class="d">六个房间画成一张图，<strong>点两个房间就能连线/断线</strong>，右侧实时体检：
+      <strong>从入口能不能走到每个房间、有没有“进得去出不来”的死胡同、最远要走几步</strong>。
+      还带四个预设（当前配置 / 星形 / <strong>故意做个死胡同</strong> / 环形）。</div>
+    <div class="f">pano-route-checker.html</div>
+  </a>
+
+  <a class="card" href="pano-first-look.html">
+    <div class="no">演示 07</div>
+    <div class="t">进门第一眼 · 初始朝向（yaw）设计</div>
+    <div class="d">同一张全景图，<strong>只有 yaw 不同</strong>，四个视图并排：正对走廊 / 正对电视墙 / 背对门口 / 随手设。
+      每个视图都标出它对应的 <code>u</code>，可以直接用 <code>u = 0.75 + yaw ÷ 360</code> 验算。</div>
+    <div class="f">pano-first-look.html</div>
+  </a>
+
+  <a class="card" href="pano-info-density.html">
+    <div class="no">演示 08</div>
+    <div class="t">导览信息密度 · 热点不是越多越好</div>
+    <div class="d">同一视角切三档：<strong>太少</strong>（只有一个房间名）· <strong>合适</strong>（三条出口 + 两行简介）·
+      <strong>过载</strong>（九个热点 + 长说明）。切着看，<strong>为什么“信息太多”等于“什么都不看”</strong>。</div>
+    <div class="f">pano-info-density.html</div>
+  </a>
+
+  <a class="card" href="pano-rubric.html">
+    <div class="no">演示 09 · 验收工具</div>
+    <div class="t">作品验收量规 · 自评 / 互评 / 教师抽验</div>
+    <div class="d">五个维度打 0—5 分（连通性 30% · 第一眼 20% · 信息 20% · 技术指标 15% · 舒适与退出 15%），
+      实时出总分，可生成一段<strong>可复制的验收记录</strong>。硬门槛：<strong>连通性 ≥3 且 舒适与退出 ≥3</strong>。</div>
+    <div class="f">pano-rubric.html</div>
+  </a>
+
   <a class="card" href="samples/vr-barebones.html">
     <div class="no">演示 05 · 官方样例（本地）</div>
     <div class="t">最小 VR 会话 · 7.7 KB 单文件 · 零依赖</div>
