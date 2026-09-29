@@ -1,0 +1,1291 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>节奏竞技·编钟之韵 — WebXR 课堂案例</title>
+<style>
+  html,body{margin:0;padding:0;height:100%;overflow:hidden;background:#20242b;}
+  body{font-family:"Microsoft YaHei","PingFang SC",sans-serif;color:#e8eef6;}
+  #hud{position:fixed;left:0;right:0;bottom:0;padding:10px 14px;background:rgba(12,16,22,.72);
+       font-size:13px;line-height:1.7;z-index:10;pointer-events:none;}
+  #hud b{color:#ffcf7a;}
+  #tip{position:fixed;left:50%;top:42%;transform:translate(-50%,-50%);padding:14px 24px;
+       background:rgba(12,16,22,.88);border:1px solid #3a4658;border-radius:10px;font-size:15px;
+       z-index:11;text-align:center;max-width:78%;}
+  #tip small{display:block;margin-top:8px;color:#9fb0c6;font-size:12px;line-height:1.6;}
+  .pcOnly{}
+  .XR .pcOnly{display:none;}
+  #vrbtn{position:fixed;right:14px;top:14px;z-index:12;padding:10px 16px;border:0;border-radius:8px;
+         background:#c9973f;color:#20160a;font-size:14px;font-weight:700;cursor:pointer;}
+  #vrbtn[disabled]{background:#4a5160;color:#9aa5b4;cursor:default;}
+</style>
+</head>
+<body>
+<div id="tip">正在生成编钟场景…<small>首次点击或按键后开启音频</small></div>
+<div id="hud" class="pcOnly">
+  <b>敲钟</b> A S D F G H J / 1–7 &nbsp;·&nbsp; <b>空格</b>开始暂停 &nbsp;·&nbsp; <b>R</b>重来 &nbsp;·&nbsp;
+  <b>F</b>自由演奏 &nbsp;·&nbsp; <b>M</b>节拍器 &nbsp;·&nbsp; <b>鼠标拖拽</b>转视角 &nbsp;·&nbsp;
+  <b>方向键</b>移动 &nbsp;·&nbsp; <b>点击钟体</b>也可敲击<br>
+  <b>可访问性</b>：Shift+P 坐姿/站立 · Shift+H 惯用手 · Shift+G 注视点击（免手柄点面板）
+</div>
+<button id="vrbtn" disabled>检测 VR…</button>
+<script src="../three.min.js"></script>
+<script src="../_xr_core.js"></script>
+<script>
+(function(){
+'use strict';
+
+/* ============================================================
+   0. 基础工具
+   ============================================================ */
+function $(id){ return document.getElementById(id); }
+function deg(d){ return d*Math.PI/180; }
+function clamp(v,a,b){ return v<a?a:(v>b?b:v); }
+function cnv(w,h){ var c=document.createElement('canvas'); c.width=w; c.height=h;
+  return {c:c, x:c.getContext('2d'), w:w, h:h}; }
+function mkTex(o, rp, srgb){
+  var t=new THREE.CanvasTexture(o.c);
+  if(srgb && THREE.sRGBEncoding) t.encoding=THREE.sRGBEncoding;
+  if(rp){ t.wrapS=t.wrapT=THREE.RepeatWrapping; t.repeat.set(rp[0],rp[1]); }
+  t.anisotropy=4; t.needsUpdate=true; return t;
+}
+function mulberry32(a){
+  return function(){
+    a|=0; a=a+0x6D2B79F5|0;
+    var t=Math.imul(a^a>>>15, 1|a);
+    t=t+Math.imul(t^t>>>7, 61|t)^t;
+    return ((t^t>>>14)>>>0)/4294967296;
+  };
+}
+
+/* ============================================================
+   1. 程序化音频（WebAudio，零外部资源）
+   ============================================================ */
+var AC=null, NOISE=null, audioOK=false, muted=false;
+function audio(){
+  try{
+    if(!AC){
+      var C=window.AudioContext||window.webkitAudioContext;
+      if(!C) return null;
+      AC=new C();
+      var len=Math.floor(AC.sampleRate*0.06), b=AC.createBuffer(1,len,AC.sampleRate), d=b.getChannelData(0);
+      for(var i=0;i<len;i++) d[i]=(Math.random()*2-1)*Math.pow(1-i/len,3);
+      NOISE=b; audioOK=true;
+    }
+    if(AC.state==='suspended') AC.resume();
+  }catch(e){ audioOK=false; }
+  return AC;
+}
+/* 青铜钟体：非谐泛音列（hum/prime/tierce/quint/nominal…）+ 槌击瞬态 */
+var PARTIALS=[[0.500,0.34,3.4],[1.000,1.00,2.7],[1.190,0.52,2.0],[1.500,0.38,1.5],
+              [2.000,0.46,1.05],[2.660,0.20,0.75],[3.010,0.13,0.55],[4.070,0.08,0.40]];
+function playBell(freq, vel){
+  if(muted) return;
+  var ac=audio(); if(!ac) return;
+  var t0=ac.currentTime, v=clamp(vel||1,0.15,1);
+  var out=ac.createGain(); out.gain.value=0.20*v; out.connect(ac.destination);
+  for(var i=0;i<PARTIALS.length;i++){
+    var p=PARTIALS[i];
+    var o=ac.createOscillator(), g=ac.createGain();
+    o.type='sine'; o.frequency.value=freq*p[0];
+    g.gain.setValueAtTime(0.0001,t0);
+    g.gain.linearRampToValueAtTime(p[1]*0.5,t0+0.004);
+    g.gain.exponentialRampToValueAtTime(0.0001,t0+p[2]);
+    o.connect(g); g.connect(out); o.start(t0); o.stop(t0+p[2]+0.05);
+  }
+  if(NOISE){
+    var s=ac.createBufferSource(); s.buffer=NOISE;
+    var bp=ac.createBiquadFilter(); bp.type='bandpass'; bp.frequency.value=freq*4.2; bp.Q.value=1.4;
+    var ng=ac.createGain();
+    ng.gain.setValueAtTime(0.35,t0); ng.gain.exponentialRampToValueAtTime(0.0001,t0+0.10);
+    s.connect(bp); bp.connect(ng); ng.connect(out); s.start(t0); s.stop(t0+0.12);
+  }
+}
+function playTick(strong){
+  if(muted) return;
+  var ac=audio(); if(!ac) return;
+  var t0=ac.currentTime;
+  var o=ac.createOscillator(), g=ac.createGain();
+  o.type='triangle'; o.frequency.value=strong?1180:820;
+  g.gain.setValueAtTime(0.0001,t0);
+  g.gain.linearRampToValueAtTime(strong?0.10:0.055,t0+0.004);
+  g.gain.exponentialRampToValueAtTime(0.0001,t0+0.075);
+  o.connect(g); g.connect(ac.destination); o.start(t0); o.stop(t0+0.09);
+}
+function playUI(ok){
+  if(muted) return;
+  var ac=audio(); if(!ac) return;
+  var t0=ac.currentTime;
+  var o=ac.createOscillator(), g=ac.createGain();
+  o.type='sine'; o.frequency.setValueAtTime(ok?520:300,t0);
+  o.frequency.exponentialRampToValueAtTime(ok?760:210,t0+0.09);
+  g.gain.setValueAtTime(0.0001,t0);
+  g.gain.linearRampToValueAtTime(0.09,t0+0.008);
+  g.gain.exponentialRampToValueAtTime(0.0001,t0+0.14);
+  o.connect(g); g.connect(ac.destination); o.start(t0); o.stop(t0+0.16);
+}
+
+/* ============================================================
+   2. 程序化贴图
+   ============================================================ */
+function drawBump(x,cx,cy,r){
+  var rg=x.createRadialGradient(cx-r*0.36,cy-r*0.36,r*0.08,cx,cy,r);
+  rg.addColorStop(0,'rgba(226,208,164,0.96)');
+  rg.addColorStop(0.5,'rgba(158,134,88,0.88)');
+  rg.addColorStop(1,'rgba(64,52,32,0.30)');
+  x.fillStyle=rg; x.beginPath(); x.arc(cx,cy,r,0,6.2832); x.fill();
+  x.strokeStyle='rgba(48,38,22,0.55)'; x.lineWidth=1.6;
+  x.beginPath(); x.arc(cx,cy,r,0,6.2832); x.stroke();
+}
+function bellUVBand(uc){ return uc; }
+function texBronze(){
+  var W=512,H=512,o=cnv(W,H),x=o.x;
+  var g=x.createLinearGradient(0,0,0,H);
+  g.addColorStop(0,'#8d7748'); g.addColorStop(0.34,'#a68e58');
+  g.addColorStop(0.68,'#7f6b42'); g.addColorStop(1,'#5b4d30');
+  x.fillStyle=g; x.fillRect(0,0,W,H);
+  var i;
+  for(i=0;i<170;i++){
+    var px=Math.random()*W, py=Math.random()*H, rr=6+Math.random()*28;
+    var rg=x.createRadialGradient(px,py,0,px,py,rr);
+    var a=0.05+Math.random()*0.11;
+    rg.addColorStop(0,'rgba(98,142,116,'+a+')'); rg.addColorStop(1,'rgba(98,142,116,0)');
+    x.fillStyle=rg; x.beginPath(); x.arc(px,py,rr,0,6.2832); x.fill();
+  }
+  for(i=0;i<70;i++){
+    var qx=Math.random()*W, qy=Math.random()*H, qw=3+Math.random()*10;
+    x.fillStyle='rgba(46,38,24,'+(0.05+Math.random()*0.10)+')';
+    x.fillRect(qx,qy,qw,1+Math.random()*2);
+  }
+  /* 枚（乳钉）：位于钲/篆区，两个 broad face 各 3 列 4 排 */
+  var bands=[0.0,0.5,1.0];
+  for(var b=0;b<bands.length;b++){
+    var cx=bands[b]*W, bw=W*0.145, bh=H*0.155;
+    var x0=cx-bw*1.05, y0=H*0.40;
+    for(var r=0;r<4;r++) for(var c=0;c<3;c++){
+      drawBump(x, x0+c*bw*1.05, y0+r*bh*1.05, bw*0.32);
+    }
+  }
+  /* 篆部横带 + 铣（侧棱） */
+  x.strokeStyle='rgba(58,48,30,0.45)'; x.lineWidth=3;
+  [0.34,0.55,0.76].forEach(function(vy){
+    x.beginPath(); x.moveTo(0,vy*H); x.lineTo(W,vy*H); x.stroke();
+  });
+  x.strokeStyle='rgba(40,32,20,0.55)'; x.lineWidth=5;
+  [0.25,0.75].forEach(function(ux){
+    x.beginPath(); x.moveTo(ux*W,0); x.lineTo(ux*W,H); x.stroke();
+  });
+  return mkTex(o,null,true);
+}
+function texBronzeBump(){
+  var W=512,H=512,o=cnv(W,H),x=o.x;
+  x.fillStyle='#101010'; x.fillRect(0,0,W,H);
+  var bands=[0.0,0.5,1.0];
+  for(var b=0;b<bands.length;b++){
+    var cx=bands[b]*W, bw=W*0.145, bh=H*0.155;
+    var x0=cx-bw*1.05, y0=H*0.40;
+    for(var r=0;r<4;r++) for(var c=0;c<3;c++){
+      var bx=x0+c*bw*1.05, by=y0+r*bh*1.05, br=bw*0.32;
+      var rg=x.createRadialGradient(bx,by,0,bx,by,br);
+      rg.addColorStop(0,'rgba(255,255,255,1)'); rg.addColorStop(0.72,'rgba(200,200,200,0.85)');
+      rg.addColorStop(1,'rgba(0,0,0,0)');
+      x.fillStyle=rg; x.beginPath(); x.arc(bx,by,br,0,6.2832); x.fill();
+    }
+  }
+  var t=new THREE.CanvasTexture(o.c);
+  t.wrapS=t.wrapT=THREE.RepeatWrapping; t.anisotropy=4; t.needsUpdate=true; return t;
+}
+function texWood(){
+  var W=256,H=256,o=cnv(W,H),x=o.x;
+  x.fillStyle='#6b4526'; x.fillRect(0,0,W,H);
+  for(var i=0;i<44;i++){
+    var y=Math.random()*H, h=1+Math.random()*4;
+    x.fillStyle='rgba('+(70+Math.random()*46|0)+','+(44+Math.random()*30|0)+',22,'+(0.15+Math.random()*0.35)+')';
+    x.fillRect(0,y,W,h);
+  }
+  for(i=0;i<7;i++){
+    var cy=Math.random()*H;
+    x.strokeStyle='rgba(48,28,14,0.5)'; x.lineWidth=2;
+    x.beginPath();
+    x.moveTo(0,cy);
+    for(var px=0;px<=W;px+=32) x.lineTo(px, cy+Math.sin(px*0.05+i)*3);
+    x.stroke();
+  }
+  return mkTex(o,null,true);
+}
+function texStone(){
+  var W=256,H=256,o=cnv(W,H),x=o.x;
+  x.fillStyle='#3a3d42'; x.fillRect(0,0,W,H);
+  var n=4, s=W/n;
+  for(var r=0;r<n;r++) for(var c=0;c<n;c++){
+    var v=44+Math.random()*18|0;
+    x.fillStyle='rgb('+v+','+(v+3)+','+(v+7)+')';
+    x.fillRect(c*s+2,r*s+2,s-4,s-4);
+    x.strokeStyle='rgba(24,25,28,0.85)'; x.lineWidth=2;
+    x.strokeRect(c*s+2,r*s+2,s-4,s-4);
+  }
+  return mkTex(o,[9,9],true);
+}
+function texFabric(){
+  var W=256,H=256,o=cnv(W,H),x=o.x;
+  var g=x.createLinearGradient(0,0,0,H);
+  g.addColorStop(0,'#4a2028'); g.addColorStop(0.55,'#5d2a2c'); g.addColorStop(1,'#33171c');
+  x.fillStyle=g; x.fillRect(0,0,W,H);
+  x.strokeStyle='rgba(196,150,90,0.16)'; x.lineWidth=2;
+  for(var i=0;i<H;i+=26){
+    x.beginPath();
+    for(var px=0;px<=W;px+=13){
+      var up=((i/26)%2===0);
+      if(px===0) x.moveTo(0,i);
+      x.lineTo(px+13, i + (up? (px%26===0?13:0) : (px%26===0?0:13)));
+    }
+    x.stroke();
+  }
+  return mkTex(o,[3,2],true);
+}
+function texGlow(){
+  var S=64,o=cnv(S,S),x=o.x;
+  var g=x.createRadialGradient(S/2,S/2,0,S/2,S/2,S/2);
+  g.addColorStop(0,'rgba(255,255,255,1)');
+  g.addColorStop(0.42,'rgba(255,255,255,0.96)');
+  g.addColorStop(0.72,'rgba(255,255,255,0.55)');
+  g.addColorStop(1,'rgba(255,255,255,0)');
+  x.fillStyle=g; x.fillRect(0,0,S,S);
+  return mkTex(o,null,true);
+}
+var TEX={};
+function buildTextures(){
+  TEX.bronze=texBronze();
+  TEX.bronzeBump=texBronzeBump();
+  TEX.wood=texWood();
+  TEX.stone=texStone();
+  TEX.fabric=texFabric();
+  TEX.glow=texGlow();
+}
+
+/* ============================================================
+   3. 渲染器 / 场景 / 相机
+   ============================================================ */
+var renderer, scene, camera, player, clock;
+var BELL_COLOR=[0xff8a4c,0xffb03a,0xffe066,0xa8e063,0x5fd3a6,0x4fb8e8,0x9a7bff];
+var BELL_NAME=['宫 C','商 D','角 E','变徵 F','徵 G','羽 A','变宫 B'];
+var BELL_FREQ=[261.63,293.66,329.63,349.23,392.00,440.00,493.88];
+var NBELL=7, SPACING=0.62, NOTE_Z=0.30, FALL=1.7, BEAM_Y=2.62;
+var bells=[], rings=[], columns=[], notes=[], pool=[], mallets=[], pops=[];
+var S={
+  state:'idle', mode:'rhythm', diff:1, t:-2.2, simOn:true,
+  score:0, combo:0, maxCombo:0, judged:0,
+  count:{perfect:0,great:0,good:0,miss:0}, empty:0,
+  metronome:true, lastBeat:-1, dirty:true
+};
+var DIFF=[
+  {name:'简单', bells:[0,2,4],            approach:1.90, seed:20260921},
+  {name:'普通', bells:[0,1,2,4,5],        approach:1.50, seed:20260922},
+  {name:'困难', bells:[0,1,2,3,4,5,6],    approach:1.20, seed:20260923}
+];
+var BPM=100, BEAT=60/BPM, LEAD=1.2, TOTAL_BEATS=48;
+
+function initRenderer(){
+  renderer=new THREE.WebGLRenderer({antialias:true, alpha:false});
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1, 2));
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.shadowMap.enabled=true;
+  renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+  renderer.outputEncoding=THREE.sRGBEncoding;
+  renderer.toneMapping=THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure=1.16;
+  renderer.xr.enabled=true;
+  if(renderer.xr.setReferenceSpaceType) renderer.xr.setReferenceSpaceType('local-floor');
+  document.body.appendChild(renderer.domElement);
+
+  scene=new THREE.Scene();
+  scene.background=new THREE.Color(0x2b2f36);
+  scene.fog=new THREE.Fog(0x2b2f36, 9, 26);
+
+  camera=new THREE.PerspectiveCamera(62, window.innerWidth/window.innerHeight, 0.05, 120);
+  camera.rotation.order='YXZ';
+  player=new THREE.Group();
+  player.add(camera);
+  scene.add(player);
+  resetView();
+
+  clock=new THREE.Clock();
+  window.addEventListener('resize', onResize);
+}
+function resetView(){
+  player.position.set(0,0,3.4);
+  player.rotation.set(0,0,0);
+  camera.position.set(0,1.62,0);
+  camera.rotation.set(-0.06,0,0);
+}
+function onResize(){
+  camera.aspect=window.innerWidth/window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+}
+
+/* ============================================================
+   4. 光照与环境
+   ============================================================ */
+function buildEnv(){
+  var hemi=new THREE.HemisphereLight(0x9fb4d0, 0x2a2620, 0.62);
+  scene.add(hemi);
+  /* 补光：青铜金属度高、无环境贴图时会发黑，靠补光 + scene.environment 双保险 */
+  var fill=new THREE.DirectionalLight(0xffe8c8, 0.42);
+  fill.position.set(-3.6,2.6,4.2);
+  scene.add(fill);
+  try{
+    var pm=new THREE.PMREMGenerator(renderer);
+    pm.compileEquirectangularShader();
+    var es=new THREE.Scene();
+    es.background=new THREE.Color(0x707a88);
+    var rt=pm.fromScene(es, 0.04);
+    scene.environment=rt.texture;
+    pm.dispose();
+  }catch(e){ /* 降级：靠 metalness 与补光 */ }
+  var sun=new THREE.DirectionalLight(0xfff0d8, 1.05);
+  sun.position.set(3.2,6.4,5.2);
+  sun.castShadow=true;
+  sun.shadow.mapSize.set(1024,1024);
+  var c=sun.shadow.camera;
+  c.left=-5.5; c.right=5.5; c.top=5.5; c.bottom=-1.5; c.near=0.5; c.far=18;
+  sun.shadow.bias=-0.0008; sun.shadow.normalBias=0.02;
+  scene.add(sun); scene.add(sun.target);
+  sun.target.position.set(0,1.7,0);
+
+  var floor=new THREE.Mesh(new THREE.PlaneGeometry(26,26),
+    new THREE.MeshStandardMaterial({map:TEX.stone, roughness:0.92, metalness:0.02}));
+  floor.rotation.x=-Math.PI/2; floor.receiveShadow=true;
+  scene.add(floor);
+
+  var back=new THREE.Mesh(new THREE.PlaneGeometry(11,6.4),
+    new THREE.MeshStandardMaterial({map:TEX.fabric, roughness:0.95, metalness:0.0}));
+  back.position.set(0,3.0,-1.55); back.receiveShadow=true;
+  scene.add(back);
+
+  /* 宫灯（自发光的鎏金球体，非实时光源） */
+  [-3.35,3.35].forEach(function(x){
+    var lamp=new THREE.Mesh(new THREE.SphereGeometry(0.17,14,10),
+      new THREE.MeshStandardMaterial({color:0xffcf8a, emissive:0xff9a3c, emissiveIntensity:0.9,
+        roughness:0.5, metalness:0.3}));
+    lamp.position.set(x,2.45,-0.9);
+    scene.add(lamp);
+    var cord=new THREE.Mesh(new THREE.CylinderGeometry(0.012,0.012,0.55,6),
+      new THREE.MeshStandardMaterial({color:0x3a2a18, roughness:0.9}));
+    cord.position.set(x,2.95,-0.9); scene.add(cord);
+  });
+}
+
+/* ============================================================
+   5. 编钟（甬钟）建模
+   ============================================================ */
+var BELL_PROFILE=[
+  [1.00,0.00],[1.00,0.05],[0.97,0.16],[0.93,0.30],[0.88,0.45],
+  [0.82,0.60],[0.75,0.73],[0.66,0.84],[0.55,0.93],[0.42,0.99],[0.28,1.02],[0.17,1.03]
+];
+function buildBells(){
+  var bronzeMat=new THREE.MeshStandardMaterial({
+    map:TEX.bronze, bumpMap:TEX.bronzeBump, bumpScale:0.06,
+    color:0xffffff, roughness:0.46, metalness:0.66, side:THREE.DoubleSide
+  });
+  var woodMat=new THREE.MeshStandardMaterial({map:TEX.wood, roughness:0.78, metalness:0.05});
+  var ropeMat=new THREE.MeshStandardMaterial({color:0x7a5a34, roughness:0.9});
+
+  for(var i=0;i<NBELL;i++){
+    var r=0.255-i*0.011;
+    var h=0.72-i*0.040;
+    var yongH=0.38*h;
+    var mouthY=2.52-yongH-h;
+    var strikeY=mouthY+0.55*h;
+    var bx=(i-(NBELL-1)/2)*SPACING;
+    var rMid=0.88*r, depth=rMid*0.62;
+    var g=new THREE.Group();
+    g.position.set(bx, mouthY, 0);
+    scene.add(g);
+
+    /* 每口钟独立材质：敲击时只有这一口发光（共享材质会整排一起亮） */
+    var bm=bronzeMat.clone();
+    bm.emissive=new THREE.Color(BELL_COLOR[i]);
+    bm.emissiveIntensity=0;
+
+    var pts=[];
+    for(var k=0;k<BELL_PROFILE.length;k++){
+      pts.push(new THREE.Vector2(BELL_PROFILE[k][0]*r, BELL_PROFILE[k][1]*h));
+    }
+    var body=new THREE.Mesh(new THREE.LatheGeometry(pts, 24), bm);
+    body.castShadow=true; body.receiveShadow=true;
+    body.scale.z=0.62;
+    body.userData.bellIdx=i;
+    g.add(body);
+
+    var yong=new THREE.Mesh(new THREE.CylinderGeometry(0.14*r,0.17*r,yongH,12), bm);
+    yong.position.y=h*1.03+yongH/2;
+    yong.castShadow=true;
+    yong.userData.bellIdx=i;
+    g.add(yong);
+
+    var loop=new THREE.Mesh(new THREE.TorusGeometry(0.075,0.022,6,16), ropeMat);
+    loop.position.y=h*1.03+yongH+0.055;
+    loop.userData.bellIdx=i;
+    g.add(loop);
+
+    bells.push({
+      idx:i, group:g, body:body, yong:yong, mat:bm, r:r, h:h, mouthY:mouthY, strikeY:strikeY,
+      x:bx, freq:BELL_FREQ[i], name:BELL_NAME[i], color:BELL_COLOR[i],
+      strike:new THREE.Vector3(bx, strikeY, depth+0.08),
+      flash:0, cool:0
+    });
+  }
+
+  /* 钟架 */
+  var postX=(NBELL-1)/2*SPACING+0.72;
+  [-postX,postX].forEach(function(px){
+    var post=new THREE.Mesh(new THREE.BoxGeometry(0.16,2.72,0.16), woodMat);
+    post.position.set(px,1.36,0); post.castShadow=true; post.receiveShadow=true;
+    scene.add(post);
+    var foot=new THREE.Mesh(new THREE.BoxGeometry(0.54,0.14,0.54), woodMat);
+    foot.position.set(px,0.07,0); foot.castShadow=true; foot.receiveShadow=true;
+    scene.add(foot);
+    var cap=new THREE.Mesh(new THREE.BoxGeometry(0.24,0.10,0.24), bronzeMat);
+    cap.position.set(px,2.77,0); scene.add(cap);
+  });
+  var beam=new THREE.Mesh(new THREE.BoxGeometry(postX*2+0.34,0.20,0.22), woodMat);
+  beam.position.set(0,BEAM_Y,0); beam.castShadow=true; beam.receiveShadow=true;
+  scene.add(beam);
+
+  /* 判定光环 + 下落轨道 */
+  var geoRing=new THREE.TorusGeometry(0.19,0.021,6,22);
+  var geoCol=new THREE.PlaneGeometry(0.022,FALL);
+  for(i=0;i<NBELL;i++){
+    var b=bells[i];
+    var ring=new THREE.Mesh(geoRing, new THREE.MeshBasicMaterial({color:b.color, transparent:true, opacity:0.85}));
+    ring.position.set(b.x, b.strikeY, NOTE_Z);
+    scene.add(ring); rings.push(ring);
+
+    var col=new THREE.Mesh(geoCol, new THREE.MeshBasicMaterial({
+      color:b.color, transparent:true, opacity:0.13, depthWrite:false}));
+    col.position.set(b.x, b.strikeY+FALL/2, NOTE_Z-0.03);
+    scene.add(col); columns.push(col);
+  }
+}
+
+/* ============================================================
+   6. 音符池
+   ============================================================ */
+function buildPool(){
+  var g=new THREE.CylinderGeometry(0.152,0.152,0.05,6);
+  g.rotateX(Math.PI/2);
+  for(var i=0;i<28;i++){
+    var m=new THREE.Mesh(g, new THREE.MeshBasicMaterial({
+      map:TEX.glow, transparent:true, depthWrite:false, side:THREE.DoubleSide}));
+    m.visible=false; m.userData.free=true;
+    scene.add(m); pool.push(m);
+  }
+}
+function takeMesh(){
+  for(var i=0;i<pool.length;i++) if(pool[i].userData.free){ pool[i].userData.free=false; return pool[i]; }
+  return null;
+}
+function freeMesh(m){
+  if(!m) return;
+  m.visible=false; m.userData.free=true;
+}
+
+/* ============================================================
+   7. 谱面（种子随机，可复现）
+   ============================================================ */
+function buildChart(){
+  var d=DIFF[S.diff], rnd=mulberry32(d.seed), list=[];
+  var bs=d.bells, last=-1;
+  for(var b=0;b<TOTAL_BEATS;b++){
+    var put;
+    if(S.diff===0) put=(b%2===0);
+    else if(S.diff===1) put=(b%4!==3);
+    else put=true;
+    if(!put) continue;
+    var tries=0, k;
+    do{ k=Math.floor(rnd()*bs.length); tries++; }while(bs[k]===last && tries<4);
+    last=bs[k];
+    list.push({t:LEAD+b*BEAT, bell:bs[k], done:false, spawned:false, mesh:null});
+    if(S.diff===2 && (b%2===1) && rnd()>0.35){
+      var t2=0,k2;
+      do{ k2=Math.floor(rnd()*bs.length); t2++; }while(bs[k2]===bs[k] && t2<4);
+      list.push({t:LEAD+b*BEAT+BEAT*0.5, bell:bs[k2], done:false, spawned:false, mesh:null});
+    }
+  }
+  list.sort(function(a,b){ return a.t-b.t; });
+  return list;
+}
+function clearChart(){
+  for(var i=0;i<notes.length;i++) freeMesh(notes[i].mesh);
+  notes=[];
+}
+function speedNow(){ return FALL/DIFF[S.diff].approach; }
+
+/* ============================================================
+   8. 判定
+   ============================================================ */
+function nearestNote(i, tHit){
+  var best=null, ba=1e9;
+  for(var k=0;k<notes.length;k++){
+    var n=notes[k];
+    if(n.done || n.bell!==i) continue;
+    var d=Math.abs(n.t-tHit);
+    if(d<ba){ ba=d; best=n; }
+  }
+  return {n:best, d:ba};
+}
+function judge(n, abs){
+  n.done=true; freeMesh(n.mesh); n.mesh=null;
+  S.judged++;
+  var j,pts,txt;
+  if(abs<=0.070){ j='perfect'; pts=100; txt='完美'; }
+  else if(abs<=0.140){ j='great'; pts=70; txt='很棒'; }
+  else if(abs<=0.240){ j='good'; pts=40; txt='不错'; }
+  else { j='miss'; pts=0; txt='失误'; }
+  S.count[j]++;
+  if(j==='miss'){ S.combo=0; }
+  else{
+    S.combo++; if(S.combo>S.maxCombo) S.maxCombo=S.combo;
+    S.score+=pts;
+  }
+  popText(bells[n.bell].x, bells[n.bell].strikeY+0.30, txt, j);
+  S.dirty=true;
+}
+function strike(i, tHit, src, vel){
+  var b=bells[i];
+  if(!b) return;
+  b.flash=1; b.cool=0.10;
+  playBell(b.freq, vel===undefined?1:vel);
+  if(src && src.gamepad) haptic(src, 0.45, 28);
+  if(S.mode==='free'){ S.dirty=true; return; }
+  if(S.state!=='play') return;
+  var res=nearestNote(i, tHit===undefined?S.t:tHit);
+  if(res.n && res.d<=0.35){ judge(res.n, res.d); }
+  else{
+    S.combo=0; S.empty++;
+    popText(b.x, b.strikeY+0.30, '空击', 'empty');
+    S.dirty=true;
+  }
+}
+function updAuto(){
+  for(var k=0;k<notes.length;k++){
+    var n=notes[k];
+    if(n.done) continue;
+    if(S.t > n.t+0.240){ judge(n, 0.30); }
+  }
+}
+function updNotes(){
+  var sp=speedNow();
+  for(var k=0;k<notes.length;k++){
+    var n=notes[k];
+    if(n.done) continue;
+    if(!n.spawned){
+      if(S.t >= n.t - DIFF[S.diff].approach){
+        var m=takeMesh();
+        if(m){
+          m.visible=true;
+          m.material.color.setHex(bells[n.bell].color);
+          m.position.set(bells[n.bell].x, bells[n.bell].strikeY+FALL, NOTE_Z);
+          m.scale.setScalar(0.90);          /* 生成首帧先淡入，避免上一颗的残留缩放闪一下 */
+          m.material.opacity=0;
+          n.mesh=m; n.spawned=true;
+        }
+      }
+      continue;
+    }
+    var y=bells[n.bell].strikeY+(n.t-S.t)*sp;
+    n.mesh.position.y=y;
+    var age=(n.t-S.t)/DIFF[S.diff].approach;      /* 1 → 刚出现，0 → 到达 */
+    var s=clamp(1.15-age*0.20, 0.85, 1.15);
+    n.mesh.scale.setScalar(s);
+    n.mesh.material.opacity=clamp((1-age)*3.2, 0, 1);
+  }
+  /* 结束判定 */
+  if(S.state==='play' && notes.length>0){
+    var last=notes[notes.length-1];
+    if(S.judged>=notes.length && S.t>last.t+0.7){ S.state='result'; S.dirty=true; }
+  }
+}
+
+/* ============================================================
+   9. 木槌（可直接抓取挥击）
+   ============================================================ */
+function buildMallets(){
+  var handleMat=new THREE.MeshStandardMaterial({map:TEX.wood, roughness:0.72, metalness:0.04});
+  var headMat=new THREE.MeshStandardMaterial({color:0x8a4a2c, roughness:0.62, metalness:0.06});
+  var homes=[new THREE.Vector3(-0.34,1.16,2.42), new THREE.Vector3(0.34,1.16,2.42)];
+  for(var i=0;i<2;i++){
+    var g=new THREE.Group();
+    var handle=new THREE.Mesh(new THREE.CylinderGeometry(0.019,0.023,0.44,10), handleMat);
+    handle.castShadow=true; g.add(handle);
+    var head=new THREE.Mesh(new THREE.SphereGeometry(0.062,12,9), headMat);
+    head.position.y=0.245; head.scale.z=0.82; head.castShadow=true;
+    g.add(head);
+    var band=new THREE.Mesh(new THREE.TorusGeometry(0.026,0.006,5,12),
+      new THREE.MeshStandardMaterial({color:0x3a2a18, roughness:0.9}));
+    band.position.y=0.17; band.rotation.x=Math.PI/2; g.add(band);
+    g.position.copy(homes[i]);
+    scene.add(g);
+    mallets.push({
+      group:g, head:head, home:homes[i].clone(), held:false, holder:null,
+      prev:new THREE.Vector3().copy(homes[i]), vel:new THREE.Vector3(), lastHit:-1
+    });
+    /* 悬停光环，提示可抓取 */
+    var halo=new THREE.Mesh(new THREE.TorusGeometry(0.10,0.012,5,18),
+      new THREE.MeshBasicMaterial({color:0xffcf7a, transparent:true, opacity:0.55}));
+    halo.rotation.x=Math.PI/2; halo.position.copy(homes[i]); halo.position.y=0.92;
+    scene.add(halo);
+    mallets[i].halo=halo;
+  }
+}
+function grabMallet(m, holder){
+  if(!m || m.held) return false;
+  m.held=true; m.holder=holder;
+  holder.attach(m.group);
+  m.group.position.set(0,0,-0.04);
+  m.group.rotation.set(-Math.PI/2,0,0);
+  m.vel.set(0,0,0);
+  m.group.getWorldPosition(m.prev);
+  return true;
+}
+function releaseMallet(m){
+  if(!m || !m.held) return;
+  m.held=false;
+  scene.attach(m.group);
+  m.holder=null;
+}
+function updMallets(dt){
+  for(var i=0;i<mallets.length;i++){
+    var m=mallets[i];
+    if(!m.held){
+      /* 归位插值 + 轻微悬浮 */
+      m.group.position.lerp(m.home, clamp(dt*7,0,1));
+      m.group.rotation.x += (0-m.group.rotation.x)*clamp(dt*7,0,1);
+      var hy=m.home.y+Math.sin(performance.now()*0.0016+i*2)*0.014;
+      m.group.position.y += (hy-m.group.position.y)*clamp(dt*6,0,1);
+      if(m.halo) m.halo.visible=true;
+      m.vel.set(0,0,0);
+      continue;
+    }
+    if(m.halo) m.halo.visible=false;
+    var hp=new THREE.Vector3();
+    m.head.getWorldPosition(hp);
+    if(dt>0){
+      var inst=new THREE.Vector3().subVectors(hp,m.prev).divideScalar(dt);
+      m.vel.lerp(inst, 0.55);
+      m.prev.copy(hp);
+    }
+    var sp=m.vel.length();
+    if(sp>1.05){
+      for(var b=0;b<bells.length;b++){
+        var bl=bells[b];
+        if(bl.cool>0) continue;
+        if(hp.distanceTo(bl.strike)<0.30){
+          strike(b, S.t, (m.holder&&m.holder.userData&&m.holder.userData.inputSource)||null, clamp(sp/2.4,0.5,1));
+          if(m.holder&&m.holder.userData&&m.holder.userData.inputSource)
+            haptic(m.holder.userData.inputSource, 0.75, 45);
+          break;
+        }
+      }
+    }
+  }
+}
+function haptic(src, intensity, ms){
+  if(!src || !src.gamepad) return;
+  var a=src.gamepad.hapticActuators;
+  if(a && a[0] && a[0].pulse){ try{ a[0].pulse(intensity, ms); }catch(e){} }
+}
+
+/* ============================================================
+   10. 判定文字弹幕
+   ============================================================ */
+var POP_TEX={};
+function buildPops(){
+  var words={perfect:['完美','#ffd873'],great:['很棒','#8fe08a'],good:['不错','#7fc4f0'],
+             miss:['失误','#ff7a6a'],empty:['空击','#c0c6cf']};
+  Object.keys(words).forEach(function(k){
+    var o=cnv(256,96), x=o.x;
+    x.clearRect(0,0,256,96);
+    x.font='bold 62px "Microsoft YaHei",sans-serif';
+    x.textAlign='center'; x.textBaseline='middle';
+    x.lineWidth=8; x.strokeStyle='rgba(10,12,16,0.85)';
+    x.strokeText(words[k][0],128,50);
+    x.fillStyle=words[k][1];
+    x.fillText(words[k][0],128,50);
+    POP_TEX[k]=mkTex(o,null,true);
+  });
+  var geo=new THREE.PlaneGeometry(0.42,0.16);
+  for(var i=0;i<7;i++){
+    var m=new THREE.Mesh(geo, new THREE.MeshBasicMaterial({
+      transparent:true, depthWrite:false, opacity:0}));
+    m.visible=false; scene.add(m);
+    pops.push({mesh:m, life:0});
+  }
+}
+function popText(x,y,kind,mat){
+  var p=null;
+  for(var i=0;i<pops.length;i++) if(pops[i].life<=0){ p=pops[i]; break; }
+  if(!p) p=pops[0];
+  p.mesh.material.map=POP_TEX[kind]||POP_TEX.empty;
+  p.mesh.material.needsUpdate=true;
+  p.mesh.position.set(x,y,NOTE_Z+0.06);
+  p.mesh.visible=true; p.life=0.85;
+}
+function updPops(dt){
+  for(var i=0;i<pops.length;i++){
+    var p=pops[i];
+    if(p.life<=0){ if(p.mesh.visible) p.mesh.visible=false; continue; }
+    p.life-=dt;
+    p.mesh.position.y+=dt*0.42;
+    p.mesh.material.opacity=clamp(p.life/0.5,0,1);
+    if(p.mesh.material.opacity<=0.01) p.mesh.visible=false;
+  }
+}
+
+/* ============================================================
+   11. 3D 面板：HUD / 按钮 / 说明牌
+   ============================================================ */
+var hudCanvas, hudTex, hudMesh;
+var uiCanvas, uiTex, uiMesh, uiBtns=[];
+function buildHud(){
+  /* 横幅式 HUD：放在编钟后方上空，保证在 62° FOV 内完整可见 */
+  hudCanvas=cnv(960,192);
+  hudTex=mkTex(hudCanvas,null,true);
+  hudMesh=new THREE.Mesh(new THREE.PlaneGeometry(3.2,0.64),
+    new THREE.MeshBasicMaterial({map:hudTex, transparent:true, depthWrite:false}));
+  hudMesh.position.set(0,3.12,-0.5);
+  hudMesh.rotation.x=0.14;
+  scene.add(hudMesh);
+  drawHud();
+}
+function drawHud(){
+  var x=hudCanvas.x, W=960, H=192;
+  x.clearRect(0,0,W,H);
+  var g=x.createLinearGradient(0,0,0,H);
+  g.addColorStop(0,'rgba(14,18,24,0.93)'); g.addColorStop(1,'rgba(22,28,36,0.88)');
+  x.fillStyle=g; x.fillRect(0,0,W,H);
+  x.strokeStyle='rgba(200,150,80,0.55)'; x.lineWidth=3; x.strokeRect(2,2,W-4,H-4);
+
+  if(S.state==='result'){
+    x.textAlign='center'; x.textBaseline='middle';
+    x.fillStyle='#ffd873'; x.font='bold 46px "Microsoft YaHei",sans-serif';
+    x.fillText('演奏结束 · 评级 '+rankOf(accNow()), W/2, 54);
+    x.fillStyle='#e8eef6'; x.font='30px "Microsoft YaHei",sans-serif';
+    x.fillText('得分 '+S.score+'　准确率 '+(accNow()*100).toFixed(1)+'%　最大连击 '+S.maxCombo, W/2, 104);
+    x.fillStyle='#9fb0c6'; x.font='26px "Microsoft YaHei",sans-serif';
+    x.fillText('完美 '+S.count.perfect+'　很棒 '+S.count.great+'　不错 '+S.count.good+
+               '　失误 '+S.count.miss+'　（按空格再来一次）', W/2, 152);
+    hudTex.needsUpdate=true; return;
+  }
+
+  x.textBaseline='alphabetic';
+  x.textAlign='left';
+  x.fillStyle='#ffd873'; x.font='bold 52px "Microsoft YaHei",sans-serif';
+  x.fillText(String(S.score), 30, 66);
+  x.fillStyle='#8b98a8'; x.font='22px "Microsoft YaHei",sans-serif';
+  x.fillText('得分', 32, 90);
+
+  x.textAlign='center';
+  x.fillStyle=S.combo>=8?'#ff9a3c':'#e8eef6';
+  x.font='bold 52px "Microsoft YaHei",sans-serif';
+  x.fillText(String(S.combo), W/2, 66);
+  x.fillStyle='#8b98a8'; x.font='22px "Microsoft YaHei",sans-serif';
+  x.fillText('连击', W/2, 90);
+
+  x.textAlign='right';
+  x.fillStyle='#8fe08a'; x.font='bold 46px "Microsoft YaHei",sans-serif';
+  x.fillText((accNow()*100).toFixed(1)+'%', W-30, 66);
+  x.fillStyle='#8b98a8'; x.font='22px "Microsoft YaHei",sans-serif';
+  x.fillText('准确率', W-30, 90);
+
+  var pw=W-60, ph=12, px=30, py=112;
+  x.fillStyle='rgba(255,255,255,0.10)'; x.fillRect(px,py,pw,ph);
+  var ratio=notes.length? S.judged/notes.length : 0;
+  var pg=x.createLinearGradient(px,0,px+pw,0);
+  pg.addColorStop(0,'#c9973f'); pg.addColorStop(1,'#ffd873');
+  x.fillStyle=pg; x.fillRect(px,py,pw*ratio,ph);
+  x.strokeStyle='rgba(255,255,255,0.22)'; x.lineWidth=1; x.strokeRect(px,py,pw,ph);
+
+  x.textAlign='left'; x.fillStyle='#c9973f'; x.font='24px "Microsoft YaHei",sans-serif';
+  x.fillText((S.mode==='free'?'自由演奏':'节奏模式')+'　难度 '+DIFF[S.diff].name+
+             '　音符 '+S.judged+'/'+notes.length+'　节拍器 '+(S.metronome?'开':'关'), 30, 166);
+
+  x.textAlign='right';
+  if(S.state==='play' && S.t<0){
+    var n=Math.ceil(-S.t);
+    x.fillStyle='#ffd873'; x.font='bold 44px "Microsoft YaHei",sans-serif';
+    x.fillText(n>0?String(n):'开始!', W-30, 172);
+  } else if(S.state==='paused'){
+    x.fillStyle='#ff9a3c'; x.font='bold 34px "Microsoft YaHei",sans-serif';
+    x.fillText('已暂停', W-30, 170);
+  } else if(S.state==='idle'){
+    x.fillStyle='#9fb0c6'; x.font='26px "Microsoft YaHei",sans-serif';
+    x.fillText('按 空格 或点「开始」', W-30, 168);
+  }
+  hudTex.needsUpdate=true;
+}
+function accNow(){
+  if(S.judged===0) return 1;
+  return S.score/(S.judged*100);
+}
+function rankOf(a){
+  return a>=0.95?'S':a>=0.85?'A':a>=0.70?'B':a>=0.50?'C':'D';
+}
+
+/* --- 按钮面板 --- */
+var BTN_DEF=[
+  {id:'play',   label:['开始','暂停']},
+  {id:'reset',  label:['重来']},
+  {id:'diff',   label:['难度']},
+  {id:'mode',   label:['模式']},
+  {id:'metro',  label:['节拍器']},
+  {id:'mute',   label:['声音']}
+];
+function buildUI(){
+  uiCanvas=cnv(512,512);
+  uiTex=mkTex(uiCanvas,null,true);
+  uiMesh=new THREE.Mesh(new THREE.PlaneGeometry(1.15,1.15),
+    new THREE.MeshBasicMaterial({map:uiTex, transparent:true, depthWrite:false}));
+  uiMesh.position.set(2.30,1.16,-0.35);
+  uiMesh.rotation.y=-0.58;
+  scene.add(uiMesh);
+  var m=24, gap=16, cw=(512-m*2-gap)/2, ch=(512-m*2-gap*2)/3;
+  uiBtns=[];
+  for(var r=0;r<3;r++) for(var c=0;c<2;c++){
+    var d=BTN_DEF[r*2+c];
+    uiBtns.push({id:d.id, x:m+c*(cw+gap), y:m+r*(ch+gap), w:cw, h:ch});
+  }
+  drawUI();
+}
+function btnLabel(b){
+  if(b.id==='play')  return S.state==='play'?'暂停':(S.state==='paused'?'继续':(S.state==='result'?'再来':'开始'));
+  if(b.id==='diff')  return '难度 '+DIFF[S.diff].name;
+  if(b.id==='mode')  return S.mode==='free'?'自由演奏':'节奏模式';
+  if(b.id==='metro') return '节拍器 '+(S.metronome?'开':'关');
+  if(b.id==='mute')  return '声音 '+(muted?'关':'开');
+  return '重来';
+}
+function drawUI(){
+  var x=uiCanvas.x, W=512;
+  x.clearRect(0,0,W,W);
+  var g=x.createLinearGradient(0,0,0,W);
+  g.addColorStop(0,'rgba(16,20,27,0.94)'); g.addColorStop(1,'rgba(24,30,40,0.90)');
+  x.fillStyle=g; x.fillRect(0,0,W,W);
+  x.strokeStyle='rgba(200,150,80,0.6)'; x.lineWidth=4; x.strokeRect(2,2,W-4,W-4);
+  for(var i=0;i<uiBtns.length;i++){
+    var b=uiBtns[i];
+    var active=(b.id==='play'&&S.state==='play')||(b.id==='mode'&&S.mode==='free')||
+               (b.id==='metro'&&S.metronome)||(b.id==='mute'&&!muted);
+    var bg=x.createLinearGradient(0,b.y,0,b.y+b.h);
+    if(active){ bg.addColorStop(0,'#c9973f'); bg.addColorStop(1,'#a2762d'); }
+    else{ bg.addColorStop(0,'#33404f'); bg.addColorStop(1,'#26303c'); }
+    x.fillStyle=bg;
+    roundRect(x,b.x,b.y,b.w,b.h,14); x.fill();
+    x.strokeStyle=active?'rgba(255,220,160,0.85)':'rgba(150,168,190,0.45)';
+    x.lineWidth=2; roundRect(x,b.x,b.y,b.w,b.h,14); x.stroke();
+    x.fillStyle=active?'#20160a':'#e8eef6';
+    x.font='bold 40px "Microsoft YaHei",sans-serif';
+    x.textAlign='center'; x.textBaseline='middle';
+    x.fillText(btnLabel(b), b.x+b.w/2, b.y+b.h/2);
+  }
+  uiTex.needsUpdate=true;
+}
+function roundRect(x,px,py,w,h,r){
+  x.beginPath();
+  x.moveTo(px+r,py);
+  x.lineTo(px+w-r,py); x.quadraticCurveTo(px+w,py,px+w,py+r);
+  x.lineTo(px+w,py+h-r); x.quadraticCurveTo(px+w,py+h,px+w-r,py+h);
+  x.lineTo(px+r,py+h); x.quadraticCurveTo(px,py+h,px,py+h-r);
+  x.lineTo(px,py+r); x.quadraticCurveTo(px,py,px+r,py);
+  x.closePath();
+}
+/* 注视停留委托给内核的计时器：id 必须立刻固化成参数，fire 是延迟调用的 */
+function mkGazeUI(id,dist){ return {id:'u'+id, dist:dist, fire:function(){ fireUI(id); }}; }
+function fireUI(id){
+  if(id==='play') togglePlay();
+  else if(id==='reset') restart();
+  else if(id==='diff'){ S.diff=(S.diff+1)%3; restart(); }
+  else if(id==='mode'){ S.mode=(S.mode==='free')?'rhythm':'free'; if(S.mode==='free'){ S.state='idle'; clearChart(); } else restart(); }
+  else if(id==='metro'){ S.metronome=!S.metronome; }
+  else if(id==='mute'){ muted=!muted; }
+  playUI(true); drawUI(); S.dirty=true;
+}
+function uiHit(uv){
+  if(!uv) return null;
+  var px=uv.x*512, py=(1-uv.y)*512;
+  for(var i=0;i<uiBtns.length;i++){
+    var b=uiBtns[i];
+    if(px>=b.x&&px<=b.x+b.w&&py>=b.y&&py<=b.y+b.h) return b.id;
+  }
+  return null;
+}
+function buildSign(){
+  var o=cnv(512,360), x=o.x;
+  var g=x.createLinearGradient(0,0,0,360);
+  g.addColorStop(0,'rgba(18,22,29,0.93)'); g.addColorStop(1,'rgba(26,32,42,0.90)');
+  x.fillStyle=g; x.fillRect(0,0,512,360);
+  x.strokeStyle='rgba(200,150,80,0.6)'; x.lineWidth=4; x.strokeRect(2,2,508,356);
+  x.fillStyle='#ffd873'; x.font='bold 34px "Microsoft YaHei",sans-serif';
+  x.textAlign='center'; x.fillText('编钟之韵 · 操作', 256, 46);
+  x.textAlign='left'; x.font='24px "Microsoft YaHei",sans-serif';
+  var lines=[
+    'VR：扳机＝射线敲钟',
+    'VR：握持键（Grip）＝抓木槌挥击',
+    'VR：左摇杆移动 / 右摇杆转身',
+    'VR：A·X 键＝开始·暂停',
+    'PC：A S D F G H J 敲七钟',
+    'PC：空格开始 / R 重来 / F 自由',
+    'PC：鼠标拖拽转视角 / 方向键移动',
+    '判定 完美100 很棒70 不错40',
+    '空击与漏敲都会断连击'
+  ];
+  for(var i=0;i<lines.length;i++){
+    x.fillStyle=i<4?'#8fe08a':'#c9d4e2';
+    x.fillText('· '+lines[i], 34, 96+i*30);
+  }
+  var t=mkTex(o,null,true);
+  var m=new THREE.Mesh(new THREE.PlaneGeometry(1.5,1.05),
+    new THREE.MeshBasicMaterial({map:t, transparent:true, depthWrite:false}));
+  m.position.set(-2.30,1.18,-0.35);
+  m.rotation.y=0.58;
+  scene.add(m);
+}
+
+/* ============================================================
+   12. 游戏流程
+   ============================================================ */
+function startGame(){
+  clearChart();
+  notes=buildChart();
+  S.t=-2.2; S.state='play';
+  S.score=0; S.combo=0; S.maxCombo=0; S.judged=0; S.empty=0;
+  S.count={perfect:0,great:0,good:0,miss:0};
+  S.lastBeat=-1; S.dirty=true;
+}
+function restart(){ startGame(); drawUI(); drawHud(); }
+function togglePlay(){
+  if(S.state==='play') S.state='paused';
+  else if(S.state==='paused') S.state='play';
+  else startGame();
+  S.dirty=true; drawUI(); drawHud();
+}
+
+/* ============================================================
+   13. PC 输入
+   ============================================================ */
+var pcKeys={}, mouseDown=false, lastX=0, lastY=0, dragging=false;
+var rayPC=new THREE.Raycaster();
+function initPC(){
+  var el=renderer.domElement;
+  el.addEventListener('mousedown', function(e){
+    mouseDown=true; lastX=e.clientX; lastY=e.clientY; dragging=false; audio();
+  });
+  window.addEventListener('mouseup', function(e){
+    if(mouseDown && !dragging) pcClick(e);
+    mouseDown=false;
+  });
+  window.addEventListener('mousemove', function(e){
+    if(!mouseDown) return;
+    var dx=e.clientX-lastX, dy=e.clientY-lastY;
+    if(Math.abs(dx)+Math.abs(dy)>4) dragging=true;
+    lastX=e.clientX; lastY=e.clientY;
+    if(dragging){
+      player.rotation.y -= dx*0.0032;
+      camera.rotation.x = clamp(camera.rotation.x - dy*0.0028, -1.2, 1.2);
+    }
+  });
+  window.addEventListener('keydown', function(e){
+    var k=e.key.toLowerCase();
+    audio();
+    pcKeys[k]=true;
+    var map={'a':0,'s':1,'d':2,'f':3,'g':4,'h':5,'j':6,
+             '1':0,'2':1,'3':2,'4':3,'5':4,'6':5,'7':6};
+    if(k in map){ strike(map[k], S.t, null, 1); e.preventDefault(); return; }
+    if(k===' '){ togglePlay(); e.preventDefault(); return; }
+    if(k==='r'){ restart(); return; }
+    if(k==='f'){ fireUI('mode'); return; }
+    if(k==='m'){ S.metronome=!S.metronome; S.dirty=true; drawUI(); return; }
+  });
+  window.addEventListener('keyup', function(e){ pcKeys[e.key.toLowerCase()]=false; });
+}
+function pcClick(e){
+  var nx=(e.clientX/window.innerWidth)*2-1;
+  var ny=-(e.clientY/window.innerHeight)*2+1;
+  rayPC.setFromCamera(new THREE.Vector2(nx,ny), camera);
+  var hitUI=rayPC.intersectObject(uiMesh,false);
+  if(hitUI.length){
+    var id=uiHit(hitUI[0].uv);
+    if(id){ fireUI(id); return; }
+  }
+  var targets=[];
+  for(var i=0;i<bells.length;i++){ targets.push(bells[i].body); targets.push(bells[i].yong); }
+  var hit=rayPC.intersectObjects(targets,false);
+  if(hit.length && hit[0].object.userData.bellIdx!==undefined){
+    strike(hit[0].object.userData.bellIdx, S.t, null, 1);
+  }
+}
+function updPCMove(dt){
+  /* 注意：A S D F G H J 已占用为七口钟，PC 平移统一用方向键（避免键位冲突） */
+  var f=0,s=0;
+  if(pcKeys['arrowup']) f+=1;
+  if(pcKeys['arrowdown']) f-=1;
+  if(pcKeys['arrowleft']) s-=1;
+  if(pcKeys['arrowright']) s+=1;
+  if(f||s){
+    var dir=new THREE.Vector3();
+    camera.getWorldDirection(dir); dir.y=0; dir.normalize();
+    var side=new THREE.Vector3(-dir.z,0,dir.x);
+    var mv=new THREE.Vector3().addScaledVector(dir,f).addScaledVector(side,s).normalize();
+    player.position.addScaledVector(mv, dt*1.7);
+    player.position.x=clamp(player.position.x,-6,6);
+    player.position.z=clamp(player.position.z,-1.0,7.0);
+  }
+}
+
+/* ============================================================
+   14. VR 输入
+   ============================================================ */
+var controllers=[], rayVR=new THREE.Raycaster();
+function initVR(){
+  for(var i=0;i<2;i++){
+    var c=renderer.xr.getController(i);
+    c.userData.idx=i;
+    var line=new THREE.Line(
+      new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0,0,0),new THREE.Vector3(0,0,-1)]),
+      new THREE.LineBasicMaterial({color:0xffd08a, transparent:true, opacity:0.75}));
+    line.scale.z=3.0;
+    c.add(line);
+    c.addEventListener('selectstart', onSelectStart);
+    c.addEventListener('squeezestart', onSqueezeStart);
+    c.addEventListener('squeezeend', onSqueezeEnd);
+    c.addEventListener('connected', function(e){ this.userData.inputSource=e.data; this.visible=true; });
+    c.addEventListener('disconnected', function(){ this.userData.inputSource=null; this.visible=false; });
+    c.visible=false;              /* PC 模式下先隐藏，否则原点会露出两条射线 */
+    scene.add(c);
+    controllers.push(c);
+  }
+}
+function onSelectStart(){
+  audio();
+  var c=this, src=c.userData.inputSource;
+  var temp=new THREE.Matrix4().identity().extractRotation(c.matrixWorld);
+  rayVR.ray.origin.setFromMatrixPosition(c.matrixWorld);
+  rayVR.ray.direction.set(0,0,-1).applyMatrix4(temp);
+  rayVR.camera=camera;
+  var hitUI=rayVR.intersectObject(uiMesh,false);
+  if(hitUI.length){
+    var id=uiHit(hitUI[0].uv);
+    if(id){ fireUI(id); haptic(src,0.25,20); return; }
+  }
+  var targets=[];
+  for(var i=0;i<bells.length;i++){ targets.push(bells[i].body); targets.push(bells[i].yong); }
+  var hit=rayVR.intersectObjects(targets,false);
+  if(hit.length && hit[0].object.userData.bellIdx!==undefined){
+    strike(hit[0].object.userData.bellIdx, S.t, src, 1);
+    haptic(src,0.7,38);
+  }
+}
+function onSqueezeStart(){
+  audio();
+  var c=this;
+  for(var i=0;i<mallets.length;i++){
+    if(!mallets[i].held){ grabMallet(mallets[i], c); break; }
+  }
+}
+function onSqueezeEnd(){
+  var c=this;
+  for(var i=0;i<mallets.length;i++){
+    if(mallets[i].held && mallets[i].holder===c){ releaseMallet(mallets[i]); }
+  }
+}
+function updVRMove(dt){
+  if(!renderer.xr.isPresenting) return;
+  var srcs=renderer.xr.getSession()? renderer.xr.getSession().inputSources : null;
+  if(!srcs) return;
+  for(var i=0;i<srcs.length;i++){
+    var s=srcs[i], gp=s.gamepad;
+    if(!gp) continue;
+    var ax=gp.axes; if(!ax||ax.length<4) continue;
+    var h=ax[2], v=ax[3];
+    /* 左手柄：摇杆平移 */
+    if(s.handedness==='left' || (s.handedness!=='right' && i===0)){
+      if(Math.abs(h)>0.18||Math.abs(v)>0.18){
+        var dir=new THREE.Vector3(); camera.getWorldDirection(dir); dir.y=0; dir.normalize();
+        var side=new THREE.Vector3(-dir.z,0,dir.x);
+        var mv=new THREE.Vector3().addScaledVector(dir,-v).addScaledVector(side,h).normalize();
+        player.position.addScaledVector(mv, dt*1.6*Math.min(1,Math.hypot(h,v)));
+        player.position.x=clamp(player.position.x,-6,6);
+        player.position.z=clamp(player.position.z,-1.0,7.0);
+      }
+      /* X/Y 键：重来 */
+      if(gp.buttons[4] && gp.buttons[4].pressed && !s._p4){ s._p4=true; restart(); }
+      if(gp.buttons[4] && !gp.buttons[4].pressed) s._p4=false;
+    }
+    /* 右手柄：摇杆转身 */
+    if(s.handedness==='right' || (s.handedness!=='left' && i===1)){
+      if(Math.abs(h)>0.55){
+        if(!s._turn){ s._turn=true; player.rotation.y -= Math.sign(h)*deg(30); }
+      } else s._turn=false;
+      /* A 键：开始/暂停 */
+      if(gp.buttons[4] && gp.buttons[4].pressed && !s._p4){ s._p4=true; togglePlay(); }
+      if(gp.buttons[4] && !gp.buttons[4].pressed) s._p4=false;
+    }
+  }
+}
+
+/* ============================================================
+   15. 主循环
+   ============================================================ */
+function updTime(dt){
+  if(S.state!=='play') return;
+  var prev=S.t;
+  S.t+=dt;
+  /* 节拍脉冲 */
+  if(S.t>0){
+    var bIdx=Math.floor(S.t/BEAT);
+    if(bIdx!==S.lastBeat){
+      S.lastBeat=bIdx;
+      if(S.metronome) playTick(bIdx%4===0);
+      for(var i=0;i<rings.length;i++) rings[i].userData.pulse=1;
+    }
+  }
+  if(prev<0 && S.t>=0) playTick(true);
+}
+function updFX(dt){
+  for(var i=0;i<bells.length;i++){
+    var b=bells[i];
+    if(b.cool>0) b.cool-=dt;
+    if(b.flash>0){
+      b.flash=Math.max(0,b.flash-dt*3.4);
+      b.group.scale.set(1,1,1+b.flash*0.055);
+      b.mat.emissiveIntensity=b.flash*0.85;
+    } else if(b.group.scale.z!==1){
+      b.group.scale.z=1; b.mat.emissiveIntensity=0;
+    }
+  }
+  for(i=0;i<rings.length;i++){
+    var r=rings[i];
+    if(r.userData.pulse>0){
+      r.userData.pulse=Math.max(0,r.userData.pulse-dt*3.0);
+      r.scale.setScalar(1+r.userData.pulse*0.16);
+      r.material.opacity=0.55+r.userData.pulse*0.45;
+    } else { r.scale.setScalar(1); r.material.opacity=0.72; }
+  }
+  updPops(dt);
+  if(S.dirty){ drawHud(); S.dirty=false; }
+}
+function animate(){
+  var dt=Math.min(clock.getDelta(), 0.05);
+  if(S.simOn){
+    updTime(dt);
+    updNotes();
+    updAuto();
+    updMallets(dt);
+    updPCMove(dt);
+    XRCore.vrMove(dt);
+    if(S.state==='result'){ /* 保持 */ }
+  }
+  updFX(dt);
+  XRCore.frame(dt);
+  renderer.render(scene, camera);
+}
+
+/* ============================================================
+   16. 调试 / 教学 API
+   ============================================================ */
+function expose(){
+  window.Bianzhong={
+    S:S, notes:function(){ return notes; }, bells:bells, mallets:mallets,
+    scene:scene, player:player, camera:camera, renderer:renderer,
+    pauseSim:function(){ S.simOn=false; },
+    resumeSim:function(){ S.simOn=true; },
+    setT:function(t){ S.t=t; updNotes(); updAuto(); S.dirty=true; drawHud(); },
+    step:function(dt){ if(S.state==='play') S.t+=dt; updNotes(); updAuto(); S.dirty=true; drawHud(); },
+    start:function(){ startGame(); drawUI(); drawHud(); },
+    restart:function(){ restart(); },
+    toggle:function(){ togglePlay(); },
+    setDiff:function(d){ S.diff=clamp(d|0,0,2); restart(); },
+    setMode:function(m){ S.mode=m; if(m==='free'){ S.state='idle'; clearChart(); } else restart(); drawUI(); },
+    strike:function(i, off){ strike(clamp(i|0,0,NBELL-1), S.t+(off||0), null, 1); },
+    malletStrike:function(i){ var b=bells[clamp(i|0,0,NBELL-1)]; b.cool=0; strike(b.idx, S.t, null, 1); },
+    fireUI:fireUI,
+    resetView:resetView,
+    audioOK:function(){ audio(); return audioOK; },
+    total:function(){ return notes.length; },
+    accNow:accNow, rankOf:rankOf
+  };
+}
+
+/* ============================================================
+   17. 启动
+   ============================================================ */
+function boot(){
+  buildTextures();
+  initRenderer();
+  buildEnv();
+  buildBells();
+  buildPool();
+  buildMallets();
+  buildPops();
+  buildHud();
+  buildUI();
+  buildSign();
+  initPC();
+  initVR();
+  expose();
+  $('tip').style.display='none';
+  XRCore.init({
+    THREE:THREE, renderer:renderer, scene:scene, camera:camera, player:player,
+    name:'03 节奏竞技·编钟之韵', targetFps:72,
+    panelPos:[-2.30,2.12,-0.35], panelRotY:0.58,
+    home:{x:0, z:3.4, rotY:0}, bounds:{x:[-6,6], z:[-1,7]},
+    tips:[
+      ['为什么必须是VR','真实编钟不可触碰、不可移动；VR 让每个人都能"持槌而击"，且零物理损耗、零场地限制。'],
+      ['多感官同步','节奏游戏的生命线是视听时序：判定窗口 ±ms、音频提前调度、视觉提前量三者必须对齐，否则手感崩。'],
+      ['青铜钟是非谐的','编钟分音不是整数倍（含 hum/prime/tierce…），正弦叠加只能近似；本例用 8 个分音 + 噪声瞬态重建音色。'],
+      ['站立式=低晕动','本例站位固定、无需长距离移动，属于低晕动风险的"站立式"设计——VR 内容选型的常用策略。'],
+      ['前沿','空间音频（HRTF/PannerNode）+ 触觉反馈可进一步提升节奏沉浸，WebXR 已原生支持空间化。']
+    ]
+  });
+  XRCore.ui([uiMesh]);   /* 坐姿模式下自动下沉 */
+  /* 注视停留点控制台：不用手柄也能开始/暂停/换难度 */
+  XRCore.uiHit(function(rc){
+    if(!uiMesh||!uiBtns.length) return null;
+    var h=rc.intersectObject(uiMesh,false);
+    if(!h.length||!h[0].uv) return null;
+    var px=h[0].uv.x*uiCanvas.w, py=(1-h[0].uv.y)*uiCanvas.h;   /* 注意：uiCanvas 是 cnv() 返回的 {c,x,w,h}，不是 DOM canvas */
+    for(var i=0;i<uiBtns.length;i++){
+      var b=uiBtns[i];
+      if(px>=b.x&&px<=b.x+b.w&&py>=b.y&&py<=b.y+b.h) return mkGazeUI(b.id,h[0].distance);
+    }
+    return null;
+  });
+  renderer.setAnimationLoop(animate);
+
+  var btn=$('vrbtn');
+  if(navigator.xr && navigator.xr.isSessionSupported){
+    navigator.xr.isSessionSupported('immersive-vr').then(function(ok){
+      if(ok){
+        btn.disabled=false; btn.textContent='进入 VR';
+        btn.addEventListener('click', function(){
+          navigator.xr.requestSession('immersive-vr',{optionalFeatures:['local-floor','bounded-floor']})
+            .then(function(session){
+              renderer.xr.setSession(session);
+              document.body.classList.add('XR');
+              session.addEventListener('end', function(){ document.body.classList.remove('XR'); resetView(); });
+            }).catch(function(err){ btn.textContent='VR 启动失败'; });
+        });
+      } else { btn.textContent='此设备不支持 VR'; }
+    }).catch(function(){ btn.textContent='VR 不可用'; });
+  } else { btn.textContent='无 WebXR（可用 PC 模式）'; }
+}
+
+if(document.readyState==='complete'||document.readyState==='interactive') setTimeout(boot,0);
+else window.addEventListener('DOMContentLoaded', boot);
+
+})();
+</script>
+</body>
+</html>

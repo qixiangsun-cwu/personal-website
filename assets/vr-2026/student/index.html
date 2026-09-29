@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>学生作品 · 联网自验工作流</title>
+<style>
+  *{box-sizing:border-box;}
+  body{margin:0;background:#0f0b07;color:#efe4cf;
+    font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif;}
+  .wrap{max-width:1000px;margin:0 auto;padding:26px 20px 70px;}
+  h1{font-size:23px;color:#d9a441;letter-spacing:2px;margin:0 0 6px;}
+  h2{font-size:17px;color:#f0b45a;margin:30px 0 10px;letter-spacing:1px;}
+  h3{font-size:14.5px;color:#e8d3a6;margin:18px 0 6px;}
+  p.sub{color:#a89b7c;font-size:13.5px;line-height:1.95;margin:0 0 14px;}
+  .tip{border-left:3px solid rgba(217,164,65,.6);padding:10px 14px;margin:16px 0;
+    background:rgba(217,164,65,.07);color:#cbbf9f;font-size:13px;line-height:1.95;border-radius:0 8px 8px 0;}
+  .tip b{color:#f0b45a;}
+  .tip.bad{border-left-color:rgba(255,138,107,.8);background:rgba(255,138,107,.07);}
+  .tip.bad b{color:#ff9d80;}
+  table{width:100%;border-collapse:collapse;font-size:13px;margin-top:8px;}
+  th,td{border:1px solid rgba(217,164,65,.22);padding:9px 11px;text-align:left;vertical-align:top;}
+  th{background:rgba(217,164,65,.09);color:#f0cf8f;font-weight:600;}
+  code,kbd{font-family:Consolas,monospace;background:rgba(217,164,65,.14);border:1px solid rgba(217,164,65,.3);
+    padding:1px 6px;border-radius:5px;color:#f0cf8f;font-size:12.5px;}
+  pre{background:#0b0906;border:1px solid rgba(217,164,65,.28);border-radius:10px;
+    padding:11px 13px;overflow:auto;font-size:12.5px;line-height:1.75;color:#e8dcc2;}
+  ol,ul{color:#cbbf9f;font-size:13.5px;line-height:2;padding-left:22px;margin:6px 0;}
+  ol b,ul b{color:#f0b45a;}
+  .links a{display:inline-block;color:#1a1208;background:linear-gradient(135deg,#e8c06a,#c98a2c);
+    text-decoration:none;font-weight:700;font-size:14px;border-radius:999px;padding:11px 22px;margin:6px 10px 6px 0;}
+  .back{margin-top:26px;font-size:14px;}
+  .back a{color:#d9a441;text-decoration:none;margin-right:18px;}
+  .back a:hover{text-decoration:underline;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>学生作品 · 联网自验工作流</h1>
+  <p class="sub">
+    你做好了 VR 作品，怎么让头显打开它、并且确认它<b>真的进了 VR</b>？
+    这一页把三件事讲完：<b>怎么起服务 → 怎么让头显连上 → 怎么判断是环境问题还是你的代码问题。</b>
+  </p>
+
+  <div class="tip bad">
+    <b>先记住这一条，它能省你两小时：</b>
+    浏览器只在 <b>安全上下文</b> 里暴露 <code>navigator.xr</code>。
+    <code>https://</code>、<code>http://localhost</code>、<code>http://127.0.0.1</code> 算安全上下文；
+    <b>你电脑的局域网 IP（<code>http://192.168.x.x</code>）不算。</b>
+    所以用局域网 IP 打开自己的页面时，看不到"进入 VR"按钮、控制台里 <code>navigator.xr</code> 是 undefined——
+    <b>那不是你的代码写错了，是环境不满足。</b>先按下面 A 或 C 把它变成安全上下文，再 debug。
+  </div>
+
+  <h2>第一步 · 起一个本机服务器（不用装任何东西）</h2>
+  <p class="sub">
+    本目录下的 <a href="serve.bat" style="color:#f0b45a"><code>serve.bat</code></a> /
+    <a href="serve.ps1" style="color:#f0b45a"><code>serve.ps1</code></a> 是一个
+    <b>零依赖</b>的静态服务器（只用 Windows 自带的 PowerShell，不需要 Python、不需要 Node、不需要管理员）。
+  </p>
+  <ol>
+    <li>把 <code>serve.bat</code> 和 <code>serve.ps1</code> 下到你自己的电脑上（右键 → 另存为，或找老师要）；</li>
+    <li>把它们和<b>你的作品文件</b>放在同一个文件夹里；</li>
+    <li>双击 <code>serve.bat</code>。窗口里会打印两个地址，<b>这个窗口不要关</b>。</li>
+  </ol>
+  <pre>============================================================
+  VR 作品 · 本机服务器已启动
+------------------------------------------------------------
+  根目录 : D:\我的VR作品
+  端口   : 8080
+
+  头显里打开（USB 转发 / 安全上下文）:
+      http://127.0.0.1:8080/
+
+  头显里打开（同一 Wi-Fi，需先在头显浏览器加白名单）:
+      http://192.168.x.x:8080/
+============================================================</pre>
+  <p class="sub" style="margin-top:10px">
+    想换目录或端口：<code>serve.bat "D:\我的VR作品" 8081</code>
+    （也可以直接建个快捷方式，省得每次敲）。
+  </p>
+
+  <h2>第二步 · 让头显打开它：三条通路</h2>
+  <table>
+    <tr><th style="width:20%">通路</th><th>怎么做</th><th style="width:24%">什么时候用</th></tr>
+    <tr>
+      <td><b>A · USB 直连</b><br><span style="color:#7ddc9a">安全上下文 ✅</span></td>
+      <td>
+        1）数据线连头显，头显里点「允许 USB 调试」（需先开开发者模式）；<br>
+        2）电脑另开一个窗口执行：<br>
+        <code>adb reverse tcp:8080 tcp:8080</code><br>
+        3）头显浏览器打开 <code>http://127.0.0.1:8080/</code>。<br>
+        <b>头显里的 127.0.0.1 会被转到你的电脑上</b>，所以既是安全上下文、又完全不走网络。
+      </td>
+      <td>课堂、教室网络差、要最稳的效果</td>
+    </tr>
+    <tr>
+      <td><b>B · 交到课程站点</b><br><span style="color:#7ddc9a">安全上下文 ✅</span></td>
+      <td>把作品文件夹交给老师，放到课程站点的 <code>/assets/vr-2026/student/&lt;学号&gt;/</code>，
+        头显直接打开 <code>https://站点/.../student/学号/</code>。</td>
+      <td>要交作业、要让同学和老师都能看</td>
+    </tr>
+    <tr>
+      <td><b>C · 局域网 + 白名单</b><br><span style="color:#f0c060">要一次配置</span></td>
+      <td>
+        1）头显与电脑连<b>同一个 Wi-Fi</b>；<br>
+        2）头显浏览器打开
+        <code>chrome://flags/#unsafely-treat-insecure-origin-as-secure</code>；<br>
+        3）把 <code>http://你的电脑IP:8080</code> 填进去，设为 <b>Enabled</b>，重启浏览器；<br>
+        4）再打开 <code>http://你的电脑IP:8080/</code>。<br>
+        <b>电脑 IP 一变就要重填。</b>
+      </td>
+      <td>自己反复调试、不想插线</td>
+    </tr>
+  </table>
+
+  <div class="tip">
+    <b>头显连不上？按这个顺序查：</b>
+    ① 电脑和头显是不是同一个 Wi-Fi（校园网/手机热点常开「客户端隔离」，会直接连不上，那就换热点或走 A 路）；
+    ② 电脑上的防火墙有没有拦（第一次运行 serve.bat 时如果弹出"允许访问网络"，要点<b>允许</b>）；
+    ③ IP 有没有写错——<b>以 serve 窗口里当时打印的为准</b>，不要用聊天记录里的旧 IP。
+  </div>
+
+  <h2>第三步 · 判断"是环境问题，还是我的代码问题"</h2>
+  <p class="sub">
+    这是最容易浪费时间的一步。规矩很简单：<b>先用一个你确定没问题的页面确认环境，再回头改自己的代码。</b>
+  </p>
+  <div class="links">
+    <a href="../check/index.html">打开《VR 作品自检》</a>
+    <a href="../check/vr-probe.js">下载自检探针 vr-probe.js</a>
+  </div>
+  <h3>① 环境自检页（<code>../check/index.html</code>）</h3>
+  <ul>
+    <li>在<b>头显里</b>打开它，六项状态一次看全：安全上下文 / <code>navigator.xr</code> /
+      <code>immersive-vr</code> / WebGL / 输入设备 / 能不能真的进 VR；</li>
+    <li>它自带一个极简场景：<b>看到方块 = 渲染正常；注视靶变绿 = 注视交互正常</b>；</li>
+    <li>点「生成自检报告」，把那段文字复制或截图给老师。</li>
+  </ul>
+  <h3>② 把探针贴进你自己的作品（<code>vr-probe.js</code>）</h3>
+  <p class="sub">在你的页面里加一行就够：</p>
+  <pre>&lt;script src="vr-probe.js"&gt;&lt;/script&gt;</pre>
+  <p class="sub">
+    页面右上角会出现一个小面板，实时显示：四项 WebXR 前提、FPS、DrawCall、三角面、
+    <b>以及你页面里所有的 JS 报错</b>。改完代码刷新就能看到变化，不用再猜。
+  </p>
+  <div class="tip">
+    <b>一个必须知道的限制：</b>这个面板是 DOM 元素，<b>进了沉浸式 VR 就看不见了</b>
+    （WebXR 只渲染 3D 场景，不渲染网页覆盖层）。
+    所以要么在 2D 模式/投屏/镜像里看它，要么临时把读数画进 3D 场景里。
+    「沉浸模式下看不见 HTML 面板」这条，本身就是一次值得记住的工程经验。
+  </div>
+
+  <h2>交作品前 · 自查清单</h2>
+  <ol>
+    <li>用 <b>Chrome 或 Edge</b> 打开过，控制台<b>没有红字</b>；</li>
+    <li>在自检页确认过环境：安全上下文 ✅、<code>immersive-vr</code> 支持 ✅；</li>
+    <li>头显里能<b>进入 VR</b>、能<b>转一圈</b>、能<b>退出</b>（三条退出路至少试通一条）；</li>
+    <li>页面里没有<b>外部网络依赖</b>（不要引 CDN；图片、字体、库都放本地同目录）——
+       机房一断网，你的作品就白了；</li>
+    <li>文件名<b>不要用中文和空格</b>（部分机房电脑会乱码或直接打不开）；</li>
+    <li>把自己作品的 FPS / DrawCall 记下来，课堂上要说得出"我改了什么、数字怎么变"。</li>
+  </ol>
+
+  <div class="back">
+    <a href="../">← VR 课程演示总目录</a>
+    <a href="../cases/">← VR 课堂案例库</a>
+    <a href="/">← 返回站点首页</a>
+  </div>
+</div>
+</body>
+</html>

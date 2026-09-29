@@ -1,0 +1,1136 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>密室逃脱「敦煌寻宝」· WebXR</title>
+<style>
+  html,body{margin:0;padding:0;overflow:hidden;background:#1a1208;
+    font-family:"Microsoft YaHei","PingFang SC",sans-serif;color:#f0e0c0;}
+  #c{position:fixed;inset:0;display:block;}
+  #crosshair{position:fixed;left:50%;top:50%;width:10px;height:10px;margin:-5px 0 0 -5px;
+    border:2px solid rgba(240,225,190,.8);border-radius:50%;z-index:15;pointer-events:none;
+    transition:transform .08s,border-color .08s;}
+  #crosshair.hit{border-color:#ffb020;transform:scale(1.7);}
+  #hud{position:fixed;left:14px;top:14px;z-index:20;background:rgba(28,20,10,.9);
+    border:1px solid #8a6a3a;border-radius:10px;padding:12px 14px;width:270px;font-size:12px;line-height:1.6;
+    box-shadow:0 6px 22px rgba(0,0,0,.5);}
+  #hud h2{margin:0 0 6px;font-size:15px;color:#e8b54a;letter-spacing:1px;}
+  #hud .sec{border-top:1px solid #5a4525;margin-top:8px;padding-top:8px;}
+  #hud b{color:#ffcf6a;}
+  #hud button{background:#3a2a12;color:#f0dca8;border:1px solid #8a6a3a;border-radius:5px;
+    padding:3px 9px;margin:3px 4px 0 0;cursor:pointer;font-size:12px;}
+  #hud button:hover{background:#584018;}
+  #steps div{padding:1px 0;opacity:.5;}
+  #steps div.done{opacity:1;color:#8fe08a;}
+  #steps div.cur{opacity:1;color:#ffcf6a;font-weight:bold;}
+  #stats{color:#9fb88a;font-size:11px;}
+  #enterVR{position:fixed;right:18px;top:18px;z-index:20;
+    background:linear-gradient(135deg,#c9962c,#8a4f12);color:#1a1208;border:none;border-radius:24px;
+    padding:12px 22px;font-size:15px;letter-spacing:2px;cursor:pointer;font-weight:bold;
+    box-shadow:0 4px 16px rgba(0,0,0,.5);display:none;}
+  #enterVR:disabled{background:#5a5248;color:#c8c0b0;cursor:not-allowed;}
+  #vrhint{position:fixed;right:18px;top:74px;z-index:20;color:#e8d8b8;font-size:11px;max-width:230px;
+    text-align:right;background:rgba(28,20,10,.85);border-radius:6px;padding:6px 8px;display:none;}
+  #toast{position:fixed;left:50%;bottom:60px;transform:translateX(-50%);z-index:22;
+    background:rgba(28,20,10,.94);border:1px solid #c9962c;border-radius:8px;padding:10px 20px;
+    font-size:15px;color:#ffcf6a;opacity:0;transition:opacity .35s;pointer-events:none;max-width:70vw;text-align:center;}
+  #toast.show{opacity:1;}
+  body.XR #hud,body.XR #enterVR,body.XR #vrhint,body.XR #crosshair{display:none!important;}
+  #loader{position:fixed;inset:0;background:#1a1208;color:#f0e0c0;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;z-index:50;transition:opacity .6s;}
+  #loader h1{font-size:30px;letter-spacing:8px;margin:0 0 8px;color:#e8b54a;}
+  #loader p{opacity:.7;font-size:13px;margin:4px 0;}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="crosshair"></div>
+<div id="toast"></div>
+
+<div id="loader"><h1>敦煌寻宝</h1><p>WebXR 密室逃脱</p><p id="loadmsg">正在开凿洞窟…</p></div>
+
+<div id="hud">
+  <h2>密室逃脱 · 敦煌寻宝</h2>
+  <div class="sec" id="steps"></div>
+  <div class="sec">
+    <b>PC</b>：拖拽环视 ｜ WASD 走 ｜ 左键=交互<br>
+    <b>PICO</b>：扳机=射线点击/传送 ｜ 握持键=抓道具<br>
+    左摇杆移动 ｜ 右摇杆转向45° ｜ H=提示<br>
+    <b>可访问性</b>：Shift+P 坐姿/站立 · Shift+H 惯用手 · Shift+G 注视点击
+  </div>
+  <div class="sec">
+    <button id="hintBtn">提示（H）</button>
+    <button id="resetBtn">重置密室</button>
+    <button id="skipBtn">跳到下一步（调试）</button>
+  </div>
+  <div class="sec" id="stats">统计中…</div>
+</div>
+
+<button id="enterVR">进入 VR</button>
+<div id="vrhint"></div>
+
+<script src="../three.min.js"></script>
+<script src="../_xr_core.js"></script>
+<script>
+/* =========================================================================
+ * 案例 02：密室逃脱「敦煌寻宝」WebXR
+ * 课次：第 7 次课（密室设计 + 场景搭建）／第 8 次课（控制器 + 道具系统）／第 9 次课（谜题 + VR 验证）
+ * 谜题链（4 步，线性但每步交互方式不同）：
+ *   ① 收集：找齐 3 块壁画碎片 → 放入壁画框凹槽（直接抓取 + 放置判定）
+ *   ② 拼合：碎片齐了自动拼出图案，给出星象提示（射线点击查看细节）
+ *   ③ 星象：按提示顺序点亮 4 颗星（射线点击，顺序错误会重置）
+ *   ④ 密码：在石门键盘输入 4 位密码（3D UI 键盘，射线点击）→ 门开 → 通关
+ * 交互方式：直接抓取道具 / 射线点击 / 3D UI 键盘 / 传送移动 / 摇杆移动 / 门动画 / 提示系统 / 触觉 + 音效
+ * ========================================================================= */
+(function(){
+'use strict';
+
+/* ---------------- 游戏状态 ---------------- */
+var CODE = '3719';               // 星象提示的密码
+var STAR_ORDER = [2, 0, 3, 1];   // 正确点星顺序（对应 4 颗星索引）
+var S = {
+  step: 0,            // 0 收集碎片 1 拼合(自动过渡) 2 点星 3 输密码 4 通关
+  fragments: [false,false,false],
+  starProgress: [],
+  input: '',
+  doorOpen: false,
+  solved: false,
+  hintsUsed: 0,
+  time: 0
+};
+var STEP_NAMES = ['① 找齐 3 块壁画碎片', '② 壁画已拼合，查看星象', '③ 按顺序点亮 4 颗星',
+                  '④ 在石门输入 4 位密码', '★ 通关'];
+
+var renderer, scene, camera, player, clock;
+var controllers = [], ctrlState = [];
+var interactables = [], walkables = [];
+var raycaster = new THREE.Raycaster();
+var tmpV = new THREE.Vector3(), tmpV2 = new THREE.Vector3(), tmpQ = new THREE.Quaternion();
+var fragments = [], stars = [], keys = {}, yaw = 0, pitch = 0;
+var keypad = null, door = null, muralFrame = null, hintSign = null;
+var marker, markerRing;
+var teleporting = false, teleportTarget = new THREE.Vector3();
+var vrMove = { x:0, z:0, turn:0 }, lastSnap = 0;
+var audioCtx = null, heldObj = null, heldHolder = null;
+var toastTimer = null;
+
+/* ---------------- 工具 / 反馈 ---------------- */
+function clamp(v,a,b){ return v<a?a:(v>b?b:v); }
+function toast(msg, ms){
+  var el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(function(){ el.classList.remove('show'); }, ms || 2600);
+}
+function beep(freq, dur, type, vol){
+  try{
+    if(!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+    if(audioCtx.state === 'suspended') audioCtx.resume();
+    var o = audioCtx.createOscillator(), g = audioCtx.createGain();
+    o.type = type||'sine'; o.frequency.value = freq;
+    g.gain.setValueAtTime(0.0001, audioCtx.currentTime);
+    g.gain.exponentialRampToValueAtTime(vol||0.1, audioCtx.currentTime+0.012);
+    g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime+dur);
+    o.connect(g); g.connect(audioCtx.destination);
+    o.start(); o.stop(audioCtx.currentTime+dur+0.02);
+  }catch(e){}
+}
+function sfxGood(){ beep(620,0.12,'sine',0.1); setTimeout(function(){beep(830,0.18,'sine',0.1);},110); }
+function sfxBad(){ beep(170,0.24,'sawtooth',0.06); }
+function sfxClick(){ beep(760,0.05,'square',0.05); }
+function sfxPick(){ beep(500,0.08,'triangle',0.08); }
+function sfxDoor(){ beep(120,0.7,'sawtooth',0.07); setTimeout(function(){beep(90,0.9,'sine',0.06);},300); }
+function pulse(src,i,ms){
+  try{ var gp = src && src.gamepad;
+    if(gp && gp.hapticActuators && gp.hapticActuators[0]) gp.hapticActuators[0].pulse(i,ms); }catch(e){}
+}
+
+/* =========================================================================
+ * 程序化纹理
+ * ========================================================================= */
+function makeTex(w,h,fn,rx,ry){
+  var c=document.createElement('canvas'); c.width=w; c.height=h;
+  var g=c.getContext('2d'); fn(g,w,h);
+  var t=new THREE.CanvasTexture(c);
+  t.wrapS=t.wrapT=THREE.RepeatWrapping;
+  t.repeat.set(rx||1,ry||1); t.anisotropy=4; t.encoding=THREE.sRGBEncoding;
+  return t;
+}
+/* 洞窟砂岩墙 */
+function texRock(){
+  return makeTex(256,256,function(g,w,h){
+    g.fillStyle='#6b5636'; g.fillRect(0,0,w,h);
+    for(var i=0;i<420;i++){
+      var r=8+Math.random()*40;
+      g.fillStyle='rgba('+(120+Math.random()*60|0)+','+(96+Math.random()*44|0)+','+(58+Math.random()*30|0)+',0.30)';
+      g.beginPath(); g.arc(Math.random()*w,Math.random()*h,r,0,Math.PI*2); g.fill();
+    }
+    for(var k=0;k<1600;k++){
+      g.fillStyle='rgba(40,28,12,'+(Math.random()*0.16)+')';
+      g.fillRect(Math.random()*w,Math.random()*h,2,2);
+    }
+    // 层理线
+    for(var y=0;y<h;y+=38){
+      g.strokeStyle='rgba(52,38,20,0.35)'; g.lineWidth=2;
+      g.beginPath(); g.moveTo(0,y); g.bezierCurveTo(w*0.3,y+6,w*0.7,y-6,w,y); g.stroke();
+    }
+  },3,2);
+}
+/* 地砖 */
+function texFloor(){
+  return makeTex(256,256,function(g,w,h){
+    g.fillStyle='#54432a'; g.fillRect(0,0,w,h);
+    for(var y=0;y<h;y+=64)for(var x=0;x<w;x+=64){
+      var v=0.85+Math.random()*0.25;
+      g.fillStyle='rgb('+(84*v|0)+','+(67*v|0)+','+(42*v|0)+')';
+      g.fillRect(x+3,y+3,58,58);
+    }
+    g.strokeStyle='rgba(30,22,10,0.6)'; g.lineWidth=3;
+    for(var i=0;i<=256;i+=64){ g.beginPath();g.moveTo(i,0);g.lineTo(i,256);g.stroke();
+                               g.beginPath();g.moveTo(0,i);g.lineTo(256,i);g.stroke(); }
+  },6,6);
+}
+/* 敦煌壁画（程序化：飞天飘带 + 藻井图案） */
+function texMural(seed){
+  return makeTex(512,320,function(g,w,h){
+    var base=['#8c3b1e','#7a4a1c','#6b3a2a'][seed%3];
+    g.fillStyle=base; g.fillRect(0,0,w,h);
+    // 剥落感
+    for(var i=0;i<260;i++){
+      g.fillStyle='rgba(180,150,110,'+(Math.random()*0.18)+')';
+      g.beginPath(); g.arc(Math.random()*w,Math.random()*h,6+Math.random()*26,0,Math.PI*2); g.fill();
+    }
+    // 藻井方格
+    g.strokeStyle='rgba(240,200,120,0.5)'; g.lineWidth=3;
+    for(var x=40;x<w;x+=72){ g.beginPath();g.moveTo(x,20);g.lineTo(x,h-20);g.stroke(); }
+    // 飞天飘带（贝塞尔）
+    var colors=['#f0c860','#e08a3c','#7fb0c8','#c85a4a'];
+    for(var k=0;k<5;k++){
+      g.strokeStyle=colors[(seed+k)%colors.length];
+      g.lineWidth=4+Math.random()*5; g.globalAlpha=0.85;
+      g.beginPath();
+      var y0=70+k*46;
+      g.moveTo(20,y0);
+      g.bezierCurveTo(w*0.3,y0-50+Math.random()*40,w*0.6,y0+50-Math.random()*40,w-20,y0+(Math.random()-0.5)*30);
+      g.stroke();
+    }
+    g.globalAlpha=1;
+    // 莲花（中心圆 + 花瓣）
+    var cx=w/2, cy=h/2;
+    for(var p=0;p<12;p++){
+      var a=p*Math.PI/6;
+      g.fillStyle= p%2 ? '#f0d890' : '#d8a24c';
+      g.beginPath();
+      g.ellipse(cx+Math.cos(a)*46, cy+Math.sin(a)*46, 20, 11, a, 0, Math.PI*2);
+      g.fill();
+    }
+    g.fillStyle='#c8442c'; g.beginPath(); g.arc(cx,cy,20,0,Math.PI*2); g.fill();
+    g.fillStyle='#f0d890'; g.beginPath(); g.arc(cx,cy,9,0,Math.PI*2); g.fill();
+    // 做旧
+    for(var m=0;m<900;m++){
+      g.fillStyle='rgba(60,40,20,'+(Math.random()*0.12)+')';
+      g.fillRect(Math.random()*w,Math.random()*h,3,3);
+    }
+  });
+}
+/* 石门 */
+function texDoor(){
+  return makeTex(256,384,function(g,w,h){
+    g.fillStyle='#4a4038'; g.fillRect(0,0,w,h);
+    for(var i=0;i<200;i++){
+      g.fillStyle='rgba('+(90+Math.random()*40|0)+','+(82+Math.random()*30|0)+','+(72+Math.random()*26|0)+',0.4)';
+      g.fillRect(Math.random()*w,Math.random()*h,10+Math.random()*40,4+Math.random()*16);
+    }
+    g.strokeStyle='#2a241e'; g.lineWidth=6;
+    g.strokeRect(16,16,w-32,h-32);
+    g.strokeStyle='rgba(200,170,110,0.5)'; g.lineWidth=3;
+    g.strokeRect(34,34,w-68,h-68);
+    // 门环
+    g.fillStyle='#8a7038'; g.beginPath(); g.arc(w/2,h/2,26,0,Math.PI*2); g.fill();
+    g.fillStyle='#3a3028'; g.beginPath(); g.arc(w/2,h/2,17,0,Math.PI*2); g.fill();
+  });
+}
+
+/* =========================================================================
+ * 场景：主窟 + 侧窟 + 石门
+ * ========================================================================= */
+var ROOM = { x0:-6, x1:6, z0:-8, z1:6, h:3.6 };   // 主窟
+var ROOM2 = { x0:6.3, x1:12, z0:-3, z1:3, h:3.2 }; // 侧窟（门后）
+
+function buildScene(){
+  scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x140e06);
+  scene.fog = new THREE.Fog(0x140e06, 8, 30);
+
+  camera = new THREE.PerspectiveCamera(70, innerWidth/innerHeight, 0.05, 200);
+  camera.rotation.order = 'YXZ';
+  player = new THREE.Group();
+  camera.position.set(0, 1.62, 0);
+  player.add(camera);
+  player.position.set(0, 0, 4.2);
+  scene.add(player);
+
+  // 光照：油灯暖光（半球）+ 顶部微光 + 一盏"手电"（跟随相机的弱聚光，VR 里不额外加光源，用平行光模拟）
+  var hemi = new THREE.HemisphereLight(0xffe0b0, 0x4a3620, 0.72);
+  scene.add(hemi);
+  var sun = new THREE.DirectionalLight(0xffe8c0, 0.95);
+  sun.position.set(3, 6, 4);
+  sun.castShadow = true;
+  sun.shadow.mapSize.set(1024, 1024);
+  var sc = sun.shadow.camera;
+  sc.left=-10; sc.right=10; sc.top=8; sc.bottom=-8; sc.near=0.5; sc.far=26;
+  sun.shadow.bias = -0.0008;
+  scene.add(sun); scene.add(sun.target);
+  sun.target.position.set(0, 0.8, 0);
+
+  var rockMat = new THREE.MeshStandardMaterial({ map:texRock(), roughness:0.95 });
+
+  // 地面
+  var floor = new THREE.Mesh(new THREE.PlaneGeometry(20, 18),
+    new THREE.MeshStandardMaterial({ map:texFloor(), roughness:0.95 }));
+  floor.rotation.x = -Math.PI/2; floor.receiveShadow = true;
+  scene.add(floor); walkables.push(floor);
+
+  // 墙体（主窟 + 侧窟共用一套料）
+  function wall(w,h,d,x,y,z,ry){
+    var m = new THREE.Mesh(new THREE.BoxGeometry(w,h,d), rockMat);
+    m.position.set(x,y,z); m.rotation.y = ry||0;
+    m.castShadow = true; m.receiveShadow = true; scene.add(m); return m;
+  }
+  wall(12, ROOM.h, 0.4,  0, ROOM.h/2, ROOM.z0);                     // 北墙
+  wall(12, ROOM.h, 0.4,  0, ROOM.h/2, ROOM.z1);                     // 南墙（身后）
+  wall(0.4, ROOM.h, 14,  ROOM.x0, ROOM.h/2, -1);                    // 西墙
+  // 东墙（中间留门洞 2.2 宽）
+  wall(0.4, ROOM.h, 4.2,  ROOM.x1, ROOM.h/2, -4.4);
+  wall(0.4, ROOM.h, 1.6,  ROOM.x1, ROOM.h/2, 3.0);
+  wall(0.4, 1.2, 2.6,     ROOM.x1, ROOM.h-0.6, -0.6);               // 门楣上方墙
+
+  // 天花板（藻井感：中心凹井）
+  var ceil = new THREE.Mesh(new THREE.PlaneGeometry(12,14),
+    new THREE.MeshStandardMaterial({ color:0x2e2416, roughness:1, side:THREE.DoubleSide }));
+  ceil.rotation.x = Math.PI/2; ceil.position.set(0, ROOM.h, -1); scene.add(ceil);
+
+  // 侧窟（门后）
+  wall(0.4, ROOM2.h, 6, ROOM2.x1, ROOM2.h/2, 0);
+  wall(5.7, ROOM2.h, 0.4, 9.15, ROOM2.h/2, ROOM2.z0);
+  wall(5.7, ROOM2.h, 0.4, 9.15, ROOM2.h/2, ROOM2.z1);
+  var ceil2 = new THREE.Mesh(new THREE.PlaneGeometry(5.7,6),
+    new THREE.MeshStandardMaterial({ color:0x2a2014, roughness:1, side:THREE.DoubleSide }));
+  ceil2.rotation.x = Math.PI/2; ceil2.position.set(9.15, ROOM2.h, 0); scene.add(ceil2);
+}
+
+/* 壁画（墙上的装饰 + 壁画框） */
+function buildMurals(){
+  // 装饰壁画：西墙一幅、北墙一幅
+  var m1 = new THREE.Mesh(new THREE.PlaneGeometry(4.4, 2.7),
+    new THREE.MeshStandardMaterial({ map:texMural(0), roughness:0.9 }));
+  m1.position.set(ROOM.x0+0.22, 1.7, -3.0); m1.rotation.y = Math.PI/2; scene.add(m1);
+  var m2 = new THREE.Mesh(new THREE.PlaneGeometry(2.6, 1.9),
+    new THREE.MeshStandardMaterial({ map:texMural(1), roughness:0.9 }));
+  m2.position.set(-4.2, 1.75, ROOM.z0+0.22); scene.add(m2);
+
+  // 壁画框（带 3 个凹槽，用于放碎片）——北墙东侧
+  muralFrame = new THREE.Group();
+  muralFrame.position.set(2.8, 1.7, ROOM.z0+0.24);
+  scene.add(muralFrame);
+  var frame = new THREE.Mesh(new THREE.BoxGeometry(3.4, 2.3, 0.16),
+    new THREE.MeshStandardMaterial({ color:0x5a3a1c, roughness:0.8 }));
+  muralFrame.add(frame);
+  var inner = new THREE.Mesh(new THREE.PlaneGeometry(3.0, 1.9),
+    new THREE.MeshStandardMaterial({ color:0x241a10, roughness:1 }));
+  inner.position.z = 0.09; muralFrame.add(inner);
+  // 3 个凹槽（放置判定点）
+  for(var i=0;i<3;i++){
+    var slot = new THREE.Mesh(new THREE.BoxGeometry(0.86, 0.86, 0.06),
+      new THREE.MeshStandardMaterial({ color:0x3a2a16, roughness:1 }));
+    slot.position.set(-0.95 + i*0.95, 0, 0.11);
+    muralFrame.add(slot);
+  }
+}
+
+/* 3 块壁画碎片（可抓取，藏在场景各处） */
+function buildFragments(){
+  var spots = [
+    { p:[-4.6, 0.55, -6.6], hint:'北墙根（经卷堆旁）' },
+    { p:[ 4.8, 0.55,  4.6], hint:'南墙角（陶罐边）' },
+    { p:[-4.8, 1.35,  1.2], hint:'西墙佛龛台上' }
+  ];
+  for(var i=0;i<3;i++){
+    var m = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.8, 0.06),
+      new THREE.MeshStandardMaterial({ map:texMural(i+1), roughness:0.85,
+        emissive:0xffb050, emissiveIntensity:0.18 }));
+    m.position.fromArray(spots[i].p);
+    m.rotation.y = (Math.random()-0.5)*0.6;
+    m.rotation.z = (Math.random()-0.5)*0.4;
+    m.castShadow = true;
+    scene.add(m);
+    var f = { mesh:m, idx:i, home:new THREE.Vector3().fromArray(spots[i].p),
+              placed:false, held:false, holder:null, hint:spots[i].hint,
+              glow:0.18 + Math.random()*0.1 };
+    m.userData.frag = f;
+    fragments.push(f); interactables.push(m);
+    // 碎片底座（视觉提示）
+    var base = new THREE.Mesh(new THREE.CylinderGeometry(0.28,0.32,0.06,12),
+      new THREE.MeshStandardMaterial({ color:0x3a2c18, roughness:0.9 }));
+    base.position.set(spots[i].p[0], spots[i].p[1]-0.42, spots[i].p[2]);
+    scene.add(base);
+  }
+}
+
+/* 场景陈设（经卷、陶罐、佛龛、油灯、地毯） */
+function buildProps(){
+  var woodMat = new THREE.MeshStandardMaterial({ color:0x5a3c1e, roughness:0.85 });
+  var clayMat = new THREE.MeshStandardMaterial({ color:0x8a5a34, roughness:0.8 });
+  var goldMat = new THREE.MeshStandardMaterial({ color:0xc9962c, metalness:0.7, roughness:0.35 });
+
+  // 经卷堆（北墙根）
+  for(var i=0;i<7;i++){
+    var roll = new THREE.Mesh(new THREE.CylinderGeometry(0.09,0.09,0.5,10), woodMat);
+    roll.rotation.z = Math.PI/2;
+    roll.position.set(-4.9, 0.1 + (i%3)*0.19, -6.5 + (i<3 ? -0.3 : 0.3));
+    roll.castShadow = true; scene.add(roll);
+  }
+  // 陶罐（南墙角）
+  var jar = new THREE.Mesh(new THREE.SphereGeometry(0.42,16,12), clayMat);
+  jar.scale.set(1, 1.25, 1); jar.position.set(4.9, 0.52, 4.9); jar.castShadow = true; scene.add(jar);
+  var jarNeck = new THREE.Mesh(new THREE.CylinderGeometry(0.18,0.24,0.22,12), clayMat);
+  jarNeck.position.set(4.9, 1.02, 4.9); scene.add(jarNeck);
+
+  // 佛龛（西墙）+ 简化佛像
+  var niche = new THREE.Mesh(new THREE.BoxGeometry(1.4, 1.0, 0.7),
+    new THREE.MeshStandardMaterial({ color:0x4a3218, roughness:0.9 }));
+  niche.position.set(ROOM.x0+0.5, 0.9, 1.2); scene.add(niche);
+  var buddha = new THREE.Group(); buddha.position.set(ROOM.x0+0.62, 1.42, 1.2); scene.add(buddha);
+  var body = new THREE.Mesh(new THREE.CylinderGeometry(0.26,0.34,0.62,12), goldMat);
+  buddha.add(body);
+  var head = new THREE.Mesh(new THREE.SphereGeometry(0.17,14,12), goldMat);
+  head.position.y = 0.46; buddha.add(head);
+  var halo = new THREE.Mesh(new THREE.TorusGeometry(0.24,0.035,8,20), goldMat);
+  halo.position.set(0, 0.48, -0.06); buddha.add(halo);
+  var lotus = new THREE.Mesh(new THREE.CylinderGeometry(0.36,0.3,0.12,14),
+    new THREE.MeshStandardMaterial({ color:0xc8442c, roughness:0.8 }));
+  lotus.position.y = -0.34; buddha.add(lotus);
+
+  // 油灯（4 盏，暖黄自发光）
+  var lampPos = [[-5.2,2.2,-5.2], [5.2,2.2,-5.2], [-5.2,2.2,3.2], [5.2,2.2,3.2]];
+  for(var k=0;k<lampPos.length;k++){
+    var lamp = new THREE.Mesh(new THREE.SphereGeometry(0.16,12,10),
+      new THREE.MeshStandardMaterial({ color:0xffcf70, emissive:0xffa030, emissiveIntensity:0.9 }));
+    lamp.position.fromArray(lampPos[k]); scene.add(lamp);
+    var hook = new THREE.Mesh(new THREE.CylinderGeometry(0.012,0.012,0.5,6),
+      new THREE.MeshStandardMaterial({ color:0x3a2c18 }));
+    hook.position.set(lampPos[k][0], lampPos[k][1]+0.34, lampPos[k][2]); scene.add(hook);
+  }
+
+  // 中央地毯 + 星象图（点星谜题的载体）
+  var rug = new THREE.Mesh(new THREE.CircleGeometry(2.2, 32),
+    new THREE.MeshStandardMaterial({ color:0x6b2a20, roughness:0.95 }));
+  rug.rotation.x = -Math.PI/2; rug.position.set(0, 0.012, -2.2);
+  rug.receiveShadow = true; scene.add(rug);
+  var ring = new THREE.Mesh(new THREE.RingGeometry(2.05, 2.2, 40),
+    new THREE.MeshStandardMaterial({ color:0xc9962c, roughness:0.7, side:THREE.DoubleSide }));
+  ring.rotation.x = -Math.PI/2; ring.position.set(0, 0.02, -2.2); scene.add(ring);
+}
+
+/* 星象谜题：地毯上 4 颗可点击的星 */
+function buildStars(){
+  var pos = [[-1.2,-3.2],[1.2,-3.2],[-1.2,-1.2],[1.2,-1.2]];
+  var names = ['角','亢','氐','房'];
+  for(var i=0;i<4;i++){
+    var g = new THREE.Group();
+    g.position.set(pos[i][0], 0.05, pos[i][1]);
+    scene.add(g);
+    var star = new THREE.Mesh(new THREE.CylinderGeometry(0.16,0.18,0.07,8),
+      new THREE.MeshStandardMaterial({ color:0x6a5636, emissive:0x604018,
+        emissiveIntensity:0.75, roughness:0.7 }));
+    star.castShadow = true; g.add(star);
+    // 星名（canvas 贴图小牌）
+    var c = document.createElement('canvas'); c.width = 128; c.height = 128;
+    var ctx = c.getContext('2d');
+    ctx.fillStyle = '#241a10'; ctx.fillRect(0,0,128,128);
+    ctx.fillStyle = '#e8c060'; ctx.font = 'bold 76px "KaiTi","STKaiti",serif';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(names[i], 64, 68);
+    var t = new THREE.CanvasTexture(c); t.encoding = THREE.sRGBEncoding;
+    var plate = new THREE.Mesh(new THREE.PlaneGeometry(0.2,0.2),
+      new THREE.MeshStandardMaterial({ map:t, roughness:0.9 }));
+    plate.position.y = 0.041; plate.rotation.x = -Math.PI/2; g.add(plate);
+
+    var st = { group:g, mesh:star, idx:i, name:names[i], lit:false, order:-1 };
+    star.userData.star = st;
+    stars.push(st); interactables.push(star);
+  }
+}
+
+/* 石门 + 密码键盘 */
+function buildDoor(){
+  door = new THREE.Group();
+  door.position.set(ROOM.x1 - 0.05, 0, -0.6);
+  scene.add(door);
+  var leaf = new THREE.Mesh(new THREE.BoxGeometry(0.18, 2.6, 2.2),
+    new THREE.MeshStandardMaterial({ map:texDoor(), roughness:0.85 }));
+  leaf.position.set(0, 1.3, 0);
+  leaf.castShadow = true; leaf.receiveShadow = true;
+  door.add(leaf);
+  door.userData.leaf = leaf;
+
+  // 键盘（门旁墙上的 3D UI）
+  keypad = {};
+  var canvas = document.createElement('canvas');
+  canvas.width = 384; canvas.height = 512;
+  var tex = new THREE.CanvasTexture(canvas);
+  tex.encoding = THREE.sRGBEncoding; tex.anisotropy = 4;
+  var panel = new THREE.Mesh(new THREE.PlaneGeometry(0.62, 0.82),
+    new THREE.MeshStandardMaterial({ map:tex, roughness:0.8, emissive:0x201810, emissiveIntensity:0.35 }));
+  panel.position.set(ROOM.x1 - 0.35, 1.5, 1.4);
+  panel.rotation.y = -Math.PI/2;
+  scene.add(panel);
+  var kp = { canvas:canvas, tex:tex, panel:panel, hover:null,
+    keys:[], display:'' };
+  // 12 键：1-9 + 清除 + 0 + 确认（4×3 布局，画布坐标）
+  var labels = ['1','2','3','4','5','6','7','8','9','C','0','OK'];
+  for(var i=0;i<12;i++){
+    var col = i % 3, row = Math.floor(i/3);
+    kp.keys.push({ id:labels[i], x:24 + col*116, y:150 + row*90, w:100, h:76 });
+  }
+  keypad = kp;
+  interactables.push(panel);
+  drawKeypad();
+}
+
+function drawKeypad(){
+  if(!keypad.canvas) return;
+  var c = keypad.canvas, g = c.getContext('2d'), W = c.width, H = c.height;
+  g.fillStyle = '#1c1408'; g.fillRect(0,0,W,H);
+  g.strokeStyle = '#c9962c'; g.lineWidth = 5; g.strokeRect(6,6,W-12,H-12);
+  g.fillStyle = '#e8b54a'; g.font = 'bold 34px "Microsoft YaHei",sans-serif';
+  g.textAlign = 'center'; g.textBaseline = 'middle';
+  g.fillText('石门密码锁', W/2, 42);
+  // 显示屏
+  g.fillStyle = '#0d1a10'; g.fillRect(24, 70, W-48, 62);
+  g.strokeStyle = '#3a6a3a'; g.lineWidth = 3; g.strokeRect(24, 70, W-48, 62);
+  g.fillStyle = '#7fffa0'; g.font = 'bold 46px "Courier New",monospace';
+  g.fillText(keypad.display || '----', W/2, 102);
+  // 按键
+  for(var i=0;i<keypad.keys.length;i++){
+    var k = keypad.keys[i];
+    var isHover = (keypad.hover === k.id);
+    g.fillStyle = isHover ? '#8a5a1c' : '#3a2a12';
+    g.fillRect(k.x, k.y, k.w, k.h);
+    g.strokeStyle = isHover ? '#ffcf6a' : '#8a6a3a'; g.lineWidth = 3;
+    g.strokeRect(k.x, k.y, k.w, k.h);
+    g.fillStyle = k.id === 'OK' ? '#8fe08a' : (k.id === 'C' ? '#e08a6a' : '#f0dca8');
+    g.font = 'bold 40px "Microsoft YaHei",sans-serif';
+    g.fillText(k.id, k.x + k.w/2, k.y + k.h/2 + 2);
+  }
+  keypad.tex.needsUpdate = true;
+}
+
+/* 提示牌（场景内，VR 可读） */
+function buildSign(){
+  var c = document.createElement('canvas'); c.width = 512; c.height = 320;
+  var g = c.getContext('2d');
+  function draw(){
+    g.fillStyle = '#1c1408'; g.fillRect(0,0,512,320);
+    g.strokeStyle = '#c9962c'; g.lineWidth = 6; g.strokeRect(8,8,496,304);
+    g.fillStyle = '#e8b54a'; g.font = 'bold 36px "Microsoft YaHei",sans-serif';
+    g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.fillText('敦煌寻宝 · 通关指引', 256, 40);
+    g.font = '26px "Microsoft YaHei",sans-serif';
+    for(var i=0;i<STEP_NAMES.length-1;i++){
+      g.fillStyle = (i < S.step) ? '#8fe08a' : ((i === S.step) ? '#ffcf6a' : '#7a6a52');
+      g.fillText((i < S.step ? '✔ ' : (i === S.step ? '▶ ' : '○ ')) + STEP_NAMES[i], 256, 100 + i*46);
+    }
+    if(S.step === 2) { g.fillStyle='#9fb88a'; g.font='22px "Microsoft YaHei",sans-serif';
+      g.fillText('提示顺序：' + STAR_ORDER.map(function(i){return stars[i].name;}).join(' → '), 256, 292); }
+    if(S.step === 3) { g.fillStyle='#9fb88a'; g.font='22px "Microsoft YaHei",sans-serif';
+      g.fillText('密码 = 四颗星点亮顺序对应的数字', 256, 292); }
+  }
+  var t = new THREE.CanvasTexture(c); t.encoding = THREE.sRGBEncoding;
+  var m = new THREE.Mesh(new THREE.PlaneGeometry(1.9, 1.19),
+    new THREE.MeshStandardMaterial({ map:t, roughness:0.9, side:THREE.DoubleSide }));
+  // 放在北墙（玩家初始朝向的正前方），法线朝 +z 面向房间
+  m.position.set(-0.6, 2.3, ROOM.z0 + 0.35); scene.add(m);
+  hintSign = { canvas:c, draw:draw, tex:t, mesh:m };
+  draw();
+}
+
+/* 传送标记 */
+function buildMarker(){
+  marker = new THREE.Group();
+  markerRing = new THREE.Mesh(new THREE.RingGeometry(0.16,0.22,28),
+    new THREE.MeshBasicMaterial({ color:0xffb020, transparent:true, opacity:0.95,
+      side:THREE.DoubleSide, depthWrite:false }));
+  markerRing.rotation.x = -Math.PI/2; marker.add(markerRing);
+  var beam = new THREE.Mesh(new THREE.CylinderGeometry(0.02,0.02,1.2,6),
+    new THREE.MeshBasicMaterial({ color:0xffcf6a, transparent:true, opacity:0.3, depthWrite:false }));
+  beam.position.y = 0.6; marker.add(beam);
+  marker.visible = false; scene.add(marker);
+}
+
+/* =========================================================================
+ * 谜题逻辑
+ * ========================================================================= */
+function updateStepsUI(){
+  var el = document.getElementById('steps');
+  if(!el) return;
+  var html = '';
+  for(var i=0;i<STEP_NAMES.length;i++){
+    var cls = (i < S.step) ? 'done' : ((i === S.step) ? 'cur' : '');
+    html += '<div class="'+cls+'">' + (i < S.step ? '✔ ' : (i === S.step ? '▶ ' : '○ ')) + STEP_NAMES[i] + '</div>';
+  }
+  el.innerHTML = html;
+  if(hintSign){ hintSign.draw(); hintSign.tex.needsUpdate = true; }
+}
+
+function checkFragments(){
+  var n = 0;
+  for(var i=0;i<S.fragments.length;i++) if(S.fragments[i]) n++;
+  return n;
+}
+
+function placeFragment(f){
+  if(S.step !== 0) return false;
+  S.fragments[f.idx] = true;
+  f.placed = true;
+  sfxGood();
+  var n = checkFragments();
+  if(n >= 3){
+    S.step = 2;   // 拼合自动完成 → 进入点星
+    toast('壁画拼合完成！星象图已显现 —— 按顺序点亮四颗星', 3600);
+    beep(880, 0.25, 'sine', 0.1);
+  } else {
+    toast('碎片 ' + n + '/3 已归位', 2000);
+  }
+  updateStepsUI();
+  return true;
+}
+
+function clickStar(st){
+  if(S.step !== 2) { toast('先找齐壁画碎片', 1800); sfxBad(); return false; }
+  if(st.lit){ toast('这颗星已点亮', 1400); return false; }
+  var expectIdx = STAR_ORDER[S.starProgress.length];
+  if(st.idx !== expectIdx){
+    // 顺序错误 → 全部熄灭
+    for(var i=0;i<stars.length;i++){ stars[i].lit = false; stars[i].order = -1; setStarVisual(stars[i], false); }
+    S.starProgress = [];
+    sfxBad(); toast('顺序不对，星辰归位重来', 2200);
+    return false;
+  }
+  st.lit = true; st.order = S.starProgress.length;
+  S.starProgress.push(st.idx);
+  setStarVisual(st, true);
+  beep(520 + st.order*140, 0.14, 'sine', 0.1);
+  if(S.starProgress.length === 4){
+    S.step = 3;
+    toast('四星归位！密码 = ' + CODE, 4000);
+    sfxGood();
+  } else {
+    toast('已点亮 ' + S.starProgress.length + '/4', 1400);
+  }
+  updateStepsUI();
+  return true;
+}
+
+function setStarVisual(st, lit){
+  st.mesh.material.emissive.setHex(lit ? 0xffb020 : 0x604018);
+  st.mesh.material.emissiveIntensity = lit ? 1.2 : 0.75;
+  st.mesh.material.color.setHex(lit ? 0xc9962c : 0x6a5636);
+}
+
+function keypadPress(id){
+  sfxClick();
+  if(id === 'C'){ keypad.display = ''; }
+  else if(id === 'OK'){
+    if(S.step !== 3){ toast('密码锁还没通电', 1800); sfxBad(); }
+    else if(keypad.display === CODE){
+      openDoor();
+    } else {
+      sfxBad(); toast('密码错误', 1600);
+      keypad.display = '';
+    }
+  } else {
+    if(keypad.display.length < 4) keypad.display += id;
+  }
+  drawKeypad();
+  updateStepsUI();
+}
+
+function openDoor(){
+  if(S.doorOpen) return;
+  S.doorOpen = true; S.solved = true; S.step = 4;
+  sfxDoor();
+  toast('石门开启 —— 藏经洞宝藏到手！通关用时 ' + S.time.toFixed(0) + ' 秒', 6000);
+  updateStepsUI();
+}
+
+function giveHint(){
+  S.hintsUsed++;
+  var msg = '';
+  if(S.step === 0){
+    var missing = [];
+    for(var i=0;i<fragments.length;i++) if(!S.fragments[i]) missing.push(fragments[i].hint);
+    msg = '还有碎片没找到：' + (missing.join('；') || '无');
+  } else if(S.step === 2){
+    var next = STAR_ORDER[S.starProgress.length];
+    msg = '下一颗星：' + stars[next].name + '（' + ['左上','右上','左下','右下'][next] + '）';
+  } else if(S.step === 3){
+    msg = '密码是 ' + CODE;
+  } else msg = '已经通关了';
+  toast('提示：' + msg, 4200);
+}
+
+function resetRoom(){
+  for(var i=0;i<fragments.length;i++){
+    var f = fragments[i];
+    if(f.held) release(f.mesh);
+    f.placed = false;
+    f.mesh.position.copy(f.home);
+    f.mesh.visible = true;
+    scene.attach(f.mesh);
+  }
+  for(var k=0;k<stars.length;k++){ stars[k].lit = false; stars[k].order = -1; setStarVisual(stars[k], false); }
+  S.fragments = [false,false,false];
+  S.starProgress = []; S.input = ''; S.doorOpen = false; S.solved = false;
+  S.step = 0; S.time = 0; S.hintsUsed = 0;
+  if(keypad) { keypad.display = ''; drawKeypad(); }
+  if(door){
+    door.userData.leaf.rotation.y = 0;
+    door.userData.leaf.position.set(0, 1.3, 0);
+  }
+  heldObj = null; heldHolder = null;
+  updateStepsUI();
+  toast('密室已重置', 1800);
+}
+
+/* 抓取 / 释放（道具） */
+function grab(obj, holder){
+  var f = obj.userData.frag;
+  if(!f || f.held) return false;
+  f.held = true; f.holder = holder;
+  holder.attach(obj);
+  sfxPick();
+  heldObj = obj; heldHolder = holder;
+  return true;
+}
+function release(obj){
+  var f = obj.userData.frag;
+  if(!f || !f.held) return;
+  f.held = false; f.holder = null;
+  scene.attach(obj);
+  heldObj = null; heldHolder = null;
+  // 放置判定：是否靠近壁画框的凹槽
+  var p = obj.getWorldPosition(new THREE.Vector3());
+  var fp = muralFrame.getWorldPosition(new THREE.Vector3());
+  if(p.distanceTo(fp) < 1.6 && !f.placed){
+    // 吸附到对应凹槽
+    var slotX = -0.95 + f.idx*0.95;
+    obj.position.set(fp.x + slotX, fp.y, fp.z + 0.16);
+    obj.rotation.set(0, 0, 0);
+    f.mesh.material.emissiveIntensity = 0.05;
+    placeFragment(f);
+  }
+}
+
+/* =========================================================================
+ * 控制器 / 交互
+ * ========================================================================= */
+function setupControllers(){
+  for(var i=0;i<2;i++){
+    (function(idx){
+      var c = renderer.xr.getController(idx);
+      player.add(c);
+      var g = new THREE.Group(); c.add(g);
+      var grip = new THREE.Mesh(new THREE.CylinderGeometry(0.028,0.034,0.13,10),
+        new THREE.MeshStandardMaterial({ color:0x4a3a24, roughness:0.6 }));
+      grip.rotation.x = Math.PI/2; grip.position.set(0,-0.02,-0.05); g.add(grip);
+      var nose = new THREE.Mesh(new THREE.CylinderGeometry(0.008,0.008,0.06,6),
+        new THREE.MeshStandardMaterial({ color:0xffb020, emissive:0x8a4f00, emissiveIntensity:0.5 }));
+      nose.rotation.x = -Math.PI/2; nose.position.set(0,-0.03,-0.11); g.add(nose);
+      var rayGeo = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0,0,0), new THREE.Vector3(0,0,-1)]);
+      var rayLine = new THREE.Line(rayGeo, new THREE.LineBasicMaterial({ color:0xffb020, transparent:true, opacity:0 }));
+      rayLine.scale.z = 5; c.add(rayLine);
+
+      var st = { ctrl:c, selecting:false, ray:rayLine, inputSource:null, hover:null };
+      ctrlState.push(st); controllers.push(c);
+      c.addEventListener('connected', function(e){ st.inputSource = e.data; });
+      c.addEventListener('selectstart', function(){ st.selecting = true; });
+      c.addEventListener('selectend', function(){ st.selecting = false; onSelectEnd(st); });
+      c.addEventListener('squeezestart', function(){
+        // 直接抓取碎片
+        var best = null, bd = 0.45;
+        c.getWorldPosition(tmpV);
+        for(var k=0;k<interactables.length;k++){
+          var o = interactables[k];
+          if(!o.userData.frag) continue;
+          o.getWorldPosition(tmpV2);
+          var d = tmpV.distanceTo(tmpV2);
+          if(d < bd && !o.userData.frag.placed){ bd = d; best = o; }
+        }
+        if(best) { grab(best, c); pulse(st.inputSource, 0.6, 45); }
+      });
+      c.addEventListener('squeezeend', function(){
+        if(heldObj && heldHolder === c) release(heldObj);
+      });
+    })(i);
+  }
+  renderer.xr.addEventListener('sessionstart', function(){ document.body.classList.add('XR'); });
+  renderer.xr.addEventListener('sessionend', function(){
+    document.body.classList.remove('XR');
+    player.position.set(0,0,4.2); yaw = 0; pitch = 0; player.rotation.y = 0; camera.rotation.x = 0;
+  });
+}
+
+function onSelectEnd(st){
+  if(st.hoverKey){ keypadPress(st.hoverKey); st.hoverKey = null; return; }
+  if(st.hoverStar){ clickStar(st.hoverStar); st.hoverStar = null; return; }
+  if(marker.visible) doTeleport();
+}
+
+function updateControllers(dt){
+  for(var i=0;i<ctrlState.length;i++){
+    var st = ctrlState[i];
+    if(!st.selecting){ st.ray.material.opacity = 0; st.hoverKey = null; st.hoverStar = null;
+      if(keypad && keypad.hover !== null){ keypad.hover = null; drawKeypad(); }
+      continue; }
+    st.ray.material.opacity = 0.85;
+    var origin = new THREE.Vector3(), dir = new THREE.Vector3(0,0,-1);
+    st.ctrl.getWorldPosition(origin);
+    dir.applyQuaternion(st.ctrl.getWorldQuaternion(tmpQ)).normalize();
+    raycaster.set(origin, dir); raycaster.far = 12;
+    var hits = raycaster.intersectObjects(interactables, false);
+    if(!hits.length){ st.hoverKey = null; st.hoverStar = null;
+      if(keypad && keypad.hover !== null){ keypad.hover = null; drawKeypad(); }
+      // 地面传送
+      raycaster.far = 16;
+      var gh = raycaster.intersectObjects(walkables, false);
+      if(gh.length){
+        var p = gh[0].point;
+        teleportTarget.set(clamp(p.x,-5.6,11.4), p.y, clamp(p.z,-7.6,5.6));
+        marker.position.copy(teleportTarget); marker.visible = true;
+      } else marker.visible = false;
+      continue;
+    }
+    marker.visible = false;
+    var o = hits[0].object;
+    if(o === keypad.panel){
+      var uv = hits[0].uv;
+      var px = uv.x * keypad.canvas.width, py = (1-uv.y) * keypad.canvas.height;
+      var id = null;
+      for(var k=0;k<keypad.keys.length;k++){
+        var kk = keypad.keys[k];
+        if(px >= kk.x && px <= kk.x+kk.w && py >= kk.y && py <= kk.y+kk.h){ id = kk.id; break; }
+      }
+      if(id !== keypad.hover){ keypad.hover = id; drawKeypad(); if(id){ sfxClick(); pulse(st.inputSource,0.15,15); } }
+      st.hoverKey = id; st.hoverStar = null;
+      continue;
+    }
+    if(keypad && keypad.hover !== null){ keypad.hover = null; drawKeypad(); }
+    st.hoverKey = null;
+    if(o.userData.star){ st.hoverStar = o.userData.star; }
+    else st.hoverStar = null;
+  }
+}
+
+/* =========================================================================
+ * PC 交互
+ * ========================================================================= */
+var pcDrag = false, pcMoved = 0, pcLX = 0, pcLY = 0;
+function setupPC(){
+  var dom = renderer.domElement;
+  dom.addEventListener('pointerdown', function(e){ pcDrag = true; pcMoved = 0; pcLX = e.clientX; pcLY = e.clientY; });
+  window.addEventListener('pointermove', function(e){
+    if(!pcDrag) return;
+    var dx = e.clientX - pcLX, dy = e.clientY - pcLY;
+    pcLX = e.clientX; pcLY = e.clientY; pcMoved += Math.abs(dx)+Math.abs(dy);
+    yaw -= dx*0.0032; pitch = clamp(pitch - dy*0.0028, -1.35, 1.35);
+    player.rotation.y = yaw; camera.rotation.x = pitch;
+  });
+  window.addEventListener('pointerup', function(e){ if(pcDrag && pcMoved < 6) pcClick(); pcDrag = false; });
+  window.addEventListener('keydown', function(e){
+    keys[e.code] = true;
+    if(e.code === 'KeyH') giveHint();
+    if(e.code === 'KeyR') resetRoom();
+  });
+  window.addEventListener('keyup', function(e){ keys[e.code] = false; });
+  window.addEventListener('resize', onResize);
+}
+
+function pcClick(){
+  var origin = new THREE.Vector3(), dir = new THREE.Vector3(0,0,-1);
+  camera.getWorldPosition(origin);
+  dir.applyQuaternion(camera.getWorldQuaternion(tmpQ)).normalize();
+  raycaster.set(origin, dir); raycaster.far = 12;
+  var hits = raycaster.intersectObjects(interactables, false);
+
+  if(hits.length){
+    var o = hits[0].object;
+    // 键盘
+    if(o === keypad.panel){
+      var uv = hits[0].uv;
+      var px = uv.x*keypad.canvas.width, py = (1-uv.y)*keypad.canvas.height;
+      for(var k=0;k<keypad.keys.length;k++){
+        var kk = keypad.keys[k];
+        if(px>=kk.x && px<=kk.x+kk.w && py>=kk.y && py<=kk.y+kk.h){ keypadPress(kk.id); return; }
+      }
+      return;
+    }
+    // 星
+    if(o.userData.star){ clickStar(o.userData.star); return; }
+    // 碎片：抓取 / 放置
+    if(o.userData.frag && !o.userData.frag.placed){
+      var f = o.userData.frag;
+      if(heldObj === o){
+        release(o);
+      } else {
+        if(heldObj) release(heldObj);
+        var anchor = new THREE.Object3D();
+        camera.add(anchor); anchor.position.set(0.2,-0.18,-0.6);
+        grab(o, anchor);
+      }
+      return;
+    }
+  }
+  // 地面传送
+  raycaster.far = 16;
+  var gh = raycaster.intersectObjects(walkables, false);
+  if(gh.length){
+    var p = gh[0].point;
+    teleportTarget.set(clamp(p.x,-5.6,11.4), p.y, clamp(p.z,-7.6,5.6));
+    marker.position.copy(teleportTarget);
+    doTeleport();
+  }
+}
+
+function stepPC(dt){
+  var sp = (keys.ShiftLeft||keys.ShiftRight ? 5.2 : 2.6)*dt;
+  var f = (keys.KeyW||keys.ArrowUp?1:0) - (keys.KeyS||keys.ArrowDown?1:0);
+  var r = (keys.KeyD||keys.ArrowRight?1:0) - (keys.KeyA||keys.ArrowLeft?1:0);
+  if(f||r){
+    var sin = Math.sin(yaw), cos = Math.cos(yaw);
+    player.position.x += (-sin*f + cos*r)*sp;
+    player.position.z += (-cos*f - sin*r)*sp;
+  }
+  if(keys.KeyQ) yaw += 1.8*dt;
+  if(keys.KeyE) yaw -= 1.8*dt;
+  player.rotation.y = yaw; camera.rotation.x = pitch;
+  player.position.x = clamp(player.position.x, -5.6, 11.4);
+  player.position.z = clamp(player.position.z, -7.6, 5.6);
+}
+
+function updateCrosshair(){
+  if(renderer.xr.isPresenting) return;
+  var cross = document.getElementById('crosshair');
+  var origin = new THREE.Vector3(), dir = new THREE.Vector3(0,0,-1);
+  camera.getWorldPosition(origin);
+  dir.applyQuaternion(camera.getWorldQuaternion(tmpQ)).normalize();
+  raycaster.set(origin, dir); raycaster.far = 12;
+  var hits = raycaster.intersectObjects(interactables.concat(walkables), false);
+  cross.className = hits.length ? 'hit' : '';
+}
+
+/* =========================================================================
+ * 传送 / VR 摇杆
+ * ========================================================================= */
+function doTeleport(){
+  if(marker.visible){ teleporting = true; }
+  marker.visible = false;
+}
+function stepTeleport(dt){
+  if(!teleporting) return;
+  player.position.lerp(teleportTarget, 1 - Math.pow(0.002, dt));
+  if(player.position.distanceTo(teleportTarget) < 0.04){
+    player.position.copy(teleportTarget); teleporting = false;
+  }
+}
+function readVRGamepad(session, dt){
+  if(!session) return;
+  var lx=0, lz=0, rx=0;
+  for(var i=0;i<session.inputSources.length;i++){
+    var src = session.inputSources[i];
+    if(!src.gamepad) continue;
+    var ax = src.gamepad.axes;
+    var x = ax.length>2?ax[2]:ax[0], y = ax.length>3?ax[3]:ax[1];
+    if(Math.abs(x)<0.16)x=0; if(Math.abs(y)<0.16)y=0;
+    if(src.handedness==='left'){ lx=x; lz=y; } else if(src.handedness==='right'){ rx=x; }
+  }
+  if(lx||lz){
+    var dir = new THREE.Vector3();
+    camera.getWorldDirection(dir); dir.y = 0;
+    if(dir.lengthSq()<1e-4) dir.set(0,0,-1);
+    dir.normalize();
+    var side = new THREE.Vector3(-dir.z, 0, dir.x);
+    player.position.x += (dir.x*(-lz) + side.x*lx)*2.6*dt;
+    player.position.z += (dir.z*(-lz) + side.z*lx)*2.6*dt;
+  }
+  var now = performance.now();
+  if(Math.abs(rx) > 0.62 && now - lastSnap > 380){
+    yaw -= Math.sign(rx)*Math.PI/4;
+    player.rotation.y = yaw; lastSnap = now;
+  }
+  player.position.x = clamp(player.position.x, -5.6, 11.4);
+  player.position.z = clamp(player.position.z, -7.6, 5.6);
+}
+
+/* =========================================================================
+ * 动画 / 循环
+ * ========================================================================= */
+var fpsAcc=0, fpsN=0, statT=0;
+function updateStats(dt){
+  fpsAcc += 1/Math.max(dt,0.0001); fpsN++; statT += dt; S.time += dt;
+  if(statT > 0.5){
+    var fps = Math.round(fpsAcc/fpsN); fpsAcc=0; fpsN=0; statT=0;
+    var info = renderer.info.render;
+    var el = document.getElementById('stats');
+    if(el) el.innerHTML = 'FPS <b>'+fps+'</b> ｜ DrawCalls <b>'+info.calls+'</b> ｜ 三角面 <b>'+
+      (info.triangles/1000).toFixed(1)+'k</b><br>用时 <b>'+S.time.toFixed(0)+
+      's</b> ｜ 提示 <b>'+S.hintsUsed+'</b> 次';
+  }
+  // 碎片微光呼吸
+  for(var i=0;i<fragments.length;i++){
+    var f = fragments[i];
+    if(!f.placed && !f.held){
+      f.mesh.material.emissiveIntensity = f.glow + Math.sin(S.time*2 + i)*0.06;
+      f.mesh.rotation.y += dt*0.25;
+    }
+  }
+  // 门开动画
+  if(S.doorOpen && door){
+    var leaf = door.userData.leaf;
+    if(Math.abs(leaf.rotation.y) < 1.75){
+      leaf.rotation.y += dt*0.62;
+      leaf.position.x = -Math.sin(leaf.rotation.y)*1.08;
+      leaf.position.z = 1.08 - Math.cos(leaf.rotation.y)*1.08;
+    }
+  }
+}
+
+function onResize(){
+  camera.aspect = innerWidth/innerHeight; camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+  renderer.setPixelRatio(Math.min(devicePixelRatio||1, 1.5));
+}
+
+function animate(){
+  var dt = Math.min(clock.getDelta(), 0.05);
+  if(renderer.xr.isPresenting){
+    readVRGamepad(renderer.xr.getSession(), dt);
+    updateControllers(dt);
+  } else {
+    stepPC(dt); updateCrosshair();
+  }
+  stepTeleport(dt);
+  if(marker.visible) markerRing.rotation.z += dt*2.2;
+  updateStats(dt);
+  XRCore.frame(dt);
+  renderer.render(scene, camera);
+}
+
+function setupVRButton(){
+  var btn = document.getElementById('enterVR'), hint = document.getElementById('vrhint');
+  if(!navigator.xr){
+    btn.style.display='block'; btn.disabled=true; btn.textContent='浏览器不支持 WebXR';
+    hint.style.display='block'; hint.textContent='请用 PICO 浏览器打开（需 https 或加白名单的 http 源）';
+    return;
+  }
+  navigator.xr.isSessionSupported('immersive-vr').then(function(ok){
+    btn.style.display='block';
+    if(!ok){ btn.disabled=true; btn.textContent='设备不支持沉浸式 VR'; return; }
+    btn.textContent='进入 VR';
+    btn.onclick = function(){
+      navigator.xr.requestSession('immersive-vr',{ optionalFeatures:['local-floor','bounded-floor'] })
+        .then(function(s){ renderer.xr.setSession(s); })
+        .catch(function(e){ hint.style.display='block'; hint.textContent='VR 启动失败：'+e.message; });
+    };
+  }).catch(function(){ btn.style.display='block'; btn.disabled=true; btn.textContent='WebXR 检测失败'; });
+}
+
+function init(){
+  renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('c'), antialias:true,
+    powerPreference:'high-performance' });
+  renderer.setSize(innerWidth, innerHeight);
+  renderer.setPixelRatio(Math.min(devicePixelRatio||1, 1.5));
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.outputEncoding = THREE.sRGBEncoding;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.24;
+  renderer.xr.enabled = true;
+  if(renderer.xr.setReferenceSpaceType) renderer.xr.setReferenceSpaceType('local-floor');
+
+  clock = new THREE.Clock();
+  buildScene();
+  buildMurals();
+  buildProps();
+  buildFragments();
+  buildStars();
+  buildDoor();
+  buildSign();
+  buildMarker();
+  setupControllers();
+  setupPC();
+  setupVRButton();
+  updateStepsUI();
+
+  document.getElementById('hintBtn').onclick = giveHint;
+  document.getElementById('resetBtn').onclick = resetRoom;
+  document.getElementById('skipBtn').onclick = function(){
+    // 调试用：直接推进到下一步（课堂演示可用来跳过错综环节）
+    if(S.step === 0){ for(var i=0;i<3;i++){ S.fragments[i]=true; fragments[i].placed=true; } S.step = 2; }
+    else if(S.step === 2){ S.starProgress = STAR_ORDER.slice();
+      for(var k=0;k<stars.length;k++){ stars[k].lit = true; setStarVisual(stars[k], true); } S.step = 3; }
+    else if(S.step === 3){ keypad.display = CODE; drawKeypad(); }
+    updateStepsUI(); toast('已跳到：' + STEP_NAMES[S.step], 2200);
+  };
+
+  var loader = document.getElementById('loader');
+  loader.style.opacity = '0';
+  setTimeout(function(){ loader.style.display='none'; }, 700);
+
+  window.Dunhuang = { S:S, fragments:fragments, stars:stars, keypad:keypad, door:door,
+    scene:scene, player:player, camera:camera, renderer:renderer,
+    reset:resetRoom, hint:giveHint, clickStar:clickStar, keypadPress:keypadPress,
+    placeFragment:placeFragment, grab:grab, release:release, code:CODE, starOrder:STAR_ORDER };
+
+  /* XR 工程内核：本例自带传送与 Snap 转向；内核负责性能/隧道视野/数据 */
+  XRCore.init({
+    THREE:THREE, renderer:renderer, scene:scene, camera:camera, player:player,
+    name:'02 密室逃脱·敦煌寻宝', targetFps:72, ownLocomotion:true,
+    panelPos:[-1.9,1.95,-1.3], panelRotY:0.6,
+    home:{x:0, z:4.2, rotY:0},
+    tips:[
+      ['为什么必须是VR','线索藏在空间里：抬头看藻井、蹲下看壁画底部、绕到供台背面——平面屏幕承载不了"空间搜索"这种玩法。'],
+      ['心流与挑战曲线','解谜靠难度递增 + 即时反馈；VR 里还要防"迷向退出"，所以有提示系统与方位线索。'],
+      ['密室更易晕','窄小空间视觉参照近、光流强，平滑移动晕动风险高——所以默认传送 + Snap 转向。'],
+      ['可发现性','可交互物必须自示：高亮描边、悬停放大、手柄震动，否则暗环境下玩家根本找不到。'],
+      ['前沿','线下 VR 密室（SCRAP 等）已商用，本例是它的最小可教学版本：状态机 + 线索链 + 门控。']
+    ],
+    ownText:function(){ return '传送 / Snap 45°（本例自带）'; }
+  });
+  XRCore.ui([keypad && keypad.panel]);   /* 坐姿模式下自动下沉 */
+  /* 注视停留点键盘：完全不用手柄也能开门 */
+  XRCore.uiHit(function(rc){
+    if(!keypad||!keypad.panel) return null;
+    var h=rc.intersectObject(keypad.panel,false);
+    if(!h.length||!h[0].uv) return null;
+    var px=h[0].uv.x*keypad.canvas.width, py=(1-h[0].uv.y)*keypad.canvas.height;
+    for(var i=0;i<keypad.keys.length;i++){
+      var kk=keypad.keys[i];
+      if(px>=kk.x&&px<=kk.x+kk.w&&py>=kk.y&&py<=kk.y+kk.h) return mkGazeKey(kk.id,h[0].distance);
+    }
+    return null;
+  });
+  renderer.setAnimationLoop(animate);
+}
+function mkGazeKey(id,dist){
+  return {id:'k'+id, dist:dist, fire:function(){ keypadPress(id); }};
+}
+
+if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+else init();
+
+})();
+</script>
+</body>
+</html>

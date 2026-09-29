@@ -1,0 +1,1202 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>数字校园漫游 + AI 导览 NPC — WebXR 课堂案例</title>
+<style>
+  html,body{margin:0;padding:0;height:100%;overflow:hidden;background:#1b2027;}
+  body{font-family:"Microsoft YaHei","PingFang SC",sans-serif;color:#e8eef6;}
+  #hud{position:fixed;left:0;right:0;bottom:0;padding:10px 14px;background:rgba(12,16,22,.72);
+       font-size:13px;line-height:1.7;z-index:10;pointer-events:none;}
+  #hud b{color:#ffcf7a;}
+  #ask{position:fixed;left:12px;bottom:52px;z-index:12;display:flex;gap:6px;}
+  #ask input{width:300px;padding:9px 12px;border:1px solid #445;background:rgba(18,22,30,.92);
+             color:#e8eef6;border-radius:8px;font-size:14px;outline:none;}
+  #ask button{padding:9px 16px;border:0;border-radius:8px;background:#c9973f;color:#20160a;
+              font-weight:700;cursor:pointer;font-size:14px;}
+  #cfg{position:fixed;right:12px;top:12px;z-index:13;display:none;width:290px;padding:12px;
+       background:rgba(14,18,25,.95);border:1px solid #3a4658;border-radius:10px;font-size:12px;}
+  #cfg input{width:100%;margin:4px 0 8px;padding:6px 8px;border:1px solid #445;
+             background:#12161e;color:#e8eef6;border-radius:6px;font-size:12px;box-sizing:border-box;}
+  #cfg button{padding:7px 12px;border:0;border-radius:6px;background:#4f7fc4;color:#fff;
+              cursor:pointer;font-size:12px;margin-right:6px;}
+  #cfgbtn{position:fixed;right:12px;top:12px;z-index:12;padding:8px 14px;border:0;border-radius:8px;
+          background:#33404f;color:#e8eef6;font-size:13px;cursor:pointer;}
+  #tip{position:fixed;left:50%;top:44%;transform:translate(-50%,-50%);padding:14px 24px;
+       background:rgba(12,16,22,.9);border:1px solid #3a4658;border-radius:10px;z-index:14;text-align:center;}
+  #tip small{display:block;margin-top:8px;color:#9fb0c6;font-size:12px;}
+  .pcOnly{}
+  .XR .pcOnly{display:none;}
+  #vrbtn{position:fixed;right:12px;top:56px;z-index:12;padding:10px 16px;border:0;border-radius:8px;
+         background:#c9973f;color:#20160a;font-size:14px;font-weight:700;cursor:pointer;}
+  #vrbtn[disabled]{background:#4a5160;color:#9aa5b4;cursor:default;}
+</style>
+</head>
+<body>
+<div id="tip">正在生成校园全景…<small>离线知识库可直接用；如需接大模型，点右上角「大模型设置」</small></div>
+<div id="hud" class="pcOnly">
+  <b>鼠标拖拽</b>环视 &nbsp;·&nbsp; <b>点击地面光环</b>跳到下一个地点 &nbsp;·&nbsp;
+  <b>点击 NPC / 面板按钮</b>提问 &nbsp;·&nbsp; <b>左下输入框</b>自由提问 &nbsp;·&nbsp;
+  <b>数字键 1-5</b>直达场景 &nbsp;·&nbsp; <b>方向键</b>小幅走动<br>
+  🎯 挑战：<b>「导览打卡」</b>走遍 5 个地点通关，按用时 / 晕动暴露 / 求助次数评级（线索越往后越难）
+  &nbsp;·&nbsp; <b>Shift+P</b> 坐姿模式 &nbsp;·&nbsp; <b>Shift+G</b> 注视点击
+</div>
+<div id="ask" class="pcOnly">
+  <input id="q" placeholder="向 AI 导览员提问…（回车发送）" autocomplete="off">
+  <button id="send">提问</button>
+</div>
+<button id="cfgbtn" class="pcOnly">大模型设置</button>
+<button id="vrbtn" disabled>检测 VR…</button>
+<div id="cfg">
+  <div style="font-weight:700;margin-bottom:6px;">在线大模型（可选，留空则用离线知识库）</div>
+  <div>Base URL（OpenAI 兼容）</div><input id="cf_base" placeholder="https://.../v1">
+  <div>模型名</div><input id="cf_model" placeholder="qwen-plus / deepseek-chat …">
+  <div>API Key</div><input id="cf_key" type="password" placeholder="sk-…">
+  <div>System 提示词（可留空）</div><input id="cf_sys" placeholder="你是中华女子学院的数字导览员">
+  <button id="cf_save">保存并启用</button><button id="cf_off">改用离线</button>
+  <div id="cf_stat" style="margin-top:8px;color:#9fb0c6;"></div>
+</div>
+<script src="../three.min.js"></script>
+<script src="../_xr_core.js"></script>
+<script>
+(function(){
+'use strict';
+
+/* ============================================================
+   0. 工具
+   ============================================================ */
+function $(id){ return document.getElementById(id); }
+function clamp(v,a,b){ return v<a?a:(v>b?b:v); }
+function cnv(w,h){ var c=document.createElement('canvas'); c.width=w; c.height=h;
+  return {c:c, x:c.getContext('2d'), w:w, h:h}; }
+function mkTex(o,srgb){
+  var t=new THREE.CanvasTexture(o.c);
+  if(srgb && THREE.sRGBEncoding) t.encoding=THREE.sRGBEncoding;
+  t.anisotropy=4; t.needsUpdate=true; return t;
+}
+function shade(hex, d){
+  var s=hex.replace('#','');
+  var r=parseInt(s.substr(0,2),16), g=parseInt(s.substr(2,2),16), b=parseInt(s.substr(4,2),16);
+  r=clamp(r+d,0,255); g=clamp(g+d,0,255); b=clamp(b+d,0,255);
+  return 'rgb('+(r|0)+','+(g|0)+','+(b|0)+')';
+}
+
+/* ============================================================
+   1. 学校事实表 —— ⚠️ 占位内容必须按官网填写，不要凭印象编造
+   ============================================================ */
+var CAMPUS_FACTS={
+  school:'中华女子学院',
+  address:'（示例数据，待补充）',
+  motto:'（示例数据，待补充）',
+  founded:'（示例数据，待补充）',
+  libraryBooks:'（示例数据，待补充）',
+  colleges:'（示例数据，待补充）',
+  canteen:'（示例数据，待补充）',
+  dorm:'（示例数据，待补充）',
+  _todo:'以上【待补充】项请在课前按学校官网核对后填入 CAMPUS_FACTS'
+};
+
+/* ============================================================
+   2. 场景配置（程序化生成 360° 全景，无实拍素材）
+   ============================================================ */
+var SCENES=[
+  { id:'gate', name:'学校正门', intro:'这里是学校正门。正前方是校门与校名石，进门后是中轴大道。',
+    sky:['#7ab8e0','#dceaf6'], ground:'#6f7468', bld:'#a8aeb4', hill:'#7f8c96', hills:1,
+    sunAz:0.62, sunEl:0.62, trees:7, landmark:{kind:'gate', az:0.75, label:'校门'},
+    links:[{to:'square', az:0.75}] },
+  { id:'square', name:'中心广场', intro:'这里是中心广场，正前方是学校主楼，两侧是教学楼与绿地。',
+    sky:['#6fb2e6','#e2eef8'], ground:'#71766b', bld:'#b0b6bc', hill:'', hills:0,
+    sunAz:0.60, sunEl:0.70, trees:11, landmark:{kind:'mainhall', az:0.75, label:'主楼'},
+    links:[{to:'library', az:0.62},{to:'sport', az:0.88},{to:'gate', az:0.30}] },
+  { id:'library', name:'图书馆前', intro:'这里是图书馆，正面是台阶与玻璃幕墙，是同学们自习的主要场所。',
+    sky:['#8abfe4','#e6f0fa'], ground:'#6b7166', bld:'#a4abb2', hill:'', hills:0,
+    sunAz:0.66, sunEl:0.55, trees:9, landmark:{kind:'library', az:0.75, label:'图书馆'},
+    links:[{to:'dorm', az:0.88},{to:'square', az:0.40}] },
+  { id:'sport', name:'运动场', intro:'这里是运动场，有标准跑道与看台，是体育课和运动会的主场地。',
+    sky:['#79bde6','#eaf3fb'], ground:'#5f7a52', bld:'#9aa2a8', hill:'#8b96a0', hills:1,
+    sunAz:0.58, sunEl:0.66, trees:5, landmark:{kind:'track', az:0.75, label:'田径场'},
+    links:[{to:'square', az:0.55}] },
+  { id:'dorm', name:'生活区', intro:'这里是学生生活区，宿舍楼围合排列，楼下有便利店与快递点。',
+    sky:['#93c3e2','#e9f2fb'], ground:'#6d7267', bld:'#b6b2a6', hill:'', hills:0,
+    sunAz:0.64, sunEl:0.48, trees:13, landmark:{kind:'dorm', az:0.75, label:'宿舍楼'},
+    links:[{to:'library', az:0.86},{to:'square', az:0.35}] }
+];
+function sceneById(id){
+  for(var i=0;i<SCENES.length;i++) if(SCENES[i].id===id) return SCENES[i];
+  return SCENES[0];
+}
+
+/* ============================================================
+   3. 程序化 360° 全景绘制（2048×1024 等距圆柱投影）
+   ============================================================ */
+function paintPano(cfg){
+  var W=2048, H=1024, o=cnv(W,H), x=o.x;
+  /* 地平线放在画面正中（= 视平线），否则会低 9° 被底部字幕条挡住建筑 */
+  var HZ=H*0.50;
+  /* 天空 */
+  var g=x.createLinearGradient(0,0,0,HZ);
+  g.addColorStop(0,cfg.sky[0]); g.addColorStop(1,cfg.sky[1]);
+  x.fillStyle=g; x.fillRect(0,0,W,HZ);
+  /* 太阳光晕 */
+  var sx=cfg.sunAz*W, sy=HZ-HZ*cfg.sunEl;
+  var sg=x.createRadialGradient(sx,sy,0,sx,sy,H*0.26);
+  sg.addColorStop(0,'rgba(255,252,238,0.95)');
+  sg.addColorStop(0.18,'rgba(255,244,214,0.42)');
+  sg.addColorStop(1,'rgba(255,244,214,0)');
+  x.fillStyle=sg; x.beginPath(); x.arc(sx,sy,H*0.26,0,6.2832); x.fill();
+  /* 云 */
+  for(var c=0;c<9;c++){
+    var cx=(c*0.111+0.037)%1*W, cy=HZ*(0.18+(c%4)*0.15), cr=H*(0.030+(c%3)*0.014);
+    var cg=x.createRadialGradient(cx,cy,0,cx,cy,cr);
+    cg.addColorStop(0,'rgba(255,255,255,0.55)'); cg.addColorStop(1,'rgba(255,255,255,0)');
+    x.fillStyle=cg; x.beginPath(); x.ellipse(cx,cy,cr*2.1,cr*0.72,0,0,6.2832); x.fill();
+  }
+  /* 远山（周期性，保证左右接缝连续） */
+  if(cfg.hills){
+    x.fillStyle=cfg.hill;
+    x.beginPath(); x.moveTo(0,HZ);
+    for(var px=0;px<=W;px+=8){
+      var t=px/W*6.2832;
+      var hh=Math.sin(t*2+1.3)*0.55+Math.sin(t*3.7+0.6)*0.30+Math.sin(t*6.1)*0.15;
+      x.lineTo(px, HZ-H*(0.045+hh*0.038));
+    }
+    x.lineTo(W,HZ); x.closePath(); x.fill();
+  }
+  /* 地面 */
+  var gg=x.createLinearGradient(0,HZ,0,H);
+  gg.addColorStop(0,cfg.ground); gg.addColorStop(1,shade(cfg.ground,-46));
+  x.fillStyle=gg; x.fillRect(0,HZ,W,H-HZ);
+  /* 草地斑块 */
+  for(var p=0;p<40;p++){
+    var gx=Math.random()*W, gy=HZ+Math.random()*(H-HZ)*0.9, gr=H*(0.02+Math.random()*0.05);
+    x.fillStyle='rgba(255,255,255,0.035)';
+    x.beginPath(); x.ellipse(gx,gy,gr*1.8,gr*0.6,0,0,6.2832); x.fill();
+  }
+  /* 主路：由画面底部向地平线收敛的楔形 */
+  var roadC=cfg.landmark.kind==='track'? '#b9b3a4' : '#b7b2a8';
+  x.fillStyle=roadC;
+  /* 主路由画面底部收敛到「地标」所在的方位，即正前方 */
+  var rc=cfg.landmark.az*W;
+  x.beginPath();
+  x.moveTo(rc-W*0.05, HZ);
+  x.lineTo(rc+W*0.05, HZ);
+  x.lineTo(rc+W*0.22, H);
+  x.lineTo(rc-W*0.22, H);
+  x.closePath(); x.fill();
+  /* 环绕建筑群（N 个均分，天然无缝） */
+  var N=30, slot=W/N;
+  for(var i=0;i<N;i++){
+    var bx=i*slot+slot*0.5;
+    var bw=slot*(0.52+((i*37)%11)/36);
+    var bh=H*(0.055+((i*53)%14)/150);
+    var v=((i*91)%19)/19;
+    x.fillStyle=shade(cfg.bld, -46+v*52);
+    x.fillRect(bx-bw/2, HZ-bh, bw, bh);
+    /* 窗 */
+    var rows=Math.max(2,Math.floor(bh/24)), cols=Math.max(2,Math.floor(bw/20));
+    x.fillStyle='rgba(255,255,255,'+(0.10+v*0.12)+')';
+    for(var r=0;r<rows;r++) for(var cc=0;cc<cols;cc++){
+      var ww=(bw-10)/cols, wh=(bh-14)/rows;
+      x.fillRect(bx-bw/2+5+cc*ww, HZ-bh+8+r*wh, ww*0.5, wh*0.42);
+    }
+    /* 屋顶线 */
+    x.fillStyle=shade(cfg.bld,-70);
+    x.fillRect(bx-bw/2, HZ-bh, bw, Math.max(2,H*0.004));
+  }
+  /* 地标 */
+  drawLandmark(x, cfg.landmark, HZ, W, H, cfg);
+  /* 树 */
+  for(var t2=0;t2<cfg.trees;t2++){
+    var tx=((t2*0.137+0.06)%1)*W, ty=HZ+H*0.035+((t2*17)%9)*H*0.012;
+    var th=H*(0.045+((t2*7)%5)*0.008);
+    x.fillStyle='#4c5a3a';
+    x.beginPath(); x.ellipse(tx,ty-th*0.55,th*0.62,th*0.68,0,0,6.2832); x.fill();
+    x.fillStyle='#3c3226'; x.fillRect(tx-th*0.06, ty-th*0.15, th*0.12, th*0.30);
+  }
+  return o.c;
+}
+function drawLandmark(x, lm, HZ, W, H, cfg){
+  var cx=lm.az*W, u=H*0.01;
+  if(lm.kind==='gate'){
+    var gw=W*0.20, gh=H*0.20;
+    x.fillStyle='#8e5f43';
+    x.fillRect(cx-gw/2, HZ-gh, gw*0.14, gh);
+    x.fillRect(cx+gw/2-gw*0.14, HZ-gh, gw*0.14, gh);
+    x.fillStyle='#a8703f';
+    x.fillRect(cx-gw/2, HZ-gh, gw, gh*0.16);
+    x.fillStyle='#7d5138';
+    x.fillRect(cx-gw/2, HZ-gh+gh*0.16, gw, gh*0.05);
+    /* 校名石 */
+    x.fillStyle='#9aa0a4';
+    x.fillRect(cx-gw*0.22, HZ-H*0.045, gw*0.44, H*0.045);
+    x.fillStyle='#5f6468';
+    x.fillRect(cx-gw*0.22, HZ-H*0.045, gw*0.44, H*0.006);
+  } else if(lm.kind==='mainhall'){
+    var mw=W*0.30, mh=H*0.26;
+    x.fillStyle='#c3c8cc'; x.fillRect(cx-mw/2, HZ-mh, mw, mh);
+    x.fillStyle='#aeb4ba'; x.fillRect(cx-mw/2, HZ-mh, mw, mh*0.10);
+    /* 柱廊 */
+    var cols=9;
+    x.fillStyle='#d6dbe0';
+    for(var i=0;i<cols;i++){
+      var px=cx-mw/2+mw*(i+0.5)/cols;
+      x.fillRect(px-mw*0.018, HZ-mh*0.86, mw*0.036, mh*0.80);
+    }
+    /* 台阶 */
+    x.fillStyle='#c9ced3';
+    for(var s=0;s<4;s++) x.fillRect(cx-mw*0.40, HZ+s*H*0.010, mw*0.80, H*0.010);
+  } else if(lm.kind==='library'){
+    var lw=W*0.28, lh=H*0.24;
+    x.fillStyle='#b9bec4'; x.fillRect(cx-lw/2, HZ-lh, lw, lh);
+    /* 玻璃幕墙 */
+    x.fillStyle='#7fa8c4';
+    x.fillRect(cx-lw*0.40, HZ-lh*0.80, lw*0.80, lh*0.62);
+    x.strokeStyle='rgba(255,255,255,0.5)'; x.lineWidth=Math.max(1,H*0.0022);
+    for(var gx=0;gx<=8;gx++){
+      x.beginPath(); x.moveTo(cx-lw*0.40+lw*0.80*gx/8, HZ-lh*0.80);
+      x.lineTo(cx-lw*0.40+lw*0.80*gx/8, HZ-lh*0.18); x.stroke();
+    }
+    for(var gy2=0;gy2<=5;gy2++){
+      x.beginPath(); x.moveTo(cx-lw*0.40, HZ-lh*0.80+lh*0.62*gy2/5);
+      x.lineTo(cx+lw*0.40, HZ-lh*0.80+lh*0.62*gy2/5); x.stroke();
+    }
+    /* 台阶 */
+    x.fillStyle='#cfd4d9';
+    for(var s2=0;s2<5;s2++) x.fillRect(cx-lw*0.46, HZ+s2*H*0.009, lw*0.92, H*0.009);
+  } else if(lm.kind==='track'){
+    var tw=W*0.34;
+    x.fillStyle='#8a4a3c';
+    x.beginPath(); x.ellipse(cx, HZ+H*0.10, tw*0.5, H*0.075, 0, 0, 6.2832); x.fill();
+    x.fillStyle='#5f8a52';
+    x.beginPath(); x.ellipse(cx, HZ+H*0.10, tw*0.36, H*0.050, 0, 0, 6.2832); x.fill();
+    x.strokeStyle='rgba(255,255,255,0.75)'; x.lineWidth=Math.max(2,H*0.005);
+    x.beginPath(); x.ellipse(cx, HZ+H*0.10, tw*0.43, H*0.062, 0, 0, 6.2832); x.stroke();
+    /* 看台 */
+    x.fillStyle='#a9aeb3';
+    x.fillRect(cx-tw*0.5, HZ-H*0.055, tw, H*0.055);
+  } else if(lm.kind==='dorm'){
+    var dw=W*0.13, dh=H*0.21;
+    for(var b=0;b<3;b++){
+      var bx=cx-dw*1.55+b*dw*1.05;
+      x.fillStyle=b===1?'#c0b8a8':'#b3ab9b';
+      x.fillRect(bx-dw/2, HZ-dh, dw, dh);
+      x.fillStyle='rgba(60,60,60,0.35)';
+      for(var rr=0;rr<5;rr++) for(var cq=0;cq<4;cq++){
+        x.fillRect(bx-dw/2+dw*(0.10+cq*0.21), HZ-dh+dh*(0.10+rr*0.17), dw*0.12, dh*0.09);
+      }
+    }
+  }
+  /* 地标说明牌（不放文字，避免镜像问题） */
+  x.fillStyle='rgba(20,24,30,0.55)';
+  x.fillRect(cx-W*0.035, HZ+H*0.020, W*0.07, H*0.022);
+}
+
+/* ============================================================
+   4. 离线知识库（关键词匹配；事实项来自 CAMPUS_FACTS）
+   ============================================================ */
+var KB=[
+  {k:['这是哪','我在哪','哪里','位置','当前'], a:function(){
+      return '你现在在【'+S.cur.name+'】。'+S.cur.intro; }},
+  {k:['怎么去','去哪','下一站','路线','走'], a:function(){
+      var L=S.cur.links;
+      if(!L.length) return '这里是线路的端点，可以原路返回。';
+      var names=[];
+      for(var i=0;i<L.length;i++) names.push('【'+sceneById(L[i].to).name+'】');
+      return '从'+S.cur.name+'可以前往 '+names.join('、')+
+             '。看地面上发光的圆环，用射线或鼠标点它就能过去。'; }},
+  {k:['前面','建筑','这个楼','主楼','图书馆','楼'], a:function(){
+      var lm=S.cur.landmark;
+      return '你正前方是'+lm.label+'。'+
+             '（本案例的建筑是程序化生成的示意模型，比例与真实校园存在差异，课堂上已说明。）'; }},
+  {k:['概况','介绍','学校','中华女子','了解一下'], a:function(){
+      return '欢迎来到'+CAMPUS_FACTS.school+'。地址：'+CAMPUS_FACTS.address+
+             '；建校：'+CAMPUS_FACTS.founded+'；校训：'+CAMPUS_FACTS.motto+
+             '；学院设置：'+CAMPUS_FACTS.colleges+'。'; }},
+  {k:['校训','精神'], a:function(){ return CAMPUS_FACTS.school+'的校训是：'+CAMPUS_FACTS.motto+'。'; }},
+  {k:['建校','历史','成立','年份'], a:function(){ return '建校年份：'+CAMPUS_FACTS.founded+'。'; }},
+  {k:['藏书','图书馆','借书','自习'], a:function(){
+      return '图书馆藏书量：'+CAMPUS_FACTS.libraryBooks+'。这里是同学们自习与借阅的主要场所。'; }},
+  {k:['专业','学院','系'], a:function(){ return '学院与专业设置：'+CAMPUS_FACTS.colleges+'。'; }},
+  {k:['食堂','吃饭','餐'], a:function(){ return '餐饮配套：'+CAMPUS_FACTS.canteen+'。'; }},
+  {k:['宿舍','住宿','生活区'], a:function(){ return '生活区概况：'+CAMPUS_FACTS.dorm+'。'; }},
+  {k:['操场','运动','跑步','体育'], a:function(){
+      return '运动场有标准跑道与看台，是体育课与运动会的主场地。地面用程序化纹理绘制，非实拍。'; }},
+  {k:['原理','技术','怎么做','webxr','全景','实现'], a:function(){
+      return '本案例由三部分组成：1）等距圆柱投影全景图贴在球体内部，用 geometry.scale(-1,1,1) 翻面；'+
+             '2）热点用 Torus 光环做射线拾取，切换场景时全屏黑场淡入淡出；'+
+             '3）导览员是程序化建模的角色，问答支持本地知识库与在线大模型（SSE 流式）两种通道。'; }},
+  {k:['编钟','上一个案例','节奏'], a:function(){
+      return '节奏竞技「编钟之韵」是上一课案例：用 WebAudio 加法合成重建青铜钟的非谐泛音列，'+
+             '并演示射线敲击与木槌挥击两种交互。'; }},
+  {k:['打卡','任务','目标','通关','评级','奖励'], a:function(){
+      if(S.taskOn) return '任务进行中：已到访 '+visitedCount()+'/'+ROUTE.length+'。'+
+        '线索可以直接要，但每条扣 4 分；结算看用时、晕动暴露和求助次数——这就是 VR 体验的三类硬指标。';
+      if(S.result) return '上次结算：'+S.result.level+' '+S.result.score+' 分，用时 '+S.result.seconds+
+        ' 秒，瞬移 '+S.result.teleports+' 次，求助 '+S.result.hintUsed+' 次，晕动暴露 '+S.result.sicknessS+' 秒。'+
+        '可以在 XR 工程面板导出 JSON，作为作业的过程数据。';
+      return '点右侧「导览打卡」开始任务：走遍 '+ROUTE.length+' 个地点，线索越往后越难。'; }},
+  {k:['3dgs','高斯','重建'], a:function(){
+      return '3D 高斯溅射（3DGS）需要真实采集的多视角照片做训练，无法在单文件离线页面里生成。'+
+             '本案例只做全景漫游与导览；3DGS 部分建议单独安排一次采集与训练实验课。'; }}
+];
+function localAnswer(q){
+  var s=String(q||'').toLowerCase();
+  var best=-1, bi=-1;
+  for(var i=0;i<KB.length;i++){
+    for(var j=0;j<KB[i].k.length;j++){
+      var kw=String(KB[i].k[j]).toLowerCase();
+      if(s.indexOf(kw)>=0 && kw.length>best){ best=kw.length; bi=i; }
+    }
+  }
+  if(bi<0){
+    return '这个问题我还没学到。你可以问：这是哪里 / 怎么去下一站 / 学校概况 / 校训 / '+
+           '图书馆 / 技术原理。若已配置在线大模型，也可以在设置里启用。';
+  }
+  return KB[bi].a();
+}
+
+/* ============================================================
+   5. 在线大模型（OpenAI 兼容 /chat/completions，SSE 流式）
+   ============================================================ */
+var LLM={ base:'', model:'', key:'', sys:'', on:false };
+function llmAsk(q, onToken, onDone){
+  if(!LLM.on || !LLM.base){ onToken(localAnswer(q)); onDone('local'); return; }
+  var body={
+    model: LLM.model||'gpt-3.5-turbo',
+    stream:true,
+    messages:[
+      {role:'system', content: LLM.sys||('你是'+CAMPUS_FACTS.school+'的数字导览员，'+
+        '用中文简洁回答，每次不超过 120 字。当前位置：'+S.cur.name+'。')},
+      {role:'user', content:q}
+    ]
+  };
+  var url=LLM.base.replace(/\/+$/,'')+'/chat/completions';
+  fetch(url,{
+    method:'POST',
+    headers:{'Content-Type':'application/json','Authorization':'Bearer '+LLM.key},
+    body:JSON.stringify(body)
+  }).then(function(r){
+    if(!r.ok || !r.body){ throw new Error('HTTP '+r.status); }
+    var rd=r.body.getReader(), dec=new TextDecoder('utf-8'), buf='';
+    function pump(){
+      rd.read().then(function(res){
+        if(res.done){ onDone('llm'); return; }
+        buf+=dec.decode(res.value,{stream:true});
+        var lines=buf.split('\n'); buf=lines.pop();
+        for(var i=0;i<lines.length;i++){
+          var ln=lines[i].replace(/^data:\s*/,'').trim();
+          if(!ln || ln==='[DONE]') continue;
+          try{
+            var j=JSON.parse(ln);
+            var d=j.choices&&j.choices[0]&&j.choices[0].delta;
+            if(d && d.content) onToken(d.content);
+          }catch(e){}
+        }
+        pump();
+      }).catch(function(){ onDone('error'); });
+    }
+    pump();
+  }).catch(function(){
+    onToken('（在线大模型不可用，已切回离线知识库）\n'+localAnswer(q));
+    onDone('fallback');
+  });
+}
+
+/* ============================================================
+   6. 渲染器 / 场景
+   ============================================================ */
+var renderer, scene, camera, player, clock;
+var panoMesh, panoMat, panoCam={};
+var npc, npcFace, dlgMesh, dlgCanvas, dlgTex, uiMesh, uiCanvas, uiTex, hudMesh, hudCanvas, hudTex;
+var hotspots=[], uiBtns=[], fadeMesh;
+var S={
+  cur:SCENES[0], fade:0, fadeDir:0, pending:null,
+  q:'', a:'', shown:0, src:'', typing:false, tts:true,
+  tour:false, tourIdx:0, tourT:0, yaw:0, pitch:0, simOn:true,
+  taskOn:false, taskDone:false, visited:{}, taskT0:0, hintUsed:0, hints:[], result:null
+};
+var PRESET=[
+  {id:'q1', t:'这是哪里？',   q:'这是哪里？'},
+  {id:'q2', t:'怎么去下一站？', q:'怎么去下一站？'},
+  {id:'q3', t:'前面的建筑？',   q:'前面的建筑是什么？'},
+  {id:'q4', t:'学校概况',     q:'介绍一下学校概况'},
+  {id:'q5', t:'校训与历史',   q:'校训是什么？建校年份？'},
+  {id:'q6', t:'图书馆',       q:'图书馆藏书多少？'},
+  {id:'q7', t:'技术原理',     q:'这个漫游是怎么做出来的？'},
+  {id:'tour',t:'自动导览 ▶',  q:''},
+  {id:'task',t:'导览打卡 ▶',  q:''},
+  {id:'hint',t:'要一条线索',  q:''},
+  {id:'tts', t:'语音播报 开',  q:''},
+  {id:'asr', t:'语音提问',     q:''}
+];
+
+/* ============================================================
+   3.5 导览打卡任务（目标闭环 + 难度递增）
+   ------------------------------------------------------------
+   设计意图：把"随便逛"变成有目标的学习任务。
+   · 推荐路线覆盖 5 个场景，全部到访才算完成；
+   · 线索随进度递减：前两站直给地名 → 中段给特征描述 → 最后只给一句提示；
+   · 结束时按【用时 / 晕动暴露 / 求助次数】评级，并写入 XR 内核成就。
+   ============================================================ */
+var ROUTE=['gate','square','sport','library','dorm'];
+var CLUE={
+  gate:   {a:'学校正门：进门就是中轴大道。',        b:'能看见校名石的那个入口。'},
+  square: {a:'中心广场：正前方是有柱廊的主楼。',    b:'所有路交汇的那个广场。'},
+  sport:  {a:'运动场：有标准跑道与看台。',          b:'上体育课的地方。'},
+  library:{a:'图书馆：玻璃幕墙、正面有台阶。',      b:'借书和自习的地方。'},
+  dorm:   {a:'生活区：三栋宿舍楼围合排列。',        b:'楼下有便利店和快递点的地方。'}
+};
+function taskSec(){ return Math.round((XRCore.get('sessionMs')-(S.taskT0||0))/1000); }
+function nextTarget(){
+  for(var i=0;i<ROUTE.length;i++) if(!S.visited[ROUTE[i]]) return ROUTE[i];
+  return null;
+}
+function visitedCount(){
+  var n=0; for(var i=0;i<ROUTE.length;i++) if(S.visited[ROUTE[i]]) n++;
+  return n;
+}
+function startTask(){
+  S.taskOn=true; S.taskDone=false; S.hintUsed=0; S.hints=[];
+  S.visited={}; S.visited[S.cur.id]=true;
+  S.taskT0=XRCore.get('sessionMs');
+  say('导览打卡开始：请走遍 '+ROUTE.length+' 个地点。已到访【'+S.cur.name+
+      '】。点「要一条线索」会得到提示，但会扣分——先看地面光环能不能找到路。', false);
+  drawUI(); drawHud();
+}
+function stopTask(msg){
+  S.taskOn=false;
+  say(msg||'导览打卡已结束。', false);
+  drawUI(); drawHud();
+}
+function hintNow(){
+  var t=nextTarget();
+  if(!t){ say('五个地点都到访过了，点「导览打卡」可以看结算。', false); return; }
+  var n=visitedCount();
+  /* 难度递增：到访越多，线索越短（越考验空间记忆而不是照着地名走） */
+  var txt=(n<=1)? ('下一站是【'+sceneById(t).name+'】。'+CLUE[t].a)
+        : (n<=3 ? ('下一站线索：'+CLUE[t].a) : ('再想一想：'+CLUE[t].b));
+  S.hintUsed++;
+  S.hints.push(t);
+  say(txt, false);
+  drawUI(); drawHud();
+}
+function markVisit(id){
+  if(!S.taskOn || S.taskDone) return;
+  S.visited[id]=true;
+  drawUI(); drawHud();
+  if(nextTarget()===null) finishTask();
+  else say('打卡成功：'+visitedCount()+'/'+ROUTE.length+'。'+
+           (visitedCount()>=4?'最后一站只有一句线索，加油。':'继续找下一个地点。'), false);
+}
+function finishTask(){
+  S.taskOn=false; S.taskDone=true;
+  var sec=taskSec(), tele=XRCore.get('teleports')||0, smooth=Math.round(XRCore.get('smoothMs')/1000);
+  var pT=clamp(Math.round((sec-300)/10),0,20);      /* 超 5 分钟后每 10 秒扣 1 分，最多 20 */
+  var pH=clamp(S.hintUsed*4,0,20);                  /* 每条线索扣 4 分，最多 20 */
+  var pS=clamp(Math.round((smooth-90)/6),0,15);     /* 晕动暴露超 90 秒扣分，最多 15 */
+  var score=clamp(100-pT-pH-pS,0,100);
+  var level=score>=85?'优秀':(score>=70?'良好':(score>=55?'合格':'需要再练一遍'));
+  S.result={visited:ROUTE.length, seconds:sec, teleports:tele, hintUsed:S.hintUsed,
+            sicknessS:smooth, score:score, level:level};
+  XRCore.goal('campus-tour','数字校园导览打卡',S.result);
+  say('打卡完成！用时 '+sec+'s · 瞬移 '+tele+' 次 · 求助 '+S.hintUsed+' 次 · 晕动暴露 '+smooth+'s。'+
+      '评级【'+level+'】'+score+' 分。这份数据已写入 XR 体验数据，导出 JSON 就能作为作业凭证。', false);
+  drawUI(); drawHud();
+}
+function resultLine(){
+  if(!S.result) return '';
+  return '上次：'+S.result.score+' 分 · '+S.result.level+' · '+S.result.seconds+'s';
+}
+
+function initRenderer(){
+  renderer=new THREE.WebGLRenderer({antialias:true, alpha:false});
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.outputEncoding=THREE.sRGBEncoding;
+  renderer.toneMapping=THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure=1.05;
+  renderer.xr.enabled=true;
+  if(renderer.xr.setReferenceSpaceType) renderer.xr.setReferenceSpaceType('local-floor');
+  document.body.appendChild(renderer.domElement);
+
+  scene=new THREE.Scene();
+  scene.background=new THREE.Color(0x9ec4de);
+  camera=new THREE.PerspectiveCamera(64, window.innerWidth/window.innerHeight, 0.05, 200);
+  camera.rotation.order='YXZ';
+  player=new THREE.Group();
+  player.add(camera);
+  scene.add(player);
+  camera.position.set(0,1.6,0);
+
+  clock=new THREE.Clock();
+  window.addEventListener('resize', function(){
+    camera.aspect=window.innerWidth/window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+}
+
+/* ============================================================
+   7. 全景球 / 热点 / NPC / 面板
+   ============================================================ */
+function buildPano(){
+  var g=new THREE.SphereGeometry(60,48,32);
+  g.scale(-1,1,1);
+  panoMat=new THREE.MeshBasicMaterial({side:THREE.FrontSide});
+  panoMesh=new THREE.Mesh(g,panoMat);
+  scene.add(panoMesh);
+  applyScene('gate', true);
+}
+var panoCache={};
+function panoOf(id){
+  if(panoCache[id]) return panoCache[id];
+  var c=paintPano(sceneById(id));
+  var t=mkTex({c:c},true);
+  panoCache[id]=t;
+  return t;
+}
+function clearHotspots(){
+  for(var i=0;i<hotspots.length;i++) scene.remove(hotspots[i].group);
+  hotspots=[];
+}
+function applyScene(id, instant){
+  var sc=sceneById(id);
+  S.cur=sc;
+  panoMat.map=panoOf(id);
+  panoMat.needsUpdate=true;
+  clearHotspots();
+  for(var i=0;i<sc.links.length;i++){
+    (function(L){
+      var a=L.az*6.2832;
+      var g=new THREE.Group();
+      var ring=new THREE.Mesh(new THREE.TorusGeometry(0.42,0.05,8,28),
+        new THREE.MeshBasicMaterial({color:0x7fe0ff, transparent:true, opacity:0.9}));
+      g.add(ring);
+      var arrow=new THREE.Mesh(new THREE.ConeGeometry(0.13,0.28,10),
+        new THREE.MeshBasicMaterial({color:0x7fe0ff}));
+      arrow.position.y=0.62; arrow.rotation.x=Math.PI;
+      g.add(arrow);
+      var lc=cnv(256,64), lx=lc.x;
+      lx.fillStyle='rgba(10,14,20,0.75)';
+      lx.fillRect(0,0,256,64);
+      lx.fillStyle='#eaf6ff'; lx.font='bold 34px "Microsoft YaHei",sans-serif';
+      lx.textAlign='center'; lx.textBaseline='middle';
+      lx.fillText(sceneById(L.to).name,128,34);
+      var lab=new THREE.Mesh(new THREE.PlaneGeometry(0.72,0.18),
+        new THREE.MeshBasicMaterial({map:mkTex(lc,true), transparent:true, depthWrite:false}));
+      lab.position.y=1.02;
+      g.add(lab);
+      /* 实测标定：全景 uv.x=0.75 为正前方，u 向右递增；
+         故全景方位 u 对应的世界方向 = (cos(2πu), 0, sin(2πu)) */
+      var dir=new THREE.Vector3(Math.cos(a),0,Math.sin(a));
+      g.position.copy(dir.multiplyScalar(7.5));
+      g.position.y=0.03;
+      g.lookAt(0,1.1,0);
+      g.userData={to:L.to, ring:ring};
+      scene.add(g);
+      hotspots.push({group:g, to:L.to, ring:ring});
+    })(sc.links[i]);
+  }
+  drawHud(); drawUI();
+  if(!instant) say(sc.intro, false);
+  markVisit(sc.id);   /* 导览打卡：到访计数（非任务状态下为空操作） */
+}
+function goScene(id){ if(S.pending) return; S.pending=id; S.fadeDir=1; }
+
+function buildNPC(){
+  npc=new THREE.Group();
+  var skin=0xf0c9a8;
+  var faceC=cnv(128,128), fx=faceC.x;
+  fx.fillStyle='#f0c9a8'; fx.fillRect(0,0,128,128);
+  fx.fillStyle='#2a2a2a';
+  fx.beginPath(); fx.ellipse(44,52,7,9,0,0,6.2832); fx.fill();
+  fx.beginPath(); fx.ellipse(84,52,7,9,0,0,6.2832); fx.fill();
+  fx.strokeStyle='#8a5a44'; fx.lineWidth=5; fx.lineCap='round';
+  fx.beginPath(); fx.arc(64,72,18,0.25*Math.PI,0.75*Math.PI); fx.stroke();
+  var head=new THREE.Mesh(new THREE.SphereGeometry(0.14,20,16),
+    new THREE.MeshStandardMaterial({map:mkTex(faceC,true), roughness:0.85, metalness:0.0}));
+  head.position.y=1.56; npc.add(head);
+  npcFace=head;
+  var body=new THREE.Mesh(new THREE.CylinderGeometry(0.20,0.26,0.80,16),
+    new THREE.MeshStandardMaterial({color:0x2f6f8f, roughness:0.72, metalness:0.05}));
+  body.position.y=0.95; npc.add(body);
+  var leg=new THREE.Mesh(new THREE.CylinderGeometry(0.15,0.18,0.60,14),
+    new THREE.MeshStandardMaterial({color:0x2a2f38, roughness:0.85}));
+  leg.position.y=0.30; npc.add(leg);
+  var badge=new THREE.Mesh(new THREE.CircleGeometry(0.055,16),
+    new THREE.MeshBasicMaterial({color:0xffd873}));
+  badge.position.set(0.13,1.16,0.21); npc.add(badge);
+  var armGeo=new THREE.SphereGeometry(0.07,10,8);
+  var armMat=new THREE.MeshStandardMaterial({color:0x2f6f8f, roughness:0.72});
+  var armL=new THREE.Mesh(armGeo, armMat);
+  armL.position.set(-0.26,1.10,0); armL.scale.set(1,1.7,1); npc.add(armL);
+  var armR=armL.clone(); armR.position.x=0.26; npc.add(armR);
+  npc.userData.isNPC=true;
+  scene.add(npc);
+}
+function placeNPC(){
+  /* 与热点同一套方位约定：正前方 u=0.75，u 减小＝向左。取 u=0.667 ≈ 左偏 30° */
+  var u=0.667, a=u*6.2832;
+  npc.position.set(Math.cos(a)*4.6, 0, Math.sin(a)*4.6);
+}
+
+function buildPanels(){
+  /* 问答面板（NPC 旁） */
+  dlgCanvas=cnv(640,384);
+  dlgTex=mkTex(dlgCanvas,true);
+  /* 问答面板做成底部字幕条：不遮挡正前方地标，也不挡住左侧导览员 */
+  dlgMesh=new THREE.Mesh(new THREE.PlaneGeometry(1.8,1.08),
+    new THREE.MeshBasicMaterial({map:dlgTex, transparent:true, depthWrite:false}));
+  dlgMesh.position.set(0,1.05,-2.5);
+  dlgMesh.rotation.x=-0.50;
+  scene.add(dlgMesh);
+  /* 控制台（右侧） */
+  uiCanvas=cnv(512,640);
+  uiTex=mkTex(uiCanvas,true);
+  uiMesh=new THREE.Mesh(new THREE.PlaneGeometry(1.05,1.31),
+    new THREE.MeshBasicMaterial({map:uiTex, transparent:true, depthWrite:false}));
+  uiMesh.position.set(1.51,1.42,-2.12);
+  uiMesh.rotation.y=-0.62;
+  scene.add(uiMesh);
+  var ROWS=6;
+  var m=20, gap=12, cw=(512-m*2-gap)/2, ch=(640-m*2-gap*(ROWS-1))/ROWS;
+  uiBtns=[];
+  for(var r=0;r<ROWS;r++) for(var c=0;c<2;c++){
+    var d=PRESET[r*2+c];
+    if(!d) continue;
+    uiBtns.push({id:d.id, x:m+c*(cw+gap), y:m+r*(ch+gap), w:cw, h:ch});
+  }
+  /* 顶部状态条 */
+  hudCanvas=cnv(768,110);
+  hudTex=mkTex(hudCanvas,true);
+  hudMesh=new THREE.Mesh(new THREE.PlaneGeometry(1.9,0.27),
+    new THREE.MeshBasicMaterial({map:hudTex, transparent:true, depthWrite:false}));
+  hudMesh.position.set(0,2.42,-3.2);
+  hudMesh.rotation.x=0.16;
+  scene.add(hudMesh);
+  drawDlg(); drawUI(); drawHud();
+}
+function wrapText(x, text, px, py, maxW, lh){
+  var line='', out=[], W=640;
+  for(var i=0;i<text.length;i++){
+    var ch=text.charAt(i);
+    if(ch==='\n'){ out.push(line); line=''; continue; }
+    if(x.measureText(line+ch).width>maxW){ out.push(line); line=ch; }
+    else line+=ch;
+  }
+  if(line) out.push(line);
+  for(var j=0;j<out.length && j<14;j++) x.fillText(out[j], px, py+j*lh);
+  return out.length;
+}
+function drawDlg(){
+  var x=dlgCanvas.x, W=640, H=384;
+  x.clearRect(0,0,W,H);
+  var g=x.createLinearGradient(0,0,0,H);
+  g.addColorStop(0,'rgba(12,16,22,0.94)'); g.addColorStop(1,'rgba(20,26,34,0.90)');
+  x.fillStyle=g; x.fillRect(0,0,W,H);
+  x.strokeStyle='rgba(200,150,80,0.6)'; x.lineWidth=3; x.strokeRect(2,2,W-4,H-4);
+  x.fillStyle='#7fe0ff'; x.font='bold 26px "Microsoft YaHei",sans-serif';
+  x.textAlign='left'; x.textBaseline='alphabetic';
+  x.fillText('AI 导览员 · '+(LLM.on?'在线大模型':'离线知识库'), 22, 38);
+  if(S.q){
+    x.fillStyle='#ffd873'; x.font='24px "Microsoft YaHei",sans-serif';
+    x.fillText('问：', 22, 78);
+    x.fillStyle='#e8eef6';
+    wrapText(x, S.q, 70, 78, W-92, 32);
+  }
+  if(S.a){
+    var y0=78+Math.max(1,Math.ceil(x.measureText(S.q).width/(W-92)))*32+18;
+    x.fillStyle='#8fe08a'; x.font='24px "Microsoft YaHei",sans-serif';
+    x.fillText('答：', 22, y0);
+    x.fillStyle='#d8e2ee';
+    var vis=S.a.substring(0,S.shown);
+    wrapText(x, vis, 70, y0, W-92, 32);
+  }
+  x.fillStyle='#6f7c8c'; x.font='18px "Microsoft YaHei",sans-serif';
+  var foot=S.typing?'正在回答…':'点击右侧按钮或输入框提问';
+  if(S.result){
+    x.fillStyle='#8fe08a';
+    foot='上次结算：'+S.result.level+' '+S.result.score+' 分 · 用时 '+S.result.seconds+'s · 瞬移 '+
+         S.result.teleports+' 次 · 线索 '+S.result.hintUsed+' 条 · 晕动暴露 '+S.result.sicknessS+'s';
+  }
+  x.fillText(foot, 22, H-18);
+  dlgTex.needsUpdate=true;
+}
+function btnLabel(b){
+  if(b.id==='tour') return S.tour?'自动导览 ■':'自动导览 ▶';
+  if(b.id==='task') return S.taskOn?('打卡中 '+visitedCount()+'/'+ROUTE.length):(S.result?('再看结算 '+S.result.score+'分'):'导览打卡 ▶');
+  if(b.id==='hint') return '要线索（已用'+S.hintUsed+'）';
+  if(b.id==='tts')  return '语音播报 '+(S.tts?'开':'关');
+  if(b.id==='asr')  return '语音提问';
+  for(var i=0;i<PRESET.length;i++) if(PRESET[i].id===b.id) return PRESET[i].t;
+  return '';
+}
+function drawUI(){
+  var x=uiCanvas.x, W=512;
+  x.clearRect(0,0,W,640);
+  var g=x.createLinearGradient(0,0,0,640);
+  g.addColorStop(0,'rgba(14,18,25,0.94)'); g.addColorStop(1,'rgba(24,30,40,0.90)');
+  x.fillStyle=g; x.fillRect(0,0,W,640);
+  x.strokeStyle='rgba(200,150,80,0.6)'; x.lineWidth=4; x.strokeRect(2,2,W-4,636);
+  for(var i=0;i<uiBtns.length;i++){
+    var b=uiBtns[i];
+    var act=(b.id==='tour'&&S.tour)||(b.id==='tts'&&S.tts)||(b.id==='task'&&S.taskOn);
+    var done=(b.id==='task'&&S.taskDone);
+    var bg=x.createLinearGradient(0,b.y,0,b.y+b.h);
+    if(done){ bg.addColorStop(0,'#8fe08a'); bg.addColorStop(1,'#5fae66'); }
+    else if(act){ bg.addColorStop(0,'#c9973f'); bg.addColorStop(1,'#a2762d'); }
+    else{ bg.addColorStop(0,'#33404f'); bg.addColorStop(1,'#26303c'); }
+    x.fillStyle=bg; roundRect(x,b.x,b.y,b.w,b.h,12); x.fill();
+    x.strokeStyle=done?'rgba(180,255,190,0.9)':(act?'rgba(255,220,160,0.85)':'rgba(150,168,190,0.45)');
+    x.lineWidth=2; roundRect(x,b.x,b.y,b.w,b.h,12); x.stroke();
+    x.fillStyle=(act||done)?'#20160a':'#e8eef6';
+    x.font='bold 27px "Microsoft YaHei",sans-serif';
+    x.textAlign='center'; x.textBaseline='middle';
+    x.fillText(btnLabel(b), b.x+b.w/2, b.y+b.h/2);
+  }
+  uiTex.needsUpdate=true;
+}
+function roundRect(x,px,py,w,h,r){
+  x.beginPath(); x.moveTo(px+r,py);
+  x.lineTo(px+w-r,py); x.quadraticCurveTo(px+w,py,px+w,py+r);
+  x.lineTo(px+w,py+h-r); x.quadraticCurveTo(px+w,py+h,px+w-r,py+h);
+  x.lineTo(px+r,py+h); x.quadraticCurveTo(px,py+h,px,py+h-r);
+  x.lineTo(px,py+r); x.quadraticCurveTo(px,py,px+r,py);
+  x.closePath();
+}
+function drawHud(){
+  var x=hudCanvas.x, W=768, H=110;
+  x.clearRect(0,0,W,H);
+  var g=x.createLinearGradient(0,0,0,H);
+  g.addColorStop(0,'rgba(12,16,22,0.92)'); g.addColorStop(1,'rgba(20,26,34,0.86)');
+  x.fillStyle=g; x.fillRect(0,0,W,H);
+  x.strokeStyle='rgba(200,150,80,0.5)'; x.lineWidth=3; x.strokeRect(2,2,W-4,H-4);
+  x.textAlign='left'; x.textBaseline='middle';
+  x.fillStyle='#ffd873'; x.font='bold 40px "Microsoft YaHei",sans-serif';
+  x.fillText(S.cur.name, 26, H/2-6);
+  x.textAlign='right'; x.fillStyle='#9fb0c6'; x.font='24px "Microsoft YaHei",sans-serif';
+  var ch=(LLM.on?'在线':'离线')+' · 语音'+(S.tts?'开':'关');
+  if(S.taskOn) ch='打卡 '+visitedCount()+'/'+ROUTE.length+' · '+taskSec()+'s';
+  else if(S.taskDone && S.result) ch='已通关 · '+S.result.score+'分 · '+S.result.level;
+  x.fillText(ch, W-26, H/2-6);
+  hudTex.needsUpdate=true;
+}
+
+/* ============================================================
+   8. 问答 / 打字机 / 语音
+   ============================================================ */
+function ask(q){
+  q=String(q||'').trim();
+  if(!q) return;
+  S.q=q; S.a=''; S.shown=0; S.typing=true; S.src='';
+  drawDlg();
+  llmAsk(q, function(tok){
+    S.a+=tok; S.typing=true; drawDlg();
+  }, function(src){
+    /* 不在这里把 shown 补齐：留给 updType 做逐字打字机效果。
+       在线流式已逐 token 追加，同样交给打字机平滑输出。 */
+    S.src=src; S.typing=false; drawDlg();
+    if(S.tts) speak(S.a);
+  });
+}
+function say(text, isAnswer){
+  S.a=String(text||''); S.shown=0; S.typing=false;
+  if(isAnswer!==false) S.q='';
+  drawDlg();
+  if(S.tts) speak(S.a);
+}
+function updType(dt){
+  if(S.a && S.shown<S.a.length){
+    S.shown=Math.min(S.a.length, S.shown+Math.max(1,Math.floor(dt*70)));
+    /* 每 3 次推进重绘一次，避免高频刷 canvas */
+    S._rd=(S._rd||0)+1;
+    if(S._rd>3){ S._rd=0; drawDlg(); }
+    if(S.shown>=S.a.length) drawDlg();
+  }
+}
+function speak(text){
+  try{
+    if(!window.speechSynthesis) return;
+    window.speechSynthesis.cancel();
+    var u=new SpeechSynthesisUtterance(String(text).slice(0,180));
+    u.lang='zh-CN'; u.rate=1.0;
+    window.speechSynthesis.speak(u);
+  }catch(e){}
+}
+function startASR(){
+  try{
+    var R=window.SpeechRecognition||window.webkitSpeechRecognition;
+    if(!R){ say('当前浏览器不支持语音识别，请用输入框或预设按钮提问。',false); return; }
+    var r=new R(); r.lang='zh-CN'; r.interimResults=false; r.maxAlternatives=1;
+    say('请说话…', false);
+    r.onresult=function(ev){ ask(ev.results[0][0].transcript); };
+    r.onerror=function(){ say('语音识别失败，请改用文字输入。', false); };
+    r.start();
+  }catch(e){ say('语音识别不可用。', false); }
+}
+
+/* ============================================================
+   9. 输入
+   ============================================================ */
+var pcKeys={}, mouseDown=false, lastX=0, lastY=0, dragging=false;
+var ray=new THREE.Raycaster();
+function ndcFrom(e){
+  return new THREE.Vector2((e.clientX/window.innerWidth)*2-1, -(e.clientY/window.innerHeight)*2+1);
+}
+function pickAt(n){
+  ray.setFromCamera(n, camera);
+  var hitUI=ray.intersectObject(uiMesh,false);
+  if(hitUI.length){
+    var px=hitUI[0].uv.x*512, py=(1-hitUI[0].uv.y)*640;
+    for(var i=0;i<uiBtns.length;i++){
+      var b=uiBtns[i];
+      if(px>=b.x&&px<=b.x+b.w&&py>=b.y&&py<=b.y+b.h) return {type:'ui', id:b.id};
+    }
+  }
+  var targets=[];
+  for(var h=0;h<hotspots.length;h++) targets.push(hotspots[h].group);
+  var hitH=ray.intersectObjects(targets,true);
+  if(hitH.length){
+    var o=hitH[0].object;
+    while(o && !o.userData.to) o=o.parent;
+    if(o) return {type:'goto', to:o.userData.to};
+  }
+  var hitN=ray.intersectObject(npc,true);
+  if(hitN.length) return {type:'npc'};
+  return null;
+}
+function doPick(res){
+  if(!res) return;
+  if(res.type==='ui') fireUI(res.id);
+  else if(res.type==='goto') goScene(res.to);
+  else if(res.type==='npc') say('你好，我是'+CAMPUS_FACTS.school+'的 AI 导览员。'+
+      '你现在在【'+S.cur.name+'】，可以问我这是哪里、怎么去下一站，或者介绍一下学校。', false);
+}
+/* 注视停留委托给内核的计时器：id 必须立刻固化成参数，fire 是延迟调用的 */
+function mkGazeUI(id,dist){ return {id:'u'+id, dist:dist, fire:function(){ fireUI(id); }}; }
+function fireUI(id){
+  var i;
+  for(i=0;i<PRESET.length;i++) if(PRESET[i].id===id){
+    if(PRESET[i].q){ ask(PRESET[i].q); return; }
+  }
+  if(id==='tour'){
+    S.tour=!S.tour; S.tourIdx=0; S.tourT=0;
+    if(S.tour) say('自动导览开始，每一站停留约 10 秒。', false);
+    else say('自动导览已停止。', false);
+  } else if(id==='task'){
+    if(S.taskOn){ stopTask('导览打卡已中止，已到访 '+visitedCount()+'/'+ROUTE.length+' 个地点。'); return; }
+    startTask(); return;
+  } else if(id==='hint'){
+    hintNow(); return;
+  } else if(id==='tts'){
+    S.tts=!S.tts;
+    if(!S.tts && window.speechSynthesis) window.speechSynthesis.cancel();
+  } else if(id==='asr'){ startASR(); }
+  drawUI(); drawHud();
+}
+function initPC(){
+  var el=renderer.domElement;
+  el.addEventListener('mousedown', function(e){ mouseDown=true; lastX=e.clientX; lastY=e.clientY; dragging=false; });
+  window.addEventListener('mouseup', function(e){
+    if(mouseDown && !dragging) doPick(pickAt(ndcFrom(e)));
+    mouseDown=false;
+  });
+  window.addEventListener('mousemove', function(e){
+    if(!mouseDown) return;
+    var dx=e.clientX-lastX, dy=e.clientY-lastY;
+    if(Math.abs(dx)+Math.abs(dy)>4) dragging=true;
+    lastX=e.clientX; lastY=e.clientY;
+    if(dragging){
+      player.rotation.y -= dx*0.0030;
+      camera.rotation.x = clamp(camera.rotation.x - dy*0.0026, -0.9, 0.9);
+    }
+  });
+  window.addEventListener('keydown', function(e){
+    pcKeys[e.key.toLowerCase()]=true;
+    if(document.activeElement===$('q')){
+      if(e.key==='Enter'){ ask($('q').value); $('q').value=''; }
+      return;
+    }
+    var m={'1':0,'2':1,'3':2,'4':3,'5':4};
+    if(e.key in m){ goScene(SCENES[m[e.key]].id); return; }
+  });
+  window.addEventListener('keyup', function(e){ pcKeys[e.key.toLowerCase()]=false; });
+  $('send').addEventListener('click', function(){ ask($('q').value); $('q').value=''; });
+  $('q').addEventListener('keydown', function(e){ if(e.key==='Enter'){ ask($('q').value); $('q').value=''; } });
+  $('cfgbtn').addEventListener('click', function(){
+    var c=$('cfg'); c.style.display=(c.style.display==='block')?'none':'block';
+  });
+  $('cf_save').addEventListener('click', function(){
+    LLM.base=$('cf_base').value.trim();
+    LLM.model=$('cf_model').value.trim();
+    LLM.key=$('cf_key').value.trim();
+    LLM.sys=$('cf_sys').value.trim();
+    LLM.on=!!LLM.base;
+    try{
+      localStorage.setItem('campus_llm', JSON.stringify(LLM));
+    }catch(e){}
+    $('cf_stat').textContent=LLM.on? '已启用在线大模型：'+LLM.model : '未启用（Base URL 为空）';
+    drawDlg(); drawHud();
+  });
+  $('cf_off').addEventListener('click', function(){
+    LLM.on=false;
+    try{ localStorage.setItem('campus_llm', JSON.stringify(LLM)); }catch(e){}
+    $('cf_stat').textContent='已切回离线知识库';
+    drawDlg(); drawHud();
+  });
+  try{
+    var sv=localStorage.getItem('campus_llm');
+    if(sv){
+      var o=JSON.parse(sv);
+      LLM.base=o.base||''; LLM.model=o.model||''; LLM.key=o.key||''; LLM.sys=o.sys||''; LLM.on=!!o.on;
+      $('cf_base').value=LLM.base; $('cf_model').value=LLM.model;
+      $('cf_key').value=LLM.key; $('cf_sys').value=LLM.sys;
+      $('cf_stat').textContent=LLM.on? '已启用在线大模型：'+LLM.model : '离线知识库';
+    }
+  }catch(e){}
+}
+function updPCMove(dt){
+  var f=0,s=0;
+  if(pcKeys['arrowup']) f+=1;
+  if(pcKeys['arrowdown']) f-=1;
+  if(pcKeys['arrowleft']) s-=1;
+  if(pcKeys['arrowright']) s+=1;
+  if(!f && !s) return;
+  var d=new THREE.Vector3(); camera.getWorldDirection(d); d.y=0; d.normalize();
+  var side=new THREE.Vector3(-d.z,0,d.x);
+  var mv=new THREE.Vector3().addScaledVector(d,f).addScaledVector(side,s).normalize();
+  player.position.addScaledVector(mv, dt*1.6);
+  player.position.x=clamp(player.position.x,-3,3);
+  player.position.z=clamp(player.position.z,-3,3);
+}
+
+/* --- VR --- */
+var controllers=[], rayVR=new THREE.Raycaster();
+function initVR(){
+  for(var i=0;i<2;i++){
+    var c=renderer.xr.getController(i);
+    c.userData.idx=i;
+    var line=new THREE.Line(
+      new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0,0,0),new THREE.Vector3(0,0,-1)]),
+      new THREE.LineBasicMaterial({color:0x7fe0ff, transparent:true, opacity:0.7}));
+    line.scale.z=6;
+    c.add(line);
+    c.addEventListener('selectstart', onSelect);
+    c.addEventListener('connected', function(e){ this.userData.inputSource=e.data; this.visible=true; });
+    c.addEventListener('disconnected', function(){ this.userData.inputSource=null; this.visible=false; });
+    c.visible=false;
+    scene.add(c);
+    controllers.push(c);
+  }
+}
+function onSelect(){
+  var c=this, src=c.userData.inputSource;
+  var m4=new THREE.Matrix4().identity().extractRotation(c.matrixWorld);
+  rayVR.ray.origin.setFromMatrixPosition(c.matrixWorld);
+  rayVR.ray.direction.set(0,0,-1).applyMatrix4(m4);
+  rayVR.camera=camera;
+  var hitUI=rayVR.intersectObject(uiMesh,false);
+  if(hitUI.length){
+    var px=hitUI[0].uv.x*512, py=(1-hitUI[0].uv.y)*640;
+    for(var i=0;i<uiBtns.length;i++){
+      var b=uiBtns[i];
+      if(px>=b.x&&px<=b.x+b.w&&py>=b.y&&py<=b.y+b.h){
+        fireUI(b.id); haptic(src,0.25,20); return;
+      }
+    }
+  }
+  var targets=[];
+  for(var h=0;h<hotspots.length;h++) targets.push(hotspots[h].group);
+  var hitH=rayVR.intersectObjects(targets,true);
+  if(hitH.length){
+    var o=hitH[0].object;
+    while(o && !o.userData.to) o=o.parent;
+    if(o){ goScene(o.userData.to); haptic(src,0.5,30); return; }
+  }
+  var hitN=rayVR.intersectObject(npc,true);
+  if(hitN.length){
+    doPick({type:'npc'}); haptic(src,0.5,30);
+  }
+}
+function haptic(src,i,ms){
+  if(!src||!src.gamepad) return;
+  var a=src.gamepad.hapticActuators;
+  if(a&&a[0]&&a[0].pulse){ try{ a[0].pulse(i,ms); }catch(e){} }
+}
+function updVRMove(dt){
+  if(!renderer.xr.isPresenting) return;
+  var ss=renderer.xr.getSession(); if(!ss) return;
+  var srcs=ss.inputSources;
+  for(var i=0;i<srcs.length;i++){
+    var s=srcs[i], gp=s.gamepad;
+    if(!gp||!gp.axes||gp.axes.length<4) continue;
+    var h=gp.axes[2], v=gp.axes[3];
+    var left=(s.handedness==='left')||(s.handedness!=='right'&&i===0);
+    if(left){
+      if(Math.abs(h)>0.18||Math.abs(v)>0.18){
+        var d=new THREE.Vector3(); camera.getWorldDirection(d); d.y=0; d.normalize();
+        var side=new THREE.Vector3(-d.z,0,d.x);
+        var mv=new THREE.Vector3().addScaledVector(d,-v).addScaledVector(side,h).normalize();
+        player.position.addScaledVector(mv, dt*1.5*Math.min(1,Math.hypot(h,v)));
+        player.position.x=clamp(player.position.x,-3,3);
+        player.position.z=clamp(player.position.z,-3,3);
+      }
+    } else {
+      if(Math.abs(h)>0.55){
+        if(!s._t){ s._t=true; player.rotation.y -= (h>0?1:-1)*Math.PI/6; }
+      } else s._t=false;
+    }
+  }
+}
+
+/* ============================================================
+   10. 主循环
+   ============================================================ */
+function updFade(dt){
+  if(!S.fadeDir) return;
+  S.fade += S.fadeDir*dt*2.6;
+  if(S.fade>=1 && S.pending){ applyScene(S.pending); S.pending=null; S.fadeDir=-1; S.fade=1; }
+  if(S.fade<=0 && S.fadeDir<0){ S.fade=0; S.fadeDir=0; }
+  S.fade=clamp(S.fade,0,1);
+  fadeMesh.material.opacity=S.fade;
+  fadeMesh.visible=S.fade>0.001;
+}
+function updNPC(dt, t){
+  var wp=new THREE.Vector3(); camera.getWorldPosition(wp);
+  npc.lookAt(wp.x, npc.position.y+1.2, wp.z);
+  npc.position.y=Math.sin(t*1.6)*0.012;
+  var sp=S.typing? 1+Math.sin(t*14)*0.05 : 1;
+  npcFace.scale.setScalar(sp);
+  for(var i=0;i<hotspots.length;i++){
+    var r=hotspots[i].ring;
+    var k=1+Math.sin(t*2.4+i)*0.06;
+    r.scale.setScalar(k);
+    r.material.opacity=0.68+Math.sin(t*2.4+i)*0.22;
+  }
+}
+function updTour(dt){
+  if(!S.tour) return;
+  S.tourT+=dt;
+  if(S.tourT>10){
+    S.tourT=0;
+    S.tourIdx=(S.tourIdx+1)%SCENES.length;
+    goScene(SCENES[S.tourIdx].id);
+  }
+}
+function animate(){
+  var dt=Math.min(clock.getDelta(),0.05);
+  if(S.simOn){
+    updFade(dt); updType(dt); updTour(dt); updPCMove(dt); XRCore.vrMove(dt);
+  }
+  updNPC(dt, clock.elapsedTime);
+  XRCore.frame(dt);
+  renderer.render(scene,camera);
+}
+
+/* ============================================================
+   11. 调试 API
+   ============================================================ */
+function expose(){
+  window.CampusAI={
+    S:S, LLM:LLM, SCENES:SCENES, FACTS:CAMPUS_FACTS, KB:KB,
+    scene:scene, camera:camera, player:player, renderer:renderer,
+    npc:function(){ return npc; }, hotspots:function(){ return hotspots; },
+    goScene:goScene, applyScene:function(id){ applyScene(id,true); },
+    ask:ask, localAnswer:localAnswer, fireUI:fireUI,
+    cur:function(){ return S.cur.id; },
+    pauseSim:function(){ S.simOn=false; }, resumeSim:function(){ S.simOn=true; },
+    tick:function(dt){ updFade(dt); updType(dt); updTour(dt); },
+    panoMat:function(){ return panoMat; },
+    answer:function(){ return S.a; }, question:function(){ return S.q; },
+    drawAll:function(){ drawDlg(); drawUI(); drawHud(); },
+    task:function(){
+      return {on:S.taskOn, done:S.taskDone, visited:visitedCount(), total:ROUTE.length,
+              route:ROUTE, hints:S.hintUsed, sec:taskSec(), result:S.result,
+              start:startTask, hint:hintNow, finish:finishTask, next:nextTarget};
+    },
+    XRCore:function(){ return window.XRCore; }
+  };
+}
+
+/* ============================================================
+   12. 启动
+   ============================================================ */
+function boot(){
+  initRenderer();
+  /* 淡入淡出黑场，挂在相机上 */
+  fadeMesh=new THREE.Mesh(new THREE.PlaneGeometry(4,4),
+    new THREE.MeshBasicMaterial({color:0x000000, transparent:true, opacity:0, depthTest:false}));
+  fadeMesh.position.z=-0.6;
+  fadeMesh.visible=false;
+  camera.add(fadeMesh);
+
+  var hemi=new THREE.HemisphereLight(0xcfe0f0, 0x4a4a42, 0.95);
+  scene.add(hemi);
+  var sun=new THREE.DirectionalLight(0xfff2dc, 0.75);
+  sun.position.set(4,7,3); scene.add(sun);
+
+  /* 先建面板：applyScene() 会重绘 HUD/控制台，面板必须先存在 */
+  buildPanels();
+  buildPano();
+  buildNPC(); placeNPC();
+  initPC(); initVR();
+  expose();
+  $('tip').style.display='none';
+  XRCore.init({
+    THREE:THREE, renderer:renderer, scene:scene, camera:camera, player:player,
+    name:'04 数字校园漫游·AI导览', targetFps:72,
+    panelPos:[-1.51,1.42,-2.12], panelRotY:0.60,
+    home:{x:0, z:0, rotY:0}, bounds:{x:[-3,3], z:[-3,3]},
+    tips:[
+      ['为什么必须是VR','远程看校：360° 全景 + 自由转头带来"在场"，平面图和视频给不了方位感与尺度感。'],
+      ['三种空间表示','网格（可交互、重）/ 全景（轻、不可走近）/ 3DGS（真实感强、视角自由）。本例用全景——最省算力的远程方案。'],
+      ['全景的坑','等距圆柱投影的 u 必须标定到世界方位（本例正前方 u=0.750），否则热点会跑到相机背后。'],
+      ['本例的问答是关键词匹配','真实多轮与流式见案例06；两例对比才能看清"规则系统 vs 大模型"的差别。'],
+      ['前沿','3DGS（Spark 2.0 等）可在网页端实时渲染亿级高斯点，是下一代数字校园的实现路径。']
+    ]
+  });
+  XRCore.ui([uiMesh]);   /* 坐姿模式下自动下沉 */
+  /* 注视停留点本例自有面板：不用手柄也能完成面板上的全部操作 */
+  XRCore.uiHit(function(rc){
+    if(!uiMesh||!uiBtns.length) return null;
+    var h=rc.intersectObject(uiMesh,false);
+    if(!h.length||!h[0].uv) return null;
+    var px=h[0].uv.x*uiCanvas.w, py=(1-h[0].uv.y)*uiCanvas.h;   /* 注意：uiCanvas 是 cnv() 返回的 {c,x,w,h}，不是 DOM canvas */
+    for(var i=0;i<uiBtns.length;i++){
+      var b=uiBtns[i];
+      if(px>=b.x&&px<=b.x+b.w&&py>=b.y&&py<=b.y+b.h) return mkGazeUI(b.id,h[0].distance);
+    }
+    return null;
+  });
+  renderer.setAnimationLoop(animate);
+
+  var btn=$('vrbtn');
+  if(navigator.xr && navigator.xr.isSessionSupported){
+    navigator.xr.isSessionSupported('immersive-vr').then(function(ok){
+      if(ok){
+        btn.disabled=false; btn.textContent='进入 VR';
+        btn.addEventListener('click', function(){
+          navigator.xr.requestSession('immersive-vr',{optionalFeatures:['local-floor']})
+            .then(function(session){
+              renderer.xr.setSession(session);
+              document.body.classList.add('XR');
+              session.addEventListener('end', function(){
+                document.body.classList.remove('XR');
+                player.position.set(0,0,0); player.rotation.set(0,0,0);
+                camera.rotation.set(0,0,0);
+              });
+            }).catch(function(){ btn.textContent='VR 启动失败'; });
+        });
+      } else btn.textContent='此设备不支持 VR';
+    }).catch(function(){ btn.textContent='VR 不可用'; });
+  } else btn.textContent='无 WebXR（可用 PC 模式）';
+}
+
+if(document.readyState==='complete'||document.readyState==='interactive') setTimeout(boot,0);
+else window.addEventListener('DOMContentLoaded', boot);
+
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>AR 文物复原 — WebXR 课堂案例</title>
+<style>
+  html,body{margin:0;padding:0;height:100%;overflow:hidden;background:#20242b;}
+  body{font-family:"Microsoft YaHei","PingFang SC",sans-serif;color:#e8eef6;}
+  #hud{position:fixed;left:0;right:0;bottom:0;padding:10px 14px;background:rgba(12,16,22,.72);
+       font-size:13px;line-height:1.7;z-index:10;pointer-events:none;}
+  #hud b{color:#ffcf7a;}
+  #tip{position:fixed;left:50%;top:44%;transform:translate(-50%,-50%);padding:14px 24px;
+       background:rgba(12,16,22,.9);border:1px solid #3a4658;border-radius:10px;z-index:14;
+       text-align:center;max-width:76%;}
+  #tip small{display:block;margin-top:8px;color:#9fb0c6;font-size:12px;line-height:1.6;}
+  #ret{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:210px;height:210px;
+       border:2px dashed rgba(255,207,122,.85);border-radius:8px;z-index:9;pointer-events:none;
+       transition:opacity .5s;}
+  #ret.off{opacity:0;}
+  #ret span{position:absolute;left:0;right:0;bottom:-26px;text-align:center;font-size:12px;color:#ffcf7a;}
+  .pcOnly{}
+  .XR .pcOnly{display:none;}
+  #vrbtn{position:fixed;right:12px;top:12px;z-index:12;padding:10px 16px;border:0;border-radius:8px;
+         background:#c9973f;color:#20160a;font-size:14px;font-weight:700;cursor:pointer;}
+  #vrbtn[disabled]{background:#4a5160;color:#9aa5b4;cursor:default;}
+</style>
+</head>
+<body>
+<div id="tip">正在生成展台与文物碎片…<small>模拟 AR：把视线中央的取景框对准展台上的识别图</small></div>
+<div id="ret" class="pcOnly"><span>取景框（对准识别图即可注册）</span></div>
+<div id="hud" class="pcOnly">
+  <b>鼠标拖拽</b>转视角 &nbsp;·&nbsp; <b>方向键</b>移动 &nbsp;·&nbsp; <b>点击碎片</b>或按 <b>空格</b>拾取/放下 &nbsp;·&nbsp;
+  <b>Q/E</b>旋转手中碎片 &nbsp;·&nbsp; <b>H</b>提示 &nbsp;·&nbsp; <b>R</b>重置 &nbsp;·&nbsp; <b>M</b>切换模式<br>
+  <b>可访问性</b>：Shift+P 坐姿/站立 · Shift+H 惯用手 · Shift+G 注视点击（免手柄点面板）
+</div>
+<button id="vrbtn" disabled>检测 VR…</button>
+<script src="../three.min.js"></script>
+<script src="../_xr_core.js"></script>
+<script>
+(function(){
+'use strict';
+
+/* ============================================================
+   0. 工具
+   ============================================================ */
+function $(id){ return document.getElementById(id); }
+function clamp(v,a,b){ return v<a?a:(v>b?b:v); }
+function deg(d){ return d*Math.PI/180; }
+function cnv(w,h){ var c=document.createElement('canvas'); c.width=w; c.height=h;
+  return {c:c, x:c.getContext('2d'), w:w, h:h}; }
+function mkTex(o,srgb){
+  var t=new THREE.CanvasTexture(o.c);
+  if(srgb && THREE.sRGBEncoding) t.encoding=THREE.sRGBEncoding;
+  t.anisotropy=4; t.needsUpdate=true; return t;
+}
+
+/* ============================================================
+   1. 文物资料（⚠️ 占位，须按博物馆/考古资料核对）
+   ============================================================ */
+var RELIC={
+  name:'青花缠枝纹罐',
+  dynasty:'（示例数据，待补充）',
+  kiln:'（示例数据，待补充）',
+  size:'（示例数据，待补充）',
+  pattern:'（示例数据，待补充）',
+  craft:'（示例数据，待补充）',
+  _todo:'以上占位请按博物馆展签或考古报告填写，勿凭印象编造'
+};
+
+/* ============================================================
+   2. 状态
+   ============================================================ */
+var S={
+  mode:'ar',            /* 'ar' 模拟AR | 'principle' 原理四步 */
+  stage:'idle',         /* idle(未识别) -> tracked(已注册) -> done(复原完成) */
+  match:0, feat:0, tracked:false, lost:false,
+  locked:0, total:6, hint:-1,
+  step:0, stepT:0, playing:false,
+  simOn:true
+};
+var NFRAG=6;
+
+/* ============================================================
+   3. 渲染器 / 场景
+   ============================================================ */
+var renderer, scene, camera, player, clock;
+var marker, markerGroup, pedestal;
+var frags=[], ghost=[], stands=[];
+var dlgMesh, dlgCanvas, dlgTex, uiMesh, uiCanvas, uiTex, uiBtns=[], hudMesh, hudCanvas, hudTex;
+var featPoints=null, camHelper=null;
+
+function initRenderer(){
+  renderer=new THREE.WebGLRenderer({antialias:true, alpha:false});
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.shadowMap.enabled=true;
+  renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+  renderer.outputEncoding=THREE.sRGBEncoding;
+  renderer.toneMapping=THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure=1.10;
+  renderer.xr.enabled=true;
+  if(renderer.xr.setReferenceSpaceType) renderer.xr.setReferenceSpaceType('local-floor');
+  document.body.appendChild(renderer.domElement);
+
+  scene=new THREE.Scene();
+  scene.background=new THREE.Color(0x2a2f38);
+  scene.fog=new THREE.Fog(0x2a2f38, 8, 22);
+  camera=new THREE.PerspectiveCamera(62, window.innerWidth/window.innerHeight, 0.05, 80);
+  camera.rotation.order='YXZ';
+  player=new THREE.Group(); player.add(camera); scene.add(player);
+  player.position.set(0,0,2.6);
+  camera.position.set(0,1.62,0);
+  clock=new THREE.Clock();
+  window.addEventListener('resize', function(){
+    camera.aspect=window.innerWidth/window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+}
+
+/* ============================================================
+   4. 程序化贴图
+   ============================================================ */
+var TEX={};
+function buildTextures(){
+  /* 青花纹：白瓷底 + 蓝色缠枝 */
+  var o=cnv(512,512), x=o.x;
+  x.fillStyle='#eef1f4'; x.fillRect(0,0,512,512);
+  var i;
+  for(i=0;i<70;i++){
+    x.fillStyle='rgba(210,216,222,'+(0.10+Math.random()*0.15)+')';
+    x.beginPath(); x.ellipse(Math.random()*512,Math.random()*512,10+Math.random()*40,6+Math.random()*20,Math.random()*3,0,6.2832); x.fill();
+  }
+  x.strokeStyle='#2f5fa8'; x.lineWidth=7; x.lineCap='round';
+  for(i=0;i<9;i++){
+    var y0=40+i*54;
+    x.beginPath();
+    for(var px=0;px<=512;px+=8) x.lineTo(px, y0+Math.sin(px*0.024+i*1.3)*22);
+    x.stroke();
+  }
+  x.fillStyle='#2f5fa8';
+  for(i=0;i<26;i++){
+    var bx=Math.random()*512, by=Math.random()*512, br=9+Math.random()*13;
+    x.beginPath();
+    for(var p=0;p<6;p++){
+      var a=p/6*6.2832;
+      x.lineTo(bx+Math.cos(a)*br, by+Math.sin(a)*br*0.75);
+    }
+    x.closePath(); x.fill();
+  }
+  x.strokeStyle='rgba(47,95,168,0.75)'; x.lineWidth=4;
+  [90,256,430].forEach(function(b){ x.beginPath(); x.moveTo(0,b); x.lineTo(512,b); x.stroke(); });
+  TEX.porcelain=mkTex(o,true);
+
+  /* 识别图 MARKER：粗边框 + 四角定位块 + 简化纹样 + 文字 */
+  var m=cnv(512,512), mx=m.x;
+  mx.fillStyle='#f6f4ef'; mx.fillRect(0,0,512,512);
+  mx.strokeStyle='#141414'; mx.lineWidth=14; mx.strokeRect(20,20,472,472);
+  mx.fillStyle='#141414';
+  [[38,38],[406,38],[38,406],[406,406]].forEach(function(p){ mx.fillRect(p[0],p[1],68,68); });
+  mx.fillStyle='#f6f4ef';
+  [[52,52],[420,52],[52,420],[420,420]].forEach(function(p){ mx.fillRect(p[0],p[1],40,40); });
+  mx.strokeStyle='#2f5fa8'; mx.lineWidth=9;
+  mx.beginPath(); mx.arc(256,256,120,0,6.2832); mx.stroke();
+  mx.lineWidth=6;
+  for(i=0;i<8;i++){
+    var a=i/8*6.2832;
+    mx.beginPath();
+    mx.moveTo(256+Math.cos(a)*46, 256+Math.sin(a)*46);
+    mx.quadraticCurveTo(256+Math.cos(a+0.4)*96, 256+Math.sin(a+0.4)*96,
+                        256+Math.cos(a+0.8)*150, 256+Math.sin(a+0.8)*150);
+    mx.stroke();
+  }
+  mx.fillStyle='#141414'; mx.font='bold 40px "Microsoft YaHei",sans-serif';
+  mx.textAlign='center'; mx.fillText('MARKER', 256, 470);
+  TEX.marker=mkTex(m,true);
+
+  /* 石材地面 */
+  var s=cnv(256,256), sx=s.x;
+  sx.fillStyle='#3c4046'; sx.fillRect(0,0,256,256);
+  var n=4, cw=256/n;
+  for(var r=0;r<n;r++) for(var c=0;c<n;c++){
+    var v=48+Math.random()*20|0;
+    sx.fillStyle='rgb('+v+','+(v+2)+','+(v+6)+')';
+    sx.fillRect(c*cw+2,r*cw+2,cw-4,cw-4);
+  }
+  TEX.stone=mkTex(s,[10,10],true);
+
+  /* 木纹展台 */
+  var w=cnv(256,256), wx=w.x;
+  wx.fillStyle='#6b4526'; wx.fillRect(0,0,256,256);
+  for(i=0;i<40;i++){
+    wx.fillStyle='rgba('+(70+Math.random()*40|0)+','+(44+Math.random()*26|0)+',22,'+(0.18+Math.random()*0.3)+')';
+    wx.fillRect(0,Math.random()*256,256,1+Math.random()*4);
+  }
+  TEX.wood=mkTex(w,null,true);
+}
+
+/* ============================================================
+   5. 场景搭建
+   ============================================================ */
+var VASE={x:0, y:1.06, z:0, rTop:0.115, rBot:0.175, h:0.62};
+function buildEnv(){
+  scene.add(new THREE.HemisphereLight(0xb9cbe0, 0x33302a, 0.72));
+  var sun=new THREE.DirectionalLight(0xfff2dc, 1.05);
+  sun.position.set(2.6,5.2,3.0);
+  sun.castShadow=true; sun.shadow.mapSize.set(1024,1024);
+  var c=sun.shadow.camera;
+  c.left=-4; c.right=4; c.top=4; c.bottom=-0.6; c.near=0.5; c.far=14;
+  sun.shadow.bias=-0.0008;
+  scene.add(sun); scene.add(sun.target); sun.target.position.set(0,0.8,0);
+
+  var floor=new THREE.Mesh(new THREE.PlaneGeometry(20,20),
+    new THREE.MeshStandardMaterial({map:TEX.stone, roughness:0.92}));
+  floor.rotation.x=-Math.PI/2; floor.receiveShadow=true; scene.add(floor);
+
+  /* 主展台 */
+  pedestal=new THREE.Mesh(new THREE.BoxGeometry(0.86,0.78,0.86),
+    new THREE.MeshStandardMaterial({map:TEX.wood, roughness:0.78}));
+  pedestal.position.set(0,0.39,0); pedestal.castShadow=true; pedestal.receiveShadow=true;
+  scene.add(pedestal);
+  var top=new THREE.Mesh(new THREE.BoxGeometry(0.98,0.05,0.98),
+    new THREE.MeshStandardMaterial({color:0x2b2f36, roughness:0.6}));
+  top.position.set(0,0.80,0); top.receiveShadow=true; scene.add(top);
+
+  /* 识别图（平铺在展台面上） */
+  /* 识别图做成「立式展牌」并后仰 20°：平铺在台面上时相机平视永远识别不上 */
+  markerGroup=new THREE.Group();
+  markerGroup.position.set(0,1.12,0.06);
+  scene.add(markerGroup);
+  marker=new THREE.Mesh(new THREE.PlaneGeometry(0.62,0.62),
+    new THREE.MeshStandardMaterial({map:TEX.marker, roughness:0.85}));
+  marker.rotation.x=-0.35; marker.receiveShadow=true;
+  marker.userData.isMarker=true;
+  markerGroup.add(marker);
+
+  /* 六块碎片的小托台 */
+  for(var i=0;i<NFRAG;i++){
+    var a=(i/NFRAG)*6.2832+0.35;
+    var sx=Math.cos(a)*1.85, sz=Math.sin(a)*1.85;
+    var st=new THREE.Mesh(new THREE.CylinderGeometry(0.17,0.20,0.86,12),
+      new THREE.MeshStandardMaterial({map:TEX.wood, roughness:0.8}));
+    st.position.set(sx,0.43,sz); st.castShadow=true; st.receiveShadow=true;
+    scene.add(st);
+    stands.push({mesh:st, x:sx, z:sz, y:0.86});
+  }
+}
+
+/* 用 CylinderGeometry 的 thetaStart/thetaLength 把罐体切成 6 块扇形碎片 */
+function buildFragments(){
+  var mat=new THREE.MeshStandardMaterial({
+    map:TEX.porcelain, roughness:0.36, metalness:0.05, side:THREE.DoubleSide
+  });
+  for(var i=0;i<NFRAG;i++){
+    var t0=(i/NFRAG)*6.2832;
+    var g=new THREE.CylinderGeometry(VASE.rTop, VASE.rBot, VASE.h, 8, 3, true, t0, 6.2832/NFRAG);
+    var m=new THREE.Mesh(g, mat.clone());
+    m.castShadow=true; m.receiveShadow=true;
+    m.userData.fragIdx=i;
+    scene.add(m);
+    /* 目标幽灵（半透明提示） */
+    var gh=new THREE.Mesh(g.clone(), new THREE.MeshBasicMaterial({
+      color:0x7fe0ff, transparent:true, opacity:0.0, side:THREE.DoubleSide, depthWrite:false}));
+    gh.position.set(VASE.x, VASE.y, VASE.z);
+    scene.add(gh); ghost.push(gh);
+    frags.push({
+      idx:i, mesh:m, home:new THREE.Vector3(stands[i].x, stands[i].y+VASE.h*0.5+0.02, stands[i].z),
+      target:new THREE.Vector3(VASE.x, VASE.y, VASE.z),
+      held:false, holder:null, locked:false, t0:t0,
+      homeRot:new THREE.Euler(0, t0+0.6, 0)
+    });
+    m.position.copy(frags[i].home);
+    m.rotation.copy(frags[i].homeRot);
+  }
+}
+function resetFragments(){
+  for(var i=0;i<frags.length;i++){
+    var f=frags[i];
+    if(f.holder) scene.attach(f.mesh);
+    f.held=false; f.holder=null; f.locked=false;
+    f.mesh.position.copy(f.home);
+    f.mesh.rotation.copy(f.homeRot);
+    f.mesh.visible=false;
+    f.mesh.material.emissive=new THREE.Color(0x000000);
+    f.mesh.material.emissiveIntensity=0;
+    ghost[i].material.opacity=0;
+  }
+  S.locked=0; S.hint=-1; S.stage='idle'; S.tracked=false; S.match=0; S.feat=0;
+  updAll();
+}
+function revealFragments(v){
+  for(var i=0;i<frags.length;i++){
+    if(!frags[i].locked) frags[i].mesh.visible=v;
+    else frags[i].mesh.visible=true;
+  }
+}
+
+/* ============================================================
+   6. 面板 / HUD
+   ============================================================ */
+var BTN=[
+  {id:'mode',  t:''},
+  {id:'step',  t:'下一步'},
+  {id:'hint',  t:'提示'},
+  {id:'reset', t:'重置'},
+  {id:'auto',  t:'自动复原'},
+  {id:'ar',    t:'进入 AR'}
+];
+function buildPanels(){
+  dlgCanvas=cnv(640,320); dlgTex=mkTex(dlgCanvas,true);
+  dlgMesh=new THREE.Mesh(new THREE.PlaneGeometry(1.5,0.75),
+    new THREE.MeshBasicMaterial({map:dlgTex, transparent:true, depthWrite:false}));
+  dlgMesh.position.set(0,1.72,-2.05); dlgMesh.rotation.x=0.20;
+  scene.add(dlgMesh);
+
+  uiCanvas=cnv(512,576); uiTex=mkTex(uiCanvas,true);
+  uiMesh=new THREE.Mesh(new THREE.PlaneGeometry(1.0,1.125),
+    new THREE.MeshBasicMaterial({map:uiTex, transparent:true, depthWrite:false}));
+  /* 注意：右侧碎片 home 在 (1.42,1.18,-1.19)，控制台必须抬高避开，否则被碎片挡住 */
+  uiMesh.position.set(1.88,1.82,-1.60); uiMesh.rotation.y=-0.58;
+  scene.add(uiMesh);
+  var m=20, gap=12, cw=(512-m*2-gap)/2, ch=(576-m*2-gap*2)/3;
+  uiBtns=[];
+  for(var r=0;r<3;r++) for(var c=0;c<2;c++){
+    var d=BTN[r*2+c]; if(!d) continue;
+    uiBtns.push({id:d.id, x:m+c*(cw+gap), y:m+r*(ch+gap), w:cw, h:ch});
+  }
+
+  hudCanvas=cnv(768,120); hudTex=mkTex(hudCanvas,true);
+  hudMesh=new THREE.Mesh(new THREE.PlaneGeometry(1.9,0.30),
+    new THREE.MeshBasicMaterial({map:hudTex, transparent:true, depthWrite:false}));
+  hudMesh.position.set(0,2.30,-2.2); hudMesh.rotation.x=0.18;
+  scene.add(hudMesh);
+}
+function btnLabel(b){
+  if(b.id==='mode') return S.mode==='ar'?'模拟 AR':'原理演示';
+  if(b.id==='ar')   return AR_OK? '进入 AR' : 'AR 不可用';
+  if(b.id==='auto') return '自动复原';
+  if(b.id==='step') return S.mode==='principle'? '下一步 ▶' : '（原理模式可用）';
+  for(var i=0;i<BTN.length;i++) if(BTN[i].id===b.id) return BTN[i].t;
+  return '';
+}
+function drawUI(){
+  var x=uiCanvas.x, W=512;
+  x.clearRect(0,0,W,576);
+  var g=x.createLinearGradient(0,0,0,576);
+  g.addColorStop(0,'rgba(14,18,25,0.94)'); g.addColorStop(1,'rgba(24,30,40,0.90)');
+  x.fillStyle=g; x.fillRect(0,0,W,576);
+  x.strokeStyle='rgba(200,150,80,0.6)'; x.lineWidth=4; x.strokeRect(2,2,W-4,572);
+  for(var i=0;i<uiBtns.length;i++){
+    var b=uiBtns[i];
+    var act=(b.id==='mode'&&S.mode==='principle')||(b.id==='ar'&&AR_OK);
+    var dis=(b.id==='ar'&&!AR_OK)||(b.id==='step'&&S.mode!=='principle');
+    var bg=x.createLinearGradient(0,b.y,0,b.y+b.h);
+    if(dis){ bg.addColorStop(0,'#2b3138'); bg.addColorStop(1,'#22272e'); }
+    else if(act){ bg.addColorStop(0,'#c9973f'); bg.addColorStop(1,'#a2762d'); }
+    else { bg.addColorStop(0,'#33404f'); bg.addColorStop(1,'#26303c'); }
+    x.fillStyle=bg; rr(x,b.x,b.y,b.w,b.h,12); x.fill();
+    x.strokeStyle=act?'rgba(255,220,160,0.85)':'rgba(150,168,190,0.40)';
+    x.lineWidth=2; rr(x,b.x,b.y,b.w,b.h,12); x.stroke();
+    x.fillStyle=dis?'#6b7480':(act?'#20160a':'#e8eef6');
+    x.font='bold 28px "Microsoft YaHei",sans-serif';
+    x.textAlign='center'; x.textBaseline='middle';
+    x.fillText(btnLabel(b), b.x+b.w/2, b.y+b.h/2);
+  }
+  uiTex.needsUpdate=true;
+}
+function rr(x,px,py,w,h,r){
+  x.beginPath(); x.moveTo(px+r,py);
+  x.lineTo(px+w-r,py); x.quadraticCurveTo(px+w,py,px+w,py+r);
+  x.lineTo(px+w,py+h-r); x.quadraticCurveTo(px+w,py+h,px+w-r,py+h);
+  x.lineTo(px+r,py+h); x.quadraticCurveTo(px,py+h,px,py+h-r);
+  x.lineTo(px,py+r); x.quadraticCurveTo(px,py,px+r,py);
+  x.closePath();
+}
+var PRINCIPLE=[
+  ['① 识别图','系统先把摄像头画面与预存的识别图（MARKER）做比对。识别图要有高对比度、非对称的纹样，四角定位块用于确定朝向。'],
+  ['② 特征点','在识别图上提取角点、边缘等特征点（本例用发光小球示意）。特征点越多、分布越均匀，匹配越稳。'],
+  ['③ 位姿解算','用匹配上的特征点对求解相机相对识别图的旋转 R 与平移 t，也就是把「图像坐标」换算成「世界坐标」的矩阵。'],
+  ['④ 模型注册','把文物 3D 模型按 R/t 叠加到识别图之上，并持续跟踪。视线离开或特征点不足时，跟踪丢失，模型会消失。']
+];
+function wrap(x, text, px, py, maxW, lh, maxLine){
+  var line='', out=[];
+  for(var i=0;i<text.length;i++){
+    var ch=text.charAt(i);
+    if(ch==='\n'){ out.push(line); line=''; continue; }
+    if(x.measureText(line+ch).width>maxW){ out.push(line); line=ch; }
+    else line+=ch;
+  }
+  if(line) out.push(line);
+  for(var j=0;j<out.length && j<maxLine;j++) x.fillText(out[j], px, py+j*lh);
+}
+function drawDlg(){
+  var x=dlgCanvas.x, W=640, H=320;
+  x.clearRect(0,0,W,H);
+  var g=x.createLinearGradient(0,0,0,H);
+  g.addColorStop(0,'rgba(12,16,22,0.94)'); g.addColorStop(1,'rgba(20,26,34,0.90)');
+  x.fillStyle=g; x.fillRect(0,0,W,H);
+  x.strokeStyle='rgba(200,150,80,0.6)'; x.lineWidth=3; x.strokeRect(2,2,W-4,H-4);
+  x.textAlign='left'; x.textBaseline='alphabetic';
+  if(S.mode==='principle'){
+    var p=PRINCIPLE[S.step];
+    x.fillStyle='#7fe0ff'; x.font='bold 30px "Microsoft YaHei",sans-serif';
+    x.fillText('AR 注册原理 · '+p[0]+'（第 '+(S.step+1)+'/4 步）', 24, 44);
+    x.fillStyle='#d8e2ee'; x.font='24px "Microsoft YaHei",sans-serif';
+    wrap(x, p[1], 24, 84, W-48, 34, 6);
+  } else {
+    x.fillStyle='#ffd873'; x.font='bold 30px "Microsoft YaHei",sans-serif';
+    x.fillText(RELIC.name+' · 复原进度 '+S.locked+'/'+NFRAG, 24, 44);
+    x.fillStyle='#d8e2ee'; x.font='24px "Microsoft YaHei",sans-serif';
+    var msg;
+    if(S.stage==='idle') msg='把视线中央的取景框对准展台上的识别图（距离 1–4 米、尽量正对），特征点足够时会自动注册。';
+    else if(S.stage==='tracked') msg='已注册：抓起散落在六个小托台上的碎片，放到展台上方的罐体轮廓里，靠近会自动吸附。';
+    else msg='复原完成。年代：'+RELIC.dynasty+'；窑口：'+RELIC.kiln+'；纹样：'+RELIC.pattern;
+    wrap(x, msg, 24, 84, W-48, 34, 6);
+  }
+  dlgTex.needsUpdate=true;
+}
+function drawHud(){
+  var x=hudCanvas.x, W=768, H=120;
+  x.clearRect(0,0,W,H);
+  var g=x.createLinearGradient(0,0,0,H);
+  g.addColorStop(0,'rgba(12,16,22,0.92)'); g.addColorStop(1,'rgba(20,26,34,0.86)');
+  x.fillStyle=g; x.fillRect(0,0,W,H);
+  x.strokeStyle='rgba(200,150,80,0.5)'; x.lineWidth=3; x.strokeRect(2,2,W-4,H-4);
+  x.textBaseline='middle'; x.textAlign='left';
+  var st, col;
+  if(S.mode==='principle'){ st='原理演示 · 第 '+(S.step+1)+' 步'; col='#7fe0ff'; }
+  else if(S.stage==='done'){ st='复原完成'; col='#8fe08a'; }
+  else if(S.stage==='tracked'){ st='已注册 · 跟踪中'; col='#8fe08a'; }
+  else { st='未识别 · 请对准识别图'; col='#ff9a3c'; }
+  x.fillStyle=col; x.font='bold 40px "Microsoft YaHei",sans-serif';
+  x.fillText(st, 26, H/2-8);
+  /* 特征点条 */
+  if(S.mode==='ar'){
+    var bw=280, bx=W-26-bw, by=H/2-8;
+    x.fillStyle='rgba(255,255,255,0.10)'; x.fillRect(bx,by-11,bw,22);
+    x.fillStyle=S.tracked?'#8fe08a':'#ff9a3c';
+    x.fillRect(bx,by-11,bw*(S.feat/48),22);
+    x.strokeStyle='rgba(255,255,255,0.25)'; x.lineWidth=1; x.strokeRect(bx,by-11,bw,22);
+    x.textAlign='right'; x.fillStyle='#9fb0c6'; x.font='22px "Microsoft YaHei",sans-serif';
+    x.fillText('特征点 '+S.feat+'/48', bx-10, H/2-8);
+  }
+  hudTex.needsUpdate=true;
+}
+function updAll(){ drawDlg(); drawUI(); drawHud(); updRet(); }
+/* 取景框仅在「未注册」时显示，注册成功后淡出，避免压住识别图 */
+function updRet(){
+  var r=document.getElementById('ret');
+  if(r) r.className='pcOnly'+((S.mode==='ar'&&S.stage==='idle')?'':' off');
+}
+
+/* ============================================================
+   7. 模拟 AR 跟踪
+   ============================================================ */
+var _v1=new THREE.Vector3(), _v2=new THREE.Vector3();
+function updTracking(){
+  if(S.mode!=='ar') return;
+  camera.getWorldPosition(_v1);
+  camera.getWorldDirection(_v2);
+  var mc=new THREE.Vector3();
+  marker.getWorldPosition(mc);
+  var toM=new THREE.Vector3().subVectors(mc,_v1);
+  var dist=toM.length();
+  toM.normalize();
+  var cosA=clamp(toM.dot(_v2),-1,1);
+  var ang=Math.acos(cosA);
+  /* 用识别图真实法线算「正对度」，平铺/立式都适用 */
+  var nrm=new THREE.Vector3(0,0,1)
+    .applyQuaternion(marker.getWorldQuaternion(new THREE.Quaternion()));
+  var facing=clamp(-_v2.dot(nrm),0,1);
+  var sCent=clamp(1-ang/0.55,0,1)*42;
+  var sFace=facing*30;
+  var sDist=(dist>=1.0&&dist<=4.2)?28:28*clamp(1-Math.abs(dist-2.6)/2.2,0,1);
+  S.match=clamp(sCent+sFace+sDist,0,100);
+  S.feat=Math.round(S.match/100*48);
+  var now=S.feat>=30 && dist>=1.0 && dist<=4.2;
+  if(now && !S.tracked){
+    S.tracked=true;
+    if(S.stage==='idle'){ S.stage='tracked'; revealFragments(true); }
+    else revealFragments(true);
+    beep(660,0.10); updAll();   /* 注册状态切换必须整板刷新（字幕条+取景框+HUD） */
+  } else if(!now && S.tracked){
+    S.tracked=false;
+    revealFragments(false);
+    beep(220,0.12); updAll();
+  }
+  if(S.mode==='ar') drawHud();
+}
+
+/* ============================================================
+   8. 音频（极简）
+   ============================================================ */
+var AC=null;
+function ac(){
+  try{
+    if(!AC){ var C=window.AudioContext||window.webkitAudioContext; if(!C) return null; AC=new C(); }
+    if(AC.state==='suspended') AC.resume();
+  }catch(e){ return null; }
+  return AC;
+}
+function beep(f,dur){
+  try{
+    var a=ac(); if(!a) return;
+    var t0=a.currentTime, o=a.createOscillator(), g=a.createGain();
+    o.type='triangle'; o.frequency.value=f;
+    g.gain.setValueAtTime(0.0001,t0);
+    g.gain.linearRampToValueAtTime(0.12,t0+0.008);
+    g.gain.exponentialRampToValueAtTime(0.0001,t0+dur);
+    o.connect(g); g.connect(a.destination); o.start(t0); o.stop(t0+dur+0.05);
+  }catch(e){}
+}
+
+/* ============================================================
+   9. 抓取 / 吸附
+   ============================================================ */
+function grab(f, holder){
+  if(!f || f.held || f.locked) return false;
+  f.held=true; f.holder=holder;
+  holder.attach(f.mesh);
+  f.mesh.position.set(0,0,-0.06);
+  beep(520,0.06);
+  return true;
+}
+function release(f){
+  if(!f || !f.held) return;
+  scene.attach(f.mesh);
+  f.held=false; f.holder=null;
+  var d=f.mesh.position.distanceTo(f.target);
+  if(d<0.34){
+    f.locked=true; S.locked++;
+    f.mesh.position.copy(f.target);
+    f.mesh.rotation.set(0,0,0);
+    f.mesh.material.emissive=new THREE.Color(0x2f5fa8);
+    f.mesh.material.emissiveIntensity=0.35;
+    ghost[f.idx].material.opacity=0;
+    S.hint=-1;
+    beep(880,0.14);
+    if(S.locked>=NFRAG){ S.stage='done'; beep(1046,0.35); }
+    updAll();
+  } else {
+    /* 未吸附：落回原托台 */
+    f.mesh.position.copy(f.home);
+    f.mesh.rotation.copy(f.homeRot);
+    beep(300,0.08);
+  }
+}
+function rotateHeld(dir){
+  for(var i=0;i<frags.length;i++){
+    if(frags[i].held){ frags[i].mesh.rotation.y+=dir*deg(30); return true; }
+  }
+  return false;
+}
+function autoAssemble(){
+  for(var i=0;i<frags.length;i++){
+    var f=frags[i];
+    if(f.locked) continue;
+    if(f.held){ scene.attach(f.mesh); f.held=false; f.holder=null; }
+    f.locked=true; S.locked++;
+    f.mesh.position.copy(f.target);
+    f.mesh.rotation.set(0,0,0);
+    f.mesh.visible=true;
+    f.mesh.material.emissive=new THREE.Color(0x2f5fa8);
+    f.mesh.material.emissiveIntensity=0.35;
+    ghost[i].material.opacity=0;
+  }
+  S.stage='done'; S.hint=-1; updAll(); beep(1046,0.30);
+}
+function doHint(){
+  for(var i=0;i<frags.length;i++){
+    if(!frags[i].locked){ S.hint=i; ghost[i].material.opacity=0.30; break; }
+  }
+  updAll();
+}
+function updHint(dt,t){
+  for(var i=0;i<ghost.length;i++){
+    if(i===S.hint){
+      ghost[i].material.opacity=0.18+Math.sin(t*4)*0.14;
+      if(frags[i].mesh.material.emissiveIntensity<0.25){
+        frags[i].mesh.material.emissive=new THREE.Color(0xffcf7a);
+        frags[i].mesh.material.emissiveIntensity=0.22+Math.sin(t*5)*0.10;
+      }
+    } else if(!frags[i].locked){
+      ghost[i].material.opacity=Math.max(0,ghost[i].material.opacity-dt);
+      frags[i].mesh.material.emissiveIntensity=0;
+    }
+  }
+}
+
+/* ============================================================
+   10. 原理模式可视化
+   ============================================================ */
+function buildPrinciple(){
+  featPoints=new THREE.Group();
+  var g=new THREE.SphereGeometry(0.018,8,6);
+  var m=new THREE.MeshBasicMaterial({color:0x7fe0ff});
+  for(var i=0;i<48;i++){
+    var p=new THREE.Mesh(g,m);
+    var ang=(i/48)*6.2832, rad=0.10+(i%5)*0.055;
+    /* 挂在 marker 上，坐标取展牌局部平面（XY 平面，法线为 +Z） */
+    p.position.set(Math.cos(ang)*rad, Math.sin(ang)*rad, 0.014);
+    p.visible=false;
+    featPoints.add(p);
+  }
+  marker.add(featPoints);
+  /* 相机位姿示意（一个锥体 + 三轴线） */
+  camHelper=new THREE.Group();
+  var cone=new THREE.Mesh(new THREE.ConeGeometry(0.09,0.20,12),
+    new THREE.MeshBasicMaterial({color:0xffcf7a, transparent:true, opacity:0.85}));
+  cone.rotation.x=Math.PI/2; camHelper.add(cone);
+  var aa=new THREE.Group();
+  [[0.3,0,0,0xff4d4d],[0,0.3,0,0x6ddf6d],[0,0,0.3,0x4d8dff]].forEach(function(a){
+    var l=new THREE.Line(
+      new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0,0,0),new THREE.Vector3(a[0],a[1],a[2])]),
+      new THREE.LineBasicMaterial({color:a[3]}));
+    aa.add(l);
+  });
+  camHelper.add(aa);
+  camHelper.position.set(0.6,0.62,1.4);
+  camHelper.visible=false;
+  scene.add(camHelper);
+}
+function updPrinciple(dt,t){
+  if(!featPoints) return;
+  var show = (S.mode==='principle');
+  camHelper.visible=show;
+  for(var i=0;i<featPoints.children.length;i++){
+    var p=featPoints.children[i];
+    if(S.mode!=='principle'){ p.visible=false; continue; }
+    if(S.step>=1){
+      p.visible=true;
+      var lim=(S.step>=2)?48:24;
+      p.visible=(i<lim);
+      p.material.color.setHex(S.step>=2?0x8fe08a:0x7fe0ff);
+      p.position.z=0.014+Math.sin(t*3+i)*0.006;
+    } else p.visible=false;
+  }
+  if(show){
+    camHelper.position.set(0.55+Math.sin(t*0.6)*0.25, 0.62, 1.25);
+    camHelper.lookAt(0,0.85,0);
+  }
+}
+
+/* ============================================================
+   11. 输入
+   ============================================================ */
+var pcKeys={}, mouseDown=false, lastX=0, lastY=0, dragging=false;
+var ray=new THREE.Raycaster(), rayVR=new THREE.Raycaster();
+function ndc(e){ return new THREE.Vector2((e.clientX/window.innerWidth)*2-1, -(e.clientY/window.innerHeight)*2+1); }
+function pickFrag(n){
+  ray.setFromCamera(n,camera);
+  var t=[];
+  for(var i=0;i<frags.length;i++) if(frags[i].mesh.visible) t.push(frags[i].mesh);
+  var h=ray.intersectObjects(t,false);
+  if(h.length && h[0].object.userData.fragIdx!==undefined) return frags[h[0].object.userData.fragIdx];
+  return null;
+}
+function heldFrag(){
+  for(var i=0;i<frags.length;i++) if(frags[i].held) return frags[i];
+  return null;
+}
+function releaseAll(){ for(var i=0;i<frags.length;i++) if(frags[i].held) release(frags[i]); }
+function clickAt(n){
+  /* 面板优先 */
+  var hu=ray.intersectObject(uiMesh,false);
+  if(hu.length){
+    var px=hu[0].uv.x*512, py=(1-hu[0].uv.y)*576;
+    for(var i=0;i<uiBtns.length;i++){
+      var b=uiBtns[i];
+      if(px>=b.x&&px<=b.x+b.w&&py>=b.y&&py<=b.y+b.h){ fireUI(b.id); return; }
+    }
+  }
+  var hf=heldFrag();
+  if(hf){ release(hf); return; }
+  var f=pickFrag(n);
+  if(f) grab(f, camera);
+}
+/* 注视停留委托给内核的计时器：id 必须立刻固化成参数，fire 是延迟调用的 */
+function mkGazeUI(id,dist){ return {id:'u'+id, dist:dist, fire:function(){ fireUI(id); }}; }
+function fireUI(id){
+  if(id==='mode'){ S.mode=(S.mode==='ar')?'principle':'ar'; if(S.mode==='principle'){ S.playing=false; } updAll(); }
+  else if(id==='step'){ if(S.mode==='principle'){ S.step=(S.step+1)%4; updAll(); } }
+  else if(id==='hint'){ doHint(); }
+  else if(id==='reset'){ resetFragments(); }
+  else if(id==='auto'){ autoAssemble(); }
+  else if(id==='ar'){ enterAR(); }
+  beep(600,0.05);
+}
+function initPC(){
+  var el=renderer.domElement;
+  el.addEventListener('mousedown', function(e){ mouseDown=true; lastX=e.clientX; lastY=e.clientY; dragging=false; ac(); });
+  window.addEventListener('mouseup', function(e){
+    if(mouseDown && !dragging){ ray.setFromCamera(ndc(e),camera); clickAt(ndc(e)); }
+    mouseDown=false;
+  });
+  window.addEventListener('mousemove', function(e){
+    if(!mouseDown) return;
+    var dx=e.clientX-lastX, dy=e.clientY-lastY;
+    if(Math.abs(dx)+Math.abs(dy)>4) dragging=true;
+    lastX=e.clientX; lastY=e.clientY;
+    if(dragging){
+      player.rotation.y -= dx*0.0032;
+      camera.rotation.x = clamp(camera.rotation.x - dy*0.0028, -1.0, 1.0);
+    }
+  });
+  window.addEventListener('keydown', function(e){
+    ac(); pcKeys[e.key.toLowerCase()]=true;
+    var k=e.key.toLowerCase();
+    if(k===' '){
+      var hf=heldFrag();
+      if(hf) release(hf);
+      else { ray.setFromCamera(new THREE.Vector2(0,0),camera); var f=pickFrag(new THREE.Vector2(0,0)); if(f) grab(f,camera); }
+      e.preventDefault(); return;
+    }
+    if(k==='q'){ rotateHeld(-1); return; }
+    if(k==='e'){ rotateHeld(1); return; }
+    if(k==='h'){ doHint(); return; }
+    if(k==='r'){ resetFragments(); return; }
+    if(k==='m'){ fireUI('mode'); return; }
+  });
+  window.addEventListener('keyup', function(e){ pcKeys[e.key.toLowerCase()]=false; });
+}
+function updPCMove(dt){
+  var f=0,s=0;
+  if(pcKeys['arrowup']) f+=1;
+  if(pcKeys['arrowdown']) f-=1;
+  if(pcKeys['arrowleft']) s-=1;
+  if(pcKeys['arrowright']) s+=1;
+  if(!f&&!s) return;
+  var d=new THREE.Vector3(); camera.getWorldDirection(d); d.y=0; d.normalize();
+  var sd=new THREE.Vector3(-d.z,0,d.x);
+  var mv=new THREE.Vector3().addScaledVector(d,f).addScaledVector(sd,s).normalize();
+  player.position.addScaledVector(mv, dt*1.5);
+  player.position.x=clamp(player.position.x,-4,4);
+  player.position.z=clamp(player.position.z,-1.5,4.5);
+}
+
+/* --- VR --- */
+var controllers=[];
+function initVR(){
+  for(var i=0;i<2;i++){
+    var c=renderer.xr.getController(i);
+    var line=new THREE.Line(
+      new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0,0,0),new THREE.Vector3(0,0,-1)]),
+      new THREE.LineBasicMaterial({color:0xffd08a, transparent:true, opacity:0.7}));
+    line.scale.z=5; c.add(line);
+    c.addEventListener('selectstart', onSelectVR);
+    c.addEventListener('squeezestart', onSqueezeVR);
+    c.addEventListener('connected', function(e){ this.userData.inputSource=e.data; this.visible=true; });
+    c.addEventListener('disconnected', function(){ this.userData.inputSource=null; this.visible=false; });
+    c.visible=false;
+    scene.add(c); controllers.push(c);
+  }
+}
+function vrPick(c){
+  var m4=new THREE.Matrix4().identity().extractRotation(c.matrixWorld);
+  rayVR.ray.origin.setFromMatrixPosition(c.matrixWorld);
+  rayVR.ray.direction.set(0,0,-1).applyMatrix4(m4);
+  rayVR.camera=camera;
+  var hu=rayVR.intersectObject(uiMesh,false);
+  if(hu.length){
+    var px=hu[0].uv.x*512, py=(1-hu[0].uv.y)*576;
+    for(var i=0;i<uiBtns.length;i++){
+      var b=uiBtns[i];
+      if(px>=b.x&&px<=b.x+b.w&&py>=b.y&&py<=b.y+b.h) return {type:'ui', id:b.id};
+    }
+  }
+  var t=[];
+  for(i=0;i<frags.length;i++) if(frags[i].mesh.visible) t.push(frags[i].mesh);
+  var h=rayVR.intersectObjects(t,false);
+  if(h.length && h[0].object.userData.fragIdx!==undefined)
+    return {type:'frag', f:frags[h[0].object.userData.fragIdx]};
+  return null;
+}
+function onSelectVR(){
+  ac();
+  var c=this, src=c.userData.inputSource;
+  /* 手上已有碎片 → 放下 */
+  for(var i=0;i<frags.length;i++){
+    if(frags[i].held && frags[i].holder===c){ release(frags[i]); haptic(src,0.4,25); return; }
+  }
+  var r=vrPick(c);
+  if(!r) return;
+  if(r.type==='ui'){ fireUI(r.id); haptic(src,0.25,20); }
+  else if(r.type==='frag'){ grab(r.f,c); haptic(src,0.5,30); }
+}
+function onSqueezeVR(){
+  ac();
+  var c=this, src=c.userData.inputSource;
+  for(var i=0;i<frags.length;i++){
+    if(frags[i].held && frags[i].holder===c){ rotateHeld(1); haptic(src,0.3,18); return; }
+  }
+}
+function haptic(src,i,ms){
+  if(!src||!src.gamepad) return;
+  var a=src.gamepad.hapticActuators;
+  if(a&&a[0]&&a[0].pulse){ try{ a[0].pulse(i,ms); }catch(e){} }
+}
+function updVRMove(dt){
+  if(!renderer.xr.isPresenting) return;
+  var ss=renderer.xr.getSession(); if(!ss) return;
+  var srcs=ss.inputSources;
+  for(var i=0;i<srcs.length;i++){
+    var s=srcs[i], gp=s.gamepad;
+    if(!gp||!gp.axes||gp.axes.length<4) continue;
+    var h=gp.axes[2], v=gp.axes[3];
+    if(s.handedness==='left'||(s.handedness!=='right'&&i===0)){
+      if(Math.abs(h)>0.18||Math.abs(v)>0.18){
+        var d=new THREE.Vector3(); camera.getWorldDirection(d); d.y=0; d.normalize();
+        var sd=new THREE.Vector3(-d.z,0,d.x);
+        var mv=new THREE.Vector3().addScaledVector(d,-v).addScaledVector(sd,h).normalize();
+        player.position.addScaledVector(mv, dt*1.5*Math.min(1,Math.hypot(h,v)));
+        player.position.x=clamp(player.position.x,-4,4);
+        player.position.z=clamp(player.position.z,-1.5,4.5);
+      }
+    } else {
+      if(Math.abs(h)>0.55){
+        if(!s._t){ s._t=true; player.rotation.y -= (h>0?1:-1)*Math.PI/6; }
+      } else s._t=false;
+    }
+  }
+}
+
+/* ============================================================
+   12. 真 AR 能力检测（PICO 浏览器一般不支持，会走模拟模式）
+   ============================================================ */
+var AR_OK=false;
+function checkAR(){
+  if(navigator.xr && navigator.xr.isSessionSupported){
+    navigator.xr.isSessionSupported('immersive-ar').then(function(ok){
+      AR_OK=!!ok; drawUI();
+    }).catch(function(){ AR_OK=false; drawUI(); });
+  }
+}
+function enterAR(){
+  if(!AR_OK){ return; }
+  navigator.xr.requestSession('immersive-ar',{requiredFeatures:['local-floor']})
+    .then(function(session){
+      renderer.xr.setSession(session);
+      document.body.classList.add('XR');
+      session.addEventListener('end', function(){ document.body.classList.remove('XR'); });
+    }).catch(function(){});
+}
+
+/* ============================================================
+   13. 主循环
+   ============================================================ */
+function animate(){
+  var dt=Math.min(clock.getDelta(),0.05);
+  var t=clock.elapsedTime;
+  if(S.simOn){
+    updTracking();
+    updPCMove(dt);
+    XRCore.vrMove(dt);
+    if(S.mode==='principle' && S.playing){
+      S.stepT+=dt;
+      if(S.stepT>4){ S.stepT=0; S.step=(S.step+1)%4; updAll(); }
+    }
+  }
+  updPrinciple(dt,t);
+  updHint(dt,t);
+  XRCore.frame(dt);
+  /* 未抓取的未锁定碎片轻微悬浮 */
+  for(var i=0;i<frags.length;i++){
+    var f=frags[i];
+    if(!f.held && !f.locked && f.mesh.visible){
+      f.mesh.position.y=f.home.y+Math.sin(t*1.5+i)*0.012;
+    }
+  }
+  marker.rotation.z=Math.sin(t*0.5)*0.02;
+  renderer.render(scene,camera);
+}
+
+/* ============================================================
+   14. 调试 API
+   ============================================================ */
+function expose(){
+  window.RelicAR={
+    S:S, RELIC:RELIC, frags:frags, ghost:ghost, stands:stands,
+    scene:scene, camera:camera, player:player, renderer:renderer,
+    marker:marker, VASE:VASE, uiBtns:uiBtns,
+    hudMesh:function(){ return hudMesh; },
+    dlgMesh:function(){ return dlgMesh; },
+    uiMesh:function(){ return uiMesh; },
+    pauseSim:function(){ S.simOn=false; }, resumeSim:function(){ S.simOn=true; },
+    setMode:function(m){ S.mode=m; updAll(); },
+    setStep:function(s){ S.step=s%4; updAll(); },
+    fireUI:fireUI, grab:function(i){ return grab(frags[i],camera); },
+    release:function(i){ release(frags[i]); },
+    tick:function(){ updTracking(); },
+    /* 注意：抓取后碎片挂在相机下，position 是局部坐标，必须反换算 */
+    placeAt:function(i,x,y,z){
+      var f=frags[i], w=new THREE.Vector3(x,y,z);
+      if(f.mesh.parent && f.mesh.parent!==scene) f.mesh.parent.worldToLocal(w);
+      f.mesh.position.copy(w);
+      return f;
+    },
+    auto:autoAssemble, reset:resetFragments, hint:doHint,
+    lock:function(i){ /* 直接判定吸附（跳过拖拽） */
+      var f=frags[i];
+      f.mesh.position.copy(f.target); releaseAfterMove(f);
+    },
+    locked:function(){ return S.locked; },
+    updAll:updAll
+  };
+  function releaseAfterMove(f){
+    f.held=true; f.holder=camera;
+    release(f);
+  }
+}
+
+/* ============================================================
+   15. 启动
+   ============================================================ */
+function boot(){
+  buildTextures();
+  initRenderer();
+  buildEnv();
+  buildFragments();
+  buildPanels();
+  buildPrinciple();
+  resetFragments();
+  initPC(); initVR();
+  checkAR();
+  expose();
+  updAll();
+  $('tip').style.display='none';
+  XRCore.init({
+    THREE:THREE, renderer:renderer, scene:scene, camera:camera, player:player,
+    name:'05 AR文物复原', targetFps:72,
+    panelPos:[-1.88,2.05,-1.70], panelRotY:0.58,
+    home:{x:0, z:2.6, rotY:0}, bounds:{x:[-4,4], z:[-1.5,4.5]},
+    tips:[
+      ['为什么必须是AR','文物不可触摸、碎片拼合不可逆；AR 把"虚拟复原"叠加在真实展签上，观众能绕看、能对照。'],
+      ['注册四步','识别图 → 特征点 → 位姿解算(R/t) → 模型注册与持续跟踪；任一步失败，模型就会飘。'],
+      ['跟踪为什么会丢','特征点不足 / 运动模糊 / 视角过大都会丢跟踪；真实系统靠 IMU 融合与重定位恢复。'],
+      ['AR 特有的晕','虚拟物与真实世界之间的延迟会造成"滑动(swim)"，端到端延迟需 <20ms。'],
+      ['前沿','Vuforia / ARKit / ARCore 已支持图像与平面混合跟踪；WebXR 的 immersive-ar 多用于手机，PICO 一般不支持。']
+    ]
+  });
+  XRCore.ui([uiMesh]);   /* 坐姿模式下自动下沉 */
+  /* 注视停留点本例自有面板：不用手柄也能完成面板上的全部操作 */
+  XRCore.uiHit(function(rc){
+    if(!uiMesh||!uiBtns.length) return null;
+    var h=rc.intersectObject(uiMesh,false);
+    if(!h.length||!h[0].uv) return null;
+    var px=h[0].uv.x*uiCanvas.w, py=(1-h[0].uv.y)*uiCanvas.h;   /* 注意：uiCanvas 是 cnv() 返回的 {c,x,w,h}，不是 DOM canvas */
+    for(var i=0;i<uiBtns.length;i++){
+      var b=uiBtns[i];
+      if(px>=b.x&&px<=b.x+b.w&&py>=b.y&&py<=b.y+b.h) return mkGazeUI(b.id,h[0].distance);
+    }
+    return null;
+  });
+  renderer.setAnimationLoop(animate);
+
+  var btn=$('vrbtn');
+  if(navigator.xr && navigator.xr.isSessionSupported){
+    navigator.xr.isSessionSupported('immersive-vr').then(function(ok){
+      if(ok){
+        btn.disabled=false; btn.textContent='进入 VR';
+        btn.addEventListener('click', function(){
+          navigator.xr.requestSession('immersive-vr',{optionalFeatures:['local-floor']})
+            .then(function(session){
+              renderer.xr.setSession(session);
+              document.body.classList.add('XR');
+              session.addEventListener('end', function(){ document.body.classList.remove('XR'); });
+            }).catch(function(){ btn.textContent='VR 启动失败'; });
+        });
+      } else btn.textContent='不支持 VR（可用 PC）';
+    }).catch(function(){ btn.textContent='VR 不可用'; });
+  } else btn.textContent='无 WebXR（可用 PC）';
+}
+if(document.readyState==='complete'||document.readyState==='interactive') setTimeout(boot,0);
+else window.addEventListener('DOMContentLoaded', boot);
+
+})();
+</script>
+</body>
+</html>

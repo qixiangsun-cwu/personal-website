@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VR 课堂案例库 · 六个可运行案例</title>
+<style>
+  *{box-sizing:border-box;}
+  body{margin:0;background:#0f0b07;color:#efe4cf;
+    font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif;}
+  .wrap{max-width:960px;margin:0 auto;padding:28px 20px 60px;}
+  h1{font-size:24px;color:#d9a441;letter-spacing:2px;margin:0 0 6px;}
+  p.sub{color:#a89b7c;font-size:14px;line-height:1.9;margin:0 0 18px;}
+  h2{font-size:17px;color:#f0b45a;margin:30px 0 10px;letter-spacing:1px;}
+  .tip{border-left:3px solid rgba(217,164,65,.6);padding:10px 14px;margin:16px 0;
+    background:rgba(217,164,65,.07);color:#cbbf9f;font-size:13px;line-height:1.9;border-radius:0 8px 8px 0;}
+  .tip b{color:#f0b45a;}
+  a.card{display:block;text-decoration:none;color:inherit;background:#15110b;
+    border:1px solid rgba(217,164,65,.28);border-radius:12px;padding:16px 18px;margin-bottom:12px;
+    transition:all .18s;}
+  a.card:hover{border-color:#d9a441;background:#1b150d;transform:translateY(-2px);}
+  .no{font-size:12px;color:#d9a441;letter-spacing:2px;}
+  .t{font-size:18px;font-weight:700;margin:4px 0 6px;color:#f5ead4;}
+  .d{font-size:13px;color:#a89b7c;line-height:1.85;}
+  .f{font-size:12px;color:#6f6857;font-family:Consolas,monospace;margin-top:8px;}
+  .warn{color:#e0a35a;}
+  table{width:100%;border-collapse:collapse;font-size:13px;margin-top:8px;}
+  th,td{border:1px solid rgba(217,164,65,.22);padding:8px 10px;text-align:left;vertical-align:top;}
+  th{background:rgba(217,164,65,.09);color:#f0cf8f;font-weight:600;}
+  kbd{font-family:Consolas,monospace;background:rgba(217,164,65,.14);border:1px solid rgba(217,164,65,.3);
+    padding:1px 6px;border-radius:5px;color:#f0cf8f;}
+  .back{margin-top:26px;font-size:14px;}
+  .back a{color:#d9a441;text-decoration:none;margin-right:18px;}
+  .back a:hover{text-decoration:underline;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>VR 课堂案例库</h1>
+  <p class="sub">《虚拟现实技术》课程 2026 秋 · 六个可运行的 WebXR 课堂案例。<b>点开即玩，不需要安装任何东西</b>；用头显打开可以进入沉浸模式。</p>
+
+  <div class="tip">
+    <b>为什么文件名全是英文？</b> 中文文件名在部分机房电脑（中文 Windows / 旧浏览器）会被按 GBK 编码，
+    与服务器上的 UTF-8 文件名对不上，就会"打不开"或乱码。<b>本站所有可运行的页面统一用英文名，中文标题写在页面里。</b>
+  </div>
+  <div class="tip">
+    <b>想进 VR 要先满足一个条件：</b>「进入 VR」只在<b>安全上下文</b>里可用。
+    本站是 <code>https</code>，所以在头显里直接打开就能进。
+    如果你把自己做的页面放在电脑上、用局域网 IP 打开，按钮会显示"当前浏览器不支持 WebXR"——
+    <b>那是假结论</b>，解决办法见 <a href="../check/index.html" style="color:#f0b45a">VR 作品自检</a>。
+  </div>
+  <div class="tip">
+    <b>打不开 / 一片黑？</b> ① 用 Chrome 或 Edge（不要用 IE 兼容模式）；② 打开浏览器的"使用硬件加速"。
+    六个案例都需要 WebGL。
+  </div>
+
+  <h2>六个案例</h2>
+
+  <a class="card" href="01-vr-sandbox/index.html">
+    <div class="no">案例 01 · 第 5—6 次课</div>
+    <div class="t">VR 交互沙盒</div>
+    <div class="d">最基础的一间屋子：抓取、投掷、传送、重置。用来练"手柄到底怎么用"，
+      以及第一次完整地"进入 VR → 环视 → 交互 → 退出"。</div>
+    <div class="f">01-vr-sandbox/index.html</div>
+  </a>
+
+  <a class="card" href="02-dunhuang-escape/index.html">
+    <div class="no">案例 02 · 第 7—9 次课</div>
+    <div class="t">密室逃脱 · 敦煌寻宝</div>
+    <div class="d">解谜玩法：找线索、按键盘密码、开门。用来讲"空间里的信息该怎么藏、怎么被找到"，
+      也是第一个需要"多个房间来回走"的案例。</div>
+    <div class="f">02-dunhuang-escape/index.html</div>
+  </a>
+
+  <a class="card" href="03-bianzhong-rhythm/index.html">
+    <div class="no">案例 03 · 第 10 次课</div>
+    <div class="t">节奏竞技 · 编钟之韵</div>
+    <div class="d">跟着节拍敲编钟。用来讲"时间"这件事在 VR 里怎么做：判定窗口、反馈延迟、
+      以及为什么 20 毫秒的差别玩家能感觉到。</div>
+    <div class="f">03-bianzhong-rhythm/index.html</div>
+  </a>
+
+  <a class="card" href="04-campus-tour/index.html">
+    <div class="no">案例 04 · 第 11 次课</div>
+    <div class="t">数字校园漫游 + AI 导览</div>
+    <div class="d">360 全景 + 3D 模型 + 导览打卡：走完 5 个站点，每站给一条线索。AI 导览员会回答问题，
+      成绩（打卡数、用时、求助次数、晕动评级）可以导出成 JSON，作为过程性评价的证据。
+      <span class="warn">（其中"学校事实"部分是课程示例数据，课堂上按学校官网填写后再正式使用。）</span></div>
+    <div class="f">04-campus-tour/index.html</div>
+  </a>
+
+  <a class="card" href="05-ar-relic/index.html">
+    <div class="no">案例 05 · 第 8 章 AR</div>
+    <div class="t">AR 文物复原</div>
+    <div class="d">把散落的碎片按位置拼回一件器物：讲识别、追踪、虚实对齐，以及"对齐误差"为什么会让人出戏。
+      <span class="warn">（器物信息为课程示例占位，正式使用前替换成真实展品资料。）</span></div>
+    <div class="f">05-ar-relic/index.html</div>
+  </a>
+
+  <a class="card" href="06-llm-npc/index.html">
+    <div class="no">案例 06 · 第 12 次课</div>
+    <div class="t">LLM 智能 NPC「小澜」</div>
+    <div class="d">和一个能对话的 NPC 聊天，并做一套 8 题三级难度的小测。用来讲"具身交互"：
+      语言模型放进 3D 空间之后，多出来的问题不是模型，而是<b>时机、空间和可信度</b>。
+      完全离线可用。</div>
+    <div class="f">06-llm-npc/index.html</div>
+  </a>
+
+  <h2>通用操作（六个案例都一样）</h2>
+  <table>
+    <tr><th style="width:30%">场景</th><th>怎么操作</th></tr>
+    <tr><td>PC（鼠标键盘）</td><td>鼠标拖拽 = 转头；<kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> = 移动；左键 = 传送 / 选择</td></tr>
+    <tr><td>VR（头显）</td><td>左摇杆 = 移动；右摇杆左右 = 30° 转向；扳机 = 传送 / 选中；注视某个面板 1.2 秒 = 点击它</td></tr>
+    <tr><td>辅助功能</td><td><kbd>Shift</kbd>+<kbd>P</kbd> 坐姿模式（界面自动下沉）　<kbd>Shift</kbd>+<kbd>H</kbd> 惯用手 / 单手模式　<kbd>Shift</kbd>+<kbd>G</kbd> 注视停留</td></tr>
+    <tr><td>退出 VR</td><td>三条路任选：面板上的「退出 VR」／长按手柄握把 2 秒／头显系统键</td></tr>
+    <tr><td>性能读数</td><td>画面里一直显示 FPS 与 DrawCall；帧率掉下去时内核会自动降级（先降像素比，再关阴影），并提示你为什么</td></tr>
+  </table>
+
+  <h2>给自己做的作品做一次自检</h2>
+  <p class="sub" style="margin-bottom:8px">
+    如果你正在做自己的 VR 页面，先在头显里打开
+    <a href="../check/index.html" style="color:#f0b45a">VR 作品自检</a>，
+    它会逐条告诉你：现在是不是安全上下文、浏览器有没有 WebXR、设备支不支持沉浸模式、能不能真的进 VR。
+    <b>先确认环境，再去改自己的代码</b>——不然你会在一个根本进不去的环境里debug。</p>
+
+  <div class="back">
+    <a href="../">← VR 课程演示总目录</a>
+    <a href="/">← 返回站点首页</a>
+  </div>
+</div>
+</body>
+</html>

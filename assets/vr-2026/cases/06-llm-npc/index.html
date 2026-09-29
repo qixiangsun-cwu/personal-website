@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>案例06 · LLM 智能NPC（第12次课示例）</title>
+<style>
+  html,body{margin:0;padding:0;width:100%;height:100%;overflow:hidden;background:#1c2129;
+            font-family:"Microsoft YaHei",sans-serif;}
+  canvas{display:block;}
+  #tip{position:fixed;left:50%;top:14px;transform:translateX(-50%);color:#e8eef6;font-size:14px;
+       background:rgba(12,16,22,.9);border:1px solid #3a4658;border-radius:10px;z-index:14;
+       text-align:center;max-width:76%;padding:10px 18px;}
+  #tip small{display:block;margin-top:6px;color:#9fb0c6;font-size:12px;line-height:1.6;}
+  #hud2{position:fixed;left:12px;bottom:12px;z-index:12;color:#ffcf7a;font-size:13px;
+        background:rgba(12,16,22,.82);border:1px solid #3a4658;border-radius:8px;padding:8px 14px;}
+  #hud2 b{color:#ffd873;}
+  .pcOnly{}
+  .XR .pcOnly{display:none;}
+  #vrbtn{position:fixed;right:12px;top:12px;z-index:12;padding:10px 16px;border:0;border-radius:8px;
+         background:#c9973f;color:#20160a;font-size:14px;font-weight:700;cursor:pointer;}
+  #vrbtn[disabled]{background:#4a5160;color:#9aa5b4;cursor:default;}
+  /* --- 提问条（仅 PC） --- */
+  #askbar{position:fixed;left:50%;bottom:14px;transform:translateX(-50%);z-index:15;display:flex;gap:8px;}
+  #askbar input{width:min(46vw,420px);padding:9px 12px;border:1px solid #4a5568;border-radius:8px;
+        background:rgba(12,16,22,.92);color:#e8eef6;font-size:14px;outline:none;}
+  #askbar button{padding:9px 16px;border:0;border-radius:8px;background:#c9973f;color:#20160a;
+        font-size:14px;font-weight:700;cursor:pointer;}
+  /* --- 设置面板（仅 PC） --- */
+  #cfg{position:fixed;left:12px;top:12px;z-index:15;width:308px;background:rgba(12,16,22,.94);
+       border:1px solid #3a4658;border-radius:10px;padding:10px 12px;color:#cfd8e4;font-size:12px;}
+  #cfg h4{margin:0 0 6px;color:#ffd873;font-size:13px;}
+  #cfg .row{display:flex;gap:6px;margin:4px 0;}
+  #cfg input,#cfg textarea{flex:1;background:#161c26;border:1px solid #3a4658;border-radius:6px;
+       color:#e8eef6;font-size:12px;padding:5px 7px;outline:none;font-family:inherit;}
+  #cfg textarea{width:100%;height:74px;resize:vertical;box-sizing:border-box;}
+  #cfg .btns{display:flex;gap:6px;margin-top:6px;}
+  #cfg .btns button{flex:1;padding:6px 0;border:0;border-radius:6px;background:#2e5d8f;color:#fff;
+       font-size:12px;cursor:pointer;}
+  #cfg .warn{color:#ff9a3c;line-height:1.5;margin-top:6px;}
+  #cfgToggle{position:fixed;left:12px;top:12px;z-index:16;padding:7px 12px;border:0;border-radius:8px;
+       background:#2e5d8f;color:#fff;font-size:12px;cursor:pointer;}
+</style>
+</head>
+<body>
+<div id="tip">正在搭建会客厅…<small>与中央的 LLM 向导对话：离线知识库开箱即用，配置在线大模型后自动升级（仅 PC 端可输入与配置）</small></div>
+<div id="hud2" class="pcOnly"><b>鼠标拖拽</b>环视 · <b>方向键</b>移动 · 点击右侧按钮或下方输入框提问 · <b>T</b>语音开关 · <b>C</b>清空对话<br>
+🎯挑战：<b>「NPC 小测」</b>8 题三级难度评测，≥85 优秀 / ≥70 良好 / ≥55 合格，成绩写入 XR 体验数据 · <b>Shift+P</b> 坐姿 · <b>Shift+G</b> 注视点击</div>
+<button id="vrbtn" disabled>检测 VR…</button>
+<button id="cfgToggle" class="pcOnly">模型设置</button>
+<div id="cfg" class="pcOnly">
+  <h4>在线大模型（OpenAI 兼容）</h4>
+  <div class="row"><input id="c_base" placeholder="https://api.xxx.com/v1"></div>
+  <div class="row"><input id="c_model" placeholder="模型名，如 gpt-4o-mini / deepseek-chat"></div>
+  <div class="row"><input id="c_key" placeholder="API Key（仅存本机 localStorage）" type="password"></div>
+  <div class="row"><label style="display:flex;align-items:center;gap:6px;"><input id="c_on" type="checkbox" style="flex:none;"> 启用在线模型（关闭=离线知识库）</label></div>
+  <h4 style="margin-top:8px;">系统提示词（可编辑，实时生效）</h4>
+  <textarea id="c_sys"></textarea>
+  <div class="btns"><button id="c_save">保存并生效</button><button id="c_default">恢复默认提示词</button></div>
+  <div class="warn">⚠️ Key 保存在浏览器 localStorage，会随页面加载进入前端内存——<b>课堂演示可以，正式部署必须走后端代理</b>，不要把 Key 提交进任何仓库。</div>
+</div>
+<div id="askbar" class="pcOnly">
+  <input id="qbox" placeholder="向 NPC 提问，回车发送…">
+  <button id="qsend">提问</button>
+</div>
+<button id="ttsbtn" class="pcOnly" style="display:none;"></button>
+<script src="../three.min.js"></script>
+<script src="../_xr_core.js"></script>
+<script>
+(function(){
+'use strict';
+
+/* ============================================================
+   0. 工具
+   ============================================================ */
+function $(id){ return document.getElementById(id); }
+function clamp(v,a,b){ return v<a?a:(v>b?b:v); }
+function cnv(w,h){ var c=document.createElement('canvas'); c.width=w; c.height=h;
+  return {c:c, x:c.getContext('2d'), w:w, h:h}; }
+function mkTex(o,srgb){
+  var t=new THREE.CanvasTexture(o.c);
+  if(srgb && THREE.sRGBEncoding) t.encoding=THREE.sRGBEncoding;
+  t.anisotropy=4; t.needsUpdate=true; return t;
+}
+
+/* ============================================================
+   1. 在线模型配置（localStorage 持久化，默认离线）
+   ============================================================ */
+var DEFAULT_SYS='你是虚拟现实课堂里的智能 NPC 向导"小澜"，站在文物会客厅中央。'+
+  '用中文口语化回答，每次不超过 90 字。'+
+  '会客厅有三件【示意】展品：东展台·青花瓷罐、西展台·青铜爵、中央圆台·玉璧。'+
+  '你可以操作场景：需要时在回答最后另起一行输出且仅输出一个 JSON——'+
+  '{"action":"teleport","target":"center|east|west"}（带我去某处）、'+
+  '{"action":"time","value":"day|night"}（切换昼夜）、'+
+  '{"action":"show","target":0|1|2}（讲解 0东 1西 2中 展品）。'+
+  '没有合适动作就不要输出 JSON。不要编造不确定的事实。';
+var CFG={ base:'', model:'', key:'', on:false, sys:DEFAULT_SYS, tts:true };
+var CFG_LSKEY='vr_llm_npc_cfg';
+function saveCfg(){
+  try{ localStorage.setItem(CFG_LSKEY, JSON.stringify(CFG)); }catch(e){}
+}
+function loadCfg(){
+  try{
+    var s=localStorage.getItem(CFG_LSKEY);
+    if(s){ var o=JSON.parse(s);
+      CFG.base=o.base||''; CFG.model=o.model||''; CFG.key=o.key||'';
+      CFG.on=!!o.on; CFG.sys=o.sys||DEFAULT_SYS; CFG.tts=(o.tts!==false); }
+  }catch(e){}
+}
+
+/* ============================================================
+   2. 多轮对话历史（窗口 = 最近 8 条）
+   ============================================================ */
+var HISTORY=[], MAXH=8;
+function pushMsg(role, content){
+  HISTORY.push({role:role, content:content});
+  while(HISTORY.length>MAXH) HISTORY.shift();
+}
+function buildMessages(userQ){
+  var ms=[{role:'system', content:CFG.sys}];
+  var hist=HISTORY.slice(-MAXH);   /* 双保险：即便外部直接 push 也不超窗 */
+  for(var i=0;i<hist.length;i++) ms.push(hist[i]);
+  ms.push({role:'user', content:userQ});
+  return ms;
+}
+
+/* ============================================================
+   3. 动作解析（轻量"函数调用"：模型按约定输出 JSON）
+   ============================================================ */
+var ACTS={ teleport:['center','east','west'], time:['day','night'], show:[0,1,2] };
+function parseAction(text){
+  var re=/\{[^{}]*"action"[^{}]*\}/g, m, last=null;
+  while((m=re.exec(text))) last=m;
+  if(!last) return null;
+  try{
+    var o=JSON.parse(last[0]);
+    if(!o.action || !ACTS[o.action]) return null;
+    var v=(o.target!==undefined)?o.target:o.value;
+    if(ACTS[o.action].indexOf(v)<0) return null;
+    return {action:o.action, value:v, raw:last[0]};
+  }catch(e){ return null; }
+}
+function stripAction(text){
+  /* 用单个空格替换动作 JSON，避免前后句子粘连 */
+  return text.replace(/\s*\{[^{}]*"action"[^{}]*\}\s*/g,' ').trim();
+}
+
+/* ============================================================
+   4. 离线知识库（关键词意图 + 可带动作）
+   ============================================================ */
+var KB=[
+  {k:['你是谁','介绍','向导','小澜'], a:function(){ return '我是本课的智能向导小澜——一个接入大语言模型的 VR NPC。'+
+      '你刚说的每个字会先变成文字（或从输入框来），拼上对话历史和系统提示词一起发给模型，模型逐字流式回答，我再念给你听。'+
+      '试试说"天黑了"或"带我去西展台"，我可以直接操作这个场景。'; }},
+  {k:['提示词','prompt','系统提示'], a:function(){ return '系统提示词就是 NPC 的"人设说明书"：身份、语气、知识边界、'+
+      '还有动作协议（输出什么 JSON 我就执行什么操作）。点左上角"模型设置"可以直接改它——改完立刻生效，'+
+      '这是提示词工程最直观的练法。'; }},
+  {k:['大模型','llm','原理','怎么工作','token'], a:function(){ return '大语言模型本质是"下一个词预测"：把文字切成 token，'+
+      '根据上文逐个预测下一个 token，所以你看我的回答是一个字一个字蹦出来的（流式）。'+
+      '多轮对话靠把最近几轮历史一起发过去，超出的旧对话会被窗口丢掉。'; }},
+  {k:['记忆','上下文','历史','多轮'], a:function(){ return '我目前记住最近 '+MAXH+' 条消息（约 4 轮对话），'+
+      '更早的会被窗口截断——所以聊太远的话题我会"忘"。点"清空对话"可以立刻重置。'+
+      '真实产品会用摘要或向量检索来扩展记忆。'; }},
+  {k:['夜','天黑','晚上','黑'], a:function(){ doAction({action:'time',value:'night'}); return '好，我把灯调暗，'+
+      '你看看展品的轮廓光——这类"模型说话→场景执行"就是 NPC 的具身化。'; }},
+  {k:['白天','天亮','早晨','亮'], a:function(){ doAction({action:'time',value:'day'}); return '天亮了。'+
+      '注意展品的高光和阴影是怎么跟着变的。'; }},
+  {k:['带我去','传送','去东','去西','去中央','东展台','西展台','中央'], a:function(q){
+      var t='center';
+      if(q.indexOf('东')>=0) t='east'; else if(q.indexOf('西')>=0) t='west';
+      doAction({action:'teleport',value:t});
+      var name=({center:'展厅中央',east:'东展台',west:'西展台'})[t];
+      return '带你去'+name+'。到了以后可以问"讲讲这件展品"。'; }},
+  {k:['展品','文物','罐','爵','璧','看看','讲解'], a:function(q){
+      var i=nearestArtifact();
+      doAction({action:'show',value:i});
+      return ART[i].name+'：'+ART[i].desc; }},
+  {k:['你能做什么','会什么','功能','帮忙','做什么'], a:function(){ return '我能做四件事：'+
+      '① 回答——比如"你是谁""讲讲展品"；② 操作场景——"天黑了""带我去西展台"，'+
+      '我会输出一段 JSON 动作，白名单解析后由场景执行；③ 考核——点"NPC 小测"，'+
+      '八道题分基础/进阶/提高三级，做完给评级；④ 教学——我会解释为什么这样做。'; }},
+  {k:['小测','测验','考试','题目','评级'], a:function(){ return '小测共 8 题：'+
+      '基础、进阶、提高三级，分值 8/14/17，满分 100；≥85 优秀、≥70 良好、≥55 合格。'+
+      '右侧面板点"NPC 小测"开始，用射线点选项作答，做完的成绩会写进 XR 体验数据。'; }},
+  {k:['隐私','密钥','key','安全'], a:function(){ return '现在配置在左上角：Key 只存本机 localStorage。'+
+      '但只要在浏览器里，Key 就可能被看到——正式上线必须由后端代理转发请求，前端永远不碰 Key。'; }},
+  {k:['清空'], a:function(){ clearChat(); return '对话历史已清空，我们重新开始。'; }}
+];
+function localAnswer(q){
+  var ql=q.toLowerCase();
+  for(var i=0;i<KB.length;i++){
+    for(var j=0;j<KB[i].k.length;j++){
+      if(ql.indexOf(KB[i].k[j].toLowerCase())>=0) return KB[i].a(q);
+    }
+  }
+  return '这个问题我可以记下，但离线知识库没覆盖——你可以问我：你是谁 / 讲讲展品 / 天黑了 / '+
+         '带我去西展台 / 什么是提示词。想要更自由的回答，在左上角"模型设置"里配置在线大模型。';
+}
+
+/* ============================================================
+   5. 在线大模型（OpenAI 兼容 SSE 流式，失败自动降级）
+   ============================================================ */
+function llmAsk(q, onToken, onDone){
+  if(!CFG.on || !CFG.base){
+    var la=localAnswer(q);
+    onToken(la); onDone('local'); return;
+  }
+  var body={ model: CFG.model||'gpt-4o-mini', stream:true, messages: buildMessages(q) };
+  var url=CFG.base.replace(/\/+$/,'')+'/chat/completions';
+  var ctrl=(typeof AbortController!=='undefined')?new AbortController():null;
+  S.abort=ctrl;
+  fetch(url,{
+    method:'POST',
+    headers:{'Content-Type':'application/json','Authorization':'Bearer '+CFG.key},
+    body:JSON.stringify(body),
+    signal:ctrl?ctrl.signal:undefined
+  }).then(function(r){
+    if(!r.ok || !r.body) throw new Error('HTTP '+r.status);
+    var rd=r.body.getReader(), dec=new TextDecoder('utf-8'), buf='';
+    function pump(){
+      rd.read().then(function(res){
+        if(res.done){ onDone('llm'); return; }
+        buf+=dec.decode(res.value,{stream:true});
+        var lines=buf.split('\n'); buf=lines.pop();
+        for(var i=0;i<lines.length;i++){
+          var ln=lines[i].replace(/^data:\s*/,'').trim();
+          if(!ln || ln==='[DONE]') continue;
+          try{
+            var j=JSON.parse(ln);
+            var d=j.choices&&j.choices[0]&&j.choices[0].delta;
+            if(d && d.content) onToken(d.content);
+          }catch(e){}
+        }
+        pump();
+      }).catch(function(){ onDone('error'); });
+    }
+    pump();
+  }).catch(function(){
+    onToken('（在线模型不可用，已降级离线知识库）\n'+localAnswer(q));
+    onDone('fallback');
+  });
+}
+
+/* ============================================================
+   6. 渲染器 / 场景
+   ============================================================ */
+var renderer, scene, camera, player, clock;
+var npc={}, stands=[], artifacts=[], spotLights=[];
+var dlgMesh, dlgCanvas, dlgTex, uiMesh, uiCanvas, uiTex, uiBtns=[], hudMesh, hudCanvas, hudTex;
+var sun, hemi, floorMat;
+var S={
+  q:'', a:'', shown:0, src:'', typing:false, abort:null,
+  dayMix:1, dayTarget:1,
+  hl:-1, hlT:0,
+  npcTalk:0, npcSwing:0,
+  turns:0, simOn:true, yaw:0, mode:'chat'
+};
+
+/* 三件【示意】展品——只作场景道具与讲解对象，不做史实断言 */
+var ART=[
+  {name:'青花瓷罐（示意）', desc:'白釉蓝彩、缠枝纹样。看它晚上在轮廓光下的剪影——材质是程序化贴图，'+
+     '课堂里可以用手机拍真实博物馆展品替换它。'},
+  {name:'青铜爵（示意）', desc:'三足、有流有尾的酒礼器造型。注意金属材质在白天和夜里的高光差别——'+
+     '这就是 PBR 里 metalness/roughness 的直观效果。'},
+  {name:'玉璧（示意）', desc:'中央圆台上的扁平环状礼玉造型。半透明质感用 opacity 与背光模拟，'+
+     '真实折射需要更高级的材质，留作课后探究。'}
+];
+var TP={ center:new THREE.Vector3(0,0,1.2), east:new THREE.Vector3(1.7,0,0.3),
+         west:new THREE.Vector3(-1.7,0,0.3) };
+
+function initRenderer(){
+  renderer=new THREE.WebGLRenderer({antialias:true, alpha:false});
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.shadowMap.enabled=true;
+  renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+  renderer.outputEncoding=THREE.sRGBEncoding;
+  renderer.toneMapping=THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure=1.08;
+  renderer.xr.enabled=true;
+  if(renderer.xr.setReferenceSpaceType) renderer.xr.setReferenceSpaceType('local-floor');
+  document.body.appendChild(renderer.domElement);
+
+  scene=new THREE.Scene();
+  scene.background=new THREE.Color(0x232b38);
+  scene.fog=new THREE.Fog(0x232b38, 9, 24);
+  camera=new THREE.PerspectiveCamera(62, window.innerWidth/window.innerHeight, 0.05, 80);
+  camera.rotation.order='YXZ';
+  player=new THREE.Group(); player.add(camera); scene.add(player);
+  player.position.set(0,0,2.6);
+  camera.position.set(0,1.62,0);
+  clock=new THREE.Clock();
+  window.addEventListener('resize', function(){
+    camera.aspect=window.innerWidth/window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+}
+
+/* ============================================================
+   7. 程序化贴图
+   ============================================================ */
+var TEX={};
+function buildTextures(){
+  /* 石砖地面 */
+  var s=cnv(256,256), sx=s.x;
+  sx.fillStyle='#3a3f47'; sx.fillRect(0,0,256,256);
+  var n=4, cw=256/n, r, c, i;
+  for(r=0;r<n;r++) for(c=0;c<n;c++){
+    var v=52+Math.random()*18|0;
+    sx.fillStyle='rgb('+v+','+(v+2)+','+(v+7)+')';
+    sx.fillRect(c*cw+2,r*cw+2,cw-4,cw-4);
+  }
+  TEX.stone=mkTex(s,true);
+
+  /* 木纹 */
+  var w=cnv(256,256), wx=w.x;
+  wx.fillStyle='#6b4526'; wx.fillRect(0,0,256,256);
+  for(i=0;i<40;i++){
+    wx.fillStyle='rgba('+(70+Math.random()*40|0)+','+(44+Math.random()*26|0)+',22,'+(0.18+Math.random()*0.3)+')';
+    wx.fillRect(0,Math.random()*256,256,1+Math.random()*4);
+  }
+  TEX.wood=mkTex(w,true);
+
+  /* 青花纹 */
+  var p=cnv(512,512), px=p.x;
+  px.fillStyle='#eef1f4'; px.fillRect(0,0,512,512);
+  px.strokeStyle='#2f5fa8'; px.lineWidth=7; px.lineCap='round';
+  for(i=0;i<9;i++){
+    var y0=40+i*54;
+    px.beginPath();
+    for(var xx=0;xx<=512;xx+=8) px.lineTo(xx, y0+Math.sin(xx*0.024+i*1.3)*22);
+    px.stroke();
+  }
+  px.fillStyle='#2f5fa8';
+  for(i=0;i<22;i++){
+    var bx=Math.random()*512, by=Math.random()*512, br=9+Math.random()*12;
+    px.beginPath();
+    for(var k=0;k<6;k++){
+      var a=k/6*6.2832;
+      px.lineTo(bx+Math.cos(a)*br, by+Math.sin(a)*br*0.75);
+    }
+    px.closePath(); px.fill();
+  }
+  TEX.porcelain=mkTex(p,true);
+}
+
+/* ============================================================
+   8. 场景搭建：环形柱廊会客厅 + NPC + 三件展品
+   ============================================================ */
+var NPC_POS=new THREE.Vector3(0,0,-2.2);
+function buildEnv(){
+  hemi=new THREE.HemisphereLight(0xb9cbe0, 0x33302a, 0.66);
+  scene.add(hemi);
+  sun=new THREE.DirectionalLight(0xfff2dc, 1.0);
+  sun.position.set(2.6,5.2,3.0);
+  sun.castShadow=true; sun.shadow.mapSize.set(1024,1024);
+  var c=sun.shadow.camera;
+  c.left=-5; c.right=5; c.top=5; c.bottom=-1; c.near=0.5; c.far=16;
+  sun.shadow.bias=-0.0008;
+  scene.add(sun); scene.add(sun.target); sun.target.position.set(0,0.8,-1);
+
+  floorMat=new THREE.MeshStandardMaterial({map:TEX.stone, roughness:0.92});
+  var floor=new THREE.Mesh(new THREE.PlaneGeometry(22,22), floorMat);
+  floor.rotation.x=-Math.PI/2; floor.receiveShadow=true; scene.add(floor);
+
+  /* 环形柱廊（8 根） */
+  var colGeo=new THREE.CylinderGeometry(0.22,0.26,3.4,10);
+  var colMat=new THREE.MeshStandardMaterial({color:0x8b8f96, roughness:0.7});
+  for(var i=0;i<8;i++){
+    var a=i/8*6.2832+0.3927;
+    var col=new THREE.Mesh(colGeo, colMat);
+    col.position.set(Math.cos(a)*6.4, 1.7, Math.sin(a)*6.4);
+    col.castShadow=true; scene.add(col);
+    var cap=new THREE.Mesh(new THREE.BoxGeometry(0.66,0.14,0.66), colMat);
+    cap.position.set(Math.cos(a)*6.4, 3.45, Math.sin(a)*6.4); scene.add(cap);
+  }
+
+  buildNPC();
+  buildArtifacts();
+}
+
+function buildNPC(){
+  var g=new THREE.Group();
+  var bodyMat=new THREE.MeshStandardMaterial({color:0x3d6ea5, roughness:0.55, metalness:0.1});
+  var body=new THREE.Mesh(new THREE.CylinderGeometry(0.15,0.23,0.92,14), bodyMat);
+  body.position.y=0.78; body.castShadow=true; g.add(body);
+  var chest=new THREE.Mesh(new THREE.SphereGeometry(0.19,14,10), bodyMat);
+  chest.position.y=1.22; chest.castShadow=true; g.add(chest);
+  var headMat=new THREE.MeshStandardMaterial({color:0xe8e4da, roughness:0.5});
+  var head=new THREE.Mesh(new THREE.SphereGeometry(0.17,16,12), headMat);
+  head.position.y=1.56; head.castShadow=true; g.add(head);
+  /* 发光双眼 */
+  var eyeMat=new THREE.MeshBasicMaterial({color:0x7fe0ff});
+  var e1=new THREE.Mesh(new THREE.SphereGeometry(0.022,8,6), eyeMat);
+  var e2=e1.clone();
+  e1.position.set(-0.055,1.585,-0.145); e2.position.set(0.055,1.585,-0.145);
+  g.add(e1); g.add(e2);
+  /* 双臂（可摆动指向） */
+  var armGeo=new THREE.CylinderGeometry(0.045,0.05,0.62,8);
+  var armL=new THREE.Mesh(armGeo, bodyMat);
+  var armR=new THREE.Mesh(armGeo, bodyMat);
+  armL.position.set(-0.26,1.06,0); armR.position.set(0.26,1.06,0);
+  armL.geometry.translate(0,-0.31,0); armR.geometry.translate(0,-0.31,0);
+  armL.rotation.z=0.5; armR.rotation.z=-0.5;
+  g.add(armL); g.add(armR);
+  /* 脚下光环 */
+  var ring=new THREE.Mesh(new THREE.TorusGeometry(0.42,0.02,8,32),
+    new THREE.MeshBasicMaterial({color:0x7fe0ff, transparent:true, opacity:0.5}));
+  ring.rotation.x=-Math.PI/2; ring.position.y=0.02; g.add(ring);
+  g.position.copy(NPC_POS);
+  g.rotation.y=Math.PI;   /* 面向玩家（玩家在 +Z） */
+  scene.add(g);
+  npc={group:g, head:head, armL:armL, armR:armR, ring:ring, eyeMat:eyeMat};
+}
+
+function buildArtifacts(){
+  var conf=[
+    {p:[ 2.6,-1.2], kind:'vase'},
+    {p:[-2.6,-1.2], kind:'jue'},
+    {p:[ 1.5,-4.2], kind:'bi'}   /* 右移避开 NPC 与字幕条的遮挡 */
+  ];
+  for(var i=0;i<3;i++){
+    var cf=conf[i];
+    var ped=new THREE.Mesh(new THREE.BoxGeometry(0.7,0.86,0.7),
+      new THREE.MeshStandardMaterial({map:TEX.wood, roughness:0.78}));
+    ped.position.set(cf.p[0],0.43,cf.p[1]); ped.castShadow=true; ped.receiveShadow=true;
+    scene.add(ped);
+    var mat, mesh;
+    if(cf.kind==='vase'){
+      mat=new THREE.MeshStandardMaterial({map:TEX.porcelain, roughness:0.3, metalness:0.05,
+        emissive:0x2f5fa8, emissiveIntensity:0});
+      mesh=new THREE.Mesh(new THREE.CylinderGeometry(0.13,0.19,0.5,16), mat);
+    } else if(cf.kind==='jue'){
+      mat=new THREE.MeshStandardMaterial({color:0x7a8a5f, roughness:0.42, metalness:0.75,
+        emissive:0x9fb26a, emissiveIntensity:0});
+      mesh=new THREE.Mesh(new THREE.CylinderGeometry(0.10,0.14,0.24,3), mat);
+      /* 三足外露 + 流口，避免读成"台灯" */
+      var lg, legY=-0.26;
+      for(var li=0;li<3;li++){
+        lg=new THREE.Mesh(new THREE.ConeGeometry(0.028,0.24,6), mat);
+        var la=li/3*6.2832+0.5;
+        lg.position.set(Math.cos(la)*0.09, legY, Math.sin(la)*0.09);
+        mesh.add(lg);
+      }
+      var spout=new THREE.Mesh(new THREE.BoxGeometry(0.16,0.035,0.05), mat);
+      spout.position.set(0.13,0.07,0); spout.rotation.z=0.18;
+      mesh.add(spout);
+    } else {
+      mat=new THREE.MeshStandardMaterial({color:0x7fbf9a, roughness:0.35, metalness:0.05,
+        transparent:true, opacity:0.85, emissive:0x3f8f66, emissiveIntensity:0, side:THREE.DoubleSide});
+      mesh=new THREE.Mesh(new THREE.TorusGeometry(0.17,0.05,10,26), mat);
+    }
+    var lift=(cf.kind==='jue')?0.38:0.26;   /* 爵有三足，器身抬高让足尖落在台面 */
+    mesh.position.set(cf.p[0], 0.86+lift, cf.p[1]);
+    mesh.castShadow=true;
+    scene.add(mesh);
+    artifacts.push({mesh:mesh, mat:mat, pos:new THREE.Vector3(cf.p[0],1.12,cf.p[1])});
+    stands.push(cf.p);
+  }
+}
+
+/* ============================================================
+   9. 面板（HUD / 字幕条 / 控制台）
+   ============================================================ */
+var BTN=[
+  {id:'q1',    t:'你是谁'},
+  {id:'q2',    t:'讲讲展品'},
+  {id:'q3',    t:'天黑了'},
+  {id:'q4',    t:'带我去西展台'},
+  {id:'quiz',  t:'NPC 小测 ▶'},
+  {id:'help',  t:'你能做什么'},
+  {id:'clear', t:'清空对话'},
+  {id:'tts',   t:'语音 开'}
+];
+var UIW=512, UIH=576;
+
+/* ============================================================
+   8.5 LLM·NPC 设计小测（难度三级递增 + 评级结算）
+   ------------------------------------------------------------
+   为什么做：对话 Demo 容易停留在"会聊天"，加一组成长可测量的题目后，
+   学生必须把幂眩晕、多轮记忆、动作协议、幻觉治理、空间智能这些知识点串起来；
+   分数写入 XR 内核成就，导出 JSON 即为过程性评价证据。
+   ============================================================ */
+var PTS={1:8, 2:14, 3:17};            /* 8/14/17 × 3/3/2 = 100 分 */
+var LVT={1:'基础', 2:'进阶', 3:'提高'};
+var QUIZ=[
+  {lv:1, q:'同样移动到展厅另一侧，哪种做法最能降低眩晕？',
+   o:['把刷新率调到 240Hz','用传送（或短闪）替代平滑移动，并叠加隧道视野','把字幕字号调大','关掉语音合成'],
+   a:1, why:'眩晕来自"视觉有光流、前庭没加速度"的感觉冲突。传送直接切断连续光流，隧道视野压掉周边视觉信息——这是行业通用做法，比堆帧率有效得多。'},
+  {lv:1, q:'WebXR 里 local-floor 参考空间的原点在哪？',
+   o:['头显开机时的位置','世界原点在地面，玩家真实身高由设备追踪给出','场景包围盒中心','全景球的球心'],
+   a:1, why:'local-floor 会给出地面参考，玩家眼高由追踪数据决定；用它可以让坐姿和站姿玩家看到正确的高度关系。'},
+  {lv:1, q:'本例一次回答时，下面哪项不会作为输入送给大模型？',
+   o:['系统提示词','最近若干轮对话历史','玩家头显的陀螺仪原始数据流','当前这句问题'],
+   a:2, why:'本例的输入只有 system + 历史窗口 + 当前问题。多模态（位姿、眼动、手势）要用额外的管道接进来，这正是"具身 NPC"下一步要做的事。'},
+  {lv:2, q:'多轮窗口 MAXH=8（约 4 轮）的直接后果是什么？',
+   o:['模型会变慢','更早的对话被丢出窗口，NPC 会"忘"','回答一定变短','动作协议失效'],
+   a:1, why:'上下文窗口是有限资源。真实产品用摘要压缩或向量检索把"长期记忆"按需取回，而不是无限堆历史。'},
+  {lv:2, q:'本例让模型在回答末尾输出 JSON，再交给白名单解析执行，主要解决什么？',
+   o:['让回答更短','把自然语言变成可控的场景动作（具身化），同时限制它能做的事','减少 token 消耗','绕过浏览器安全策略'],
+   a:1, why:'这就是"函数调用/工具调用"的雏形：自然语言负责语义，白名单负责边界——模型说什么都要先过一层可执行集合的过滤。'},
+  {lv:2, q:'为什么 API Key 不能写在前端页面里？',
+   o:['会让页面变卡','前端代码对使用者可见，Key 会被拿走；正式环境必须走后端代理','浏览器禁止 fetch','会导致模型回答变慢'],
+   a:1, why:'只要在浏览器里，Key 就一定会被看到。正确姿势是前端请求自己的服务端，由服务端带上 Key 转发。'},
+  {lv:3, q:'要显著降低 LLM 的事实性幻觉，最有效的一步是？',
+   o:['把 temperature 设为 0','把事实放进知识库/检索（RAG），让模型只负责组织语言','把提示词写得更长','换一个更贵的模型'],
+   a:1, why:'幻觉的本质是模型在用概率补它不知道的东西。给可靠来源 + 要求引用 + 不确定就说不确定，才是产品级解法；temperature=0 只是让它更确定地错。'},
+  {lv:3, q:'空间智能（李飞飞 2025《From Words to Worlds》）对本例的启示是？',
+   o:['文字比空间更高效','语言是世界的"有损压缩"，下一代模型要能理解并生成 3D 世界，NPC 从"会说话"走向"会做事"','应该取消所有文本界面','头显会被手机取代'],
+   a:1, why:'3D 表示（NeRF→3DGS）、空间理解（VLM）、空间生成构成空间智能三骨架。本例的动作协议只是最原始的一小步。'}
+];
+var Q={ on:false, phase:'ask', i:0, chosen:-1, score:0, correctN:0, wrong:[], t0:0, sec:0, result:null };
+function npcSay(q, a){
+  S.q=q||''; S.a=a||''; S.shown=0; S.typing=true; drawDlg(); drawHud(); drawUI();
+  speakTxt(String(a||'').slice(0,140));
+}
+function setUI(list){
+  uiBtns.length=0;
+  for(var i=0;i<list.length;i++) uiBtns.push(list[i]);
+}
+function layoutUI(){
+  var m=20, gap=12, list=[], r, c;
+  if(Q.on && Q.phase==='ask'){
+    var y0=200, avail=UIH-m-y0, chq=(avail-gap*3)/4;
+    for(r=0;r<4;r++) list.push({id:'opt'+r, x:m, y:y0+r*(chq+gap), w:UIW-m*2, h:chq});
+  } else if(Q.on){
+    var cw2=(UIW-m*2-gap)/2;
+    /* 最后一题答完后不再写"下一题"，直接给"看结果"，避免学生多按一次才出结算 */
+    var lastOne=(Q.i>=QUIZ.length-1);
+    list.push({id:(Q.phase==='res'?'again':(lastOne?'end':'next')), x:m, y:200, w:cw2, h:96});
+    list.push({id:'quit', x:m+cw2+gap, y:200, w:cw2, h:96});
+  } else {
+    var rows=4, cwg=(UIW-m*2-gap)/2, chg=(UIH-m*2-gap*(rows-1))/rows;
+    for(r=0;r<rows;r++) for(c=0;c<2;c++){
+      var d=BTN[r*2+c]; if(!d) continue;
+      list.push({id:d.id, x:m+c*(cwg+gap), y:m+r*(chg+gap), w:cwg, h:chg});
+    }
+  }
+  setUI(list); drawUI();
+}
+function startQuiz(){
+  S.mode='quiz';
+  Q.on=true; Q.phase='ask'; Q.i=0; Q.chosen=-1; Q.score=0; Q.correctN=0; Q.wrong=[]; Q.result=null;
+  Q.t0=XRCore.get('sessionMs');
+  layoutUI();
+  npcSay('第 1 题 · '+LVT[QUIZ[0].lv], QUIZ[0].q);
+}
+function pickOpt(i){
+  if(Q.phase!=='ask') return;
+  var q=QUIZ[Q.i], ok=(i===q.a);
+  Q.chosen=i; Q.phase='fb';
+  if(ok){ Q.score+=PTS[q.lv]; Q.correctN++; }
+  else Q.wrong.push(Q.i);
+  layoutUI();
+  npcSay(ok? '回答正确' : ('正确答案 '+String.fromCharCode(65+q.a)),
+    (ok?'✔ ':'✘ ')+q.why+'（本题 '+PTS[q.lv]+' 分，累计 '+Q.score+' 分）');
+}
+function nextQ(){
+  if(Q.i>=QUIZ.length-1){ endQuiz(); return; }
+  Q.i++; Q.phase='ask'; layoutUI();
+  npcSay('第 '+(Q.i+1)+' 题 · '+LVT[QUIZ[Q.i].lv], QUIZ[Q.i].q);
+}
+function endQuiz(){
+  Q.sec=Math.round((XRCore.get('sessionMs')-Q.t0)/1000);
+  var lv=Q.score>=85?'优秀':(Q.score>=70?'良好':(Q.score>=55?'合格':'需要再练'));
+  Q.result={score:Q.score, level:lv, correct:Q.correctN, total:QUIZ.length, wrong:Q.wrong.slice(), seconds:Q.sec};
+  XRCore.goal('npc-quiz','LLM·NPC 设计小测', Q.result);
+  Q.phase='res'; layoutUI();
+  npcSay('小测完成 · '+Q.score+' 分',
+    '评级【'+lv+'】：答对 '+Q.correctN+'/'+QUIZ.length+'，用时 '+Q.sec+' 秒，错题 '+Q.wrong.length+' 道。'+
+    '成绩已写入 XR 体验数据，导出 JSON 就能带回去当过程性评价证据。');
+}
+function quitQuiz(){
+  S.mode='chat'; Q.on=false; layoutUI();
+  npcSay('','已退出小测，回到自由对话。你可以让我传送、切换昼夜、讲解展品。');
+}
+function buildPanels(){
+  dlgCanvas=cnv(640,320); dlgTex=mkTex(dlgCanvas,true);
+  dlgMesh=new THREE.Mesh(new THREE.PlaneGeometry(1.7,0.85),
+    new THREE.MeshBasicMaterial({map:dlgTex, transparent:true, depthWrite:false}));
+  /* 挂在 NPC 后上方，避免遮挡身体与展品 */
+  dlgMesh.position.set(0,2.42,-4.35); dlgMesh.rotation.x=0.14;
+  scene.add(dlgMesh);
+
+  uiCanvas=cnv(512,576); uiTex=mkTex(uiCanvas,true);
+  uiMesh=new THREE.Mesh(new THREE.PlaneGeometry(1.0,1.125),
+    new THREE.MeshBasicMaterial({map:uiTex, transparent:true, depthWrite:false}));
+  uiMesh.position.set(1.95,1.5,-1.5); uiMesh.rotation.y=-0.62;
+  scene.add(uiMesh);
+  layoutUI();   /* 面板随模式重排：对话 / 答题 / 反馈 / 结算 */
+
+  hudCanvas=cnv(768,120); hudTex=mkTex(hudCanvas,true);
+  hudMesh=new THREE.Mesh(new THREE.PlaneGeometry(1.9,0.30),
+    new THREE.MeshBasicMaterial({map:hudTex, transparent:true, depthWrite:false}));
+  hudMesh.position.set(0,2.62,-2.4); hudMesh.rotation.x=0.16;
+  scene.add(hudMesh);
+}
+function optLabel(id){
+  return {next:'下一题 ▶', end:'看结果 ▶', again:'再来一次', quit:'退出小测', quiz:'NPC 小测 ▶'}[id]||'';
+}
+function wrapLines(x, text, maxW, maxLine){
+  var line='', out=[], i, ch;
+  for(i=0;i<text.length;i++){
+    ch=text.charAt(i);
+    if(x.measureText(line+ch).width>maxW){ out.push(line); line=ch; if(out.length>=maxLine) break; }
+    else line+=ch;
+  }
+  if(out.length<maxLine && line) out.push(line);
+  return out;
+}
+function drawQuizTop(x, W){
+  var q=QUIZ[Q.i], i;
+  x.textAlign='left'; x.textBaseline='alphabetic';
+  if(Q.phase==='ask'){
+    x.fillStyle='#ffd873'; x.font='bold 24px "Microsoft YaHei",sans-serif';
+    x.fillText('小测 '+(Q.i+1)+'/'+QUIZ.length+' · '+LVT[q.lv]+' · 本题 '+PTS[q.lv]+' 分', 20, 40);
+    x.fillStyle='#e8eef6'; x.font='21px "Microsoft YaHei",sans-serif';
+    var ls=wrapLines(x, q.q, W-40, 3);
+    for(i=0;i<ls.length;i++) x.fillText(ls[i], 20, 74+i*28);
+  } else if(Q.phase==='fb'){
+    var ok=(Q.chosen===q.a);
+    x.fillStyle=ok?'#8fe08a':'#ff7a6a'; x.font='bold 26px "Microsoft YaHei",sans-serif';
+    x.fillText(ok? '✔ 回答正确' : ('✘ 正确答案：'+String.fromCharCode(65+q.a)), 20, 40);
+    x.fillStyle='#9fb0c6'; x.font='19px "Microsoft YaHei",sans-serif';
+    x.fillText('累计 '+Q.score+' 分 · 答对 '+Q.correctN+'/'+QUIZ.length, 20, 68);
+    x.fillText('解析见左侧字幕（小澜在念）', 20, 96);
+  } else {
+    x.fillStyle='#ffd873'; x.font='bold 28px "Microsoft YaHei",sans-serif';
+    x.fillText('小测完成 · '+Q.score+' 分', 20, 44);
+    x.fillStyle='#8fe08a'; x.font='bold 24px "Microsoft YaHei",sans-serif';
+    x.fillText('评级：'+Q.result.level, 20, 80);
+    x.fillStyle='#9fb0c6'; x.font='19px "Microsoft YaHei",sans-serif';
+    x.fillText('答对 '+Q.result.correct+'/'+Q.result.total+' · 用时 '+Q.result.seconds+
+               's · 错题 '+Q.result.wrong.length+' 道', 20, 110);
+    x.fillStyle='#6f7c8c';
+    x.fillText('成绩已写入 XR 体验数据，工程面板可导出 JSON', 20, 138);
+  }
+}
+function drawUI(){
+  var x=uiCanvas.x, W=UIW, H=UIH, i;
+  x.clearRect(0,0,W,H);
+  var g=x.createLinearGradient(0,0,0,H);
+  g.addColorStop(0,'rgba(12,16,22,0.94)'); g.addColorStop(1,'rgba(20,26,34,0.90)');
+  x.fillStyle=g; x.fillRect(0,0,W,H);
+  x.strokeStyle=Q.on?'rgba(255,216,115,0.65)':'rgba(127,224,255,0.55)'; x.lineWidth=3;
+  x.strokeRect(2,2,W-4,H-4);
+  x.textAlign='left'; x.textBaseline='alphabetic';
+  if(Q.on){
+    drawQuizTop(x, W);
+  } else if(Q.result){
+    x.fillStyle='#7fe0ff'; x.font='bold 22px "Microsoft YaHei",sans-serif';
+    x.fillText('小澜 · 控制台', 20, 38);
+    x.fillStyle='#ffd873'; x.font='bold 19px "Microsoft YaHei",sans-serif';
+    x.fillText('上次小测：'+Q.result.score+' 分 · '+Q.result.level, 20, 64);
+  } else {
+    x.fillStyle='#7fe0ff'; x.font='bold 22px "Microsoft YaHei",sans-serif';
+    x.fillText('小澜 · 控制台', 20, 40);
+  }
+  for(i=0;i<uiBtns.length;i++){
+    var b=uiBtns[i], d=BTN.filter(function(o){return o.id===b.id;})[0]||{};
+    var hot=(b.id==='tts'&&CFG.tts)||(b.id==='quiz'&&Q.on)||(b.id==='next'||b.id==='again');
+    x.fillStyle=hot?'rgba(201,151,63,0.85)':'rgba(46,93,143,0.75)';
+    x.fillRect(b.x,b.y,b.w,b.h);
+    x.strokeStyle=hot?'#ffd873':'rgba(255,255,255,0.22)'; x.lineWidth=2;
+    x.strokeRect(b.x,b.y,b.w,b.h);
+    x.fillStyle='#f2f6fb';
+    if(b.id.indexOf('opt')===0){
+      var oi=+b.id.slice(3);
+      var t=String.fromCharCode(65+oi)+'. '+QUIZ[Q.i].o[oi];
+      x.font='20px "Microsoft YaHei",sans-serif';
+      var ls=wrapLines(x, t, b.w-24, 2);
+      x.textAlign='left'; x.textBaseline='middle';
+      for(var k=0;k<ls.length;k++) x.fillText(ls[k], b.x+12, b.y+b.h/2-(ls.length-1)*13+k*26);
+    } else {
+      x.font='bold 26px "Microsoft YaHei",sans-serif';
+      x.textAlign='center'; x.textBaseline='middle';
+      var label=(b.id==='tts')?('语音 '+(CFG.tts?'开':'关')):(d.t||optLabel(b.id));
+      x.fillText(label, b.x+b.w/2, b.y+b.h/2+2);
+    }
+  }
+  x.textAlign='left'; x.textBaseline='alphabetic';
+  uiTex.needsUpdate=true;
+}
+function wrap(x, text, px, py, maxW, lh, maxLine){
+  var line='', out=[], i, ch;
+  for(i=0;i<text.length;i++){
+    ch=text.charAt(i);
+    if(ch==='\n'){ out.push(line); line=''; continue; }
+    if(x.measureText(line+ch).width>maxW){ out.push(line); line=ch; }
+    else line+=ch;
+  }
+  if(line) out.push(line);
+  for(i=0;i<out.length && i<maxLine;i++) x.fillText(out[i], px, py+i*lh);
+  if(out.length>maxLine){ x.fillText('…', px, py+maxLine*lh); }
+}
+function drawDlg(){
+  var x=dlgCanvas.x, W=640, H=320;
+  x.clearRect(0,0,W,H);
+  var g=x.createLinearGradient(0,0,0,H);
+  g.addColorStop(0,'rgba(12,16,22,0.94)'); g.addColorStop(1,'rgba(20,26,34,0.90)');
+  x.fillStyle=g; x.fillRect(0,0,W,H);
+  x.strokeStyle='rgba(127,224,255,0.5)'; x.lineWidth=3; x.strokeRect(2,2,W-4,H-4);
+  x.textAlign='left'; x.textBaseline='alphabetic';
+  if(!S.a && !S.q){
+    x.fillStyle='#7fe0ff'; x.font='bold 30px "Microsoft YaHei",sans-serif';
+    x.fillText('小澜 · LLM 智能向导', 24, 46);
+    x.fillStyle='#d8e2ee'; x.font='24px "Microsoft YaHei",sans-serif';
+    wrap(x, '向我提问，我可以回答、也可以直接操作这个场景（传送 / 昼夜 / 讲展品）。'+
+      '右侧按钮是常用问题；PC 端还可以在下方输入框自由提问。', 24, 90, W-48, 34, 6);
+  } else {
+    x.fillStyle='#ffd873'; x.font='bold 26px "Microsoft YaHei",sans-serif';
+    var ql=S.q.length>22? S.q.slice(0,22)+'…' : S.q;
+    x.fillText('你：'+ql, 24, 42);
+    x.fillStyle='#8fe08a'; x.font='bold 24px "Microsoft YaHei",sans-serif';
+    var typingNow=S.typing && S.shown<S.a.length;
+    x.fillText('小澜'+(typingNow?'（正在输入…）':'：'), 24, 84);
+    x.fillStyle='#e8eef6'; x.font='24px "Microsoft YaHei",sans-serif';
+    var shownTxt=S.a.slice(0,S.shown);
+    wrap(x, shownTxt||'…', 24, 122, W-48, 33, 5);
+  }
+  dlgTex.needsUpdate=true;
+}
+function drawHud(){
+  var x=hudCanvas.x, W=768, H=120;
+  x.clearRect(0,0,W,H);
+  var g=x.createLinearGradient(0,0,0,H);
+  g.addColorStop(0,'rgba(12,16,22,0.92)'); g.addColorStop(1,'rgba(20,26,34,0.86)');
+  x.fillStyle=g; x.fillRect(0,0,W,H);
+  x.strokeStyle='rgba(127,224,255,0.45)'; x.lineWidth=3; x.strokeRect(2,2,W-4,H-4);
+  x.textBaseline='middle'; x.textAlign='left';
+  var mode=(CFG.on&&CFG.base)?('在线 · '+(CFG.model||'默认模型')):'离线知识库';
+  x.fillStyle=(CFG.on&&CFG.base)?'#8fe08a':'#ffcf7a';
+  x.font='bold 36px "Microsoft YaHei",sans-serif';
+  x.fillText(mode, 26, H/2-6);
+  x.textAlign='right'; x.fillStyle='#9fb0c6'; x.font='22px "Microsoft YaHei",sans-serif';
+  var right='轮次 '+S.turns+' · '+(S.dayMix>0.5?'白天':'夜晚')+(CFG.tts?' · 语音开':'');
+  if(Q.on && Q.phase!=='res') right='小测 '+(Q.i+1)+'/'+QUIZ.length+' · '+Q.score+' 分';
+  else if(Q.result) right='小测 '+Q.result.score+' 分 · '+Q.result.level;
+  x.fillText(right, W-26, H/2-6);
+  hudTex.needsUpdate=true;
+}
+function updAll(){ drawDlg(); drawUI(); drawHud(); }
+
+/* ============================================================
+   10. 提问流程（含流式打字机 / TTS / 动作执行）
+   ============================================================ */
+function ask(q){
+  q=(q||'').trim();
+  if(!q) return;
+  if(S.typing){ S.shown=S.a.length; finishTurn(false); }  /* 打断：立刻收尾上一轮 */
+  if(Q.on) quitQuiz();          /* 自由提问即视为退出考核模式，避免两种状态混杂 */
+  S.q=q; S.a=''; S.shown=0; S.typing=true; S.src='…';
+  S.npcTalk=1;
+  drawDlg(); drawHud();
+  llmAsk(q, function(tok){ S.a+=tok; }, function(src){
+    S.src=src;
+    var act=parseAction(S.a);
+    if(act){ S.a=stripAction(S.a); doAction(act); }
+    finishTurn(true, act);
+  });
+}
+function finishTurn(speak, act){
+  S.typing=false;
+  if(S.shown<S.a.length) S.shown=S.a.length;
+  var clean=stripAction(S.a).replace(/^（在线模型不可用.*?）\n/,'');
+  pushMsg('user', S.q);
+  pushMsg('assistant', clean);
+  S.turns++;
+  S.npcTalk=0;
+  if(speak!==false) speakTxt(clean);
+  updAll();
+}
+function clearChat(){
+  if(Q.on){ quitQuiz(); }
+  HISTORY.length=0; S.turns=0; S.q=''; S.a=''; S.shown=0; S.typing=false;
+  if(S.abort&&S.abort.abort) try{ S.abort.abort(); }catch(e){}
+  updAll();
+}
+function speakTxt(txt){
+  if(!CFG.tts) return;
+  if(!window.speechSynthesis || !window.SpeechSynthesisUtterance) return;
+  try{
+    speechSynthesis.cancel();
+    var u=new SpeechSynthesisUtterance(txt.slice(0,140));
+    u.lang='zh-CN'; u.rate=1.05;
+    speechSynthesis.speak(u);
+  }catch(e){}
+}
+function doAction(act){
+  if(!act) return;
+  if(act.action==='teleport'){
+    var t=TP[act.value]||TP.center;
+    player.position.x=t.x; player.position.z=t.z;
+  } else if(act.action==='time'){
+    S.dayTarget=(act.value==='night')?0:1;
+  } else if(act.action==='show'){
+    var i=clamp(act.value|0,0,2);
+    S.hl=i; S.hlT=4.0;
+  }
+  updAll();
+}
+function nearestArtifact(){
+  /* 按视线方向选最对准的展品（纯余弦，避免"离得近但偏轴"的展品抢走） */
+  var d=new THREE.Vector3(); camera.getWorldDirection(d);
+  var best=0, bs=-2;
+  for(var i=0;i<artifacts.length;i++){
+    var v=artifacts[i].pos.clone().sub(camera.getWorldPosition(new THREE.Vector3()));
+    v.normalize();
+    var s=v.dot(d);
+    if(s>bs){ bs=s; best=i; }
+  }
+  return best;
+}
+
+/* ============================================================
+   11. PC 交互
+   ============================================================ */
+var pcKeys={}, mouseDown=false, dragging=false, lastX=0, lastY=0;
+var ray=new THREE.Raycaster();
+function ndc(e){ return new THREE.Vector2(e.clientX/window.innerWidth*2-1, -(e.clientY/window.innerHeight)*2+1); }
+function clickAt(n){
+  ray.setFromCamera(n,camera);
+  var hu=ray.intersectObject(uiMesh,false);
+  if(hu.length){
+    var px=hu[0].uv.x*512, py=(1-hu[0].uv.y)*576;
+    for(var i=0;i<uiBtns.length;i++){
+      var b=uiBtns[i];
+      if(px>=b.x&&px<=b.x+b.w&&py>=b.y&&py<=b.y+b.h){ fireUI(b.id); return; }
+    }
+  }
+}
+/* 注视停留委托给内核的计时器：id 必须立刻固化成参数，fire 是延迟调用的 */
+function mkGazeUI(id,dist){ return {id:'u'+id, dist:dist, fire:function(){ fireUI(id); }}; }
+function fireUI(id){
+  if(window.XRCore) XRCore.hit();
+  /* 小测模式：面板重排为一题四选项 / 下一题 / 再来一次 / 退出 */
+  if(Q.on){
+    if(id.indexOf('opt')===0){ pickOpt(+id.slice(3)); return; }
+    if(id==='next'){ nextQ(); return; }
+    if(id==='end'){ endQuiz(); return; }
+    if(id==='again'){ startQuiz(); return; }
+    if(id==='quit'){ quitQuiz(); return; }
+    return;
+  }
+  if(id==='q1') ask('你是谁？');
+  else if(id==='q2') ask('讲讲这件展品');
+  else if(id==='q3') ask('天黑了');
+  else if(id==='q4') ask('带我去西展台');
+  else if(id==='quiz'){ startQuiz(); }
+  else if(id==='help'){ ask('你能做什么？'); }
+  else if(id==='clear') clearChat();
+  else if(id==='tts'){ CFG.tts=!CFG.tts; saveCfg(); drawUI(); drawHud(); }
+}
+function initPC(){
+  var el=renderer.domElement;
+  el.addEventListener('mousedown', function(e){ mouseDown=true; lastX=e.clientX; lastY=e.clientY; dragging=false; });
+  window.addEventListener('mouseup', function(e){
+    if(mouseDown && !dragging) clickAt(ndc(e));
+    mouseDown=false;
+  });
+  window.addEventListener('mousemove', function(e){
+    if(!mouseDown) return;
+    var dx=e.clientX-lastX, dy=e.clientY-lastY;
+    if(Math.abs(dx)+Math.abs(dy)>4) dragging=true;
+    lastX=e.clientX; lastY=e.clientY;
+    if(dragging){
+      player.rotation.y -= dx*0.0032;
+      camera.rotation.x = clamp(camera.rotation.x - dy*0.0028, -1.0, 1.0);
+    }
+  });
+  window.addEventListener('keydown', function(e){
+    var k=e.key.toLowerCase();
+    if(k==='t'){ CFG.tts=!CFG.tts; saveCfg(); updAll(); return; }
+    if(k==='c'){ clearChat(); return; }
+    pcKeys[k]=true;
+  });
+  window.addEventListener('keyup', function(e){ pcKeys[e.key.toLowerCase()]=false; });
+  /* 提问条 */
+  $('qsend').addEventListener('click', function(){ ask($('qbox').value); $('qbox').value=''; });
+  $('qbox').addEventListener('keydown', function(e){
+    if(e.key==='Enter'){ ask($('qbox').value); $('qbox').value=''; }
+    e.stopPropagation();
+  });
+}
+function updPCMove(dt){
+  var f=0,s=0;
+  if(pcKeys['arrowup']) f+=1;
+  if(pcKeys['arrowdown']) f-=1;
+  if(pcKeys['arrowleft']) s-=1;
+  if(pcKeys['arrowright']) s+=1;
+  if(!f&&!s) return;
+  var d=new THREE.Vector3(); camera.getWorldDirection(d); d.y=0; d.normalize();
+  var sd=new THREE.Vector3(-d.z,0,d.x);
+  var mv=new THREE.Vector3().addScaledVector(d,f).addScaledVector(sd,s).normalize();
+  player.position.addScaledVector(mv, dt*1.5);
+  player.position.x=clamp(player.position.x,-4.6,4.6);
+  player.position.z=clamp(player.position.z,-3.2,4.6);
+}
+
+/* ============================================================
+   12. VR 交互
+   ============================================================ */
+var controllers=[];
+function initVR(){
+  for(var i=0;i<2;i++){
+    var c=renderer.xr.getController(i);
+    var line=new THREE.Line(
+      new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0,0,0),new THREE.Vector3(0,0,-1)]),
+      new THREE.LineBasicMaterial({color:0x9fd8ff, transparent:true, opacity:0.7}));
+    line.scale.z=6; c.add(line);
+    c.addEventListener('selectstart', onSelectVR);
+    c.addEventListener('connected', function(e){ this.userData.inputSource=e.data; this.visible=true; });
+    c.addEventListener('disconnected', function(){ this.userData.inputSource=null; this.visible=false; });
+    c.visible=false;
+    scene.add(c); controllers.push(c);
+  }
+}
+function onSelectVR(){
+  var c=this, src=c.userData.inputSource;
+  var m4=new THREE.Matrix4().identity().extractRotation(c.matrixWorld);
+  ray.ray.origin.setFromMatrixPosition(c.matrixWorld);
+  ray.ray.direction.set(0,0,-1).applyMatrix4(m4);
+  ray.camera=camera;
+  var hu=ray.intersectObject(uiMesh,false);
+  if(hu.length){
+    var px=hu[0].uv.x*512, py=(1-hu[0].uv.y)*576;
+    for(var i=0;i<uiBtns.length;i++){
+      var b=uiBtns[i];
+      if(px>=b.x&&px<=b.x+b.w&&py>=b.y&&py<=b.y+b.h){
+        fireUI(b.id); haptic(src,0.25,20); return;
+      }
+    }
+  }
+  haptic(src,0.1,10);
+}
+function haptic(src,i,ms){
+  if(!src||!src.gamepad) return;
+  var a=src.gamepad.hapticActuators;
+  if(a&&a[0]&&a[0].pulse){ try{ a[0].pulse(i,ms); }catch(e){} }
+}
+function updVRMove(dt){
+  if(!renderer.xr.isPresenting) return;
+  var ss=renderer.xr.getSession(); if(!ss) return;
+  var srcs=ss.inputSources;
+  for(var i=0;i<srcs.length;i++){
+    var gp=srcs[i].gamepad; if(!gp) continue;
+    var ax=gp.axes[2]||0, ay=gp.axes[3]||0;
+    if(Math.abs(ax)<0.15 && Math.abs(ay)<0.15) continue;
+    var d=new THREE.Vector3(); camera.getWorldDirection(d); d.y=0; d.normalize();
+    var sd=new THREE.Vector3(-d.z,0,d.x);
+    player.position.addScaledVector(d, -ay*dt*1.6);
+    player.position.addScaledVector(sd, ax*dt*1.6);
+    player.position.x=clamp(player.position.x,-4.6,4.6);
+    player.position.z=clamp(player.position.z,-3.2,4.6);
+  }
+}
+
+/* ============================================================
+   13. 主循环
+   ============================================================ */
+var _bg=new THREE.Color(), _bgD=new THREE.Color(0x232b38), _bgN=new THREE.Color(0x0b111c);
+var _sunC=new THREE.Color(), _sunD=new THREE.Color(0xfff2dc), _sunN=new THREE.Color(0x8ea6d8);
+var _fogC=new THREE.Color();
+function animate(){
+  var dt=Math.min(clock.getDelta(),0.05);
+  var t=clock.elapsedTime;
+
+  /* 昼夜过渡 */
+  if(S.dayMix!==S.dayTarget){
+    S.dayMix += (S.dayTarget-S.dayMix)*Math.min(dt*1.4,1);
+    if(Math.abs(S.dayMix-S.dayTarget)<0.005) S.dayMix=S.dayTarget;
+    var m=S.dayMix;
+    sun.intensity=0.22+0.82*m;
+    hemi.intensity=0.20+0.48*m;
+    _sunC.copy(_sunN).lerp(_sunD,m); sun.color.copy(_sunC);
+    _bg.copy(_bgN).lerp(_bgD,m); scene.background.copy(_bg); scene.fog.color.copy(_bg);
+    drawHud();
+  }
+
+  /* 展品讲解高亮 */
+  if(S.hl>=0){
+    S.hlT-=dt;
+    var a=artifacts[S.hl];
+    a.mat.emissiveIntensity=0.25+0.35*Math.abs(Math.sin(t*3.2));
+    if(S.hlT<=0){ a.mat.emissiveIntensity=0; S.hl=-1; }
+  }
+
+  /* NPC 待机呼吸 + 说话时头部轻摆 */
+  npc.group.position.y=Math.sin(t*1.6)*0.02;
+  npc.head.rotation.y=Math.sin(t*0.7)*0.08 + (S.typing?Math.sin(t*7)*0.06:0);
+  npc.ring.material.opacity=0.35+0.15*Math.sin(t*2.0);
+  npc.eyeMat.color.setHex(S.typing?0xffd873:0x7fe0ff);
+
+  /* 打字机 */
+  if(S.typing && S.shown<S.a.length){
+    S.shown=Math.min(S.a.length, S.shown+Math.max(1,Math.floor(dt*70)));
+    drawDlg();
+  } else if(S.typing && S.src!=='…'){
+    S.typing=false;   /* 小测/讲解文本追上后收回"正在输入"状态（流式回答由 finishTurn 收尾） */
+    drawDlg();
+  }
+
+  updPCMove(dt);
+  XRCore.vrMove(dt);          /* 统一 VR 移动（瞬移/平滑 + Snap/平滑 + 隧道视野） */
+  XRCore.frame(dt);           /* 性能统计 + 动态降级 + 体验数据 */
+  renderer.render(scene, camera);
+}
+window.NPC={};
+
+/* ============================================================
+   14. 配置面板 / 启动
+   ============================================================ */
+function bindCfg(){
+  var panel=$('cfg'), tg=$('cfgToggle');
+  tg.addEventListener('click', function(){
+    panel.style.display=(panel.style.display==='none')?'block':'none';
+  });
+  panel.style.display='none';
+  $('c_save').addEventListener('click', function(){
+    CFG.base=$('c_base').value.trim();
+    CFG.model=$('c_model').value.trim();
+    CFG.key=$('c_key').value.trim();
+    CFG.on=$('c_on').checked;
+    var sys=$('c_sys').value.trim();
+    CFG.sys=sys||DEFAULT_SYS;
+    saveCfg(); updAll();
+  });
+  $('c_default').addEventListener('click', function(){
+    $('c_sys').value=DEFAULT_SYS;
+  });
+  function syncUI(){
+    $('c_base').value=CFG.base; $('c_model').value=CFG.model;
+    $('c_key').value=CFG.key; $('c_on').checked=CFG.on;
+    $('c_sys').value=CFG.sys;
+  }
+  loadCfg(); syncUI();
+}
+function initVRBtn(){
+  var btn=$('vrbtn');
+  if(navigator.xr && navigator.xr.isSessionSupported){
+    navigator.xr.isSessionSupported('immersive-vr').then(function(ok){
+      if(ok){
+        btn.disabled=false; btn.textContent='进入 VR';
+        btn.addEventListener('click', function(){
+          navigator.xr.requestSession('immersive-vr',{optionalFeatures:['local-floor']})
+            .then(function(session){
+              renderer.xr.setSession(session);
+              document.body.classList.add('XR');
+              session.addEventListener('end', function(){ document.body.classList.remove('XR'); });
+            }).catch(function(){ btn.textContent='VR 启动失败'; });
+        });
+      } else btn.textContent='不支持 VR（可用 PC）';
+    }).catch(function(){ btn.textContent='VR 不可用'; });
+  } else btn.textContent='无 WebXR（可用 PC）';
+}
+function boot(){
+  initRenderer();
+  buildTextures();
+  buildEnv();
+  buildPanels();
+  initPC();
+  initVR();
+  bindCfg();
+  initVRBtn();
+  updAll();
+  window.NPC={
+    S:S, CFG:CFG, HISTORY:HISTORY, ART:ART, TP:TP,
+    ask:ask, clear:clearChat, doAction:doAction,
+    buildMessages:buildMessages, parseAction:parseAction, stripAction:stripAction,
+    localAnswer:localAnswer, nearestArtifact:nearestArtifact,
+    uiBtns:uiBtns, fireUI:fireUI,
+    QUIZ:QUIZ, Q:Q, PTS:PTS,
+    quiz:function(){
+      return {on:Q.on, phase:Q.phase, i:Q.i, score:Q.score, correct:Q.correctN,
+              result:Q.result, total:QUIZ.length,
+              start:startQuiz, pick:pickOpt, next:nextQ, quit:quitQuiz};
+    },
+    scene:scene, camera:camera, player:player, npc:npc, artifacts:artifacts,
+    hudMesh:function(){ return hudMesh; },
+    dlgMesh:function(){ return dlgMesh; },
+    uiMesh:function(){ return uiMesh; },
+    pauseSim:function(){ S.simOn=false; }, resumeSim:function(){ S.simOn=true; },
+    XRCore:function(){ return window.XRCore; }
+  };
+  /* XR 工程内核：帧预算 72Hz(PICO Neo3) / 隧道视野 / 移动与转向范式 / 体验数据导出 */
+  XRCore.init({
+    THREE:THREE, renderer:renderer, scene:scene, camera:camera, player:player,
+    name:'06 LLM智能NPC', targetFps:72,
+    panelPos:[-1.95,1.5,-1.5], panelRotY:0.62,
+    home:{x:0, z:2.6, rotY:0}, bounds:{x:[-4.6,4.6], z:[-3.2,4.6]},
+    tips:[
+      ['为什么必须是VR NPC','对话代理有了身体与空间：站在你面前、指向展品、带你走——具身性显著提升信任度与记忆留存。'],
+      ['提示词工程','系统提示词 = 人设 + 语气 + 知识边界 + 动作协议。改一句话，角色行为立刻改变（面板里可现场改）。'],
+      ['多轮窗口','只记最近 8 条（约 4 轮），更早的会被遗忘；真实产品用摘要或向量检索扩展记忆。'],
+      ['幻觉防护','事实应放进知识库或提示词，模型只负责组织语言；不确定时必须说不确定——这是产品级底线。'],
+      ['前沿','空间智能（李飞飞 2025）：语言是有损压缩，下一代模型要能理解并生成 3D 世界，NPC 将从"会说话"走向"会做事"。']
+    ]
+  });
+  XRCore.ui([uiMesh]);   /* 坐姿模式下自动下沉 */
+  /* 注视停留点本例自有面板：不用手柄也能完成面板上的全部操作 */
+  XRCore.uiHit(function(rc){
+    if(!uiMesh||!uiBtns.length) return null;
+    var h=rc.intersectObject(uiMesh,false);
+    if(!h.length||!h[0].uv) return null;
+    var px=h[0].uv.x*uiCanvas.w, py=(1-h[0].uv.y)*uiCanvas.h;   /* 注意：uiCanvas 是 cnv() 返回的 {c,x,w,h}，不是 DOM canvas */
+    for(var i=0;i<uiBtns.length;i++){
+      var b=uiBtns[i];
+      if(px>=b.x&&px<=b.x+b.w&&py>=b.y&&py<=b.y+b.h) return mkGazeUI(b.id,h[0].distance);
+    }
+    return null;
+  });
+  renderer.setAnimationLoop(animate);
+}
+if(document.readyState==='complete'||document.readyState==='interactive') setTimeout(boot,0);
+else window.addEventListener('DOMContentLoaded', boot);
+
+})();
+</script>
+</body>
+</html>

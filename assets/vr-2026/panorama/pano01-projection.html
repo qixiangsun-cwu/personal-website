@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>全景投影原理 · 等距柱状投影是怎么来的</title>
+<style>
+  html,body{margin:0;background:#0b1016;color:#e8eef6;font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif}
+  .wrap{max-width:1180px;margin:0 auto;padding:22px 20px 60px}
+  h1{font-size:21px;margin:6px 0 4px}
+  .sub{color:#93a6bb;font-size:13px;margin-bottom:18px}
+  .tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+  .tabs button{font:600 13px/1 "Microsoft YaHei",sans-serif;color:#dbe7f4;background:rgba(255,255,255,.07);
+    border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:9px 16px;cursor:pointer}
+  .tabs button.on{background:linear-gradient(135deg,#d9a441,#c1502e);border-color:transparent;color:#fff}
+  .card{background:rgba(15,22,32,.85);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:18px}
+  .row{display:flex;gap:20px;flex-wrap:wrap;align-items:flex-start}
+  canvas{border-radius:10px;border:1px solid rgba(255,255,255,.14);display:block;background:#05080c}
+  .ctrls{margin-top:14px;display:flex;gap:18px;flex-wrap:wrap;align-items:center;font-size:13px;color:#bccade}
+  .ctrls label{display:flex;gap:8px;align-items:center}
+  input[type=range]{width:150px}
+  .legend{font-size:13px;line-height:1.9;color:#c3d2e3;margin-top:12px}
+  .legend b{color:#ffd27a}
+  table{border-collapse:collapse;width:100%;font-size:13.5px;margin-top:8px}
+  th,td{border:1px solid rgba(255,255,255,.14);padding:8px 10px;text-align:left;vertical-align:top}
+  th{background:rgba(255,255,255,.06);color:#dfe9f4;font-weight:600}
+  .kbd{font-family:Consolas,monospace;background:rgba(255,255,255,.1);padding:1px 6px;border-radius:5px}
+  .note{color:#8fa3b8;font-size:12.5px;margin-top:10px;line-height:1.8}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>全景投影原理 · 等距柱状投影（Equirectangular）是怎么来的</h1>
+  <div class="sub">第 5 章 三维全景技术 · 课堂演示 01　｜　拖动右图或用滑杆，观察“一张平面图”如何变成“一圈完整的视界”</div>
+
+  <div class="tabs">
+    <button data-tab="0" class="on">投影与拉伸</button>
+    <button data-tab="1">四种表现形式</button>
+    <button data-tab="2">视角对照表</button>
+  </div>
+
+  <div class="card" id="tab0">
+    <div class="row">
+      <div>
+        <div style="font-size:13px;color:#9fb3c8;margin-bottom:6px">左：等距柱状全景图（宽 : 高 = 2 : 1）　—　拖动上面的白框</div>
+        <canvas id="map" width="560" height="280"></canvas>
+      </div>
+      <div>
+        <div style="font-size:13px;color:#9fb3c8;margin-bottom:6px">右：同一个球面，从中间往外看到的样子</div>
+        <canvas id="view" width="440" height="248"></canvas>
+      </div>
+    </div>
+    <div class="ctrls">
+      <label>经度 yaw <input id="sYaw" type="range" min="-180" max="180" value="0" step="1"><span id="vYaw">0°</span></label>
+      <label>纬度 pitch <input id="sPitch" type="range" min="-85" max="85" value="0" step="1"><span id="vPitch">0°</span></label>
+      <label>视角 FOV <input id="sFov" type="range" min="20" max="120" value="75" step="1"><span id="vFov">75°</span></label>
+      <button id="reset" style="font:600 12px/1 'Microsoft YaHei';color:#dbe7f4;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);border-radius:8px;padding:8px 14px;cursor:pointer">复位</button>
+    </div>
+    <div class="legend">
+      <b>要读懂的三件事：</b><br>
+      ① 横向 <b>u</b> 是经度：0°→360° 绕一圈，所以宽 360 个单位；纵向 <b>v</b> 是纬度：+90°→−90°，高 180 个单位。这就是“2 : 1”的由来。<br>
+      ② 白框越小（FOV 越小），画面越清楚；<b>同样的图，看得越广，每度分到的像素越少</b>——这直接解释了头显里为什么“远处屋脊有点糊”。<br>
+      ③ 把滑杆拉到 pitch = ±85°，看左右两图的格子：<b>越靠近两极，格子被拉得越扁</b>。等距柱状投影把球面“摊平”时，两极一定被拉伸——真实相机在这一点上只能靠“补天补地”多拍一张来救。<br>
+      ④ 右图的字母是<b>反的</b>，这不是 bug：站在球心往外看一张平面展开图，左右本来就是反的（看到的是贴图的背面）。
+      所以每个全景播放器都要做一次“翻面”。<b>本课用的教材素材本身是镜像版</b>，播放器把它翻回来，两边正好抵消。
+    </div>
+  </div>
+
+  <div class="card" id="tab1" style="display:none">
+    <div class="legend" style="margin-top:0">
+      教材把三维全景按“外在表现形式”分成四类。它们的差别不在画质，而在<b>怎么存、怎么渲染、能不能被“移动”</b>。
+    </div>
+    <table>
+      <tr><th style="width:96px">形式</th><th>投影 / 存储</th><th>渲染方式</th><th>优点</th><th>局限</th></tr>
+      <tr><td><b>柱形全景</b></td><td>圆柱面展开，水平 360°、垂直视角受镜头限制（一般不足 180°）</td><td>贴到圆柱内壁</td><td>文件最小、单圈拍摄即可、手机全景模式多数是这一类</td><td>抬头低头看到边缘，会有“天塌地陷”的拉伸</td></tr>
+      <tr><td><b>球形全景</b></td><td>等距柱状投影，宽高比 2 : 1（本章例 5.3 的素材就是这种）</td><td>贴到球的内壁（<span class="kbd">BackSide</span>）</td><td>上下左右都能看，沉浸感最强，是 VR 全景的标准形态</td><td>两极像素被拉伸；要拍够天地</td></tr>
+      <tr><td><b>立方体全景</b></td><td>6 张正方形图（前后左右上下），本章例 5.1 的“六面体文件”</td><td>贴到立方体内壁（6 个面）</td><td>不需要等距柱状的重采样；早期显卡效率高</td><td>6 张图要一起管理；每条棱上会有接缝</td></tr>
+      <tr><td><b>物体全景</b></td><td>相机绕物体一圈拍 n 张，按角度序列存图</td><td>按观看角度切图（相当于“转盘动画”）</td><td>能把单个文物/产品拍得很清楚，文件可控</td><td>不能自由环视，只能“绕着看”</td></tr>
+    </table>
+    <div class="note">
+      <b>放回教室里的例子：</b>本次课的《全景漫游器》用的是<b>球形全景</b>（6 张 3072×1536 的等距柱状图），
+      素材来自教材第 5 章例 5.3；教材例 5.1 的“六面体文件”就是<b>立方体全景</b>，可以直接对照着看。
+    </div>
+  </div>
+
+  <div class="card" id="tab2" style="display:none">
+    <div class="legend" style="margin-top:0">“全景”到底比普通照片多看到了什么？把角度数字摆在一起就清楚了。</div>
+    <table>
+      <tr><th>观察方式</th><th>水平视角</th><th>垂直视角</th><th>能不能“转头改变画面”</th></tr>
+      <tr><td>双眼正常有效视角</td><td>约 90°</td><td>约 70°</td><td>能，但视线要离开屏幕/照片才看得到</td></tr>
+      <tr><td>包含双眼余光</td><td>约 180°</td><td>约 90°</td><td>边缘只能感知运动，辨不清细节</td></tr>
+      <tr><td><b>单张全景照片（本课）</b></td><td><b>360°</b></td><td><b>180°（球面可达）</b></td><td><b>能，且整圈都是“正对着看”</b></td></tr>
+    </table>
+    <div class="note">
+      <b>一句要说给学生的话：</b>普通照片是把“此刻朝着哪看”固定死了；全景图是把“朝哪看”这件事交还给你。
+      VR 设备做的，是再往前一步——<b>不用鼠标，转头就是改变朝向</b>。
+    </div>
+  </div>
+</div>
+
+<script>
+/* -------------------------------------------------------------------------
+ * 纯 Canvas 实现：自己生成一张等距柱状图 → 按球面几何反查像素 → 画出“所见画面”
+ * 这段代码本身就是“全景渲染”的最小实现，可以直接读给学生听。
+ * ------------------------------------------------------------------------- */
+var SW=1024, SH=512;                 // 源全景分辨率（宽 : 高 = 2 : 1）
+var src = null, srcData = null;
+
+function buildSource(){
+  var c=document.createElement('canvas'); c.width=SW; c.height=SH;
+  var g=c.getContext('2d');
+  // 底色：上下渐变更能看出极点压缩
+  var grd=g.createLinearGradient(0,0,0,SH);
+  grd.addColorStop(0,'#1d3f6b'); grd.addColorStop(0.5,'#2b6da8'); grd.addColorStop(1,'#123049');
+  g.fillStyle=grd; g.fillRect(0,0,SW,SH);
+  // 经线（每 30°）：u = 经度/360
+  g.strokeStyle='rgba(255,255,255,.30)'; g.lineWidth=1.2;
+  for(var lon=-180; lon<=180; lon+=30){
+    var x=(lon+180)/360*SW;
+    g.beginPath(); g.moveTo(x,0); g.lineTo(x,SH); g.stroke();
+  }
+  // 纬线（每 30°）：v = (90-纬度)/180
+  for(var lat=-90; lat<=90; lat+=30){
+    var y=(90-lat)/180*SH;
+    g.beginPath(); g.moveTo(0,y); g.lineTo(SW,y); g.stroke();
+  }
+  // 赤道加粗
+  g.strokeStyle='rgba(255,210,122,.85)'; g.lineWidth=2.6;
+  g.beginPath(); g.moveTo(0,SH/2); g.lineTo(SW,SH/2); g.stroke();
+  // 放 4 个带字母的方块，用来判断“转到了哪一侧”
+  var marks=[['A','#e0573d'],['B','#4fb477'],['C','#c8a13a'],['D','#6b8ce0']];
+  for(var i=0;i<4;i++){
+    var cx=(i*0.25+0.125)*SW, cy=SH*0.42;
+    g.fillStyle=marks[i][1]; g.fillRect(cx-58,cy-44,116,88);
+    g.fillStyle='#0b1016'; g.font='bold 44px "Microsoft YaHei",sans-serif';
+    g.textAlign='center'; g.textBaseline='middle';
+    g.fillText(marks[i][0], cx, cy);
+  }
+  // 两极色标
+  g.fillStyle='rgba(255,255,255,.20)'; g.fillRect(0,0,SW,SH*0.06);
+  g.fillStyle='rgba(0,0,0,.28)';       g.fillRect(0,SH*0.94,SW,SH*0.06);
+  src=c;
+  srcData=g.getImageData(0,0,SW,SH);
+}
+
+var yaw=0, pitchDeg=0, fovDeg=75;
+
+function drawMap(){
+  var cv=document.getElementById('map'), g=cv.getContext('2d');
+  g.clearRect(0,0,cv.width,cv.height);
+  g.drawImage(src,0,0,cv.width,cv.height);
+  // 视锥白框：地平方向按“横向 FOV”，上下按“纵向 FOV”（本画布 2:1，故每像素角度一致）
+  var vc=document.getElementById('view');
+  var fovV=fovDeg, fovH=2*Math.atan(Math.tan(fovV*Math.PI/360)*(vc.width/vc.height))*180/Math.PI;
+  var w=cv.width*fovH/360, h=cv.height*fovV/180;
+  // 地图横坐标 u 与朝向的换算：u_center = 0.5 + yaw/360（yaw=0 即正对 u=0.5）
+  var uC=(0.5+yaw/360); uC=uC-Math.floor(uC);
+  var cx=cv.width*uC, cy=cv.height*(90-pitchDeg)/180;
+  g.strokeStyle='#ffffff'; g.lineWidth=2;
+  g.strokeRect(cx-w/2, cy-h/2, w, h);
+  g.fillStyle='rgba(255,255,255,.10)'; g.fillRect(cx-w/2, cy-h/2, w, h);
+}
+
+function drawView(){
+  var cv=document.getElementById('view'), g=cv.getContext('2d');
+  var W=cv.width, H=cv.height;
+  var img=g.createImageData(W,H), d=img.data, s=srcData.data;
+  var fovV=fovDeg*Math.PI/180;                       // 纵向视角
+  var fovH=2*Math.atan(Math.tan(fovV/2)*(W/H));      // 横向视角（按宽高比换算）
+  /* 坐标约定（与 three.js 全景球完全一致，已实测校核）：
+       等距柱状图上的点 u 对应的世界方向 d(u) = (-cos 2πu, ·, sin 2πu)
+       → 站在球心、朝向 +X（即 u = 0.5）时，屏幕右边对应更小的 u。
+     所以本函数的相机基底取：forward = +X，up = +Y，right = +Z。
+     这个“从球内往外看会把平面图左右翻转”的事实，正是学生最容易记混的一点，
+     代码里刻意写清楚。 */
+  var y0=yaw*Math.PI/180, p0=pitchDeg*Math.PI/180;
+  var sp0=Math.sin(p0), cp0=Math.cos(p0), sy0=Math.sin(y0), cy0=Math.cos(y0);
+  for(var py=0;py<H;py++){
+    var ay=(0.5-(py+0.5)/H)*fovV;          // 上为正
+    var sy=Math.sin(ay), cyv=Math.cos(ay);
+    for(var px=0;px<W;px++){
+      var ax=((px+0.5)/W-0.5)*fovH;        // 右为正
+      var sx=Math.sin(ax), cx2=Math.cos(ax);
+      var X=cx2*cyv, Y=sy, Z=sx*cyv;       // 相机基底下的方向
+      var X1=X*cp0 - Y*sp0, Y1=X*sp0 + Y*cp0, Z1=Z;   // 绕 right 轴 pitch
+      var dx = X1*cy0 + Z1*sy0;                        // 绕 up 轴 yaw
+      var dz = -X1*sy0 + Z1*cy0;
+      var dy = Y1;
+      var phi = Math.atan2(dz, -dx); if(phi<0) phi += 2*Math.PI;   // 0..2π
+      var u = phi/(2*Math.PI);
+      var v = Math.acos(Math.max(-1, Math.min(1, dy)))/Math.PI;
+      var tx=Math.min(SW-1, Math.max(0, Math.round(u*SW-0.5)));
+      var ty=Math.min(SH-1, Math.max(0, Math.round(v*SH-0.5)));
+      var si=(ty*SW+tx)*4, di=(py*W+px)*4;
+      d[di]=s[si]; d[di+1]=s[si+1]; d[di+2]=s[si+2]; d[di+3]=255;
+    }
+  }
+  g.putImageData(img,0,0);
+}
+
+function redraw(){
+  document.getElementById('vYaw').textContent   = yaw+'°';
+  document.getElementById('vPitch').textContent = pitchDeg+'°';
+  document.getElementById('vFov').textContent   = fovDeg+'°';
+  drawMap(); drawView();
+}
+function setup(){
+  buildSource();
+  var sY=document.getElementById('sYaw'), sP=document.getElementById('sPitch'), sF=document.getElementById('sFov');
+  sY.oninput=function(){ yaw=+this.value; redraw(); };
+  sP.oninput=function(){ pitchDeg=+this.value; redraw(); };
+  sF.oninput=function(){ fovDeg=+this.value; redraw(); };
+  document.getElementById('reset').onclick=function(){
+    yaw=0; pitchDeg=0; fovDeg=75; sY.value=0; sP.value=0; sF.value=75; redraw();
+  };
+  // 在左图上拖动 = 直接改视锥位置
+  var mapCv=document.getElementById('map'), dragging=false;
+  function fromEvent(e){
+    var r=mapCv.getBoundingClientRect();
+    var x=(e.clientX-r.left)/r.width, y=(e.clientY-r.top)/r.height;
+    yaw=Math.round(Math.max(-180,Math.min(180, x*360-180)));
+    pitchDeg=Math.round(Math.max(-85,Math.min(85, 90-y*180)));
+    sY.value=yaw; sP.value=pitchDeg; redraw();
+  }
+  mapCv.addEventListener('pointerdown',function(e){ dragging=true; try{mapCv.setPointerCapture(e.pointerId);}catch(x){} fromEvent(e); });
+  mapCv.addEventListener('pointermove',function(e){ if(dragging) fromEvent(e); });
+  mapCv.addEventListener('pointerup',function(){ dragging=false; });
+  // 标签页
+  var tabs=document.querySelectorAll('.tabs button');
+  for(var i=0;i<tabs.length;i++){
+    tabs[i].onclick=function(){
+      for(var j=0;j<tabs.length;j++) tabs[j].className='';
+      this.className='on';
+      for(var k=0;k<3;k++) document.getElementById('tab'+k).style.display='none';
+      document.getElementById('tab'+this.dataset.tab).style.display='block';
+    };
+  }
+  redraw();
+}
+if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',setup); else setup();
+</script>
+</body>
+</html>

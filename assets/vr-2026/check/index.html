@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VR 作品自检 · 先确认环境，再改代码</title>
+<style>
+  *{box-sizing:border-box;}
+  html,body{margin:0;background:#0f0b07;color:#efe4cf;
+    font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif;}
+  .wrap{max-width:1000px;margin:0 auto;padding:26px 20px 70px;}
+  h1{font-size:23px;color:#d9a441;letter-spacing:2px;margin:0 0 6px;}
+  h2{font-size:17px;color:#f0b45a;margin:30px 0 10px;letter-spacing:1px;}
+  p.sub{color:#a89b7c;font-size:13.5px;line-height:1.9;margin:0 0 16px;}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin:14px 0;}
+  .cell{background:#15110b;border:1px solid rgba(217,164,65,.28);border-radius:10px;padding:12px 14px;}
+  .cell .k{font-size:12px;color:#a89b7c;margin-bottom:6px;}
+  .cell .v{font-size:15px;font-weight:700;font-family:Consolas,monospace;word-break:break-all;}
+  .ok{color:#7ddc9a;} .bad{color:#ff8a6b;} .warn{color:#f0c060;}
+  .tip{border-left:3px solid rgba(217,164,65,.6);padding:10px 14px;margin:16px 0;
+    background:rgba(217,164,65,.07);color:#cbbf9f;font-size:13px;line-height:1.9;border-radius:0 8px 8px 0;}
+  .tip b{color:#f0b45a;}
+  button{font:700 15px/1 "Microsoft YaHei",sans-serif;color:#1a1208;cursor:pointer;
+    background:linear-gradient(135deg,#e8c06a,#c98a2c);border:0;border-radius:999px;padding:13px 26px;}
+  button:disabled{background:#4a4437;color:#9a917c;cursor:not-allowed;}
+  button.ghost{background:transparent;color:#f0cf8f;border:1px solid rgba(217,164,65,.45);
+    padding:11px 20px;font-weight:600;}
+  canvas{display:block;width:100%;aspect-ratio:960/420;height:auto;
+    border-radius:12px;border:1px solid rgba(217,164,65,.28);background:#050604;}
+  table{width:100%;border-collapse:collapse;font-size:13px;margin-top:8px;}
+  th,td{border:1px solid rgba(217,164,65,.22);padding:8px 10px;text-align:left;vertical-align:top;}
+  th{background:rgba(217,164,65,.09);color:#f0cf8f;font-weight:600;}
+  code,kbd{font-family:Consolas,monospace;background:rgba(217,164,65,.14);border:1px solid rgba(217,164,65,.3);
+    padding:1px 6px;border-radius:5px;color:#f0cf8f;font-size:12.5px;}
+  textarea{width:100%;height:150px;background:#0b0906;color:#e8dcc2;border:1px solid rgba(217,164,65,.28);
+    border-radius:10px;padding:10px 12px;font-family:Consolas,monospace;font-size:12.5px;line-height:1.7;}
+  .back{margin-top:26px;font-size:14px;}
+  .back a{color:#d9a441;text-decoration:none;margin-right:18px;}
+  .back a:hover{text-decoration:underline;}
+  .row{display:flex;gap:12px;flex-wrap:wrap;align-items:center;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>VR 作品自检</h1>
+  <p class="sub">
+    <b>改自己的代码之前，先在这一页确认环境。</b>
+    否则你会在一个本来就不支持 VR 的环境里 debug，白忙一场。
+  </p>
+
+  <div class="grid">
+    <div class="cell"><div class="k">① 页面来源（协议）</div><div class="v" id="v-proto">检测中…</div></div>
+    <div class="cell"><div class="k">② 是否安全上下文</div><div class="v" id="v-secure">检测中…</div></div>
+    <div class="cell"><div class="k">③ navigator.xr</div><div class="v" id="v-xr">检测中…</div></div>
+    <div class="cell"><div class="k">④ 支持 immersive-vr</div><div class="v" id="v-im">检测中…</div></div>
+    <div class="cell"><div class="k">⑤ WebGL 渲染</div><div class="v" id="v-gl">检测中…</div></div>
+    <div class="cell"><div class="k">⑥ 输入设备（手柄/手）</div><div class="v" id="v-input">进入 VR 后显示</div></div>
+  </div>
+
+  <div id="verdict" class="tip">正在检测…</div>
+
+  <h2>当场试一次：能不能真的进 VR</h2>
+  <p class="sub">
+    下面这个场景小到你没法怀疑是"我的代码有 bug"：一块地面、一个在转的方块、一个注视靶。
+    <b>能看到方块 = 渲染正常；注视靶变绿并计数 = 注视交互正常。</b>
+  </p>
+  <div class="row" style="margin-bottom:12px">
+    <button id="enterVR" disabled>进入 VR</button>
+    <button id="reportBtn" class="ghost">生成自检报告</button>
+  </div>
+  <canvas id="c" width="960" height="420"></canvas>
+  <div class="tip" id="hud">FPS — · DrawCall — · 三角面 — · 注视命中 0 次 · 会话：未进入 VR</div>
+
+  <h2>自检报告（截图或复制给老师）</h2>
+  <textarea id="report" readonly placeholder="点上面的「生成自检报告」"></textarea>
+
+  <h2>如果第 ② 项是"否"：三条把它变成"是"的路</h2>
+  <p class="sub">
+    <b>原理只有一句：</b>浏览器只在<b>安全上下文</b>里暴露 <code>navigator.xr</code>。
+    <code>https://</code>、<code>http://localhost</code>、<code>http://127.0.0.1</code> 都算；
+    <b>电脑的局域网 IP（<code>http://192.168.x.x</code>）不算</b>。
+  </p>
+  <table>
+    <tr><th style="width:22%">通路</th><th>怎么做</th><th style="width:22%">适用场景</th></tr>
+    <tr>
+      <td><b>A · USB 直连</b><br>（最稳）</td>
+      <td>数据线连头显 → 电脑上执行
+        <code>adb reverse tcp:8080 tcp:8080</code> →
+        头显浏览器打开 <code>http://127.0.0.1:8080/</code>。
+        头显里的 127.0.0.1 会被转到你的电脑上，所以既是安全上下文、又不走网络。</td>
+      <td>教室网络差、上课演示</td>
+    </tr>
+    <tr>
+      <td><b>B · 传到 https 站点</b><br>（最省事）</td>
+      <td>把你的文件交给老师，放到课程站点的学生作品目录里，
+        头显直接打开 <code>https://…/student/你的学号/</code>。</td>
+      <td>要交作业、要让别人看到</td>
+    </tr>
+    <tr>
+      <td><b>C · 局域网 + 白名单</b></td>
+      <td>电脑起静态服务（绑定 0.0.0.0），头显浏览器访问
+        <code>http://电脑IP:8080/</code>；先在头显浏览器里打开
+        <code>chrome://flags/#unsafely-treat-insecure-origin-as-secure</code>，
+        把 <code>http://电脑IP:8080</code> 填进白名单并启用。
+        <b>电脑 IP 一变就要重填。</b></td>
+      <td>自己反复调试</td>
+    </tr>
+  </table>
+
+  <div class="tip">
+    <b>一条常被忽略的坑：</b>就算环境全对，「进入 VR」也必须由<b>用户手势</b>触发
+    （必须有人点一下按钮）。所以<b>不要写"打开页面自动进入 VR"</b>——规范不允许，各家浏览器也都不给。
+  </div>
+
+  <h2>把自检贴进你自己的作品</h2>
+  <p class="sub">
+    同一目录下的 <a href="vr-probe.js" style="color:#f0b45a"><code>vr-probe.js</code></a>
+    是一个可以直接引用的探针：在你自己页面的 <code>&lt;head&gt;</code> 里加一行
+    <code>&lt;script src="vr-probe.js"&gt;&lt;/script&gt;</code>，
+    页面角落就会出现一个小面板，实时显示 <b>FPS / DrawCall / 三角面 / 报错 / 是否在 VR 会话中</b>。
+    头显里也能看见——这样你戴着就能知道"到底是没进 VR，还是进了但画不出来"。
+  </p>
+
+  <div class="back">
+    <a href="../">← VR 课程演示总目录</a>
+    <a href="../cases/">← VR 课堂案例库</a>
+    <a href="/">← 返回站点首页</a>
+  </div>
+</div>
+
+<script src="./three.min.js"></script>
+<script>
+/* =========================================================================
+ * VR 作品自检页
+ *  - 逐条检测 WebXR 的四个前提，并给出"能不能进 VR"的明确结论
+ *  - 提供最小可运行场景，让"进不去"这件事可以被定位到具体是哪一环
+ *  - 生成可复制/可截图的报告
+ * ========================================================================= */
+var renderer, scene, camera, player, clock;
+var cube = null, target = null, targetHit = 0, gazeT = 0, gazing = false;
+var inXR = false, sessionStartAt = 0, fpsAcc = 0, fpsN = 0, fpsShow = 0;
+var S = {
+  protocol: location.protocol,
+  secure: (window.isSecureContext === true),
+  hasXR: (typeof navigator.xr !== 'undefined'),
+  immersive: null,      // true / false / 'unknown'
+  gl: null,
+  inputs: '—',
+  ua: navigator.userAgent
+};
+
+function setCell(id, text, cls){
+  var el = document.getElementById(id);
+  if(!el) return;
+  el.textContent = text;
+  el.className = 'v' + (cls ? ' ' + cls : '');
+}
+
+/* ------------------------------------------------------------ 1. 环境检测 */
+function detect(){
+  setCell('v-proto', S.protocol, S.secure ? 'ok' : 'bad');
+  setCell('v-secure', S.secure ? '是' : '否', S.secure ? 'ok' : 'bad');
+  setCell('v-xr', S.hasXR ? '存在' : '不存在', S.hasXR ? 'ok' : 'bad');
+
+  if(!S.hasXR){
+    S.immersive = false;
+    setCell('v-im', '无法检测', 'bad');
+    verdict('bad', '这是一次<b>假结论</b>：页面不是安全上下文时，浏览器会直接把 navigator.xr 藏起来，'
+      + '所以"不支持"并不代表你的设备不行。<b>按下面第二节把它变成安全上下文，再回来测一次。</b>');
+  }else{
+    navigator.xr.isSessionSupported('immersive-vr').then(function(ok){
+      S.immersive = ok;
+      setCell('v-im', ok ? '支持' : '不支持', ok ? 'ok' : 'bad');
+      if(ok){
+        verdict('ok', '环境就绪：安全上下文 ✅　navigator.xr ✅　immersive-vr ✅。'
+          + '<b>现在可以点「进入 VR」了。</b>进去之后如果看不到方块，问题就在渲染，不在环境。');
+        document.getElementById('enterVR').disabled = false;
+      }else{
+        verdict('warn', '浏览器有 WebXR，但<b>这台设备不支持沉浸式 VR</b>。'
+          + '常见原因：设备本身不支持（部分手机 / 平板），或者你还在 PC 浏览器上。'
+          + '<b>把这一页拿到头显里打开再测一次。</b>');
+      }
+    }).catch(function(err){
+      S.immersive = 'unknown';
+      setCell('v-im', '检测异常', 'warn');
+      verdict('warn', 'isSessionSupported() 调用出错：' + err.message);
+    });
+  }
+}
+function verdict(level, html){
+  var el = document.getElementById('verdict');
+  el.innerHTML = html;
+  el.style.borderLeftColor = (level === 'ok') ? 'rgba(125,220,154,.8)'
+    : (level === 'bad' ? 'rgba(255,138,107,.8)' : 'rgba(240,192,96,.8)');
+}
+
+/* -------------------------------------------------------------- 2. 最小场景 */
+function build(){
+  scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x0d1420);
+  camera = new THREE.PerspectiveCamera(70, innerWidth/innerHeight, 0.05, 200);
+  camera.rotation.order = 'YXZ';
+  camera.position.set(0, 1.6, 2.2);
+  player = new THREE.Group();
+  player.add(camera);
+  scene.add(player);
+
+  scene.add(new THREE.HemisphereLight(0xbfd4ee, 0x40403a, 1.0));
+  var dir = new THREE.DirectionalLight(0xffffff, 1.1);
+  dir.position.set(3, 6, 4);
+  scene.add(dir);
+
+  var grid = new THREE.GridHelper(12, 24, 0xd9a441, 0x3a4456);
+  grid.position.y = 0;
+  scene.add(grid);
+
+  cube = new THREE.Mesh(
+    new THREE.BoxGeometry(0.6, 0.6, 0.6),
+    new THREE.MeshStandardMaterial({ color: 0xd9a441, roughness: 0.35, metalness: 0.15 })
+  );
+  cube.position.set(0, 1.35, -1.4);
+  scene.add(cube);
+
+  var ring = new THREE.Mesh(
+    new THREE.RingGeometry(0.19, 0.26, 40),
+    new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.55, side: THREE.DoubleSide })
+  );
+  target = new THREE.Group();
+  target.add(ring);
+  target.userData.ring = ring;
+  target.position.set(-1.1, 1.35, -1.4);
+  scene.add(target);
+
+  sizeCanvas();
+}
+function sizeCanvas(){
+  var cv = document.getElementById('c');
+  var w = cv.clientWidth || 960;
+  var h = Math.round(w * 420 / 960);
+  renderer.setSize(w, h, false);
+  if(camera){
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+  }
+}
+
+function enterVR(){
+  if(!navigator.xr) return;
+  navigator.xr.requestSession('immersive-vr', {
+    optionalFeatures: ['local-floor', 'bounded-floor', 'hand-tracking']
+  }).then(function(session){
+    renderer.xr.setSession(session);
+  }).catch(function(err){
+    verdict('bad', 'VR 会话启动失败：<b>' + err.message + '</b><br>'
+      + '如果提示与权限或用户手势有关，请确认是<b>点击按钮</b>触发的，而不是自动调用。');
+  });
+}
+
+/* --------------------------------------------------------------- 3. 主循环 */
+var tmpV = new THREE.Vector3(), tmpQ = new THREE.Quaternion();
+function animate(){
+  var dt = Math.min(clock.getDelta(), 0.1);
+  if(cube) cube.rotation.y += dt * 0.8;
+
+  var cam = (renderer.xr.isPresenting && renderer.xr.getCamera) ? renderer.xr.getCamera() : camera;
+  cam.updateWorldMatrix(true, false);
+  var dir = cam.getWorldDirection(new THREE.Vector3());
+  var toT = tmpV.copy(target.position).sub(cam.getWorldPosition(new THREE.Vector3())).normalize();
+  var ang = Math.acos(Math.max(-1, Math.min(1, dir.dot(toT))));
+  gazing = (ang < 0.18);
+  if(gazing){
+    gazeT += dt;
+    if(gazeT >= 1.0){
+      gazeT = 0; targetHit++;
+      target.userData.ring.material.color.setHex(0x7ddc9a);
+      setTimeout(function(){ try{ target.userData.ring.material.color.setHex(0xffffff); }catch(e){} }, 700);
+    }
+  }else gazeT = 0;
+  if(target) target.rotation.y += dt * 0.3;
+
+  fpsAcc += dt; fpsN++;
+  if(fpsN >= 20 || fpsN === 1){
+    fpsShow = (fpsAcc > 0.001) ? (fpsN / fpsAcc) : 0;
+    fpsAcc = 0; fpsN = 0;
+    var info = renderer.info.render;
+    document.getElementById('hud').innerHTML =
+      'FPS ' + (fpsShow > 0 ? fpsShow.toFixed(0) : '—')
+      + ' · DrawCall ' + info.calls
+      + ' · 三角面 ' + (info.triangles / 1000).toFixed(1) + 'k'
+      + ' · 注视命中 ' + targetHit + ' 次'
+      + ' · 会话：' + (renderer.xr.isPresenting ? '★ 已在 VR 中' : '未进入 VR');
+  }
+  renderer.render(scene, camera);
+}
+
+/* --------------------------------------------------------------- 4. 报告 */
+function makeReport(){
+  var info = renderer.info.render;
+  var lines = [];
+  lines.push('【VR 作品自检报告】' + new Date().toLocaleString('zh-CN'));
+  lines.push('页面地址：' + location.href);
+  lines.push('协议：' + S.protocol + '　安全上下文：' + (S.secure ? '是' : '否'));
+  lines.push('navigator.xr：' + (S.hasXR ? '存在' : '不存在'));
+  lines.push('immersive-vr 支持：' + (S.immersive === true ? '支持' : (S.immersive === false ? '不支持' : '未确定')));
+  lines.push('WebGL：' + (S.gl === null ? '检测中' : S.gl));
+  lines.push('是否进入过 VR 会话：' + (inXR ? '是' : '否'));
+  lines.push('输入设备：' + S.inputs);
+  lines.push('读数：FPS ' + (fpsShow > 0 ? fpsShow.toFixed(0) : '—') +
+             ' / DrawCall ' + info.calls + ' / 三角面 ' + info.triangles);
+  lines.push('注视命中次数：' + targetHit);
+  lines.push('屏幕：' + screen.width + '×' + screen.height + '　像素比：' + (window.devicePixelRatio || 1));
+  lines.push('UA：' + S.ua);
+  lines.push('');
+  lines.push('结论：' + (S.secure && S.hasXR && S.immersive === true
+    ? '环境可用于 WebXR 沉浸式 VR。'
+    : '环境不满足 WebXR 条件，请按自检页第二节处理后再测。'));
+  var el = document.getElementById('report');
+  el.value = lines.join('\n');
+  el.select();
+}
+
+/* --------------------------------------------------------------- 5. 启动 */
+function init(){
+  renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('c'), antialias: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
+  renderer.xr.enabled = true;
+  if(renderer.xr.setReferenceSpaceType) renderer.xr.setReferenceSpaceType('local-floor');
+  try{
+    var gl = renderer.getContext();
+    var dbg = gl.getExtension('WEBGL_debug_renderer_info');
+    S.gl = dbg ? gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL) : 'WebGL 可用';
+    setCell('v-gl', '可用', 'ok');
+  }catch(e){
+    S.gl = '不可用';
+    setCell('v-gl', '不可用', 'bad');
+  }
+
+  clock = new THREE.Clock();
+  build();
+  detect();
+  document.getElementById('enterVR').addEventListener('click', enterVR);
+  document.getElementById('reportBtn').addEventListener('click', makeReport);
+
+  renderer.xr.addEventListener('sessionstart', function(){
+    inXR = true; sessionStartAt = performance.now();
+    document.getElementById('enterVR').textContent = '已在 VR 中';
+    if(camera) camera.rotation.set(0,0,0);
+    var s = renderer.xr.getSession();
+    var n = 0, kinds = [];
+    if(s && s.inputSources){
+      for(var i=0;i<s.inputSources.length;i++){
+        n++;
+        kinds.push(s.inputSources[i].handedness + '/' + (s.inputSources[i].targetRayMode || '?'));
+      }
+    }
+    S.inputs = n ? (n + ' 个（' + kinds.join(', ') + '）') : '0 个';
+    setCell('v-input', S.inputs, n ? 'ok' : 'warn');
+    verdict('ok', '已进入沉浸式 VR。看到方块说明渲染正常；'
+      + '把视线停在左边白色圆环上约 1 秒，它会变绿并计数。<br>'
+      + '<b>退出三条路：</b>头显系统键 ／ 长按手柄握把 2 秒 ／ 直接摘下来结束会话。');
+  });
+  renderer.xr.addEventListener('sessionend', function(){
+    document.getElementById('enterVR').textContent = '进入 VR';
+    var secs = ((performance.now() - sessionStartAt)/1000).toFixed(1);
+    verdict('ok', '已退出 VR（本次会话 ' + secs + ' 秒）。'
+      + '点「生成自检报告」把结果留下；改完代码后回来再测一次。');
+  });
+
+  window.addEventListener('resize', function(){
+    sizeCanvas();
+  });
+  renderer.setAnimationLoop(animate);
+}
+if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+else init();
+</script>
+</body>
+</html>
