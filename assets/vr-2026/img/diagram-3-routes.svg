@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 300" width="960" height="300" role="img" aria-label="学生把作品送到头显的三条通路，以及安全上下文的差别">
+  <style>
+    .card{fill:#f6f5fb;stroke:#ddd7f2;stroke-width:1.5}
+    .card2{fill:#fdf8ee;stroke:#e6d3a8;stroke-width:1.5}
+    .t{font:600 15px "Microsoft YaHei",sans-serif;fill:#3b2f63}
+    .s{font:12.5px "Microsoft YaHei",sans-serif;fill:#6b6288}
+    .ok{fill:#2f7d4f;font:600 12.5px "Microsoft YaHei",sans-serif}
+    .warnn{fill:#a8761c;font:600 12.5px "Microsoft YaHei",sans-serif}
+    .box{fill:#d8d2f2;stroke:#8b7fd4;stroke-width:1.5}
+    .box2{fill:#f2e3c6;stroke:#d9a441;stroke-width:1.5}
+    .arw{stroke:#8b7fd4;stroke-width:2.2;fill:none;marker-end:url(#b)}
+    .arwg{stroke:#d9a441;stroke-width:2.2;fill:none;marker-end:url(#g)}
+    .mono{font:12px Consolas,monospace;fill:#3b2f63}
+  </style>
+  <rect width="960" height="300" fill="#fff"/>
+  <defs>
+    <marker id="b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#8b7fd4"/>
+    </marker>
+    <marker id="g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#d9a441"/>
+    </marker>
+  </defs>
+
+  <!-- ① USB -->
+  <g transform="translate(16,16)">
+    <rect class="card" width="300" height="268" rx="12"/>
+    <text class="t" x="14" y="28" style="font-size:14px">① USB 直连</text>
+    <text class="ok" x="14" y="50">安全上下文 ✔（天然）</text>
+    <rect class="box" x="14" y="66" width="96" height="46" rx="6"/>
+    <text class="s" x="30" y="94">你的电脑</text>
+    <rect class="box" x="176" y="66" width="106" height="46" rx="6"/>
+    <text class="s" x="188" y="94">头显浏览器</text>
+    <line class="arw" x1="112" y1="89" x2="170" y2="89"/>
+    <text class="mono" x="14" y="136">adb reverse tcp:8080 tcp:8080</text>
+    <text class="mono" x="14" y="158">头显打开 127.0.0.1:8080</text>
+    <text class="s" x="14" y="188">头显里的 127.0.0.1 被转发到你的电脑</text>
+    <text class="s" x="14" y="208">所以既是安全上下文、又完全不经过网络</text>
+    <text class="s" x="14" y="236" fill="#3b2f63">最适合：教室网络差、要最稳的效果</text>
+  </g>
+
+  <!-- ② 局域网 -->
+  <g transform="translate(330,16)">
+    <rect class="card2" width="300" height="268" rx="12"/>
+    <text class="t" x="14" y="28" style="font-size:14px">② 局域网 + 白名单</text>
+    <text class="warnn" x="14" y="50">要配置一次 ⚠ / IP 变了要重填</text>
+    <rect class="box2" x="14" y="66" width="96" height="46" rx="6"/>
+    <text class="s" x="30" y="94">你的电脑</text>
+    <rect class="box2" x="176" y="66" width="106" height="46" rx="6"/>
+    <text class="s" x="188" y="94">头显浏览器</text>
+    <line class="arwg" x1="112" y1="89" x2="170" y2="89"/>
+    <text class="mono" x="14" y="136">http://电脑IP:8080</text>
+    <text class="mono" x="14" y="158">chrome://flags/#unsafely-…</text>
+    <text class="s" x="14" y="188">明文 http 不算安全上下文，</text>
+    <text class="s" x="14" y="208">必须在头显浏览器里加白名单</text>
+    <text class="s" x="14" y="236" fill="#3b2f63">最适合：自己反复调试</text>
+  </g>
+
+  <!-- ③ 站点 -->
+  <g transform="translate(644,16)">
+    <rect class="card" width="300" height="268" rx="12"/>
+    <text class="t" x="14" y="28" style="font-size:14px">③ 交到课程站点</text>
+    <text class="ok" x="14" y="50">安全上下文 ✔（https）</text>
+    <rect class="box" x="14" y="66" width="96" height="46" rx="6"/>
+    <text class="s" x="30" y="94">你的作品</text>
+    <rect class="box" x="176" y="66" width="106" height="46" rx="6"/>
+    <text class="s" x="184" y="94">任意头显 / 别人</text>
+    <line class="arw" x1="112" y1="89" x2="170" y2="89"/>
+    <text class="mono" x="14" y="136">https://…/student/学号/</text>
+    <text class="s" x="14" y="166">零配置：一个链接，谁都能打开</text>
+    <text class="s" x="14" y="186">还能装成应用（PWA）离线用</text>
+    <text class="s" x="14" y="236" fill="#3b2f63">最适合：交作业、互相看</text>
+  </g>
+
+  <text class="s" x="16" y="298" fill="#c1502e">共同前提：WebXR 的「进入 VR」只在安全上下文里可用 —— 看不到按钮时，先怀疑环境，再怀疑代码。</text>
+</svg>

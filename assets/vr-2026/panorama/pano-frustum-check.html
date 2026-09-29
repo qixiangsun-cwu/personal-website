@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>进门第一眼 · 视锥可见性检查器</title>
+<style>
+  html,body{margin:0;background:#0b1016;color:#e8eef6;font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif}
+  .wrap{max-width:1240px;margin:0 auto;padding:22px 20px 60px}
+  h1{font-size:21px;margin:6px 0 4px}
+  .sub{color:#93a6bb;font-size:13px;margin-bottom:14px;line-height:1.85}
+  .bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;background:rgba(15,22,32,.85);
+    border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:12px 16px;margin-bottom:14px}
+  .bar button{font:600 13px/1 "Microsoft YaHei";color:#dbe7f4;background:rgba(255,255,255,.07);
+    border:1px solid rgba(255,255,255,.2);border-radius:999px;padding:9px 14px;cursor:pointer}
+  .bar button.on{background:linear-gradient(135deg,#ffd27a,#e0a33c);border-color:transparent;color:#0b1016}
+  .bar .hint{font-size:12px;color:#8fa3b8}
+  .row{display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start}
+  .left{flex:1 1 660px;min-width:320px}
+  .right{flex:0 1 420px;min-width:300px}
+  .card{background:rgba(15,22,32,.85);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:14px 16px;margin-bottom:14px}
+  .card h3{margin:0 0 10px;font-size:15px}
+  canvas{display:block;width:100%;border-radius:12px;border:1px solid rgba(255,255,255,.14);background:#05080c}
+  .ctl{display:flex;align-items:center;gap:12px;margin:9px 0}
+  .ctl label{flex:0 0 128px;font-size:13.5px;color:#b8c8da}
+  .ctl input[type=range]{flex:1;accent-color:#ffd27a}
+  .ctl .num{flex:0 0 86px;text-align:right;font-family:Consolas,monospace;color:#ffd27a;font-size:14.5px}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:left;color:#8fa3b8;font-weight:400;font-size:12px;padding:4px 5px;border-bottom:1px solid rgba(255,255,255,.18)}
+  td{border-bottom:1px solid rgba(255,255,255,.08);padding:7px 5px}
+  td.mono{font-family:Consolas,monospace;color:#cfe0f2}
+  .yes{color:#7ddc9a;font-weight:600}.no{color:#ff9d80;font-weight:600}
+  #verdict{margin-top:6px;padding:12px 14px;border-radius:10px;font-size:13.5px;line-height:1.9;
+    background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.14)}
+  .legend{font-size:12.5px;line-height:1.95;color:#c3d2e3}
+  .legend b{color:#ffd27a}
+  .back{margin-top:24px;font-size:13.5px}
+  .back a{color:#ffd27a;text-decoration:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>进门第一眼 · 视锥可见性检查器</h1>
+  <div class="sub">
+    “进门第一眼”不是审美问题，是一道几何题：<b>初始朝向（yaw）决定视锥落在哪，视锥落在哪决定观众第一眼能不能看见出口。</b>
+    选一个房间、拖一下朝向和视角，下面直接告诉你<b>这一眼里有几个出口看得见、几个在背后</b>。
+  </div>
+
+  <div class="bar" id="rooms"></div>
+
+  <div class="row">
+    <div class="left">
+      <div class="card">
+        <h3>进门时看到的画面（黄框 = 热点 / 出口）</h3>
+        <canvas id="cv" width="860" height="484"></canvas>
+      </div>
+      <div class="card">
+        <h3>把球面摊平看：视锥占了整圈的哪一块</h3>
+        <canvas id="flat" width="860" height="150"></canvas>
+        <div class="legend" style="margin-top:8px">
+          等距柱状图上 <b>u 与偏航角是线性的</b>（u = 0.75 + yaw ÷ 360），所以“视锥在那个方向占多宽”可以直接画成一条等宽的带子——
+          这也是为什么水平视场角越大，这条带子越宽、第一眼能装进的东西越多。
+        </div>
+      </div>
+      <div class="card">
+        <h3>俯视图：谁在眼前，谁在背后</h3>
+        <canvas id="rose" width="860" height="330"></canvas>
+      </div>
+    </div>
+
+    <div class="right">
+      <div class="card">
+        <h3>参数</h3>
+        <div class="ctl">
+          <label>初始朝向 yaw</label>
+          <input id="yaw" type="range" min="-180" max="180" step="1" value="-47">
+          <span class="num" id="vyaw">-47°</span>
+        </div>
+        <div class="ctl">
+          <label>水平视场角</label>
+          <input id="hf" type="range" min="50" max="140" step="1" value="107">
+          <span class="num" id="vhf">107°</span>
+        </div>
+        <div class="bar" style="padding:8px 10px;margin:10px 0 0">
+          <button id="b-orig">教材里的初始朝向</button>
+          <button id="b-best">把最近那个出口转到正中</button>
+        </div>
+        <div class="legend" style="margin-top:8px">
+          <b>107°</b> ≈ 桌面预览的画布（垂直 75° + 16:9）；<b>约 90°</b> ≈ 头显里更窄的那一档。
+          头显的“视场角”各家口径不一（对角 / 水平、单眼 / 双眼），<b>这里只做量级对比，不当规格用</b>。
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>这一眼里能看见谁</h3>
+        <table>
+          <thead><tr><th>出口</th><th>热点 u</th><th>u 对应的 yaw</th><th>离中心（右为正）</th><th>可见</th></tr></thead>
+          <tbody id="tb"></tbody>
+        </table>
+        <div id="verdict">—</div>
+      </div>
+
+      <div class="card">
+        <h3>三条判断标准（背下来）</h3>
+        <div class="legend">
+          <b>① 第一眼要能回答“这里是哪儿”</b>：房间主体在画面里；<br>
+          <b>② 要能回答“还能去哪儿”</b>：<b>至少一条出口在视锥里</b>——一条都看不到，观众就会原地转圈；<br>
+          <b>③ 不要背对来路</b>：转身回去的路不该正对着你。<br>
+          <b>注意：</b>“可见”是按<b>视线中心</b>算的。热点贴在边缘算勉强可见，
+          人眼在头显里还会自然多看一眼，所以<b>边缘命中是可以接受的，但不能一条都没有</b>。<br>
+          <b>还有一处容易看错：</b>屏幕<b>右边</b>对应<b>更小的 u</b>——所以“u 对应的 yaw 变大”表示画面往<b>左</b>走。
+          这两列的符号本来就是反的，不是算错了。
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="back"><a href="./index.html">← 回演示中心</a></div>
+</div>
+
+<script src="./_pano-view.js"></script>
+<script>
+/* 热点数据来自本课漫游器 02_全景漫游器.html 的配置，保持一处为准 */
+var ROOMS = {
+  living : {name:'客厅', file:'pano/living.jpg', yaw:-47, spots:[
+    {to:'dining',  u:0.720, label:'去餐厅'}]},
+  dining : {name:'餐厅', file:'pano/dining.jpg', yaw:-90, spots:[
+    {to:'living',  u:0.060, label:'去客厅'},
+    {to:'study',   u:0.120, label:'去书房'},
+    {to:'bedroom', u:0.310, label:'去卧室'},
+    {to:'kitchen', u:0.630, label:'去厨房'},
+    {to:'bath',    u:0.790, label:'去卫生间'}]},
+  kitchen: {name:'厨房', file:'pano/kitchen.jpg', yaw:11, spots:[
+    {to:'dining',  u:0.845, label:'回餐厅'}]},
+  bedroom: {name:'卧室', file:'pano/bedroom.jpg', yaw:-72, spots:[
+    {to:'dining',  u:0.452, label:'回走廊'}]},
+  study  : {name:'书房', file:'pano/study.jpg'  , yaw:-83, spots:[
+    {to:'dining',  u:0.620, label:'回走廊'}]},
+  bath   : {name:'卫生间', file:'pano/bath.jpg'  , yaw:-90, spots:[
+    {to:'dining',  u:0.442, label:'回走廊'}]}
+};
+var ORDER = ['living','dining','kitchen','bedroom','study','bath'];
+var V_NEAR = 0.46;                    /* 热点的高度 v，全部接近水平线 */
+var cur = 'living', view = null, flatImg = null;
+var cv = document.getElementById('cv'), fc = document.getElementById('flat'), rc = document.getElementById('rose');
+
+function wrap180(d){ while (d > 180) d -= 360; while (d < -180) d += 360; return d; }
+function u2yaw(u){ return (u - 0.75) * 360; }
+function deg(r){ return r * 180 / Math.PI; }
+
+/* 热点世界方向 → 相机坐标：与 _pano-view.js 的基底一致（forward=−Z, right=+X, up=+Y） */
+function toCam(u, v, yaw0){
+  var phi = 2 * Math.PI * u, theta = Math.PI * v;
+  var dx = -Math.cos(phi) * Math.sin(theta), dy = Math.cos(theta), dz = Math.sin(phi) * Math.sin(theta);
+  var y0 = yaw0 * Math.PI / 180;
+  var Xc = dx * Math.cos(y0) - dz * Math.sin(y0);
+  var Zc = dx * Math.sin(y0) + dz * Math.cos(y0);
+  return { X: Xc, Y: dy, Z: Zc };
+}
+
+function hfov(){ return +document.getElementById('hf').value; }
+function vfov(){ return deg(2 * Math.atan(Math.tan(hfov() * Math.PI / 360) / (cv.width / cv.height))); }
+
+function measure(){
+  var yaw0 = +document.getElementById('yaw').value;
+  var halfH = hfov() / 2, out = [];
+  ROOMS[cur].spots.forEach(function(s){
+    var c = toCam(s.u, V_NEAR, yaw0);
+    var ax = deg(Math.atan2(c.X, -c.Z));                 /* 横向离轴角 */
+    var ay = deg(Math.atan2(c.Y, Math.hypot(c.X, c.Z))); /* 纵向离轴角 */
+    out.push({s:s, ax:ax, ay:ay, vis:Math.abs(ax) <= halfH});
+  });
+  out.sort(function(a, b){ return Math.abs(a.ax) - Math.abs(b.ax); });
+  return out;
+}
+
+function redraw(){
+  var yaw0 = +document.getElementById('yaw').value;
+  document.getElementById('vyaw').textContent = yaw0 + '°';
+  document.getElementById('vhf').textContent = hfov() + '°';
+  if (view){ view.yaw = yaw0; view.pitch = 0; view.fov = vfov(); view.draw(); drawOverlay(); }
+  drawFlat(); drawRose(); fillTable();
+}
+
+function drawOverlay(){
+  var g = cv.getContext('2d'), W = cv.width, H = cv.height;
+  var yaw0 = +document.getElementById('yaw').value, halfH = hfov() / 2;
+  var tv = Math.tan(vfov() * Math.PI / 360);
+  measure().forEach(function(o){
+    var c = toCam(o.s.u, V_NEAR, yaw0);
+    var tx = c.X / -c.Z, ty = c.Y / -c.Z;
+    if (c.Z >= 0) return;                       /* 在背后，不在画面上 */
+    if (Math.abs(deg(Math.atan(tx))) > halfH) return;
+    var px = W / 2 + (tx / (tv * W / H)) * (W / 2);
+    var py = H / 2 - (ty / tv) * (H / 2);
+    if (px < -60 || px > W + 60) return;
+    var edge = Math.abs(o.ax) > halfH * 0.85;
+    g.strokeStyle = edge ? '#ff9d80' : '#ffd27a';
+    g.lineWidth = 3;
+    g.beginPath(); g.arc(px, py, 17, 0, Math.PI * 2); g.stroke();
+    g.beginPath(); g.arc(px, py, 5, 0, Math.PI * 2); g.fillStyle = g.strokeStyle; g.fill();
+    g.font = '600 13px "Microsoft YaHei",sans-serif';
+    g.fillStyle = '#0b1016';
+    var t = o.s.label, w = g.measureText(t).width + 14;
+    g.fillStyle = 'rgba(255,210,122,.94)';
+    g.fillRect(px - w / 2, py - 44, w, 22);
+    g.fillStyle = '#0b1016';
+    g.fillText(t, px - w / 2 + 7, py - 28);
+    g.fillStyle = edge ? '#ff9d80' : '#7ddc9a';
+    g.font = '12px Consolas,monospace';
+    g.fillText((o.ax > 0 ? '+' : '') + o.ax.toFixed(1) + '°', px - 16, py + 34);
+  });
+  /* 中心十字：视线正中 */
+  g.strokeStyle = 'rgba(125,220,154,.9)'; g.lineWidth = 1.5;
+  g.beginPath(); g.moveTo(W / 2 - 12, H / 2); g.lineTo(W / 2 + 12, H / 2);
+  g.moveTo(W / 2, H / 2 - 12); g.lineTo(W / 2, H / 2 + 12); g.stroke();
+  g.font = '12px Consolas,monospace'; g.fillStyle = 'rgba(125,220,154,.9)';
+  g.fillText('视线中心 u=' + (0.75 + (+document.getElementById('yaw').value) / 360).toFixed(3), W / 2 + 16, H / 2 - 10);
+}
+
+function drawFlat(){
+  var g = fc.getContext('2d'), W = fc.width, H = fc.height;
+  g.clearRect(0, 0, W, H);
+  if (flatImg){
+    g.globalAlpha = .85; g.drawImage(flatImg, 0, 22, W, 78); g.globalAlpha = 1;
+  } else {
+    g.fillStyle = '#101822'; g.fillRect(0, 22, W, 78);
+  }
+  /* u=0.25 是 +Z（背对）；把可见窗口画成等宽带（u 与 yaw 线性） */
+  function ux(u){ return ((u % 1) + 1) % 1 * W; }
+  var halfU = (hfov() / 2) / 360;
+  var uc = (0.75 + (+document.getElementById('yaw').value) / 360) % 1;
+  var a = ux(uc - halfU), b = ux(uc + halfU);
+  g.fillStyle = 'rgba(125,220,154,.22)';
+  if (a <= b) g.fillRect(a, 22, b - a, 78); else { g.fillRect(0, 22, b, 78); g.fillRect(a, 22, W - a, 78); }
+  g.strokeStyle = '#7ddc9a'; g.lineWidth = 2;
+  if (a <= b){ g.strokeRect(a + 1, 23, b - a - 2, 76); }
+  else { g.strokeRect(a + 1, 23, W - a - 2, 76); g.strokeRect(1, 23, b - 2, 76); }
+  g.lineWidth = 1;
+  /* 热点 */
+  ROOMS[cur].spots.forEach(function(s){
+    var x = ux(s.u);
+    var vis = Math.abs(wrap180(u2yaw(s.u) - (+document.getElementById('yaw').value))) <= hfov() / 2;
+    g.fillStyle = vis ? '#ffd27a' : '#8fa3b8';
+    g.beginPath(); g.arc(x, 112, vis ? 6 : 4, 0, Math.PI * 2); g.fill();
+    g.font = '11.5px "Microsoft YaHei",sans-serif';
+    g.fillText(s.label.replace('去',''), x - 10, 132);
+  });
+  g.strokeStyle = 'rgba(255,255,255,.35)';
+  g.beginPath(); g.moveTo(0, 118); g.lineTo(W, 118); g.stroke();
+  g.font = '12px Consolas,monospace'; g.fillStyle = '#8fa3b8';
+  [0, .25, .5, .75, 1].forEach(function(u){ g.fillText('u=' + u, ux(u) + (u === 1 ? -34 : 2), 16); });
+  g.fillStyle = '#93a6bb';
+  g.fillText('绿区 = 第一眼能看见的那一段（占整圈 ' + (hfov() / 360 * 100).toFixed(0) + '%）', 8, 148);
+}
+
+function drawRose(){
+  var g = rc.getContext('2d'), W = rc.width, H = rc.height;
+  g.clearRect(0, 0, W, H);
+  var cx = W / 2, cy = H / 2, R = 118;
+  var yaw0 = +document.getElementById('yaw').value, halfH = hfov() / 2;
+  /* 方向映射：yaw 0° 在正上方，度数顺时针增加（与刻度、热点、视锥共用一套） */
+  function dirOf(y){ var r = y * Math.PI / 180; return { x: cx + Math.sin(r) * R, y: cy - Math.cos(r) * R, r:r }; }
+  function angOf(y){ return y * Math.PI / 180 - Math.PI / 2; }
+  /* 视锥扇形 */
+  g.beginPath();
+  g.moveTo(cx, cy);
+  g.arc(cx, cy, R + 42, angOf(yaw0 - halfH), angOf(yaw0 + halfH));
+  g.closePath();
+  g.fillStyle = 'rgba(125,220,154,.20)'; g.fill();
+  g.strokeStyle = 'rgba(125,220,154,.85)'; g.lineWidth = 1.6; g.stroke();
+  /* 圆环与刻度 */
+  g.beginPath(); g.arc(cx, cy, R, 0, Math.PI * 2);
+  g.strokeStyle = 'rgba(255,255,255,.28)'; g.lineWidth = 1.4; g.stroke();
+  g.font = '12px Consolas,monospace'; g.fillStyle = '#8fa3b8'; g.textAlign = 'center';
+  for (var d = 0; d < 360; d += 30){
+    var yd = (d > 180) ? d - 360 : d;         /* 显示成 −180…180 */
+    var q = dirOf(yd), a = angOf(yd);
+    g.fillText(yd + '°', cx + (q.x - cx) * 1.22, cy + (q.y - cy) * 1.22 + 4);
+    g.beginPath(); g.moveTo(q.x, q.y);
+    g.lineTo(cx + Math.cos(a) * (R + 8), cy + Math.sin(a) * (R + 8)); g.stroke();
+  }
+  g.textAlign = 'left';
+  /* 视线中心 */
+  var c0 = dirOf(yaw0);
+  g.beginPath(); g.moveTo(cx, cy);
+  g.lineTo(cx + (c0.x - cx) * 1.28, cy + (c0.y - cy) * 1.28);
+  g.strokeStyle = '#7ddc9a'; g.lineWidth = 2.4; g.stroke();
+  /* 热点 */
+  measure().forEach(function(o){
+    var q = dirOf(o.s.v_yaw);
+    var dxr = Math.sin(o.s.v_yaw * Math.PI / 180), dyr = -Math.cos(o.s.v_yaw * Math.PI / 180);
+    g.beginPath(); g.arc(q.x, q.y, o.vis ? 8 : 6, 0, Math.PI * 2);
+    g.fillStyle = o.vis ? '#ffd27a' : '#5d6b7d'; g.fill();
+    g.font = '600 12px "Microsoft YaHei",sans-serif';
+    g.fillStyle = o.vis ? '#ffe6b3' : '#8fa3b8';
+    g.fillText(o.s.label, q.x + (dxr >= 0 ? 12 : -72), q.y + (dyr >= 0 ? 22 : -10));
+  });
+  /* 中心标注 */
+  g.fillStyle = '#e8eef6'; g.font = '600 15px "Microsoft YaHei",sans-serif';
+  g.textAlign = 'center';
+  g.fillText(ROOMS[cur].name, cx, cy + 6);
+  g.textAlign = 'left';
+  g.font = '12px "Microsoft YaHei",sans-serif'; g.fillStyle = '#8fa3b8';
+  g.fillText('俯视图：yaw 的 0° 在正上方，度数按顺时针增加；绿扇 = 这一眼的视锥，绿箭头 = 视线中心', 8, H - 10);
+}
+
+function fillTable(){
+  var tb = document.getElementById('tb'); tb.innerHTML = '';
+  var rows = measure(), yaw0 = +document.getElementById('yaw').value;
+  rows.forEach(function(o){
+    var tr = document.createElement('tr');
+    tr.innerHTML =
+      '<td>' + o.s.label + '</td>' +
+      '<td class="mono">' + o.s.u.toFixed(3) + '</td>' +
+      '<td class="mono">' + u2yaw(o.s.u).toFixed(1) + '°</td>' +
+      '<td class="mono">' + (o.ax > 0 ? '+' : '') + o.ax.toFixed(1) + '°</td>' +
+      '<td class="' + (o.vis ? 'yes' : 'no') + '">' + (o.vis ? '✔ 可见' : '✘ 背后') + '</td>';
+    tb.appendChild(tr);
+  });
+  var vis = rows.filter(function(o){ return o.vis; });
+  var v = document.getElementById('verdict');
+  if (!rows.length){ v.innerHTML = '这个房间没有出口热点——<b>孤岛</b>，观众进来就出不去了。'; return; }
+  if (!vis.length){
+    v.innerHTML = '<b class="no" style="color:#ff9d80">✘ 第一眼里一个出口都看不到（0 / ' + rows.length + '）。</b>' +
+      '观众进门后只能原地转圈找路。<b>最该改的就是这个：</b>把 yaw 转向最近的那个出口，或者把出口热点挪到进门就能看见的方向。';
+  } else if (vis.length === 1){
+    v.innerHTML = '<b style="color:#ffd166">△ 只能看见 1 个出口（1 / ' + rows.length + '）：' + vis[0].s.label +
+      '，在视线中心旁 ' + Math.abs(vis[0].ax).toFixed(1) + '°。</b>能用，但观众第一眼没有选择——' +
+      '适合做“只能往前走”的线性路线，不适合做枢纽房间。';
+  } else {
+    v.innerHTML = '<b class="ok" style="color:#7ddc9a">✔ 第一眼能看见 ' + vis.length + ' / ' + rows.length +
+      ' 个出口：' + vis.map(function(o){ return o.s.label; }).join('、') + '。</b>' +
+      '进门就知道有路可走，这是枢纽房间该有的样子。';
+  }
+}
+
+/* 每个热点的绝对方向（画俯视图用），一次算好 */
+ORDER.forEach(function(k){
+  ROOMS[k].spots.forEach(function(s){ s.v_yaw = u2yaw(s.u); });
+});
+
+var pinnedYaw = null;
+/* 允许用 ?room=dining&yaw=-90&hf=90 直接定位到一个房间，方便课上做书签 */
+(function(){
+  var q = {};
+  location.search.replace(/^\?/, '').split('&').forEach(function(kv){
+    if (!kv) return; var a = kv.split('='); q[a[0]] = decodeURIComponent(a[1] || '');
+  });
+  if (q.room && ROOMS[q.room]) cur = q.room;
+  if (q.hf) document.getElementById('hf').value = Math.max(50, Math.min(140, +q.hf));
+  if (q.yaw !== undefined && q.yaw !== ''){ pinnedYaw = Math.max(-180, Math.min(180, +q.yaw)); }
+})();
+
+/* 房间按钮 */
+var bar = document.getElementById('rooms');
+ORDER.forEach(function(k){
+  var b = document.createElement('button');
+  b.textContent = ROOMS[k].name + (ROOMS[k].spots.length > 1 ? '（枢纽）' : '');
+  b.addEventListener('click', function(){ cur = k; pinnedYaw = null; syncUI(); });
+  b.setAttribute('data-k', k);
+  bar.appendChild(b);
+});
+function syncUI(){
+  bar.querySelectorAll('button').forEach(function(b){ b.classList.toggle('on', b.getAttribute('data-k') === cur); });
+  var r = ROOMS[cur];
+  document.getElementById('yaw').value = (pinnedYaw === null) ? r.yaw : pinnedYaw;
+  pinnedYaw = null;
+  view = new PanoView(cv, r.file, {yaw:r.yaw, pitch:0});
+  view.onready = function(){ redraw(); };
+  view.onerror = function(src){
+    var g = cv.getContext('2d');
+    g.fillStyle = '#101822'; g.fillRect(0, 0, cv.width, cv.height);
+    g.fillStyle = '#ff9d80'; g.font = '16px "Microsoft YaHei",sans-serif';
+    g.fillText('读不到 ' + src + '（请确认本页与本课全景图在同一目录树内）', 24, 40);
+  };
+  flatImg = new Image(); flatImg.onload = drawFlat; flatImg.src = r.file;
+  redraw();
+}
+
+document.getElementById('yaw').addEventListener('input', redraw);
+document.getElementById('hf').addEventListener('input', redraw);
+document.getElementById('b-orig').addEventListener('click', function(){
+  document.getElementById('yaw').value = ROOMS[cur].yaw; redraw();
+});
+document.getElementById('b-best').addEventListener('click', function(){
+  var rows = measure(); if (!rows.length) return;
+  document.getElementById('yaw').value = Math.round(u2yaw(rows[0].s.u)); redraw();
+});
+syncUI();
+</script>
+</body>
+</html>

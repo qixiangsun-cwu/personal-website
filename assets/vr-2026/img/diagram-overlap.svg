@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 320" width="960" height="320" role="img" aria-label="一圈七张是怎么来的：相邻张的重叠、步进角与张数的除法，以及重叠过多过少的后果">
+  <style>
+    .card{fill:#f6f5fb;stroke:#ddd7f2;stroke-width:1.5}
+    .t{font:600 15px "Microsoft YaHei",sans-serif;fill:#3b2f63}
+    .s{font:12.5px "Microsoft YaHei",sans-serif;fill:#6b6288}
+    .mono{font:12.5px Consolas,monospace;fill:#3b2f63}
+    .sec{fill:#efeafd;stroke:#c9bdf0;stroke-width:1.2}
+    .secAlt{fill:#e6e0fb;stroke:#b4a4ea;stroke-width:1.2}
+    .band{fill:rgba(139,127,212,.30);stroke:none}
+    .lbl{font:600 11px "Microsoft YaHei",sans-serif;fill:#5a4d85;text-anchor:middle}
+    .red{fill:#c1502e;font:600 12.5px "Microsoft YaHei",sans-serif}
+    .grn{fill:#2f7d4f;font:600 12.5px "Microsoft YaHei",sans-serif}
+    .yel{fill:#a8791a;font:600 12.5px "Microsoft YaHei",sans-serif}
+    .dot{stroke:none}
+  </style>
+
+  <rect class="card" x="12" y="16" width="528" height="288" rx="14"/>
+  <text class="t" x="32" y="44">一圈 7 张是怎么来的（视角 74°，想要重叠 25%）</text>
+  <text class="s" x="32" y="66">每个扇区 = 一张照片拍到的范围；交叠处 = 重叠区。</text>
+
+  <!-- 7 个扇区 -->
+  <g>
+    <path class="sec"    d="M227.5 130.8 L268.5 130.8 A34 34 0 0 1 305.8 81.3 L190.2 81.3 A96 96 0 0 0 227.5 130.8 Z"/>
+    <path class="secAlt" d="M256.5 125.1 L282.0 157.1 A34 34 0 0 1 344.0 155.4 L271.9 65.0 A96 96 0 0 0 256.5 125.1 Z"/>
+    <path class="sec"    d="M279.0 144.1 L269.9 184.0 A34 34 0 0 1 309.9 231.4 L335.6 118.7 A96 96 0 0 0 279.0 144.1 Z"/>
+    <path class="secAlt" d="M278.2 173.6 L241.3 191.3 A34 34 0 0 1 229.2 252.1 L333.3 202.0 A96 96 0 0 0 278.2 173.6 Z"/>
+    <path class="sec"    d="M254.7 191.3 L217.8 173.6 A34 34 0 0 1 162.7 202.0 L266.8 252.1 A96 96 0 0 0 254.7 191.3 Z"/>
+    <path class="secAlt" d="M226.1 184.0 L217.0 144.1 A34 34 0 0 1 160.4 118.7 L186.1 231.4 A96 96 0 0 0 226.1 184.0 Z"/>
+    <path class="sec"    d="M214.0 157.1 L239.5 125.1 A34 34 0 0 1 224.1 65.0 L152.0 155.4 A96 96 0 0 0 214.0 157.1 Z"/>
+  </g>
+  <circle cx="248" cy="158" r="34" fill="#fff" stroke="#b4a4ea" stroke-width="1.4"/>
+  <text class="lbl" x="248" y="155">机位</text>
+  <text class="lbl" x="248" y="169">(节点)</text>
+
+  <text class="lbl" x="248" y="84">1</text>
+  <text class="lbl" x="309" y="113">2</text>
+  <text class="lbl" x="324" y="179">3</text>
+  <text class="lbl" x="282" y="232">4</text>
+  <text class="lbl" x="214" y="232">5</text>
+  <text class="lbl" x="172" y="179">6</text>
+  <text class="lbl" x="187" y="113">7</text>
+
+  <!-- 重叠区标注 -->
+  <path d="M292 76 L388 80" stroke="#8b7fd4" stroke-width="1.2" fill="none"/>
+  <text class="s" x="396" y="74">这一块是重叠</text>
+  <text class="s" x="396" y="90">第 1、2 张都有</text>
+  <path d="M208 74 L154 96" stroke="#8b7fd4" stroke-width="1.2" fill="none"/>
+  <text class="s" x="32" y="104">第 7 张和第 1 张</text>
+  <text class="s" x="32" y="120">在这里重叠（首尾）</text>
+
+  <text class="mono" x="32" y="292">步进角 51.4°　重叠 30.5%　一圈 7 张</text>
+
+  <rect class="card" x="552" y="16" width="396" height="288" rx="14"/>
+  <text class="t" x="572" y="44">其实就一条除法</text>
+  <rect class="sec" x="572" y="56" width="356" height="40" rx="8"/>
+  <text class="mono" x="584" y="72">每圈张数 = 360° ÷ [ 视角 × (1 − 重叠率) ]</text>
+  <text class="s" x="584" y="90">算出小数就向上取整（宁多一张，不少一张）</text>
+
+  <text class="s" x="572" y="118">代入上面这一圈：</text>
+  <text class="mono" x="572" y="138">74° × (1 − 25%) = 55.5°</text>
+  <text class="mono" x="572" y="156">360 ÷ 55.5 = 6.49 → 向上取整 = 7 张</text>
+  <text class="mono" x="572" y="174">实际重叠 = 1 − (360÷7) ÷ 74 = 30.5%（比想要的多）</text>
+
+  <circle class="dot" cx="580" cy="192" r="5" fill="#c1502e"/>
+  <text class="red" x="594" y="196">重叠 &lt; 20%：拼不上</text>
+  <text class="s" x="594" y="212">共同画面太少，软件找不到同名点，缝会露。</text>
+
+  <circle class="dot" cx="580" cy="232" r="5" fill="#2f7d4f"/>
+  <text class="grn" x="594" y="236">重叠 25%—35%：推荐区间</text>
+  <text class="s" x="594" y="252">教材口径是 ≥ 25%，且一圈首尾也要重叠。</text>
+
+  <circle class="dot" cx="580" cy="272" r="5" fill="#d9a441"/>
+  <text class="yel" x="594" y="276">重叠 &gt; 50%：不是更保险，是更费</text>
+  <text class="s" x="594" y="292">张数与拼接时间翻倍，每张的错位误差还会累加。</text>
+</svg>

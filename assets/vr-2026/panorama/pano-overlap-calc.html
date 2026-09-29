@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>拍摄张数与重叠率计算器 · 一圈到底要拍几张</title>
+<style>
+  html,body{margin:0;background:#0b1016;color:#e8eef6;font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif}
+  .wrap{max-width:1180px;margin:0 auto;padding:22px 20px 60px}
+  h1{font-size:21px;margin:6px 0 4px}
+  .sub{color:#93a6bb;font-size:13px;margin-bottom:16px;line-height:1.85}
+  .row{display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start}
+  .left{flex:1 1 640px;min-width:320px}
+  .right{flex:0 1 400px;min-width:300px}
+  .card{background:rgba(15,22,32,.85);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:14px 16px;margin-bottom:14px}
+  .card h3{margin:0 0 10px;font-size:15px}
+  canvas{display:block;width:100%;border-radius:12px;border:1px solid rgba(255,255,255,.14);background:#05080c}
+  .ctl{display:flex;align-items:center;gap:12px;margin:10px 0}
+  .ctl label{flex:0 0 118px;font-size:13.5px;color:#b8c8da}
+  .ctl input[type=range]{flex:1;accent-color:#ffd27a}
+  .ctl .num{flex:0 0 92px;text-align:right;font-family:Consolas,monospace;color:#ffd27a;font-size:14.5px}
+  .presets{display:flex;gap:8px;flex-wrap:wrap;margin:4px 0 2px}
+  .presets button{font:600 12.5px/1 "Microsoft YaHei";color:#dbe7f4;background:rgba(255,255,255,.07);
+    border:1px solid rgba(255,255,255,.2);border-radius:999px;padding:8px 13px;cursor:pointer}
+  .presets button:hover{border-color:rgba(255,210,122,.6)}
+  table{width:100%;border-collapse:collapse;font-size:13.5px}
+  td{border-bottom:1px solid rgba(255,255,255,.1);padding:9px 6px;vertical-align:top}
+  td.k{width:44%;color:#8fa3b8}
+  td.v{font-family:Consolas,"Microsoft YaHei",monospace;color:#ffd27a}
+  .ok{color:#7ddc9a !important}.bad{color:#ff9d80 !important}.warnv{color:#ffd166 !important}
+  #verdict{margin-top:10px;padding:12px 14px;border-radius:10px;font-size:13.5px;line-height:1.9;
+    background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.14)}
+  .legend{font-size:13px;line-height:2;color:#c3d2e3;margin-top:8px}
+  .legend b{color:#ffd27a}
+  .back{margin-top:24px;font-size:13.5px}
+  .back a{color:#ffd27a;text-decoration:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>拍摄张数与重叠率计算器 · 一圈到底要拍几张</h1>
+  <div class="sub">
+    “一圈拍几张”不是凭手感，是一个除法。<b>把镜头视角和想要的重叠率填进来，下面直接算给你看。</b>
+    先记住一条：<b>重叠不是为了好看，是拼接软件找特征点的唯一依据</b>——重叠不够，两张图“认不出彼此”，缝就露了。
+  </div>
+
+  <div class="row">
+    <div class="left">
+      <div class="card">
+        <h3>一圈的排布（0° → 360°）</h3>
+        <canvas id="cv" width="880" height="250"></canvas>
+        <div class="legend" style="font-size:12.5px">
+          上排 = 每一张的覆盖范围（相邻两色的<b>交叠部分就是重叠</b>）；
+          下排 = 每一度被几张盖住（<b>红 = 只有 1 张</b>，黄 = 2 张，绿 = 3 张以上）。
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>参数</h3>
+        <div class="presets">
+          <button data-f="68">手机主摄 ≈ 68°</button>
+          <button data-f="74">24mm 全画幅 ≈ 74°</button>
+          <button data-f="96">16mm 超广 ≈ 96°</button>
+          <button data-f="150">8mm 鱼眼 ≈ 150°</button>
+        </div>
+        <div class="ctl">
+          <label>镜头水平视角</label>
+          <input id="f" type="range" min="40" max="180" step="1" value="74">
+          <span class="num" id="fv">74°</span>
+        </div>
+        <div class="ctl">
+          <label>想要的重叠率</label>
+          <input id="o" type="range" min="5" max="60" step="1" value="25">
+          <span class="num" id="ov">25%</span>
+        </div>
+        <div class="presets" style="margin-top:10px">
+          <button data-o="15">重叠 15%（太少）</button>
+          <button data-o="25">重叠 25%（教材口径）</button>
+          <button data-o="50">重叠 50%（很多张）</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="right">
+      <div class="card">
+        <h3>算出来的结果</h3>
+        <table>
+          <tr><td class="k">每张之间的步进角</td><td class="v" id="r-step">—</td></tr>
+          <tr><td class="k">一圈最少张数</td><td class="v" id="r-n">—</td></tr>
+          <tr><td class="k">实际步进角</td><td class="v" id="r-step2">—</td></tr>
+          <tr><td class="k">实际重叠率</td><td class="v" id="r-ov">—</td></tr>
+          <tr><td class="k">最薄处被几张盖住</td><td class="v" id="r-cov">—</td></tr>
+          <tr><td class="k">这一圈的判断</td><td class="v" id="r-ok">—</td></tr>
+        </table>
+        <div id="verdict">动一下上面的滑杆 →</div>
+      </div>
+
+      <div class="card">
+        <h3>怎么读这几行</h3>
+        <div class="legend" style="font-size:12.5px">
+          <b>① “最少张数”是向上取整。</b>所以实际重叠一定<b>比你填的多一点</b>——这是好事，别反过来减张数。<br>
+          <b>② 教材要求重叠 ≥ 25% 且首尾也要重叠。</b>一圈是环形的，<b>“首尾”就是“相邻”</b>，
+          所以只要按这个步进角拍满一圈、头尾接上，首尾重叠自动满足。<br>
+          <b>③ 重叠 &lt; 20% 是最常见的事故。</b>拼接软件找不到足够的同名点，缝会露；这是“翻车现场”的第一名。<br>
+          <b>④ 重叠 &gt; 50% 不是更保险，是更费。</b>张数翻倍、拼接时间翻倍、每一张的错位误差还会累加。<br>
+          <b>⑤ 这只是“水平一圈”。</b>球面还要上下各拍若干圈（教材口径：上下各 45°），最后<b>补天补地</b>。
+          实际总张数 ≈ 每圈张数 × 圈数 + 补天补地。
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="back"><a href="./index.html">← 回演示中心</a></div>
+</div>
+
+<script>
+var fEl = document.getElementById('f'), oEl = document.getElementById('o'), cv = document.getElementById('cv'), g = cv.getContext('2d');
+var X0 = 40, X1 = cv.width - 40, XW = X1 - X0;
+function xOf(deg){ return X0 + XW * (deg / 360); }
+
+function calc(){
+  var f = +fEl.value, o = +oEl.value / 100;
+  document.getElementById('fv').textContent = f + '°';
+  document.getElementById('ov').textContent = Math.round(o * 100) + '%';
+  var stepIdeal = f * (1 - o);              /* 理想步进角 */
+  var n = Math.max(2, Math.ceil(360 / stepIdeal));
+  var stepReal = 360 / n;
+  var ovReal = 1 - stepReal / f;
+  /* 覆盖计数：每一度被几张盖住（环形，取模） */
+  var minCov = 99, cov = [];
+  for (var a = 0; a < 360; a++){
+    var c = 0;
+    for (var i = 0; i < n; i++){
+      var d = ((a - i * stepReal) % 360 + 360) % 360;
+      if (d <= f) c++;
+    }
+    cov.push(c); if (c < minCov) minCov = c;
+  }
+  document.getElementById('r-step').textContent = stepIdeal.toFixed(1) + '°';
+  document.getElementById('r-n').textContent = n + ' 张';
+  document.getElementById('r-step2').textContent = stepReal.toFixed(1) + '°';
+  var ovEl = document.getElementById('r-ov');
+  ovEl.textContent = (ovReal * 100).toFixed(1) + '%';
+  ovEl.className = 'v ' + (ovReal >= 0.25 ? 'ok' : (ovReal >= 0.18 ? 'warnv' : 'bad'));
+  var cEl = document.getElementById('r-cov');
+  cEl.textContent = minCov + ' 张';
+  cEl.className = 'v ' + (minCov >= 2 ? 'ok' : 'warnv');
+
+  var okEl = document.getElementById('r-ok'), v = document.getElementById('verdict');
+  if (ovReal < 0.18){
+    okEl.textContent = '拼不上（重叠太少）';
+    okEl.className = 'v bad';
+    v.innerHTML = '<b class="bad" style="color:#ff9d80">✘ 重叠只有 ' + (ovReal*100).toFixed(0) +
+      '%，太少。</b>相邻两张的共同区域太小，拼接软件找不到足够的同名特征点，缝会露、也可能直接拼错。' +
+      '<br>做法：<b>要么把镜头视角放宽，要么增加张数</b>，把实际重叠拉到 25% 以上。';
+  } else if (ovReal > 0.5){
+    okEl.textContent = '能拼，但张数偏多';
+    okEl.className = 'v warnv';
+    v.innerHTML = '<b style="color:#ffd166">✔ 咬得住，但 ' + n + ' 张有点浪费。</b>重叠 ' + (ovReal*100).toFixed(0) +
+      '% 已经远超需要，张数翻倍意味着拼接时间翻倍、每张的错位误差也会累加。' +
+      '<br><b>提示：</b>画质富余的话，把重叠降到 25%—30% 往往更快更稳。';
+  } else {
+    okEl.textContent = '可以拼（推荐区间）';
+    okEl.className = 'v ok';
+    v.innerHTML = '<b class="ok" style="color:#7ddc9a">✔ 这一圈可以用：' + n + ' 张，实际重叠 ' +
+      (ovReal*100).toFixed(0) + '%。</b>相邻有 ' + (ovReal*100).toFixed(0) +
+      '% 的共同画面，拼接软件有足够的同名点可找。' +
+      '<br>别忘了还有<b>上下若干圈 + 补天补地</b>：这一圈只是球面的中间那一层。';
+  }
+  draw(n, stepReal, f, minCov, cov);
+}
+
+function draw(n, stepReal, f, minCov, cov){
+  g.clearRect(0, 0, cv.width, cv.height);
+  var yTop = 40, hTop = 62, yLow = 150, hLow = 46;
+  /* 上排：每一张的覆盖范围 */
+  g.font = '12.5px "Microsoft YaHei",sans-serif';
+  for (var i = 0; i < n; i++){
+    var s = i * stepReal;
+    var xa = xOf(s), xb = xOf(s + f);
+    g.fillStyle = (i % 2 === 0) ? 'rgba(255,210,122,.55)' : 'rgba(126,175,255,.45)';
+    g.fillRect(xa, yTop, xb - xa, hTop);
+    g.strokeStyle = 'rgba(255,255,255,.28)';
+    g.strokeRect(xa + .5, yTop + .5, xb - xa - 1, hTop - 1);
+    g.fillStyle = '#0b1016';
+    g.fillText('第 ' + (i + 1) + ' 张', xa + 8, yTop + 24);
+  }
+  /* 标出重叠带（第一个重叠区，放大标注） */
+  if (n >= 2 && stepReal < f){
+    var xa2 = xOf(stepReal), xb2 = xOf(f);
+    g.fillStyle = 'rgba(255,255,255,.16)';
+    g.fillRect(xa2, yTop, xb2 - xa2, hTop);
+    g.strokeStyle = '#ffd27a'; g.lineWidth = 1.6;
+    g.strokeRect(xa2 + .5, yTop + .5, xb2 - xa2 - 1, hTop - 1);
+    g.lineWidth = 1;
+  }
+  g.fillStyle = '#93a6bb';
+  g.fillText('↑ 相邻两张的交叠 = 重叠区（拼缝就靠它）', X0, yTop - 12);
+  g.fillText('重叠 ' + ((1 - stepReal / f) * 100).toFixed(0) + '%', X0 + XW - 108, yTop - 12);
+
+  /* 下排：覆盖计数 */
+  for (var a = 0; a < 360; a++){
+    var c = cov[a], x = xOf(a + .5);
+    g.fillStyle = c <= 1 ? 'rgba(255,110,80,.85)' : (c === 2 ? 'rgba(255,209,102,.75)' : 'rgba(125,220,154,.75)');
+    g.fillRect(x, yLow, Math.max(1, XW / 360), hLow);
+  }
+  g.strokeStyle = 'rgba(255,255,255,.22)';
+  g.strokeRect(X0 + .5, yLow + .5, XW - 1, hLow - 1);
+  g.fillStyle = '#93a6bb';
+  g.fillText('每一度被几张盖住（红 = 只有 1 张 → 那里没有“第二只眼睛”可对照）', X0, yLow - 12);
+
+  /* 刻度 */
+  g.font = '12px Consolas,monospace';
+  for (var d = 0; d <= 360; d += 45){
+    var xt = xOf(d);
+    g.strokeStyle = 'rgba(255,255,255,.18)';
+    g.beginPath(); g.moveTo(xt, yTop - 4); g.lineTo(xt, yLow + hLow + 6); g.stroke();
+    g.fillStyle = '#8fa3b8';
+    var lab = d + '°';
+    g.fillText(lab, xt - (d === 360 ? 26 : 10), yLow + hLow + 22);
+  }
+  /* 起拍线 */
+  g.strokeStyle = '#ff9d80'; g.lineWidth = 2;
+  g.beginPath(); g.moveTo(xOf(0), yTop - 8); g.lineTo(xOf(0), yLow + hLow + 8); g.stroke();
+  g.lineWidth = 1;
+  g.fillStyle = '#ff9d80';
+  g.fillText('起拍', xOf(0) + 4, yTop - 26);
+}
+
+fEl.addEventListener('input', calc);
+oEl.addEventListener('input', calc);
+document.querySelectorAll('[data-f]').forEach(function(b){
+  b.addEventListener('click', function(){ fEl.value = b.getAttribute('data-f'); calc(); });
+});
+document.querySelectorAll('[data-o]').forEach(function(b){
+  b.addEventListener('click', function(){ oEl.value = b.getAttribute('data-o'); calc(); });
+});
+calc();
+</script>
+</body>
+</html>

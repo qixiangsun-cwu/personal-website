@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>全景图规格检查器 · 你手上这张图能不能用</title>
+<style>
+  html,body{margin:0;background:#0b1016;color:#e8eef6;font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif}
+  .wrap{max-width:1100px;margin:0 auto;padding:22px 20px 60px}
+  h1{font-size:21px;margin:6px 0 4px}
+  .sub{color:#93a6bb;font-size:13px;margin-bottom:16px;line-height:1.85}
+  .row{display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start}
+  .left{flex:1 1 520px;min-width:300px}
+  .right{flex:1 1 420px;min-width:300px}
+  .card{background:rgba(15,22,32,.85);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:14px 16px;margin-bottom:14px}
+  .card h3{margin:0 0 10px;font-size:15px}
+  #drop{border:2px dashed rgba(255,210,122,.5);border-radius:12px;padding:22px;text-align:center;
+    color:#c3d2e3;font-size:13.5px;line-height:1.9;cursor:pointer;background:rgba(255,210,122,.05)}
+  #drop.hot{background:rgba(255,210,122,.16);border-color:#ffd27a}
+  .presets{margin-top:12px;display:flex;gap:8px;flex-wrap:wrap}
+  .presets button{font:600 12.5px/1 "Microsoft YaHei";color:#dbe7f4;background:rgba(255,255,255,.07);
+    border:1px solid rgba(255,255,255,.2);border-radius:999px;padding:8px 13px;cursor:pointer}
+  #prev{width:100%;border-radius:10px;border:1px solid rgba(255,255,255,.14);background:#05080c;display:none}
+  table{width:100%;border-collapse:collapse;font-size:13.5px}
+  td{border-bottom:1px solid rgba(255,255,255,.1);padding:9px 6px;vertical-align:top}
+  td.k{width:38%;color:#8fa3b8}
+  td.v{font-family:Consolas,"Microsoft YaHei",monospace;color:#ffd27a}
+  .ok{color:#7ddc9a !important}.bad{color:#ff9d80 !important}.warnv{color:#ffd166 !important}
+  #verdict{margin-top:10px;padding:12px 14px;border-radius:10px;font-size:13.5px;line-height:1.9;
+    background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.14)}
+  .legend{font-size:13px;line-height:2;color:#c3d2e3;margin-top:8px}
+  .legend b{color:#ffd27a}
+  .back{margin-top:24px;font-size:13.5px}
+  .back a{color:#ffd27a;text-decoration:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>全景图规格检查器 · 你手上这张图能不能用</h1>
+  <div class="sub">
+    拿到一张“全景图”，先别急着往作品里放。<b>把它拖进来，10 秒就知道它是不是等距柱状、够不够清晰、适合给谁看。</b>
+    （图片只在你的浏览器里算，不会上传。）
+  </div>
+
+  <div class="row">
+    <div class="left">
+      <div class="card">
+        <h3>把图片拖到这里，或点一下选择文件</h3>
+        <div id="drop">拖入一张全景图 / 或点击选择<br><span style="font-size:12px;color:#8fa3b8">支持 jpg / png / webp</span></div>
+        <input id="file" type="file" accept="image/*" style="display:none">
+        <div class="presets">
+          <span style="font-size:12px;color:#8fa3b8;align-self:center">没有图？用教材这六张试试：</span>
+          <button data-src="./pano/living.jpg">客厅</button>
+          <button data-src="./pano/dining.jpg">餐厅</button>
+          <button data-src="./pano/bedroom.jpg">卧室</button>
+        </div>
+        <img id="prev" alt="被检查的全景图预览">
+      </div>
+    </div>
+
+    <div class="right">
+      <div class="card">
+        <h3>体检结果</h3>
+        <table>
+          <tr><td class="k">文件名</td><td class="v" id="r-name">—</td></tr>
+          <tr><td class="k">像素尺寸</td><td class="v" id="r-size">—</td></tr>
+          <tr><td class="k">宽高比</td><td class="v" id="r-ratio">—</td></tr>
+          <tr><td class="k">是不是等距柱状（2:1）</td><td class="v" id="r-iso">—</td></tr>
+          <tr><td class="k">每度像素（≈ 分辨率 / 360）</td><td class="v" id="r-ppd">—</td></tr>
+          <tr><td class="k">单张显存估算</td><td class="v" id="r-mem">—</td></tr>
+          <tr><td class="k">建议用途</td><td class="v" id="r-use">—</td></tr>
+        </table>
+        <div id="verdict">等一张图进来 →</div>
+      </div>
+
+      <div class="card">
+        <h3>三条判断标准（背下来）</h3>
+        <div class="legend" style="font-size:12.5px">
+          <b>① 宽高比必须接近 2:1。</b>差超过 1% 基本可以判定不是等距柱状全景（柱形或裁切过的图都可能是别的比例）。<br>
+          <b>② 每度像素决定“糊不糊”。</b>移动头显的 PPD 在 20 上下，所以 <b>每度像素低于 16 就会明显发软</b>；
+          想追平头显分辨率，图宽要到 7200 以上——这也是“专业全景为什么拍 8K”的原因。<br>
+          <b>③ 显存比文件大小更要命。</b>一张 4096×2048 的贴图约占 33 MB 显存，6 张就 200 MB——
+          移动头显会直接崩。本课漫游器因此把 6000×3000 的原图降到 3072×1536，并限制常驻 4 张。
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="back"><a href="./index.html">← 回演示中心</a></div>
+</div>
+
+<script>
+var drop = document.getElementById('drop'), file = document.getElementById('file'), prev = document.getElementById('prev');
+
+function analyze(name, w, h){
+  var ratio = w / h;
+  var isEq = Math.abs(ratio - 2) <= 0.02;
+  var perDeg = w / 360;
+  /* 显存估算：RGBA 8bit，带 mipmap 约 ×1.33 */
+  var mem = w * h * 4 * 1.33 / 1048576;
+  document.getElementById('r-name').textContent = name || '（来自剪贴板/本地图）';
+  document.getElementById('r-size').textContent = w + ' × ' + h + ' 像素';
+  var rEl = document.getElementById('r-ratio');
+  rEl.textContent = ratio.toFixed(3) + ' : 1';
+  rEl.className = 'v ' + (isEq ? 'ok' : 'bad');
+  var iEl = document.getElementById('r-iso');
+  iEl.textContent = isEq ? '是（可以按球形全景用）' : '不是（很可能是柱形 / 裁切图）';
+  iEl.className = 'v ' + (isEq ? 'ok' : 'bad');
+  var pEl = document.getElementById('r-ppd');
+  pEl.textContent = perDeg.toFixed(1) + ' 像素/度';
+  pEl.className = 'v ' + (perDeg >= 20 ? 'ok' : (perDeg >= 12 ? 'warnv' : 'bad'));
+  document.getElementById('r-mem').textContent = mem.toFixed(1) + ' MB（单张，含 mipmap 估算）';
+  var use;
+  if (perDeg >= 20) use = '手机上很清楚；头显里也够用（接近 PPD）';
+  else if (perDeg >= 12) use = '手机 / 平板上没问题；头显里会偏软，属于“能用但别指望清晰”';
+  else if (perDeg >= 8) use = '只适合手机预览；头显里明显糊';
+  else use = '只够做缩略图，不建议放进 VR';
+  document.getElementById('r-use').textContent = use;
+  var v = document.getElementById('verdict');
+  v.innerHTML = (isEq
+    ? '<b class="ok" style="color:#7ddc9a">✔ 宽高比合格，可以当作等距柱状全景使用。</b>'
+    : '<b class="bad" style="color:#ff9d80">✘ 宽高比不是 2:1。</b>如果你要的是球形全景，这张不能直接用（手机全景模式产出的是柱形，抬头低头会露边）。');
+  v.innerHTML += '<br>结论：' + use + '。';
+  if (mem > 40) v.innerHTML += '<br><span class="warnv" style="color:#ffd166">⚠ 显存 ' + mem.toFixed(0) + ' MB 偏大——移动头显上建议先降采样到 3072 或 4096 宽再放进去。</span>';
+}
+
+function loadSrc(src, name){
+  var img = new Image();
+  img.onload = function(){
+    prev.src = src; prev.style.display = 'block';
+    analyze(name || src.split('/').pop(), img.naturalWidth, img.naturalHeight);
+  };
+  img.onerror = function(){ analyze(name || src, 0, 0);
+    document.getElementById('verdict').innerHTML = '<b style="color:#ff9d80">这张图加载失败：' + src + '</b>'; };
+  img.src = src;
+}
+function readFile(f){
+  if (!f || !f.type || f.type.indexOf('image/') !== 0){
+    document.getElementById('verdict').innerHTML = '<b style="color:#ff9d80">请拖入图片文件。</b>'; return;
+  }
+  var url = URL.createObjectURL(f);
+  loadSrc(url, f.name);
+}
+drop.addEventListener('click', function(){ file.click(); });
+file.addEventListener('change', function(){ if (file.files[0]) readFile(file.files[0]); });
+['dragenter','dragover'].forEach(function(ev){
+  drop.addEventListener(ev, function(e){ e.preventDefault(); drop.classList.add('hot'); });
+});
+['dragleave','drop'].forEach(function(ev){
+  drop.addEventListener(ev, function(e){ e.preventDefault(); drop.classList.remove('hot'); });
+});
+drop.addEventListener('drop', function(e){
+  if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]) readFile(e.dataTransfer.files[0]);
+});
+document.querySelectorAll('.presets button').forEach(function(b){
+  b.addEventListener('click', function(){ loadSrc(b.dataset.src, b.textContent + '全景图.jpg'); });
+});
+</script>
+</body>
+</html>

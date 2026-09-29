@@ -218,6 +218,19 @@
   </div>
   <p><strong>鱼眼一次能吃到近 180°，所以一圈 4—6 张就够</strong>；换成普通广角，视角不够，就得一圈 10 张、拍三圈。但广角也不是没好处——<strong>透视变形小、拼出来的分辨率高</strong>，对画质要求高的活反而用它。</p>
 
+  <figure style="margin:20px 0 6px">
+    <img src="assets/vr-2026/img/diagram-overlap.svg" alt="一圈七张是怎么来的：相邻两张的重叠、步进角与张数的除法，以及重叠过多过少的后果"
+         style="width:100%;height:auto;border:1px solid #e6e3f2;border-radius:12px;background:#fff">
+    <figcaption style="font-size:12.5px;color:var(--ink-soft);margin-top:6px">
+      图 2 · “一圈几张”就是一条除法：<strong>每圈张数 = 360° ÷ [视角 × (1 − 重叠率)]</strong>，算出小数向上取整。
+      所以<strong>实际重叠一定比你想要的多一点</strong>——这也是为什么教材表 5-1 里 8 mm 鱼眼是 4 张、12 mm 是 5 张、14/16 mm 是 6 张。
+      表格里那一圈用的是 74° 视角：6.49 张 → 7 张，实际重叠 30.5%。
+    </figcaption>
+  </figure>
+
+  <p>配套演示：<a href="assets/vr-2026/panorama/pano-overlap-calc.html" target="_blank" rel="noopener">《拍摄张数与重叠率计算器》</a>——
+  拖两个滑杆，就能看见每一张盖住哪一段、相邻交叠多宽、哪一度只有一张盖着。上课时对着教材表 5-1 一起验算一遍。</p>
+
   <h3>三、拍摄四要点（这一页要抄下来）</h3>
   <div class="tbl-wrap">
     <table>
@@ -237,7 +250,7 @@
     <img src="assets/vr-2026/img/diagram-shooting-4-rules.svg" alt="全景拍摄四要点示意：锁定参数、绕镜头节点转、重叠不少于 25%、上下各 45 度并补天补地"
          style="width:100%;height:auto;border:1px solid #e6e3f2;border-radius:12px;background:#fff">
     <figcaption style="font-size:12.5px;color:var(--ink-soft);margin-top:6px">
-      图 2 · 拍摄四要点。<strong>第 ② 条是最反直觉的一条</strong>：绕镜头节点转，近处物体才不跑位；
+      图 3 · 拍摄四要点。<strong>第 ② 条是最反直觉的一条</strong>：绕镜头节点转，近处物体才不跑位；
       原地转头（绕身体转）相机位置就动了，拼出来一定有“鬼影”。第 ④ 条对应教材例 5.1 的原始照片：上下各 45° 各拍一圈，最后单独补天补地。
     </figcaption>
   </figure>
@@ -308,7 +321,7 @@
     <img src="assets/vr-2026/img/diagram-3-toolchains.svg" alt="三条工具路线的分工示意：PTGui 从多到一、Pano2VR 从一到多、720 云把作品发出去"
          style="width:100%;height:auto;border:1px solid #e6e3f2;border-radius:12px;background:#fff">
     <figcaption style="font-size:12.5px;color:var(--ink-soft);margin-top:6px">
-      图 3 · 三条路线记住的是<strong>分工</strong>，不是软件名：<strong>PTGui 从多到一</strong>（20 张照片 → 1 张）、
+      图 4 · 三条路线记住的是<strong>分工</strong>，不是软件名：<strong>PTGui 从多到一</strong>（20 张照片 → 1 张）、
       <strong>Pano2VR 从一到多</strong>（1 张图 → 能点的漫游）、<strong>720 云把作品发出去</strong>（生成 H5、可导离线包）。
       本课的漫游器走的是第四条路：自己写代码。
     </figcaption>
@@ -342,6 +355,15 @@
     </div>
   </div>
   <div class="key"><strong>一句话接住</strong>：全景记录的是“从一个点看到的一圈”，3DGS 记录的是“一整个可以走进去的空间”——<strong>这是同一条路的下一步。</strong>这条线会在后面“数字校园漫游”那个案例里继续用。</div>
+
+  <figure style="margin:20px 0 6px">
+    <img src="assets/vr-2026/img/diagram-pano-to-3dgs.svg" alt="全景是固定视点的全方向；3DGS 是可以移动的视点，能真正走进空间"
+         style="width:100%;height:auto;border:1px solid #e6e3f2;border-radius:12px;background:#fff">
+    <figcaption style="font-size:12.5px;color:var(--ink-soft);margin-top:6px">
+      图 5 · 差别只在<strong>“视点能不能动”</strong>。全景是<strong>一个点的一圈</strong>：位置锁死，方向自由；
+      3DGS / NeRF 是<strong>一片区域的一个空间</strong>：位置也能动，代价是算力、数据量，以及“生成出来的东西不一定是真的”这类新问题。
+    </figcaption>
+  </figure>
 </section>
 
 <!-- ===== 案例演示 ===== -->
@@ -349,8 +371,8 @@
   <div class="sec-head">
     <div class="sec-num">例</div>
     <div>
-      <h2>案例演示 · 18 个（上节 14 + 下节 4）</h2>
-      <p class="sec-sub">按板块排好；课上只放标 ★ 的七个，其余作为课后自查与下次课的地基。下节新增的四个演示见下面「第 5 章（下）」那一节</p>
+      <h2>案例演示 · 24 个（上节 16 + 下节 8）</h2>
+      <p class="sec-sub">按板块排好；课上只放标 ★ 的七个，其余作为课后自查与下次课的地基。下节那八个见下面「第 5 章（下）」一节</p>
     </div>
   </div>
 
@@ -370,7 +392,7 @@
       <thead><tr><th>#</th><th>演示</th><th>它让你看见什么</th><th>在哪</th></tr></thead>
       <tbody>
         <tr><td>D1 ★</td><td><strong>投影原理</strong></td><td>平面图 ↔ 球面视图实时联动；拉 FOV 看“越广越糊”；拉纬度看两极拉伸</td><td><a href="assets/vr-2026/panorama/pano01-projection.html" target="_blank" rel="noopener">打开</a></td></tr>
-        <tr><td>D2</td><td><strong>三种形式对比器</strong>（自制）</td><td>柱形 / 球形 / 立方体并排，拖“抬头”滑杆一起抬头：<strong>柱形开始露白、球形极点被拉开、立方体一直连续</strong></td><td><a href="assets/vr-2026/panorama/pano-three-forms.html" target="_blank" rel="noopener">打开</a></td></tr>
+        <tr><td>D2 ★</td><td><strong>三种形式对比器</strong>（自制）</td><td>柱形 / 球形 / 立方体并排，拖“抬头”滑杆一起抬头：<strong>柱形开始露白、球形极点被拉开、立方体一直连续</strong></td><td><a href="assets/vr-2026/panorama/pano-three-forms.html" target="_blank" rel="noopener">打开</a></td></tr>
         <tr><td>D3 ★</td><td><strong>官方 360 全景播放器</strong></td><td>官方实现的全景球（默认图已换成本课样板间）。<strong>若打开是空白，说明这台设备没给 <code class="inline">inline</code> 会话</strong>——又是一个“先怀疑环境”的例子</td><td><a href="assets/vr-2026/panorama/samples/360-photos.html" target="_blank" rel="noopener">打开</a></td></tr>
         <tr><td>D4</td><td>官方 <strong>Stereo Video</strong></td><td>立体全景视频——用来讲清“全景视频 vs VR 视频”的差别</td><td><a href="https://immersive-web.github.io/webxr-samples/stereo-video.html" target="_blank" rel="noopener">官方在线</a></td></tr>
       </tbody>
@@ -385,6 +407,7 @@
         <tr><td>D5</td><td>教材例 5.1 的 <strong>22 张原始照片</strong></td><td><strong>“镜头节点没绕对”的现场证据</strong>：同一根柱子逐张错位，拼起来会有“鬼影”</td><td>教材素材目录</td></tr>
         <tr><td>D6</td><td>教材例 5.1 的 <strong>六面体文件</strong></td><td>立方体全景长什么样（6 张正方形图分别贴到内壁）</td><td>教材素材目录</td></tr>
         <tr><td>D7</td><td>教材例 5.4 的 <strong>DJI 航拍 22 张</strong></td><td>全景航拍：天上的那一圈怎么拍、怎么拼</td><td>教材素材目录</td></tr>
+        <tr><td>D15</td><td><strong>拍摄张数与重叠率计算器</strong>（自制）</td><td>拖“镜头视角”和“想要的重叠率”两个滑杆：<strong>一圈几张、实际重叠多少、哪一度只有一张盖着</strong>，一次看清。对着教材表 5-1 现场验算</td><td><a href="assets/vr-2026/panorama/pano-overlap-calc.html" target="_blank" rel="noopener">打开</a></td></tr>
       </tbody>
     </table>
   </div>
@@ -395,7 +418,7 @@
       <thead><tr><th>#</th><th>演示</th><th>它让你做什么</th><th>在哪</th></tr></thead>
       <tbody>
         <tr><td>D8 ★</td><td><strong>六房间全景漫游器</strong>（自制）</td><td>进 VR、环视、<strong>视线停 1.2 秒跳转</strong>、三条退出路；右上角 <strong>u/v 探针</strong>实时显示视线中心落在哪一列；客厅里那个<strong>金色立方体</strong>是另加的 3D 展品，注视它会自转</td><td><a href="assets/vr-2026/panorama/pano02-tour.html" target="_blank" rel="noopener">打开</a></td></tr>
-        <tr><td>D9</td><td><strong>热点编辑器</strong>（自制）</td><td>在图上点一下，直接得到 <code class="inline">u</code>、<code class="inline">v</code>、偏航角，和一行能粘回代码的配置——把“量 u 值”从估算变成点两下</td><td><a href="assets/vr-2026/panorama/pano-hotspot-editor.html" target="_blank" rel="noopener">打开</a></td></tr>
+        <tr><td>D9 ★</td><td><strong>热点编辑器</strong>（自制）</td><td>在图上点一下，直接得到 <code class="inline">u</code>、<code class="inline">v</code>、偏航角，和一行能粘回代码的配置——把“量 u 值”从估算变成点两下</td><td><a href="assets/vr-2026/panorama/pano-hotspot-editor.html" target="_blank" rel="noopener">打开</a></td></tr>
         <tr><td>D10</td><td>官方 <strong>Teleportation</strong></td><td>射线 + 落点环的传送移动：下次课“多点漫游”的地基</td><td><a href="assets/vr-2026/panorama/samples/teleportation.html" target="_blank" rel="noopener">本地</a> · <a href="https://immersive-web.github.io/webxr-samples/teleportation.html" target="_blank" rel="noopener">官方</a></td></tr>
         <tr><td>D11</td><td>官方 <strong>Input Selection</strong></td><td>手柄 select 事件与射线选中——对照我们自己的“注视停留”</td><td><a href="assets/vr-2026/panorama/samples/input-selection.html" target="_blank" rel="noopener">本地</a> · <a href="https://immersive-web.github.io/webxr-samples/input-selection.html" target="_blank" rel="noopener">官方</a></td></tr>
       </tbody>
@@ -414,6 +437,16 @@
     </table>
   </div>
 
+  <h3>五、素材与规格检查（自制，做作品前先跑一遍）</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>#</th><th>演示</th><th>它替你回答什么</th><th>在哪</th></tr></thead>
+      <tbody>
+        <tr><td>D16</td><td><strong>全景图规格检查器</strong>（自制）</td><td><strong>“我手上这张图到底能不能用？”</strong>拖进去 10 秒出结论：宽高比是不是 2:1、每度像素够不够、单张显存多大、适合给谁看。图片只在浏览器里算，不上传</td><td><a href="assets/vr-2026/panorama/pano-spec-checker.html" target="_blank" rel="noopener">打开</a></td></tr>
+      </tbody>
+    </table>
+  </div>
+
   <div class="note">
     <strong>关于官方样例的两点说明。</strong>
     ① 它们来自 W3C 沉浸式 Web 社区组的 <code class="inline">webxr-samples</code>（<strong>MIT 许可</strong>，本地化时保留了版权声明）；
@@ -423,7 +456,7 @@
 
   <div class="note">
     <strong>课上只放这七个</strong>（D1 / D2 / D3 / D8 / D9 / D12 / D13），每个 3—8 分钟；
-    其余七个留给课后自查与下次课。演示数量多不等于都要放——<strong>180 分钟里放 14 个，就变成“放视频课”了。</strong>
+    其余十七个留给课后自查与下次课。演示数量多不等于都要放——<strong>180 分钟里放二十多个，就变成“放视频课”了。</strong>
   </div>
 </section>
 
@@ -439,6 +472,16 @@
 
   <div class="warn"><strong>开始之前先把一句话记住：</strong>WebXR 的“进入 VR”<strong>只在安全上下文里可用</strong>。<code class="inline">https:</code>、<code class="inline">http://localhost</code>、<code class="inline">http://127.0.0.1</code> 算；<strong>你电脑的局域网 IP（<code class="inline">http://192.168.x.x</code>）不算</strong>。所以用局域网 IP 打开自己的页面时看不到 VR 按钮、控制台里 <code class="inline">navigator.xr</code> 是 undefined。<strong>那不是你的代码写错了，是环境不满足。</strong></div>
 
+  <figure style="margin:20px 0 6px">
+    <img src="assets/vr-2026/img/diagram-3-routes.svg" alt="把作品送到头显的三条通路：USB 直连、局域网加白名单、交到课程站点，以及各自的安全上下文"
+         style="width:100%;height:auto;border:1px solid #e6e3f2;border-radius:12px;background:#fff">
+    <figcaption style="font-size:12.5px;color:var(--ink-soft);margin-top:6px">
+      图 6 · 三条通路不必都会，<strong>但“安全上下文”这条规则必须记住</strong>：只有 <code class="inline">https:</code> 和
+      <code class="inline">localhost / 127.0.0.1</code> 才算。<strong>局域网 IP 不算</strong>——想让头显认它，
+      得先在浏览器里把它加进白名单。三条路的共同前提写在下图最后一行，出问题时先回来对一遍。
+    </figcaption>
+  </figure>
+
   <h3>一、先走通一条通路（三条任选一条）</h3>
   <div class="tbl-wrap">
     <table>
@@ -453,6 +496,20 @@
   <p>本机服务器不用装任何东西：用 <a href="assets/vr-2026/student/" target="_blank" rel="noopener">学生作品 · 联网自验工作流</a> 页里的 <code class="inline">serve.bat</code>（只用 Windows 自带的 PowerShell，不需要 Python / Node，也不需要管理员）。</p>
 
   <h3>二、四步自验（每人自己做）</h3>
+  <p>四步里<strong>第三步是唯一一次真正的交互</strong>，而它靠的是“注视停留”。先去调一次那个数字，再上头显——你会立刻明白“为什么是 1.2 秒”。</p>
+  <div class="btn-row">
+    <a class="btn" href="assets/vr-2026/panorama/pano-dwell-tuning.html" target="_blank" rel="noopener">注视停留时间调参（先调，再戴）→</a>
+    <a class="btn ghost" href="assets/vr-2026/panorama/pano-turn-comfort.html" target="_blank" rel="noopener">转向范式与舒适度 →</a>
+  </div>
+  <figure style="margin:16px 0 6px">
+    <img src="assets/vr-2026/img/diagram-dwell-tradeoff.svg" alt="注视停留时长的两个方向的代价：太短误触发、太长等待感，合适区间约 0.9 到 1.5 秒"
+         style="width:100%;height:auto;border:1px solid #e6e3f2;border-radius:12px;background:#fff">
+    <figcaption style="font-size:12.5px;color:var(--ink-soft);margin-top:6px">
+      图 7 · 停留时长不能“两头都最小”，只能选区间。<strong>本课统一取 1.2 秒</strong>（退出按钮 1.5 秒、长按手柄 2 秒）
+      ——这是本课的<strong>一致性约定</strong>，不是行业标准；要改就全班一起改。
+    </figcaption>
+  </figure>
+
   <div class="step-grid">
     <div class="step-card">
       <div class="sc-no">① 先测环境</div>
@@ -647,7 +704,7 @@
         <tr><td>全景航拍</td><td><a href="https://www.bilibili.com/video/BV1vpZYBfEgB" target="_blank" rel="noopener">学会全景航拍，新手小白秒变大神</a>（蒙阔Monko）</td><td>3:08</td><td>1.9 万播放 / 1339 赞</td><td>对应教材 5.3.4，短平快</td></tr>
         <tr><td>全景接片思路</td><td><a href="https://www.bilibili.com/video/BV1h84y1f7A9" target="_blank" rel="noopener">重新认识全景接片，快速提升照片大片感！</a>（慕云同学）</td><td>4:30</td><td>3.2 万播放 / 1533 赞</td><td>讲“为什么接片”，不是讲软件操作</td></tr>
         <tr><td>步进式漫游（进阶）</td><td><a href="https://www.bilibili.com/video/BV1484y1r7LH" target="_blank" rel="noopener">720 全景图 krpano - depthmap 步进式漫游 教程</a>（XR_1605）</td><td>16:16</td><td>1.1 万播放 / 172 赞</td><td>把“热点跳转”升级成“在两点之间走过去”，下次课的进阶方向</td></tr>
-        <tr><td><strong>3DGS 前沿</strong></td><td><a href="https://www.bilibili.com/video/BV1YGR7B6Esf" target="_blank" rel="noopener">我用高斯泼溅扫描了我的工作室！</a>（映像同好会）</td><td>10:58</td><td>11.6 万播放 / 5637 赞</td><td><strong>只放前 60 秒</strong>：全景记录“一个点的一圈”，3DGS 记录“一整个可以走进去的空间”</td></tr>
+        <tr><td>3DGS 前沿（可选）</td><td><a href="https://www.bilibili.com/video/BV1YGR7B6Esf" target="_blank" rel="noopener">我用高斯泼溅扫描了我的工作室！</a>（映像同好会）</td><td>10:58</td><td>11.6 万播放 / 5637 赞</td><td><strong>收束时可选放前 60 秒</strong>：全景记录“一个点的一圈”，3DGS 记录“一整个可以走进去的空间”。<strong>不占课上那四段的名额</strong></td></tr>
       </tbody>
     </table>
   </div>
@@ -671,15 +728,25 @@
     ① <strong>可达性</strong>（从入口能不能走到每一个房间）② <strong>无死胡同</strong>（进得去也要出得来）
     ③ <strong>进门第一眼</strong>（每个房间的初始朝向该朝哪）④ <strong>信息密度</strong>（热点与简介放多少、放哪儿）。</div>
 
+  <figure style="margin:20px 0 6px">
+    <img src="assets/vr-2026/img/diagram-graph.svg" alt="漫游作品是一张图：节点与边、双向可达，以及死胡同与不可达节点两种典型毛病"
+         style="width:100%;height:auto;border:1px solid #e6e3f2;border-radius:12px;background:#fff">
+    <figcaption style="font-size:12.5px;color:var(--ink-soft);margin-top:6px">
+      图 8 · 左边是合格的样子（每个房间<b>双向都有边</b>、从入口<b>全部可达</b>）；右边是两种最常见的毛病——
+      <strong>死胡同</strong>（进得去、出不来）和<strong>不可达</strong>（有房间连不进去）。
+      这两种毛病<strong>不用戴头显就能查出来</strong>，而且必须在做作品之前查。
+    </figcaption>
+  </figure>
+
   <h3>一、理论（45 分钟）</h3>
   <div class="tbl-wrap">
     <table>
       <thead><tr><th>时段</th><th>讲什么</th><th>要记住的</th></tr></thead>
       <tbody>
         <tr><td>10′</td><td><strong>从“一个点”到“一条路”：节点与边</strong></td><td>每个全景图是一个<strong>节点</strong>，每条热点是一条<strong>边</strong>；作品是一张有向图。要求：<strong>双向都有边</strong>（进得去、出得来）、<strong>从入口全部可达</strong>、<strong>路径不要超过 3 步</strong></td></tr>
-        <tr><td>10′</td><td><strong>进门第一眼：初始朝向 yaw</strong></td><td>三个判断标准：① 第一眼要能回答“这里是哪儿”（主体在画面里）；② 要能回答“还能去哪儿”（至少一条出口在视锥里）；③ <strong>不要背对来路</strong></td></tr>
+        <tr><td>10′</td><td><strong>进门第一眼：初始朝向 yaw</strong></td><td>三个判断标准：① 第一眼要能回答“这里是哪儿”（主体在画面里）；② 要能回答“还能去哪儿”（至少一条出口在视锥里）；③ <strong>不要背对来路</strong>。当场用<a href="assets/vr-2026/panorama/pano-frustum-check.html" target="_blank" rel="noopener">《视锥可见性检查器》</a>算一遍“这一眼看得见几个出口”</td></tr>
         <tr><td>15′</td><td><strong>导览信息的两层与密度</strong></td><td><strong>热点负责“路”，简介负责“人话”</strong>；样式要一眼可分；<strong>简介 ≤ 2 行 / 40 字</strong>；信息块不许压住主体</td></tr>
-        <tr><td>10′</td><td><strong>两种移动方式与舒适度</strong></td><td>跳转（瞬时切换）适合全景；<strong>步进式漫游</strong>让两点之间“走过去”，但更容易晕。移动范式上<strong>瞬移比平滑更不易晕</strong>，隧道视野会随速度自动出现（本课内核已内置）</td></tr>
+        <tr><td>10′</td><td><strong>两种移动方式、转向与转场</strong></td><td>跳转（瞬时切换）适合全景；<strong>步进式漫游</strong>让两点之间“走过去”，但更容易晕。移动范式上<strong>瞬移比平滑更不易晕</strong>，隧道视野会随速度自动出现（本课内核已内置）。转向也一样：<strong>Snap 转向比平滑转向更不易晕</strong>。三个演示现场比：<a href="assets/vr-2026/panorama/pano-turn-comfort.html" target="_blank" rel="noopener">《转向与舒适度》</a>、<a href="assets/vr-2026/panorama/pano-transition.html" target="_blank" rel="noopener">《转场方式对比器》</a>、<a href="assets/vr-2026/panorama/pano-dwell-tuning.html" target="_blank" rel="noopener">《注视停留时间调参》</a></td></tr>
       </tbody>
     </table>
   </div>
@@ -690,21 +757,44 @@
       <thead><tr><th>#</th><th>任务</th><th>怎么做</th><th>产出</th></tr></thead>
       <tbody>
         <tr><td>1</td><td><strong>把六个房间连成一张图</strong>（30′）</td><td>用<a href="assets/vr-2026/panorama/pano-route-checker.html" target="_blank" rel="noopener">《漫游路线与连通性检查器》</a>连线，直到体检三项全绿；再复制路线清单回到自己的作品</td><td>一张全绿的连通图 + 路线清单</td></tr>
-        <tr><td>2</td><td><strong>给每个房间设计“第一眼”</strong>（20′）</td><td>用<a href="assets/vr-2026/panorama/pano-first-look.html" target="_blank" rel="noopener">《进门第一眼》</a>对比四种朝向，选一个，再反算 <code class="inline">yaw = (u − 0.75) × 360</code> 填进配置</td><td>六个房间各自的 yaw + 一句理由</td></tr>
+        <tr><td>2</td><td><strong>给每个房间设计“第一眼”</strong>（20′）</td><td>先用<a href="assets/vr-2026/panorama/pano-first-look.html" target="_blank" rel="noopener">《进门第一眼》</a>对比四种朝向，选一个；再用<a href="assets/vr-2026/panorama/pano-frustum-check.html" target="_blank" rel="noopener">《视锥可见性检查器》</a><strong>验算“这一眼到底看得见几个出口”</strong>——看不见就改 yaw，直到至少一条出口进画面；最后反算 <code class="inline">yaw = (u − 0.75) × 360</code> 填进配置</td><td>六个房间各自的 yaw + 一句理由 + 每间“第一眼可见出口数”</td></tr>
         <tr><td>3</td><td><strong>把信息压到两行以内</strong>（20′）</td><td>用<a href="assets/vr-2026/panorama/pano-info-density.html" target="_blank" rel="noopener">《导览信息密度》</a>看三档差别，然后改自己的作品：出口热点与简介分开样式，每条简介 ≤ 40 字</td><td>改过的作品 + 改前/改后截图</td></tr>
-        <tr><td>4</td><td><strong>全流程自验</strong>（30′）</td><td>先在<a href="assets/vr-2026/check/" target="_blank" rel="noopener">《VR 作品自检》</a>确认环境，再戴上头显走完整条路线：<strong>每个房间都进一次、每个热点都点一次、三条退出路都试一遍</strong>；记录 FPS / DrawCall / 三角面与退出用时</td><td>自验记录表（含三率读数与退出用时）</td></tr>
+        <tr><td>4</td><td><strong>全流程自验</strong>（30′）</td><td>先用<a href="assets/vr-2026/panorama/pano-spec-checker.html" target="_blank" rel="noopener">《全景图规格检查器》</a>体检一遍自己的素材，再在<a href="assets/vr-2026/check/" target="_blank" rel="noopener">《VR 作品自检》</a>确认环境，然后戴上头显走完整条路线：<strong>每个房间都进一次、每个热点都点一次、三条退出路都试一遍</strong>；记录 FPS / DrawCall / 三角面与退出用时</td><td>自验记录表（含素材体检结论、三率读数与退出用时）</td></tr>
         <tr><td>5</td><td><strong>互评</strong>（20′）</td><td>用<a href="assets/vr-2026/panorama/pano-rubric.html" target="_blank" rel="noopener">《作品验收量规》</a>给同伴的作品打分，写完“下一步改进”那一行，再交给对方</td><td>一份互评记录</td></tr>
         <tr><td>收束</td><td><strong>验收</strong>（15′）</td><td>教师抽验：现场走一条路线 + 口头说出“我改了什么、为什么”；宣布达标名单</td><td>达标线判定</td></tr>
       </tbody>
     </table>
   </div>
 
-  <h3>三、本节的四个新演示（都是可点的 HTML，离线可用）</h3>
+  <h3>三、本节的八个新演示（都是可点的 HTML，离线可用）</h3>
+  <p>前四个回答“<strong>怎么设计</strong>”，后四个回答“<strong>怎么让它不晕、怎么看起来是走过去的</strong>”。课上只放标 ★ 的四个，其余四个留给学生自己做任务时点开。</p>
   <div class="btn-row">
     <a class="btn" href="assets/vr-2026/panorama/pano-route-checker.html" target="_blank" rel="noopener">★ 路线与连通性检查器 →</a>
-    <a class="btn ghost" href="assets/vr-2026/panorama/pano-first-look.html" target="_blank" rel="noopener">★ 进门第一眼 →</a>
+    <a class="btn ghost" href="assets/vr-2026/panorama/pano-first-look.html" target="_blank" rel="noopener">★ 进门第一眼（朝向对比）→</a>
     <a class="btn ghost" href="assets/vr-2026/panorama/pano-info-density.html" target="_blank" rel="noopener">★ 导览信息密度 →</a>
     <a class="btn ghost" href="assets/vr-2026/panorama/pano-rubric.html" target="_blank" rel="noopener">★ 作品验收量规 →</a>
+  </div>
+  <div class="btn-row">
+    <a class="btn ghost" href="assets/vr-2026/panorama/pano-frustum-check.html" target="_blank" rel="noopener">视锥可见性检查器（新）→</a>
+    <a class="btn ghost" href="assets/vr-2026/panorama/pano-turn-comfort.html" target="_blank" rel="noopener">转向范式与舒适度（新）→</a>
+    <a class="btn ghost" href="assets/vr-2026/panorama/pano-transition.html" target="_blank" rel="noopener">转场方式对比器（新）→</a>
+    <a class="btn ghost" href="assets/vr-2026/panorama/pano-dwell-tuning.html" target="_blank" rel="noopener">注视停留时间调参（新）→</a>
+  </div>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>#</th><th>演示</th><th>它让你看见什么</th><th>在哪</th></tr></thead>
+      <tbody>
+        <tr><td>D17 ★</td><td><strong>漫游路线与连通性检查器</strong>（自制）</td><td>点两个房间就连线 / 断线，右侧实时体检：<strong>可达、无死胡同、最远几步</strong>。四个预设里有一个是“故意做个死胡同”</td><td><a href="assets/vr-2026/panorama/pano-route-checker.html" target="_blank" rel="noopener">打开</a></td></tr>
+        <tr><td>D18 ★</td><td><strong>进门第一眼 · 朝向对比</strong>（自制）</td><td>同一张图、<strong>只有 yaw 不同</strong>，四个视图并排：正对走廊 / 正对电视墙 / 背对门口 / 随手设</td><td><a href="assets/vr-2026/panorama/pano-first-look.html" target="_blank" rel="noopener">打开</a></td></tr>
+        <tr><td>D19</td><td><strong>视锥可见性检查器</strong>（自制，新）</td><td>把“第一眼能不能看见出口”<strong>算出来</strong>：每个出口离视线中心多少度、在视锥里还是在背后，还带俯视图与球面展开图。默认就停在教材那个房间上</td><td><a href="assets/vr-2026/panorama/pano-frustum-check.html" target="_blank" rel="noopener">打开</a></td></tr>
+        <tr><td>D20 ★</td><td><strong>导览信息密度</strong>（自制）</td><td>同一视角切三档：太少 / 合适 / 过载，看“信息太多等于什么都不看”</td><td><a href="assets/vr-2026/panorama/pano-info-density.html" target="_blank" rel="noopener">打开</a></td></tr>
+        <tr><td>D21</td><td><strong>转向范式与舒适度</strong>（自制，新）</td><td>平滑转向 vs Snap 转向，按住 ← / → 亲自比：实时显示视线中心 u、<strong>瞬时角速度</strong>和晕动风险分级</td><td><a href="assets/vr-2026/panorama/pano-turn-comfort.html" target="_blank" rel="noopener">打开</a></td></tr>
+        <tr><td>D22</td><td><strong>转场方式对比器</strong>（自制，新）</td><td>客厅 → 餐厅的三种走法：<strong>直接跳 / 淡出淡入 / 先转向门口再切</strong>。同一个跳转，三种感受；显示各自耗时</td><td><a href="assets/vr-2026/panorama/pano-transition.html" target="_blank" rel="noopener">打开</a></td></tr>
+        <tr><td>D23</td><td><strong>注视停留时间调参</strong>（自制，新）</td><td>按住圆环别动，亲自把 0.6 / 1.2 / 2.0 秒试一遍；旁边同时算“扫视掠过会不会误触发”</td><td><a href="assets/vr-2026/panorama/pano-dwell-tuning.html" target="_blank" rel="noopener">打开</a></td></tr>
+        <tr><td>D24 ★</td><td><strong>作品验收量规</strong>（自制）</td><td>五维打分，实时出总分，生成可复制的验收记录。硬门槛：连通性 ≥3 且 舒适与退出 ≥3</td><td><a href="assets/vr-2026/panorama/pano-rubric.html" target="_blank" rel="noopener">打开</a></td></tr>
+      </tbody>
+    </table>
   </div>
 
   <h3>四、达标线（本节）</h3>

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>转向范式与舒适度 · 平滑转向 vs Snap 转向</title>
+<style>
+  html,body{margin:0;background:#0b1016;color:#e8eef6;font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif}
+  .wrap{max-width:1180px;margin:0 auto;padding:22px 20px 60px}
+  h1{font-size:21px;margin:6px 0 4px}
+  .sub{color:#93a6bb;font-size:13px;margin-bottom:14px;line-height:1.85}
+  .bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;background:rgba(15,22,32,.85);
+    border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:12px 16px;margin-bottom:14px}
+  .bar button{font:600 13.5px/1 "Microsoft YaHei";color:#dbe7f4;background:rgba(255,255,255,.07);
+    border:1px solid rgba(255,255,255,.2);border-radius:999px;padding:10px 16px;cursor:pointer}
+  .bar button.on{background:linear-gradient(135deg,#ffd27a,#e0a33c);border-color:transparent;color:#0b1016}
+  .bar .hint{font-size:12px;color:#8fa3b8}
+  .row{display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start}
+  .left{flex:1 1 620px;min-width:320px}
+  canvas{display:block;width:100%;border-radius:12px;border:1px solid rgba(255,255,255,.14);background:#05080c}
+  .right{flex:0 1 380px;min-width:300px}
+  .card{background:rgba(15,22,32,.85);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:14px 16px;margin-bottom:14px}
+  .card h3{margin:0 0 8px;font-size:15px}
+  .kv{display:grid;grid-template-columns:auto 1fr;gap:6px 12px;font-size:13.5px;align-items:baseline}
+  .kv b{color:#8fa3b8;font-weight:400}
+  .val{font-family:Consolas,monospace;color:#ffd27a;font-size:15px}
+  .risk{font-size:15px;font-weight:600}
+  .r-low{color:#7ddc9a}.r-mid{color:#ffd166}.r-high{color:#ff9d80}
+  .legend{font-size:13px;line-height:2;color:#c3d2e3;margin-top:6px}
+  .legend b{color:#ffd27a}
+  .bar2{display:flex;height:10px;border-radius:5px;overflow:hidden;background:#1a2130;margin-top:4px}
+  .bar2 i{display:block;height:100%;background:linear-gradient(90deg,#7ddc9a,#ffd166,#ff9d80)}
+  .back{margin-top:24px;font-size:13.5px}
+  .back a{color:#ffd27a;text-decoration:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>转向范式与舒适度 · 平滑转向 vs Snap 转向</h1>
+  <div class="sub">
+    全景里“转头”是唯一的移动方式，所以<strong>转向的设计直接决定晕不晕</strong>。
+    按住 <b>←</b> / <b>→</b> 键（或上面两个按钮）试试两种范式——看右下角的角速度与晕动提示。
+  </div>
+
+  <div class="bar">
+    <button id="m-smooth" class="on">平滑转向（连续）</button>
+    <button id="m-snap">Snap 转向（每次 30°）</button>
+    <span class="hint">按住 ← → 持续转向；松手即停。Snap 模式有 350ms 冷却。</span>
+  </div>
+
+  <div class="row">
+    <div class="left"><canvas id="cv" width="900" height="500"></canvas></div>
+    <div class="right">
+      <div class="card">
+        <h3>实时读数</h3>
+        <div class="kv">
+          <b>朝向 yaw</b><span class="val" id="vyaw">-47°</span>
+          <b>视线中心 u</b><span class="val" id="vu">0.619</span>
+          <b>瞬时角速度</b><span class="val" id="vspd">0 °/s</span>
+          <b>晕动风险</b><span id="vrisk" class="risk r-low">低</span>
+        </div>
+        <div class="bar2"><i id="spdbar" style="width:2%"></i></div>
+        <div class="legend" style="font-size:12px;color:#8fa3b8">
+          经验阈值（用于课堂讨论，不是硬标准）：<br>
+          &lt; 60 °/s 基本无感 ｜ 60—180 °/s 有人会不适 ｜ &gt; 180 °/s 明显容易晕
+        </div>
+      </div>
+      <div class="card">
+        <h3>两种范式各自的代价</h3>
+        <div class="legend" style="font-size:12.5px">
+          <b>平滑转向</b>：画面连续、方向感好，但<b>角速度越大越容易晕</b>——它让整个视野都在流动。<br>
+          <b>Snap 转向</b>：一次跳 30°，视野几乎不流动，<b>舒适度明显更好</b>；代价是<b>“我刚才转到哪儿了”</b>要重新建立，所以要用固定角度 + 冷却，而不是随手一甩。<br>
+          <b>课堂结论</b>：在移动端头显上，<b>Snap 转向是默认更稳的选择</b>；本课漫游器用的也是 30° / 350ms 冷却那一套。
+        </div>
+      </div>
+      <div class="card">
+        <h3>怎么记在自己作品的记录表里</h3>
+        <div class="legend" style="font-size:12.5px">
+          ① 写下你用的是哪种范式；② 写下<b>一次转向的角度</b>（30°？45°？）；③ 写下你自己在第几次转向开始不适；
+          ④ 如果有同学不适，记下<b>他当时在做什么动作</b>——这一项比“晕不晕”本身有价值得多。
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="back"><a href="./index.html">← 回演示中心</a></div>
+</div>
+
+<script src="./_pano-view.js"></script>
+<script>
+var view = new PanoView(document.getElementById('cv'), './pano/living.jpg', { yaw:-47, fov:62 });
+var mode = 'smooth', keyL = false, keyR = false, last = 0, lastSnap = 0, spdShow = 0;
+var SMOOTH_SPEED = 140;   // °/s，平滑转向速度
+var SNAP_STEP = 30, SNAP_COOL = 350;
+
+view.onerror = function(src){ document.body.insertAdjacentHTML('afterbegin',
+  '<div style="padding:12px 16px;background:#c1502e;color:#fff">全景图加载失败：'+src+'</div>'); };
+view.onready = function(){ view.draw(); updateHUD(); };
+
+function updateHUD(){
+  document.getElementById('vyaw').textContent = Math.round(view.yaw) + '°';
+  document.getElementById('vu').textContent = view.centerU().toFixed(3);
+  document.getElementById('vspd').textContent = Math.round(spdShow) + ' °/s';
+  var r = document.getElementById('vrisk'), b = document.getElementById('spdbar');
+  b.style.width = Math.max(2, Math.min(100, spdShow / 3)) + '%';
+  if (spdShow < 60)      { r.textContent = '低'; r.className = 'risk r-low'; }
+  else if (spdShow < 180){ r.textContent = '中（有人会不适）'; r.className = 'risk r-mid'; }
+  else                   { r.textContent = '高（明显容易晕）'; r.className = 'risk r-high'; }
+}
+
+function loop(t){
+  var dt = last ? Math.min((t - last) / 1000, 0.1) : 0;
+  last = t;
+  var dYaw = 0;
+  if (mode === 'smooth'){
+    if (keyL) dYaw += SMOOTH_SPEED * dt;
+    if (keyR) dYaw -= SMOOTH_SPEED * dt;
+  } else {
+    var want = (keyL ? 1 : 0) - (keyR ? 1 : 0);
+    if (want !== 0 && t - lastSnap > SNAP_COOL){ dYaw = want * SNAP_STEP; lastSnap = t; }
+  }
+  if (dYaw){
+    view.yaw += dYaw;
+    if (view.yaw > 180) view.yaw -= 360;
+    if (view.yaw < -180) view.yaw += 360;
+    spdShow = (mode === 'smooth') ? SMOOTH_SPEED : 1800;   // Snap 的瞬时值只用于提示
+    view.draw(); updateHUD();
+  } else if (spdShow !== 0){
+    spdShow = (mode === 'smooth') ? 0 : spdShow * 0.86;
+    if (spdShow < 5) spdShow = 0;
+    updateHUD();
+  }
+  requestAnimationFrame(loop);
+}
+window.addEventListener('keydown', function(e){
+  if (e.key === 'ArrowLeft'){ keyL = true; e.preventDefault(); }
+  if (e.key === 'ArrowRight'){ keyR = true; e.preventDefault(); }
+});
+window.addEventListener('keyup', function(e){
+  if (e.key === 'ArrowLeft') keyL = false;
+  if (e.key === 'ArrowRight') keyR = false;
+});
+document.getElementById('m-smooth').addEventListener('click', function(){
+  mode = 'smooth'; this.classList.add('on'); document.getElementById('m-snap').classList.remove('on');
+});
+document.getElementById('m-snap').addEventListener('click', function(){
+  mode = 'snap'; this.classList.add('on'); document.getElementById('m-smooth').classList.remove('on');
+});
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>

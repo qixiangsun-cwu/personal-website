@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 320" width="960" height="320" role="img" aria-label="全景与 3DGS 的区别：固定视点的全方向 vs 可以移动视点的可走入空间">
+  <style>
+    .cardA{fill:#f6f5fb;stroke:#ddd7f2;stroke-width:1.5}
+    .cardB{fill:#f2f8f4;stroke:#cfe6d1;stroke-width:1.5}
+    .t{font:600 15px "Microsoft YaHei",sans-serif;fill:#3b2f63}
+    .s{font:12.5px "Microsoft YaHei",sans-serif;fill:#6b6288}
+    .v{font:12.5px "Microsoft YaHei",sans-serif;fill:#3b2f63}
+    .eye{fill:#c1502e}
+    .ray{stroke:#c1502e;stroke-width:1.6;stroke-dasharray:5 4;fill:none}
+    .pt{fill:#8b7fd4}
+    .xy{stroke:#b6b1c9;stroke-width:1.2;fill:none}
+  </style>
+  <rect width="960" height="320" fill="#fff"/>
+
+  <!-- 全景 -->
+  <g transform="translate(24,20)">
+    <rect class="cardA" width="430" height="278" rx="12"/>
+    <text class="t" x="16" y="30">全景：固定视点，全方向</text>
+    <circle cx="150" cy="150" r="10" class="eye"/>
+    <text class="v" x="168" y="155">拍摄点只有这一个</text>
+    <circle cx="150" cy="150" r="74" fill="none" stroke="#8b7fd4" stroke-width="2"/>
+    <circle cx="150" cy="150" r="110" fill="none" stroke="#b6b1c9" stroke-width="1.2"/>
+    <line class="ray" x1="150" y1="150" x2="150" y2="40"/>
+    <line class="ray" x1="150" y1="150" x2="260" y2="150"/>
+    <line class="ray" x1="150" y1="150" x2="150" y2="260"/>
+    <line class="ray" x1="150" y1="150" x2="40" y2="150"/>
+    <text class="s" x="16" y="242">你可以朝任意方向看 —— 上下左右 360°×180°</text>
+    <text class="s" x="16" y="262" fill="#c1502e">但你不能走过去：位置是锁死的</text>
+  </g>
+
+  <!-- 3DGS -->
+  <g transform="translate(506,20)">
+    <rect class="cardB" width="430" height="278" rx="12"/>
+    <text class="t" x="16" y="30">3DGS / NeRF：可以移动的视点</text>
+    <g>
+      <path class="xy" d="M40,210 L200,176 L362,210"/>
+      <path class="xy" d="M40,210 L150,250 L362,210"/>
+      <g class="pt">
+        <circle cx="120" cy="180" r="3"/><circle cx="150" cy="168" r="3"/><circle cx="182" cy="182" r="3"/>
+        <circle cx="210" cy="170" r="3"/><circle cx="140" cy="200" r="3"/><circle cx="176" cy="206" r="3"/>
+        <circle cx="214" cy="196" r="3"/><circle cx="248" cy="186" r="3"/><circle cx="262" cy="204" r="3"/>
+        <circle cx="100" cy="200" r="3"/><circle cx="232" cy="216" r="3"/><circle cx="196" cy="226" r="3"/>
+        <circle cx="158" cy="222" r="3"/><circle cx="284" cy="196" r="3"/><circle cx="306" cy="208" r="3"/>
+      </g>
+      <circle cx="120" cy="252" r="8" class="eye"/>
+      <circle cx="248" cy="248" r="8" class="eye"/>
+      <text class="v" x="134" y="258" style="font-size:12px">视点 A</text>
+      <text class="v" x="262" y="254" style="font-size:12px">视点 B</text>
+    </g>
+    <text class="s" x="16" y="292">绕着一片区域拍很多张 → 重建出可以真正走进去的空间</text>
+    <text class="s" x="16" y="312" fill="#2f7d4f">代价：数据量大、算力要求高，而且生成的内容不一定是真的</text>
+  </g>
+</svg>

@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 400" width="960" height="400" role="img" aria-label="漫游作品是一张图：节点与边、双向可达、死胡同与不可达节点">
+  <style>
+    .card{fill:#f6f5fb;stroke:#ddd7f2;stroke-width:1.5}
+    .t{font:600 15px "Microsoft YaHei",sans-serif;fill:#3b2f63}
+    .s{font:12.5px "Microsoft YaHei",sans-serif;fill:#6b6288}
+    .node{fill:#d8d2f2;stroke:#8b7fd4;stroke-width:2}
+    .nodeStart{fill:#f2c7b8;stroke:#c1502e;stroke-width:2}
+    .nodeDead{fill:#f7d9d0;stroke:#c1502e;stroke-width:2;stroke-dasharray:5 4}
+    .nodeMiss{fill:#eceaf4;stroke:#b6b1c9;stroke-width:2;stroke-dasharray:5 4}
+    .edge{stroke:#8b7fd4;stroke-width:2.4;fill:none;marker-end:url(#a)}
+    .edgeBad{stroke:#c1502e;stroke-width:2.4;fill:none;marker-end:url(#r)}
+    .lbl{font:600 12.5px "Microsoft YaHei",sans-serif;fill:#3b2f63;text-anchor:middle}
+    .ok{fill:#2f7d4f;font:600 12.5px "Microsoft YaHei",sans-serif}
+    .bad{fill:#c1502e;font:600 12.5px "Microsoft YaHei",sans-serif}
+    .warnn{fill:#a8761c;font:600 12.5px "Microsoft YaHei",sans-serif}
+  </style>
+  <rect width="960" height="400" fill="#fff"/>
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#8b7fd4"/>
+    </marker>
+    <marker id="r" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#c1502e"/>
+    </marker>
+  </defs>
+
+  <text class="t" x="24" y="30">漫游作品 = 一张图（节点 + 边），不是一张图</text>
+  <text class="s" x="24" y="52">每个房间是一个节点，每条热点是一条边。右边这张图故意留了两个毛病——你能一眼指出来吗？</text>
+
+  <!-- 正确的星形 -->
+  <g transform="translate(60,80)">
+    <rect class="card" width="380" height="280" rx="12"/>
+    <text class="t" x="14" y="26" style="font-size:13.5px">✔ 一个合格的样子（本课漫游器）</text>
+    <line class="edge" x1="60" y1="150" x2="176" y2="100"/>
+    <line class="edge" x1="188" y1="100" x2="304" y2="150"/>
+    <line class="edge" x1="60" y1="170" x2="176" y2="220"/>
+    <line class="edge" x1="188" y1="220" x2="304" y2="170"/>
+    <line class="edge" x1="190" y1="108" x2="190" y2="212" stroke-dasharray="0"/>
+    <line class="edge" x1="204" y1="212" x2="204" y2="108"/>
+    <circle class="nodeStart" cx="46" cy="160" r="24"/>
+    <text class="lbl" x="46" y="165">客厅</text>
+    <circle class="node" cx="190" cy="92" r="24"/>
+    <text class="lbl" x="190" y="97">餐厅</text>
+    <circle class="node" cx="318" cy="160" r="22"/>
+    <text class="lbl" x="318" y="165" style="font-size:11.5px">厨房</text>
+    <circle class="node" cx="190" cy="238" r="22"/>
+    <text class="lbl" x="190" y="243" style="font-size:11.5px">卫生间</text>
+    <text class="s" x="14" y="272" style="font-size:12px">起点是客厅；餐厅是枢纽</text>
+  </g>
+
+  <!-- 有毛病的图 -->
+  <g transform="translate(470,80)">
+    <rect class="card" width="420" height="280" rx="12"/>
+    <text class="t" x="14" y="26" style="font-size:13.5px">✘ 有毛病的两种典型</text>
+    <!-- 死胡同 -->
+    <line class="edgeBad" x1="70" y1="120" x2="190" y2="86"/>
+    <line class="edgeBad" x1="190" y1="86" x2="310" y2="120"/>
+    <circle class="nodeStart" cx="56" cy="124" r="22"/>
+    <text class="lbl" x="56" y="129" style="font-size:11.5px">客厅</text>
+    <circle class="node" cx="190" cy="80" r="22"/>
+    <text class="lbl" x="190" y="85" style="font-size:11.5px">餐厅</text>
+    <circle class="nodeDead" cx="322" cy="122" r="24"/>
+    <text class="lbl" x="322" y="127" style="font-size:11px">卧室</text>
+    <text class="bad" x="240" y="176">✘ 死胡同：进得去，出不来</text>
+    <!-- 不可达 -->
+    <circle class="nodeMiss" cx="120" cy="228" r="24"/>
+    <text class="lbl" x="120" y="233" style="font-size:11px">书房</text>
+    <circle class="nodeMiss" cx="270" cy="232" r="24"/>
+    <text class="lbl" x="270" y="237" style="font-size:11px">卫生间</text>
+    <line class="edge" x1="146" y1="228" x2="244" y2="230" stroke-dasharray="6 5" opacity=".65"/>
+    <text class="warnn" x="18" y="272">△ 不可达：从客厅出发，根本走不到这两个房间</text>
+  </g>
+</svg>

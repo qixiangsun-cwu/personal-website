@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>注视停留时间调参 · 停多久才算“选中了”</title>
+<style>
+  html,body{margin:0;background:#0b1016;color:#e8eef6;font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif}
+  .wrap{max-width:1180px;margin:0 auto;padding:22px 20px 60px}
+  h1{font-size:21px;margin:6px 0 4px}
+  .sub{color:#93a6bb;font-size:13px;margin-bottom:14px;line-height:1.85}
+  .row{display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start}
+  .left{flex:1 1 620px;min-width:320px}
+  .right{flex:0 1 420px;min-width:300px}
+  .card{background:rgba(15,22,32,.85);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:14px 16px;margin-bottom:14px}
+  .card h3{margin:0 0 10px;font-size:15px}
+  canvas{display:block;width:100%;border-radius:12px;border:1px solid rgba(255,255,255,.14);background:#05080c;cursor:pointer}
+  .ctl{display:flex;align-items:center;gap:12px;margin:9px 0}
+  .ctl label{flex:0 0 140px;font-size:13.5px;color:#b8c8da}
+  .ctl input[type=range]{flex:1;accent-color:#ffd27a}
+  .ctl .num{flex:0 0 92px;text-align:right;font-family:Consolas,monospace;color:#ffd27a;font-size:14.5px}
+  .presets{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 2px}
+  .presets button{font:600 12.5px/1 "Microsoft YaHei";color:#dbe7f4;background:rgba(255,255,255,.07);
+    border:1px solid rgba(255,255,255,.2);border-radius:999px;padding:8px 13px;cursor:pointer}
+  .presets button.on{background:linear-gradient(135deg,#ffd27a,#e0a33c);border-color:transparent;color:#0b1016}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  td{border-bottom:1px solid rgba(255,255,255,.08);padding:7px 5px}
+  td.k{color:#8fa3b8;width:52%}
+  td.v{font-family:Consolas,monospace;color:#ffd27a}
+  #verdict{margin-top:8px;padding:12px 14px;border-radius:10px;font-size:13.5px;line-height:1.9;
+    background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.14)}
+  .legend{font-size:12.5px;line-height:1.95;color:#c3d2e3}
+  .legend b{color:#ffd27a}
+  .back{margin-top:24px;font-size:13.5px}
+  .back a{color:#ffd27a;text-decoration:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>注视停留时间调参 · 停多久才算“选中了”</h1>
+  <div class="sub">
+    “注视停留”（dwell）是<b>不用手柄</b>的选择方式：视线停在一个控件上够久，就当作点了一下。
+    <b>“够久”到底是多久？</b>下面按住鼠标（或空格）别动，亲自把 0.6 / 1.2 / 2.0 秒试一遍——
+    <b>这个数字太短会误触发，太长会让人等得烦。</b>
+  </div>
+
+  <div class="row">
+    <div class="left">
+      <div class="card">
+        <h3>按住不放，把圆环填满（松手 = 半途离开）</h3>
+        <canvas id="cv" width="860" height="300"></canvas>
+        <div class="legend" style="margin-top:8px">
+          左：<b>注视目标</b>——按住鼠标左键（或空格）不松，环会按你设的“停留时长”匀速填满。<br>
+          右：<b>扫视模拟</b>——视线以设定的角速度掠过同一个目标，用来算“扫过去会不会误触发”。
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>参数</h3>
+        <div class="presets" id="presets">
+          <button data-d="0.6">停留 0.6 秒</button>
+          <button data-d="1.2">停留 1.2 秒（本课默认）</button>
+          <button data-d="2.0">停留 2.0 秒</button>
+          <button data-d="3.0">停留 3.0 秒</button>
+        </div>
+        <div class="ctl">
+          <label>停留时长</label>
+          <input id="d" type="range" min="0.4" max="3" step="0.1" value="1.2">
+          <span class="num" id="vd">1.2 s</span>
+        </div>
+        <div class="ctl">
+          <label>扫视角速度</label>
+          <input id="sp" type="range" min="60" max="600" step="10" value="300">
+          <span class="num" id="vsp">300°/s</span>
+        </div>
+        <div class="legend">扫视（saccade）是眼睛最快的一种运动，<b>通常几百到上千度每秒</b>；这里默认取 300°/s 做量级估算。</div>
+      </div>
+    </div>
+
+    <div class="right">
+      <div class="card">
+        <h3>结果</h3>
+        <table>
+          <tr><td class="k">已注视</td><td class="v" id="r-hold">0.00 s</td></tr>
+          <tr><td class="k">需要停满</td><td class="v" id="r-need">1.20 s</td></tr>
+          <tr><td class="k">成功触发</td><td class="v" id="r-ok">0 次</td></tr>
+          <tr><td class="k">中途离开</td><td class="v" id="r-abort">0 次</td></tr>
+          <tr><td class="k">上一次用了</td><td class="v" id="r-last">—</td></tr>
+          <tr><td class="k">扫过 8° 目标要多久</td><td class="v" id="r-sweep">—</td></tr>
+        </table>
+        <div id="verdict">按住圆环试一次 →</div>
+      </div>
+
+      <div class="card">
+        <h3>两个方向的代价（这就是要调参的原因）</h3>
+        <div class="legend">
+          <b>太短 → 误触发。</b>你只是“盯着某个地方想事情”，它当作你点了。<br>
+          <b>太长 → 等待感。</b>每次跳转都要盯着不动一秒多，走完六个房间就是十几次干等。<br>
+          <b>但“扫过去”几乎不会误触发</b>——看右边那行“扫过 8° 目标要多久”：
+          以 300°/s 掠过 8° 的目标只要几十毫秒，<b>比任何合理的停留阈值都短得多</b>。
+          所以停留式交互要防的从来不是“快速扫视”，而是<b>“凝视思考”</b>。<br>
+          <b>课堂口径：</b>本课漫游器统一用 <b>1.2 秒</b>（退出按钮 1.5 秒、长按手柄退出 2 秒）——
+          短到不烦、长到能区分“扫过”和“停住”。这不是标准，是<b>本课的约定值</b>，改它就全班一起改。
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="back"><a href="./index.html">← 回演示中心</a></div>
+</div>
+
+<script>
+var cv = document.getElementById('cv'), g = cv.getContext('2d');
+var dEl = document.getElementById('d'), spEl = document.getElementById('sp');
+var holding = false, t0 = 0, held = 0, okN = 0, abN = 0, lastTxt = '—', flash = 0;
+var TARGET_W = 8;                     /* 目标在视野里约占 8°，热点按钮的量级 */
+var TX = 250, TY = 150, TR = 72;      /* 注视目标圆心与半径 */
+var sx = 470, sy = 150, sw = 340, sh = 96;   /* 扫视轨道 */
+var sweepX = 0, last = 0;
+
+function need(){ return +dEl.value; }
+function speed(){ return +spEl.value; }
+
+function loop(ts){
+  if (!last) last = ts;
+  var dt = Math.min(0.05, (ts - last) / 1000); last = ts;
+  if (holding){ held += dt; if (held >= need()){ okN++; lastTxt = '满 ' + need().toFixed(1) + ' s（触发）'; held = 0; holding = false; flash = 1; } }
+  if (flash > 0) flash = Math.max(0, flash - dt * 2.2);
+  /* 扫视模拟：来回扫 */
+  var period = 2.4;
+  var ph = (performance.now() / 1000 % period) / period;
+  sweepX = sx + sw * (0.5 - 0.5 * Math.cos(ph * Math.PI * 2));
+  draw();
+  requestAnimationFrame(loop);
+}
+
+function draw(){
+  var W = cv.width, H = cv.height;
+  g.clearRect(0, 0, W, H);
+  var p = Math.min(1, held / need());
+
+  /* ---- 左：注视目标 ---- */
+  g.beginPath(); g.arc(TX, TY, TR, 0, Math.PI * 2);
+  g.fillStyle = 'rgba(255,210,122,.10)'; g.fill();
+  g.strokeStyle = 'rgba(255,255,255,.28)'; g.lineWidth = 10; g.stroke();
+  g.beginPath(); g.arc(TX, TY, TR, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * p);
+  g.strokeStyle = p >= 1 ? '#7ddc9a' : (flash > 0 ? '#7ddc9a' : '#ffd27a');
+  g.lineWidth = 10; g.stroke();
+  g.beginPath(); g.arc(TX, TY, TR - 26, 0, Math.PI * 2);
+  g.fillStyle = flash > 0 ? 'rgba(125,220,154,' + (0.25 + 0.5 * flash) + ')' : 'rgba(255,255,255,.06)';
+  g.fill();
+  g.textAlign = 'center';
+  g.fillStyle = flash > 0 ? '#7ddc9a' : '#e8eef6';
+  g.font = '600 22px "Microsoft YaHei",sans-serif';
+  g.fillText(flash > 0 ? '已触发' : '去餐厅', TX, TY - 2);
+  g.font = '13px Consolas,monospace'; g.fillStyle = '#93a6bb';
+  g.fillText(held.toFixed(2) + ' / ' + need().toFixed(1) + ' s', TX, TY + 22);
+  g.font = '12.5px "Microsoft YaHei",sans-serif'; g.fillStyle = '#8fa3b8';
+  g.fillText('按住鼠标 / 空格', TX, TY + TR + 34);
+  g.textAlign = 'left';
+
+  /* ---- 右：扫视模拟 ---- */
+  g.fillStyle = 'rgba(255,255,255,.05)';
+  g.fillRect(sx, sy - 58, sw, 116);
+  g.strokeStyle = 'rgba(255,255,255,.16)'; g.lineWidth = 1; g.strokeRect(sx + .5, sy - 57.5, sw - 1, 115);
+  /* 目标区（8°） */
+  var zoneW = sw * (TARGET_W / 360) * 6;   /* 放大 6 倍便于观看，标注清楚 */
+  var zx = 470 + sw / 2 - zoneW / 2;
+  g.fillStyle = 'rgba(255,210,122,.30)';
+  g.fillRect(zx, sy - 40, zoneW, 80);
+  g.strokeStyle = '#ffd27a'; g.strokeRect(zx + .5, sy - 39.5, zoneW - 1, 79);
+  /* 移动的视线点 */
+  g.beginPath(); g.arc(sweepX, sy, 9, 0, Math.PI * 2);
+  var inZone = sweepX >= zx && sweepX <= zx + zoneW;
+  g.fillStyle = inZone ? '#ffd27a' : '#7dd1ff'; g.fill();
+  g.font = '12.5px "Microsoft YaHei",sans-serif'; g.fillStyle = '#93a6bb';
+  g.fillText('视线', sx, sy - 44);
+  g.fillText('目标区（8° 宽，图中放大显示）', zx - 10, sy + 60);
+  g.fillText('角速度 ' + speed() + '°/s', sx + sw - 116, sy - 44);
+  g.font = '12px Consolas,monospace'; g.fillStyle = '#8fa3b8';
+  g.fillText('进入目标区后停留 ≈ ' + (TARGET_W / speed() * 1000).toFixed(0) + ' 毫秒', sx, sy + 88);
+
+  document.getElementById('r-hold').textContent = held.toFixed(2) + ' s';
+  document.getElementById('r-ok').textContent = okN + ' 次';
+  document.getElementById('r-abort').textContent = abN + ' 次';
+  document.getElementById('r-last').textContent = lastTxt;
+}
+
+function setVerdict(){
+  var d = need(), v = document.getElementById('verdict');
+  var sweep = TARGET_W / speed() * 1000;
+  document.getElementById('vd').textContent = d.toFixed(1) + ' s';
+  document.getElementById('vsp').textContent = speed() + '°/s';
+  document.getElementById('r-need').textContent = d.toFixed(2) + ' s';
+  document.getElementById('r-sweep').textContent = sweep.toFixed(0) + ' ms';
+  /* 预设按钮的高亮跟着数值走 */
+  document.querySelectorAll('#presets button').forEach(function(b){
+    b.classList.toggle('on', Math.abs(+b.getAttribute('data-d') - d) < 0.001);
+  });
+  if (d <= 0.7){
+    v.innerHTML = '<b style="color:#ff9d80">△ ' + d.toFixed(1) + ' 秒偏短。</b>' +
+      '正常“看东西”的目光停留本来就有零点几秒，这个阈值很难区分“我在看”和“我点了”。' +
+      '在真实场景里会变成<b>误触发</b>：你盯着房间中央想事，它跳走了。';
+  } else if (d >= 2.0){
+    v.innerHTML = '<b style="color:#ffd166">△ ' + d.toFixed(1) + ' 秒偏长。</b>' +
+      '不容易误触发，但每一次跳转都要盯着不动两秒以上——<b>走完六个房间就是十几次干等</b>，' +
+      '学生会开始乱晃头。（本课的“退出”按钮故意设成 1.5 秒，就是因为它不需要频繁按。）';
+  } else {
+    v.innerHTML = '<b style="color:#7ddc9a">✔ ' + d.toFixed(1) + ' 秒在本课的合适区间。</b>' +
+      '而一次 300°/s 的扫视掠过 8° 的目标只花 ' + sweep.toFixed(0) + ' 毫秒，' +
+      '<b>远远不够触发</b>——所以这个阈值防得住“扫过去”，防不住“盯着想事”，后者要靠<b>把热点别放在视线自然停留的地方</b>。';
+  }
+}
+
+cv.addEventListener('pointerdown', function(e){ e.preventDefault(); holding = true; held = 0; });
+window.addEventListener('pointerup', function(){
+  if (holding && held > 0.05){ abN++; lastTxt = '松手于 ' + held.toFixed(2) + ' s（未满）'; }
+  holding = false; held = 0;
+});
+window.addEventListener('keydown', function(e){
+  if (e.code === 'Space' && !e.repeat){ e.preventDefault(); holding = true; held = 0; }
+});
+window.addEventListener('keyup', function(e){
+  if (e.code === 'Space'){ if (holding && held > 0.05){ abN++; lastTxt = '松开于 ' + held.toFixed(2) + ' s（未满）'; } holding = false; held = 0; }
+});
+dEl.addEventListener('input', setVerdict);
+spEl.addEventListener('input', setVerdict);
+document.querySelectorAll('#presets button').forEach(function(b){
+  b.addEventListener('click', function(){
+    dEl.value = b.getAttribute('data-d');
+    document.querySelectorAll('#presets button').forEach(function(x){ x.classList.toggle('on', x === b); });
+    setVerdict();
+  });
+});
+setVerdict();
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>

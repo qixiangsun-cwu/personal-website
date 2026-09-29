@@ -32,12 +32,14 @@
 <body>
 <div class="wrap">
   <h1>三维全景技术 · 课堂演示</h1>
-  <p class="sub">第 5 次课配套的两个演示。全部离线可用、点开即运行；用头显打开可以进入沉浸模式。</p>
+  <p class="sub">第 5 次课配套的演示。全部离线可用、点开即运行；用头显打开可以进入沉浸模式。</p>
 
   <div class="tip">
-    <b>两个演示分别回答一个问题。</b><br>
+    <b>本页的编号跟课次目录里的文件编号一致</b>（01、02、04 … 15；03 号位置留给了官方样例）。<br>
+    前几个各自回答一个问题：<br>
     ① 号回答"<b>一张 2:1 的平面图，凭什么就是一个 360° 的世界</b>"——讲原理；<br>
-    ② 号回答"<b>拍完之后怎么变成能走进去的作品</b>"——讲制作与交互。
+    ② 号回答"<b>拍完之后怎么变成能走进去的作品</b>"——讲制作与交互；<br>
+    ⑬ 号和 ⑪ 号是"<b>动手之前先体检</b>"——一圈拍几张、手上这张图能不能用。
   </div>
 
   <a class="card" href="pano01-projection.html">
@@ -59,7 +61,7 @@
   </a>
 
   <a class="card" href="pano-three-forms.html">
-    <div class="no">演示 03 · 讲形式</div>
+    <div class="no">演示 04 · 讲形式</div>
     <div class="t">柱形 / 球形 / 立方体 对比器</div>
     <div class="d">同一处空间、三种存法并排放在一起。<strong>拖“抬头”滑杆让三个视图一起抬头</strong>：
       柱形开始露白（手机全景“天塌地陷”的真相）、球形两极被拉开（所以要补天）、立方体一直连续。
@@ -68,7 +70,7 @@
   </a>
 
   <a class="card" href="pano-hotspot-editor.html">
-    <div class="no">演示 04 · 讲动手</div>
+    <div class="no">演示 05 · 讲动手</div>
     <div class="t">热点编辑器 · 量出你要的 u 值</div>
     <div class="d">在教材客厅全景图上<strong>点一下你想指的方向</strong>，右侧立刻给出该处的
       <code>u</code>、<code>v</code>、偏航角，以及一行可以直接粘回代码的配置。
@@ -76,7 +78,25 @@
     <div class="f">pano-hotspot-editor.html</div>
   </a>
 
-  <h2 style="color:#f0b45a;font-size:17px;margin:30px 0 8px;letter-spacing:1px">第 5 章（下）· 2026-10-14 的四个演示</h2>
+  <a class="card" href="pano-overlap-calc.html">
+    <div class="no">演示 13 · 讲拍摄</div>
+    <div class="t">拍摄张数与重叠率计算器 · 一圈到底要拍几张</div>
+    <div class="d">拖“镜头水平视角”和“想要的重叠率”两个滑杆，下面直接画出这一圈：
+      <strong>每一张盖住哪一段、相邻交叠多宽、哪一度只有一张盖着</strong>，并算出每圈张数与实际重叠率。<br>
+      对着教材表 5-1 现场验算一遍——“一圈几张”是一条除法，不是手感。</div>
+    <div class="f">pano-overlap-calc.html</div>
+  </a>
+
+  <a class="card" href="pano-spec-checker.html">
+    <div class="no">演示 11 · 动手之前先体检</div>
+    <div class="t">全景图规格检查器 · 你手上这张图能不能用</div>
+    <div class="d">把一张“全景图”拖进来，10 秒出结论：<strong>宽高比是不是 2:1</strong>（不是的话它多半是柱形或裁切图）、
+      <strong>每度像素够不够清晰</strong>、<strong>单张显存要多少</strong>、适合给手机看还是给头显看。<br>
+      图片只在你的浏览器里算，<strong>不会上传</strong>。</div>
+    <div class="f">pano-spec-checker.html</div>
+  </a>
+
+  <h2 style="color:#f0b45a;font-size:17px;margin:30px 0 8px;letter-spacing:1px">第 5 章（下）· 2026-10-14 的八个演示</h2>
   <p class="sub" style="color:#a89b7c;font-size:13px;line-height:1.9">
     下节把“一个房间”变成“一条路”。难点几乎全在设计上：<strong>路子通不通、进门先看什么、信息写多少、怎么算完成</strong>。
   </p>
@@ -114,8 +134,45 @@
     <div class="f">pano-rubric.html</div>
   </a>
 
+  <a class="card" href="pano-frustum-check.html">
+    <div class="no">演示 14 · 第一眼（可算）</div>
+    <div class="t">视锥可见性检查器 · 这一眼看得见几个出口</div>
+    <div class="d">“进门第一眼”不是审美，是几何：<strong>初始朝向决定视锥落在哪</strong>。
+      选一个房间，拖朝向和视角，右侧逐个列出每个出口<b>离视线中心多少度、在视锥里还是在背后</b>，
+      并给出“第一眼可见出口数”。<br>热点数据取自本课漫游器，<strong>默认就停在教材那个房间上</strong>——
+      <b>打开先看看它第一眼看不看得见出口</b>。</div>
+    <div class="f">pano-frustum-check.html</div>
+  </a>
+
+  <a class="card" href="pano-turn-comfort.html">
+    <div class="no">演示 10 · 舒适度</div>
+    <div class="t">转向范式与舒适度 · 平滑转向 vs Snap 转向</div>
+    <div class="d">全景里“转头”是唯一的移动方式，所以<strong>转向的设计直接决定晕不晕</strong>。
+      按住 <b>←</b> / <b>→</b> 亲自比两种范式，右侧实时显示 <b>yaw</b>、<b>视线中心 u</b>、
+      <b>瞬时角速度</b>与<strong>晕动风险分级</strong>。</div>
+    <div class="f">pano-turn-comfort.html</div>
+  </a>
+
+  <a class="card" href="pano-transition.html">
+    <div class="no">演示 12 · 转场</div>
+    <div class="t">转场方式对比器 · 从「客厅」到「餐厅」的三条走法</div>
+    <div class="d">同一个跳转，三种做法：<strong>① 直接跳（瞬时）② 淡出淡入 0.6 秒 ③ 先转向门口再切</strong>。
+      三种都试一次就会明白——<b>“我还能不能说出自己是从哪边过来的”</b>，就是这三种的性格差别。</div>
+    <div class="f">pano-transition.html</div>
+  </a>
+
+  <a class="card" href="pano-dwell-tuning.html">
+    <div class="no">演示 15 · 交互调参</div>
+    <div class="t">注视停留时间调参 · 停多久才算“选中了”</div>
+    <div class="d">按住圆环别动，亲自把 <b>0.6 / 1.2 / 2.0 秒</b>试一遍：<strong>太短误触发，太长等得烦</strong>。
+      旁边同时算出“一次扫视掠过 8° 目标要多久”——用来讲清
+      <b>停留式交互要防的是“凝视思考”，不是“扫过去”</b>。<br>
+      本课统一用 <b>1.2 秒</b>（退出按钮 1.5 秒、长按手柄 2 秒）。</div>
+    <div class="f">pano-dwell-tuning.html</div>
+  </a>
+
   <a class="card" href="samples/vr-barebones.html">
-    <div class="no">演示 05 · 官方样例（本地）</div>
+    <div class="no">官方样例（本地 · 加映）</div>
     <div class="t">最小 VR 会话 · 7.7 KB 单文件 · 零依赖</div>
     <div class="d">来自 W3C 沉浸式 Web 社区组的官方样例（MIT）。它不渲染什么好看的东西，只是把显示清成缓慢变化的颜色——
       <strong>用来回答“进不去 VR 到底卡在哪一环”</strong>：连它都进不去，问题一定在环境，不在你的代码。

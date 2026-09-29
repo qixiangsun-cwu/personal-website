@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>转场方式对比器 · 跳转 / 淡入淡出 / 先走向门口</title>
+<style>
+  html,body{margin:0;background:#0b1016;color:#e8eef6;font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif}
+  .wrap{max-width:1180px;margin:0 auto;padding:22px 20px 60px}
+  h1{font-size:21px;margin:6px 0 4px}
+  .sub{color:#93a6bb;font-size:13px;margin-bottom:14px;line-height:1.85}
+  .bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;background:rgba(15,22,32,.85);
+    border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:12px 16px;margin-bottom:14px}
+  .bar button{font:600 13.5px/1 "Microsoft YaHei";color:#dbe7f4;background:rgba(255,255,255,.07);
+    border:1px solid rgba(255,255,255,.2);border-radius:999px;padding:10px 16px;cursor:pointer}
+  .bar button.on{background:linear-gradient(135deg,#ffd27a,#e0a33c);border-color:transparent;color:#0b1016}
+  .bar .hint{font-size:12px;color:#8fa3b8}
+  .row{display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start}
+  .left{flex:1 1 620px;min-width:320px}
+  canvas{display:block;width:100%;border-radius:12px;border:1px solid rgba(255,255,255,.14);background:#05080c}
+  .right{flex:0 1 400px;min-width:300px}
+  .card{background:rgba(15,22,32,.85);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:14px 16px;margin-bottom:14px}
+  .card h3{margin:0 0 8px;font-size:15px}
+  .kv{display:grid;grid-template-columns:auto 1fr;gap:6px 12px;font-size:13.5px}
+  .kv b{color:#8fa3b8;font-weight:400}
+  .val{font-family:Consolas,monospace;color:#ffd27a}
+  .legend{font-size:13px;line-height:2;color:#c3d2e3}
+  .legend b{color:#ffd27a}
+  .back{margin-top:24px;font-size:13.5px}
+  .back a{color:#ffd27a;text-decoration:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>转场方式对比器 · 从「客厅」到「餐厅」的三条走法</h1>
+  <div class="sub">
+    同一个跳转，<strong>瞬时切换 / 淡出淡入 / 先转向门口再切</strong>，给人的感受完全不同。
+    三种都试一次——注意“你还能不能说出自己是从哪边过来的”。
+  </div>
+
+  <div class="bar">
+    <button id="b-cut" class="on">① 直接跳转（瞬间）</button>
+    <button id="b-fade">② 淡出淡入（0.6 秒）</button>
+    <button id="b-walk">③ 先转向门口，再淡出切换</button>
+    <span class="hint">点按钮就会从客厅走到餐厅；再点一次走回来。</span>
+  </div>
+
+  <div class="row">
+    <div class="left"><canvas id="cv" width="900" height="500"></canvas></div>
+    <div class="right">
+      <div class="card">
+        <h3>当前状态</h3>
+        <div class="kv">
+          <b>所在房间</b><span class="val" id="vroom">客厅</span>
+          <b>转场方式</b><span class="val" id="vmode">直接跳转</span>
+          <b>上次转场耗时</b><span class="val" id="vtime">—</span>
+          <b>朝向 yaw</b><span class="val" id="vyaw">-47°</span>
+        </div>
+      </div>
+      <div class="card">
+        <h3>三种走法各自的性格</h3>
+        <div class="legend" style="font-size:12.5px">
+          <b>① 直接跳转</b>：最快、最不容易晕（视野没有流动）；但<b>空间关系被打断</b>——观众会问“我刚才不是在客厅吗”。适合明确标注了房间名的作品。<br>
+          <b>② 淡出淡入</b>：多花半秒，<b>给了大脑一个“场景要换了”的信号</b>，空间跳跃感会小一些；代价是节奏变慢。<br>
+          <b>③ 先转向门口再切</b>：最接近“我真的走过去了”——<b>先朝出口看一眼</b>（这一步同时也在提示“路在那边”），再切。舒适度和空间连续感都最好，但实现最麻烦，也最花时间。<br>
+          <b>课堂建议</b>：先做 ①，再用 ② 补一个过渡；③ 留给想拿高分的作品（下次课那条“步进式漫游”讲的就是它）。
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="back"><a href="./index.html">← 回演示中心</a></div>
+</div>
+
+<script src="./_pano-view.js"></script>
+<script>
+var ROOM = {
+  living: { name:'客厅', src:'./pano/living.jpg', yaw:-47 },
+  dining: { name:'餐厅', src:'./pano/dining.jpg', yaw:-90 }
+};
+var cur = 'living', target = 'dining';
+var view = new PanoView(document.getElementById('cv'), ROOM.living.src, { yaw: ROOM.living.yaw, fov:62 });
+var cached = {};                       /* 另一个房间的视图，转场时备用 */
+var mode = 'cut', busy = false;
+
+function preload(){
+  ['living','dining'].forEach(function(k){
+    if (cached[k]) return;
+    var c = document.createElement('canvas');
+    c.width = view.cv.width; c.height = view.cv.height;
+    var v = new PanoView(c, ROOM[k].src, { yaw: ROOM[k].yaw, fov:62 });
+    v.onready = function(){ if (v.draw()) cached[k] = v; };
+  });
+}
+function paint(){
+  document.getElementById('vroom').textContent = ROOM[cur].name;
+  document.getElementById('vmode').textContent = { cut:'直接跳转', fade:'淡出淡入', walk:'先转向门口再淡出' }[mode];
+  document.getElementById('vyaw').textContent = Math.round(view.yaw) + '°';
+}
+function swapRoom(){
+  var t = cur; cur = target; target = t;
+  var v = cached[cur];
+  if (v && v.ready){ view = v; }
+  else { view = new PanoView(view.cv, ROOM[cur].src, { yaw: ROOM[cur].yaw, fov:62 });
+         view.onready = function(){ view.draw(); }; }
+  view.yaw = ROOM[cur].yaw; view.exposure = 1;
+  view.draw(); paint();
+}
+/* 用 exposure 做淡出淡入：不需要两张画布叠加，简单可靠 */
+function fadeSwap(ms, cb){
+  var t0 = performance.now();
+  (function step(t){
+    var k = Math.min(1, (t - t0) / (ms / 2));
+    view.exposure = 1 - k; view.draw();
+    if (k < 1) return requestAnimationFrame(step);
+    swapRoom();
+    var t1 = performance.now();
+    (function back(t2){
+      var k2 = Math.min(1, (t2 - t1) / (ms / 2));
+      view.exposure = k2; view.draw();
+      if (k2 < 1) return requestAnimationFrame(back);
+      view.exposure = 1; view.draw(); if (cb) cb();
+    })(performance.now());
+  })(performance.now());
+}
+function run(){
+  if (busy) return;
+  var t0 = performance.now();
+  if (mode === 'cut'){
+    swapRoom();
+    done(t0);
+  } else if (mode === 'fade'){
+    busy = true; fadeSwap(600, function(){ busy = false; done(t0); });
+  } else {
+    /* ③ 先转向门口（走廊方向 u≈0.62 → yaw −47），再淡出切换 */
+    busy = true;
+    var startYaw = view.yaw, endYaw = -47 + (cur === 'living' ? 0 : -21);
+    var t1 = performance.now();
+    (function step(t){
+      var k = Math.min(1, (t - t1) / 500);
+      view.yaw = startYaw + (endYaw - startYaw) * k;
+      view.draw(); paint();
+      if (k < 1) return requestAnimationFrame(step);
+      fadeSwap(600, function(){ busy = false; done(t0); });
+    })(performance.now());
+  }
+}
+function done(t0){
+  document.getElementById('vtime').textContent = Math.round(performance.now() - t0) + ' ms';
+  paint();
+}
+view.onerror = function(src){ document.body.insertAdjacentHTML('afterbegin',
+  '<div style="padding:12px 16px;background:#c1502e;color:#fff">全景图加载失败：'+src+'</div>'); };
+view.onready = function(){ view.draw(); paint(); preload(); };
+view.cv.addEventListener('click', run);
+document.querySelectorAll('.bar button').forEach(function(b){
+  b.addEventListener('click', function(e){
+    e.stopPropagation();
+    document.querySelectorAll('.bar button').forEach(function(x){ x.classList.remove('on'); });
+    b.classList.add('on');
+    mode = b.id.replace('b-','');
+    paint();
+  });
+});
+</script>
+</body>
+</html>
