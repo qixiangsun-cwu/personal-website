@@ -10,10 +10,13 @@
  *   ④ 如果页面里能找到 three.js 的 renderer，顺带显示 DrawCall 与三角面；
  *   ⑤ 提供 window.VRProbe.report() 返回一段可复制的文本报告。
  *
- * 两个必须知道的限制：
- *   - HUD 是 DOM 元素，**沉浸式 VR 模式下看不见**（WebXR 只渲染 3D 场景）。
- *     所以在头显里请用投屏/镜像看这个面板，或者在 2D 模式下看。
- *   - 它不会改你的场景，也不会接管渲染循环；它只观察。
+ * 两个必须知道的事：
+ *   - HUD 默认是 DOM 元素，**沉浸式 VR 模式下看不见**（WebXR 只渲染 3D 场景）。
+ *     所以本探针会**自动再挂一块"场景内面板"**：只要你的页面把 three 的 scene / camera
+ *     挂在 window 上（window.scene / window.camera，或 window.__scene / window.__camera），
+ *     它就把同一份读数画成一块平面贴在视线下方，进 VR 低头就能看到。
+ *     （做法来自课程里的《太和殿 · 故宫沉浸式场景》A-Frame 工程 buildPanel()。）
+ *   - 它不会改你的场景，也不会接管渲染循环；它只观察（外加一块自己加的提示平面）。
  * ========================================================================== */
 (function () {
   'use strict';
@@ -127,8 +130,7 @@
 
   function yn(ok) { return ok ? '✅' : '❌'; }
 
-  function render(withErrors) {
-    if (!body) return;
+  function statusLines(withErrors) {
     var r = findRenderer();
     var lines = [];
     lines.push(yn(window.isSecureContext === true) + ' 安全上下文　' + location.protocol);
@@ -144,7 +146,81 @@
       lines.push(errors.length ? ('⚠ 报错 ' + errors.length + ' 条：') : '✅ 暂无 JS 报错');
       for (var i = 0; i < errors.length; i++) lines.push('　· ' + errors[i]);
     }
-    body.textContent = lines.join('\n');
+    return lines;
+  }
+
+  function render(withErrors) {
+    if (body) body.textContent = statusLines(withErrors).join('\n');
+    update3DPanel();
+  }
+
+  /* =======================================================================
+   * 3D 场景内面板 —— 因为在沉浸式 VR 里浏览器不渲染 DOM，DOM 面板看不见。
+   * 做法参考课程里的《太和殿 · 故宫沉浸式场景》那份 A-Frame 工程
+   * （它的 index.html 里写着："真正的控制台是做进 3D 场景里的，见 app.js 的 buildPanel()"）。
+   * 这里做成通用版：自动找 window.scene / window.camera / window.THREE，
+   * 找到就把一块 CanvasTexture 平面挂在相机上，位置在视线下方。
+   * 找不到就什么都不做（DOM 面板照旧）。
+   * ======================================================================= */
+  var P3D = { canvas: null, ctx: null, tex: null, mesh: null, scene: null, camera: null, T: null, ok: false };
+
+  function findSceneAndCamera() {
+    var T = window.THREE;
+    if (!T) return false;
+    var cands = [
+      [window.scene, window.camera],
+      [window.__scene, window.__camera],
+      [window.scene3d, window.camera3d]
+    ];
+    for (var i = 0; i < cands.length; i++) {
+      if (cands[i][0] && cands[i][1]) { P3D.scene = cands[i][0]; P3D.camera = cands[i][1]; P3D.T = T; return true; }
+    }
+    // 退一步：找 renderer 然后把相机挂上去 + 让调用方自己给 scene
+    var r = findRenderer();
+    if (r && window.__VRPROBE_SCENE && r.xr) { P3D.scene = window.__VRPROBE_SCENE; P3D.camera = window.__VRPROBE_CAMERA || null; P3D.T = T; return !!P3D.camera; }
+    return false;
+  }
+
+  function setup3D() {
+    if (!findSceneAndCamera()) return;
+    var T = P3D.T, W = 640, H = 320;
+    var cv = document.createElement('canvas');
+    cv.width = W; cv.height = H;
+    P3D.canvas = cv; P3D.ctx = cv.getContext('2d');
+    P3D.tex = new T.CanvasTexture(cv);
+    var mat = new T.MeshBasicMaterial({ map: P3D.tex, transparent: true, depthTest: false, depthWrite: false, fog: false });
+    P3D.mesh = new T.Mesh(new T.PlaneGeometry(0.76, 0.38), mat);
+    P3D.mesh.position.set(0, -0.34, -1.1);   // 视线下方，低头就能看到
+    P3D.mesh.renderOrder = 999;
+    P3D.mesh.visible = false;                // 只在 VR 会话里显示
+    try { P3D.camera.add(P3D.mesh); } catch (e) { return; }
+    P3D.ok = true;
+    update3DPanel();
+  }
+
+  function update3DPanel() {
+    if (!P3D.ok) return;
+    var inXR = !!(session);
+    P3D.mesh.visible = inXR;
+    if (!inXR) return;
+    var g = P3D.ctx, W = P3D.canvas.width, H = P3D.canvas.height;
+    g.clearRect(0, 0, W, H);
+    g.fillStyle = 'rgba(8,14,22,0.86)';
+    g.fillRect(0, 0, W, H);
+    g.strokeStyle = 'rgba(120,190,255,0.55)';
+    g.lineWidth = 4; g.strokeRect(2, 2, W - 4, H - 4);
+    g.fillStyle = '#9fd0ff';
+    g.font = 'bold 30px "Microsoft YaHei",sans-serif';
+    g.fillText('VR 自检探针（场景内）', 20, 46);
+    g.font = '24px Consolas,"Microsoft YaHei",monospace';
+    var lines = statusLines(true);
+    var y = 90;
+    for (var i = 0; i < lines.length && y < H - 16; i++) {
+      g.fillStyle = (lines[i].indexOf('⚠') === 0 || lines[i].indexOf('❌') >= 0) ? '#ff9d80' : '#e9f2ff';
+      g.fillText(lines[i].slice(0, 44), 20, y);
+      y += 34;
+    }
+    P3D.tex.needsUpdate = true;
   }
 
   var STATUS = { immersive: '检测中…' };
@@ -176,6 +252,13 @@
       return t.join('\n');
     },
     errors: function () { return errors.slice(); },
+    /* 调试用：场景内面板有没有挂上（学生在头显里看不到面板时，先用它排查） */
+    p3d: function () {
+      return { ok: P3D.ok, visible: !!(P3D.ok && P3D.mesh && P3D.mesh.visible),
+               hasScene: !!P3D.scene, hasCamera: !!P3D.camera,
+               hint: P3D.ok ? '场景内面板已就绪（进入 VR 后低头可见）'
+                            : '未找到 window.scene / window.camera（或 window.__scene / window.__camera），只能在 2D 模式看 DOM 面板' };
+    },
     toggle: function () { collapsed = !collapsed; if (body) body.style.display = collapsed ? 'none' : 'block'; },
     note: function (s) { window.VRProbe.__note = s; render(); },
     hide: function () { if (box) box.style.display = 'none'; },
@@ -184,6 +267,11 @@
   };
 
   build();
+  // three 的场景对象可能晚于本脚本创建，稍后重试几次
+  (function trySetup3D(n) {
+    setup3D();
+    if (!P3D.ok && n > 0) setTimeout(function () { trySetup3D(n - 1); }, 1200);
+  })(4);
   requestAnimationFrame(tick);
   setInterval(render, 2000);
 })();

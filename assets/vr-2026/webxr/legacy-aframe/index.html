@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>太和殿 · 故宫沉浸式场景（WebXR）</title>
+
+<script src="lib/aframe.min.js"></script>
+<script src="js/textures.js"></script>
+<script src="js/palace.js"></script>
+<script src="js/app.js"></script>
+
+<style>
+  html, body { margin: 0; padding: 0; overflow: hidden; background: #0d1017; }
+  /* 这两块只在桌面 2D 模式可见；进了 VR 沉浸模式浏览器不渲染 DOM，所以
+     真正的控制台是做进 3D 场景里的，见 app.js 的 buildPanel()。 */
+  #diag, #perf {
+    position: fixed; left: 12px; z-index: 9999; pointer-events: none;
+    font: 13px/1.6 "Microsoft YaHei", "PingFang SC", sans-serif;
+    color: #e8f0ff; background: rgba(10,15,24,.84);
+    border: 1px solid rgba(120,180,255,.35); border-radius: 10px;
+    padding: 9px 13px; max-width: 430px;
+  }
+  #diag { top: 12px; }
+  #perf { top: 150px; font-size: 12px; color: #9fb6d6; }
+  #diag .ok { color: #6dea9b; font-weight: bold; }
+  #diag .bad { color: #ff7d7d; font-weight: bold; }
+  #diag .warn { color: #ffd166; font-weight: bold; }
+</style>
+</head>
+<body>
+
+<div id="diag">
+  <div><b>运行环境自检</b>（桌面 2D 可见；进 VR 后请看场景内的控制台）</div>
+  <div id="d-secure">安全上下文 ：检测中…</div>
+  <div id="d-xr">navigator.xr ：检测中…</div>
+  <div id="d-vr">immersive-vr ：检测中…</div>
+</div>
+<div id="perf"><span id="d-status">场景构建中…</span></div>
+
+<a-scene
+  renderer="antialias: false; colorManagement: true; precision: medium; logarithmicDepthBuffer: false"
+  shadow="enabled: false"
+  background="color: #7fa8cf"
+  fog="type: exponential; color: #b9c9d8; density: 0.0038"
+  vr-mode-ui="enabled: true"
+  loading-screen="enabled: true; dotsColor: #ffd166">
+
+  <!-- 玩家：rig 负责平移/转身，cam 负责头部朝向 -->
+  <a-entity id="rig" position="0 0 88">
+    <a-entity id="cam" camera="near: 0.1; far: 600" look-controls="touchEnabled: true"
+              position="0 1.62 0"
+              raycaster="objects: .clickable; far: 60">
+      <a-entity id="gaze"
+                cursor="fuse: true; fuseTimeout: 1600"
+                geometry="primitive: ring; radiusInner: 0.008; radiusOuter: 0.014"
+                material="shader: flat; color: #ffffff; opacity: 0.85; transparent: true"
+                position="0 0 -1"></a-entity>
+    </a-entity>
+  </a-entity>
+
+  <!-- 手柄：激光指向 + 扳机点击 + 摇杆移动 -->
+  <a-entity id="ctrlL" laser-controls="hand: left"
+            stick-locomotion="speed: 4.2; turnHand: left"
+            raycaster="objects: .clickable; far: 80"
+            cursor="fuse: false; downEvents: triggerdown; upEvents: triggerup"></a-entity>
+  <a-entity id="ctrlR" laser-controls="hand: right"
+            stick-locomotion="speed: 4.2; turnHand: right"
+            raycaster="objects: .clickable; far: 80"
+            cursor="fuse: false; downEvents: triggerdown; upEvents: triggerup"></a-entity>
+
+  <!-- 所有宫殿几何都在这个实体下由 palace.js 生成 -->
+  <a-entity id="palace"></a-entity>
+
+</a-scene>
+
+<script>
+/* 运行环境自检：WebXR 只在安全上下文里暴露，所以三行一起看才有意义 */
+(function () {
+  function set(id, html) { var e = document.getElementById(id); if (e) { e.innerHTML = html; } }
+  var secure = (window.isSecureContext === true);
+  set('d-secure', '安全上下文 ：' + (secure
+    ? '<span class="ok">是</span>'
+    : '<span class="bad">否</span> → 浏览器会隐藏 navigator.xr，下面两行无效'));
+
+  if (!navigator.xr) {
+    set('d-xr', 'navigator.xr ：<span class="bad">不存在</span>');
+    set('d-vr', 'immersive-vr ：' + (secure
+      ? '<span class="bad">不支持</span> → 此浏览器没有 WebXR'
+      : '<span class="warn">无法判断</span> → 因为不是安全上下文'));
+    return;
+  }
+  set('d-xr', 'navigator.xr ：<span class="ok">存在</span>');
+  navigator.xr.isSessionSupported('immersive-vr').then(function (ok) {
+    set('d-vr', 'immersive-vr ：' + (ok
+      ? '<span class="ok">支持</span> → 可以进入沉浸式 VR'
+      : '<span class="warn">不支持</span> → 只能当 3D 网页看'));
+  }).catch(function (e) {
+    set('d-vr', 'immersive-vr ：<span class="warn">检测失败</span>（' + e + '）');
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 4 次课 · 用 WebXR 生成一座故宫</title>
+<style>
+  *{box-sizing:border-box;}
+  body{margin:0;background:#0f0b07;color:#efe4cf;
+    font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif;}
+  .wrap{max-width:960px;margin:0 auto;padding:28px 20px 60px;}
+  h1{font-size:24px;color:#d9a441;letter-spacing:2px;margin:0 0 6px;}
+  h2{font-size:17px;color:#f0b45a;margin:30px 0 10px;letter-spacing:1px;}
+  p.sub{color:#a89b7c;font-size:13.5px;line-height:1.95;margin:0 0 16px;}
+  .tip{border-left:3px solid rgba(217,164,65,.6);padding:10px 14px;margin:16px 0;
+    background:rgba(217,164,65,.07);color:#cbbf9f;font-size:13px;line-height:1.95;border-radius:0 8px 8px 0;}
+  .tip b{color:#f0b45a;}
+  .tip.gen{border-left-color:rgba(120,190,255,.65);background:rgba(120,190,255,.07);}
+  .tip.gen b{color:#9fd0ff;}
+  a.card{display:block;text-decoration:none;color:inherit;background:#15110b;
+    border:1px solid rgba(217,164,65,.28);border-radius:12px;padding:16px 18px;margin-bottom:12px;
+    transition:all .18s;}
+  a.card:hover{border-color:#d9a441;background:#1b150d;transform:translateY(-2px);}
+  .no{font-size:12px;color:#d9a441;letter-spacing:2px;}
+  .t{font-size:18px;font-weight:700;margin:4px 0 6px;color:#f5ead4;}
+  .d{font-size:13px;color:#a89b7c;line-height:1.85;}
+  .f{font-size:12px;color:#6f6857;font-family:Consolas,monospace;margin-top:8px;}
+  a.card.example{border-color:rgba(217,164,65,.55);background:#191309;}
+  a.card.example .no{color:#f0b45a;}
+  a.card.example .t{color:#ffe9b8;}
+  a.card.legacy{border-color:rgba(120,190,255,.35);background:#0f141d;}
+  a.card.legacy .no{color:#9fd0ff;}
+  a.card.legacy .t{color:#d8e8fb;}
+  .back{margin-top:26px;font-size:14px;}
+  .back a{color:#d9a441;text-decoration:none;margin-right:18px;}
+  .back a:hover{text-decoration:underline;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>第 4 次课 · 用 WebXR 生成一座故宫</h1>
+  <p class="sub">
+    第 4 次课《虚拟现实开发常用软件（网页端路线）》的全部可运行材料。
+    含 1 个完整场景 + 7 个逐点讲解的入门演示 + 1 个完整小应用 + **1 份上一代的 A-Frame 存档**。
+  </p>
+
+  <a class="card" href="gugong_webxr.html">
+    <div class="no">本课主线 · 完整场景</div>
+    <div class="t">故宫 · 紫禁城 WebXR 沉浸漫游</div>
+    <div class="d">午门→内金水桥→太和门→太和殿→中和殿→保和殿的中轴全院，程序化建模 + 程序化贴图，
+      <b>零外部请求</b>。动态昼夜、单平行光 2048 阴影；PC 拖拽环视 / WASD / 点击传送，VR 扳机传送 + 摇杆移动 + 30° snap 转向；
+      右上角实时显示 FPS / DrawCall / 三角面。已做成可安装的 PWA。</div>
+    <div class="f">gugong_webxr.html（+ 同目录 three.min.js）</div>
+  </a>
+
+  <a class="card" href="demos/">
+    <div class="no">配套 · 7 个逐点讲解演示</div>
+    <div class="t">WebXR 教学演示目录</div>
+    <div class="d">最小可运行场景（逐行讲解）／坐标系与相机／光照与材质／帧循环与 deltaTime／
+      程序化几何与贴图／性能对比（独立 Mesh 与 InstancedMesh 合批）／进入 VR 的四步检查与安全上下文。
+      每个演示只讲一个点，PPT 讲到哪儿就点开哪个。</div>
+    <div class="f">demos/index.html</div>
+  </a>
+
+  <a class="card example" href="demos/example-vr-experience-hall.html">
+    <div class="no">课堂示例 · 完整小应用</div>
+    <div class="t">WebXR 实验馆：高尔夫 + 射击</div>
+    <div class="d">两个能进头显的小体验：挥杆击球看距离、射线打靶计分。带菜单、得分、退出按钮与性能读数面板——
+      <b>可以看成"把前面 7 个演示拼起来的一个完整小作品"</b>。已全部本地化，不依赖网络。</div>
+    <div class="f">demos/example-vr-experience-hall.html（+ OrbitControls.js，共用本地 three.min.js）</div>
+  </a>
+
+  <h2>上一代存档（A-Frame 版）</h2>
+  <div class="tip gen">
+    <b>为什么这里会有一份"上一代"？</b>
+    本课的故宫场景做过两代：<b>第一代用 A-Frame</b>（2026-09-21，面向 PICO Neo 3 / 系统 5.9.9 的沉浸模式，
+    自带实测性能预算与六条优化），<b>第二代改成自写 Three.js</b>（即上面的主线场景与 7 个演示）。
+    主线走第二代；第一代留档，因为它有两样第二代没有的东西：
+    ① <b>一份写清楚"为什么这么优化"的性能文档</b>；② 一套 <b>把调试面板画进 3D 场景里</b>的做法
+    （因为进了沉浸模式浏览器不渲染 DOM 覆盖层，面板只能做成 3D 物件才看得见）。
+  </div>
+
+  <a class="card legacy" href="legacy-aframe/index.html">
+    <div class="no">上一代 · A-Frame</div>
+    <div class="t">太和殿 · 故宫沉浸式场景</div>
+    <div class="d">A-Frame 版太和殿：程序化屋顶与斗拱、烘焙太阳投影、实例化合批。
+      左上角有"运行环境自检"四行（安全上下文 / <code>navigator.xr</code> / <code>immersive-vr</code> / 场景），
+      进 VR 后 DOM 不可见，所以真正的控制台做进了 3D 场景里。</div>
+    <div class="f">legacy-aframe/index.html（+ js/ + lib/aframe.min.js）</div>
+  </a>
+
+  <a class="card legacy" href="legacy-aframe/PERFORMANCE.md">
+    <div class="no">上一代 · 性能文档</div>
+    <div class="t">性能优化方案与交互控制逻辑</div>
+    <div class="d">实测预算：三角面 <b>33k–38k</b>、draw call <b>47–68</b>、8 张程序化贴图、9 个共享材质、无后处理；
+      以及六条优化的**理由**（为什么要实例化、为什么阴影要烘焙不要实时、为什么移动 XR 上不做 bloom）。
+      <b>讲"性能"那一段可以直接用这份数据当对照。</b></div>
+    <div class="f">legacy-aframe/PERFORMANCE.md</div>
+  </a>
+
+  <div class="tip">
+    <b>在头显里怎么打开？</b> 本站是 <code>https</code>，所以在头显浏览器里直接打开就能进沉浸模式。
+    如果你要打开的是<b>放在自己电脑上</b>的页面，见
+    <a href="../student/" style="color:#f0b45a">学生作品 · 联网自验工作流</a>——局域网 <code>http://</code> 不算安全上下文，
+    会看不到 VR 按钮。</div>
+
+  <div class="back">
+    <a href="../">← VR 课程演示总目录</a>
+    <a href="/">← 返回站点首页</a>
+  </div>
+</div>
+</body>
+</html>
