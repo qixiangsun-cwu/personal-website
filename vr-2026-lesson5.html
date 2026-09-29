@@ -26,16 +26,17 @@
   <div class="nav-inner" id="navInner">
     <a href="vr-2026.html" class="nav-back">← 课程主页</a>
     <a href="#guide" data-sec="guide" class="on">本章导览</a>
-    <a href="#c1" data-sec="c1">一、三维全景是什么</a>
+    <a href="#c1" data-sec="c1">一、三维全景</a>
     <a href="#c2" data-sec="c2">二、为什么是 2:1</a>
     <a href="#c3" data-sec="c3">三、全景拍摄</a>
-    <a href="#c4" data-sec="c4">四、全景图的制作</a>
-    <a href="#c5" data-sec="c5">五、从全景到 3DGS</a>
+    <a href="#c4" data-sec="c4">四、全景制作</a>
+    <a href="#c5" data-sec="c5">五、全景到 3DGS</a>
     <a href="#cases" data-sec="cases">案例演示</a>
     <a href="#demo" data-sec="demo">课堂实操</a>
-    <a href="#hw" data-sec="hw">课堂作业</a>
+    <a href="#hw" data-sec="hw">达标 · 量规</a>
     <a href="#practice" data-sec="practice">速查 · 达标</a>
     <a href="#videos" data-sec="videos">配套视频</a>
+    <a href="#cast" data-sec="cast">作业 · 头显取证</a>
     <a href="#next" data-sec="next">第 5 章（下）</a>
   </div>
 </nav>
@@ -56,7 +57,8 @@
 
   <p>这一章在整门课里的位置很特殊：它是<strong>从“学知识”到“做作品”的转折点</strong>，也是第 6 章代码开发之前<strong>刻意安排的难度缓冲带</strong>。全景是这门课里门槛最低、却能做出完整成品的技术——<strong>不写代码、不建模型，靠拍和拼就能得到一个能走进去的空间</strong>。先用它把信心建起来，再进第 6 章的代码高峰，心理落差最小。</p>
 
-  <div class="key"><strong>本章产出 = 一个“能走进去”的全景漫游作品 + 一次真机自验。</strong>而且这一次不再由少数人替全班验证：<strong>每人一台 PICO Neo 3，每人自带笔记本，各做各的、各验各的。</strong>作品只有一个文件，双击就能跑，断网也能跑。</div>
+  <div class="key"><strong>本章产出 = 一个“能走进去”的全景漫游作品 + 一次真机取证。</strong>而且这一次不再由少数人替全班验证：<strong>每人一台 PICO Neo 3，每人自带笔记本，各做各的、各验各的。</strong>作品只有一个文件，双击就能跑，断网也能跑。<br>
+    课内的交付物是一张照片：<strong>你的场景在头显里跑起来、屏幕上看得见你自己的名字</strong>——拍下来传到雨课堂（见「作业 · 头显取证」一节）。</div>
 
   <div class="btn-row">
     <a class="btn" href="assets/vr-2026/panorama/pano02-tour.html" target="_blank" rel="noopener">打开六房间全景漫游器 →</a>
@@ -70,7 +72,7 @@
     <table>
       <thead><tr><th>课次</th><th>日期</th><th>学时</th><th>内容</th></tr></thead>
       <tbody>
-        <tr><td><strong>第 5 次课（上）</strong></td><td>2026-09-30</td><td>4（理论 2 + 实操 2）</td><td>5.1 概述 + 5.2 拍摄硬件 + 5.3 制作（上半）；<strong>当天就上机自验</strong></td></tr>
+        <tr><td><strong>第 5 次课（上）</strong></td><td>2026-09-30</td><td>4（理论 2 + 实操 2）</td><td>5.1 概述 + 5.2 拍摄硬件 + 5.3 制作（上半）；<strong>当天就上机自验</strong>，并完成<strong>头显取证作业</strong>（场景带本人姓名 → 头显里跑起来 → 取证 → 上传雨课堂）</td></tr>
         <tr><td><strong>第 6 次课（下）</strong></td><td>2026-10-14</td><td>4（理论 1 + 实验 3）</td><td>VR 全景制作进阶与作品验收：把零散的点连成一座“可漫游的校园 / 文化空间”</td></tr>
       </tbody>
     </table>
@@ -550,9 +552,11 @@
   <ol>
     <li><strong>加一个热点</strong>：给「客厅」再加一个指向「卫生间」的热点——先量出目标方向的横向百分比，那就是 <code class="inline">u</code>；</li>
     <li><strong>改初始朝向</strong>：让「餐厅」一进去就正对餐桌，用 <code class="inline">u = 0.75 + yaw ÷ 360</code> 反算 <code class="inline">yaw</code>；</li>
-    <li><strong>抄读数做对照</strong>：在控制台执行 <code class="inline">__pano.info()</code>，记录 DrawCall / 三角面 / 纹理数；再把浏览器窗口缩到很小，看这三个数变不变。</li>
+    <li><strong>加一块姓名牌</strong>：把写着「学号 + 姓名」的牌放进场景第一眼能看见的位置——<strong>这是本次作业的硬要求</strong>，做法见「作业 · 头显取证」三、名字怎么“带”；</li>
+    <li><strong>抄读数做对照</strong>：先<strong>在地址后面加上 <code class="inline">?debug</code></strong> 打开漫游器（例：<code class="inline">pano02-tour.html?debug</code>），调试对象才会挂上去；然后在控制台执行 <code class="inline">__pano.info()</code>，记录 DrawCall / 三角面 / 纹理数；再把浏览器窗口缩到很小，看这三个数变不变。</li>
   </ol>
-  <div class="note">第 3 条要回答的问题：<strong>窗口大小变了，这些数变了没有？为什么？</strong>提示：想一想 DrawCall 统计的是“提交了多少次绘制命令”，还是“画了多少个像素”。</div>
+  <div class="note"><strong>为什么一定要加 <code class="inline">?debug</code>：</strong>那个调试对象包在 <code class="inline">if(location.search.indexOf('debug')&gt;=0)</code> 里面——<strong>不带参数打开时 <code class="inline">__pano</code> 是 undefined</strong>，控制台会报错。这不是 bug，是刻意留的开关（正式发布时不把内部对象暴露在全局）。</div>
+  <div class="note">第 4 条要回答的问题：<strong>窗口大小变了，这些数变了没有？为什么？</strong>提示：想一想 DrawCall 统计的是“提交了多少次绘制命令”，还是“画了多少个像素”。</div>
 </section>
 
 <!-- ===== 课堂作业 ===== -->
@@ -560,20 +564,21 @@
   <div class="sec-head">
     <div class="sec-num">作</div>
     <div>
-      <h2>课堂作业与达标线</h2>
-      <p class="sec-sub">全部课内完成，不卡时间；做不完登记后到实验室补做</p>
+      <h2>达标线与评价量规</h2>
+      <p class="sec-sub">全部课内完成，不卡时间；做不完登记后到实验室补做。<strong>本课的正式交付物（照片传雨课堂）见下面「作业 · 头显取证」一节</strong></p>
     </div>
   </div>
 
-  <h3>一、要交四样</h3>
+  <h3>一、要交五样</h3>
   <div class="tbl-wrap">
     <table>
       <thead><tr><th>#</th><th>提交物</th><th>要求</th></tr></thead>
       <tbody>
-        <tr><td>1</td><td>改好的页面</td><td>另存为 <code class="inline">学号-姓名-全景漫游.html</code></td></tr>
-        <tr><td>2</td><td>任务卡</td><td>改造记录 + <strong>上机自验观察卡</strong>填完</td></tr>
-        <tr><td>3</td><td>一张截图</td><td>改成“餐厅正对餐桌”后的画面，<strong>要能看见右上角的读数</strong></td></tr>
-        <tr><td>4</td><td>自检报告</td><td>自检页点「生成自检报告」，截图或复制那段文字——<strong>证明你在真机上验过</strong></td></tr>
+        <tr><td>1</td><td><strong>作业照片（传雨课堂）</strong></td><td>★<strong>本课的正式交付物</strong>：场景在头显里跑起来 + 屏幕上有你的名字，<strong>拍成一张照片传到雨课堂</strong>。细节见「作业 · 头显取证」一节</td></tr>
+        <tr><td>2</td><td>改好的页面</td><td>另存为 <code class="inline">学号-姓名-全景漫游.html</code></td></tr>
+        <tr><td>3</td><td>任务卡</td><td>改造记录 + <strong>上机自验观察卡</strong>填完（含取证走的是哪条通路、用了多久）</td></tr>
+        <tr><td>4</td><td>一张截图</td><td>改成“餐厅正对餐桌”后的画面，<strong>要能看见右上角的读数</strong></td></tr>
+        <tr><td>5</td><td>自检报告</td><td>自检页点「生成自检报告」，截图或复制那段文字——<strong>证明你在真机上验过</strong></td></tr>
       </tbody>
     </table>
   </div>
@@ -583,7 +588,7 @@
     <li><strong>能跑</strong>：改过的页面能正常打开、控制台无报错；</li>
     <li><strong>改动可见</strong>：多加的热点看得见、餐厅一进去正对餐桌；</li>
     <li><strong>能解释</strong>：能说清 <code class="inline">u</code> 与方向的换算，以及“为什么全景图必须是 2:1”；</li>
-    <li><strong>能上机</strong>：在自己的头显里完成四步（测环境 → 进入 → 环视与交互 → 退出）并报出退出用时；</li>
+    <li><strong>能上机</strong>：在自己的头显里完成四步（测环境 → 进入 → 环视与交互 → 退出）并报出退出用时；<strong>并且场景里看得见自己的名字</strong>；</li>
     <li><strong>能定位</strong>：能准确说出<strong>自己卡在哪一环</strong>——环境 / 作品 / 设备。</li>
   </ol>
   <div class="warn"><strong>任何情况下都不降的三条</strong>：① 达标线本身；② 改动必须有依据（不能瞎填数字）；③ 记录表上的数字必须和页面 HUD 对得上——<strong>编数据比做不出来更严重。</strong></div>
@@ -593,9 +598,9 @@
     <table>
       <thead><tr><th>维度</th><th>权重</th><th>看什么</th></tr></thead>
       <tbody>
-        <tr><td>完成度</td><td>35%</td><td>页面能跑；三处改造肉眼可见；未引入报错</td></tr>
+        <tr><td>完成度</td><td>35%</td><td>页面能跑；改造肉眼可见；未引入报错；<strong>作业照片已传雨课堂、且满足「五项都能看出来」</strong></td></tr>
         <tr><td>理解</td><td>25%</td><td>能说清 u 与方向的换算、2:1 与两极拉伸的因果</td></tr>
-        <tr><td><strong>上机自验</strong></td><td><strong>25%</strong></td><td>四步独立完成；能准确说出自己卡在哪一环；退出成功并报出用时</td></tr>
+        <tr><td><strong>上机自验</strong></td><td><strong>25%</strong></td><td>四步独立完成；<strong>场景里看得见本人姓名</strong>；能准确说出自己卡在哪一环；退出成功并报出用时。<strong>作业照片就是这一档的凭证</strong></td></tr>
         <tr><td>记录</td><td>15%</td><td>记录表完整（含 FPS / DrawCall / 三角面）、读数与 HUD 一致</td></tr>
       </tbody>
     </table>
@@ -628,17 +633,19 @@
     </table>
   </div>
 
-  <h3>二、上机三句话</h3>
+  <h3>二、上机四句话</h3>
   <ol>
     <li><strong>先怀疑环境，再怀疑代码。</strong>看不到 VR 按钮时，先看是不是安全上下文；</li>
     <li>进 VR <strong>必须人手点一次</strong>，这是规范要求，装成应用也一样；</li>
-    <li>退出有<strong>三条路</strong>：注视按钮 / 长按握把 2 秒 / 系统键。</li>
+    <li>退出有<strong>三条路</strong>：注视按钮 / 长按握把 2 秒 / 系统键；</li>
+    <li><strong>看见自己的名字，才算这节课真的做完。</strong>取证（截图 / 投屏）拍成一张照片传雨课堂——见「作业 · 头显取证」。</li>
   </ol>
 
   <h3>三、下次课预告（2026-10-14）</h3>
   <ul>
     <li><strong>第 5 章（下）· VR 全景制作进阶与作品验收</strong>：把今天这张“单一视点的全景”扩展成一座<strong>可漫游的校园 / 文化空间</strong>——多个全景点怎么连、热点网络怎么设计、导览信息怎么摆；</li>
     <li>今天记下的 <strong>FPS / DrawCall / 三角面</strong>下次课要用，别丢；</li>
+    <li>今天交的<b>作业照片</b>（场景里有你名字的那一张）下次课会当例子复看——把照片里的场景留着，别删。</li>
     <li>没走通通路的同学，课后到实验室补齐——下次课一上来就是作品验收，没有缓冲。</li>
   </ul>
 </section>
@@ -709,6 +716,236 @@
     </table>
   </div>
   <div class="note"><strong>数据说明</strong>：表中播放 / 点赞为 <strong>2026-09-29 核验快照</strong>（13 个知识点共 495 条候选，逐条用免签名接口复核，无失效稿件），会随时间变化。另外有两个知识点这次<strong>没找到合适的中文视频</strong>：<strong>镜头节点</strong>（用教材原片演示替代）与<strong>光场摄像机</strong>（按教材正文口述即可），不必勉强找视频。</div>
+</section>
+
+<!-- ===== 课堂作业：头显取证 ===== -->
+<section id="cast">
+  <div class="sec-head">
+    <div class="sec-num">证</div>
+    <div>
+      <h2>课堂作业 · 上头显、取证、上传雨课堂</h2>
+      <p class="sec-sub">课内完成<b>一个能在 PICO Neo 3 里打开、场景里带你自己名字的 3D 场景</b>，戴上头显把画面弄到电脑上<b>拍一张照</b>，传到雨课堂</p>
+    </div>
+  </div>
+
+  <div class="key"><strong>作业一句话</strong>：改造（或自建）一个 3D 场景 → <b>场景里必须看得见你的名字</b> → 用 PICO Neo 3 打开它并<b>点「进入 VR」</b> → 把画面投（或截）到电脑 → <b>拍一张照片</b> → <b>上传雨课堂</b>。这一张照片就是这节课的交付物。</div>
+
+  <h3>一、先纠正一个前提：不是“导入”，是“在头显里打开”</h3>
+  <p>WebXR 的页面<b>没法靠“拷进头显双击打开”跑起来</b>。这件事今天已经讲过一遍，作业里最容易踩的就是它：</p>
+  <div class="warn">
+    <strong>把 <code class="inline">.html</code> 直接拷进头显、用浏览器的 <code class="inline">file://</code> 打开 —— 一定会失败。</strong>
+    因为 <code class="inline">file://</code> <b>不是安全上下文</b>：<code class="inline">navigator.xr</code> 直接是 undefined，
+    「进入 VR」按钮根本不会出现。<strong>这不是你的场景做错了，是打开方式不对。</strong>
+    正确的“装进头显”方式，就是今天课上走通的那三条通路之一：
+    <b>① <code class="inline">https</code> 课程站点</b> ／ <b>② USB + <code class="inline">adb reverse</code> → 头显打开 <code class="inline">http://127.0.0.1:8080</code></b> ／
+    <b>③ 局域网 IP + 浏览器白名单</b>（见「课堂实操 · 一、先走通一条通路」）。
+  </div>
+
+  <h3>二、场景做什么：三条路，任选一条，都可以满分</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>路线</th><th>拿什么改</th><th>最低要求</th><th>难度</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>A 改造六房间漫游器</strong><br><span style="color:#8a84a8">（推荐，最省时间）</span></td>
+          <td><a href="assets/vr-2026/panorama/pano02-tour.html" target="_blank" rel="noopener">六房间全景漫游器</a>（本课主角，单文件、离线可用）</td>
+          <td>换掉至少一间房的图、改一间房的初始朝向、<b>在场景里加一块写着“学号 + 姓名”的名牌</b></td>
+          <td>最低</td>
+        </tr>
+        <tr>
+          <td><strong>B 改造故宫 WebXR 场景</strong></td>
+          <td><a href="assets/vr-2026/webxr/gugong_webxr.html" target="_blank" rel="noopener">故宫 · 自写 Three.js 场景</a>（第三代主线）；A-Frame 版见 <a href="assets/vr-2026/webxr/legacy-aframe/index.html" target="_blank" rel="noopener">太和殿</a></td>
+          <td>改动至少一处（换贴图 / 加一个物体 / 改灯光），<b>再加一块姓名牌</b></td>
+          <td>中</td>
+        </tr>
+        <tr>
+          <td><strong>C 自己搭一个 A-Frame 小场景</strong></td>
+          <td>第 4 次课学的 A-Frame；可参考 <a href="assets/vr-2026/cases/index.html" target="_blank" rel="noopener">课堂案例库</a>（六个可运行案例）</td>
+          <td>一个能被“走进去”的场景 + 姓名牌，能进 VR</td>
+          <td>中</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="note">
+    <strong>为什么不许“原样跑一遍交上来”</strong>：这条作业考的不是“会不会打开别人做的东西”，而是
+    <b>“能不能把一个已有场景改成自己的”</b>——这正是这门课里出现频率最高的工作形态。
+    所以达标线里写了：<b>至少有一处是你自己改的，而且你能说清改了什么、为什么这么改。</b>
+  </div>
+
+  <h3>三、名字怎么“带”：必须做成场景里的 3D 物体</h3>
+  <div class="warn">
+    <strong>先记住今天已经讲过的那条坑：进入沉浸模式后，网页的 HTML 覆盖层不渲染。</strong>
+    所以把名字写在页面的 <code class="inline">&lt;div&gt;</code> 里、或者写在右上角的 HUD 里，
+    <b>戴上头显一定看不见</b>。<b>名字必须是场景里的一个 3D 物体</b>（一块板、一张牌、一个精灵），
+    它才会跟着头一起被渲染出来。
+  </div>
+
+  <div class="step-grid">
+    <div class="step-card">
+      <div class="sc-no">做法 ① · 最省事</div>
+      <div class="sc-title">做一张 PNG 名片，贴到一块板上</div>
+      <div class="sc-desc">电脑上用画图或 PS 做一张白底黑字的图片（内容：<b>学号 + 姓名</b>），另存为 <code class="inline">name.png</code>，和 html 放在同一个文件夹，再用下面这段 A-Frame 代码贴上去。</div>
+    </div>
+    <div class="step-card">
+      <div class="sc-no">做法 ② · 不依赖外部图片</div>
+      <div class="sc-title">用 canvas 现画现贴</div>
+      <div class="sc-desc">在 JS 里用 <code class="inline">canvas</code> 写字，再转成贴图贴到平面上。<b>中文不用找字体文件</b>，系统字体直接就能画——下面给了 Three.js 版。</div>
+    </div>
+    <div class="step-card">
+      <div class="sc-no">做法 ③ · 加分项</div>
+      <div class="sc-title">把名牌做成“门牌”，放在第一眼能看见的位置</div>
+      <div class="sc-desc">把牌斜放在进门正对着的位置——<b>这样“进门第一眼”的技术就用进作业里了</b>。下一节课我们用《视锥可见性检查器》反过来验它。</div>
+    </div>
+  </div>
+
+  <p><strong>做法 ①：A-Frame 贴一张现成名片</strong>（改 <code class="inline">src</code> 和位置即可；素材要放在 html 同目录或写对相对路径）：</p>
+<pre>&lt;a-assets&gt;
+  &lt;img id="namecard" src="./name.png"&gt;
+&lt;/a-assets&gt;
+
+&lt;!-- 一块 1.6m × 0.4m 的名牌，立在你进门正对着的位置 --&gt;
+&lt;a-entity id="myPlate"
+          geometry="primitive:plane; width:1.6; height:0.4"
+          material="src:#namecard; transparent:true; side:double"
+          position="0 1.6 -3"&gt;&lt;/a-entity&gt;</pre>
+
+  <p><strong>做法 ②：Three.js 用 canvas 画名字（不需要图片文件）</strong>——这段可以直接粘进自写 Three.js 的场景；<b>中文照抄即可</b>：</p>
+<pre>function makeNamePlate(text){
+  var c = document.createElement('canvas');
+  c.width = 512; c.height = 128;
+  var g = c.getContext('2d');
+  g.fillStyle = '#ffffff'; g.fillRect(0, 0, c.width, c.height);
+  g.fillStyle = '#111111';
+  g.font = 'bold 56px "Microsoft YaHei", sans-serif';
+  g.textAlign = 'center'; g.textBaseline = 'middle';
+  g.fillText(text, c.width / 2, c.height / 2);          // 例：'2023xxxx 张三'
+  var tex = new THREE.CanvasTexture(c);
+  var plate = new THREE.Mesh(
+    new THREE.PlaneGeometry(1.6, 0.4),
+    new THREE.MeshBasicMaterial({ map: tex, transparent: true, side: THREE.DoubleSide })
+  );
+  plate.position.set(0, 1.6, -3);                        // 进门正前方、跟眼睛差不多高
+  return plate;
+}
+scene.add(makeNamePlate('2023xxxx 张三'));</pre>
+  <div class="note">为什么用 <code class="inline">MeshBasicMaterial</code> 而不是 <code class="inline">MeshStandardMaterial</code>：<b>基本材质不吃灯光</b>，不管场景亮暗，名字都清清楚楚。名牌是给人看的标识，没必要被光照影响。</div>
+
+  <h3>四、取证：把画面弄到电脑上 —— <b>课前必须实测，课上只教走通的那条</b></h3>
+  <p>这是整份作业<b>最容易卡住的一环</b>，但它卡的不是你的场景，是网络和设备。所以这里给的是<b>一张候选表</b>加<b>一张实测表</b>，而不是一句“按某某菜单点” —— 不同一体机固件、不同教室网络，真正能用的那条并不一样。</p>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>方案</th><th>大致怎么走</th><th>依赖什么</th><th>走通的样子</th><th>走不通的样子</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>① 不投屏：直接取头显里的画面</strong><br><span style="color:#8a7f4a"><b>（推荐，最稳）</b></span></td>
+          <td>头显里用<b>系统截屏</b> → 存进相册 / 文件管理 → 用 <b>USB 数据线把文件拷到电脑</b>（或用官方手机 App 同步到手机）</td>
+          <td>只要一根 USB 线。<b>完全不经过局域网</b></td>
+          <td>电脑上出现一张<b>就是头显里看到的那一屏</b>（含你的名字）</td>
+          <td>相册里找不到截图；或电脑认不出设备（换线、换 USB 口）</td>
+        </tr>
+        <tr>
+          <td><strong>② 投屏到电脑</strong></td>
+          <td>头显里打开「投屏」→ 选电脑（或按它给的地址在电脑浏览器里打开）→ 电脑上实时出现头显画面</td>
+          <td>头显与电脑<b>在同一网段，且网络允许两台设备互相发现</b></td>
+          <td>电脑屏幕上实时跟着你的头动</td>
+          <td>一直转圈 / 搜不到设备 / 连上就断</td>
+        </tr>
+        <tr>
+          <td><strong>③ Miracast 无线显示器</strong></td>
+          <td>电脑先开 Windows 的「无线显示器」（可能要先安装“无线显示器”可选功能）→ 头显投屏选 Miracast</td>
+          <td>电脑网卡<b>支持</b> Miracast（不是所有网卡都支持），且两台设备能互相发现</td>
+          <td>电脑变成一块无线显示器</td>
+          <td>「无线显示器」功能装不上 / 搜不到</td>
+        </tr>
+        <tr>
+          <td><strong>④ 兜底：手机贴镜片拍</strong></td>
+          <td>把手机镜头<b>贴住某一侧镜片</b>拍</td>
+          <td>无（一定能拍到）</td>
+          <td>能看出画面里有你的名字</td>
+          <td>畸变、反光、对不正 —— <b>能证明“跑了”，但不好看，只作最后兜底</b></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="warn"><strong>为什么把“不投屏”放在第一位 —— 这不是保守，是算过的。</strong>
+    投屏要求<b>头显和电脑在同一个局域网里互相发现</b>。而今天课上已经提醒过一次：
+    <b>校园网常常有“客户端隔离”，两台设备互相看不见</b> —— 这也是通路 ② 为什么必须先加白名单、
+    通路 ①（USB 转发）为什么完全不经过网络的同一个原因。<b>投屏踩的是同一个坑。</b><br>
+    再算一笔更直接的账：<b>教室里有 40 台头显 + 40 台笔记本。</b>就算投屏对单台很好用，
+    <b>40 台同时投屏也会同时压垮这一个 AP</b> —— 这件事不用试也能预判。
+    所以：<b>方案 ① 是唯一能在 40 人规模下保证跑完的方案</b>；②③ 只作为小组轮流时的加分体验。
+  </div>
+
+  <h3>五、课前 10 分钟：教师实测表（只教走通的那一条）</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>要测的</th><th>怎么算通过</th><th>要记下来</th><th>实测结果（课前手填）</th></tr></thead>
+      <tbody>
+        <tr><td>头显系统截屏 + 导出</td><td>电脑上能看到一张头显画面的截图</td><td>截屏按键 / 菜单路径、导出方式、耗时</td><td style="color:#a09ab8">＿＿＿＿＿＿＿＿＿＿</td></tr>
+        <tr><td>投屏到电脑</td><td>电脑上实时看到头显画面</td><td>走的哪种投屏、要不要装软件</td><td style="color:#a09ab8">＿＿＿＿＿＿＿＿＿＿</td></tr>
+        <tr><td>「进入 VR」能不能进</td><td>用的是本次课选定的那条通路</td><td>通路编号（①USB / ②白名单 / ③https）</td><td style="color:#a09ab8">＿＿＿＿＿＿＿＿＿＿</td></tr>
+        <tr><td>一台机走完全流程的耗时</td><td>从戴上头显到照片存进电脑</td><td>分钟数 → <b>用来算全班要排多久</b></td><td style="color:#a09ab8">＿＿＿＿＿＿＿＿＿＿</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="note">实测结论没出来之前，<b>不要在课上临时试第二种方案</b> —— 40 台设备一起等一个没验证过的功能，是最容易把课拖垮的场面。走通哪条就教哪条，其余的只说一句“课后可以自己试”。</div>
+
+  <h3>六、拍照：这一张照片必须同时看出五件事</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>#</th><th>照片里必须能看出来</th><th>怎么保证</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td><b>是你本人戴着头显</b>（或者头显就摆在屏幕旁边）</td><td>让同学帮你拍，人和屏幕一起进画面</td></tr>
+        <tr><td>2</td><td><b>屏幕上是你的场景</b>，不是随便一个网页</td><td>把窗口放全屏，去掉浏览器书签栏之类的干扰</td></tr>
+        <tr><td>3</td><td><b>场景里看得见你的名字</b>（字要能看清）</td><td>先把视线（或相机）转到名牌正对着再拍</td></tr>
+        <tr><td>4</td><td><b>至少一处你自己改的地方</b>（换的图 / 加的热点 / 改的朝向）</td><td>多拍一个角度，或者在任务卡上写清改了什么</td></tr>
+        <tr><td>5</td><td><b>你的学号姓名</b>（防止照片认不出是谁）</td><td>场景里的名牌本身就写了；再在纸上写一遍更保险</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="note"><strong>走“方案 ①（不投屏）”的同学注意</strong>：这时电脑上放的是一张<b>截图</b>，不是实时画面。所以第 1 条改成
+    <b>“头显 + 电脑上的截图同框”</b> —— 把截图全屏显示，头显摆在屏幕旁边，一起拍进一张照片。<b>这样依然满足五条要求。</b></div>
+
+  <h3>七、上传雨课堂</h3>
+  <ol>
+    <li>老师会在<b>雨课堂</b>发一道<b>能传图片的题</b>（主观题 / 作业，具体入口以课上通知为准）；</li>
+    <li>手机拍好照片 → 在雨课堂里<b>上传这张照片</b> → 提交；</li>
+    <li>在<b>任务卡</b>上补一行：<b>走的是哪条取证方案、总共用了多久、卡在哪一步</b>（这一行是下次课复盘的素材）。</li>
+  </ol>
+  <div class="key"><strong>时间不够时的处理</strong>：照片的<b>拍摄与上传允许延到当天课后 10 分钟内</b>（雨课堂提交窗口留到当天 23:00）。
+    但有一件事<b>不许延</b>：<b>“戴上头显、看见自己的名字”必须课内完成</b> ——
+    那才是这节课真正要练的东西，照片只是它的证据。</div>
+
+  <h3>八、40 人怎么排：分组错峰的时间表</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>时段</th><th>做什么</th><th>谁在做</th></tr></thead>
+      <tbody>
+        <tr><td>0—10′</td><td><b>全班都在电脑上</b>：改造场景 + 做姓名牌 + 在浏览器里先跑一遍（把除“上头显”以外的活全干完）</td><td>所有人</td></tr>
+        <tr><td>10—25′</td><td><b>按座位分成 5 组轮流上头显</b>：进入 VR → 看到自己的名字 → 取证（截图 / 投屏）→ 摘下来交给下一位</td><td>每组约 3 分钟 / 人</td></tr>
+        <tr><td>25—30′</td><td>传雨课堂 + 填任务卡 + 教师抽 2—3 人现场展示</td><td>所有人</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="warn"><strong>如果教室里排不过来（这是很可能发生的）</strong>：
+    ① 整体切到<b>方案 ①（不投屏）</b> —— 它不占网络、单人 1 分钟就能完成；
+    ② 允许<b>两三个人共用一台笔记本</b>同时拿头显，各自截图各自拍照；
+    ③ 仍然不够，就把<b>“拍照 + 上传”整体挪到课后 10 分钟</b>，课内只保证“戴上去、看见名字”。
+    <b>不要为了把 40 张照片都在课内拍完，而砍掉理论段或达标线。</b></div>
+
+  <h3>九、这份作业的达标线</h3>
+  <ol>
+    <li><b>能进</b>：场景能在自己的 PICO Neo 3 里打开，并且能点「进入 VR」真的进得去；</li>
+    <li><b>有名字</b>：场景里看得见<b>本人姓名</b>，而且它是<b>场景里的 3D 物体</b>，不是网页覆盖层；</li>
+    <li><b>有改动</b>：至少一处是你自己改的（换图 / 热点 / 朝向 / 灯光 / 物体），说得出改了什么；</li>
+    <li><b>照片合格</b>：五条要求都能从那一张照片里看出来；</li>
+    <li><b>已提交</b>：照片<b>已上传雨课堂</b>；</li>
+    <li><b>说得清</b>：能回答一句话 —— <b>“为什么这场景不能靠 file:// 拷进头显打开？”</b>（答案：file:// 不是安全上下文，navigator.xr 是 undefined）。</li>
+  </ol>
+  <div class="key"><strong>这六条里，第 1、2、6 条是硬门槛。</strong>进不去、看不见名字、说不清安全上下文 —— 三条里缺一条就不算完成，跟画面好不好看没关系。
+    <b>理由很简单：这节课的产出是“一个能戴上去的作品 + 一次真机取证”，不是一张好看的截图。</b></div>
 </section>
 
 <!-- ===== 第 5 章（下） ===== -->
@@ -827,7 +1064,7 @@
   navInner.querySelectorAll('a[data-sec]').forEach(function(a){
     navLinks[a.getAttribute('data-sec')] = a;
   });
-  var sections = ['guide','c1','c2','c3','c4','c5','cases','demo','hw','practice','videos','next'];
+  var sections = ['guide','c1','c2','c3','c4','c5','cases','demo','hw','practice','videos','cast','next'];
   if ('IntersectionObserver' in window) {
     var obs = new IntersectionObserver(function(entries){
       entries.forEach(function(en){
