@@ -26,7 +26,7 @@
       <rect x="44" y="4" width="110" height="34" rx="6" fill="none" stroke="#8b7fd4" stroke-width="2"/>
       <path class="ln" d="M62,10 v10 a8,8 0 0 0 16,0 v-10" />
       <circle class="dot" cx="70" cy="13" r="4"/>
-      <text class="s" x="44" y="56">光圈 / 快门 / ISO / 白平衡 / 对焦</text>
+      <text class="s" x="-8" y="60" style="font-size:11px">光圈 · 快门 · ISO · 白平衡 · 对焦</text>
     </g>
     <text class="s" x="14" y="176">一变，拼缝处就会出现</text>
     <text class="red" x="14" y="196">一条明显的亮暗分界（接缝条）</text>
@@ -84,7 +84,7 @@
       <text class="s" x="-24" y="-52" fill="#c1502e">补天</text>
       <text class="s" x="-24" y="66" fill="#c1502e">补地</text>
     </g>
-    <text class="s" x="14" y="204">上下那两圈覆盖天顶与地面附近</text>
-    <text class="s" x="14" y="226">极点畸变最大，单独拍最稳</text>
+    <text class="s" x="14" y="204">上下两圈覆盖天顶与地面</text>
+    <text class="s" x="14" y="226">那里畸变最大，单独拍最稳</text>
   </g>
 </svg>
