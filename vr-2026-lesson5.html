@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第5—6次课 · 三维全景技术 | 2026年虚拟现实技术</title>
+<meta name="description" content="《虚拟现实技术》第 5 章课堂内容：三维全景的四类表现形式（柱形/球形/立方体/物体全景）、等距柱状投影为什么是 2:1、全景拍摄的硬件与四要点（镜头节点、重叠率、曝光锁定、补天补地）、全景图制作的四步流程与三条工具路线（PTGui / Pano2VR / 720 云）、从全景到 3DGS 的进阶线，含两次课的时间轴、课堂实操（人人上机自验作品）与达标线。">
+<link rel="stylesheet" href="assets/vr-2026/course.css">
+</head>
+<body>
+
+<!-- ===== 顶部 ===== -->
+<header class="hero">
+  <div class="hero-inner">
+    <span class="kicker">虚拟现实技术 · 第 5—6 次课 · 实践篇</span>
+    <h1>三维全景技术</h1>
+    <p class="sub">第 5 章 · 把一个真实的空间拍下来、拼起来、装进头显里 —— 这一章不写一行代码也能做出完整作品，是第 6 章代码开发之前刻意安排的难度缓冲带</p>
+    <div class="meta">
+      <span>中华女子学院</span><span>8 学时（理论 3 + 实验 5）· 分两次课</span><span>授课人：孙琪翔</span><span>2026-09-30 · 10-14</span><span>数字媒体技术实验室</span>
+    </div>
+  </div>
+</header>
+
+<!-- ===== 目录导航 ===== -->
+<nav class="nav" id="nav">
+  <div class="nav-inner" id="navInner">
+    <a href="vr-2026.html" class="nav-back">← 课程主页</a>
+    <a href="#guide" data-sec="guide" class="on">本章导览</a>
+    <a href="#c1" data-sec="c1">一、三维全景是什么</a>
+    <a href="#c2" data-sec="c2">二、为什么是 2:1</a>
+    <a href="#c3" data-sec="c3">三、全景拍摄</a>
+    <a href="#c4" data-sec="c4">四、全景图的制作</a>
+    <a href="#c5" data-sec="c5">五、从全景到 3DGS</a>
+    <a href="#demo" data-sec="demo">课堂实操</a>
+    <a href="#hw" data-sec="hw">课堂作业</a>
+    <a href="#practice" data-sec="practice">速查 · 达标</a>
+    <a href="#videos" data-sec="videos">配套视频</a>
+    <a href="#next" data-sec="next">第 5 章（下）</a>
+  </div>
+</nav>
+
+<main>
+
+<!-- ===== 导览 ===== -->
+<section id="guide">
+  <div class="sec-head">
+    <div class="sec-num">导</div>
+    <div>
+      <h2>本章导览</h2>
+      <p class="sec-sub">上一章我们用代码<strong>造</strong>了一个世界；这一章我们把一个真实的空间<strong>记录</strong>下来</p>
+    </div>
+  </div>
+
+  <p>第 4 次课在浏览器里用代码生成了一座紫禁城——那条路的本质是<strong>“用代码造世界”</strong>：每一个构件都是算出来的，改一行代码它就变。这一章换一条路：<strong>把一个真实存在的空间拍下来、拼起来、装进头显里。</strong>两条路的目标一样（让人“在里面”），但素材来源完全相反：一个是算出来的，一个是拍下来的。</p>
+
+  <p>这一章在整门课里的位置很特殊：它是<strong>从“学知识”到“做作品”的转折点</strong>，也是第 6 章代码开发之前<strong>刻意安排的难度缓冲带</strong>。全景是这门课里门槛最低、却能做出完整成品的技术——<strong>不写代码、不建模型，靠拍和拼就能得到一个能走进去的空间</strong>。先用它把信心建起来，再进第 6 章的代码高峰，心理落差最小。</p>
+
+  <div class="key"><strong>本章产出 = 一个“能走进去”的全景漫游作品 + 一次真机自验。</strong>而且这一次不再由少数人替全班验证：<strong>每人一台 PICO Neo 3，每人自带笔记本，各做各的、各验各的。</strong>作品只有一个文件，双击就能跑，断网也能跑。</div>
+
+  <div class="btn-row">
+    <a class="btn" href="assets/vr-2026/panorama/pano02-tour.html" target="_blank" rel="noopener">打开六房间全景漫游器 →</a>
+    <a class="btn ghost" href="assets/vr-2026/panorama/pano01-projection.html" target="_blank" rel="noopener">投影原理演示 →</a>
+    <a class="btn ghost" href="assets/vr-2026/check/" target="_blank" rel="noopener">VR 作品自检 →</a>
+  </div>
+  <p style="font-size:14px;color:var(--ink-soft);">漫游器用教材第 5 章例 5.3 的六间样板间全景做成：PC 上拖鼠标环视、点房间名跳转；<strong>戴上头显后，把视线停在白色圆环上 1.2 秒就跳转——不需要手柄摇杆</strong>。右上角一直显示 FPS 与 DrawCall。</p>
+
+  <h3>一、8 学时怎么分</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>课次</th><th>日期</th><th>学时</th><th>内容</th></tr></thead>
+      <tbody>
+        <tr><td><strong>第 5 次课（上）</strong></td><td>2026-09-30</td><td>4（理论 2 + 实操 2）</td><td>5.1 概述 + 5.2 拍摄硬件 + 5.3 制作（上半）；<strong>当天就上机自验</strong></td></tr>
+        <tr><td><strong>第 6 次课（下）</strong></td><td>2026-10-14</td><td>4（理论 1 + 实验 3）</td><td>VR 全景制作进阶与作品验收：把零散的点连成一座“可漫游的校园 / 文化空间”</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>二、本章两句话（其余忘了都没关系，这两句要记住）</h3>
+  <div class="grid3">
+    <div class="cell">
+      <h4>① “先怀疑环境，再怀疑代码。”</h4>
+      <p>WebXR 的“进入 VR”<strong>只在安全上下文里可用</strong>（<code class="inline">https:</code> / <code class="inline">localhost</code> / <code class="inline">127.0.0.1</code>）。你用自己的电脑起一个局域网服务，头显打开 <code class="inline">http://电脑IP</code> —— <strong>那不算安全上下文</strong>，浏览器会直接把 <code class="inline">navigator.xr</code> 藏起来，按钮显示“不支持”。<strong>那不是你的代码写错了。</strong>这一章一半的价值在这句话上。</p>
+    </div>
+    <div class="cell">
+      <h4>② “看得越广，每度分到的像素越少。”</h4>
+      <p>全景图的像素总量是<strong>固定</strong>的：摊到 360° 上，每度就那么点像素。所以头显里“远处有点糊”不是设备不行，是<strong>数学决定的</strong>。想清楚这一点，你才知道为什么专业全景要拍 8K，也才知道“把图放大”解决不了问题。</p>
+    </div>
+    <div class="cell">
+      <h4>这一章没有代码，但有“手艺”</h4>
+      <p>镜头节点、重叠率、曝光锁定、补天补地——这四件事里任何一件没做好，成品都会<strong>肉眼可见地失败</strong>。这是这一章真正的难点：不是理解，是<strong>手上做得对</strong>。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 一、三维全景是什么 ===== -->
+<section id="c1">
+  <div class="sec-head">
+    <div class="sec-num">一</div>
+    <div>
+      <h2>三维全景是什么：四类表现形式</h2>
+      <p class="sec-sub">判断标准不是“好不好看”，而是“把球面摊平时选了什么形状”</p>
+    </div>
+  </div>
+
+  <p><strong>全景图</strong>（Panorama）：大于人眼正常有效视角（约水平 90°、垂直 70°），或包括双眼余光视角（约水平 180°、垂直 90°）以上，乃至 <strong>360° 完整场景范围</strong>拍摄的照片。</p>
+  <p><strong>三维全景</strong>：基于全景图像的<strong>真实场景</strong>虚拟现实技术——把相机环 360° 拍摄的一组或多组照片拼接成一个全景图像，通过计算机技术实现<strong>全方位、互动式</strong>观看的真实场景还原展示，使人有身临其境的感觉。</p>
+
+  <h3>一、四类表现形式（本节重点）</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>形式</th><th>怎么存</th><th>怎么渲染</th><th>优点</th><th>局限</th></tr></thead>
+      <tbody>
+        <tr><td><strong>柱形全景</strong></td><td>圆柱展开图</td><td>贴到圆柱内壁</td><td>文件最小；<strong>手机全景模式就是它</strong></td><td>抬头低头露边，出现“天塌地陷”式的变形</td></tr>
+        <tr><td><strong>球形全景</strong></td><td>等距柱状投影，<strong>宽高比 2:1</strong></td><td>贴到球的内壁</td><td>上下左右全都能看，<strong>VR 全景的标准形态</strong></td><td>两极像素被拉伸；必须拍够天地</td></tr>
+        <tr><td><strong>立方体全景</strong></td><td>6 张正方形图（前后左右上下）</td><td>贴到立方体内壁的 6 个面</td><td>不需要重采样；早期显卡效率高</td><td>6 张图要一起管；每条棱上有接缝</td></tr>
+        <tr><td><strong>物体全景</strong></td><td>绕物体一圈拍 n 张，按角度存</td><td>按观看角度切图（相当于转盘动画）</td><td>单件文物 / 产品拍得极清楚，文件可控</td><td>不能自由环视，只能“绕着看”</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p><strong>现场提问</strong>：手机拍的全景照片属于哪一类？——<strong>柱形</strong>。所以你在手机里抬头看天花板，边缘一定会变形。这不是你操作错了，是形式决定了上限。</p>
+
+  <h3>二、为什么值得用全景</h3>
+  <div class="grid2">
+    <div class="cell">
+      <h4>相比建模的优势</h4>
+      <p>① <strong>真实感强</strong>——基于真实照片生成，比建模对象更可信；② <strong>信息更多且可控</strong>，可左可右、可上可下；③ 沉浸感强烈；④ <strong>制作门槛低、周期短、成本低</strong>；⑤ 文件小、传输方便、发布格式多样。</p>
+    </div>
+    <div class="cell">
+      <h4>典型应用（教材列了 11 类）</h4>
+      <p>旅游景点虚拟导览 · 酒店与样板间展示 · <strong>房地产</strong> · 企业与商业空间展示 · 汽车展车 · <strong>博物馆 / 展览馆 / 剧院</strong> · <strong>虚拟校园</strong> · 政府开发区环境展示。共同点：<strong>都是“让人先看明白这个空间长什么样”</strong>。</p>
+    </div>
+  </div>
+
+  <h3>三、三个容易记混的词</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>词</th><th>是什么</th><th>怎么用</th></tr></thead>
+      <tbody>
+        <tr><td><strong>全景照片</strong></td><td>一张静态全景图</td><td>能自由改变朝向</td></tr>
+        <tr><td><strong>全景视频</strong></td><td>一段 360° 视频</td><td>看的时候可以随意调上下左右——<strong>手机就能看</strong></td></tr>
+        <tr><td><strong>VR 视频</strong></td><td>必须戴头显看，且必须是 <strong>3D</strong> 的</td><td>允许观众在同一时间<strong>站在不同位置</strong>观看</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>压成一句话：<strong>全景视频是“能转视角的视频”，VR 视频是“能转视角、还有立体感的视频”。</strong>前者手机就能看，后者必须上头显。</p>
+</section>
+
+<!-- ===== 二、为什么是 2:1 ===== -->
+<section id="c2">
+  <div class="sec-head">
+    <div class="sec-num">二</div>
+    <div>
+      <h2>为什么是 2:1：等距柱状投影</h2>
+      <p class="sec-sub">本章最“硬”的一条，也是唯一需要动手验证的一条</p>
+    </div>
+  </div>
+
+  <p>球形全景用的叫<strong>等距柱状投影</strong>：把球面像地球仪一样剪开、摊平。横向是<strong>经度</strong>（绕一圈 360°），纵向是<strong>纬度</strong>（+90° 到 −90°，共 180°）。两边都用“度”当尺子，所以宽一定是高的两倍：</p>
+  <div class="key"><strong>宽 : 高 = 360° : 180° = 2 : 1。</strong>所以拿到一张全景图，先看宽高比：<strong>2:1 基本就是等距柱状投影</strong>；不是 2:1 的“全景”，多半是柱形，或者被裁切过。</div>
+
+  <h3>一、现场打开《投影原理》演示，拖两次</h3>
+  <ol>
+    <li>把 <strong>FOV（视角）</strong>从 75 拉到 20 → <strong>画面变清楚了</strong>。<br>
+      <strong>结论：同一张图，看得越广，每度分到的像素越少。</strong>这条直接解释了“头显里为什么糊”。</li>
+    <li>把 <strong>纬度</strong>拉到 +85° 和 −85° → 看左右两图的格子，<strong>越靠近两极，格子被拉得越扁</strong>。<br>
+      <strong>结论：把球面摊平时两极一定被拉伸</strong>——这就是真实拍摄必须“补天补地”的原因，否则头顶和脚下会出现一个漩涡。</li>
+  </ol>
+
+  <h3>二、一个容易被当成 bug 的真实现象</h3>
+  <p>在演示里你会看到：<strong>右图（球面视图）里的字母是反的。</strong>这不是 bug——站在球心往外看一张平面展开图，左右本来就是反的（你看到的是贴图的背面）。所以每一个全景播放器都要做一次“翻面”。</p>
+  <div class="note">这条已经做成了本章的讨论题：<strong>如果你自己拍的全景图放进播放器里文字是反的，问题出在哪一环？</strong>提示：可能是播放器没翻面，可能是拍摄 / 拼接软件输出的图本身就是镜像版，也可能是两者叠加。本课用的教材素材属于第二种情况，播放器翻了一次正好抵消，所以画面里的文字是正的。</div>
+
+  <div class="btn-row">
+    <a class="btn" href="assets/vr-2026/panorama/pano01-projection.html" target="_blank" rel="noopener">打开投影原理演示 →</a>
+  </div>
+</section>
+
+<!-- ===== 三、全景拍摄 ===== -->
+<section id="c3">
+  <div class="sec-head">
+    <div class="sec-num">三</div>
+    <div>
+      <h2>全景拍摄：设备、张数与四要点</h2>
+      <p class="sec-sub">器材决定上限，四要点决定“能不能拼得上”</p>
+    </div>
+  </div>
+
+  <h3>一、四样东西</h3>
+  <div class="grid3">
+    <div class="cell"><h4>数码相机</h4><p>单反 / 微单即可，机身本身要求不高。</p></div>
+    <div class="cell"><h4>鱼眼或广角镜头</h4><p>鱼眼焦距一般 <strong>6—16 mm</strong>，视角接近甚至超过 180°；广角（小于 20 mm）透视变形小、分辨率高。</p></div>
+    <div class="cell"><h4>全景云台 + 三脚架</h4><p>它和普通云台最大的区别是：<strong>能让相机绕“镜头节点”转，而不是绕机身转</strong>。这一条是全景能不能拼上的分水岭。</p></div>
+  </div>
+
+  <h3>二、焦距决定一圈拍几张（教材表 5-1）</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>镜头类型</th><th>360° 需要拍几张</th><th>每张转动角度</th></tr></thead>
+      <tbody>
+        <tr><td>8 mm 鱼眼</td><td>4</td><td>90°</td></tr>
+        <tr><td>12 mm 鱼眼</td><td>5</td><td>72°</td></tr>
+        <tr><td>14 mm 鱼眼 / 15 mm 鱼眼</td><td>6</td><td>60°</td></tr>
+        <tr><td>16 mm 鱼眼</td><td>6（一圈）</td><td>60°</td></tr>
+        <tr><td>18 mm 鱼眼</td><td>8+8+8（三圈）</td><td>45°</td></tr>
+        <tr><td>24 mm 直线镜头</td><td>10+10+10（三圈）</td><td>36°</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p><strong>鱼眼一次能吃到近 180°，所以一圈 4—6 张就够</strong>；换成普通广角，视角不够，就得一圈 10 张、拍三圈。但广角也不是没好处——<strong>透视变形小、拼出来的分辨率高</strong>，对画质要求高的活反而用它。</p>
+
+  <h3>三、拍摄四要点（这一页要抄下来）</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>#</th><th>要点</th><th>为什么</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td><strong>参数调好后全程不变</strong>（光圈、快门、ISO、白平衡、对焦全部锁死）</td><td>拼接软件要假设“这几十张是同一个场景的同一时刻”。曝光一变，拼缝处就会出现一条明显的亮暗分界，也就是“接缝条”</td></tr>
+        <tr><td>2</td><td><strong>绕镜头节点转，不是绕自己的身体转</strong></td><td>最反直觉的一条。你站在原地转头拍，近处的栏杆、柱子会<strong>左右错位</strong>——因为相机位置移动了。只有绕节点转，让相邻两张的视差为零，软件才能对齐</td></tr>
+        <tr><td>3</td><td>水平 360° 拍一周，<strong>每张重叠不少于 25%</strong>，且<strong>最后一张必须与第一张重叠</strong></td><td>25% 是下限不是目标；首尾不重叠，一圈就合不拢</td></tr>
+        <tr><td>4</td><td>下俯 45°、上仰 45° 各拍一圈，最后<strong>补天、补地各一张</strong></td><td>上下那两圈覆盖天顶与地面附近；补天补地单独拍质量最稳，因为那里畸变最大</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="key"><strong>看一眼“节点没绕对”长什么样</strong>：打开教材第 5 章例 5.1 的 <strong>22 张原始照片</strong>，逐张翻——同一根柱子在画面里一张比一张偏。软件会尽力对齐，但<strong>错位太大时近处物体一定会出现“鬼影”（一个物体变成两个）</strong>。这就是为什么节点比器材重要。</div>
+
+  <h3>四、手机能拍吗</h3>
+  <p>能。手机全景模式产出的是<strong>柱形全景</strong>：水平扫一圈，垂直方向受镜头限制。代价是<strong>抬头低头会露边</strong>。什么时候够用：快速记录、社交发布、课堂练习。什么时候不够：要做 VR 里 360°×180° 全视角的正式成品。</p>
+  <p>拍摄时注意四条：端稳、匀速；保持水平不要上下起伏；避开近处物体（离得越近错位越明显）；<strong>锁定曝光与白平衡</strong>（长按屏幕出现 AE/AF 锁定）。</p>
+
+  <h3>五、进阶：VR 全景视频的装备（了解即可）</h3>
+  <ul>
+    <li><strong>光场摄像机</strong>：用矩阵式微型摄像头记录<strong>不同角度射入的光线</strong>，后期可合成任意位置的图像。</li>
+    <li><strong>电影级全景拍摄装备与团队</strong>：教材举了 HypeVR、NextVR、HeadcaseVR、强氧科技、J2VR–极图全景。</li>
+    <li>一句实话：<strong>严格意义上的“电影级全景摄影机”目前还不存在</strong>，即使当年售价三十多万元的 Nokia OZO 也不算。所谓“电影级”指的是大画幅感光元件、高感低噪、高帧率（甚至 1000 fps）、RAW 输出、长时间在苛刻环境下工作。</li>
+  </ul>
+  <div class="note">这句话的意思是：<strong>全景目前还是一个“拼出来”的技术，不是一个“拍出来”的技术。</strong>理解了这一点，你就理解了为什么下一节讲的拼接软件这么关键。</div>
+</section>
+
+<!-- ===== 四、全景图的制作 ===== -->
+<section id="c4">
+  <div class="sec-head">
+    <div class="sec-num">四</div>
+    <div>
+      <h2>全景图的制作：四步流程与三条路线</h2>
+      <p class="sec-sub">工具换来换去，底层只有一件事</p>
+    </div>
+  </div>
+
+  <h3>一、四步流程</h3>
+  <div class="step-grid">
+    <div class="step-card">
+      <div class="sc-no">STEP 1</div>
+      <div class="sc-title">拍摄图像</div>
+      <div class="sc-desc">按上一节的四要点拍够素材，注意首尾重叠与补天补地。</div>
+    </div>
+    <div class="step-card">
+      <div class="sc-no">STEP 2</div>
+      <div class="sc-title">导入并修图</div>
+      <div class="sc-desc">挑掉废片、统一色温与曝光，必要时先做镜头畸变校正。</div>
+    </div>
+    <div class="step-card">
+      <div class="sc-no">STEP 3</div>
+      <div class="sc-title">拼接</div>
+      <div class="sc-desc">多张照片 → <strong>一张等距柱状全景图</strong>。这一步是质量的分水岭。</div>
+    </div>
+    <div class="step-card">
+      <div class="sc-no">STEP 4</div>
+      <div class="sc-title">设置交互并发布</div>
+      <div class="sc-desc">加热点与导览信息，生成 VR 全景漫游，导出发布。<strong>这一步才叫作品。</strong></div>
+    </div>
+  </div>
+  <p><strong>一句要点</strong>：很多同学做到第三步就停下了。但<strong>一张好全景图不是作品，一条能点着走的漫游才是作品。</strong></p>
+
+  <h3>二、三条工具路线，记住的是“分工”</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>路线</th><th>工具</th><th>干什么</th><th>一句话判断</th></tr></thead>
+      <tbody>
+        <tr><td>A 专业拼接</td><td><strong>PTGui</strong></td><td>多张照片 → 一张等距柱状全景图（<strong>加载图像 → 对准图像 → 创建全景图</strong>）</td><td>“我要把 20 张照片变成 1 张”</td></tr>
+        <tr><td>B 全景编辑器</td><td><strong>Pano2VR</strong></td><td>一张（或多张）全景图加声音、作者信息、<strong>热点</strong></td><td>“我要把 1 张图变成能点的漫游”</td></tr>
+        <tr><td>C 在线平台</td><td><strong>720 云</strong></td><td>可视化编辑、加交互与媒体、出 H5 链接、可导离线包</td><td>“我要今天就让别人在手机上看到”</td></tr>
+        <tr><td>（附）网页自建</td><td>Three.js</td><td>自己写全景球 + 热点</td><td>“我要改代码、接自己的交互”——<strong>本课演示的漫游器就是这条</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="key"><strong>A 负责“从多到一”，B 负责“从一到多”，C 负责“从多到发出去”。</strong>工具换来换去，底层只有一件事：<strong>把“从一个点看到的一圈画面”存成一张 2:1 的图，再贴回一个球的内壁。</strong>三条路线的差别只是“谁来帮你做这一步”。</div>
+
+  <h3>三、全景航拍</h3>
+  <p>用无人机在空中拍摄影像，再靠后期拼接成全景影像，称为“全景航拍”（教材例 5.4 用 720 云做了一次校园全景漫游）。它解决的是<strong>“人上不去的位置怎么看”</strong>——屋顶、园区、工地、景区全貌。</p>
+
+  <div class="note"><strong>关于“离线包”</strong>：720 云这类平台支持导出离线包、私有化部署。这三个字在课堂和大屏展示里是<strong>救命选项</strong>——现场没网也能放。本课的漫游器也是同一个思路：整个文件夹拷走就能跑。</div>
+</section>
+
+<!-- ===== 五、从全景到 3DGS ===== -->
+<section id="c5">
+  <div class="sec-head">
+    <div class="sec-num">五</div>
+    <div>
+      <h2>进阶：从全景到 3DGS</h2>
+      <p class="sec-sub">今天记录的是“从一个点看到的一圈”；下一站记录的是“一整个可以走进去的空间”</p>
+    </div>
+  </div>
+
+  <p>全景和三维高斯泼溅（3DGS）解决的是<strong>同一个问题的两个阶段</strong>：</p>
+  <div class="grid2">
+    <div class="cell">
+      <h4>全景：固定视点的全方向</h4>
+      <p>拍摄点<strong>只有一个</strong>。你可以在这一点上朝任意方向看，但<strong>不能走过去</strong>。文件小、做起来快、门槛最低。</p>
+    </div>
+    <div class="cell">
+      <h4>3DGS / NeRF：可以移动的视点</h4>
+      <p>绕着一片区域拍很多张，重建出一个<strong>可以真正走进去</strong>的三维场景。代价是算力与数据量，以及“生成出来的东西不一定是真的”这类新问题。</p>
+    </div>
+  </div>
+  <div class="key"><strong>一句话接住</strong>：全景记录的是“从一个点看到的一圈”，3DGS 记录的是“一整个可以走进去的空间”——<strong>这是同一条路的下一步。</strong>这条线会在后面“数字校园漫游”那个案例里继续用。</div>
+</section>
+
+<!-- ===== 课堂实操 ===== -->
+<section id="demo">
+  <div class="sec-head">
+    <div class="sec-num">实</div>
+    <div>
+      <h2>课堂实操：人人上机，自验自己的作品</h2>
+      <p class="sec-sub">本课设备是「一人一台头显 + 自带笔记本」，所以不轮转、不排队——各做各的</p>
+    </div>
+  </div>
+
+  <div class="warn"><strong>开始之前先把一句话记住：</strong>WebXR 的“进入 VR”<strong>只在安全上下文里可用</strong>。<code class="inline">https:</code>、<code class="inline">http://localhost</code>、<code class="inline">http://127.0.0.1</code> 算；<strong>你电脑的局域网 IP（<code class="inline">http://192.168.x.x</code>）不算</strong>。所以用局域网 IP 打开自己的页面时看不到 VR 按钮、控制台里 <code class="inline">navigator.xr</code> 是 undefined。<strong>那不是你的代码写错了，是环境不满足。</strong></div>
+
+  <h3>一、先走通一条通路（三条任选一条）</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>通路</th><th>怎么做</th><th>特点</th></tr></thead>
+      <tbody>
+        <tr><td><strong>① USB 直连</strong>（最稳）</td><td>数据线连头显（需开发者模式并允许 USB 调试）→ 电脑执行 <code class="inline">adb reverse tcp:8080 tcp:8080</code> → <strong>头显浏览器打开 <code class="inline">http://127.0.0.1:8080/</code></strong></td><td>天然安全上下文；<strong>完全不经过网络</strong>，校园网有客户端隔离也不影响</td></tr>
+        <tr><td><strong>② 局域网 + 白名单</strong></td><td>电脑双击 <code class="inline">serve.bat</code> 起服务 → 头显浏览器打开 <code class="inline">chrome://flags/#unsafely-treat-insecure-origin-as-secure</code>，把 <code class="inline">http://电脑IP:8080</code> 填进去并启用 → 重启浏览器</td><td>不插线，适合反复调试；<strong>电脑 IP 一变就要重填</strong></td></tr>
+        <tr><td><strong>③ 站点 HTTPS</strong></td><td>把作品交给老师，放到站点的学生作品目录，头显直接打开链接</td><td>零配置，适合<strong>交作业与互相看</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>本机服务器不用装任何东西：用 <a href="assets/vr-2026/student/" target="_blank" rel="noopener">学生作品 · 联网自验工作流</a> 页里的 <code class="inline">serve.bat</code>（只用 Windows 自带的 PowerShell，不需要 Python / Node，也不需要管理员）。</p>
+
+  <h3>二、四步自验（每人自己做）</h3>
+  <div class="step-grid">
+    <div class="step-card">
+      <div class="sc-no">① 先测环境</div>
+      <div class="sc-title">打开《VR 作品自检》</div>
+      <div class="sc-desc">看六项状态：协议 / 安全上下文 / <code class="inline">navigator.xr</code> / <code class="inline">immersive-vr</code> / WebGL / 输入设备。<strong>第 ②③④ 项有 ❌ 就先解决环境，不要去看自己的代码。</strong></div>
+    </div>
+    <div class="step-card">
+      <div class="sc-no">② 进 VR</div>
+      <div class="sc-title">打开自己的作品，点「进入 VR」</div>
+      <div class="sc-desc">进 VR <strong>必须由人手点一次</strong>——这是规范要求，装成应用也一样。进去后慢慢环视一周，抬头低头各看一眼，<strong>说出一个具体的东西</strong>。</div>
+    </div>
+    <div class="step-card">
+      <div class="sc-no">③ 做一次交互</div>
+      <div class="sc-title">视线停在圆环上 1.2 秒</div>
+      <div class="sc-desc">画面跳转。这次跳转用的是<strong>注视停留</strong>，不用手柄——但它<strong>只能选按钮</strong>；场景里的实体仍然需要手柄射线。这条边界要能说出来。</div>
+    </div>
+    <div class="step-card">
+      <div class="sc-no">④ 退出并报时</div>
+      <div class="sc-title">三条路任选一条</div>
+      <div class="sc-desc">注视「退出 VR」1.5 秒 / <strong>长按手柄握把 2 秒</strong> / 头显系统键。报出<strong>用了哪条、几秒</strong>。<strong>只有一条出口的应用，在真实课堂里一定会出事。</strong></div>
+    </div>
+  </div>
+
+  <h3>三、要量出来的三个数</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>读数</th><th>怎么看</th><th>它说明什么</th></tr></thead>
+      <tbody>
+        <tr><td><strong>FPS</strong></td><td>进入 VR 后连续看 10 秒</td><td>移动头显要稳在 72 或 90；<strong>掉帧是体验杀手</strong></td></tr>
+        <tr><td><strong>DrawCall</strong></td><td>探针面板或作品自带的 HUD</td><td>提交了多少次绘制命令；<strong>优化先看它，不要先看面数</strong></td></tr>
+        <tr><td><strong>三角面</strong></td><td>同上</td><td>场景规模；移动头显通常控制在 10 万面以内比较保险</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>读数用 <a href="assets/vr-2026/check/vr-probe.js" target="_blank" rel="noopener">vr-probe.js</a> 探针：在自己的页面里加一行 <code class="inline">&lt;script src="vr-probe.js"&gt;&lt;/script&gt;</code> 就行。它还会<strong>把读数画进 3D 场景</strong>——因为沉浸模式下浏览器不渲染网页覆盖层，<strong>低头才能看到的这块面板，才是头显里唯一看得见的读数</strong>。</p>
+
+  <h3>四、改造任务（在电脑上做完再上机）</h3>
+  <ol>
+    <li><strong>加一个热点</strong>：给「客厅」再加一个指向「卫生间」的热点——先量出目标方向的横向百分比，那就是 <code class="inline">u</code>；</li>
+    <li><strong>改初始朝向</strong>：让「餐厅」一进去就正对餐桌，用 <code class="inline">u = 0.75 + yaw ÷ 360</code> 反算 <code class="inline">yaw</code>；</li>
+    <li><strong>抄读数做对照</strong>：在控制台执行 <code class="inline">__pano.info()</code>，记录 DrawCall / 三角面 / 纹理数；再把浏览器窗口缩到很小，看这三个数变不变。</li>
+  </ol>
+  <div class="note">第 3 条要回答的问题：<strong>窗口大小变了，这些数变了没有？为什么？</strong>提示：想一想 DrawCall 统计的是“提交了多少次绘制命令”，还是“画了多少个像素”。</div>
+</section>
+
+<!-- ===== 课堂作业 ===== -->
+<section id="hw">
+  <div class="sec-head">
+    <div class="sec-num">作</div>
+    <div>
+      <h2>课堂作业与达标线</h2>
+      <p class="sec-sub">全部课内完成，不卡时间；做不完登记后到实验室补做</p>
+    </div>
+  </div>
+
+  <h3>一、要交四样</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>#</th><th>提交物</th><th>要求</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>改好的页面</td><td>另存为 <code class="inline">学号-姓名-全景漫游.html</code></td></tr>
+        <tr><td>2</td><td>任务卡</td><td>改造记录 + <strong>上机自验观察卡</strong>填完</td></tr>
+        <tr><td>3</td><td>一张截图</td><td>改成“餐厅正对餐桌”后的画面，<strong>要能看见右上角的读数</strong></td></tr>
+        <tr><td>4</td><td>自检报告</td><td>自检页点「生成自检报告」，截图或复制那段文字——<strong>证明你在真机上验过</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>二、达标五条（缺一条不算过）</h3>
+  <ol>
+    <li><strong>能跑</strong>：改过的页面能正常打开、控制台无报错；</li>
+    <li><strong>改动可见</strong>：多加的热点看得见、餐厅一进去正对餐桌；</li>
+    <li><strong>能解释</strong>：能说清 <code class="inline">u</code> 与方向的换算，以及“为什么全景图必须是 2:1”；</li>
+    <li><strong>能上机</strong>：在自己的头显里完成四步（测环境 → 进入 → 环视与交互 → 退出）并报出退出用时；</li>
+    <li><strong>能定位</strong>：能准确说出<strong>自己卡在哪一环</strong>——环境 / 作品 / 设备。</li>
+  </ol>
+  <div class="warn"><strong>任何情况下都不降的三条</strong>：① 达标线本身；② 改动必须有依据（不能瞎填数字）；③ 记录表上的数字必须和页面 HUD 对得上——<strong>编数据比做不出来更严重。</strong></div>
+
+  <h3>三、评价量规</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>维度</th><th>权重</th><th>看什么</th></tr></thead>
+      <tbody>
+        <tr><td>完成度</td><td>35%</td><td>页面能跑；三处改造肉眼可见；未引入报错</td></tr>
+        <tr><td>理解</td><td>25%</td><td>能说清 u 与方向的换算、2:1 与两极拉伸的因果</td></tr>
+        <tr><td><strong>上机自验</strong></td><td><strong>25%</strong></td><td>四步独立完成；能准确说出自己卡在哪一环；退出成功并报出用时</td></tr>
+        <tr><td>记录</td><td>15%</td><td>记录表完整（含 FPS / DrawCall / 三角面）、读数与 HUD 一致</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ===== 速查 ===== -->
+<section id="practice">
+  <div class="sec-head">
+    <div class="sec-num">查</div>
+    <div>
+      <h2>一页速查 · 达标线 · 下次课预告</h2>
+      <p class="sec-sub">把这一页抄在笔记本上，本章的骨架就齐了</p>
+    </div>
+  </div>
+
+  <h3>一、七句话速查</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>主题</th><th>要记住的</th></tr></thead>
+      <tbody>
+        <tr><td>全景的定义</td><td>超过人眼余光视角、乃至 <strong>360° 完整场景</strong>；三维全景是基于全景图像的<strong>真实场景</strong> VR 技术</td></tr>
+        <tr><td>四类形式</td><td>柱形（最省，手机全景就是它）· 球形（最全，<strong>2:1</strong>）· 立方体（6 张绕开重采样）· 物体全景（放弃自由环视换细节）</td></tr>
+        <tr><td>为什么 2:1</td><td>横向 360° 是经度、纵向 180° 是纬度 → <strong>360 : 180 = 2 : 1</strong></td></tr>
+        <tr><td>两个必看现象</td><td><strong>看得越广，每度分到的像素越少</strong>；<strong>两极一定被拉伸</strong>（所以要补天补地）</td></tr>
+        <tr><td>拍摄四要点</td><td>参数全程锁定 · <strong>绕镜头节点转</strong> · 重叠不少于 25% 且首尾重叠 · 上下各 45° + <strong>补天补地</strong></td></tr>
+        <tr><td>制作四步</td><td>拍摄 → 修图 → <strong>拼接</strong> → 设置交互并发布（<strong>一张好图不是作品，能点着走的漫游才是</strong>）</td></tr>
+        <tr><td>三条工具路线</td><td>PTGui <strong>从多到一</strong> / Pano2VR <strong>从一到多</strong> / 720 云 <strong>从多到发出去</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>二、上机三句话</h3>
+  <ol>
+    <li><strong>先怀疑环境，再怀疑代码。</strong>看不到 VR 按钮时，先看是不是安全上下文；</li>
+    <li>进 VR <strong>必须人手点一次</strong>，这是规范要求，装成应用也一样；</li>
+    <li>退出有<strong>三条路</strong>：注视按钮 / 长按握把 2 秒 / 系统键。</li>
+  </ol>
+
+  <h3>三、下次课预告（2026-10-14）</h3>
+  <ul>
+    <li><strong>第 5 章（下）· VR 全景制作进阶与作品验收</strong>：把今天这张“单一视点的全景”扩展成一座<strong>可漫游的校园 / 文化空间</strong>——多个全景点怎么连、热点网络怎么设计、导览信息怎么摆；</li>
+    <li>今天记下的 <strong>FPS / DrawCall / 三角面</strong>下次课要用，别丢；</li>
+    <li>没走通通路的同学，课后到实验室补齐——下次课一上来就是作品验收，没有缓冲。</li>
+  </ul>
+</section>
+
+<!-- ===== 配套视频 ===== -->
+<section id="videos">
+  <div class="sec-head">
+    <div class="sec-num">视</div>
+    <div>
+      <h2>配套视频</h2>
+      <p class="sec-sub">课上只放标 ★ 的四段（每段截 60—90 秒），其余留课后自查</p>
+    </div>
+  </div>
+
+  <div class="warn"><strong>优先级最高的是教材自带的四段操作视频。</strong>课本第 5 章课件第 <strong>29 / 30 / 32</strong> 页各有一个「扫码观看操作视频」的二维码：<strong>第 29 页＝例 5.1（PTGui 拼接）</strong>、<strong>第 30 页＝例 5.2 / 5.3（Pano2VR 单图加声音 / 多图加热点）</strong>、<strong>第 32 页＝例 5.4（720 云做校园漫游）</strong>。这四段与教材完全对齐，<strong>优先于下表任何一条</strong>。</div>
+
+  <h3>一、概述与观看（对应 5.1）</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>知识点</th><th>视频</th><th>时长</th><th>数据</th><th>怎么看</th></tr></thead>
+      <tbody>
+        <tr><td><strong>全景全流程总览 ★</strong></td><td><a href="https://www.bilibili.com/video/BV1AB4y1Q7FU" target="_blank" rel="noopener">[教程] VR 球形全景照片制作指南-720云-PTGui</a>（傲林霹客Mark）</td><td>18:05</td><td>5.8 万播放 / 1196 赞</td><td><strong>本课首推</strong>：一条视频把“球形全景 → 720 云 → PTGui”串完，正好是本章主线。课上只放前 90 秒</td></tr>
+        <tr><td>全景原理与软件简介</td><td><a href="https://www.bilibili.com/video/BV1xQ4y1N7Ms" target="_blank" rel="noopener">ptgui 官方系列教程 第 1 节《全景原理与软件简介》</a>（尚层摄绘）</td><td>8:26</td><td>5869 播放 / 45 赞</td><td>成体系的官方教程第 1 节，讲原理；第 2 节讲界面</td></tr>
+        <tr><td>用头显看全景</td><td><a href="https://www.bilibili.com/video/BV1gz421977B" target="_blank" rel="noopener">如何用 Pico VR 眼镜在 B 站看全景 360 度视频</a>（黎青看世界）</td><td>3:16</td><td>1.8 万播放 / 126 赞</td><td>只有 3 分钟，整段放：<strong>同一个内容，电脑上是“在看”，戴上之后是“在里面”</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>二、拍摄（对应 5.2）</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>知识点</th><th>视频</th><th>时长</th><th>数据</th><th>怎么看</th></tr></thead>
+      <tbody>
+        <tr><td><strong>补天补地 ★</strong></td><td><a href="https://www.bilibili.com/video/BV1x7411L7Y2" target="_blank" rel="noopener">无人机全景照片拍摄拼接与补天详细教程</a>（DJI领域）</td><td>15:10</td><td>2.6 万播放 / 256 赞</td><td><strong>只截“补天”那一段（约 60—90 秒）</strong>。这是教材最难讲清的要点，视频里一眼看懂</td></tr>
+        <tr><td>为什么必须补天</td><td><a href="https://www.bilibili.com/video/BV1Vi4y1x7Hi" target="_blank" rel="noopener">大疆航拍球形全景为何还要利用手机或者其他设备拍摄天空补天？</a>（海边の風）</td><td>5:36</td><td>5651 播放 / 39 赞</td><td>学生问“不补天会怎样”时放前 40 秒</td></tr>
+        <tr><td>消费级全景相机</td><td><a href="https://www.bilibili.com/video/BV14T42117FB" target="_blank" rel="noopener">8 种全景相机新手必学玩法！影石 Insta360 X4 上手</a>（夸利亚Qualia）</td><td>2:52</td><td>36.6 万播放 / 1.5 万赞</td><td>讲“一体式全景相机”这一类：不用鱼眼 + 云台 + 拼接，按一下就出片，代价是画质与可控性</td></tr>
+        <tr><td>手机全景模式</td><td><a href="https://www.bilibili.com/video/BV1K5411b7xd" target="_blank" rel="noopener">超全手机全景模式玩法合集</a>（韩长江JACKY）</td><td>1:22</td><td>6.7 万播放 / 4445 赞</td><td>只有 1 分 22 秒，整段放。放完直接接：“那缺的那部分天地怎么办？”</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="note"><strong>这一节有一个知识点没有合适的视频：镜头节点（NPP）。</strong>用 5 组关键词在 B 站检索了 81 条候选，命中的多是“相机云台选购”“遥感 NPP”之类无关内容。所以这个要点<strong>用教材例 5.1 的 22 张原始照片现场翻页演示错位</strong>——比任何视频都直观。</div>
+
+  <h3>三、制作：拼接与漫游（对应 5.3）</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>知识点</th><th>视频</th><th>时长</th><th>数据</th><th>怎么看</th></tr></thead>
+      <tbody>
+        <tr><td><strong>PTGui 拼接 ★</strong></td><td><a href="https://www.bilibili.com/video/BV1jSHdeYEj4" target="_blank" rel="noopener">这可能是 2024 年，全网最详细的全景拼接教程！</a>（地球玩家Earther）</td><td>9:44</td><td>6.5 万播放 / 1779 赞</td><td><strong>只截“对准图像”那一段</strong>，与教材例 5.1 的三步一一对应</td></tr>
+        <tr><td>PTGui 使用技巧</td><td><a href="https://www.bilibili.com/video/BV1gt4y1N7Fy" target="_blank" rel="noopener">全景照片怎么拼接？PTgui 使用技巧一</a>（西红摄影柿）</td><td>14:11</td><td>4.4 万播放 / 851 赞</td><td>课后自查，讲控制点与人工干预</td></tr>
+        <tr><td><strong>Pano2VR 做漫游 ★</strong></td><td><a href="https://www.bilibili.com/video/BV1KQ4y1N7wD" target="_blank" rel="noopener">pano2vr —— 10 分钟做个自己的全景漫游</a>（春江杂货铺）</td><td>11:13</td><td>1.6 万播放 / 137 赞</td><td><strong>最贴题的一条</strong>，对应教材例 5.2 / 5.3。时间紧就只放开头 60 秒</td></tr>
+        <tr><td>同一件事用代码做</td><td><a href="https://www.bilibili.com/video/BV1bf4y1t7QE" target="_blank" rel="noopener">javascript 实现 web 前端 VR 全景看房的三种方案（threejs…）</a>（大帅老猿）</td><td>18:22</td><td>4.2 万播放 / 1081 赞</td><td><strong>和本课漫游器同一条路线</strong>：自己写全景球 + 热点</td></tr>
+        <tr><td>多点漫游基础</td><td><a href="https://www.bilibili.com/video/BV1ED4y197Dg" target="_blank" rel="noopener">全景图多点漫游制作基础教程</a></td><td>18:40</td><td>8078 播放 / 70 赞</td><td>下次课“把点连成路”的预习材料</td></tr>
+        <tr><td>720 云官方教程</td><td><a href="https://www.bilibili.com/video/BV16Y4y1c7ky" target="_blank" rel="noopener">全景制作第 1 课：如何上传和发布 720 云作品（官方账号）</a></td><td>4:43</td><td>2.0 万播放 / 65 赞</td><td>官方出品，演示“一键出 H5 链接”</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>四、航拍、进阶与前沿</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>知识点</th><th>视频</th><th>时长</th><th>数据</th><th>怎么看</th></tr></thead>
+      <tbody>
+        <tr><td>全景航拍</td><td><a href="https://www.bilibili.com/video/BV1vpZYBfEgB" target="_blank" rel="noopener">学会全景航拍，新手小白秒变大神</a>（蒙阔Monko）</td><td>3:08</td><td>1.9 万播放 / 1339 赞</td><td>对应教材 5.3.4，短平快</td></tr>
+        <tr><td>全景接片思路</td><td><a href="https://www.bilibili.com/video/BV1h84y1f7A9" target="_blank" rel="noopener">重新认识全景接片，快速提升照片大片感！</a>（慕云同学）</td><td>4:30</td><td>3.2 万播放 / 1533 赞</td><td>讲“为什么接片”，不是讲软件操作</td></tr>
+        <tr><td>步进式漫游（进阶）</td><td><a href="https://www.bilibili.com/video/BV1484y1r7LH" target="_blank" rel="noopener">720 全景图 krpano - depthmap 步进式漫游 教程</a>（XR_1605）</td><td>16:16</td><td>1.1 万播放 / 172 赞</td><td>把“热点跳转”升级成“在两点之间走过去”，下次课的进阶方向</td></tr>
+        <tr><td><strong>3DGS 前沿</strong></td><td><a href="https://www.bilibili.com/video/BV1YGR7B6Esf" target="_blank" rel="noopener">我用高斯泼溅扫描了我的工作室！</a>（映像同好会）</td><td>10:58</td><td>11.6 万播放 / 5637 赞</td><td><strong>只放前 60 秒</strong>：全景记录“一个点的一圈”，3DGS 记录“一整个可以走进去的空间”</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="note"><strong>数据说明</strong>：表中播放 / 点赞为 <strong>2026-09-29 核验快照</strong>（13 个知识点共 495 条候选，逐条用免签名接口复核，无失效稿件），会随时间变化。另外有两个知识点这次<strong>没找到合适的中文视频</strong>：<strong>镜头节点</strong>（用教材原片演示替代）与<strong>光场摄像机</strong>（按教材正文口述即可），不必勉强找视频。</div>
+</section>
+
+<!-- ===== 第 5 章（下） ===== -->
+<section id="next">
+  <div class="sec-head">
+    <div class="sec-num">下</div>
+    <div>
+      <h2>第 5 章（下）· 2026-10-14</h2>
+      <p class="sec-sub">内容待上线：把“一个点的一圈”连成“一座可以走进去的空间”</p>
+    </div>
+  </div>
+
+  <p>这一节（4 学时）要做的事已经定了，具体教案还在准备中，先把方向写在下面，方便你带着问题去练：</p>
+  <div class="grid3">
+    <div class="cell">
+      <h4>① 从“单点”到“多点”</h4>
+      <p>今天你做的是一张全景图加几个热点；下次课要把<strong>多个全景点连成一条能走的路线</strong>，并处理“走进去之后朝向该朝哪”这类只有真走一遍才会暴露的问题。</p>
+    </div>
+    <div class="cell">
+      <h4>② 导览信息怎么摆</h4>
+      <p>热点放哪里、说明写多少、什么时候该给提示——这些都是<strong>设计问题</strong>，不是技术问题。下次课会用“数字校园 / 文化空间”当题材练一遍。</p>
+    </div>
+    <div class="cell">
+      <h4>③ 作品验收</h4>
+      <p>下次课一上来就是<strong>作品验收</strong>：用今天记下的 FPS / DrawCall / 三角面说明你的选择，并在头显里当场演示。</p>
+    </div>
+  </div>
+  <div class="warn"><strong>本节的详细教案、演示与作业尚未定稿</strong>，定稿后会在这里补齐，并在课程主页同步更新。在此之前，你可以先用 <a href="https://www.bilibili.com/video/BV1ED4y197Dg" target="_blank" rel="noopener">全景图多点漫游制作基础教程</a> 和上面的“步进式漫游”那一条做预习。</div>
+</section>
+
+</main>
+
+<button id="toTop" title="回到顶部">↑</button>
+
+<script>
+(function(){
+  var navInner = document.getElementById('navInner');
+  var navLinks = {};
+  navInner.querySelectorAll('a[data-sec]').forEach(function(a){
+    navLinks[a.getAttribute('data-sec')] = a;
+  });
+  var sections = ['guide','c1','c2','c3','c4','c5','demo','hw','practice','videos','next'];
+  if ('IntersectionObserver' in window) {
+    var obs = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        if (en.isIntersecting) {
+          document.querySelectorAll('#nav a').forEach(function(a){ a.classList.remove('on'); });
+          var a = navLinks[en.target.id];
+          if (a) a.classList.add('on');
+        }
+      });
+    }, {rootMargin:'-15% 0px -70% 0px'});
+    sections.forEach(function(s){
+      var el = document.getElementById(s);
+      if (el) obs.observe(el);
+    });
+  }
+  var toTop = document.getElementById('toTop');
+  if (toTop) {
+    window.addEventListener('scroll', function(){
+      toTop.classList.toggle('show', window.pageYOffset > 400);
+    }, {passive:true});
+    toTop.addEventListener('click', function(){ window.scrollTo({top:0, behavior:'smooth'}); });
+  }
+})();
+</script>
+
+</body>
+</html>
