@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 260" width="960" height="260" role="img" aria-label="四种全景形式的存储与观看方式示意">
+  <style>
+    .bg{fill:#ffffff}
+    .card{fill:#f6f5fb;stroke:#ddd7f2;stroke-width:1.5}
+    .t{font:600 15px "Microsoft YaHei",sans-serif;fill:#3b2f63}
+    .s{font:12px "Microsoft YaHei",sans-serif;fill:#6b6288}
+    .ln{stroke:#8b7fd4;stroke-width:1.6;fill:none}
+    .ln2{stroke:#d9a441;stroke-width:2;fill:none}
+    .fill{fill:#b9aee8}
+    .fill2{fill:#f0dcb8}
+    .blank{fill:#ffe9e4;stroke:#e0a08c;stroke-width:1;stroke-dasharray:3 3}
+  </style>
+  <rect class="bg" width="960" height="260"/>
+
+  <!-- 柱形 -->
+  <g transform="translate(20,20)">
+    <rect class="card" width="215" height="220" rx="12"/>
+    <text class="t" x="14" y="26">柱形全景</text>
+    <rect class="blank" x="14" y="42" width="187" height="30"/>
+    <rect class="fill" x="14" y="72" width="187" height="46"/>
+    <rect class="blank" x="14" y="118" width="187" height="30"/>
+    <text class="s" x="14" y="166">只有水平一圈有数据</text>
+    <text class="s" x="14" y="184">上下两块是空的</text>
+    <text class="s" x="14" y="206" fill="#c1502e">→ 手机全景就是它</text>
+  </g>
+
+  <!-- 球形 -->
+  <g transform="translate(255,20)">
+    <rect class="card" width="215" height="220" rx="12"/>
+    <text class="t" x="14" y="26">球形全景</text>
+    <circle class="ln" cx="107" cy="98" r="52"/>
+    <ellipse class="ln" cx="107" cy="98" rx="52" ry="18"/>
+    <ellipse class="ln" cx="107" cy="98" rx="18" ry="52"/>
+    <line class="ln2" x1="55" y1="98" x2="159" y2="98"/>
+    <text class="s" x="14" y="166">整张 2:1 都是数据</text>
+    <text class="s" x="14" y="184">上下左右全都能看</text>
+    <text class="s" x="14" y="206" fill="#c1502e">→ VR 全景的标准形态</text>
+  </g>
+
+  <!-- 立方体 -->
+  <g transform="translate(490,20)">
+    <rect class="card" width="215" height="220" rx="12"/>
+    <text class="t" x="14" y="26">立方体全景</text>
+    <g transform="translate(22,44)">
+      <rect class="fill" x="0" y="0" width="44" height="44" rx="3"/>
+      <rect class="fill" x="48" y="0" width="44" height="44" rx="3"/>
+      <rect class="fill" x="96" y="0" width="44" height="44" rx="3"/>
+      <rect class="fill2" x="0" y="48" width="44" height="44" rx="3"/>
+      <rect class="fill2" x="48" y="48" width="44" height="44" rx="3"/>
+      <rect class="fill2" x="96" y="48" width="44" height="44" rx="3"/>
+      <text class="s" x="0" y="112" fill="#8b7fd4">6 张正方形图</text>
+    </g>
+    <text class="s" x="14" y="184">不用重采样，棱上可能有缝</text>
+    <text class="s" x="14" y="206" fill="#c1502e">→ 教材例 5.1 的六面体</text>
+  </g>
+
+  <!-- 物体全景 -->
+  <g transform="translate(725,20)">
+    <rect class="card" width="215" height="220" rx="12"/>
+    <text class="t" x="14" y="26">物体全景</text>
+    <g transform="translate(107,98)">
+      <rect class="fill2" x="-18" y="-26" width="36" height="52" rx="4"/>
+      <path class="ln2" d="M0,-46 A46,46 0 0 1 0,46" transform="rotate(0)"/>
+      <circle class="fill" cx="-60" cy="-16" r="7"/>
+      <circle class="fill" cx="-46" cy="34" r="7"/>
+      <circle class="fill" cx="46" cy="34" r="7"/>
+      <circle class="fill" cx="60" cy="-16" r="7"/>
+    </g>
+    <text class="s" x="14" y="184">相机绕着物体转一圈</text>
+    <text class="s" x="14" y="206" fill="#c1502e">→ 文物 / 产品展示</text>
+  </g>
+</svg>

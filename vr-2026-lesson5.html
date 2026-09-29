@@ -31,6 +31,7 @@
     <a href="#c3" data-sec="c3">三、全景拍摄</a>
     <a href="#c4" data-sec="c4">四、全景图的制作</a>
     <a href="#c5" data-sec="c5">五、从全景到 3DGS</a>
+    <a href="#cases" data-sec="cases">案例演示</a>
     <a href="#demo" data-sec="demo">课堂实操</a>
     <a href="#hw" data-sec="hw">课堂作业</a>
     <a href="#practice" data-sec="practice">速查 · 达标</a>
@@ -118,6 +119,15 @@
     </table>
   </div>
   <p><strong>现场提问</strong>：手机拍的全景照片属于哪一类？——<strong>柱形</strong>。所以你在手机里抬头看天花板，边缘一定会变形。这不是你操作错了，是形式决定了上限。</p>
+
+  <figure style="margin:20px 0 6px">
+    <img src="assets/vr-2026/img/diagram-4-forms.svg" alt="四种全景形式示意图：柱形、球形、立方体、物体全景"
+         style="width:100%;height:auto;border:1px solid #e6e3f2;border-radius:12px;background:#fff">
+    <figcaption style="font-size:12.5px;color:var(--ink-soft);margin-top:6px">
+      图 1 · 四类形式：<strong>差别不在“清不清楚”，而在“怎么存”和“极点有没有数据”</strong>。
+      柱形上下两块本来就是空的（手机全景就是它）；球形整张 2:1 都有数据；立方体是 6 张方块、不用重采样；物体全景放弃自由环视换细节。
+    </figcaption>
+  </figure>
 
   <h3>二、为什么值得用全景</h3>
   <div class="grid2">
@@ -223,6 +233,15 @@
 
   <div class="key"><strong>看一眼“节点没绕对”长什么样</strong>：打开教材第 5 章例 5.1 的 <strong>22 张原始照片</strong>，逐张翻——同一根柱子在画面里一张比一张偏。软件会尽力对齐，但<strong>错位太大时近处物体一定会出现“鬼影”（一个物体变成两个）</strong>。这就是为什么节点比器材重要。</div>
 
+  <figure style="margin:20px 0 6px">
+    <img src="assets/vr-2026/img/diagram-shooting-4-rules.svg" alt="全景拍摄四要点示意：锁定参数、绕镜头节点转、重叠不少于 25%、上下各 45 度并补天补地"
+         style="width:100%;height:auto;border:1px solid #e6e3f2;border-radius:12px;background:#fff">
+    <figcaption style="font-size:12.5px;color:var(--ink-soft);margin-top:6px">
+      图 2 · 拍摄四要点。<strong>第 ② 条是最反直觉的一条</strong>：绕镜头节点转，近处物体才不跑位；
+      原地转头（绕身体转）相机位置就动了，拼出来一定有“鬼影”。第 ④ 条对应教材例 5.1 的原始照片：上下各 45° 各拍一圈，最后单独补天补地。
+    </figcaption>
+  </figure>
+
   <h3>四、手机能拍吗</h3>
   <p>能。手机全景模式产出的是<strong>柱形全景</strong>：水平扫一圈，垂直方向受镜头限制。代价是<strong>抬头低头会露边</strong>。什么时候够用：快速记录、社交发布、课堂练习。什么时候不够：要做 VR 里 360°×180° 全视角的正式成品。</p>
   <p>拍摄时注意四条：端稳、匀速；保持水平不要上下起伏；避开近处物体（离得越近错位越明显）；<strong>锁定曝光与白平衡</strong>（长按屏幕出现 AE/AF 锁定）。</p>
@@ -285,6 +304,16 @@
   </div>
   <div class="key"><strong>A 负责“从多到一”，B 负责“从一到多”，C 负责“从多到发出去”。</strong>工具换来换去，底层只有一件事：<strong>把“从一个点看到的一圈画面”存成一张 2:1 的图，再贴回一个球的内壁。</strong>三条路线的差别只是“谁来帮你做这一步”。</div>
 
+  <figure style="margin:20px 0 6px">
+    <img src="assets/vr-2026/img/diagram-3-toolchains.svg" alt="三条工具路线的分工示意：PTGui 从多到一、Pano2VR 从一到多、720 云把作品发出去"
+         style="width:100%;height:auto;border:1px solid #e6e3f2;border-radius:12px;background:#fff">
+    <figcaption style="font-size:12.5px;color:var(--ink-soft);margin-top:6px">
+      图 3 · 三条路线记住的是<strong>分工</strong>，不是软件名：<strong>PTGui 从多到一</strong>（20 张照片 → 1 张）、
+      <strong>Pano2VR 从一到多</strong>（1 张图 → 能点的漫游）、<strong>720 云把作品发出去</strong>（生成 H5、可导离线包）。
+      本课的漫游器走的是第四条路：自己写代码。
+    </figcaption>
+  </figure>
+
   <h3>三、全景航拍</h3>
   <p>用无人机在空中拍摄影像，再靠后期拼接成全景影像，称为“全景航拍”（教材例 5.4 用 720 云做了一次校园全景漫游）。它解决的是<strong>“人上不去的位置怎么看”</strong>——屋顶、园区、工地、景区全貌。</p>
 
@@ -313,6 +342,89 @@
     </div>
   </div>
   <div class="key"><strong>一句话接住</strong>：全景记录的是“从一个点看到的一圈”，3DGS 记录的是“一整个可以走进去的空间”——<strong>这是同一条路的下一步。</strong>这条线会在后面“数字校园漫游”那个案例里继续用。</div>
+</section>
+
+<!-- ===== 案例演示 ===== -->
+<section id="cases">
+  <div class="sec-head">
+    <div class="sec-num">例</div>
+    <div>
+      <h2>案例演示 · 14 个</h2>
+      <p class="sec-sub">按板块排好；课上只放标 ★ 的七个，其余作为课后自查与下次课的地基</p>
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <a class="btn" href="assets/vr-2026/panorama/pano02-tour.html" target="_blank" rel="noopener">★ 六房间全景漫游器 →</a>
+    <a class="btn ghost" href="assets/vr-2026/panorama/pano01-projection.html" target="_blank" rel="noopener">★ 投影原理 →</a>
+    <a class="btn ghost" href="assets/vr-2026/panorama/pano-three-forms.html" target="_blank" rel="noopener">★ 三种形式对比器 →</a>
+    <a class="btn ghost" href="assets/vr-2026/panorama/pano-hotspot-editor.html" target="_blank" rel="noopener">★ 热点编辑器 →</a>
+    <a class="btn ghost" href="assets/vr-2026/panorama/samples/vr-barebones.html" target="_blank" rel="noopener">★ 最小 VR（官方零依赖）→</a>
+    <a class="btn ghost" href="assets/vr-2026/panorama/samples/360-photos.html" target="_blank" rel="noopener">★ 官方 360 全景播放器 →</a>
+    <a class="btn ghost" href="assets/vr-2026/check/" target="_blank" rel="noopener">★ VR 作品自检 →</a>
+  </div>
+
+  <h3>一、讲原理与形式（对应 5.1 / 5.2）</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>#</th><th>演示</th><th>它让你看见什么</th><th>在哪</th></tr></thead>
+      <tbody>
+        <tr><td>D1 ★</td><td><strong>投影原理</strong></td><td>平面图 ↔ 球面视图实时联动；拉 FOV 看“越广越糊”；拉纬度看两极拉伸</td><td><a href="assets/vr-2026/panorama/pano01-projection.html" target="_blank" rel="noopener">打开</a></td></tr>
+        <tr><td>D2</td><td><strong>三种形式对比器</strong>（自制）</td><td>柱形 / 球形 / 立方体并排，拖“抬头”滑杆一起抬头：<strong>柱形开始露白、球形极点被拉开、立方体一直连续</strong></td><td><a href="assets/vr-2026/panorama/pano-three-forms.html" target="_blank" rel="noopener">打开</a></td></tr>
+        <tr><td>D3 ★</td><td><strong>官方 360 全景播放器</strong></td><td>官方实现的全景球（默认图已换成本课样板间）。<strong>若打开是空白，说明这台设备没给 <code class="inline">inline</code> 会话</strong>——又是一个“先怀疑环境”的例子</td><td><a href="assets/vr-2026/panorama/samples/360-photos.html" target="_blank" rel="noopener">打开</a></td></tr>
+        <tr><td>D4</td><td>官方 <strong>Stereo Video</strong></td><td>立体全景视频——用来讲清“全景视频 vs VR 视频”的差别</td><td><a href="https://immersive-web.github.io/webxr-samples/stereo-video.html" target="_blank" rel="noopener">官方在线</a></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>二、讲拍摄（对应 5.2）</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>#</th><th>演示</th><th>它让你看见什么</th><th>在哪</th></tr></thead>
+      <tbody>
+        <tr><td>D5</td><td>教材例 5.1 的 <strong>22 张原始照片</strong></td><td><strong>“镜头节点没绕对”的现场证据</strong>：同一根柱子逐张错位，拼起来会有“鬼影”</td><td>教材素材目录</td></tr>
+        <tr><td>D6</td><td>教材例 5.1 的 <strong>六面体文件</strong></td><td>立方体全景长什么样（6 张正方形图分别贴到内壁）</td><td>教材素材目录</td></tr>
+        <tr><td>D7</td><td>教材例 5.4 的 <strong>DJI 航拍 22 张</strong></td><td>全景航拍：天上的那一圈怎么拍、怎么拼</td><td>教材素材目录</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>三、讲制作与交互（对应 5.3）——这一组是学生要动手的</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>#</th><th>演示</th><th>它让你做什么</th><th>在哪</th></tr></thead>
+      <tbody>
+        <tr><td>D8 ★</td><td><strong>六房间全景漫游器</strong>（自制）</td><td>进 VR、环视、<strong>视线停 1.2 秒跳转</strong>、三条退出路；右上角 <strong>u/v 探针</strong>实时显示视线中心落在哪一列；客厅里那个<strong>金色立方体</strong>是另加的 3D 展品，注视它会自转</td><td><a href="assets/vr-2026/panorama/pano02-tour.html" target="_blank" rel="noopener">打开</a></td></tr>
+        <tr><td>D9</td><td><strong>热点编辑器</strong>（自制）</td><td>在图上点一下，直接得到 <code class="inline">u</code>、<code class="inline">v</code>、偏航角，和一行能粘回代码的配置——把“量 u 值”从估算变成点两下</td><td><a href="assets/vr-2026/panorama/pano-hotspot-editor.html" target="_blank" rel="noopener">打开</a></td></tr>
+        <tr><td>D10</td><td>官方 <strong>Teleportation</strong></td><td>射线 + 落点环的传送移动：下次课“多点漫游”的地基</td><td><a href="assets/vr-2026/panorama/samples/teleportation.html" target="_blank" rel="noopener">本地</a> · <a href="https://immersive-web.github.io/webxr-samples/teleportation.html" target="_blank" rel="noopener">官方</a></td></tr>
+        <tr><td>D11</td><td>官方 <strong>Input Selection</strong></td><td>手柄 select 事件与射线选中——对照我们自己的“注视停留”</td><td><a href="assets/vr-2026/panorama/samples/input-selection.html" target="_blank" rel="noopener">本地</a> · <a href="https://immersive-web.github.io/webxr-samples/input-selection.html" target="_blank" rel="noopener">官方</a></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>四、上机前与收束（实操 B / 进阶）</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>#</th><th>演示</th><th>它回答什么问题</th><th>在哪</th></tr></thead>
+      <tbody>
+        <tr><td>D12 ★</td><td>官方 <strong>Barebones VR</strong>（7.7 KB 单文件、零依赖）</td><td><strong>“进不去 VR”到底卡在哪一环？</strong>连它都进不去，问题一定在环境（安全上下文 / 浏览器 / 设备），不在你的代码</td><td><a href="assets/vr-2026/panorama/samples/vr-barebones.html" target="_blank" rel="noopener">打开</a></td></tr>
+        <tr><td>D13 ★</td><td>本站 <strong>VR 作品自检</strong></td><td>六项环境状态 + 极简测试场景 + 可复制的自检报告</td><td><a href="assets/vr-2026/check/" target="_blank" rel="noopener">打开</a></td></tr>
+        <tr><td>D14</td><td>官方 <strong>Positional Audio</strong></td><td>空间音频：为什么“听见方向”也算沉浸感的一部分</td><td><a href="https://immersive-web.github.io/webxr-samples/positional-audio.html" target="_blank" rel="noopener">官方在线</a></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="note">
+    <strong>关于官方样例的两点说明。</strong>
+    ① 它们来自 W3C 沉浸式 Web 社区组的 <code class="inline">webxr-samples</code>（<strong>MIT 许可</strong>，本地化时保留了版权声明）；
+    官方站点共 <strong>23 个样例</strong>，这里只取了与本章相关的 <strong>7 个</strong>——其余（输入、性能、AR）属于第 4 次课与第 8 章那条线。
+    ② 官方样例分 <strong>WebGL 版</strong>与 <code class="inline">*-webgpu.html</code> 版，<strong>后者要 WebGPU、没有 WebGL 回退，在 PICO 上跑不了</strong>，所以本站全部取 WebGL 版。
+  </div>
+
+  <div class="note">
+    <strong>课上只放这七个</strong>（D1 / D2 / D3 / D8 / D9 / D12 / D13），每个 3—8 分钟；
+    其余七个留给课后自查与下次课。演示数量多不等于都要放——<strong>180 分钟里放 14 个，就变成“放视频课”了。</strong>
+  </div>
 </section>
 
 <!-- ===== 课堂实操 ===== -->
@@ -581,7 +693,7 @@
   navInner.querySelectorAll('a[data-sec]').forEach(function(a){
     navLinks[a.getAttribute('data-sec')] = a;
   });
-  var sections = ['guide','c1','c2','c3','c4','c5','demo','hw','practice','videos','next'];
+  var sections = ['guide','c1','c2','c3','c4','c5','cases','demo','hw','practice','videos','next'];
   if ('IntersectionObserver' in window) {
     var obs = new IntersectionObserver(function(entries){
       entries.forEach(function(en){

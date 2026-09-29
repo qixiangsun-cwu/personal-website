@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>三种全景形式对比器 · 柱形 / 球形 / 立方体</title>
+<style>
+  html,body{margin:0;background:#0b1016;color:#e8eef6;font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif}
+  .wrap{max-width:1180px;margin:0 auto;padding:22px 20px 60px}
+  h1{font-size:21px;margin:6px 0 4px}
+  .sub{color:#93a6bb;font-size:13px;margin-bottom:16px;line-height:1.8}
+  .bar{display:flex;gap:16px;align-items:center;flex-wrap:wrap;background:rgba(15,22,32,.85);
+    border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:12px 16px;margin-bottom:16px}
+  .bar label{display:flex;gap:10px;align-items:center;font-size:13.5px;color:#c3d2e3}
+  input[type=range]{width:260px}
+  #ang{font-family:Consolas,monospace;color:#ffd27a;min-width:64px;display:inline-block}
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  .card{background:rgba(15,22,32,.85);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:14px}
+  .card h3{margin:0 0 4px;font-size:15.5px}
+  .card .note{font-size:12px;color:#8fa3b8;line-height:1.7;margin-bottom:10px;min-height:52px}
+  canvas{display:block;width:100%;border-radius:9px;border:1px solid rgba(255,255,255,.14);background:#05080c}
+  .cap{font-size:11.5px;color:#7d8fa3;margin:6px 0 12px}
+  .legend{margin-top:16px;font-size:13px;line-height:1.95;color:#c3d2e3}
+  .legend b{color:#ffd27a}
+  .kbd{font-family:Consolas,monospace;background:rgba(255,255,255,.1);padding:1px 6px;border-radius:5px}
+  .back{margin-top:26px;font-size:13.5px}
+  .back a{color:#ffd27a;text-decoration:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>三种全景形式对比器 · 柱形 / 球形 / 立方体</h1>
+  <div class="sub">
+    同一个空间，三种存法。<b>拖动滑杆让三个视图一起抬头</b>——你会看到：差别不在“清不清楚”，而在
+    <b>“它在磁盘上长什么样”</b>和<b>“抬头抬到极点时还有没有数据”</b>。
+  </div>
+
+  <div class="bar">
+    <label>抬头 / 低头 <input id="el" type="range" min="-80" max="80" value="0" step="1"><span id="ang">0°</span></label>
+    <label style="font-size:12.5px;color:#8fa3b8">（0° = 平视；拉到 ±80° 看三者分道扬镳）</label>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <h3>柱形全景</h3>
+      <div class="note">只有水平一圈，<b>垂直方向没有数据</b>。手机全景模式就是它——所以抬头看天花板一定露边。</div>
+      <canvas id="c-cyl-store" width="330" height="165"></canvas>
+      <div class="cap">↑ 它在磁盘上的样子：2:1 的图，<b>上下两条是空的</b></div>
+      <canvas id="c-cyl-view" width="330" height="200"></canvas>
+      <div class="cap">↑ 站在里面抬头看</div>
+    </div>
+
+    <div class="card">
+      <h3>球形全景</h3>
+      <div class="note">等距柱状投影，<b>整张 2:1 都是数据</b>。抬头能看到天顶，但那里被拉得很开——所以拍的时候要<b>补天补地</b>。</div>
+      <canvas id="c-sph-store" width="330" height="165"></canvas>
+      <div class="cap">↑ 它在磁盘上的样子：完整的 2:1 等距柱状图</div>
+      <canvas id="c-sph-view" width="330" height="200"></canvas>
+      <div class="cap">↑ 站在里面抬头看</div>
+    </div>
+
+    <div class="card">
+      <h3>立方体全景</h3>
+      <div class="note">6 张正方形图分别贴到立方体内壁。<b>不用重采样</b>，但每条棱上可能出现接缝。</div>
+      <canvas id="c-cube-store" width="330" height="165"></canvas>
+      <div class="cap">↑ 它在磁盘上的样子：6 个正方形（前 / 后 / 左 / 右 / 顶 / 底）</div>
+      <canvas id="c-cube-view" width="330" height="200"></canvas>
+      <div class="cap">↑ 站在里面抬头看</div>
+    </div>
+  </div>
+
+  <div class="legend">
+    <b>要读懂的三件事：</b><br>
+    ① <b>抬头到 ±45° 以上，柱形那栏开始露白</b>——那不是画错，是它本来就没拍那么多。这就是手机全景“天塌地陷”的真相。<br>
+    ② <b>球形那栏一直连续，但两极被拉得越开</b>——抬头越高，同样的像素铺得越广，所以天顶最糊。这也是为什么要单独“补天”。<br>
+    ③ <b>立方体那栏也连续</b>，而且它的存储形态是 6 个方块——<b>不重采样</b>是它的优点，代价是 6 张图要一起管、棱上要有接缝。<br>
+    <b>一句话</b>：三种形式的差别在“<b>怎么存</b>”和“<b>极点有没有数据</b>”；至于清不清楚，取决于图本身有多少像素——
+    这一条三个形式完全一样（回看《投影原理》那页：<span class="kbd">看得越广，每度分到的像素越少</span>）。
+  </div>
+
+  <div class="back"><a href="./index.html">← 回演示中心</a></div>
+</div>
+
+<script>
+/* ============================================================================
+ * 三种全景形式对比器
+ * 源图：../pano/living.jpg（教材第 5 章例 5.3 的样板间，2:1 等距柱状）
+ * 全部用 Canvas 2D 逐像素反查实现，不依赖任何库，断网可用。
+ * ==========================================================================*/
+var SRC = './pano/living.jpg';
+var SW = 0, SH = 0, srcData = null;
+var img = new Image();
+
+/* 等距柱状图的 (u,v) ← 归一化方向 (x,y,z)；与 three.js 球体几何一致 */
+function dirToUV(x, y, z){
+  var phi = Math.atan2(z, -x); if (phi < 0) phi += Math.PI * 2;
+  var v = Math.acos(Math.max(-1, Math.min(1, y))) / Math.PI;
+  return [phi / (Math.PI * 2), v];
+}
+/* 取像（越界返回 null，用来表现“没有数据”） */
+function sample(u, v){
+  if (u < 0 || u >= 1 || v < 0 || v >= 1) return null;
+  var tx = Math.min(SW - 1, Math.max(0, Math.round(u * SW - 0.5)));
+  var ty = Math.min(SH - 1, Math.max(0, Math.round(v * SH - 0.5)));
+  var i = (ty * SW + tx) * 4;
+  return [srcData.data[i], srcData.data[i+1], srcData.data[i+2]];
+}
+var BLANK = [26, 34, 44];   // “这里没有数据”的底色
+
+/* 把方向投到某个视角的屏幕上 —— 球面栏 / 立方体栏共用 */
+function renderView(canvasId, mode, elDeg){
+  var cv = document.getElementById(canvasId), g = cv.getContext('2d');
+  var W = cv.width, H = cv.height;
+  var id = g.createImageData(W, H), d = id.data;
+  var fov = 90 * Math.PI / 180;
+  var el = elDeg * Math.PI / 180;
+  for (var py = 0; py < H; py++){
+    var ay = (0.5 - (py + 0.5) / H) * fov;
+    for (var px = 0; px < W; px++){
+      var ax = ((px + 0.5) / W - 0.5) * fov * (W / H);
+      // 视线方向：先看前方，再整体抬头 el
+      var X = Math.cos(ax) * Math.cos(ay), Y = Math.sin(ay), Z = -Math.sin(ax) * Math.cos(ay);
+      var Y1 = Y * Math.cos(el) - Z * Math.sin(el);
+      var Z1 = Y * Math.sin(el) + Z * Math.cos(el);
+      var x = X, y = Y1, z = Z1;
+      var uv = dirToUV(x, y, z);
+      var u = uv[0], v = uv[1];
+      var c = null;
+      if (mode === 'sphere'){
+        c = sample(u, v);
+      } else if (mode === 'cylinder'){
+        /* 柱形：只有中间一条纬度带有数据。取 ±35° 作为“手机全景”的典型覆盖范围 */
+        var lat = Math.asin(Math.max(-1, Math.min(1, y)));
+        c = (Math.abs(lat) <= 35 * Math.PI / 180) ? sample(u, v) : null;
+      } else if (mode === 'cube'){
+        /* 立方体：按主轴把方向投到 6 个面之一，再查该面在等距柱状图上的位置 */
+        var ax2 = Math.abs(x), ay2 = Math.abs(y), az2 = Math.abs(z);
+        var m = Math.max(ax2, ay2, az2);
+        var fx, fy, fz, uu, vv;
+        if (m === ax2){ fx = Math.sign(x); fy = y / ax2; fz = z / ax2; uu = (fx > 0) ? 0.5 : 0.0; }
+        else if (m === az2){ fz = Math.sign(z); fy = y / az2; fx = x / az2; uu = (fz > 0) ? 0.75 : 0.25; }
+        else { fy = Math.sign(y); fx = x / ay2; fz = z / ay2; uu = 0.5; }
+        vv = Math.acos(Math.max(-1, Math.min(1, y))) / Math.PI;
+        c = sample(u, vv);
+      }
+      /* “没有数据”的像素画成斜纹，而不是整块盖一层——只标出真正缺数据的地方 */
+      if (!c) c = (((px + py) % 10) < 6) ? [42, 26, 26] : [193, 80, 46];
+      var o = (py * W + px) * 4;
+      d[o] = c[0]; d[o+1] = c[1]; d[o+2] = c[2]; d[o+3] = 255;
+    }
+  }
+  g.putImageData(id, 0, 0);
+}
+
+/* 存储形态缩略图 */
+function renderStorage(){
+  // 柱形：2:1 图 + 上下两条“无数据”
+  drawStorage('c-cyl-store', function(g, W, H){
+    g.drawImage(img, 0, H * 0.5 - H * 0.30, W, H * 0.60);
+    g.fillStyle = 'rgba(10,14,20,.92)';
+    g.fillRect(0, 0, W, H * 0.20); g.fillRect(0, H * 0.80, W, H * 0.20);
+    g.fillStyle = '#c1502e'; g.font = 'bold 13px "Microsoft YaHei"'; g.textAlign = 'center';
+    g.fillText('没有数据（手机拍不到）', W / 2, H * 0.12);
+    g.fillText('没有数据（手机拍不到）', W / 2, H * 0.92);
+  });
+  // 球形：完整 2:1
+  drawStorage('c-sph-store', function(g, W, H){ g.drawImage(img, 0, 0, W, H); });
+  // 立方体：把等距柱状重采样成 6 个正方形
+  var cv = document.getElementById('c-cube-store'), g = cv.getContext('2d');
+  var W = cv.width, H = cv.height;
+  g.fillStyle = '#05080c'; g.fillRect(0, 0, W, H);
+  var faceW = Math.floor(W * 0.30), faceH = faceW;
+  var faces = [   // [面内 x 轴方向, y 轴方向, 视线方向]
+    ['前', [1,0,0],[0,-1,0],[0,0,-1]], ['后', [-1,0,0],[0,-1,0],[0,0,1]],
+    ['左', [0,0,1],[0,-1,0],[-1,0,0]], ['右', [0,0,-1],[0,-1,0],[1,0,0]],
+    ['顶', [1,0,0],[0,0,1],[0,1,0]],  ['底', [1,0,0],[0,0,-1],[0,-1,0]]
+  ];
+  var pos = [[0.03,0.06],[0.36,0.06],[0.69,0.06],[0.03,0.56],[0.36,0.56],[0.69,0.56]];
+  for (var i = 0; i < 6; i++){
+    var f = faces[i];
+    var id = g.createImageData(faceW, faceH), d = id.data;
+    for (var py = 0; py < faceH; py++){
+      for (var px = 0; px < faceW; px++){
+        var a = ((px + 0.5) / faceW) * 2 - 1, b = ((py + 0.5) / faceH) * 2 - 1;
+        var x = f[3][0] + f[1][0] * a + f[2][0] * (-b);
+        var y = f[3][1] + f[1][1] * a + f[2][1] * (-b);
+        var z = f[3][2] + f[1][2] * a + f[2][2] * (-b);
+        var len = Math.sqrt(x*x + y*y + z*z); x/=len; y/=len; z/=len;
+        var uv = dirToUV(x, y, z), c = sample(uv[0], uv[1]) || BLANK;
+        var o = (py * faceW + px) * 4;
+        d[o] = c[0]; d[o+1] = c[1]; d[o+2] = c[2]; d[o+3] = 255;
+      }
+    }
+    var ox = Math.round(pos[i][0] * W), oy = Math.round(pos[i][1] * H);
+    g.putImageData(id, ox, oy);
+    g.strokeStyle = '#c1502e'; g.lineWidth = 1;
+    g.strokeRect(ox + .5, oy + .5, faceW - 1, faceH - 1);
+    g.fillStyle = '#ffd27a'; g.font = 'bold 11px "Microsoft YaHei"'; g.textAlign = 'left';
+    g.fillText(f[0], ox + 4, oy + 13);
+  }
+}
+function drawStorage(id, fn){
+  var cv = document.getElementById(id), g = cv.getContext('2d');
+  g.fillStyle = '#05080c'; g.fillRect(0, 0, cv.width, cv.height);
+  fn(g, cv.width, cv.height);
+}
+
+function redraw(){
+  var el = parseFloat(document.getElementById('el').value);
+  document.getElementById('ang').textContent = el + '°';
+  renderView('c-cyl-view', 'cylinder', el);
+  renderView('c-sph-view', 'sphere', el);
+  renderView('c-cube-view', 'cube', el);
+}
+
+img.onload = function(){
+  var c = document.createElement('canvas'); c.width = img.width; c.height = img.height;
+  var g = c.getContext('2d'); g.drawImage(img, 0, 0);
+  SW = img.width; SH = img.height; srcData = g.getImageData(0, 0, SW, SH);
+  renderStorage(); redraw();
+};
+img.onerror = function(){ document.body.insertAdjacentHTML('afterbegin',
+  '<div style="padding:12px 16px;background:#c1502e;color:#fff">全景图加载失败：' + SRC + '（请确认本文件位于 demos/ 目录下）</div>'); };
+img.src = SRC;
+
+document.getElementById('el').addEventListener('input', redraw);
+</script>
+</body>
+</html>

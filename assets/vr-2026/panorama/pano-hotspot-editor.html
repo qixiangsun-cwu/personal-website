@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>热点编辑器 · 量出你要的 u 值</title>
+<style>
+  html,body{margin:0;background:#0b1016;color:#e8eef6;font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif}
+  .wrap{max-width:1180px;margin:0 auto;padding:22px 20px 60px}
+  h1{font-size:21px;margin:6px 0 4px}
+  .sub{color:#93a6bb;font-size:13px;margin-bottom:16px;line-height:1.85}
+  .row{display:flex;gap:18px;flex-wrap:wrap;align-items:flex-start}
+  .left{flex:1 1 620px;min-width:320px}
+  .right{flex:0 1 380px;min-width:300px}
+  .card{background:rgba(15,22,32,.85);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:14px 16px;margin-bottom:14px}
+  .card h3{margin:0 0 8px;font-size:15px}
+  #stage{position:relative;line-height:0}
+  #pic{width:100%;border-radius:10px;border:1px solid rgba(255,255,255,.14);cursor:crosshair;display:block}
+  #mark{position:absolute;width:22px;height:22px;margin:-11px 0 0 -11px;border-radius:50%;
+    border:3px solid #ffd166;box-shadow:0 0 0 2px rgba(0,0,0,.55),0 0 14px rgba(255,209,102,.8);pointer-events:none;display:none}
+  #mark:after{content:'';position:absolute;left:50%;top:50%;width:4px;height:4px;margin:-2px 0 0 -2px;border-radius:50%;background:#ffd166}
+  .kv{display:grid;grid-template-columns:auto 1fr;gap:6px 12px;font-size:13.5px;align-items:baseline}
+  .kv b{color:#8fa3b8;font-weight:400}
+  .val{font-family:Consolas,monospace;color:#ffd27a;font-size:15px}
+  pre{background:#05080c;border:1px solid rgba(255,255,255,.16);border-radius:9px;padding:10px 12px;
+    font-size:12.5px;line-height:1.7;overflow:auto;color:#bfe3ff;margin:8px 0 0}
+  button{font:600 13px/1 "Microsoft YaHei";color:#0b1016;background:linear-gradient(135deg,#ffd27a,#e0a33c);
+    border:0;border-radius:8px;padding:9px 14px;cursor:pointer;margin-top:10px}
+  button.ghost{background:transparent;color:#ffd27a;border:1px solid rgba(255,210,122,.5)}
+  .hint{font-size:12px;color:#8fa3b8;line-height:1.8;margin-top:8px}
+  .steps{font-size:13px;color:#c3d2e3;line-height:2;padding-left:20px;margin:6px 0}
+  .steps b{color:#ffd27a}
+  .back{margin-top:26px;font-size:13.5px}
+  .back a{color:#ffd27a;text-decoration:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>热点编辑器 · 量出你要的 u 值</h1>
+  <div class="sub">
+    改造任务里最难的一步是「这个热点该把 <code>u</code> 填多少」。这一页把它变成<b>点一下</b>：
+    在图上点你想指的方向，右边直接给出 <code>u</code>、<code>v</code>、对应的偏航角，以及一行可以直接粘回代码的配置。
+  </div>
+
+  <div class="row">
+    <div class="left">
+      <div class="card">
+        <h3>教材例 5.3 · 客厅全景（6000×3000 原图，这里显示的是 3072×1536 版）</h3>
+        <div id="stage">
+          <img id="pic" src="./pano/living.jpg" alt="客厅全景（等距柱状）">
+          <div id="mark"></div>
+        </div>
+        <div class="hint">
+          图是<b>摊平</b>的：<b>横轴 = 经度（0°→360°）</b>，<b>纵轴 = 纬度（+90°→−90°）</b>。
+          所以「看得见门的那一处」在图上的横向百分比，就是它的 <code>u</code>。
+        </div>
+      </div>
+    </div>
+
+    <div class="right">
+      <div class="card">
+        <h3>你在图上点的位置</h3>
+        <div class="kv">
+          <b>u（横向）</b><span class="val" id="vu">—</span>
+          <b>v（纵向）</b><span class="val" id="vv">—</span>
+          <b>方向（偏航）</b><span class="val" id="vy">—</span>
+          <b>俯仰</b><span class="val" id="vp">—</span>
+        </div>
+        <pre id="code">在左边图上点一下 →</pre>
+        <button id="copy">复制这一行</button>
+        <button id="reset" class="ghost">清除</button>
+        <div class="hint" id="tip">提示：把 <code>to:</code> 改成目标房间的 id（living / dining / kitchen / bedroom / study / bath）。</div>
+      </div>
+
+      <div class="card">
+        <h3>两个换算关系（本课的核心公式）</h3>
+        <div class="kv">
+          <b>u ← 偏航</b><span><code>u = 0.75 + yaw ÷ 360</code></span>
+          <b>yaw ← u</b><span><code>yaw = (u − 0.75) × 360</code></span>
+        </div>
+        <div class="hint">
+          为什么是 <b>0.75</b>？因为三维场景里相机默认朝 −Z，而 <code>u = 0.75</code> 对应的正是 −Z 方向。
+          把 yaw 设成 <b>−90</b>，u 就是 0.5——正对图的正中间那一列。
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>怎么用它（30 秒）</h3>
+        <ol class="steps">
+          <li>在图上点一下<b>你想让热点出现的那个方向</b>；</li>
+          <li>记下右侧的 <b>u</b>（三位小数就够）；</li>
+          <li>复制那行配置，粘进 <code>PANO</code> 里对应房间的 <code>spots</code>；</li>
+          <li>把 <code>to:</code> 改成目标房间，<code>label:</code> 改成显示文字。</li>
+        </ol>
+        <div class="hint">想核对？把 u 往回代：<code>yaw = (u − 0.75) × 360</code>，再拿这个 yaw 去看《全景漫游器》里热点是不是正对着你要的方向。</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="back"><a href="./index.html">← 回演示中心</a></div>
+</div>
+
+<script>
+var pic = document.getElementById('pic'), mark = document.getElementById('mark');
+var cur = null;
+
+function place(e){
+  var r = pic.getBoundingClientRect();
+  var ux = Math.min(1, Math.max(0, (e.clientX - r.left) / r.width));
+  var vy = Math.min(1, Math.max(0, (e.clientY - r.top) / r.height));
+  cur = { u: ux, v: vy };
+  mark.style.display = 'block';
+  mark.style.left = (ux * r.width) + 'px';
+  mark.style.top  = (vy * r.height) + 'px';
+  update();
+}
+function update(){
+  if (!cur) return;
+  var u = cur.u, v = cur.v;
+  var yaw = (u - 0.75) * 360;          // 归一化到 -180..180
+  while (yaw > 180) yaw -= 360;
+  while (yaw < -180) yaw += 360;
+  var pitch = (0.5 - v) * 180;
+  document.getElementById('vu').textContent = u.toFixed(3);
+  document.getElementById('vv').textContent = v.toFixed(3);
+  document.getElementById('vy').textContent = (yaw >= 0 ? '+' : '') + yaw.toFixed(1) + '°';
+  document.getElementById('vp').textContent = (pitch >= 0 ? '+' : '') + pitch.toFixed(1) + '°';
+  document.getElementById('code').textContent =
+    "{to:'dining', u:" + u.toFixed(3) + ", v:" + v.toFixed(3) + ", label:'去餐厅'},";
+}
+document.getElementById('copy').addEventListener('click', function(){
+  var t = document.getElementById('code').textContent;
+  if (!cur){ document.getElementById('tip').textContent = '先在左边图上点一下。'; return; }
+  try { navigator.clipboard.writeText(t); document.getElementById('tip').textContent = '已复制：' + t; }
+  catch (e) { document.getElementById('tip').textContent = '浏览器不允许自动复制，请手动选中上面那行。'; }
+});
+document.getElementById('reset').addEventListener('click', function(){
+  cur = null; mark.style.display = 'none';
+  document.getElementById('code').textContent = '在左边图上点一下 →';
+  ['vu','vv','vy','vp'].forEach(function(id){ document.getElementById(id).textContent = '—'; });
+});
+pic.addEventListener('click', place);
+pic.addEventListener('pointermove', function(e){ if (e.buttons === 1) place(e); });
+pic.addEventListener('load', function(){ /* 图就绪后什么都不做，等用户点 */ });
+</script>
+</body>
+</html>

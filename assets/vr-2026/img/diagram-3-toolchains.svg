@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 240" width="960" height="240" role="img" aria-label="三条工具路线的分工：PTGui 从多到一、Pano2VR 从一到多、720 云从多到发出去">
+  <style>
+    .card{fill:#f6f5fb;stroke:#ddd7f2;stroke-width:1.5}
+    .t{font:600 15px "Microsoft YaHei",sans-serif;fill:#3b2f63}
+    .s{font:12px "Microsoft YaHei",sans-serif;fill:#6b6288}
+    .gold{fill:#c8892c;font:600 12.5px "Microsoft YaHei",sans-serif}
+    .thin{fill:#b9aee8}
+    .thin2{fill:#f0dcb8}
+    .arw{stroke:#8b7fd4;stroke-width:2;fill:none}
+    .arwg{stroke:#d9a441;stroke-width:2.4;fill:none}
+    .tag{fill:#fff;stroke:#8b7fd4;stroke-width:1.4}
+  </style>
+  <rect width="960" height="240" fill="#fff"/>
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#8b7fd4"/>
+    </marker>
+    <marker id="g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#d9a441"/>
+    </marker>
+  </defs>
+
+  <!-- A 从多到一 -->
+  <g transform="translate(20,20)">
+    <rect class="card" width="290" height="200" rx="12"/>
+    <text class="t" x="14" y="26">A · 专业拼接</text>
+    <text class="s" x="14" y="46">PTGui</text>
+    <g transform="translate(14,62)">
+      <rect class="thin" x="0" y="0" width="26" height="18" rx="2"/>
+      <rect class="thin" x="30" y="0" width="26" height="18" rx="2"/>
+      <rect class="thin" x="0" y="22" width="26" height="18" rx="2"/>
+      <rect class="thin" x="30" y="22" width="26" height="18" rx="2"/>
+      <text class="s" x="0" y="60">多张照片</text>
+      <path class="arwg" d="M66,20 H108" marker-end="url(#g)"/>
+      <rect class="thin2" x="118" y="2" width="68" height="36" rx="4" stroke="#c8892c"/>
+      <text class="s" x="118" y="60">1 张等距柱状图</text>
+    </g>
+    <text class="gold" x="14" y="180">加载 → 对准 → 创建</text>
+  </g>
+
+  <!-- B 从一到多 -->
+  <g transform="translate(335,20)">
+    <rect class="card" width="290" height="200" rx="12"/>
+    <text class="t" x="14" y="26">B · 全景编辑器</text>
+    <text class="s" x="14" y="46">Pano2VR</text>
+    <g transform="translate(14,62)">
+      <rect class="thin2" x="0" y="2" width="68" height="36" rx="4" stroke="#c8892c"/>
+      <text class="s" x="0" y="60">1 张全景图</text>
+      <path class="arwg" d="M78,20 H120" marker-end="url(#g)"/>
+      <circle class="thin" cx="140" cy="20" r="6"/>
+      <circle class="thin" cx="164" cy="20" r="6"/>
+      <circle class="thin" cx="188" cy="20" r="6"/>
+      <path class="arwg" d="M128,28 C150,44 176,44 196,28" marker-end="url(#g)"/>
+      <text class="s" x="128" y="60">加热点 / 声音 / 信息</text>
+    </g>
+    <text class="gold" x="14" y="180">把“一张图”变成“能点的漫游”</text>
+  </g>
+
+  <!-- C 发出去 -->
+  <g transform="translate(650,20)">
+    <rect class="card" width="290" height="200" rx="12"/>
+    <text class="t" x="14" y="26">C · 在线平台</text>
+    <text class="s" x="14" y="46">720 云</text>
+    <g transform="translate(14,62)">
+      <rect class="thin2" x="0" y="2" width="68" height="36" rx="4" stroke="#c8892c"/>
+      <text class="s" x="0" y="60">漫游作品</text>
+      <path class="arwg" d="M78,20 H118" marker-end="url(#g)"/>
+      <rect class="tag" x="128" y="0" width="76" height="34" rx="6"/>
+      <text class="s" x="136" y="22">H5 链接</text>
+      <text class="s" x="128" y="60">可转发 / 可嵌 / 可导离线包</text>
+    </g>
+    <text class="gold" x="14" y="180">让今天就能被别人看到</text>
+  </g>
+
+  <text class="s" x="20" y="234">共同点：都是把“从一个点看到的一圈画面”变成一张 2:1 的图，再贴回一个球的内壁——三条路线只是“谁帮你做这一步”。</text>
+</svg>
