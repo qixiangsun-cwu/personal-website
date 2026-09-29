@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>故宫有字 · WebXR 演示</title>
+<script src="js/aframe.min.js"></script>
+<style>
+  html, body { margin: 0; padding: 0; overflow: hidden; background: #10131a; }
+  #diag {
+    position: fixed; left: 12px; top: 12px; z-index: 9999;
+    font: 13px/1.6 "Microsoft YaHei", "PingFang SC", sans-serif;
+    color: #eaf2ff; background: rgba(12,18,30,.82);
+    border: 1px solid rgba(120,180,255,.35); border-radius: 10px;
+    padding: 10px 14px; max-width: 460px; pointer-events: none;
+  }
+  #diag b { color: #7fd1ff; }
+  #diag .ok { color: #6dea9b; font-weight: bold; }
+  #diag .bad { color: #ff7d7d; font-weight: bold; }
+  #diag .warn { color: #ffd166; font-weight: bold; }
+  #diag .ua { color: #90a2bd; font-size: 11px; word-break: break-all; margin-top: 4px; }
+</style>
+</head>
+<body>
+
+<div id="diag">
+  <div><b>WebXR 能力自检</b>（这一栏就是本次要验证的东西）</div>
+  <div id="d-secure">安全上下文 ：检测中…</div>
+  <div id="d-xr">navigator.xr ：检测中…</div>
+  <div id="d-vr">immersive-vr ：检测中…</div>
+  <div id="d-btn">进入 VR 按钮 ：检测中…</div>
+  <div id="d-ready">场景 ：加载中…（首次生成中文贴图需要几秒）</div>
+  <div id="d-hint">用法：桌面上用鼠标点击热点；进入 VR 后用视线准星凝视 1.2 秒触发。</div>
+  <div class="ua" id="d-ua"></div>
+</div>
+
+<a-scene
+  renderer="antialias: true; colorManagement: true;"
+  background="color: #9fc6e8"
+  fog="type: linear; color: #bcd6ea; near: 45; far: 120"
+  vr-mode-ui="enabled: true">
+
+  <a-entity id="rig" position="0 0 30">
+    <a-entity id="camera" camera look-controls="touchEnabled: true" wasd-controls="acceleration: 30" position="0 1.6 0">
+      <a-entity id="gaze"
+        cursor="fuse: true; fuseTimeout: 1200"
+        raycaster="objects: .clickable; far: 45"
+        geometry="primitive: ring; radiusInner: 0.012; radiusOuter: 0.022"
+        material="color: #ffffff; shader: flat; opacity: 0.9"
+        position="0 0 -1"></a-entity>
+    </a-entity>
+  </a-entity>
+
+  <a-plane id="ground" rotation="-90 0 0" width="140" height="140" position="0 0 0"
+           material="shader: standard; roughness: 0.85; color: #b9a98c"></a-plane>
+
+  <a-box position="0 0.35 0" width="30" height="0.7" depth="22" color="#cfc7ba"></a-box>
+  <a-box position="0 0.95 0" width="27" height="0.5" depth="19" color="#d8d0c3"></a-box>
+  <a-box position="0 1.35 0" width="24" height="0.3" depth="16" color="#e0d8cb"></a-box>
+
+  <a-box position="0 4.6 -1" width="21" height="6.2" depth="12" color="#9c2a20"></a-box>
+  <a-box position="0 4.0 5.05" width="18" height="4.6" depth="0.16" color="#5d1c14"></a-box>
+  <a-box position="-6.2 4.0 5.2" width="3.6" height="4.6" depth="0.1" color="#7a2519"></a-box>
+  <a-box position="0 4.0 5.2"    width="3.6" height="4.6" depth="0.1" color="#7a2519"></a-box>
+  <a-box position="6.2 4.0 5.2"  width="3.6" height="4.6" depth="0.1" color="#7a2519"></a-box>
+
+  <a-box position="0 7.9 0" width="27" height="0.6" depth="18" color="#3f3a33"></a-box>
+  <a-box position="0 8.9 -1" width="22" height="2.6" depth="13" color="#8f2419"></a-box>
+  <a-box position="0 10.6 0" width="25" height="0.6" depth="16" color="#3f3a33"></a-box>
+  <a-box position="0 11.7 3.6"  width="24" height="0.4" depth="8.6" color="#c9a227" rotation="-28 0 0"></a-box>
+  <a-box position="0 11.7 -3.6" width="24" height="0.4" depth="8.6" color="#c9a227" rotation="28 0 0"></a-box>
+  <a-box position="0 13.6 0" width="24.4" height="0.5" depth="0.8" color="#8d6b12"></a-box>
+
+  <a-cylinder position="-8.4 4.3 5.6" radius="0.38" height="6.4" color="#a01f16"></a-cylinder>
+  <a-cylinder position="-5.0 4.3 5.6" radius="0.38" height="6.4" color="#a01f16"></a-cylinder>
+  <a-cylinder position="-1.7 4.3 5.6" radius="0.38" height="6.4" color="#a01f16"></a-cylinder>
+  <a-cylinder position="1.7 4.3 5.6"  radius="0.38" height="6.4" color="#a01f16"></a-cylinder>
+  <a-cylinder position="5.0 4.3 5.6"  radius="0.38" height="6.4" color="#a01f16"></a-cylinder>
+  <a-cylinder position="8.4 4.3 5.6"  radius="0.38" height="6.4" color="#a01f16"></a-cylinder>
+
+  <a-plane id="plaque" position="0 6.9 5.15" width="3.6" height="1.2"
+           material="shader: flat; transparent: true;"></a-plane>
+
+  <a-plane id="panel" position="-13 4.2 11" width="8.5" height="5.3"
+           rotation="0 30 0" material="shader: flat; transparent: true; side: double;"></a-plane>
+
+  <a-sphere class="clickable" data-info="0" position="-2.9 6.9 5.5" radius="0.34" color="#ffd166"
+            material="emissive:#ffd166; emissiveIntensity:0.7"></a-sphere>
+  <a-sphere class="clickable" data-info="1" position="0 4.0 5.7"   radius="0.34" color="#7fd1ff"
+            material="emissive:#7fd1ff; emissiveIntensity:0.7"></a-sphere>
+  <a-sphere class="clickable" data-info="2" position="-8.4 6.6 5.9" radius="0.34" color="#6dea9b"
+            material="emissive:#6dea9b; emissiveIntensity:0.7"></a-sphere>
+  <a-sphere class="clickable" data-info="3" position="-6.5 1.5 11.3" radius="0.34" color="#ff9f7d"
+            material="emissive:#ff9f7d; emissiveIntensity:0.7"></a-sphere>
+
+  <a-plane id="tag0" position="-2.9 6.05 5.9"  width="3.2" height="0.6" material="shader: flat; transparent: true;"></a-plane>
+  <a-plane id="tag1" position="0 3.15 6.1"     width="3.2" height="0.6" material="shader: flat; transparent: true;"></a-plane>
+  <a-plane id="tag2" position="-8.4 5.75 6.3"  width="3.2" height="0.6" material="shader: flat; transparent: true;"></a-plane>
+  <a-plane id="tag3" position="-6.5 0.75 11.3" width="3.2" height="0.6" material="shader: flat; transparent: true;"></a-plane>
+
+</a-scene>
+
+<script src="js/demo.js"></script>
+</body>
+</html>

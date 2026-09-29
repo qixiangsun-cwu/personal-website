@@ -70,18 +70,34 @@
     <div class="f">demos/example-vr-experience-hall.html（+ OrbitControls.js，共用本地 three.min.js）</div>
   </a>
 
-  <h2>上一代存档（A-Frame 版）</h2>
+  <h2>前两代存档（都是 A-Frame 时期）</h2>
   <div class="tip gen">
-    <b>为什么这里会有一份"上一代"？</b>
-    本课的故宫场景做过两代：<b>第一代用 A-Frame</b>（2026-09-21，面向 PICO Neo 3 / 系统 5.9.9 的沉浸模式，
-    自带实测性能预算与六条优化），<b>第二代改成自写 Three.js</b>（即上面的主线场景与 7 个演示）。
-    主线走第二代；第一代留档，因为它有两样第二代没有的东西：
-    ① <b>一份写清楚"为什么这么优化"的性能文档</b>；② 一套 <b>把调试面板画进 3D 场景里</b>的做法
-    （因为进了沉浸模式浏览器不渲染 DOM 覆盖层，面板只能做成 3D 物件才看得见）。
+    <b>为什么这里会留着两代旧版本？</b>
+    本课的故宫场景一共做过三代：<br>
+    <b>第一代</b>（A-Frame，2026-09-21）——目的是"试探"：验证 PICO 浏览器到底支不支持 WebXR，顺便复现
+    「浏览器 + 3D + 图文讲解 + 热点跳转」这种课堂形态；<br>
+    <b>第二代</b>（A-Frame，2026-09-21 晚）——把场景做实：程序化屋顶斗拱、烘焙阴影、实例化合批，
+    并写下一份<u>实测性能预算</u>；<br>
+    <b>第三代（主线，即上面的内容）</b>——改成自写 Three.js，也就是上面那座紫禁城与 7 个逐点演示。<br>
+    主线走第三代。前两代留档，因为里面有几样第三代没有、或者后来被重新发现的东西：
+    ① <b>一份写清"为什么这么优化"的性能文档</b>；② <b>把调试面板画进 3D 场景里</b>的做法
+    （进了沉浸模式浏览器不渲染 DOM 覆盖层，面板只能做成 3D 物件才看得见）；
+    ③ 那四行<b>能力自检</b>，以及那句至今仍然关键的话——"不是安全上下文时 <code>navigator.xr</code> 缺失是正常的，
+    不能据此判断设备支不支持"。
   </div>
 
+  <a class="card legacy" href="legacy-aframe-guide/index.html">
+    <div class="no">第一代 · A-Frame 原型（2026-09-21）</div>
+    <div class="t">故宫有字 · 图文导览原型</div>
+    <div class="d">一个简化的太和殿：地面、三层台基、殿身、重檐、六根红柱，加一块匾额与一块讲解面板。
+      <b>四个可点击热点</b>用视线注视 <b>1.2 秒</b>触发（fuse），桌面端也可以用鼠标点。
+      左上角是那<b>四行能力自检</b>。<b>保留原样存档，未做修改；也从未在真实头显上验证过</b>——
+      当时卡在"需要一次安全上下文有效的真机测试"这一步。详见存档说明。</div>
+    <div class="f">legacy-aframe-guide/index.html（+ js/demo.js + js/aframe.min.js，无 CDN 依赖）　·　<a href="legacy-aframe-guide/NOTES.md" style="color:#9fd0ff">存档说明</a></div>
+  </a>
+
   <a class="card legacy" href="legacy-aframe/index.html">
-    <div class="no">上一代 · A-Frame</div>
+    <div class="no">第二代 · A-Frame（2026-09-21 晚）</div>
     <div class="t">太和殿 · 故宫沉浸式场景</div>
     <div class="d">A-Frame 版太和殿：程序化屋顶与斗拱、烘焙太阳投影、实例化合批。
       左上角有"运行环境自检"四行（安全上下文 / <code>navigator.xr</code> / <code>immersive-vr</code> / 场景），
@@ -90,7 +106,7 @@
   </a>
 
   <a class="card legacy" href="legacy-aframe/PERFORMANCE.md">
-    <div class="no">上一代 · 性能文档</div>
+    <div class="no">第二代 · 性能文档</div>
     <div class="t">性能优化方案与交互控制逻辑</div>
     <div class="d">实测预算：三角面 <b>33k–38k</b>、draw call <b>47–68</b>、8 张程序化贴图、9 个共享材质、无后处理；
       以及六条优化的**理由**（为什么要实例化、为什么阴影要烘焙不要实时、为什么移动 XR 上不做 bloom）。
