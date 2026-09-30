@@ -110,7 +110,7 @@ var renderer, scene, camera, player, clock;
 var raycaster = new THREE.Raycaster();
 var sphere = null, sphereMat = null, reticle = null, exitSprite = null;
 var spots = [];                       // 当前场景热点：[{sprite,to,dir,sx,sy,label}]
-var nameTag = null;                   // 署名铭牌 sprite（只在客厅显示）
+var nameTag = null;                   // 署名铭牌 sprite（每个场景都显示）
 var texCache = {};                    // id -> {tex, used}
 var MAX_TEX = 4;                      // 最多常驻 4 张（一张约 19 MB，防止头显显存吃满）
 var cur = 'living', yaw = 0, pitch = 0, fov = 75;
@@ -285,13 +285,16 @@ function buildSpots(id){
     spots.push({ sprite:sp, to:s.to, label:s.label,
                  dir: sp.position.clone().normalize(), sx:220, sy:110, id:j });
   }
-  /* 署名铭牌：只在客厅显示，挂在初始视角中心偏上位置 */
+  /* 署名铭牌：每个场景都显示，挂在初始视角中心偏上位置 */
   if(nameTag){ scene.remove(nameTag); nameTag.material.map.dispose(); nameTag.material.dispose(); nameTag=null; }
-  if(id==='living'){
+  var def = PANO[id];
+  if(def){
+    /* 用 u = 0.75 + yaw÷360 计算该场景初始视角的中心横向位置 */
+    var uCenter = ((0.75 + def.yaw/360) % 1 + 1) % 1;
     nameTag = new THREE.Sprite(new THREE.SpriteMaterial({
-      map: nameTagTexture('杨宇涵-230812015'), transparent:true, depthTest:true, depthWrite:false, fog:false }));
-    nameTag.scale.set(320, 100, 1);
-    nameTag.position.copy(sphPos(0.619, 0.380, RB*0.97));
+      map: nameTagTexture('230812015 · 杨宇涵'), transparent:true, depthTest:true, depthWrite:false, fog:false }));
+    nameTag.scale.set(360, 110, 1);
+    nameTag.position.copy(sphPos(uCenter, 0.380, RB*0.97));
     scene.add(nameTag);
   }
 }
