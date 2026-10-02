@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="description" content="智安守护：女性安全求助与防护指南。紧急热线置顶，覆盖出行、居家、社交等场景的安全知识与维权常识。">
+    <title>智安守护 - 你的勇气、智慧与安防技巧，是免于恐惧的护身符</title>
+    <script>
+        // 提前恢复无障碍显示偏好（高对比/灰度），避免页面加载时闪烁
+        (function () {
+            var h = document.documentElement;
+            try {
+                if (localStorage.getItem('za-hc') === '1') h.classList.add('high-contrast');
+                if (localStorage.getItem('za-gray') === '1') h.classList.add('grayscale');
+            } catch (e) { /* 隐私模式下忽略 */ }
+        })();
+    </script>
+    <link rel="stylesheet" href="style.css?v=20261002h">
+
+    <!-- PWA：作用域限定在 /zhian-2026/ -->
+    <link rel="manifest" href="manifest.webmanifest">
+    <meta name="theme-color" content="#C9182B">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="智安守护">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+</head>
+<body>
+    <!-- 键盘跳转链接：Tab 第一跳即可直达正文 -->
+    <a class="skip-link" href="#main-content">跳转到主要内容</a>
+
+    <!-- 无障碍工具栏：字号调节 / 朗读本页 / 高对比度 / 灰度 -->
+    <div id="a11y-bar" class="a11y-bar" role="region" aria-label="无障碍工具">
+        <span class="a11y-bar-label" aria-hidden="true">无障碍</span>
+        <div class="a11y-group" role="group" aria-label="字体大小调节">
+            <button id="font-dec" class="a11y-btn" type="button" aria-label="减小字体">A-</button>
+            <span id="font-val" class="a11y-fontval" aria-hidden="true">100%</span>
+            <button id="font-inc" class="a11y-btn" type="button" aria-label="增大字体">A+</button>
+        </div>
+        <button id="speak-page" class="a11y-btn a11y-speak" type="button" aria-pressed="false" aria-label="朗读本页核心内容，再次点击停止">
+            <span class="a11y-speak-icon" aria-hidden="true">🔊</span><span class="a11y-speak-text">朗读此页</span>
+        </button>
+        <button id="contrast-toggle" class="a11y-btn" type="button" aria-pressed="false" aria-label="切换高对比度模式">高对比度</button>
+        <button id="grayscale-toggle" class="a11y-btn" type="button" aria-pressed="false" aria-label="切换灰度显示模式">灰度</button>
+    </div>
+
+    <!-- 正文内容（灰度模式整体去色；悬浮聊天挂件在外层以保持 fixed 定位） -->
+    <div id="site-content">
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <img src="logo.webp" class="logo-icon" alt="" width="60" height="44">
+                <span class="logo-text">智安守护</span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 紧急求助热线：首屏最高优先级 -->
+    <section class="sos-zone" id="main-content" aria-label="紧急求助热线" tabindex="-1">
+        <div class="sos-card">
+            <span class="sos-badge">🚨 紧急</span>
+            <h2 class="sos-title">如遇紧急情况，请立即拨打</h2>
+            <a href="tel:12338" class="sos-number" aria-label="拨打12338，全国妇联妇女维权公益服务热线">12338</a>
+            <p class="sos-name">全国妇联妇女维权公益服务热线</p>
+            <p class="sos-intro">全国妇联 2005 年开通，为妇女儿童提供法律咨询、心理疏导、婚姻家庭指导和侵权投诉受理，7×24 小时全天候响应。</p>
+            <div class="sos-tags">
+                <span class="sos-tag">24小时</span>
+                <span class="sos-tag">免费</span>
+                <span class="sos-tag">保密</span>
+            </div>
+            <a href="tel:12338" class="sos-call-btn">📞 立即拨打</a>
+            <details class="sos-more">
+                <summary>了解 12338 热线</summary>
+                <div class="sos-more-body">
+                    <p>12338 妇女维权公益服务热线是中华全国妇女联合会于 2005 年 3 月开通的全国统一公益服务号码。该热线主要为妇女儿童提供法律咨询、心理疏导、婚姻家庭指导和侵权投诉受理等服务，坚持 7×24 小时全天候响应。</p>
+                    <p>近年来，热线已从单一电话服务发展为集线上热线与线下“一站式”维权服务中心于一体的综合服务平台，通过联动公安、司法等多部门，构建了“受理—调解—回访”闭环机制。部分地区的热线服务已接入 12345 政务服务便民体系，旨在更高效地维护妇女儿童合法权益，成为妇女群众身边的“暖心线”和“连心桥”。</p>
+                </div>
+            </details>
+        </div>
+
+        <h3 class="channels-title">其他求助方式</h3>
+        <div class="channels-grid">
+            <div class="channel-card channel-blue">
+                <div class="channel-icon" aria-hidden="true">⚖️</div>
+                <div class="channel-name">法律援助热线</div>
+                <div class="channel-num">12348</div>
+                <div class="channel-desc">免费法律咨询、诉讼流程指导</div>
+                <details class="channel-detail">
+                    <summary>了解详情</summary>
+                    <p>“12348”是市、区县司法局及法律援助中心面向广大市民群众的法律咨询专用电话，负责解答法律咨询，配合调处民间纠纷，及时反映群众的法律需求信息，指导和接受法律援助申请，维护贫弱当事人的合法权益、维护司法公正、维护社会稳定。短号中“48”取“司法”之谐音，寓意寻求法律服务、调解民间纠纷请找司法行政机关。</p>
+                    <p>12348 法律服务专用电话由司法行政部门统一组织律师、公证员、基层法律服务人员和乡镇司法所工作人员，面向广大群众和社会组织提供便捷、高效的法律咨询和法律服务。服务范围包括：①解答法律咨询，宣传法律知识；②协调法律服务机构，满足群众法律需求；③收集掌握有关信息，及时反映社情民意。</p>
+                </details>
+                <a href="tel:12348" class="channel-btn" aria-label="拨打12348法律援助热线">立即拨打</a>
+            </div>
+            <div class="channel-card channel-green">
+                <div class="channel-icon" aria-hidden="true">💚</div>
+                <div class="channel-name">全国统一心理援助热线</div>
+                <div class="channel-num">12356</div>
+                <div class="channel-desc">24小时心理支持、情绪疏导、危机干预</div>
+                <details class="channel-detail">
+                    <summary>了解详情</summary>
+                    <p>“12356”是全国统一心理援助热线电话号码，由国家卫生健康委员会协调工业和信息化部设置，向人民群众提供更加优质便捷的心理健康服务，包括但不限于心理健康教育、心理咨询、心理疏导、心理危机干预等服务。</p>
+                </details>
+                <a href="tel:12356" class="channel-btn" aria-label="拨打12356心理援助热线">立即拨打</a>
+            </div>
+            <div class="channel-card channel-neutral">
+                <div class="channel-icon" aria-hidden="true">🏛️</div>
+                <div class="channel-name">政务服务便民热线</div>
+                <div class="channel-num">12345</div>
+                <div class="channel-desc">政务咨询、求助转办</div>
+                <details class="channel-detail">
+                    <summary>了解详情</summary>
+                    <p>12345 政务服务便民热线（简称 12345 热线），指各地市人民政府设立的由电话 12345、市长信箱、手机短信、手机客户端、微博、微信等方式组成的专门受理热线事项的公共服务平台，提供“7×24 小时”全天候人工服务。</p>
+                    <p>12345 热线是政府与群众的沟通桥梁，负责受理企业和群众各类非紧急诉求，将群众诉求及办理情况第一时间报送相关政府和各有关单位，可以提高为民服务水平，推进依法行政，创新社会治理，维护自然人、法人和其他组织的合法权益。</p>
+                </details>
+                <a href="tel:12345" class="channel-btn" aria-label="拨打12345政务服务便民热线">立即拨打</a>
+            </div>
+            <div class="channel-card channel-green">
+                <div class="channel-icon" aria-hidden="true">💗</div>
+                <div class="channel-name">北京心理危机研究与干预中心</div>
+                <div class="channel-num">010-82951332</div>
+                <div class="channel-desc">24小时 · 严重心理危机时拨打</div>
+                <details class="channel-detail">
+                    <summary>了解详情</summary>
+                    <p>北京心理危机研究与干预中心成立于 2002 年 12 月 3 日，隶属于北京回龙观医院，前身为该院临床流行病学研究室。中心集科研、教学、培训和服务为一体，主要工作目标是针对中国的自杀现象进行研究和干预，下设研究部、干预部、培训部和心理援助热线四个部门。</p>
+                    <p>中心成立的同时开通了国内首条 7×24 小时免费心理危机干预热线，该热线于 2010 年 5 月经北京市卫生局批准为“北京市心理援助热线”。中心承担了非典、汶川地震、新冠肺炎等数十起重大灾难或事件后的心理救援工作。2007 年 5 月，中心被世界卫生组织（WHO）授权挂牌“WHO 心理危机预防研究与培训合作中心”。</p>
+                </details>
+                <a href="tel:01082951332" class="channel-btn" aria-label="拨打北京心理危机研究与干预中心">立即拨打</a>
+            </div>
+            <div class="channel-card channel-purple">
+                <div class="channel-icon" aria-hidden="true">🌿</div>
+                <div class="channel-name">清华幸福公益心理服务热线</div>
+                <div class="channel-num">400-010-0525</div>
+                <div class="channel-desc">专业心理咨询与支持（非节假日 10:00–22:00）</div>
+                <details class="channel-detail">
+                    <summary>了解详情</summary>
+                    <p>清华幸福公益心理服务热线是由清华大学社会科学学院与北京幸福公益基金会共同发起的一项心理援助服务，于 2020 年 1 月疫情暴发之初开通，服务时间为非节假日 10:00 至 22:00。该热线最初主要为应对疫情提供心理服务，后逐渐转化为常态化服务热线。</p>
+                    <p>2022 年 5 月 25 日，热线正式开通“清华师生与家属专线”，还设有社会大众线、青少年线、洪涝等灾害 24 小时紧急心理援助、老年线等多条专线。截至 2025 年 12 月 31 日，心理服务热线总拨打量达 170 多万次，青少年来电比例从最初不到 5% 上升到 40%。热线被国家卫健委推荐为心理干预热线。</p>
+                </details>
+                <a href="tel:4000100525" class="channel-btn" aria-label="拨打清华幸福公益心理服务热线">立即拨打</a>
+            </div>
+            <div class="channel-card channel-blue">
+                <div class="channel-icon" aria-hidden="true">🛡️</div>
+                <div class="channel-name">网络侵权投诉举报</div>
+                <div class="channel-num">12377 / 12321</div>
+                <div class="channel-desc">网络不良与侵权信息投诉举报</div>
+                <details class="channel-detail">
+                    <summary>了解详情</summary>
+                    <p><strong>12377</strong> 是中央网信办（国家互联网信息办公室）违法和不良信息举报中心设立的免费举报电话、举报网站、举报邮箱。举报中心的工作目标是维护互联网信息传播秩序，维护网民权益，搭建公众参与网络治理的平台，建设文明健康有序的网络空间。</p>
+                    <p><strong>12321</strong> 网络不良与垃圾信息举报受理中心（简称“12321 受理中心”）是中国互联网协会受工业和信息化部委托设立的投诉受理机构，成立于 2008 年 4 月 28 日，主要负责互联网、移动电话网、固定电话网等信息通信网络及电信业务中不良与垃圾信息的投诉受理、线索转办及信息统计工作，提供网站、电话、短信、邮箱、微信、微博、手机 APP 等多种举报渠道，举报结果可通过官网、手机 APP 或拨打热线查询处理进度。</p>
+                </details>
+                <div class="channel-btn-group">
+                    <a href="tel:12377" aria-label="拨打12377">12377</a>
+                    <a href="tel:12321" aria-label="拨打12321">12321</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 简介 -->
+    <div class="hero">
+        <span class="hero-badge">温暖陪伴 · 全国适用</span>
+        <div class="hero-inner">
+            <img class="hero-wing hero-wing-left" src="wing-left.webp" alt="" width="425" height="850" loading="lazy">
+            <div class="hero-text">
+                <h1>女孩<br>你的勇气、智慧和掌握的安防技巧<br>都能成为你免于恐惧的护身符</h1>
+                <p class="hero-sub">不要独自承受，这里有一些实用的安全知识与维权常识</p>
+            </div>
+            <img class="hero-wing hero-wing-right" src="wing-right.webp" alt="" width="425" height="850" loading="lazy">
+        </div>
+    </div>
+
+    <!-- 提前守护 · 日常场景安全指南 -->
+    <section id="prevention">
+        <div class="page-header">
+            <h2>提前守护 · 日常场景安全指南</h2>
+            <p>提前了解风险，掌握应对方法，让安全成为一种习惯</p>
+        </div>
+
+        <div class="scenario-grid">
+            <!-- 夜跑安全 -->
+            <div class="scenario-card" data-scenario="nightrun">
+                <div class="scenario-icon" aria-hidden="true">🏃‍♀️</div>
+                <h3>夜跑安全</h3>
+                <p>夜晚跑步的注意事项与防护技巧</p>
+            </div>
+
+            <!-- 步行防尾随 -->
+            <div class="scenario-card" data-scenario="followed">
+                <div class="scenario-icon" aria-hidden="true">🚶‍♀️</div>
+                <h3>步行回家</h3>
+                <p>被尾随时的应对策略</p>
+            </div>
+
+            <!-- 公共交通 -->
+            <div class="scenario-card" data-scenario="transit">
+                <div class="scenario-icon" aria-hidden="true">🚇</div>
+                <h3>公共交通</h3>
+                <p>地铁公交防骚扰、防偷拍</p>
+            </div>
+
+            <!-- 独居安全 -->
+            <div class="scenario-card" data-scenario="livingalone">
+                <div class="scenario-icon" aria-hidden="true">🏠</div>
+                <h3>独居安全</h3>
+                <p>独自居住的防护措施</p>
+            </div>
+
+            <!-- 合租安全 -->
+            <div class="scenario-card" data-scenario="shared">
+                <div class="scenario-icon" aria-hidden="true">👥</div>
+                <h3>合租安全</h3>
+                <p>合租环境的隐私保护</p>
+            </div>
+
+            <!-- 陌生人上门 -->
+            <div class="scenario-card" data-scenario="stranger">
+                <div class="scenario-icon" aria-hidden="true">🚪</div>
+                <h3>陌生人上门</h3>
+                <p>应对上门骚扰与诈骗</p>
+            </div>
+
+            <!-- 网约车 -->
+            <div class="scenario-card" data-scenario="rideshare">
+                <div class="scenario-icon" aria-hidden="true">🚗</div>
+                <h3>网约车/出租车</h3>
+                <p>乘车安全防范要点</p>
+            </div>
+
+            <!-- 独自驾车 -->
+            <div class="scenario-card" data-scenario="driving">
+                <div class="scenario-icon" aria-hidden="true">🚙</div>
+                <h3>独自驾车</h3>
+                <p>停车场与行车安全</p>
+            </div>
+
+            <!-- 出差住宿 -->
+            <div class="scenario-card" data-scenario="hotel">
+                <div class="scenario-icon" aria-hidden="true">🏨</div>
+                <h3>出差住宿</h3>
+                <p>酒店入住安全检查</p>
+            </div>
+
+            <!-- 电信诈骗 -->
+            <div class="scenario-card" data-scenario="fraud">
+                <div class="scenario-icon" aria-hidden="true">📱</div>
+                <h3>电信诈骗</h3>
+                <p>识别与防范网络诈骗</p>
+            </div>
+
+            <!-- 偷拍隐私 -->
+            <div class="scenario-card" data-scenario="privacy">
+                <div class="scenario-icon" aria-hidden="true">📷</div>
+                <h3>偷拍与隐私</h3>
+                <p>隐私泄露的应对与维权</p>
+            </div>
+
+            <!-- 网络骚扰 -->
+            <div class="scenario-card" data-scenario="cyberbully">
+                <div class="scenario-icon" aria-hidden="true">💻</div>
+                <h3>网络骚扰</h3>
+                <p>网络暴力的应对方法</p>
+            </div>
+        </div>
+
+        <!-- 场景详情弹窗 -->
+        <div id="scenario-modal" class="modal">
+            <div class="modal-content" role="dialog" aria-modal="true" aria-label="场景安全指南详情">
+                <button class="modal-close" aria-label="关闭弹窗">&times;</button>
+                <div id="modal-body"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 暖心疗愈 · 维权指导与心理支持 -->
+    <section id="recovery">
+        <div class="page-header">
+            <h2>暖心疗愈 · 维权指导与心理支持</h2>
+            <p>遭遇伤害后，你不是一个人。这里有具体的求助渠道和行动指南</p>
+        </div>
+
+        <!-- 常见问题 -->
+        <section class="section">
+            <h3 class="section-title">❓ 常见问题</h3>
+            <div class="faq-list">
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <span>遭遇家暴如何取证？</span>
+                        <span class="faq-toggle">▼</span>
+                    </div>
+                    <div class="faq-answer">
+                        <p class="serif"><strong>法律依据：</strong>《反家庭暴力法》及最高法人身安全保护令规定。</p>
+                        <ol>
+                            <li class="serif">立刻报警，保留报警回执、出警记录</li>
+                            <li>拍下伤情照片，及时就医，保留诊疗记录</li>
+                            <li>保存施暴者的悔过书、保证书、聊天记录、录音录像</li>
+                            <li>向妇联、居委会、村委会求助，保留求助记录</li>
+                            <li>可以向法院申请人身安全保护令，不需要先提离婚</li>
+                            <li>网络暴力也算家暴：如果对方通过网络散布隐私、公开侮辱，同样可以申请保护令</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <span>被尾随后如何自保？</span>
+                        <span class="faq-toggle">▼</span>
+                    </div>
+                    <div class="faq-answer">
+                        <ol>
+                            <li class="serif">立刻报警，说清位置和尾随者特征</li>
+                            <li>往亮处、人多处走，进24小时便利店、商场</li>
+                            <li>可以假装打电话，大声说"我马上到了，你在门口等我"</li>
+                            <li>如果对方还跟着，按民宅门铃求助，或者向路人求助，明显指向跟踪者</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <span>发现被偷拍怎么办？</span>
+                        <span class="faq-toggle">▼</span>
+                    </div>
+                    <div class="faq-answer">
+                        <ol>
+                            <li class="serif">不要强行夺手机，找工作人员或报警</li>
+                            <li class="serif">报警后由警方处理，违法行为人可能被行政拘留</li>
+                            <li>保留证据，比如偷拍者的体貌特征、时间地点</li>
+                            <li>如果造成精神损害，可以通过民事诉讼要求赔偿</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <span>遭遇电信诈骗后如何止损？</span>
+                        <span class="faq-toggle">▼</span>
+                    </div>
+                    <div class="faq-answer">
+                        <ol>
+                            <li class="serif">立刻报警</li>
+                            <li>同时联系银行冻结账户、挂失银行卡</li>
+                            <li>保留聊天记录、转账凭证、对方账号</li>
+                            <li>可以向12321举报</li>
+                            <li>不要相信"能追回损失"的二次诈骗</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <span>网络骚扰如何维权？</span>
+                        <span class="faq-toggle">▼</span>
+                    </div>
+                    <div class="faq-answer">
+                        <p class="serif"><strong>法律依据：</strong>《个人信息保护法》《妇女权益保障法》《天津市妇女权益保障条例》。</p>
+                        <ol>
+                            <li>截图保存骚扰内容、账号信息、时间记录</li>
+                            <li>向平台投诉，要求删除侵权内容</li>
+                            <li>向12377或12321投诉</li>
+                            <li class="serif">情节严重的，向公安机关报案</li>
+                            <li>家庭成员实施网络暴力的，可以向法院申请人身安全保护令</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 智能体提示 -->
+        <div class="agent-note">
+            <p>💡 点击智能体邓妈妈，可以有针对性的了解更多内容。</p>
+        </div>
+    </section>
+
+    <div class="disclaimer">
+        <p>⚠️ 本页内容基于公开安全知识整理，不构成法律意见或心理咨询建议。<span class="serif">如遇紧急情况请立即报警求助。</span></p>
+    </div>
+
+    <footer class="footer">
+        <p>智安守护 · 守护每一位女性的安全</p>
+        <p class="footer-note">发行单位：中华女子学院·智安小队</p>
+        <p class="footer-note"><span class="serif">内容整理自公安、妇联等公开安全指南</span> | 仅供参考，不构成法律意见</p>        <p class="footer-note">本站为 2026 华北五省大学生计算机应用大赛参赛作品原型，非官方项目。「邓妈妈」为对邓颖超的致敬性演绎，与邓颖超本人及其家属无关。</p>
+        <p class="footer-note">邓妈妈的回复由 AI 生成，仅供参考与陪伴，不能替代警察、律师、医生的专业帮助。紧急情况请拨打 110 / 120。</p>
+    </footer>
+    </div><!-- /#site-content -->
+
+    <!-- 邓妈妈 · 女性安全陪伴 悬浮聊天挂件（对话走同域 /api/zhian-chat） -->
+    <div id="dm-chat" class="dm-chat">
+        <!-- 悬浮入口按钮：点击展开/收起聊天面板，按住可拖拽到任意位置 -->
+        <button id="dm-fab" class="dm-fab" type="button" title="拖动我换位置，点击开始对话" aria-label="打开邓妈妈聊天面板" aria-expanded="false" aria-controls="dm-panel">
+            <img class="dm-fab-img" src="dengmama.jpg?v=20261002h" alt="戴着红星军帽的邓妈妈卡通形象" draggable="false">
+            <span class="dm-fab-dot" aria-hidden="true"></span>
+        </button>
+        <span class="dm-fab-name" aria-hidden="true">邓妈妈</span>
+
+        <!-- 聊天面板 -->
+        <section id="dm-panel" class="dm-panel" role="dialog" aria-label="与邓妈妈对话" aria-hidden="true" hidden>
+            <header class="dm-header">
+                <img class="dm-header-avatar" src="dengmama.jpg?v=20261002h" alt="戴着红星军帽的邓妈妈卡通形象">
+                <div class="dm-header-info">
+                    <p class="dm-header-name">邓妈妈</p>
+                    <p class="dm-header-status">女性安全陪伴 · 我一直都在</p>
+                </div>
+                <button id="dm-sound-toggle" class="dm-header-icon" type="button" aria-label="新回复提示音：开启" aria-pressed="true">🔔</button>
+                <button id="dm-close" class="dm-header-icon dm-header-close" type="button" aria-label="收起聊天面板">✕</button>
+            </header>
+
+            <!-- 对话列表：邓妈妈靠左，用户靠右；aria-live 让屏幕阅读器自动播报新消息 -->
+            <div id="dm-messages" class="dm-messages" aria-live="polite" aria-relevant="additions text">
+                <div class="dm-row dm-row-bot">
+                    <img class="dm-avatar" src="dengmama.jpg?v=20261002h" alt="">
+                    <div class="dm-bubble dm-bubble-bot">孩子，我是邓妈妈。遇到难事儿了，或者只是想找人说说话，都可以点下面的问题，也可以直接打字给我。<button class="dm-speak-msg" type="button" aria-label="朗读这条回复" aria-pressed="false">🔊 朗读</button></div>
+                </div>
+            </div>
+            <!-- 屏幕阅读器专用播报区：邓妈妈的新回复在此同步，保证被读出 -->
+            <div id="dm-sr-status" class="sr-only" role="status" aria-live="polite"></div>
+
+            <!-- 8 个预置问题：点击自动填入并发送 -->
+            <div id="dm-presets" class="dm-presets" role="group" aria-label="预置问题">
+                <button class="dm-preset" type="button" data-question="给我讲讲你的故事">听邓妈妈讲讲自己的故事</button>
+                <button class="dm-preset" type="button" data-question="讲讲女红军的故事">女红军的故事</button>
+                <button class="dm-preset" type="button" data-question="讲讲历史杰出女性的故事">历史杰出女性的故事</button>
+                <button class="dm-preset" type="button" data-question="事业建设方面，邓妈妈有什么建议">事业建设</button>
+                <button class="dm-preset" type="button" data-question="邓妈妈，聊聊亲密关系吧">亲密关系</button>
+                <button class="dm-preset" type="button" data-question="邓妈妈，我觉得人生好迷茫">觉得人生好迷茫</button>
+                <button class="dm-preset" type="button" data-question="遇到性骚扰或家暴该怎么办">遇到性骚扰/家暴</button>
+                <button class="dm-preset" type="button" data-question="给我讲讲常见女性安全指南">常见女性安全指南</button>
+            </div>
+
+            <!-- 输入区 -->
+            <div class="dm-input-bar">
+                <input id="dm-input" class="dm-input" type="text" maxlength="500" placeholder="给邓妈妈留言…" aria-label="输入消息">
+                <button id="dm-send" class="dm-send" type="button">发送</button>
+            </div>
+        </section>
+    </div>
+
+    <!-- PWA：安装按钮（Chrome/Edge 捕获 beforeinstallprompt；Safari 走提示文案） -->
+    <div class="pwa-install">
+        <button id="pwa-install-btn" type="button" hidden>
+            <span class="pwa-install-ico" aria-hidden="true">&#8615;</span>
+            <span>安装到主屏幕</span>
+        </button>
+        <p id="pwa-install-hint" class="pwa-install-hint" hidden>请用浏览器菜单「分享 &rarr; 添加到主屏幕」</p>
+    </div>
+    <script src="script.js?v=20261002h"></script>
+    <!-- PWA：注册 Service Worker（作用域 /zhian-2026/）+ 安装到主屏幕提示 -->
+    <script>
+        (function () {
+            if (!('serviceWorker' in navigator)) return;
+            // 注册失败不影响页面正常使用，静默处理即可
+            window.addEventListener('load', function () {
+                navigator.serviceWorker.register('sw.js').catch(function () {});
+            });
+        })();
+    </script>
+</body>
+</html>

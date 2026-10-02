@@ -12,3 +12,9 @@
 
 /assets/vr-2026/webxr/sw.js
   Cache-Control: no-cache
+
+/zhian-2026/manifest.webmanifest
+  Content-Type: application/manifest+json
+
+/zhian-2026/sw.js
+  Cache-Control: no-cache

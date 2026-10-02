@@ -1,0 +1,5 @@
+# 个人网站 · Cloudflare Pages 配置（Git 自动部署，main 分支）
+# 主站为 Git Provider 自动部署，本文件仅用于本地 pages dev 与 settings 同步。
+name = "personal-website"
+pages_build_output_dir = "."
+compatibility_date = "2025-07-18"

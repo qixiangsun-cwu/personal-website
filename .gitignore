@@ -2,3 +2,14 @@
 ai-news.pending.json
 ai-news-preview.html
 .approve-token
+
+# 投票表决系统：候选案例数据（含个人/单位信息，禁止入库进公开仓库）
+.vote-data/
+# 投票表决系统：本地开发密钥
+.dev.vars
+vote-app/node_modules/
+vote-app/.wrangler/
+
+# Wrangler / Pages 本地开发产物（根目录 pages dev 生成，禁止入库）
+.wrangler/
+node_modules/
