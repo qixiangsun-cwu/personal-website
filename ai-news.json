@@ -1,152 +1,224 @@
 {
-  "generated": "2026-09-29 05:06:09",
-  "updated": "2026-09-29",
+  "generated": "2026-10-02 15:20:24",
+  "updated": "2026-10-02",
   "current": [
     {
-      "date": "2026-09-29",
+      "date": "2026-10-01",
       "source": "techcrunch.com",
-      "url": "https://techcrunch.com/2026/09/28/anthropic-releases-sonnet-5-5-which-it-calls-a-significantly-cheaper-faster-work-partner/",
-      "title": "Anthropic 发布 Sonnet 5.5：更快更便宜的日常助手",
-      "title_en": "Anthropic releases Sonnet 5.5, which it calls a significantly cheaper, faster work partner",
-      "summary": "Anthropic 发布中端模型 Sonnet 的最新版本 5.5，宣称比前代更快、成本显著更低，定位为处理日常任务（如写代码、制作办公文档）的理想助手。在 AI 模型竞争持续升温的背景下，Anthropic 继续以「性价比」补齐产品线，把前沿能力下放到更经济的中端档位。"
+      "url": "https://techcrunch.com/2026/09/30/google-releases-gemini-4-argon-called-its-most-powerful-model-yet/",
+      "title": "谷歌发布 Gemini 4 Argon，称其为迄今最强模型",
+      "title_en": "Google releases Gemini 4 Argon, called its most powerful model yet",
+      "summary": "谷歌发布最新 Gemini 模型 Gemini 4 Argon，主打编程与网络安全场景，被宣传为「迄今最强」。TechCrunch 指出，谷歌把它定位为处理高强度代码与安全工作的「主力模型」，这是继 GPT-6 系列之后前沿模型竞争的又一回合，也标志着谷歌把新模型直接对准商业化最重的工程场景。"
     },
     {
-      "date": "2026-09-29",
+      "date": "2026-10-01",
+      "source": "www.theverge.com",
+      "url": "https://www.theverge.com/tech/1002980/google-gemini-4-argon",
+      "title": "谷歌发布 Gemini 4，称其能力太强，目前仅限“可信网络防御者”使用",
+      "title_en": "Google announces Gemini 4 and says it's so capable that only 'trusted cyber defenders' can have it right now",
+      "summary": "谷歌发布 Gemini 4，并称其能力之强以至于目前只向「可信网络防御者」开放使用。The Verge 指出，这种受限发布策略既是对模型在网络安全攻防上双重用途风险的回应，也是一种市场与叙事手段——前沿模型既是防御工具，也可能被用于攻击。"
+    },
+    {
+      "date": "2026-10-02",
+      "source": "www.qbitai.com",
+      "url": "https://www.qbitai.com/2026/10/499991.html",
+      "title": "丘成桐新论文致谢了GPT和Claude",
+      "title_en": "丘成桐新论文致谢了GPT和Claude",
+      "summary": "数学家丘成桐在新论文的致谢中向 GPT 和 Claude 表示感谢，而该研究问题的源头可追溯到 44 年前他被亲自列入的问题清单。这一细节被解读为顶级数学研究开始公开承认 AI 工具的辅助作用，呼应了此前「数学家既依赖又警惕 AI」的讨论。"
+    },
+    {
+      "date": "2026-10-01",
       "source": "www.infoq.cn",
-      "url": "https://www.infoq.cn/article/OooAe7xY816xAdLrkv8V?utm_source=rss&utm_medium=article",
-      "title": "Cloudflare 推出智能体开发栈生命周期，以取代传统 SDLC",
-      "title_en": "Cloudflare 推出智能体开发栈生命周期，以取代传统 SDLC",
-      "summary": "Cloudflare 提出「智能体开发生命周期（Agent Development Lifecycle, ADLC）」，主张用自动化软件工厂取代传统软件开发生命周期（SDLC）。其判断是：AI 虽加速了代码生成，但测试、部署、维护等下游环节仍受「人在回路」的 CI/CD 流水线制约。新架构以 Workflows 为编排层、配合原生 @cloudflare/ci 工具链，为每个智能体生成独立的预览部署以便与生产环境并行测试，强调变更原子性与由生产数据驱动的自我改进反馈闭环，让 CI/CD 从静态流水线升级为可编程工作流。"
+      "url": "https://www.infoq.cn/article/t5i2Yv2z0LwIbK36lteR?utm_source=rss&utm_medium=article",
+      "title": "DeepSeek 开源昇腾平台基础设施组件，覆盖 TileLang、计算库与分布式通信库",
+      "title_en": "DeepSeek 开源昇腾平台基础设施组件，覆盖 TileLang、计算库与分布式通信库",
+      "summary": "DeepSeek 开源了面向华为昇腾平台的基础设施组件，覆盖 TileLang、计算库与分布式通信库等。此举意在降低大模型在国产 AI 芯片上的开发与迁移门槛，与昇腾共建软件生态，是国产算力栈「软硬协同」的重要一步，也表明头部模型团队正加大对国产芯片的适配投入。"
     },
     {
-      "date": "2026-09-29",
-      "source": "export.arxiv.org",
-      "url": "https://arxiv.org/abs/2609.31186",
-      "title": "递归自我改进 AI 的进化安全：分类、风险发现与评估",
-      "title_en": "Evolutionary Safety of Recursive Self-Improving AI: Taxonomy, Risk Discovery, and Evaluation",
-      "summary": "论文（arXiv:2609.31186）针对「递归自我改进」AI 提出「进化安全」框架：当 AI 开始参与自身的训练与改进时，其能力可能像进化过程一样迭代升级，带来难以预测的风险。作者给出风险分类体系、风险发现方法和评估手段，试图在 AI 自主改进的早期建立可度量的安全边界，回应当前关于智能体失控的广泛讨论。"
-    },
-    {
-      "date": "2026-09-28",
-      "source": "openai.com",
-      "url": "https://openai.com/index/lenfest-ai-collaborative-expansion",
-      "title": "OpenAI 扩大对 Lenfest 研究院标志性项目的支持",
-      "title_en": "The Lenfest Institute grows landmark program with expanded OpenAI support",
-      "summary": "OpenAI 宣布扩大对 Lenfest 研究院（The Lenfest Institute）标志性 AI 协作与奖学金项目的支持。该项目此前已帮助新闻编辑室与从业者落地 AI 工具，此次扩展将覆盖更广范围，延续 OpenAI 在新闻与本地信息生态中推进 AI 应用的一贯投入。"
-    },
-    {
-      "date": "2026-09-29",
-      "source": "www.technologyreview.com",
-      "url": "https://www.technologyreview.com/2026/09/28/1145230/when-can-we-say-ai-made-a-scientific-discovery/",
-      "title": "我们什么时候能说「AI 做出了科学发现」？",
-      "title_en": "When can we say AI made a scientific discovery?",
-      "summary": "《麻省理工科技评论》探讨「AI 做出科学发现」该如何界定。文章以 Anthropic 今年早些时候启动的分子生物学实验室为例：Claude 智能体阅读并推测困难的生物学问题，再由人类科学家动手实验验证。核心问题在于——当 AI 提出猜想、人类完成实验，科学发现究竟应归功于谁，以及「发现」的边界该如何划定。"
-    },
-    {
-      "date": "2026-09-29",
+      "date": "2026-10-02",
       "source": "www.ithome.com",
-      "url": "https://www.ithome.com/1/008/202.htm",
-      "title": "IDC：今年上半年全球人形机器人出货近 2.5 万台同比增长 432.1%，中国独占 1.9 万台",
-      "title_en": "IDC：今年上半年全球人形机器人出货近 2.5 万台同比增长 432.1%，中国独占 1.9 万台",
-      "summary": "IDC 报告显示，2026 上半年全球人形机器人出货量接近 2.5 万台，同比增长 432.1%；市场规模超过 7.4 亿美元，同比增长 322.7%。其中中国市场出货约 1.9 万台，成为全球增长的重要引擎。IDC 还预计 2030 年全球出货量将超过 75 万台，较此前预测上调约 50%，产业正从技术验证迈向商业化应用阶段。"
+      "url": "https://www.ithome.com/1/009/343.htm",
+      "title": "Anthropic 招股书警告：美国政府的态度会影响公司与客户的关系，甚至波及人类文明",
+      "title_en": "Anthropic 招股书警告：美国政府的态度会影响公司与客户的关系，甚至波及人类文明",
+      "summary": "路透社公布的 Anthropic IPO 招股书提出警告：美国政府对公司及其技术的态度不仅影响政府业务，还可能波及商业客户和合作伙伴，甚至「波及人类文明」；文件同时提示先进 AI 可能带来灾难性乃至生存性风险。在企业招股文件中出现这类表述较为罕见，凸显 AI 公司对政策环境与安全争议的高度敏感。"
+    },
+    {
+      "date": "2026-10-01",
+      "source": "www.technologyreview.com",
+      "url": "https://www.technologyreview.com/2026/10/01/1145588/ai-mind-reading-reconstructs-what-youre-looking-at/",
+      "title": "AI“读心”工具能凭脑扫描重建你正在看的画面",
+      "title_en": "An AI \"mind-reading\" tool can reconstruct what you're looking at from a brain scan",
+      "summary": "《麻省理工科技评论》报道一种新的 AI「读心」工具：仅通过分析脑扫描（fMRI），就能以相当高的精度重建受试者正在看的图像，反过来也能根据所见图像预测其脑活动。该技术在脑机接口与认知科学上颇具潜力，同时也引发对「思维隐私」的伦理担忧。"
+    },
+    {
+      "date": "2026-10-01",
+      "source": "www.wired.com",
+      "url": "https://www.wired.com/story/ai-agents-dots-devday-muse-battling-it-out/",
+      "title": "争夺“你的个人 AI 智能体”之战已经打响",
+      "title_en": "The Battle to Be Your Personal AI Agent Is Here",
+      "summary": "Wired 记者亲身体验了 OpenAI 的 Dots 与 Meta 的 Muse 两款个人 AI 智能体，认为二者的竞争已经展开。文章从实际使用感受出发，讨论个人智能体在日常任务代办上的能力与局限，并预判用户将越来越多地借助它们完成琐事，个人 AI 助手正成为巨头争夺的新入口。"
+    },
+    {
+      "date": "2026-10-01",
+      "source": "openai.com",
+      "url": "https://openai.com/index/the-den-family-social",
+      "title": "The Den 借助 ChatGPT Work 每周省出 10-15 小时",
+      "title_en": "The Den frees up 10-15 hours a week to grow with ChatGPT Work",
+      "summary": "OpenAI 案例：社交俱乐部 The Den 在开设新店的过程中，用 ChatGPT Work 把助学金申请材料从 3 天缩短到 2 小时、酒类执照材料从 4 天缩短到 3 小时，每周节省 10-15 小时。案例展示了 ChatGPT 在中小企业日常行政与文书工作中的实用价值。"
     }
   ],
   "archive": [
     {
-      "date": "2026-09-29",
+      "date": "2026-10-02",
       "source": "techcrunch.com",
-      "url": "https://techcrunch.com/2026/09/28/shopify-opens-checkout-to-browser-based-ai-agents/",
+      "url": "https://techcrunch.com/2026/10/01/musks-ai-chatbot-grok-reportedly-encouraged-trump-to-capture-venezuelas-president/",
+      "title": "报道称马斯克 AI 聊天机器人 Grok 曾建议特朗普抓捕委内瑞拉总统",
+      "title_en": "Musk's AI chatbot Grok reportedly encouraged Trump to capture Venezuela's president",
+      "summary": "据多家媒体报道，美国前总统特朗普在决定对委内瑞拉采取军事行动、抓捕总统马杜罗之前，曾征询马斯克旗下 AI 聊天机器人 Grok 的意见，而 Grok 给出了支持性建议。报道把这一细节视为 AI 进入高层政治与军事决策圈的标志性案例，也引发对「聊天机器人影响最高决策」的争议。"
+    },
+    {
+      "title": "Anthropic 发布 Sonnet 5.5：更快更便宜的日常助手",
+      "title_en": "Anthropic releases Sonnet 5.5, which it calls a significantly cheaper, faster work partner",
+      "summary": "Anthropic 发布中端模型 Sonnet 的最新版本 5.5，宣称比前代更快、成本显著更低，定位为处理日常任务（如写代码、制作办公文档）的理想助手。在 AI 模型竞争持续升温的背景下，Anthropic 继续以「性价比」补齐产品线，把前沿能力下放到更经济的中端档位。",
+      "source": "techcrunch.com",
+      "url": "https://techcrunch.com/2026/09/28/anthropic-releases-sonnet-5-5-which-it-calls-a-significantly-cheaper-faster-work-partner/",
+      "date": "2026-09-29"
+    },
+    {
+      "title": "Cloudflare 推出智能体开发栈生命周期，以取代传统 SDLC",
+      "title_en": "Cloudflare 推出智能体开发栈生命周期，以取代传统 SDLC",
+      "summary": "Cloudflare 提出「智能体开发生命周期（Agent Development Lifecycle, ADLC）」，主张用自动化软件工厂取代传统软件开发生命周期（SDLC）。其判断是：AI 虽加速了代码生成，但测试、部署、维护等下游环节仍受「人在回路」的 CI/CD 流水线制约。新架构以 Workflows 为编排层、配合原生 @cloudflare/ci 工具链，为每个智能体生成独立的预览部署以便与生产环境并行测试，强调变更原子性与由生产数据驱动的自我改进反馈闭环，让 CI/CD 从静态流水线升级为可编程工作流。",
+      "source": "www.infoq.cn",
+      "url": "https://www.infoq.cn/article/OooAe7xY816xAdLrkv8V?utm_source=rss&utm_medium=article",
+      "date": "2026-09-29"
+    },
+    {
+      "title": "递归自我改进 AI 的进化安全：分类、风险发现与评估",
+      "title_en": "Evolutionary Safety of Recursive Self-Improving AI: Taxonomy, Risk Discovery, and Evaluation",
+      "summary": "论文（arXiv:2609.31186）针对「递归自我改进」AI 提出「进化安全」框架：当 AI 开始参与自身的训练与改进时，其能力可能像进化过程一样迭代升级，带来难以预测的风险。作者给出风险分类体系、风险发现方法和评估手段，试图在 AI 自主改进的早期建立可度量的安全边界，回应当前关于智能体失控的广泛讨论。",
+      "source": "export.arxiv.org",
+      "url": "https://arxiv.org/abs/2609.31186",
+      "date": "2026-09-29"
+    },
+    {
+      "title": "我们什么时候能说「AI 做出了科学发现」？",
+      "title_en": "When can we say AI made a scientific discovery?",
+      "summary": "《麻省理工科技评论》探讨「AI 做出科学发现」该如何界定。文章以 Anthropic 今年早些时候启动的分子生物学实验室为例：Claude 智能体阅读并推测困难的生物学问题，再由人类科学家动手实验验证。核心问题在于——当 AI 提出猜想、人类完成实验，科学发现究竟应归功于谁，以及「发现」的边界该如何划定。",
+      "source": "www.technologyreview.com",
+      "url": "https://www.technologyreview.com/2026/09/28/1145230/when-can-we-say-ai-made-a-scientific-discovery/",
+      "date": "2026-09-29"
+    },
+    {
+      "title": "IDC：今年上半年全球人形机器人出货近 2.5 万台同比增长 432.1%，中国独占 1.9 万台",
+      "title_en": "IDC：今年上半年全球人形机器人出货近 2.5 万台同比增长 432.1%，中国独占 1.9 万台",
+      "summary": "IDC 报告显示，2026 上半年全球人形机器人出货量接近 2.5 万台，同比增长 432.1%；市场规模超过 7.4 亿美元，同比增长 322.7%。其中中国市场出货约 1.9 万台，成为全球增长的重要引擎。IDC 还预计 2030 年全球出货量将超过 75 万台，较此前预测上调约 50%，产业正从技术验证迈向商业化应用阶段。",
+      "source": "www.ithome.com",
+      "url": "https://www.ithome.com/1/008/202.htm",
+      "date": "2026-09-29"
+    },
+    {
       "title": "Shopify 向浏览器 AI 智能体开放结账流程",
       "title_en": "Shopify opens checkout to browser-based AI agents",
-      "summary": "Shopify 将 WebMCP 支持扩展到结账环节，允许浏览器内的 AI 智能体在获得买家授权后更新订单信息并完成购买。这意味着 AI 智能体可以从「查信息、给建议」进一步走向「直接执行交易」，是电商平台向智能体经济开放的一次重要尝试。"
+      "summary": "Shopify 将 WebMCP 支持扩展到结账环节，允许浏览器内的 AI 智能体在获得买家授权后更新订单信息并完成购买。这意味着 AI 智能体可以从「查信息、给建议」进一步走向「直接执行交易」，是电商平台向智能体经济开放的一次重要尝试。",
+      "source": "techcrunch.com",
+      "url": "https://techcrunch.com/2026/09/28/shopify-opens-checkout-to-browser-based-ai-agents/",
+      "date": "2026-09-29"
     },
     {
-      "date": "2026-09-29",
-      "source": "www.infoq.cn",
-      "url": "https://www.infoq.cn/article/mDiczbGJpHNMU6e0qBX1?utm_source=rss&utm_medium=article",
       "title": "AI 驱动复杂业务漏洞挖掘：从业务规则建模到攻击路径验证｜QCon上海",
       "title_en": "AI 驱动复杂业务漏洞挖掘：从业务规则建模到攻击路径验证｜QCon上海",
-      "summary": "这是 QCon 上海大会上的一场主题分享，介绍如何用 AI 驱动复杂业务系统的漏洞挖掘：先对业务规则建模，再自动推导并验证攻击路径。相比传统依赖安全专家经验的渗透方式，AI 可将业务逻辑漏洞的发现过程系统化、自动化，适合支付、电商等强业务规则的场景。"
+      "summary": "这是 QCon 上海大会上的一场主题分享，介绍如何用 AI 驱动复杂业务系统的漏洞挖掘：先对业务规则建模，再自动推导并验证攻击路径。相比传统依赖安全专家经验的渗透方式，AI 可将业务逻辑漏洞的发现过程系统化、自动化，适合支付、电商等强业务规则的场景。",
+      "source": "www.infoq.cn",
+      "url": "https://www.infoq.cn/article/mDiczbGJpHNMU6e0qBX1?utm_source=rss&utm_medium=article",
+      "date": "2026-09-29"
     },
     {
-      "date": "2026-09-29",
-      "source": "export.arxiv.org",
-      "url": "https://arxiv.org/abs/2609.30971",
       "title": "SciHorizon-eLab：面向科学具身智能体的协议转任务编译器",
       "title_en": "SciHorizon-eLab: An Agentic Protocol-to-Task Compiler for Scalable Benchmarking of Scientific Embodied Agents",
-      "summary": "论文（arXiv:2609.30971）提出 SciHorizon-eLab，一个「协议转任务」编译器，把多样化的科学实验协议自动编译成可执行、可验证的具身智能任务，用于大规模基准测试科学实验智能体。现有仿真实验基准高度依赖人工构造任务，难以规模化；该工作旨在用智能体自动化的方式系统性生成评测环境，推动具身智能在自动化科学实验中的应用。"
+      "summary": "论文（arXiv:2609.30971）提出 SciHorizon-eLab，一个「协议转任务」编译器，把多样化的科学实验协议自动编译成可执行、可验证的具身智能任务，用于大规模基准测试科学实验智能体。现有仿真实验基准高度依赖人工构造任务，难以规模化；该工作旨在用智能体自动化的方式系统性生成评测环境，推动具身智能在自动化科学实验中的应用。",
+      "source": "export.arxiv.org",
+      "url": "https://arxiv.org/abs/2609.30971",
+      "date": "2026-09-29"
     },
     {
-      "date": "2026-09-28",
+      "title": "OpenAI 扩大对 Lenfest 研究院标志性项目的支持",
+      "title_en": "The Lenfest Institute grows landmark program with expanded OpenAI support",
+      "summary": "OpenAI 宣布扩大对 Lenfest 研究院（The Lenfest Institute）标志性 AI 协作与奖学金项目的支持。该项目此前已帮助新闻编辑室与从业者落地 AI 工具，此次扩展将覆盖更广范围，延续 OpenAI 在新闻与本地信息生态中推进 AI 应用的一贯投入。",
       "source": "openai.com",
-      "url": "https://openai.com/index/basis-tax-workbook-with-astra",
+      "url": "https://openai.com/index/lenfest-ai-collaborative-expansion",
+      "date": "2026-09-28"
+    },
+    {
       "title": "Basis 借助 GPT-6 Astra 把税务工作簿处理速度提升一倍",
       "title_en": "Basis completes a tax workbook 2x faster with GPT-6 Astra",
-      "summary": "会计自动化公司 Basis 使用 GPT-6 Astra 后，完成一份含 50 个标签页的税务工作簿的速度比 GPT-5.6 Sol 快一倍，且对用户意图的理解更强，让 Basis 对真实场景的可用性更有信心。案例展示了新一代模型在专业财会文档处理上的效率提升。"
+      "summary": "会计自动化公司 Basis 使用 GPT-6 Astra 后，完成一份含 50 个标签页的税务工作簿的速度比 GPT-5.6 Sol 快一倍，且对用户意图的理解更强，让 Basis 对真实场景的可用性更有信心。案例展示了新一代模型在专业财会文档处理上的效率提升。",
+      "source": "openai.com",
+      "url": "https://openai.com/index/basis-tax-workbook-with-astra",
+      "date": "2026-09-28"
     },
     {
-      "date": "2026-09-27",
-      "source": "www.infoq.cn",
-      "url": "https://www.infoq.cn/article/UC6jk6tu7fWE5bDO8oQw?utm_source=rss&utm_medium=article",
       "title": "可控、可测、可进化——B2B跨境支付的 AI 驾驭实践｜QCon上海",
       "title_en": "可控、可测、可进化——B2B跨境支付的 AI 驾驭实践｜QCon上海",
-      "summary": "QCon 上海大会的实践分享，讨论如何在 B2B 跨境支付这一对准确性、合规和审计要求极高的场景中落地 AI：既要「可控」（结果可解释、风险可约束），又要「可测」（效果可量化、可回归），还要「可进化」（随业务迭代持续优化），为金融场景引入大模型提供工程化经验。"
+      "summary": "QCon 上海大会的实践分享，讨论如何在 B2B 跨境支付这一对准确性、合规和审计要求极高的场景中落地 AI：既要「可控」（结果可解释、风险可约束），又要「可测」（效果可量化、可回归），还要「可进化」（随业务迭代持续优化），为金融场景引入大模型提供工程化经验。",
+      "source": "www.infoq.cn",
+      "url": "https://www.infoq.cn/article/UC6jk6tu7fWE5bDO8oQw?utm_source=rss&utm_medium=article",
+      "date": "2026-09-27"
     },
     {
-      "date": "2026-09-27",
-      "source": "www.infoq.cn",
-      "url": "https://www.infoq.cn/article/sQV4EomjPP0J3hM3lyF9?utm_source=rss&utm_medium=article",
       "title": "谷歌 Kotlin 版 ADK 实现与 Python 版功能对齐，支持端侧 AI",
       "title_en": "谷歌 Kotlin 版 ADK 实现与 Python 版功能对齐，支持端侧 AI",
-      "summary": "谷歌将 Kotlin 版 Agent Development Kit（ADK）的功能与 Python 版对齐，使开发者可以用 Kotlin 构建智能体并支持端侧 AI 场景。此举让 Android 等 Kotlin 生态的开发者能更一致地复用 ADK 的智能体能力，降低跨语言迁移成本。"
+      "summary": "谷歌将 Kotlin 版 Agent Development Kit（ADK）的功能与 Python 版对齐，使开发者可以用 Kotlin 构建智能体并支持端侧 AI 场景。此举让 Android 等 Kotlin 生态的开发者能更一致地复用 ADK 的智能体能力，降低跨语言迁移成本。",
+      "source": "www.infoq.cn",
+      "url": "https://www.infoq.cn/article/sQV4EomjPP0J3hM3lyF9?utm_source=rss&utm_medium=article",
+      "date": "2026-09-27"
     },
     {
-      "date": "2026-09-27",
-      "source": "www.infoq.cn",
-      "url": "https://www.infoq.cn/article/jJIXCaLHUvPgswTOZ1uQ?utm_source=rss&utm_medium=article",
       "title": "阿里巴巴开源 AI 辅助代码评审工具 OpenCodeReview",
       "title_en": "阿里巴巴开源 AI 辅助代码评审工具 OpenCodeReview",
-      "summary": "阿里巴巴开源 AI 辅助代码评审工具 OpenCodeReview，用大模型能力帮助团队自动发现代码中的缺陷、风险与改进点，减轻人工 Code Review 负担。该工具面向工程团队开放，是把 LLM 引入日常研发流程的一次实践。"
+      "summary": "阿里巴巴开源 AI 辅助代码评审工具 OpenCodeReview，用大模型能力帮助团队自动发现代码中的缺陷、风险与改进点，减轻人工 Code Review 负担。该工具面向工程团队开放，是把 LLM 引入日常研发流程的一次实践。",
+      "source": "www.infoq.cn",
+      "url": "https://www.infoq.cn/article/jJIXCaLHUvPgswTOZ1uQ?utm_source=rss&utm_medium=article",
+      "date": "2026-09-27"
     },
     {
-      "date": "2026-09-27",
-      "source": "www.qbitai.com",
-      "url": "https://www.qbitai.com/2026/09/498633.html",
       "title": "量子AI创业来了一支“清华梦之队”：10亿估值，用量子改造大模型底层",
       "title_en": "量子AI创业来了一支“清华梦之队”：10亿估值，用量子改造大模型底层",
-      "summary": "一支由清华背景团队组成的量子 AI 创业公司，以约 10 亿元估值完成融资，方向是用量子计算改造大模型的底层算力与架构。团队试图把量子计算的并行优势引入大模型训练或推理，探索「量子+AI」这一前沿交叉赛道。"
+      "summary": "一支由清华背景团队组成的量子 AI 创业公司，以约 10 亿元估值完成融资，方向是用量子计算改造大模型的底层算力与架构。团队试图把量子计算的并行优势引入大模型训练或推理，探索「量子+AI」这一前沿交叉赛道。",
+      "source": "www.qbitai.com",
+      "url": "https://www.qbitai.com/2026/09/498633.html",
+      "date": "2026-09-27"
     },
     {
-      "date": "2026-09-27",
-      "source": "www.qbitai.com",
-      "url": "https://www.qbitai.com/2026/09/498546.html",
       "title": "啥题啊能干崩OpenAI最强模型训练…",
       "title_en": "啥题啊能干崩OpenAI最强模型训练…",
-      "summary": "量子位报道了一道能「干崩」OpenAI 最强模型训练的特殊题目/样本，讨论大模型在训练或推理中遇到极端输入时的稳定性问题。文章通过具体案例展示当前前沿模型在鲁棒性上仍存在的边界，呼应业界对模型脆弱性的持续关注。"
+      "summary": "量子位报道了一道能「干崩」OpenAI 最强模型训练的特殊题目/样本，讨论大模型在训练或推理中遇到极端输入时的稳定性问题。文章通过具体案例展示当前前沿模型在鲁棒性上仍存在的边界，呼应业界对模型脆弱性的持续关注。",
+      "source": "www.qbitai.com",
+      "url": "https://www.qbitai.com/2026/09/498546.html",
+      "date": "2026-09-27"
     },
     {
-      "date": "2026-09-26",
-      "source": "www.infoq.cn",
-      "url": "https://www.infoq.cn/article/gk4rWsQg09PWTFTZlJE3?utm_source=rss&utm_medium=article",
       "title": "DoorDash 借助多 Agent LLM 系统清理 6 万个 Feature Flag",
       "title_en": "DoorDash 借助多 Agent LLM 系统清理 6 万个 Feature Flag",
-      "summary": "DoorDash 借助多 Agent LLM 系统，对其代码库中长期积累的约 6 万个 Feature Flag（功能开关）进行批量识别与清理。通过多个协作智能体分析开关的使用情况、判断可下线项并生成清理建议，大幅降低人工排查的成本，是「AI 辅助代码治理」的一个规模化案例。"
+      "summary": "DoorDash 借助多 Agent LLM 系统，对其代码库中长期积累的约 6 万个 Feature Flag（功能开关）进行批量识别与清理。通过多个协作智能体分析开关的使用情况、判断可下线项并生成清理建议，大幅降低人工排查的成本，是「AI 辅助代码治理」的一个规模化案例。",
+      "source": "www.infoq.cn",
+      "url": "https://www.infoq.cn/article/gk4rWsQg09PWTFTZlJE3?utm_source=rss&utm_medium=article",
+      "date": "2026-09-26"
     },
     {
-      "date": "2026-09-26",
-      "source": "www.infoq.cn",
-      "url": "https://www.infoq.cn/article/C1Vuzh9fUmUL9i5wmDZf?utm_source=rss&utm_medium=article",
       "title": "AI 时代，技术人靠什么赢？｜QCon上海",
       "title_en": "AI 时代，技术人靠什么赢？｜QCon上海",
-      "summary": "QCon 上海大会的主题分享，讨论 AI 时代技术人员如何保持竞争力：在代码生成被大幅加速的背景下，工程能力、系统设计、业务理解与 AI 工具驾驭能力正成为新的分水岭。演讲给出的核心观点是——技术人应把 AI 当作杠杆，把精力转向更高层的架构、质量与价值创造。"
+      "summary": "QCon 上海大会的主题分享，讨论 AI 时代技术人员如何保持竞争力：在代码生成被大幅加速的背景下，工程能力、系统设计、业务理解与 AI 工具驾驭能力正成为新的分水岭。演讲给出的核心观点是——技术人应把 AI 当作杠杆，把精力转向更高层的架构、质量与价值创造。",
+      "source": "www.infoq.cn",
+      "url": "https://www.infoq.cn/article/C1Vuzh9fUmUL9i5wmDZf?utm_source=rss&utm_medium=article",
+      "date": "2026-09-26"
     },
     {
-      "date": "2026-09-26",
-      "source": "www.qbitai.com",
-      "url": "https://www.qbitai.com/2026/09/498271.html",
       "title": "AI开始研究Physical AI：FSD级团队亮出首版模型Simate-beta，空降RoboDojo",
       "title_en": "AI开始研究Physical AI：FSD级团队亮出首版模型Simate-beta，空降RoboDojo",
-      "summary": "一支有 FSD（全自动驾驶）级别背景的团队发布首版 Physical AI 模型 Simate-beta，并落地机器人训练平台 RoboDojo。Simate 将训练、推理与评测全流程接入自研 Infra，通过极致的任务编排与资源调度，并行推进数十条相对独立的研究路线，瞄准机器人在物理世界中的感知与决策能力。"
+      "summary": "一支有 FSD（全自动驾驶）级别背景的团队发布首版 Physical AI 模型 Simate-beta，并落地机器人训练平台 RoboDojo。Simate 将训练、推理与评测全流程接入自研 Infra，通过极致的任务编排与资源调度，并行推进数十条相对独立的研究路线，瞄准机器人在物理世界中的感知与决策能力。",
+      "source": "www.qbitai.com",
+      "url": "https://www.qbitai.com/2026/09/498271.html",
+      "date": "2026-09-26"
     },
     {
       "title": "数据、模型、算力越来越难分开，Data+AI 基础设施怎么进化？",
@@ -157,28 +229,28 @@
       "date": "2026-09-25"
     },
     {
-      "date": "2026-09-25",
-      "source": "www.infoq.cn",
-      "url": "https://www.infoq.cn/article/QQk3wiolU1VScH3u0P7T?utm_source=rss&utm_medium=article",
       "title": "当 Vibe Coding 撞上企业级现实：真实工程中的 AI 效能之路｜QCon上海",
       "title_en": "当 Vibe Coding 撞上企业级现实：真实工程中的 AI 效能之路｜QCon上海",
-      "summary": "QCon 上海大会的分享，聚焦「Vibe Coding」（靠自然语言与 AI 对话式编程）在企业级真实工程中的落地：个人快速出原型并不等于能生产上线。演讲讨论如何把 AI 辅助编程纳入代码质量、测试、维护与协作体系，让 AI 带来的开发提速真正转化为可交付的工程效能。"
+      "summary": "QCon 上海大会的分享，聚焦「Vibe Coding」（靠自然语言与 AI 对话式编程）在企业级真实工程中的落地：个人快速出原型并不等于能生产上线。演讲讨论如何把 AI 辅助编程纳入代码质量、测试、维护与协作体系，让 AI 带来的开发提速真正转化为可交付的工程效能。",
+      "source": "www.infoq.cn",
+      "url": "https://www.infoq.cn/article/QQk3wiolU1VScH3u0P7T?utm_source=rss&utm_medium=article",
+      "date": "2026-09-25"
     },
     {
-      "date": "2026-09-25",
-      "source": "www.technologyreview.com",
-      "url": "https://www.technologyreview.com/2026/09/25/1145157/the-download-pentagon-ai-lie-detector-young-organ-limits/",
       "title": "今日速递：五角大楼的 AI 测谎仪与器官捐赠年龄上限",
       "title_en": "The Download: the Pentagon's AI-powered lie detector and young organ limits",
-      "summary": "《麻省理工科技评论》每日简报聚焦两条：一是五角大楼计划斥资约 3030 万美元、在未来五年打造升级版 AI 测谎仪（Polygraph+ / Polygraph Next），采用 AI/ML 评分算法与「远距离传感」技术；二是关于年轻人器官捐赠年龄上限的争议。简报延续其对 AI 在政府与安全领域应用的持续观察。"
+      "summary": "《麻省理工科技评论》每日简报聚焦两条：一是五角大楼计划斥资约 3030 万美元、在未来五年打造升级版 AI 测谎仪（Polygraph+ / Polygraph Next），采用 AI/ML 评分算法与「远距离传感」技术；二是关于年轻人器官捐赠年龄上限的争议。简报延续其对 AI 在政府与安全领域应用的持续观察。",
+      "source": "www.technologyreview.com",
+      "url": "https://www.technologyreview.com/2026/09/25/1145157/the-download-pentagon-ai-lie-detector-young-organ-limits/",
+      "date": "2026-09-25"
     },
     {
-      "date": "2026-09-25",
-      "source": "www.technologyreview.com",
-      "url": "https://www.technologyreview.com/2026/09/25/1145144/pentagon-ai-lie-detector/",
       "title": "五角大楼拟投入 3000 万美元打造 AI 测谎仪",
       "title_en": "The Pentagon wants $30 million to build an AI-powered lie detector",
-      "summary": "据美国国防部预算申请，政府计划未来五年投入约 3030 万美元研发升级版测谎仪，项目名为 Polygraph+（又称 Polygraph Next）。新系统重点采用人工智能与机器学习的评分算法，并引入「远距离传感（standoff sensing）」技术，即在不接触受测者的情况下采集生理信号。这一计划再次把 AI 引入执法与安全审查的伦理讨论之中。"
+      "summary": "据美国国防部预算申请，政府计划未来五年投入约 3030 万美元研发升级版测谎仪，项目名为 Polygraph+（又称 Polygraph Next）。新系统重点采用人工智能与机器学习的评分算法，并引入「远距离传感（standoff sensing）」技术，即在不接触受测者的情况下采集生理信号。这一计划再次把 AI 引入执法与安全审查的伦理讨论之中。",
+      "source": "www.technologyreview.com",
+      "url": "https://www.technologyreview.com/2026/09/25/1145144/pentagon-ai-lie-detector/",
+      "date": "2026-09-25"
     },
     {
       "title": "评估预训练模型对AI辅助生成教育题目的教学评价能力",
@@ -221,12 +293,12 @@
       "date": "2026-09-24"
     },
     {
-      "date": "2026-09-24",
-      "source": "www.technologyreview.com",
-      "url": "https://www.technologyreview.com/2026/09/24/1145064/the-download-bid-scrap-virtual-wall-ai-climate-week/",
       "title": "今日速递：废除「虚拟墙」的提案与 AI 席卷气候周",
       "title_en": "The Download: a bid to scrap the virtual wall and AI hits Climate Week",
-      "summary": "《麻省理工科技评论》每日简报聚焦两件事：伊利诺伊州民主党众议员 Delia Ramirez 宣布推动立法，终止美墨边境的监控塔项目（被称作「虚拟墙」）；同期纽约气候周上 AI 成为核心议题，呼应此前对 AI 与气候、能耗关系的讨论。"
+      "summary": "《麻省理工科技评论》每日简报聚焦两件事：伊利诺伊州民主党众议员 Delia Ramirez 宣布推动立法，终止美墨边境的监控塔项目（被称作「虚拟墙」）；同期纽约气候周上 AI 成为核心议题，呼应此前对 AI 与气候、能耗关系的讨论。",
+      "source": "www.technologyreview.com",
+      "url": "https://www.technologyreview.com/2026/09/24/1145064/the-download-bid-scrap-virtual-wall-ai-climate-week/",
+      "date": "2026-09-24"
     },
     {
       "title": "AI 炒作指数：AI 正在被优化成“作弊高手”",
