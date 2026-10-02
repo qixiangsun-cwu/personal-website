@@ -574,6 +574,11 @@ hotlineDetails.forEach(d => {
         const text = document.createElement('span');
         text.textContent = '邓妈妈正在思考…';
         bubble.appendChild(text);
+        // 慢速提示：超过 8 秒告知用户仍在等待，而不是让人对着静止界面
+        // （边缘节点偶发慢调用时，这一步能显著降低「以为坏了」的观感）
+        var slowTimer = setTimeout(function () {
+            text.textContent = '网络有点慢，邓妈妈还在想，请稍等…';
+        }, 8000);
 
         const dots = document.createElement('span');
         dots.className = 'dm-typing';
@@ -583,17 +588,44 @@ hotlineDetails.forEach(d => {
         row.appendChild(bubble);
         messagesEl.appendChild(row);
         scrollToBottom();
+        bubble._slowTimer = slowTimer;
         return bubble;
     }
 
     // 用最终回复替换占位气泡
     function replaceThinking(bubble, reply) {
+        if (bubble._slowTimer) { clearTimeout(bubble._slowTimer); bubble._slowTimer = null; }
         bubble.classList.remove('dm-bubble-thinking');
         bubble.innerHTML = renderBotHtml(reply);
         bubble.appendChild(createSpeakBtn());   // 回复附朗读按钮
         scrollToBottom();
         playReplyChime();   // 轻柔提示音：不止依赖视觉弹出
         announceReply(reply);   // 同步到 aria-live 播报区，屏幕阅读器自动读出
+    }
+
+    // 失败气泡：说明原因 + 提供一键重试（保留原问题，用户不用重新输入）
+    function replaceWithRetry(bubble, failedText) {
+        if (bubble._slowTimer) { clearTimeout(bubble._slowTimer); bubble._slowTimer = null; }
+        bubble.classList.remove('dm-bubble-thinking');
+        bubble.innerHTML = '';
+
+        var tip = document.createElement('div');
+        tip.textContent = '孩子，我这会儿连不上服务，可能是网络波动。你可以直接再试一次；若情况紧急，请拨打 12338 妇女维权热线，或 110。';
+        bubble.appendChild(tip);
+
+        var retry = document.createElement('button');
+        retry.type = 'button';
+        retry.className = 'dm-retry-btn';
+        retry.textContent = '再试一次';
+        retry.addEventListener('click', function () {
+            var row = bubble.closest('.dm-row');
+            if (row) row.remove();
+            sendMessage(failedText);
+        });
+        bubble.appendChild(retry);
+
+        scrollToBottom();
+        announceReply('连接失败，可以点击再试一次。');
     }
 
     function setBusy(state) {
@@ -635,7 +667,7 @@ hotlineDetails.forEach(d => {
             replaceThinking(thinkingBubble, reply);
         } catch (err) {
             console.error('[邓妈妈] 对话请求失败：', err);
-            replaceThinking(thinkingBubble, '孩子，我这会儿暂时连不上服务，你可以稍后再试；若情况紧急，请直接拨打 12338 妇女维权热线。');
+            replaceWithRetry(thinkingBubble, text);
         } finally {
             setBusy(false);
             inputEl.focus();

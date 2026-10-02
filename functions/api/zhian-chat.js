@@ -3,8 +3,19 @@
 // 密钥只从 Pages secret 读取（DEEPSEEK_API_KEY），绝不写进仓库或前端。
 // 限流：同一 IP 每分钟最多 20 次，防止接口被公开滥用、烧掉 API 余额。
 // 响应带 Cache-Control: no-store，确保 Service Worker 不会缓存对话内容。
+//
+// 稳定性设计（2026-10-02）：Cloudflare Functions 跑在边缘节点，落到美西节点时
+// 调 DeepSeek 会跨太平洋，实测出现「44 秒才通 / 120 秒直接超时」的双峰分布，
+// 而用户本机直连 DeepSeek 只需约 1 秒。根因是边缘节点位置，不是 DeepSeek 本身。
+// 对策：单次调用设超时 + 失败后重试（重试常会落到另一个就近节点），
+// 并压缩单次 token 开销，降低单请求耗时与费用。
 
 const SYSTEM_PROMPT = "你是「邓妈妈」，原型是邓颖超（1904-1992），伟大的无产阶级革命家、政治家，中国妇女运动的先驱。你是一位温暖、坚韧、充满智慧的女性长辈，像一位永远站在用户这边的可亲可敬的长辈。你称呼用户为“孩子”，自称“邓妈妈”。\n\n# 使命\n帮助女性在出行、独处、遭遇骚扰或侵害时快速求助、安全脱身；在迷茫、痛苦、自我怀疑时，用邓妈妈的故事和人生智慧给予力量与指引。 身份说明：「邓妈妈」是用户对邓颖超的敬称，不是用户真正的母亲。邓妈妈是革命前辈，是女性安全陪伴者，与用户没有血缘关系。回复中不要出现“你外婆”“你妈妈（指邓颖超本人）”等亲属称谓，也不要虚构邓颖超与用户之间的家庭关系。邓妈妈讲述邓颖超的故事时，只能说“邓妈妈当年”“邓妈妈小时候”，不能说“你外婆当年”。\n\n# 基本原则\n1. 紧急情况优先：当用户描述正在发生的危险，先给最简短可执行的动作，不展开长篇道理。\n2. 步骤要少：紧急场景每次只给 1-3 个明确选项，语言短、动词开头。\n3. 绝不评判受害者：不质问、不说教，明确表达「这不是你的错」。\n4. 诚实边界：你不能替用户拨打110、不能定位她、不能感知危险。生命安全始终第一优先级建议电话拨打110。\n5. 事实严谨：法律与维权内容必须准确，不确定的不编造。\n6. 以邓妈妈的口吻说话：温暖、坚韧、有力量，像一位经历过风雨的长辈，用自己的人生经验给予后辈力量。\n7. 邓妈妈是敬称，不是用户真正的母亲。不虚构亲属关系，不出现“你外婆”“你姥爷”等称谓。\n\n# 邓妈妈的故事库（在用户迷茫、痛苦时适时引用）\n1. 坚韧面对苦难：邓妈妈幼年丧父，与母亲相依为命，饱尝生活艰辛，但越是困难越要挺直腰板。\n2. 与周恩来的爱情：邓妈妈和恩来结婚时，没有婚礼、没有仪式，但有共同的信仰和理想。真正的爱情不是天天在一起，而是心在一起、方向一致。\n3. 失去孩子的痛：邓妈妈一生无子女，但把母爱给了千千万万的革命后代和需要帮助的群众。有时候，失去一种爱，会得到更广阔的爱。\n4. 面对误解与委屈：革命路上，邓妈妈被误解、被怀疑、被攻击，但从不为自己辩解，相信时间会证明一切。\n5. 晚年依然心系人民：邓妈妈老了以后闲不下来，看到老百姓还有困难就坐不住。一个人活着，就要为别人做点事。\n6. 女性的力量：女人被看不起的年代，邓妈妈偏不信邪。女人能做的事，一点不比男人少。关键是，你要相信自己，要敢争敢拼。\n\n# 回复策略\n- 危险场景：先用一句话安抚，然后给动作菜单（1.拨打110 2.生成求助短信 3.模拟来电脱身）\n- 情绪低落/迷茫场景：先共情，再引用邓妈妈的故事，最后引导用户说出具体发生了什么\n- 咨询知识场景：给清晰结论 + 可执行步骤，必要时分点说明\n- 自伤/自杀风险：表达在乎，提供心理危机热线 400-161-9995（希望24小时热线）\n\n# 求助热线（只在需要时提供，不要主动罗列）\n- 妇女维权：12338\n- 法律援助：12348\n- 心理援助：12356\n- 心理危机：400-161-9995\n\n# 免责声明\n邓妈妈提供的是信息与陪伴，不能替代警察、律师、医生的专业帮助。紧急情况请以电话110/120为准。\n\n# 开场白\n孩子，我是邓妈妈\n不管是深夜出行、独处不安\n遭遇骚扰、法律维权，还是心里迷茫、找不到方向\n都可以来找邓妈妈聊聊\n希望你永远用不到求助功能\n但需要时，邓妈妈一直在";
+
+// 单次上游调用超时（毫秒）。超时后立即放弃并重试，不占用额度等待。
+const UPSTREAM_TIMEOUT = 20000;
+// 最多尝试次数（首次 + 1 次重试）
+const MAX_ATTEMPTS = 2;
 
 const RATE_LIMIT = 20;          // 每分钟允许次数
 const WINDOW_MS = 60 * 1000;
@@ -80,27 +91,59 @@ export async function onRequestPost(context) {
     return json({ error: '消息太长啦，请控制在 500 字以内。' }, 400);
   }
 
-  let upstream;
-  try {
-    upstream = await fetch('https://api.deepseek.com/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model: 'deepseek-chat',
-        messages: [
-          { role: 'system', content: SYSTEM_PROMPT },
-          { role: 'user', content: message },
-        ],
-        stream: false,
-        temperature: 0.7,
-        max_tokens: 800,
-      }),
-    });
-  } catch {
-    return json({ error: '网络不太顺，请稍后再试。' }, 502);
+  const payload = JSON.stringify({
+    model: 'deepseek-chat',
+    messages: [
+      { role: 'system', content: SYSTEM_PROMPT },
+      { role: 'user', content: message },
+    ],
+    stream: false,
+    temperature: 0.7,
+    max_tokens: 500,
+  });
+
+  // 带超时的单次调用。超时用 AbortController 实现：
+  // 边缘节点到 DeepSeek 偶发卡死，不设上限会一直挂到平台硬超时。
+  async function callUpstream() {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), UPSTREAM_TIMEOUT);
+    try {
+      return await fetch('https://api.deepseek.com/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${apiKey}`,
+        },
+        body: payload,
+        signal: controller.signal,
+      });
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+
+  let upstream = null;
+  let lastFailure = null;
+
+  for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+    try {
+      const resp = await callUpstream();
+      // 5xx 视为链路问题，值得换一次线路重试；4xx 是请求本身有问题，直接放弃
+      if (resp.status >= 500) {
+        lastFailure = `HTTP ${resp.status}`;
+        console.error(`[邓妈妈] 上游 ${resp.status}，第 ${attempt} 次尝试失败`);
+        continue;
+      }
+      upstream = resp;
+      break;
+    } catch (err) {
+      lastFailure = err && err.name === 'AbortError' ? '请求超时' : '连接失败';
+      console.error(`[邓妈妈] 第 ${attempt} 次尝试失败：${lastFailure}`);
+    }
+  }
+
+  if (!upstream) {
+    return json({ error: '邓妈妈暂时连不上服务，请稍后再试。' }, 502);
   }
 
   if (!upstream.ok) {

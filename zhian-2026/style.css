@@ -1750,3 +1750,31 @@ html.grayscale body {
 @media (prefers-reduced-motion: reduce) {
     #pwa-install-btn { transition: none; }
 }
+/* =====================================================
+   邓妈妈 · 失败重试按钮
+   ===================================================== */
+.dm-retry-btn {
+    display: inline-block;
+    margin-top: 8px;
+    padding: 7px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #fff;
+    background: #C9182B;
+    border: none;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: background .15s ease, transform .15s ease;
+}
+
+.dm-retry-btn:hover { background: #a81424; }
+.dm-retry-btn:active { transform: scale(.97); }
+
+.dm-retry-btn:focus-visible {
+    outline: 3px solid rgba(201, 24, 43, .45);
+    outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .dm-retry-btn { transition: none; }
+}
