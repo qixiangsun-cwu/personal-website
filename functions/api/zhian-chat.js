@@ -54,14 +54,31 @@ function sweep() {
   }
 }
 
+// 允许跨域调用：Android APK 里的网页运行在 Capacitor 的
+// https://localhost 来源下，与本站属不同源，必须显式放行。
+// 网页版同源时不受影响。
+const CORS_HEADERS = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type',
+  'Access-Control-Max-Age': '86400',
+};
+
 function json(body, status) {
   return new Response(JSON.stringify(body), {
     status,
     headers: {
       'Content-Type': 'application/json; charset=utf-8',
       'Cache-Control': 'no-store',
+      ...CORS_HEADERS,
     },
   });
+}
+
+// OPTIONS 预检：跨域 POST 前浏览器/WebView 必须先问一次「我能不能发」。
+// 之前这里直接 405，导致 APK 内邓妈妈永远拿不到回复。
+export async function onRequestOptions() {
+  return new Response(null, { status: 204, headers: CORS_HEADERS });
 }
 
 export async function onRequestPost(context) {
@@ -164,7 +181,8 @@ export async function onRequestPost(context) {
   return json({ reply }, 200);
 }
 
-// 其它方法一律拒绝，避免被当成探活接口空转
+// 兜底：GET 等方法一律拒绝，避免被当成探活接口空转。
+// OPTIONS 由上面的 onRequestOptions 单独处理，不能在这里拦掉。
 export async function onRequest() {
   return json({ error: '请通过 POST 提交消息。' }, 405);
 }
