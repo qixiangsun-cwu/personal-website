@@ -1,3 +1,78 @@
+
+/* ===== 在线 TTS 播放器（全局，供聊天挂件与无障碍工具栏共用）===== */
+(function () {
+    // ---- 在线 TTS（服务端 /api/tts 代理 Edge 朗读服务）----
+    // Android WebView 无内置语音引擎，原生 TTS 又依赖系统是否装了引擎，
+    // 两者在国产 ROM 上都不可靠，因此主路径改为在线合成，失败再逐级回退。
+    var audioEl = null;
+    var audioSource = '';
+
+    function stopAudio() {
+        if (audioEl) {
+            try { audioEl.pause(); } catch (e) {}
+            try {
+                if (audioSource) { audioEl.removeAttribute('src'); audioSource = ''; }
+            } catch (e) {}
+            audioEl = null;
+        }
+    }
+
+    function ttsEndpoint() {
+        // 应用与网页同源部署，用相对路径即可；仅当被 file:// 打开时退回绝对地址
+        if (location.protocol === 'file:') {
+            return 'https://www.qixiangsun.com.cn/api/tts';
+        }
+        return '/api/tts';
+    }
+
+    /**
+     * 在线合成并朗读。onDone/onFail 用于复位按钮状态。
+     */
+    async function speakOnline(text, onDone, onFail) {
+        stopAudio();
+        var url;
+        try {
+            var resp = await fetch(ttsEndpoint(), {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text: text })
+            });
+            if (!resp.ok) throw new Error('HTTP ' + resp.status);
+            var blob = await resp.blob();
+            if (!blob.size) throw new Error('empty audio');
+            url = URL.createObjectURL(blob);
+        } catch (err) {
+            if (onFail) onFail(err);
+            return false;
+        }
+
+        audioSource = url;
+        audioEl = new Audio(url);
+        audioEl.onended = function () {
+            stopAudio();
+            try { URL.revokeObjectURL(url); } catch (e) {}
+            if (onDone) onDone();
+        };
+        audioEl.onerror = function () {
+            stopAudio();
+            try { URL.revokeObjectURL(url); } catch (e) {}
+            if (onFail) onFail(new Error('playback failed'));
+        };
+        try {
+            await audioEl.play();
+            return true;
+        } catch (err) {
+            stopAudio();
+            try { URL.revokeObjectURL(url); } catch (e) {}
+            if (onFail) onFail(err);
+            return false;
+        }
+    }
+
+
+    window.speakOnline = speakOnline;
+    window.stopTtsAudio = stopAudio;
+})();
 // ===== 场景详细内容数据（来源：智能体养料.docx）=====
 const scenarios = {
     nightrun: {
@@ -233,7 +308,7 @@ hotlineDetails.forEach(d => {
 // 返回：{"reply": "邓妈妈的回复"}
 // =====================================================
 (function () {
-    const API_URL = '/api/zhian-chat';
+    const API_URL = 'https://www.qixiangsun.com.cn/api/zhian-chat';
     const POS_KEY = 'dmChatPos';
     const MARGIN = 12;          // 距屏幕边缘最小间距
     const DRAG_THRESHOLD = 6;   // 超过该位移判定为拖拽而非点击
@@ -438,8 +513,11 @@ hotlineDetails.forEach(d => {
         syncSoundToggle();
         soundToggle.addEventListener('click', () => {
             // 有回复正在朗读时，铃铛优先充当“停止朗读”键
-            if (msgSpeakBtn && 'speechSynthesis' in window) {
-                window.speechSynthesis.cancel();
+            if (msgSpeakBtn) {
+                window.stopTtsAudio();
+                var nb = (typeof nativeTTS !== 'undefined' && nativeTTS) ? nativeTTS.prefer() : null;
+                if (nb) nb.stop();
+                else if ('speechSynthesis' in window) window.speechSynthesis.cancel();
                 resetMsgSpeakUI();
                 return;
             }
@@ -451,6 +529,66 @@ hotlineDetails.forEach(d => {
 
     // ---- 单条回复朗读：温柔的女性长辈声音，方便视障用户重听任意一条 ----
     let msgSpeakBtn = null;   // 当前正在朗读的按钮
+
+    // ---- 原生 TTS 适配 ----
+    // Android WebView 不内置语音合成引擎，window.speechSynthesis.getVoices()
+    // 返回空数组，speak() 静默失败。应用内通过 window.ZhianTTS 暴露原生
+    // TextToSpeech 作为兜底；网页版则仍走 Web Speech。
+    const nativeTTS = (function () {
+        // 桥对象在 Activity.onResume 里注入，可能晚于网页脚本执行，
+        // 因此这里做一次短时重试，避免误判为「不支持」。
+        var api = null;
+        for (var i = 0; i < 20; i++) {
+            if (typeof window.ZhianTTS !== 'undefined' && window.ZhianTTS
+                && typeof window.ZhianTTS.isAvailable === 'function'
+                && window.ZhianTTS.isAvailable()) {
+                api = {
+                    available: true,
+                    speak: function (t) { try { window.ZhianTTS.speak(t); } catch (e) {} },
+                    stop: function () { try { window.ZhianTTS.stop(); } catch (e) {} }
+                };
+                break;
+            }
+        }
+        if (!api && typeof window.ZhianTTS !== 'undefined' && window.ZhianTTS) {
+            api = {
+                available: false,
+                speak: function (t) { try { window.ZhianTTS.speak(t); } catch (e) {} },
+                stop: function () { try { window.ZhianTTS.stop(); } catch (e) {} }
+            };
+        }
+
+        // 接收原生回调，用于复位按钮状态
+        window.__zhianTts = function (event) {
+            if (event === 'done' || event === 'error') {
+                if (typeof resetMsgSpeakUI === 'function') resetMsgSpeakUI();
+            }
+        };
+
+        // 浏览器侧：判断是否存在可用的中文语音
+        function webVoices() {
+            if (!('speechSynthesis' in window)) return [];
+            return (window.speechSynthesis.getVoices() || [])
+                .filter(function (v) { return /^zh([-_]|$)/i.test(v.lang); });
+        }
+
+        return {
+            // 动态查询：Activity 的桥可能晚于脚本注入，这里每次都重新确认，
+            // 避免首次判定为不可用后永久失效。
+            prefer: function () {
+                if (typeof window.ZhianTTS === 'undefined' || !window.ZhianTTS) return null;
+                try {
+                    return window.ZhianTTS.isAvailable()
+                        ? {
+                            speak: function (t) { window.ZhianTTS.speak(t); },
+                            stop: function () { window.ZhianTTS.stop(); }
+                          }
+                        : null;
+                } catch (e) { return null; }
+            },
+            webUsable: webVoices().length > 0
+        };
+    })();
 
     function pickGentleVoice() {
         if (!('speechSynthesis' in window)) return null;
@@ -483,10 +621,16 @@ hotlineDetails.forEach(d => {
     // 事件委托：欢迎语、历史回复、后续新回复的朗读按钮统一处理
     messagesEl.addEventListener('click', (e) => {
         const btn = e.target.closest('.dm-speak-msg');
-        if (!btn || !('speechSynthesis' in window)) return;
-        const synth = window.speechSynthesis;
+        if (!btn) return;
+        // 应用内走原生 TTS，网页版走 Web Speech；两者都不可用时才放弃
+        const nativeNow = nativeTTS && nativeTTS.prefer();
+        const useNative = !!nativeNow;
+        const useWeb = !useNative && ('speechSynthesis' in window)
+            && (!nativeTTS || nativeTTS.webUsable);
+        if (!useNative && !useWeb) return;
         if (msgSpeakBtn === btn) {   // 再点同一按钮 = 停止
-            synth.cancel();
+            if (useNative) nativeNow.stop();
+            else window.speechSynthesis.cancel();
             resetMsgSpeakUI();
             return;
         }
@@ -500,22 +644,43 @@ hotlineDetails.forEach(d => {
             .replace(/\d{3,}/g, m => m.split('').join(' '))  // 长数字串逐位朗读（热线号码）
             .trim();
         if (!text) return;
-        synth.cancel();
+        if (useNative) nativeNow.stop();
+        else if ('speechSynthesis' in window) window.speechSynthesis.cancel();
         resetMsgSpeakUI();
-        const utt = new SpeechSynthesisUtterance(text);
-        utt.lang = 'zh-CN';
-        const voice = pickGentleVoice();
-        if (voice) utt.voice = voice;
-        utt.rate = 0.9;    // 语速稍慢，像长辈慢慢讲
-        utt.pitch = 1.05;  // 音调略柔
-        utt.onend = resetMsgSpeakUI;
-        utt.onerror = resetMsgSpeakUI;
+
+        // 优先在线合成：WebView 与浏览器行为一致，且不受系统语音引擎缺失影响
         msgSpeakBtn = btn;
         btn.classList.add('speaking');
         btn.setAttribute('aria-pressed', 'true');
         btn.textContent = '⏸ 停止';
-        if (soundToggle) soundToggle.setAttribute('aria-label', '停止朗读');  // 朗读中铃铛变为停止键
-        synth.speak(utt);
+        if (soundToggle) soundToggle.setAttribute('aria-label', '停止朗读');
+
+        var finish = function () { resetMsgSpeakUI(); };
+        var startOnline = function () {
+            window.speakOnline(text, finish, function () {
+                // 在线失败：回退到原生或 Web Speech
+                if (useNative) { try { nativeNow.speak(text); } catch (e) {} return; }
+                if (useWeb) speakWithWeb(text, finish);
+                else resetMsgSpeakUI();
+            });
+        };
+
+        // 该逻辑位于聊天面板所在的独立作用域，需自行取到 Web Speech
+        var speakWithWeb = function (t, done) {
+            if (!('speechSynthesis' in window)) { done(); return; }
+            var ws = window.speechSynthesis;
+            var utt = new SpeechSynthesisUtterance(t);
+            utt.lang = 'zh-CN';
+            var v = pickGentleVoice();
+            if (v) utt.voice = v;
+            utt.rate = 0.9;
+            utt.pitch = 1.05;
+            utt.onend = done;
+            utt.onerror = done;
+            ws.speak(utt);
+        };
+
+        startOnline();
     });
 
     // ---- 邓妈妈回复渲染：先转义 HTML 防 XSS，再把 **文字** 渲染为 <strong>文字</strong> ----
@@ -706,6 +871,7 @@ hotlineDetails.forEach(d => {
         try { return localStorage.getItem(key); } catch (e) { return null; }
     }
 
+
     /* ---- 1. 字体大小调节：zoom 等比缩放正文与挂件（px 布局也随动），90%~150% ---- */
     const FONT_STEPS = [90, 100, 110, 125, 150];
     const FONT_KEY = 'za-font';
@@ -714,11 +880,12 @@ hotlineDetails.forEach(d => {
     const fontVal = document.getElementById('font-val');
     let fontIdx = FONT_STEPS.indexOf(100);
 
+    // 用根字号缩放。style.zoom 属非标准属性，在 Android WebView 上
+    // 既可能整体失效，也会打乱 fixed 定位的悬浮挂件，故改用 font-size。
+    const BASE_REM = 16;
     function applyFont() {
         const pct = FONT_STEPS[fontIdx];
-        const zoom = pct + '%';
-        siteContent.style.zoom = zoom;
-        if (dmChat) dmChat.style.zoom = zoom;
+        root.style.fontSize = (BASE_REM * pct / 100) + 'px';
         if (fontVal) fontVal.textContent = pct + '%';
         store(FONT_KEY, String(pct));
     }
@@ -795,13 +962,38 @@ hotlineDetails.forEach(d => {
     }
 
     function stopSpeaking() {
+        window.stopTtsAudio();
+        var nb3 = (typeof nativeTTS !== 'undefined' && nativeTTS) ? nativeTTS.prefer() : null;
+        if (nb3) nb3.stop();
         if (synth) synth.cancel();
         setSpeakUI(false);
     }
 
-    function startSpeaking() {
+    async function startSpeaking() {
         const blocks = collectSpeechText();
         if (!blocks.length) return;
+
+        var full = blocks.join('。');
+        setSpeakUI(true);
+
+        // 1) 在线合成：最可靠，WebView 与浏览器均可用
+        var okOnline = await speakOnline(full,
+            function () { setSpeakUI(false); },
+            function () { /* 失败则继续回退 */ });
+        if (okOnline) return;
+        setSpeakUI(false);
+
+        // 2) 原生 TTS：部分机型装了语音引擎时可用
+        var nb2 = (typeof nativeTTS !== 'undefined' && nativeTTS) ? nativeTTS.prefer() : null;
+        if (nb2) {
+            setSpeakUI(true);
+            nb2.stop();
+            nb2.speak(full);
+            return;
+        }
+
+        // 3) 浏览器 Web Speech：桌面浏览器兜底
+        if (!synth) { setSpeakUI(false); return; }
         synth.cancel();   // 清空可能残留的朗读队列
         const voice = pickVoice();
         blocks.forEach((text, i) => {
@@ -822,7 +1014,9 @@ hotlineDetails.forEach(d => {
     }
 
     if (speakBtn) {
-        if (!synth) {
+        if ((typeof nativeTTS !== 'undefined' && nativeTTS) && nativeTTS.prefer()) {
+            // 应用内已有原生 TTS，不禁用按钮
+        } else if (!synth) {
             // 浏览器不支持语音合成：禁用并明确告知，不静默失败
             speakBtn.disabled = true;
             speakBtn.setAttribute('aria-label', '当前浏览器不支持语音朗读功能');

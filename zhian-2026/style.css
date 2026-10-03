@@ -1778,3 +1778,129 @@ html.grayscale body {
 @media (prefers-reduced-motion: reduce) {
     .dm-retry-btn { transition: none; }
 }
+
+/* =====================================================
+   无障碍功能修正（2026-10-03）
+   原实现存在三处问题，导致在 Android WebView 中全部失效：
+     1) 字号缩放写死 #site-content { font-size: 100% }，不随根字号变化；
+        且原先用非标准的 style.zoom，在部分 WebView 上不生效并会打乱 fixed 定位。
+     2) 高对比度与灰度规则全部限定在 #site-content 内，
+        悬浮聊天挂件（#dm-chat）与无障碍工具栏在容器之外，视觉上毫无变化。
+   以下规则作用于整页，并提高对比强度。
+   ===================================================== */
+
+/* ---- 1. 字号缩放：解除固定值，让 rem/em 随根字号联动 ---- */
+#site-content {
+    font-size: 1rem;
+}
+
+/* ---- 2. 高对比度：整页生效 ---- */
+html.high-contrast,
+html.high-contrast body {
+    background: #000 !important;
+    color: #fff !important;
+}
+
+/* 覆盖层：确保所有区域（含挂件）都变黑底 */
+html.high-contrast #site-content,
+html.high-contrast #dm-chat,
+html.high-contrast .a11y-bar,
+html.high-contrast .dm-panel,
+html.high-contrast .modal-content,
+html.high-contrast .dm-fab-name {
+    background: #000 !important;
+    color: #fff !important;
+    filter: none !important;
+}
+
+/* 文字统一为高亮色，保证可读 */
+html.high-contrast #site-content *,
+html.high-contrast #dm-chat *,
+html.high-contrast .a11y-bar * {
+    color: #fff !important;
+    text-shadow: none !important;
+}
+
+/* 标题、链接、关键数字用黄色强调 */
+html.high-contrast #site-content h1,
+html.high-contrast #site-content h2,
+html.high-contrast #site-content h3,
+html.high-contrast #site-content h4,
+html.high-contrast #site-content .section-title,
+html.high-contrast #site-content .sos-number,
+html.high-contrast #site-content .channel-num,
+html.high-contrast #site-content a,
+html.high-contrast #dm-chat .dm-bubble-bot {
+    color: #ffd700 !important;
+    font-weight: 700;
+}
+
+/* 卡片与按钮：强边框，避免只靠颜色区分 */
+html.high-contrast #site-content .sos-card,
+html.high-contrast #site-content .scenario-card,
+html.high-contrast #site-content .channel-card,
+html.high-contrast #site-content .faq-list,
+html.high-contrast #site-content .disclaimer,
+html.high-contrast #site-content .footer,
+html.high-contrast #site-content .hero-badge,
+html.high-contrast #dm-chat .dm-panel,
+html.high-contrast #dm-chat .dm-bubble {
+    background: #000 !important;
+    border: 2px solid #fff !important;
+    box-shadow: none !important;
+}
+
+html.high-contrast #site-content .sos-call-btn,
+html.high-contrast #site-content .channel-btn,
+html.high-contrast #site-content .channel-btn-group a,
+html.high-contrast #site-content .faq-item summary,
+html.high-contrast .a11y-btn,
+html.high-contrast #pwa-install-btn {
+    background: #ffd700 !important;
+    color: #000 !important;
+    border: 2px solid #fff !important;
+}
+
+html.high-contrast #site-content .hero-wing {
+    opacity: 0.15 !important;
+    filter: grayscale(1) !important;
+}
+
+/* 用户气泡在黑底上需反色 */
+html.high-contrast #dm-chat .dm-bubble-user {
+    background: #ffd700 !important;
+    color: #000 !important;
+    border: 2px solid #fff !important;
+}
+
+html.high-contrast .a11y-btn[aria-pressed="true"] {
+    background: #fff !important;
+    color: #000 !important;
+    border-color: #ffd700 !important;
+}
+
+/* ---- 3. 灰度模式：整页生效 ---- */
+/* 原实现仅作用于 #site-content，悬浮挂件仍为彩色 */
+html.grayscale #site-content,
+html.grayscale #dm-chat,
+html.grayscale .a11y-bar,
+html.grayscale .dm-panel,
+html.grayscale .dm-fab-img,
+html.grayscale .hero-wing,
+html.grayscale .logo-icon,
+html.grayscale img {
+    filter: grayscale(1) !important;
+}
+
+/* 工具栏与挂件是 fixed 元素，filter 会创建层叠上下文，
+   这里补一层兜底，确保按钮本身也去色 */
+html.grayscale .a11y-btn,
+html.grayscale .dm-fab,
+html.grayscale .dm-send {
+    filter: grayscale(1);
+}
+
+html.grayscale #site-content .hero-bg,
+html.grayscale #site-content .sos-card {
+    background-image: none !important;
+}
