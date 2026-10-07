@@ -1337,20 +1337,40 @@ img {
 }
 
 /* ---- 预置问题按钮（横向滑动，常驻输入框上方） ---- */
+/* 桌面端可滑动性：原先 scrollbar-width:none + ::-webkit-scrollbar{display:none}
+   把滚动条彻底藏掉，而鼠标滚轮默认只走纵向，导致右侧按钮被裁掉后鼠标用户够不到。
+   这里改为保留一条细滚动条（可拖动），滚轮支持在 script.js 里做横向映射。 */
 .dm-presets {
     flex: 0 0 auto;
     display: flex;
     gap: 8px;
+    min-width: 0;
     overflow-x: auto;
+    overflow-y: hidden;
     -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
+    overscroll-behavior-x: contain;
+    scrollbar-width: thin;
+    scrollbar-color: var(--pink-medium) transparent;
     padding: 10px 12px;
     background: var(--white);
     border-top: 1px solid var(--pink-soft);
 }
 
 .dm-presets::-webkit-scrollbar {
-    display: none;
+    height: 6px;
+}
+
+.dm-presets::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.dm-presets::-webkit-scrollbar-thumb {
+    background: var(--pink-medium);
+    border-radius: 999px;
+}
+
+.dm-presets::-webkit-scrollbar-thumb:hover {
+    background: var(--pink-dark);
 }
 
 .dm-preset {

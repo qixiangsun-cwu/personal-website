@@ -2,7 +2,7 @@
 // 作用域限定在 /zhian-2026/（由 sw.js 所在位置决定），
 // 因此不会影响主站其它页面的缓存策略。
 // 改了任何被缓存的文件，请把 CACHE 版本号 +1（如 zhian-v4），否则老用户拿不到更新。
-const CACHE = 'zhian-v3';
+const CACHE = 'zhian-v4';
 
 // 应用外壳：安装时预缓存，保证离线也能打开
 const APP_SHELL = [

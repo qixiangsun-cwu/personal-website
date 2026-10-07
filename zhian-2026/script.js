@@ -854,6 +854,19 @@ hotlineDetails.forEach(d => {
         if (!btn || busy) return;
         sendMessage(btn.dataset.question);
     });
+
+    // ---- 预置问题行：桌面端鼠标滚轮映射为横向滚动 ----
+    // 触屏与触控板本来就能横向滑动；鼠标滚轮默认只走纵向，
+    // 悬停在这一行时把它转成横向，避免右侧按钮被裁掉后鼠标用户够不到。
+    presetsEl.addEventListener('wheel', (e) => {
+        if (e.deltaY === 0) return;                        // 已是横向滚动，交回浏览器
+        const maxScroll = presetsEl.scrollWidth - presetsEl.clientWidth;
+        if (maxScroll <= 0) return;                        // 没有溢出时不拦截
+        const next = Math.max(0, Math.min(maxScroll, presetsEl.scrollLeft + e.deltaY));
+        if (next === presetsEl.scrollLeft) return;         // 已到两端，让页面继续滚动
+        e.preventDefault();
+        presetsEl.scrollLeft = next;
+    }, { passive: false });
 })();
 
 /* ===== 无障碍工具栏：字体缩放 / 朗读本页 / 高对比度 / 灰度 ===== */
