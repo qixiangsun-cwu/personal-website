@@ -237,6 +237,35 @@ pre.out{
   background:#12141c;color:#d6d9e4;border-radius:8px;padding:10px 14px;margin-top:10px;
   white-space:pre-wrap;min-height:44px;
 }
+/* ===== 动态演示图（可播放 / 单步） ===== */
+.anim{border:1px solid var(--line);border-radius:12px;background:#fbf8f1;margin:18px 0;overflow:hidden;}
+.anim-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;background:var(--blue-deep);color:#fff;padding:8px 14px;}
+.anim-title{font-size:14px;font-weight:700;}
+.anim-actions{display:flex;gap:6px;flex-wrap:wrap;}
+.anim-actions .btn{background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.4);color:#fff;padding:3px 12px;}
+.anim-actions .btn:hover{background:rgba(255,255,255,.3);}
+.anim-actions .btn-play{background:#2e7d32;border-color:#2e7d32;font-weight:700;}
+.anim-stage{padding:16px 14px;min-height:150px;display:flex;flex-direction:column;gap:12px;align-items:center;justify-content:center;}
+.anim-status{border-top:1px dashed var(--line);padding:9px 16px;font-size:14px;color:var(--ink-soft);display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:flex-start;}
+.anim-progress{color:var(--ink-faint);font-size:12.5px;white-space:nowrap;}
+.acells{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;align-items:flex-start;}
+.acell{min-width:58px;height:50px;padding:0 6px;border-radius:9px;border:2px solid var(--line);background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:var(--ink);transition:all .3s;}
+.acell small{font-size:11px;font-weight:400;color:var(--ink-faint);margin-top:1px;}
+.acell.hi{background:var(--blue-soft);border-color:var(--blue);color:var(--blue-deep);}
+.acell.ok{background:var(--green-soft);border-color:var(--green);color:#215c26;}
+.acell.no{background:var(--red-soft);border-color:var(--red);color:#8c2f28;}
+.acell.dim{opacity:.4;}
+.acell.nested{font-size:13px;background:#fff7e6;border-color:var(--gold);color:#7a4a0a;}
+.arow{display:flex;gap:12px;align-items:center;justify-content:center;flex-wrap:wrap;}
+.alabel{font-size:13.5px;font-weight:700;color:var(--blue-deep);min-width:70px;text-align:right;}
+.abars{display:flex;gap:12px;align-items:flex-end;justify-content:center;height:158px;}
+.abar{width:48px;border-radius:8px 8px 0 0;background:linear-gradient(180deg,#4a86bd,#306998);color:#fff;font-size:13px;display:flex;align-items:flex-start;justify-content:center;padding-top:5px;transition:height .3s, background .3s;}
+.abar.hi{background:linear-gradient(180deg,#e0a63a,#b8860b);}
+.abar.done{background:linear-gradient(180deg,#57a05c,#2e7d32);}
+.abar.no{background:linear-gradient(180deg,#c96a63,#a8433b);}
+.anote{font-size:13.5px;color:#7a4a0a;background:var(--amber-soft);border:1px solid #efdcb5;border-radius:8px;padding:5px 12px;}
+.aresult{font-size:14px;color:#215c26;background:var(--green-soft);border:1px solid #cfe6d1;border-radius:8px;padding:6px 14px;font-weight:700;}
+@media(max-width:720px){.anim-stage{padding:12px 8px;}.acell{min-width:46px;height:44px;font-size:14px;}.abar{width:36px;}}
 /* ===== 小结 / 作业 ===== */
 .recap{background:#faf7f0;border:1px solid var(--line-soft);border-radius:12px;padding:16px 20px;margin:14px 0;}
 .homework{border:1px dashed var(--blue);border-radius:12px;background:var(--blue-soft);padding:16px 22px;margin:14px 0;}
@@ -741,6 +770,19 @@ IndexError: list index out of range
     </svg>
     <div class="figcap">图 4-6　切片"含头不含尾"：start 那个位置取得到，stop 那个位置取不到</div>
   </div>
+  <div class="anim" data-anim="slice">
+    <div class="anim-head">
+      <span class="anim-title">🎬 动态演示：切片到底是怎么"走过去"的</span>
+      <div class="anim-actions">
+        <button class="btn" type="button" data-act="reset">↺ 重置</button>
+        <button class="btn" type="button" data-act="prev">⏮ 上一步</button>
+        <button class="btn btn-play" type="button" data-act="play">▶ 播放</button>
+        <button class="btn" type="button" data-act="next">下一步 ⏭</button>
+      </div>
+    </div>
+    <div class="anim-stage"></div>
+    <div class="anim-status"><span class="anim-text"></span><span class="anim-progress"></span></div>
+  </div>
   <div class="demo" data-demo="k2-slice">
     <div class="demo-head">
       <span class="demo-title">切片的五种常规写法</span>
@@ -924,6 +966,19 @@ insert(1,99)  : [1, 99, 2, 3]
 </pre></div>
   </div>
   <div class="warn"><strong>最经典的混淆</strong>：<code class="inline">append([7,8])</code> 加进去的是<strong>一个列表</strong>（列表长度 +1，最后一项是 <code class="inline">[7, 8]</code>）；<code class="inline">extend([7,8])</code> 加进去的是<strong>两个数字</strong>（列表长度 +2）。要"合并两个列表"，用 <code class="inline">extend()</code> 或 <code class="inline">+</code>。</div>
+  <div class="anim" data-anim="appendextend">
+    <div class="anim-head">
+      <span class="anim-title">🎬 动态演示：append 与 extend 的差别（同一次操作，结果完全不同）</span>
+      <div class="anim-actions">
+        <button class="btn" type="button" data-act="reset">↺ 重置</button>
+        <button class="btn" type="button" data-act="prev">⏮ 上一步</button>
+        <button class="btn btn-play" type="button" data-act="play">▶ 播放</button>
+        <button class="btn" type="button" data-act="next">下一步 ⏭</button>
+      </div>
+    </div>
+    <div class="anim-stage"></div>
+    <div class="anim-status"><span class="anim-text"></span><span class="anim-progress"></span></div>
+  </div>
   <div class="demo" data-demo="k2-methods2">
     <div class="demo-head">
       <span class="demo-title">删（remove / pop）、统计（count / index）、复制（copy）</span>
@@ -979,6 +1034,19 @@ sort(reverse=True) : [7, 5, 2, 1]
 sorted() 不改原列表 : [1, 2, 5, 7]
 原列表仍然是        : [7, 5, 2, 1]
 </pre></div>
+  </div>
+  <div class="anim" data-anim="sort">
+    <div class="anim-head">
+      <span class="anim-title">🎬 动态演示：sort() 排序的每一步</span>
+      <div class="anim-actions">
+        <button class="btn" type="button" data-act="reset">↺ 重置</button>
+        <button class="btn" type="button" data-act="prev">⏮ 上一步</button>
+        <button class="btn btn-play" type="button" data-act="play">▶ 播放</button>
+        <button class="btn" type="button" data-act="next">下一步 ⏭</button>
+      </div>
+    </div>
+    <div class="anim-stage"></div>
+    <div class="anim-status"><span class="anim-text"></span><span class="anim-progress"></span></div>
   </div>
   <div class="demo" data-demo="k2-copy-trap">
     <div class="demo-head">
@@ -1072,6 +1140,19 @@ print('总人数：', len(scores))</pre>
       <text x="450" y="216" text-anchor="middle" font-size="13.5" fill="#5d594c">等价于：for i in range(1,6):  if i % 2 == 1:  新列表.append(i * i)</text>
     </svg>
     <div class="figcap">图 4-7　列表推导式的执行流程：取元素 → 判条件 → 算表达式 → 放进新列表（和 for 循环完全等价）</div>
+  </div>
+  <div class="anim" data-anim="comprehension">
+    <div class="anim-head">
+      <span class="anim-title">🎬 动态演示：[i*i for i in range(1,6) if i % 2 == 1] 的流水线</span>
+      <div class="anim-actions">
+        <button class="btn" type="button" data-act="reset">↺ 重置</button>
+        <button class="btn" type="button" data-act="prev">⏮ 上一步</button>
+        <button class="btn btn-play" type="button" data-act="play">▶ 播放</button>
+        <button class="btn" type="button" data-act="next">下一步 ⏭</button>
+      </div>
+    </div>
+    <div class="anim-stage"></div>
+    <div class="anim-status"><span class="anim-text"></span><span class="anim-progress"></span></div>
   </div>
   <div class="demo" data-demo="k2-comp1">
     <div class="demo-head">
@@ -1239,6 +1320,20 @@ TypeError: 'tuple' object does not support item assignment
   </div>
   <div class="sumline">✅ <b>本节小结</b>：元组<strong>没有 append / extend / insert / remove / pop</strong>，因为它是不可变序列；给它赋值会直接抛 <code class="inline">TypeError: 'tuple' object does not support item assignment</code>。记住：不可变 ≠ 不能用，只是不能改。</div>
 
+  <div class="anim" data-anim="tupleimmutable">
+    <div class="anim-head">
+      <span class="anim-title">🎬 动态演示：元组为什么“改不动”</span>
+      <div class="anim-actions">
+        <button class="btn" type="button" data-act="reset">↺ 重置</button>
+        <button class="btn" type="button" data-act="prev">⏮ 上一步</button>
+        <button class="btn btn-play" type="button" data-act="play">▶ 播放</button>
+        <button class="btn" type="button" data-act="next">下一步 ⏭</button>
+      </div>
+    </div>
+    <div class="anim-stage"></div>
+    <div class="anim-status"><span class="anim-text"></span><span class="anim-progress"></span></div>
+  </div>
+
   <h3 id="c3-3">3.3 元组的常用操作</h3>
   <div class="demo" data-demo="k3-func">
     <div class="demo-head">
@@ -1400,6 +1495,19 @@ None
 False
 True
 </pre></div>
+  </div>
+  <div class="anim" data-anim="dictlookup">
+    <div class="anim-head">
+      <span class="anim-title">🎬 动态演示：字典按键查找，命中和没命中分别会怎样</span>
+      <div class="anim-actions">
+        <button class="btn" type="button" data-act="reset">↺ 重置</button>
+        <button class="btn" type="button" data-act="prev">⏮ 上一步</button>
+        <button class="btn btn-play" type="button" data-act="play">▶ 播放</button>
+        <button class="btn" type="button" data-act="next">下一步 ⏭</button>
+      </div>
+    </div>
+    <div class="anim-stage"></div>
+    <div class="anim-status"><span class="anim-text"></span><span class="anim-progress"></span></div>
   </div>
   <div class="demo" data-demo="k4-keyerror" data-expect-error="1">
     <div class="demo-head">
@@ -1669,6 +1777,19 @@ print('pe 在不在：', 'pe' in courses_set)</pre>
 pe 在不在： True
 </pre></div>
   </div>
+  <div class="anim" data-anim="setdedup">
+    <div class="anim-head">
+      <span class="anim-title">🎬 动态演示：集合去重——重复的元素会被"弹开"</span>
+      <div class="anim-actions">
+        <button class="btn" type="button" data-act="reset">↺ 重置</button>
+        <button class="btn" type="button" data-act="prev">⏮ 上一步</button>
+        <button class="btn btn-play" type="button" data-act="play">▶ 播放</button>
+        <button class="btn" type="button" data-act="next">下一步 ⏭</button>
+      </div>
+    </div>
+    <div class="anim-stage"></div>
+    <div class="anim-status"><span class="anim-text"></span><span class="anim-progress"></span></div>
+  </div>
   <div class="sumline">✅ <b>本节小结</b>：集合的两个招牌用途是<strong>去重</strong>（<code class="inline">set(列表)</code>）和<strong>快速判断"在不在"</strong>（<code class="inline">in</code>）。记住三条：元素唯一、无序（不要指望打印顺序）、不能索引；空集合只能写 <code class="inline">set()</code>，因为 <code class="inline">{}</code> 是空字典。</div>
 
   <h3 id="c5-2">5.2 集合运算：交集、并集、差集</h3>
@@ -1836,6 +1957,20 @@ HloWrd
   </div>
   <div class="sumline">✅ <b>本节小结</b>：字符串的索引和切片<strong>与列表完全一致</strong>，所以第 2 节学的规则可以直接搬过来用；<code class="inline">s[::-1]</code> 是"反转字符串"的最简写法。</div>
 
+  <div class="anim" data-anim="strindex">
+    <div class="anim-head">
+      <span class="anim-title">🎬 动态演示：字符串的正下标与负下标</span>
+      <div class="anim-actions">
+        <button class="btn" type="button" data-act="reset">↺ 重置</button>
+        <button class="btn" type="button" data-act="prev">⏮ 上一步</button>
+        <button class="btn btn-play" type="button" data-act="play">▶ 播放</button>
+        <button class="btn" type="button" data-act="next">下一步 ⏭</button>
+      </div>
+    </div>
+    <div class="anim-stage"></div>
+    <div class="anim-status"><span class="anim-text"></span><span class="anim-progress"></span></div>
+  </div>
+
   <h3 id="c6-2">6.2 运算符与函数</h3>
   <div class="demo" data-demo="k6-ops">
     <div class="demo-head">
@@ -1980,6 +2115,20 @@ TypeError: 'str' object does not support item assignment
     <div class="figcap">图 4-14　序列解包：一行交换两个变量、一行把"第一个"和"剩下的"分开</div>
   </div>
 
+  <div class="anim" data-anim="unpack">
+    <div class="anim-head">
+      <span class="anim-title">🎬 动态演示：序列解包——一行完成交换与拆分</span>
+      <div class="anim-actions">
+        <button class="btn" type="button" data-act="reset">↺ 重置</button>
+        <button class="btn" type="button" data-act="prev">⏮ 上一步</button>
+        <button class="btn btn-play" type="button" data-act="play">▶ 播放</button>
+        <button class="btn" type="button" data-act="next">下一步 ⏭</button>
+      </div>
+    </div>
+    <div class="anim-stage"></div>
+    <div class="anim-status"><span class="anim-text"></span><span class="anim-progress"></span></div>
+  </div>
+
   <div class="demo" data-demo="k7-basic">
     <div class="demo-head">
       <span class="demo-title">基础解包与交换变量</span>
@@ -2074,6 +2223,19 @@ wang 的成绩是 92
 
   <h3 id="c8-1">8.1 例 4-14　评委打分：去掉一个最高分和一个最低分</h3>
   <p>7 个评委打分，去掉一个最高分和一个最低分，剩下的算平均分——这是各种比赛里最常见的规则，用"列表 + 排序 + 切片"三步就能写完。</p>
+  <div class="anim" data-anim="judge">
+    <div class="anim-head">
+      <span class="anim-title">🎬 动态演示：评委打分——排序 + 切片，去掉两头</span>
+      <div class="anim-actions">
+        <button class="btn" type="button" data-act="reset">↺ 重置</button>
+        <button class="btn" type="button" data-act="prev">⏮ 上一步</button>
+        <button class="btn btn-play" type="button" data-act="play">▶ 播放</button>
+        <button class="btn" type="button" data-act="next">下一步 ⏭</button>
+      </div>
+    </div>
+    <div class="anim-stage"></div>
+    <div class="anim-status"><span class="anim-text"></span><span class="anim-progress"></span></div>
+  </div>
   <div class="demo" data-demo="k8-judge" data-stdin="9.5|9.0|8.5|9.8|9.2|8.8|9.6">
     <div class="demo-head">
       <span class="demo-title">例 4-14　评委打分（依次输入 9.5 9.0 8.5 9.8 9.2 8.8 9.6）</span>
@@ -2771,6 +2933,342 @@ document.getElementById('st-btn').addEventListener('click', function () {
     'a | b 并集：' + JSON.stringify(sortNum(uni)) + '\n' +
     'a - b 差集：' + JSON.stringify(sortNum(diff)));
 });
+
+/* ===== 动态演示图：播放 / 上一步 / 下一步 / 重置 ===== */
+var ANIMS = {
+  slice: {
+    frames: function () {
+      var nums = [10, 20, 30, 40, 50, 60, 70, 80, 90];
+      return [
+        { cap: '这是一个 9 个元素的列表，我们要取 nums[2:7]。', s: { list: nums } },
+        { cap: 'start = 2：指针先对准下标 2（元素 30），它是要取的第一个。', s: { list: nums, start: 2 } },
+        { cap: 'stop = 7：边界定在下标 7（元素 80）。注意 7 是"到此为止"，不是要取的元素。', s: { list: nums, start: 2, stop: 7 } },
+        { cap: '从 start 开始往右取第 1 个：下标 2 的 30。', s: { list: nums, start: 2, stop: 7, taken: 1 } },
+        { cap: '继续往右：下标 3 的 40、下标 4 的 50 ……', s: { list: nums, start: 2, stop: 7, taken: 3 } },
+        { cap: '取到下标 6 的 70 就停——再往右就是 stop 的位置 7 了。', s: { list: nums, start: 2, stop: 7, taken: 5 } },
+        { cap: '结果：[30, 40, 50, 60, 70]，共 5 个元素。下标 7 的 80 没被取走——这就是"含头不含尾"。', s: { list: nums, start: 2, stop: 7, taken: 5, done: true } }
+      ];
+    },
+    render: function (s) {
+      var h = '<div class="acells">';
+      s.list.forEach(function (v, i) {
+        var cls = 'acell';
+        if (s.taken !== undefined && i >= s.start && i < s.start + s.taken) cls += ' ok';
+        else if (i === s.start) cls += ' hi';
+        else if (s.stop !== undefined && i === s.stop) cls += ' no';
+        h += '<div class="' + cls + '">' + v + '<small>' + i + '</small></div>';
+      });
+      h += '</div><div class="arow">' +
+        '<span class="alabel">start</span><span class="anote">' + (s.start === undefined ? '—' : '下标 ' + s.start + '（元素 ' + s.list[s.start] + '）') + '</span>' +
+        '<span class="alabel">stop</span><span class="anote">' + (s.stop === undefined ? '—' : '下标 ' + s.stop + '（元素 ' + s.list[s.stop] + '，取不到）') + '</span></div>';
+      if (s.done) h += '<div class="aresult">nums[2:7] = [' + s.list.slice(2, 7).join(', ') + ']</div>';
+      return h;
+    }
+  },
+  appendextend: {
+    frames: function () {
+      return [
+        { cap: '两个列表内容完全一样，长度都是 3。', s: { a: [1, 2, 3], b: [1, 2, 3], note: 'x1 = [1, 2, 3]　x2 = [1, 2, 3]' } },
+        { cap: '第一个列表执行 append([7, 8])：把"整个列表"当成一个元素塞进去。', s: { a: [1, 2, 3], b: [1, 2, 3], note: 'x1.append([7, 8])', hi: 'a' } },
+        { cap: '结果 x1 = [1, 2, 3, [7, 8]]：长度只从 3 变成 4，最后一项本身是个列表。', s: { a: [1, 2, 3, [7, 8]], b: [1, 2, 3], note: 'x1 长度 4', done: 'a' } },
+        { cap: '第二个列表执行 extend([7, 8])：把列表里的元素"逐个"加进去。', s: { a: [1, 2, 3, [7, 8]], b: [1, 2, 3], note: 'x2.extend([7, 8])', hi: 'b' } },
+        { cap: '结果 x2 = [1, 2, 3, 7, 8]：长度变成 5，7 和 8 是两个独立元素。', s: { a: [1, 2, 3, [7, 8]], b: [1, 2, 3, 7, 8], note: 'x2 长度 5', done: 'b' } },
+        { cap: '所以要"合并两个列表"，用 extend()（或 a + b）；用 append 只会得到嵌套列表。', s: { a: [1, 2, 3, [7, 8]], b: [1, 2, 3, 7, 8], note: 'append → 长度 +1；extend → 长度 +元素个数', done: 'both' } }
+      ];
+    },
+    render: function (s) {
+      function row(label, arr, tag) {
+        var hi = (s.hi === tag || s.done === tag || s.done === 'both') ? ' ok' : '';
+        var h = '<div class="arow"><span class="alabel">' + label + '</span><div class="acells">';
+        arr.forEach(function (v, i) {
+          var isNested = Array.isArray(v);
+          h += '<div class="acell' + (isNested ? ' nested' : '') + hi + '">' + (isNested ? '[' + v.join(', ') + ']' : v) + '<small>' + i + '</small></div>';
+        });
+        h += '</div><span class="anote">长度 ' + arr.length + '</span></div>';
+        return h;
+      }
+      return row('x1', s.a, 'a') + row('x2', s.b, 'b') +
+        '<div class="arow"><span class="alabel">当前操作</span><span class="anote">' + s.note + '</span></div>';
+    }
+  },
+  sort: {
+    frames: function () {
+      var start = [70, 85, 65, 90], f = [], a = start.slice(), i, j, t, note;
+      f.push({ cap: '排序前：[70, 85, 65, 90]。目标是升序（从小到大），这里演示 sort() 内部的"比较—交换"。', s: { arr: a.slice(), pass: 0 } });
+      for (i = 0; i < a.length - 1; i++) {
+        for (j = 0; j < a.length - 1 - i; j++) {
+          note = '比较 ' + a[j] + ' 和 ' + a[j + 1] + '：';
+          if (a[j] > a[j + 1]) { t = a[j]; a[j] = a[j + 1]; a[j + 1] = t; note += '左边大 → 交换'; }
+          else { note += '顺序正确 → 不动'; }
+          f.push({ cap: note + '，现在是 [' + a.join(', ') + ']。', s: { arr: a.slice(), hi: [j, j + 1], pass: i + 1 } });
+        }
+      }
+      f.push({ cap: '排序完成：[' + a.join(', ') + ']。注意 sort() 是"就地改"，原列表也变成这个顺序。', s: { arr: a.slice(), pass: a.length } });
+      return f;
+    },
+    render: function (s) {
+      var max = Math.max.apply(null, s.arr), h = '<div class="abars">';
+      s.arr.forEach(function (v, i) {
+        var height = Math.round(v / max * 138) + 12;
+        var cls = 'abar';
+        if (s.hi && s.hi.indexOf(i) >= 0) cls += ' hi';
+        else if (s.pass > 0 && i >= s.arr.length - s.pass) cls += ' done';
+        h += '<div class="' + cls + '" style="height:' + height + 'px">' + v + '</div>';
+      });
+      h += '</div>';
+      if (s.pass >= s.arr.length) h += '<div class="aresult">升序结果：[' + s.arr.join(', ') + ']</div>';
+      return h;
+    }
+  },
+  comprehension: {
+    frames: function () {
+      var f = [], out = [], i, odd;
+      f.push({ cap: '[ i*i for i in range(1, 6) if i % 2 == 1 ]：从 1~5 里挑出奇数，再算平方。', s: { out: [], cur: undefined, src: [1, 2, 3, 4, 5] } });
+      for (i = 1; i <= 5; i++) {
+        odd = i % 2 === 1;
+        f.push({ cap: '取出 i = ' + i + '，判断 i % 2 == 1 → ' + (odd ? 'True，保留' : 'False，跳过'), s: { out: out.slice(), cur: i, ok: odd, src: [1, 2, 3, 4, 5] } });
+        if (odd) {
+          out.push(i * i);
+          f.push({ cap: '计算 i * i = ' + (i * i) + '，放进新列表 → [' + out.join(', ') + ']', s: { out: out.slice(), cur: i, ok: true, placed: true, src: [1, 2, 3, 4, 5] } });
+        }
+      }
+      f.push({ cap: '可迭代对象取完，最后得到 [' + out.join(', ') + ']。整个推导式只写了一行。', s: { out: out.slice(), done: true, src: [1, 2, 3, 4, 5] } });
+      return f;
+    },
+    render: function (s) {
+      var h = '<div class="arow"><span class="alabel">源数据</span><div class="acells">';
+      s.src.forEach(function (v) { h += '<div class="acell' + (s.cur === v ? ' hi' : '') + '">' + v + '</div>'; });
+      h += '</div></div><div class="arow"><span class="alabel">条件</span><span class="anote">if i % 2 == 1' +
+        (s.cur === undefined ? '' : '　（当前 i = ' + s.cur + '）') +
+        (s.ok === false ? ' → 跳过' : (s.ok ? ' → 保留' : '')) + '</span></div>';
+      h += '<div class="arow"><span class="alabel">新列表</span><div class="acells">';
+      if (!s.out.length) h += '<div class="acell dim">空</div>';
+      s.out.forEach(function (v) { h += '<div class="acell ok">' + v + '</div>'; });
+      h += '</div></div>';
+      if (s.done) h += '<div class="aresult">结果：[' + s.out.join(', ') + ']</div>';
+      return h;
+    }
+  },
+  dictlookup: {
+    frames: function () {
+      var d = [['zhang', 90], ['li', 85], ['wang', 92]];
+      return [
+        { cap: '字典里有 3 个键值对。现在要查 d["li"]。', s: { d: d, want: 'li' } },
+        { cap: '拿 "li" 和第 1 个键 "zhang" 比 → 不相等，继续往后找。', s: { d: d, want: 'li', at: 0 } },
+        { cap: '和第 2 个键 "li" 比 → 相等，命中！', s: { d: d, want: 'li', at: 1, hit: true } },
+        { cap: '取出对应的值：d["li"] → 85。字典查找就是"拿着键去对号"。', s: { d: d, want: 'li', at: 1, hit: true, got: 85 } },
+        { cap: '再试一个不存在的键 d["sun"]：', s: { d: d, want: 'sun' } },
+        { cap: '比完 zhang、li、wang 三个键都不相等 → 字典里没有这个键。', s: { d: d, want: 'sun', at: 2, miss: true } },
+        { cap: '用 d["sun"] 硬取会报 KeyError；换成 d.get("sun", "查无此人") 就安全了。', s: { d: d, want: 'sun', at: 2, miss: true, err: true } }
+      ];
+    },
+    render: function (s) {
+      var h = '<div class="acells">';
+      s.d.forEach(function (kv, i) {
+        var cls = 'acell';
+        if (s.at === i) cls += (s.hit ? ' ok' : (s.miss ? ' no' : ' hi'));
+        h += '<div class="' + cls + '">' + kv[0] + '<small>' + kv[1] + '</small></div>';
+      });
+      h += '</div><div class="arow"><span class="alabel">要查的键</span><span class="anote">' + s.want + '</span>';
+      if (s.got !== undefined) h += '<span class="aresult">d["' + s.want + '"] → ' + s.got + '</span>';
+      if (s.err) h += '<span class="acell no" style="min-width:auto;padding:0 12px;">KeyError: \'sun\'</span>';
+      return h + '</div>';
+    }
+  },
+  setdedup: {
+    frames: function () {
+      var items = ['en', 'pe', 'info', 'pe', 'art', 'math'], set = [], f = [];
+      f.push({ cap: '这是一份课程清单，里面 "pe" 出现了两次。现在按顺序逐个放进集合。', s: { items: items, set: [], at: -1 } });
+      items.forEach(function (it, i) {
+        var dup = set.indexOf(it) >= 0;
+        if (!dup) set.push(it);
+        f.push({
+          cap: '第 ' + (i + 1) + ' 个："' + it + '" → ' + (dup ? '集合里已经有了，被"弹开"（不会重复放入）' : '集合里没有，放进去'),
+          s: { items: items, set: set.slice(), at: i, dup: dup }
+        });
+      });
+      f.push({ cap: '放完以后集合里只剩 5 个不同课程。集合的元素天然唯一，"去重"自动完成。', s: { items: items, set: set.slice(), at: items.length, done: true } });
+      return f;
+    },
+    render: function (s) {
+      var h = '<div class="arow"><span class="alabel">原列表</span><div class="acells">';
+      s.items.forEach(function (v, i) {
+        var cls = 'acell';
+        if (i === s.at) cls += (s.dup ? ' no' : ' hi');
+        else if (i > s.at) cls += ' dim';
+        h += '<div class="' + cls + '">' + v + '</div>';
+      });
+      h += '</div></div><div class="arow"><span class="alabel">集合</span><div class="acells">';
+      if (!s.set.length) h += '<div class="acell dim">空</div>';
+      s.set.forEach(function (v) { h += '<div class="acell ok">' + v + '</div>'; });
+      h += '</div><span class="anote">元素个数 ' + s.set.length + '</span></div>';
+      if (s.done) h += '<div class="aresult">去重后共 ' + s.set.length + ' 个：{' + s.set.join(', ') + '}（集合无序，显示顺序可能不同）</div>';
+      return h;
+    }
+  },
+  tupleimmutable: {
+    frames: function () {
+      var t = ['zhang', 90, 'CS'];
+      return [
+        { cap: "t = ('zhang', 90, 'CS')：3 个元素的元组，下标 0、1、2 各对应一项。", s: { t: t } },
+        { cap: "现在想改第一项：t[0] = 'li'，指针先对准下标 0。", s: { t: t, at: 0, writing: true } },
+        { cap: '元组一创建就上了锁：任何"就地修改"都会被拒绝——不是代码写错，而是类型不允许。', s: { t: t, at: 0, writing: true, denied: true } },
+        { cap: "抛出 TypeError：'tuple' object does not support item assignment。同样这句话，换成列表就完全能改。", s: { t: t, at: 0, denied: true, err: true } },
+        { cap: "真要\"改\"，只能造一个新元组：t = ('li',) + t[1:]。原来的元组从头到尾没被动过。", s: { t: ['li', 90, 'CS'], t2: t, rebuilt: true } }
+      ];
+    },
+    render: function (s) {
+      function q(v) { return typeof v === 'string' ? "'" + v + "'" : v; }
+      function row(label, arr, opts) {
+        opts = opts || {};
+        var h = '<div class="arow"><span class="alabel">' + label + '</span><div class="acells">';
+        arr.forEach(function (v, i) {
+          var cls = 'acell';
+          if (opts.at === i) cls += (opts.denied ? ' no' : ' hi');
+          h += '<div class="' + cls + '">' + q(v) + '<small>' + i + '</small></div>';
+        });
+        return h + '</div></div>';
+      }
+      var h = row(s.rebuilt ? 't（新造的元组）' : 't', s.t, { at: s.at, denied: s.denied });
+      if (s.rebuilt) h += row('原来的元组', s.t2, {});
+      if (s.writing) h += '<div class="arow"><span class="alabel">正在执行</span><span class="anote">t[0] = ' + q('li') + '</span></div>';
+      if (s.err) h += '<div class="arow"><span class="acell no" style="min-width:auto;padding:0 12px;">TypeError: \'tuple\' object does not support item assignment</span></div>';
+      if (s.rebuilt) h += '<div class="aresult">t = (\'li\', 90, \'CS\')　原元组仍是 (\'zhang\', 90, \'CS\')</div>';
+      return h;
+    }
+  },
+  strindex: {
+    frames: function () {
+      var s = 'Python';
+      return [
+        { cap: 's = "Python"：一共 6 个字符，正下标 0~5，负下标 -6~-1（-1 指最后一个）。', s: { s: s } },
+        { cap: 's[0]：从前往后数第一个 → "P"。', s: { s: s, at: [0], got: "s[0] = 'P'" } },
+        { cap: 's[-1]：从后往前数第一个 → 最后一个字符 "n"。负下标就是"倒着数"。', s: { s: s, at: [5], got: "s[-1] = 'n'" } },
+        { cap: 's[1:4]：从下标 1 开始取，先取到 "y"。', s: { s: s, range: [1, 4], taken: 1, got: 's[1:4] 进行中……' } },
+        { cap: '接着取 "t"、"h"——碰到下标 4 就停（下标 4 的 "o" 取不到）。', s: { s: s, range: [1, 4], taken: 3, got: 's[1:4] 进行中……' } },
+        { cap: '结果 s[1:4] = "yth"，3 个字符。含头不含尾，规则和列表切片完全一样。', s: { s: s, range: [1, 4], taken: 3, done: true, got: "s[1:4] = 'yth'" } }
+      ];
+    },
+    render: function (s) {
+      var h = '<div class="acells">';
+      for (var i = 0; i < s.s.length; i++) {
+        var cls = 'acell';
+        if (s.range && s.taken !== undefined && i >= s.range[0] && i < s.range[0] + s.taken) cls += ' ok';
+        else if (s.range && i >= s.range[0] && i < s.range[1]) cls += ' dim';
+        else if (s.at && s.at.indexOf(i) >= 0) cls += ' hi';
+        h += '<div class="' + cls + '">' + s.s[i] + '<small>' + i + ' / ' + (i - s.s.length) + '</small></div>';
+      }
+      h += '</div>';
+      if (s.range) h += '<div class="arow"><span class="alabel">切片区间</span><span class="anote">start = 1，stop = 4（含头不含尾）</span></div>';
+      if (s.got) h += '<div class="aresult">' + s.got + '</div>';
+      return h;
+    }
+  },
+  unpack: {
+    frames: function () {
+      return [
+        { cap: 'a, b = 1, 2：右边两个值，左边两个变量，按位置一一对应地赋值。', s: { vars: ['a', 'b'], vals: [1, 2] } },
+        { cap: '交换变量 a, b = b, a：先把右边整体算出来 → (2, 1)，再依次赋给 a、b。', s: { vars: ['a', 'b'], vals: [2, 1], swap: true } },
+        { cap: '结果 a = 2、b = 1，没有中间变量，一行就换完了。', s: { vars: ['a', 'b'], vals: [2, 1], swap: true, done: true } },
+        { cap: '带星号的解包 first, *rest = [90, 85, 92, 78]：first 拿第一个 90，rest 把剩下的全收走（一定是列表）。', s: { vars: ['first', 'rest'], vals: [90, [85, 92, 78]], star: true } },
+        { cap: '个数对不上就报错：x, y = [1, 2, 3] → ValueError: too many values to unpack (expected 2)。', s: { vars: ['x', 'y'], vals: [1, 2, 3], err: true } }
+      ];
+    },
+    render: function (s) {
+      function disp(v) { return Array.isArray(v) ? '[' + v.join(', ') + ']' : v; }
+      var h = '<div class="arow"><span class="alabel">变量</span><div class="acells">';
+      s.vars.forEach(function (v) { h += '<div class="acell' + ((s.star && v === 'rest') ? ' nested' : '') + '">' + v + '</div>'; });
+      h += '</div></div><div class="arow"><span class="alabel">值</span><div class="acells">';
+      s.vals.forEach(function (v, i) {
+        var c = 'acell';
+        if (Array.isArray(v)) c += ' nested';
+        else if (s.err && i >= s.vars.length) c += ' no';
+        else c += ' ok';
+        h += '<div class="' + c + '">' + disp(v) + '</div>';
+      });
+      h += '</div></div>';
+      if (s.swap) h += '<div class="anote">右边先整体求值 → (' + s.vals.join(', ') + ')，再从左到右依次赋值。</div>';
+      if (s.done) h += '<div class="aresult">a = 2，b = 1　（两个值同时替换）</div>';
+      if (s.star) h += '<div class="aresult">first = 90，rest = [85, 92, 78]</div>';
+      if (s.err) h += '<div class="acell no" style="min-width:auto;padding:0 12px;margin-top:6px;">ValueError: too many values to unpack (expected 2)</div>';
+      return h;
+    }
+  },
+  judge: {
+    frames: function () {
+      var raw = [9.5, 9.0, 8.5, 9.8, 9.2, 8.8, 9.6];
+      var srt = raw.slice().sort(function (a, b) { return a - b; });
+      var mid = srt.slice(1, -1);
+      var total = 0;
+      mid.forEach(function (v) { total += v; });
+      return [
+        { cap: '7 位评委的打分（按提交顺序）。规则：去掉一个最高分、去掉一个最低分，剩下的算平均。', s: { arr: raw, phase: 'raw' } },
+        { cap: '第一步 sort()：排成升序，最低分 8.5 跑到最前，最高分 9.8 跑到最后。', s: { arr: srt, phase: 'sorted' } },
+        { cap: '第二步切掉两头：s[1:-1] 同时去掉下标 0（8.5）和最后一个（9.8）。', s: { arr: srt, phase: 'cut', mid: mid } },
+        { cap: '第三步：对剩下的 5 个数求和。', s: { arr: srt, phase: 'cut', mid: mid, sum: total } },
+        { cap: '平均分 = 46.1 ÷ 5 = 9.22。排序 + 切片，三步解决"去掉极端值"类问题。', s: { arr: srt, phase: 'done', mid: mid, sum: total, avg: total / mid.length } }
+      ];
+    },
+    render: function (s) {
+      var max = Math.max.apply(null, s.arr);
+      var h = '<div class="abars">';
+      s.arr.forEach(function (v, i) {
+        var height = Math.round(v / max * 138) + 12;
+        var cls = 'abar';
+        if (s.phase === 'sorted') { if (i === 0 || i === s.arr.length - 1) cls += ' hi'; }
+        else if (s.phase !== 'raw') { if (i === 0 || i === s.arr.length - 1) cls += ' no'; else cls += ' done'; }
+        h += '<div class="' + cls + '" style="height:' + height + 'px">' + v + '</div>';
+      });
+      h += '</div>';
+      if (s.mid) h += '<div class="anote">参与计算：[' + s.mid.join(', ') + ']　共 ' + s.mid.length + ' 个</div>';
+      if (s.sum !== undefined) h += '<div class="anote">总和 = ' + s.sum.toFixed(1) + '</div>';
+      if (s.avg !== undefined) h += '<div class="aresult">平均分 = ' + s.sum.toFixed(1) + ' ÷ ' + s.mid.length + ' = ' + s.avg.toFixed(2) + '</div>';
+      return h;
+    }
+  }
+};
+
+(function () {
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  document.querySelectorAll('.anim[data-anim]').forEach(function (box) {
+    var def = ANIMS[box.getAttribute('data-anim')];
+    if (!def) return;
+    var frames = def.frames();
+    var stage = box.querySelector('.anim-stage');
+    var text = box.querySelector('.anim-text');
+    var prog = box.querySelector('.anim-progress');
+    var btnPlay = box.querySelector('[data-act="play"]');
+    var idx = 0, timer = null;
+    function draw() {
+      var fr = frames[idx];
+      stage.innerHTML = def.render(fr.s, fr);
+      text.textContent = fr.cap;
+      prog.textContent = (idx + 1) + ' / ' + frames.length;
+    }
+    function stop() {
+      if (timer) { clearInterval(timer); timer = null; btnPlay.textContent = '▶ 播放'; }
+    }
+    box.querySelectorAll('[data-act]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var act = b.getAttribute('data-act');
+        if (act === 'next') { stop(); idx = Math.min(idx + 1, frames.length - 1); draw(); }
+        else if (act === 'prev') { stop(); idx = Math.max(idx - 1, 0); draw(); }
+        else if (act === 'reset') { stop(); idx = 0; draw(); }
+        else if (act === 'play') {
+          if (timer) { stop(); return; }
+          if (idx >= frames.length - 1) idx = 0;
+          btnPlay.textContent = '⏸ 暂停';
+          timer = setInterval(function () {
+            if (idx >= frames.length - 1) { stop(); return; }
+            idx++; draw();
+          }, reduce ? 1700 : 1100);
+          draw();
+        }
+      });
+    });
+    draw();
+  });
+})();
 
 /* ===== 知识树交互 ===== */
 function jumpTarget(id) { var el = document.getElementById(id); if (el) el.scrollIntoView({ behavior: 'smooth' }); }
