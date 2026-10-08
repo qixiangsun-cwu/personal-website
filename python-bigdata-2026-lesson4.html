@@ -1,0 +1,2821 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第4次课 · 第4章 组合数据结构 | Python大数据分析基础</title>
+<style>
+/* ===== 基础 ===== */
+:root{
+  --ink:#2b2820; --ink-soft:#5d594c; --ink-faint:#8a8577;
+  --paper:#f6f3ec; --card:#fffdf8; --line:#e4ddcc; --line-soft:#efe9dc;
+  --blue:#306998; --blue-deep:#1f3864; --blue-soft:#eaf1f8;
+  --gold:#b8860b; --amber:#b45309; --amber-soft:#fdf3e3;
+  --green:#2e7d32; --green-soft:#eaf5eb;
+  --red:#b3392f; --red-soft:#fbeceb;
+  --code-bg:#191b24; --code-hd:#232533; --code-txt:#e8e6de;
+  --radius:14px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;scroll-padding-top:86px;}
+body{
+  font-family:"Times New Roman","宋体",SimSun,"Songti SC","SimSun-ExtB",serif;
+  font-size:16px;line-height:1.95;color:var(--ink);background:var(--paper);
+  -webkit-font-smoothing:antialiased;
+}
+/* ===== 顶部 Hero ===== */
+.hero{
+  background:linear-gradient(120deg,#1b3157 0%,#264a7e 55%,#306998 100%);
+  color:#fff;padding:46px 20px 40px;position:relative;overflow:hidden;
+}
+.hero::after{
+  content:"";position:absolute;right:-60px;top:-60px;width:300px;height:300px;
+  border-radius:50%;background:rgba(255,212,59,.08);pointer-events:none;
+}
+.hero-inner{max-width:1060px;margin:0 auto;position:relative;z-index:1;}
+.hero .kicker{
+  display:inline-block;font-size:13px;letter-spacing:2px;color:#ffd43b;
+  border:1px solid rgba(255,212,59,.5);border-radius:999px;padding:3px 14px;margin-bottom:16px;
+}
+.hero h1{font-size:38px;font-weight:700;line-height:1.35;margin-bottom:10px;}
+.hero .sub{font-size:18px;color:#dbe6f5;margin-bottom:18px;}
+.hero .meta{display:flex;flex-wrap:wrap;gap:10px;}
+.hero .meta span{
+  font-size:13px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);
+  border-radius:999px;padding:4px 14px;color:#f2f6fb;
+}
+/* ===== 导航 ===== */
+.nav{
+  position:sticky;top:0;z-index:50;background:rgba(253,251,246,.94);
+  backdrop-filter:blur(8px);border-bottom:1px solid var(--line);
+}
+.nav-inner{max-width:1060px;margin:0 auto;display:flex;align-items:center;gap:6px;overflow-x:auto;padding:10px 16px;}
+.nav-inner::-webkit-scrollbar{height:0;}
+.nav a{
+  flex:0 0 auto;font-size:14px;color:var(--ink-soft);text-decoration:none;
+  padding:6px 14px;border-radius:999px;border:1px solid transparent;white-space:nowrap;
+  transition:all .18s;
+}
+.nav a:hover{color:var(--blue);background:var(--blue-soft);}
+.nav a.on{color:#fff;background:var(--blue);border-color:var(--blue);}
+.nav a.nav-back{color:var(--blue-deep);font-weight:700;border-color:#cfe0f0;background:#fff;margin-right:6px;}
+/* ===== 主区域 ===== */
+main{max-width:1060px;margin:0 auto;padding:30px 16px 60px;}
+section{margin-bottom:34px;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:30px 34px;box-shadow:0 1px 4px rgba(60,50,20,.05);}
+.sec-head{display:flex;align-items:flex-start;gap:14px;margin-bottom:6px;}
+.sec-num{
+  flex:0 0 auto;min-width:46px;height:46px;border-radius:12px;background:var(--blue-deep);color:#fff;
+  display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:700;margin-top:4px;
+}
+.sec-head h2{font-size:26px;font-weight:700;line-height:1.3;}
+.sec-sub{font-size:14px;color:var(--ink-soft);margin:2px 0 18px;}
+h3{font-size:20px;font-weight:700;margin:30px 0 10px;padding-left:12px;border-left:5px solid var(--blue);line-height:1.5;}
+h4{font-size:17px;font-weight:700;margin:18px 0 8px;color:var(--blue-deep);}
+p{margin:8px 0;}
+ul,ol{margin:8px 0 8px 24px;}
+li{margin:5px 0;}
+strong{color:var(--blue-deep);}
+code.inline{
+  font-family:"Times New Roman","宋体",SimSun,serif;font-size:15px;background:var(--blue-soft);
+  color:var(--blue-deep);padding:1px 7px;border-radius:6px;border:1px solid #d5e2f0;white-space:nowrap;
+}
+/* 标签 */
+.tag{display:inline-block;font-size:12px;color:var(--blue);background:var(--blue-soft);border:1px solid #d2e2f2;border-radius:999px;padding:1px 10px;margin:2px 4px 2px 0;}
+.tag.gold{color:var(--amber);background:var(--amber-soft);border-color:#f0dcb8;}
+.tag.green{color:var(--green);background:var(--green-soft);border-color:#cfe6d1;}
+.tag.red{color:var(--red);background:var(--red-soft);border-color:#ecd0cd;}
+/* 提示框 */
+.note,.warn,.danger,.key,.ai{
+  border-radius:10px;padding:12px 16px 12px 44px;margin:14px 0;position:relative;font-size:15px;
+}
+.note{background:var(--blue-soft);border:1px solid #cfe0f0;color:#234a72;}
+.warn{background:var(--amber-soft);border:1px solid #efdcb5;color:#7a4a0a;}
+.danger{background:var(--red-soft);border:1px solid #ecd0cd;color:#8c2f28;}
+.key{background:#f4efe2;border:1px solid #e5dcc0;color:#5d5230;}
+.ai{background:#eef0fa;border:1px solid #d7dbef;color:#333a63;}
+.note::before,.warn::before,.danger::before,.key::before,.ai::before{
+  position:absolute;left:14px;top:12px;width:20px;height:20px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;
+}
+.note::before{content:"i";background:var(--blue);}
+.warn::before{content:"!";background:var(--amber);}
+.danger::before{content:"×";background:var(--red);}
+.key::before{content:"★";background:#9c8a4a;}
+.ai::before{content:"AI";font-size:10px;background:#4c5691;letter-spacing:0;}
+/* 本节小结 */
+.sumline{
+  background:var(--green-soft);border:1px solid #cfe6d1;border-left:5px solid var(--green);
+  border-radius:10px;padding:10px 16px;margin:12px 0 6px;font-size:15px;color:#215c26;
+}
+.sumline b{color:#1b4d1f;}
+.sumline code.inline{background:#fff;border-color:#cfe6d1;color:#215c26;}
+/* 配套视频 */
+.vid{
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:10px 0 4px;
+  background:#f7f4ec;border:1px solid var(--line-soft);border-left:5px solid var(--blue);
+  border-radius:10px;padding:9px 14px;font-size:14px;
+}
+.vid .vtag{font-size:12px;color:#fff;background:var(--blue);border-radius:999px;padding:1px 10px;flex:0 0 auto;}
+.vid a{color:var(--blue-deep);font-weight:700;text-decoration:none;border-bottom:1px solid #cfe0f0;}
+.vid a:hover{border-bottom-color:var(--blue);}
+.vid .vmeta{color:var(--ink-faint);font-size:12.5px;}
+/* ===== 表格 ===== */
+.tbl-wrap{overflow-x:auto;margin:14px 0;border:1px solid var(--line);border-radius:10px;}
+table{width:100%;border-collapse:collapse;font-size:15px;background:#fff;}
+th,td{padding:9px 14px;border-bottom:1px solid var(--line-soft);text-align:left;vertical-align:top;}
+th{background:var(--blue-soft);color:var(--blue-deep);font-weight:700;white-space:nowrap;}
+tbody tr:nth-child(even){background:#faf7f0;}
+tbody tr:last-child td{border-bottom:none;}
+td code.inline,th code.inline{white-space:nowrap;}
+.mini-table td{font-size:14px;}
+/* ===== 演示代码 ===== */
+.demo{border-radius:12px;overflow:hidden;border:1px solid #33364a;margin:16px 0;background:var(--code-bg);}
+.demo-head{
+  display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;
+  background:var(--code-hd);padding:8px 14px;border-bottom:1px solid #2e3142;
+}
+.demo-title{font-size:14px;color:#c8cde0;}
+.demo-actions{display:flex;gap:8px;}
+.btn{
+  font-family:inherit;font-size:13px;cursor:pointer;border-radius:8px;padding:4px 14px;
+  border:1px solid #3d4157;color:#d7dae8;background:#2b2e40;transition:all .15s;
+}
+.btn:hover{background:#383c52;}
+.btn-run{background:#1f6f43;border-color:#2b8a57;color:#fff;}
+.btn-run:hover{background:#26804f;}
+.btn.ok{background:var(--green);border-color:var(--green);color:#fff;}
+pre.code{
+  font-family:"Times New Roman","宋体",SimSun,serif;font-size:15px;line-height:1.75;
+  color:var(--code-txt);padding:14px 18px;overflow-x:auto;tab-size:4;
+}
+.demo-out{display:none;border-top:1px solid #2e3142;background:#12141c;padding:0 0 10px;}
+.demo.shown .demo-out{display:block;}
+.out-label{font-size:12px;color:#6b7288;letter-spacing:1px;padding:8px 18px 4px;border-bottom:1px solid #232634;}
+pre.out{
+  font-family:"Times New Roman","宋体",SimSun,serif;font-size:15px;line-height:1.7;
+  padding:10px 18px;color:#d6d9e4;overflow-x:auto;white-space:pre-wrap;
+}
+.demo.flash .demo-out{background:#16202c;}
+/* ===== 插图 ===== */
+.figure{margin:18px 0;text-align:center;}
+.figure img{max-width:100%;border:1px solid var(--line);border-radius:12px;background:#fff;padding:6px;}
+.figure figcaption{font-size:13px;color:var(--ink-soft);margin-top:8px;line-height:1.7;}
+.figsvg{background:#fbf8f1;border:1px solid var(--line);border-radius:12px;padding:14px 12px;margin:18px 0;}
+.figsvg svg{display:block;max-width:100%;height:auto;margin:0 auto;}
+.figsvg .figcap{font-size:13px;color:var(--ink-soft);text-align:center;margin-top:10px;line-height:1.7;}
+.figsvg svg text{font-family:"Times New Roman","宋体",SimSun,serif;}
+.grid2fig{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:16px 0;}
+@media(max-width:860px){.grid2fig{grid-template-columns:1fr;}}
+/* ===== 网格 ===== */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:16px 0;}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:16px 0;}
+.grid2 .cell,.grid3 .cell{background:#faf7f0;border:1px solid var(--line-soft);border-radius:12px;padding:16px 18px;}
+.cell h4{margin-top:0;}
+.cell ul{margin-left:20px;}
+.cell li{font-size:15px;}
+@media(max-width:860px){.grid2,.grid3{grid-template-columns:1fr;}}
+/* ===== 步骤 ===== */
+.step-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:16px 0;}
+.step-card{background:#faf7f0;border:1px solid var(--line-soft);border-radius:12px;padding:14px 16px;}
+.step-card .sc-no{font-size:12px;color:var(--blue);font-weight:700;letter-spacing:1px;}
+.step-card .sc-title{font-size:16px;font-weight:700;color:var(--blue-deep);margin:4px 0;}
+.step-card .sc-desc{font-size:14px;color:var(--ink-soft);line-height:1.7;}
+@media(max-width:860px){.step-grid{grid-template-columns:1fr 1fr;}}
+@media(max-width:560px){.step-grid{grid-template-columns:1fr;}}
+/* ===== 知识树 ===== */
+.tree{font-size:15px;line-height:1.7;border:1px solid var(--line);border-radius:12px;background:#fbf8f1;padding:16px 14px;}
+.tree .root-node{
+  display:inline-block;background:var(--blue-deep);color:#fff;font-weight:700;
+  border-radius:999px;padding:5px 22px;margin:4px 0 12px;
+}
+.tree .tn{display:flex;align-items:center;gap:6px;padding:4px 10px;border-radius:8px;cursor:pointer;color:var(--ink);transition:background .15s;}
+.tree .tn:hover{background:#f0ecdf;}
+.tree .tn .tw{flex:0 0 auto;width:14px;height:14px;display:inline-flex;align-items:center;justify-content:center;color:#9a937f;font-size:10px;transition:transform .2s;user-select:none;}
+.tree .tn.open .tw{transform:rotate(90deg);}
+.tree .tn.branch{font-weight:700;}
+.tree .tn .golink{color:#7a9cc7;font-size:11px;border:1px solid #c9d8ea;border-radius:999px;padding:0 6px;margin-left:auto;background:#fff;flex:0 0 auto;}
+.tree .tn.leaf{cursor:pointer;color:var(--ink-soft);}
+.tree .kids{border-left:2px solid #e0d9c6;margin-left:16px;padding-left:6px;display:none;}
+.tree .kids.show{display:block;}
+.tree .b-blue .tn.branch{color:var(--blue-deep);}
+.tree .b-amber .tn.branch{color:var(--amber);}
+.tree .b-green .tn.branch{color:var(--green);}
+.tree .b-purple .tn.branch{color:#6d4fa8;}
+.tree .legend{font-size:12px;color:var(--ink-faint);margin-top:10px;padding-top:8px;border-top:1px dashed var(--line);}
+/* ===== 卡片网格 ===== */
+.map-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;margin:16px 0;}
+.map-card{
+  background:#faf7f0;border:1px solid var(--line-soft);border-radius:12px;padding:16px 18px;
+  transition:all .2s;text-decoration:none;color:var(--ink);display:block;
+}
+.map-card:hover{border-color:var(--blue);box-shadow:0 4px 14px rgba(48,105,152,.12);transform:translateY(-2px);}
+.map-card .mc-num{font-size:13px;color:var(--blue);font-weight:700;}
+.map-card .mc-title{font-size:18px;font-weight:700;color:var(--blue-deep);margin:4px 0 6px;}
+.map-card .mc-desc{font-size:14px;color:var(--ink-soft);line-height:1.7;}
+/* ===== 交互演示 ===== */
+.inter{background:#faf7f0;border:1px solid var(--line-soft);border-radius:12px;padding:16px 18px;margin:16px 0;}
+.inter h4{margin-top:0;}
+.inter-row{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;margin:10px 0;}
+.inter-row label{font-size:14px;color:var(--ink-soft);display:flex;align-items:center;gap:6px;}
+.inter-row input{
+  font-family:inherit;font-size:14px;color:var(--ink);background:#fff;border:1px solid var(--line);
+  border-radius:8px;padding:5px 10px;width:150px;
+}
+.inter-row input.wide{width:260px;}
+.inter-row select{
+  font-family:inherit;font-size:14px;color:var(--ink);background:#fff;border:1px solid var(--line);
+  border-radius:8px;padding:5px 8px;
+}
+.inter-row input:focus{outline:none;border-color:var(--blue);}
+.inter-btn{
+  font-family:inherit;font-size:14px;cursor:pointer;border-radius:8px;padding:5px 16px;
+  border:1px solid var(--blue);background:var(--blue);color:#fff;
+}
+.inter-btn:hover{background:var(--blue-deep);border-color:var(--blue-deep);}
+.inter-out{
+  font-family:"Times New Roman","宋体",SimSun,serif;font-size:14.5px;line-height:1.7;
+  background:#12141c;color:#d6d9e4;border-radius:8px;padding:10px 14px;margin-top:10px;
+  white-space:pre-wrap;min-height:44px;
+}
+/* ===== 小结 / 作业 ===== */
+.recap{background:#faf7f0;border:1px solid var(--line-soft);border-radius:12px;padding:16px 20px;margin:14px 0;}
+.homework{border:1px dashed var(--blue);border-radius:12px;background:var(--blue-soft);padding:16px 22px;margin:14px 0;}
+.homework h4{color:var(--blue-deep);margin-top:0;}
+.nextcard{
+  display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;
+  background:linear-gradient(120deg,#1b3157,#306998);color:#fff;border-radius:12px;padding:18px 22px;margin:16px 0;
+  text-decoration:none;
+}
+.nextcard .nc-title{font-size:18px;font-weight:700;}
+.nextcard .nc-desc{font-size:14px;color:#dbe6f5;}
+.nextcard .nc-go{font-size:14px;border:1px solid rgba(255,255,255,.5);border-radius:999px;padding:4px 16px;color:#fff;}
+.nextcard:hover .nc-go{background:#fff;color:var(--blue-deep);}
+/* 页脚 */
+footer{background:#1c2b44;color:#b9c6dc;text-align:center;padding:26px 20px;font-size:14px;}
+footer .f-main{color:#fff;font-size:16px;margin-bottom:4px;}
+footer a{color:#dfe7f4;text-decoration:none;}
+footer a:hover{text-decoration:underline;}
+/* 回到顶部 */
+#toTop{
+  position:fixed;right:22px;bottom:26px;width:44px;height:44px;border-radius:50%;border:none;
+  font-family:"Times New Roman","宋体",SimSun,serif;font-weight:700;
+  background:var(--blue-deep);color:#fff;font-size:18px;cursor:pointer;box-shadow:0 4px 14px rgba(31,56,100,.35);
+  opacity:0;pointer-events:none;transition:all .25s;z-index:60;
+}
+#toTop.show{opacity:1;pointer-events:auto;}
+#toTop:hover{background:var(--blue);}
+/* ===== 响应式 ===== */
+@media(max-width:720px){
+  body{font-size:15px;}
+  .hero h1{font-size:27px;}
+  .hero{padding:34px 16px 30px;}
+  section{padding:22px 18px;}
+  .sec-head h2{font-size:21px;}
+  .sec-num{min-width:38px;height:38px;font-size:15px;}
+  pre.code{font-size:14px;padding:12px 14px;}
+  pre.out{font-size:14px;padding:8px 14px;}
+  .demo-head{flex-direction:column;align-items:flex-start;}
+}
+</style>
+</head>
+<body>
+
+<!-- ===== 顶部 ===== -->
+<header class="hero">
+  <div class="hero-inner">
+    <span class="kicker">Python 大数据分析基础 · 第 4 次课</span>
+    <h1>第 4 章　组合数据结构</h1>
+    <p class="sub">列表 · 元组 · 字典 · 集合 · 字符串 · 序列解包 · 综合应用（本章 8 个知识模块 + 40 余段可运行演示）</p>
+    <div class="meta">
+      <span>中华女子学院</span><span>6 学时（讲授 2 + 上机 4）</span><span>授课人：孙琪翔</span><span>第 4—5 周</span>
+    </div>
+  </div>
+</header>
+
+<!-- ===== 目录导航 ===== -->
+<nav class="nav" id="nav">
+  <div class="nav-inner" id="navInner">
+    <a href="python-bigdata-2026.html" class="nav-back">← 课程主页</a>
+    <a href="#guide" data-sec="guide" class="on">本讲导览</a>
+    <a href="#c1" data-sec="c1">一、组合结构概述</a>
+    <a href="#c2" data-sec="c2">二、列表</a>
+    <a href="#c3" data-sec="c3">三、元组</a>
+    <a href="#c4" data-sec="c4">四、字典</a>
+    <a href="#c5" data-sec="c5">五、集合</a>
+    <a href="#c6" data-sec="c6">六、字符串</a>
+    <a href="#c7" data-sec="c7">七、序列解包</a>
+    <a href="#c8" data-sec="c8">八、综合应用</a>
+    <a href="#lab" data-sec="lab">九、交互演示</a>
+    <a href="#summary" data-sec="summary">小结 · 作业</a>
+  </div>
+</nav>
+
+<main>
+
+<!-- ===== 导览 ===== -->
+<section id="guide">
+  <div class="sec-head">
+    <div class="sec-num">导</div>
+    <div>
+      <h2>本讲导览</h2>
+      <p class="sec-sub">Lesson Overview · 从"一个变量放一个数"到"一个变量放一组数"</p>
+    </div>
+  </div>
+
+  <p>前面三章，一个变量只能装一个数据。可现实里的数据都是成组出现的——一个班 40 个成绩、一张表的 5 列字段、一段话的几十个词。<strong>组合数据结构</strong>就是给程序配上的"容器"：这一章学四件容器（列表、元组、字典、集合）加一个老熟人（字符串），它们决定了你后面能不能顺畅地处理数据。</p>
+
+  <div class="step-grid">
+    <div class="step-card">
+      <div class="sc-no">第 1 讲 · 45 分钟</div>
+      <div class="sc-title">容器总览 + 列表</div>
+      <div class="sc-desc">组合结构概述 · 列表的创建与访问（索引、切片）· 常用操作 · 列表推导式</div>
+    </div>
+    <div class="step-card">
+      <div class="sc-no">第 2 讲 · 45 分钟</div>
+      <div class="sc-title">元组 · 字典 · 集合 · 字符串</div>
+      <div class="sc-desc">不可变序列 · 键值映射与遍历 · 去重与集合运算 · 字符串常用方法 · 序列解包</div>
+    </div>
+    <div class="step-card">
+      <div class="sc-no">上机一 · 90 分钟</div>
+      <div class="sc-title">列表与推导式</div>
+      <div class="sc-desc">成绩统计、索引与切片、合并排序、列表推导式、正负零分类</div>
+    </div>
+    <div class="step-card">
+      <div class="sc-no">上机二 · 90 分钟</div>
+      <div class="sc-title">字典与综合应用</div>
+      <div class="sc-desc">英汉字典、词频统计、评委打分、敏感词过滤、聊天机器人</div>
+    </div>
+  </div>
+
+  <div class="note">
+    <strong>学习目标</strong>：① 能说清列表 / 元组 / 字典 / 集合 / 字符串在"有序性、可变性、能否索引"上的差别；② 熟练使用索引、切片和常用方法操作列表与字符串；③ 能按"键"取值、遍历字典，用字典完成统计类任务；④ 会用集合去重、做交集并集差集；⑤ 能用列表推导式一行生成列表；⑥ 能把多种容器组合起来完成一个小型数据处理任务。
+  </div>
+
+  <h3>本课地图</h3>
+  <div class="map-grid">
+    <a class="map-card" href="#c1"><div class="mc-num">模块一</div><div class="mc-title">组合结构概述</div><div class="mc-desc">序列 / 映射 / 集合三大类，可变与不可变</div></a>
+    <a class="map-card" href="#c2"><div class="mc-num">模块二</div><div class="mc-title">列表（重点）</div><div class="mc-desc">创建、索引、切片、12 个常用方法、列表推导式</div></a>
+    <a class="map-card" href="#c3"><div class="mc-num">模块三</div><div class="mc-title">元组</div><div class="mc-desc">不可变序列、单元素逗号坑、与列表怎么选</div></a>
+    <a class="map-card" href="#c4"><div class="mc-num">模块四</div><div class="mc-title">字典（重点）</div><div class="mc-desc">键值映射、按键访问、get()、三种遍历</div></a>
+    <a class="map-card" href="#c5"><div class="mc-num">模块五</div><div class="mc-title">集合</div><div class="mc-desc">去重、成员测试、交并差运算</div></a>
+    <a class="map-card" href="#c6"><div class="mc-num">模块六</div><div class="mc-title">字符串</div><div class="mc-desc">不可变序列、切片、split / join / replace</div></a>
+    <a class="map-card" href="#c7"><div class="mc-num">模块七</div><div class="mc-title">序列解包</div><div class="mc-desc">交换变量、多变量赋值、星号收集</div></a>
+    <a class="map-card" href="#c8"><div class="mc-num">模块八</div><div class="mc-title">综合应用</div><div class="mc-desc">评委打分、词频统计、敏感词过滤、作业</div></a>
+    <a class="map-card" href="#lab"><div class="mc-num">模块九</div><div class="mc-title">交互演示</div><div class="mc-desc">切片器、词频统计、集合运算（网页上直接跑）</div></a>
+  </div>
+
+  <h3>本章知识点总览</h3>
+  <p>点击节点可跳转到对应讲解位置，点击三角可展开 / 收起分支。</p>
+  <div class="tree" id="knowledgeTree">
+    <div class="root-node">第 4 章　组合数据结构</div>
+    <div class="kids show">
+      <div class="b-blue">
+        <div class="tn branch open" data-target="c1"><span class="tw">▶</span>组合结构概述<span class="golink">模块一</span></div>
+        <div class="kids show">
+          <div class="tn leaf" data-target="c1-1">为什么需要组合数据类型</div>
+          <div class="tn leaf" data-target="c1-2">序列类型：列表、元组、字符串</div>
+          <div class="tn leaf" data-target="c1-3">映射类型：字典</div>
+          <div class="tn leaf" data-target="c1-4">集合类型：集合</div>
+          <div class="tn leaf" data-target="c1-5">可变 / 不可变：能不能改，决定了能用在哪儿</div>
+        </div>
+      </div>
+      <div class="b-amber">
+        <div class="tn branch open" data-target="c2"><span class="tw">▶</span>列表（重点）<span class="golink">模块二</span></div>
+        <div class="kids show">
+          <div class="tn leaf" data-target="c2-1">创建：方括号、list()、嵌套列表</div>
+          <div class="tn leaf" data-target="c2-2">索引：正向 0 开始、反向 -1 开始</div>
+          <div class="tn leaf" data-target="c2-3">切片：[start : stop : step]，含头不含尾</div>
+          <div class="tn leaf" data-target="c2-4">运算符 +、*、in 与元素修改</div>
+          <div class="tn leaf" data-target="c2-5">函数 len / max / min / sum</div>
+          <div class="tn leaf" data-target="c2-6">方法：append、extend、insert、remove、pop、sort…</div>
+          <div class="tn leaf" data-target="c2-7">列表推导式：一行生成列表</div>
+        </div>
+      </div>
+      <div class="b-green">
+        <div class="tn branch open" data-target="c3"><span class="tw">▶</span>元组 / 字典 / 集合 / 字符串<span class="golink">模块三—六</span></div>
+        <div class="kids show">
+          <div class="tn leaf" data-target="c3">元组：不可变序列、单元素要写逗号</div>
+          <div class="tn leaf" data-target="c4">字典：键值对、按键访问、get()、keys/values/items</div>
+          <div class="tn leaf" data-target="c5">集合：元素唯一、去重、交集并集差集</div>
+          <div class="tn leaf" data-target="c6">字符串：不可变、切片、split / join / replace</div>
+          <div class="tn leaf" data-target="c7">序列解包：a, b = b, a 与星号收集</div>
+        </div>
+      </div>
+      <div class="b-purple">
+        <div class="tn branch open" data-target="c8"><span class="tw">▶</span>综合应用<span class="golink">模块八</span></div>
+        <div class="kids show">
+          <div class="tn leaf" data-target="c8-1">例 4-14 评委打分（去掉最高最低求平均）</div>
+          <div class="tn leaf" data-target="c8-2">例 4-15 词频统计（字典 + 字符串）</div>
+          <div class="tn leaf" data-target="c8-3">例 4-16 敏感词替换（元组 + 字符串）</div>
+          <div class="tn leaf" data-target="c8-4">课后作业与上机任务</div>
+        </div>
+      </div>
+    </div>
+    <div class="legend">说明：本章依据课程课件《4-组合数据结构》与《Python 编程与数据分析基础》（陈洁、刘姝，清华大学出版社）第 4 章整理；页面中每段代码都是真实运行后回填的结果，运行结果默认隐藏，点"运行"才显示。</div>
+  </div>
+
+  <div class="warn"><strong>先记住这张"地图"</strong>：列表和元组是"一排格子"（有序、能索引），字典是"查号台"（按键找人），集合是"一袋不重复的球"（无序、元素唯一），字符串是"一串字符"（有序、但不能改）。后面所有操作，都是围着这四句话转。</div>
+</section>
+
+<!-- ===== 模块一：组合结构概述 ===== -->
+<section id="c1">
+  <div class="sec-head">
+    <div class="sec-num">一</div>
+    <div>
+      <h2>组合结构概述</h2>
+      <p class="sec-sub">4.1 · 组合数据类型全景 · 序列 / 映射 / 集合 · 可变与不可变</p>
+    </div>
+  </div>
+
+  <h3 id="c1-1">1.1 为什么需要组合数据类型</h3>
+  <p>基本数据类型（整数、浮点数、字符串）一次只能装<strong>一个</strong>数据——存"一个学生的一次成绩"够了，但要存"一个班 40 个人的成绩"就抓瞎了：难道写 40 个变量？</p>
+  <p>组合数据类型（Compound Data Types）就是为这件事准备的：<strong>用一个变量管理一组相互关联的数据</strong>。它们把多个元素组织在一起，支持快速查询、修改和批量操作，是后面 NumPy、Pandas 处理数据的底层形态。</p>
+
+  <div class="figsvg">
+    <svg viewBox="0 0 900 320" role="img" aria-label="Python 常用组合数据类型全景图">
+      <text x="450" y="30" text-anchor="middle" font-size="19" font-weight="bold" fill="#1f3864">Python 的四种常用容器（加上老朋友：字符串）</text>
+      <!-- 序列类型 -->
+      <rect x="16" y="52" width="280" height="240" rx="14" fill="#eaf1f8" stroke="#306998" stroke-width="2"/>
+      <rect x="16" y="52" width="280" height="40" rx="14" fill="#306998"/>
+      <rect x="16" y="78" width="280" height="14" fill="#306998"/>
+      <text x="156" y="79" text-anchor="middle" font-size="16" font-weight="bold" fill="#ffffff">序列类型 Sequence</text>
+      <text x="156" y="112" text-anchor="middle" font-size="13" fill="#234a72">有序 · 可用索引和切片访问</text>
+      <rect x="32" y="126" width="248" height="48" rx="9" fill="#ffffff" stroke="#cfe0f0"/>
+      <text x="44" y="147" font-size="14" font-weight="bold" fill="#1f3864">列表 list</text>
+      <text x="44" y="165" font-size="12.5" fill="#5d594c">[75, 80, 85]　可变</text>
+      <rect x="32" y="182" width="248" height="48" rx="9" fill="#ffffff" stroke="#cfe0f0"/>
+      <text x="44" y="203" font-size="14" font-weight="bold" fill="#1f3864">元组 tuple</text>
+      <text x="44" y="221" font-size="12.5" fill="#5d594c">(3, 5)　不可变</text>
+      <rect x="32" y="238" width="248" height="48" rx="9" fill="#ffffff" stroke="#cfe0f0"/>
+      <text x="44" y="259" font-size="14" font-weight="bold" fill="#1f3864">字符串 str</text>
+      <text x="44" y="277" font-size="12.5" fill="#5d594c">'Python'　不可变</text>
+      <!-- 映射类型 -->
+      <rect x="310" y="52" width="280" height="240" rx="14" fill="#fdf3e3" stroke="#b8860b" stroke-width="2"/>
+      <rect x="310" y="52" width="280" height="40" rx="14" fill="#b8860b"/>
+      <rect x="310" y="78" width="280" height="14" fill="#b8860b"/>
+      <text x="450" y="79" text-anchor="middle" font-size="16" font-weight="bold" fill="#ffffff">映射类型 Mapping</text>
+      <text x="450" y="112" text-anchor="middle" font-size="13" fill="#7a4a0a">按键查值 · 键必须唯一</text>
+      <rect x="326" y="126" width="248" height="160" rx="9" fill="#ffffff" stroke="#f0dcb8"/>
+      <text x="338" y="150" font-size="14" font-weight="bold" fill="#1f3864">字典 dict</text>
+      <text x="338" y="172" font-size="12.5" fill="#5d594c">{'zhang': 90, 'li': 85}</text>
+      <text x="338" y="194" font-size="12.5" fill="#5d594c">键 → 值 一一对应</text>
+      <text x="338" y="220" font-size="12.5" fill="#5d594c">d['zhang'] → 90</text>
+      <text x="338" y="242" font-size="12.5" fill="#5d594c">可变 · 不能索引（没有 0 号位）</text>
+      <text x="338" y="268" font-size="12.5" fill="#8a8577">用途：统计、查表、配置</text>
+      <!-- 集合类型 -->
+      <rect x="604" y="52" width="280" height="240" rx="14" fill="#eaf5eb" stroke="#2e7d32" stroke-width="2"/>
+      <rect x="604" y="52" width="280" height="40" rx="14" fill="#2e7d32"/>
+      <rect x="604" y="78" width="280" height="14" fill="#2e7d32"/>
+      <text x="744" y="79" text-anchor="middle" font-size="16" font-weight="bold" fill="#ffffff">集合类型 Set</text>
+      <text x="744" y="112" text-anchor="middle" font-size="13" fill="#215c26">无序 · 元素不重复</text>
+      <rect x="620" y="126" width="248" height="160" rx="9" fill="#ffffff" stroke="#cfe6d1"/>
+      <text x="632" y="150" font-size="14" font-weight="bold" fill="#1f3864">集合 set</text>
+      <text x="632" y="172" font-size="12.5" fill="#5d594c">{'math', 'en', 'pe'}</text>
+      <text x="632" y="194" font-size="12.5" fill="#5d594c">自动去重</text>
+      <text x="632" y="220" font-size="12.5" fill="#5d594c">支持 ∩ ∪ − 运算</text>
+      <text x="632" y="242" font-size="12.5" fill="#5d594c">可变 · 不能索引</text>
+      <text x="632" y="268" font-size="12.5" fill="#8a8577">用途：去重、求交集</text>
+    </svg>
+    <div class="figcap">图 4-0　Python 常用组合数据类型全景（本页按"序列 → 映射 → 集合"三条线展开）</div>
+  </div>
+
+  <h3 id="c1-2">1.2 三大类的区别</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>容器</th><th>定界符</th><th>是否有序</th><th>能否改</th><th>能否索引</th><th>元素能否重复</th><th>典型用途</th></tr></thead>
+      <tbody>
+        <tr><td><strong>列表 list</strong></td><td><code class="inline">[ ]</code></td><td>有序</td><td>可变</td><td>能</td><td>能重复</td><td>一组成绩、一批数据</td></tr>
+        <tr><td><strong>元组 tuple</strong></td><td><code class="inline">( )</code></td><td>有序</td><td>不可变</td><td>能</td><td>能重复</td><td>固定的几个值、函数返回多个值</td></tr>
+        <tr><td><strong>字符串 str</strong></td><td><code class="inline">' '</code> <code class="inline">" "</code></td><td>有序</td><td>不可变</td><td>能</td><td>能重复</td><td>文本处理</td></tr>
+        <tr><td><strong>字典 dict</strong></td><td><code class="inline">{键: 值}</code></td><td>无序</td><td>可变</td><td>不能（按键）</td><td>键不重复、值可重复</td><td>查表、统计、配置</td></tr>
+        <tr><td><strong>集合 set</strong></td><td><code class="inline">{ }</code></td><td>无序</td><td>可变</td><td>不能</td><td>不能重复</td><td>去重、集合运算</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="demo" data-demo="k1-1-types">
+    <div class="demo-head">
+      <span class="demo-title">五种容器各创建一次，用 type() 认认门</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">scores = [75, 80, 85]                      # 列表：方括号
+point = (3, 5)                             # 元组：圆括号
+student = {'name': 'zhang', 'age': 20}     # 字典：键值对
+courses = {'math', 'en', 'pe'}             # 集合：大括号
+text = 'Python'                            # 字符串：引号
+
+print(type(scores), type(point))
+print(type(student), type(courses), type(text))</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+&lt;class 'list'&gt; &lt;class 'tuple'&gt;
+&lt;class 'dict'&gt; &lt;class 'set'&gt; &lt;class 'str'&gt;
+</pre></div>
+  </div>
+
+  <h3 id="c1-5">1.3 可变与不可变：能不能改，决定了能用在哪儿</h3>
+  <p>"可变"是说<strong>创建之后还能不能改内容</strong>。列表、字典、集合是可变的；元组和字符串是不可变的。这一条差别在后面的字典和集合里会反复出现——<strong>字典的键、集合的元素都必须用不可变类型</strong>。</p>
+  <div class="figsvg">
+    <svg viewBox="0 0 900 260" role="img" aria-label="列表可变与元组不可变的对比">
+      <text x="450" y="28" text-anchor="middle" font-size="18" font-weight="bold" fill="#1f3864">同样一句"把第 1 个元素改成 9"，结果完全不同</text>
+      <!-- 左：列表 -->
+      <rect x="24" y="50" width="400" height="190" rx="14" fill="#eaf1f8" stroke="#306998" stroke-width="2"/>
+      <text x="224" y="78" text-anchor="middle" font-size="15" font-weight="bold" fill="#1f3864">列表 list：可变 ✓</text>
+      <text x="224" y="102" text-anchor="middle" font-size="13.5" fill="#2b2820">scores = [75, 80, 85]</text>
+      <rect x="60" y="114" width="72" height="40" rx="8" fill="#ffffff" stroke="#306998"/>
+      <text x="96" y="140" text-anchor="middle" font-size="15" fill="#2b2820">75</text>
+      <rect x="140" y="114" width="72" height="40" rx="8" fill="#ffffff" stroke="#306998"/>
+      <text x="176" y="140" text-anchor="middle" font-size="15" fill="#2b2820">80</text>
+      <rect x="220" y="114" width="72" height="40" rx="8" fill="#ffffff" stroke="#306998"/>
+      <text x="256" y="140" text-anchor="middle" font-size="15" fill="#2b2820">85</text>
+      <text x="96" y="170" text-anchor="middle" font-size="12" fill="#8a8577">0</text>
+      <text x="176" y="170" text-anchor="middle" font-size="12" fill="#8a8577">1</text>
+      <text x="256" y="170" text-anchor="middle" font-size="12" fill="#8a8577">2</text>
+      <path d="M224 178 L224 196" stroke="#2e7d32" stroke-width="2" marker-end="url(#ar1)"/>
+      <defs>
+        <marker id="ar1" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
+          <path d="M0,0 L8,4 L0,8 z" fill="#2e7d32"/>
+        </marker>
+        <marker id="ar2" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
+          <path d="M0,0 L8,4 L0,8 z" fill="#b3392f"/>
+        </marker>
+      </defs>
+      <text x="224" y="214" text-anchor="middle" font-size="13.5" fill="#215c26">scores[0] = 9 → [9, 80, 85]　改成功</text>
+      <text x="224" y="234" text-anchor="middle" font-size="12.5" fill="#5d594c">（原地修改，内存里的格子被改写）</text>
+      <!-- 右：元组 -->
+      <rect x="476" y="50" width="400" height="190" rx="14" fill="#fbeceb" stroke="#b3392f" stroke-width="2"/>
+      <text x="676" y="78" text-anchor="middle" font-size="15" font-weight="bold" fill="#8c2f28">元组 tuple：不可变 ✗</text>
+      <text x="676" y="102" text-anchor="middle" font-size="13.5" fill="#2b2820">point = (3, 5)</text>
+      <rect x="590" y="114" width="72" height="40" rx="8" fill="#ffffff" stroke="#b3392f"/>
+      <text x="626" y="140" text-anchor="middle" font-size="15" fill="#2b2820">3</text>
+      <rect x="670" y="114" width="72" height="40" rx="8" fill="#ffffff" stroke="#b3392f"/>
+      <text x="706" y="140" text-anchor="middle" font-size="15" fill="#2b2820">5</text>
+      <text x="626" y="170" text-anchor="middle" font-size="12" fill="#8a8577">0</text>
+      <text x="706" y="170" text-anchor="middle" font-size="12" fill="#8a8577">1</text>
+      <path d="M676 178 L676 196" stroke="#b3392f" stroke-width="2" marker-end="url(#ar2)"/>
+      <text x="676" y="214" text-anchor="middle" font-size="13.5" fill="#8c2f28">point[0] = 9 → TypeError　改不了</text>
+      <text x="676" y="234" text-anchor="middle" font-size="12.5" fill="#5d594c">（不可变 ≠ 不能用，只是不能改）</text>
+    </svg>
+    <div class="figcap">图 4-1　可变 vs 不可变：列表能改元素，元组改了会直接报 TypeError</div>
+  </div>
+  <div class="demo" data-demo="k1-2-mutable" data-expect-error="1">
+    <div class="demo-head">
+      <span class="demo-title">亲手试一次：列表改成功，元组报错</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">scores = [75, 80, 85]
+scores[0] = 90                 # 列表：可以改
+print("列表改后：", scores)
+
+point = (3, 5)
+print("元组改前：", point)
+point[0] = 9                   # 元组：不能改 → 报错</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+列表改后： [90, 80, 85]
+元组改前： (3, 5)
+Traceback (most recent call last):
+  File "&lt;pyshell&gt;", line 7, in &lt;module&gt;
+    point[0] = 9                   # 元组：不能改 → 报错
+TypeError: 'tuple' object does not support item assignment
+</pre></div>
+  </div>
+  <div class="sumline">✅ <b>本节小结</b>：容器的差别就看三件事——<strong>有序吗、能改吗、能索引吗</strong>。列表/元组/字符串有序且能索引，字典和集合无序、不能索引；列表/字典/集合可变，元组和字符串不可变。<strong>"不可变"不是缺点</strong>：正因为不能改，元组才能当字典的键、放进集合（第 3、5 节会用到）。</div>
+  <div class="vid">
+    <span class="vtag">配套视频</span>
+    <a href="https://www.bilibili.com/video/BV1qW4y1a7fU/?p=62" target="_blank" rel="noopener">黑马程序员《Python 零基础全套教程》第 62 讲 · 数据容器入门</a>
+    <span class="vmeta">B站 · 2542 万播放 · 建立"一个变量装一组数据"的直觉</span>
+  </div>
+</section>
+
+<!-- ===== 模块二：列表 ===== -->
+<section id="c2">
+  <div class="sec-head">
+    <div class="sec-num">二</div>
+    <div>
+      <h2>列表 List <span class="tag red">本章重点</span></h2>
+      <p class="sec-sub">4.2 · 创建与访问 · 索引与切片 · 常用操作 · 列表推导式</p>
+    </div>
+  </div>
+
+  <p>列表是<strong>有序、可变</strong>的序列，用方括号 <code class="inline">[ ]</code> 作定界符，元素之间用英文逗号分隔：<code class="inline">[元素1, 元素2, …]</code>。同一列表里的元素类型可以不同，列表里还能再放列表（<strong>嵌套列表</strong>），一对空方括号就是空列表。</p>
+
+  <h3 id="c2-1">2.1 创建列表</h3>
+  <div class="demo" data-demo="k2-create">
+    <div class="demo-head">
+      <span class="demo-title">直接写出列表：数字、字符串、混合类型、嵌套、空列表</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">scores = [75, 80, 85]                      # 数字
+names = ['zhang', 'wang', 'li']            # 字符串
+mixed = ['Class', 1, 'Python', 80.2]       # 类型可以不同
+nested = [['zhang', 75], ['wang', 80]]     # 嵌套列表
+empty = []                                 # 空列表
+
+print(scores)
+print(names)
+print(mixed)
+print(nested)
+print("空列表：", empty, "长度是", len(empty))</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+[75, 80, 85]
+['zhang', 'wang', 'li']
+['Class', 1, 'Python', 80.2]
+[['zhang', 75], ['wang', 80]]
+空列表： [] 长度是 0
+</pre></div>
+  </div>
+  <div class="demo" data-demo="k2-list-func">
+    <div class="demo-head">
+      <span class="demo-title">用 list() 把 range、字符串、元组变成列表</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">print(list(range(0, 5)))       # range 对象 → 列表
+print(list('Python'))          # 字符串 → 逐字符拆成列表
+print(list((1, 2, 3)))         # 元组 → 列表
+
+students = ['zhang', 'wang', 'li']
+scores = [75, 80, 85]
+std_sc = [students, scores]    # 列表里放列表：一个变量装下两张表
+print(std_sc)
+print(type(std_sc))</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+[0, 1, 2, 3, 4]
+['P', 'y', 't', 'h', 'o', 'n']
+[1, 2, 3]
+[['zhang', 'wang', 'li'], [75, 80, 85]]
+&lt;class 'list'&gt;
+</pre></div>
+  </div>
+
+  <h3 id="c2-2">2.2 索引访问：靠"位置"取一个元素</h3>
+  <p>格式：<code class="inline">列表对象名[索引]</code>。列表<strong>可以双向索引</strong>：正整数下标从 0 开始（0 表示第 1 个元素），负整数从 -1 开始（-1 表示最后一个元素）。</p>
+  <div class="figure">
+    <img src="assets/python-bigdata-2026/lesson4/list-index-forward.png" alt="列表的正向索引：red 对应 0，black 对应 5" loading="lazy">
+    <figcaption>图 4-2　正向索引：下标从 0 开始，第 6 个元素的下标是 5</figcaption>
+  </div>
+  <div class="figure">
+    <img src="assets/python-bigdata-2026/lesson4/list-index-backward.png" alt="列表的反向索引：black 对应 -1，red 对应 -6" loading="lazy">
+    <figcaption>图 4-3　反向索引：<code class="inline">-1</code> 是最后一个元素，往前依次 -2、-3……（课件图）</figcaption>
+  </div>
+  <div class="demo" data-demo="k2-index">
+    <div class="demo-head">
+      <span class="demo-title">例：用索引取成绩单里的各科成绩</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">scores = [75, 80, 85, 70, 65, 90]     # 语文、英语、数学、物理、化学、生物
+print("第 1 个（语文）：", scores[0])
+print("第 3 个（数学）：", scores[2])
+print("最后一个（生物）：", scores[-1])
+print("倒数第 2 个（化学）：", scores[-2])
+print("共", len(scores), "门课")</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+第 1 个（语文）： 75
+第 3 个（数学）： 85
+最后一个（生物）： 90
+倒数第 2 个（化学）： 65
+共 6 门课
+</pre></div>
+  </div>
+  <div class="figure">
+    <img src="assets/python-bigdata-2026/lesson4/list-index-demo-shell.png" alt="IDLE 中索引与切片的各种写法示例" loading="lazy">
+    <figcaption>图 4-4　课件截图：同一个列表，用索引取单个元素、用切片取一段、用步长隔一个取一个</figcaption>
+  </div>
+  <div class="demo" data-demo="k2-index-error" data-expect-error="1">
+    <div class="demo-head">
+      <span class="demo-title">下标越界会怎样？（故意报错）</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">scores = [75, 80, 85, 70, 65, 90]
+print("列表长度：", len(scores))
+print(scores[10])       # 只有 6 个元素，合法下标是 0~5 和 -1~-6</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+列表长度： 6
+Traceback (most recent call last):
+  File "&lt;pyshell&gt;", line 3, in &lt;module&gt;
+    print(scores[10])       # 只有 6 个元素，合法下标是 0~5 和 -1~-6
+IndexError: list index out of range
+</pre></div>
+  </div>
+
+  <h3 id="c2-3">2.3 切片访问：靠"区间"取一段</h3>
+  <p>语法：<code class="inline">列表对象名[start : stop : step]</code>。子列表从 start 开始，以 step 为步长取元素，<strong>直到 stop-1 位置为止（不含 stop）</strong>。start 默认为 0，stop 默认为列表长度，step 默认为 1。切片<strong>下标出界不会报错</strong>，只会少取几个。</p>
+  <div class="figure">
+    <img src="assets/python-bigdata-2026/lesson4/list-slice.png" alt="切片 nums[2:7] 取走下标 2 到 6 的元素，得到新列表" loading="lazy">
+    <figcaption>图 4-5　切片示意：<code class="inline">nums[2:7]</code> 取的是下标 2、3、4、5、6 这 5 个元素（课件图）</figcaption>
+  </div>
+  <div class="figsvg">
+    <svg viewBox="0 0 900 250" role="img" aria-label="切片三个参数的含头不含尾规则">
+      <text x="450" y="28" text-anchor="middle" font-size="18" font-weight="bold" fill="#1f3864">切片的三个参数：start 从哪开始、stop 到哪停止、step 隔几个取</text>
+      <text x="450" y="60" text-anchor="middle" font-size="16" fill="#2b2820">nums[start : stop : step]</text>
+      <line x1="180" y1="76" x2="180" y2="96" stroke="#306998" stroke-width="1.5"/>
+      <line x1="430" y1="76" x2="430" y2="96" stroke="#b3392f" stroke-width="1.5"/>
+      <line x1="640" y1="76" x2="640" y2="96" stroke="#2e7d32" stroke-width="1.5"/>
+      <text x="180" y="114" text-anchor="middle" font-size="13" fill="#306998">start：从它开始（含）</text>
+      <text x="430" y="114" text-anchor="middle" font-size="13" fill="#b3392f">stop：到它之前停（不含）</text>
+      <text x="640" y="114" text-anchor="middle" font-size="13" fill="#2e7d32">step：每隔几个取一个</text>
+      <g>
+        <rect x="60" y="138" width="80" height="46" rx="9" fill="#ffffff" stroke="#e4ddcc"/>
+        <text x="100" y="167" text-anchor="middle" font-size="15" fill="#2b2820">10</text>
+        <rect x="148" y="138" width="80" height="46" rx="9" fill="#ffffff" stroke="#e4ddcc"/>
+        <text x="188" y="167" text-anchor="middle" font-size="15" fill="#2b2820">20</text>
+        <rect x="236" y="138" width="80" height="46" rx="9" fill="#eaf1f8" stroke="#306998" stroke-width="2"/>
+        <text x="276" y="167" text-anchor="middle" font-size="15" fill="#2b2820">30</text>
+        <rect x="324" y="138" width="80" height="46" rx="9" fill="#eaf1f8" stroke="#306998" stroke-width="2"/>
+        <text x="364" y="167" text-anchor="middle" font-size="15" fill="#2b2820">40</text>
+        <rect x="412" y="138" width="80" height="46" rx="9" fill="#eaf1f8" stroke="#306998" stroke-width="2"/>
+        <text x="452" y="167" text-anchor="middle" font-size="15" fill="#2b2820">50</text>
+        <rect x="500" y="138" width="80" height="46" rx="9" fill="#eaf1f8" stroke="#306998" stroke-width="2"/>
+        <text x="540" y="167" text-anchor="middle" font-size="15" fill="#2b2820">60</text>
+        <rect x="588" y="138" width="80" height="46" rx="9" fill="#eaf1f8" stroke="#306998" stroke-width="2"/>
+        <text x="628" y="167" text-anchor="middle" font-size="15" fill="#2b2820">70</text>
+        <rect x="676" y="138" width="80" height="46" rx="9" fill="#ffffff" stroke="#e4ddcc"/>
+        <text x="716" y="167" text-anchor="middle" font-size="15" fill="#2b2820">80</text>
+      </g>
+      <text x="100" y="202" text-anchor="middle" font-size="12" fill="#8a8577">0</text>
+      <text x="188" y="202" text-anchor="middle" font-size="12" fill="#8a8577">1</text>
+      <text x="276" y="202" text-anchor="middle" font-size="12" fill="#306998" font-weight="bold">2</text>
+      <text x="364" y="202" text-anchor="middle" font-size="12" fill="#8a8577">3</text>
+      <text x="452" y="202" text-anchor="middle" font-size="12" fill="#8a8577">4</text>
+      <text x="540" y="202" text-anchor="middle" font-size="12" fill="#8a8577">5</text>
+      <text x="628" y="202" text-anchor="middle" font-size="12" fill="#8a8577">6</text>
+      <text x="716" y="202" text-anchor="middle" font-size="12" fill="#b3392f" font-weight="bold">7</text>
+      <text x="450" y="230" text-anchor="middle" font-size="13.5" fill="#5d594c">nums[2:7] → 取蓝色的 5 个：30、40、50、60、70　（7 号位是 stop，取不到）</text>
+    </svg>
+    <div class="figcap">图 4-6　切片"含头不含尾"：start 那个位置取得到，stop 那个位置取不到</div>
+  </div>
+  <div class="demo" data-demo="k2-slice">
+    <div class="demo-head">
+      <span class="demo-title">切片的五种常规写法</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">nums = [10, 20, 30, 40, 50, 60, 70, 80, 90]
+print(nums[2:7])     # 下标 2 到 6，共 5 个
+print(nums[0:4])
+print(nums[:3])      # start 省略 = 从 0 开始
+print(nums[5:])      # stop 省略 = 一直取到结尾
+print(nums[:])       # 全部（等于复制一份）</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+[30, 40, 50, 60, 70]
+[10, 20, 30, 40]
+[10, 20, 30]
+[60, 70, 80, 90]
+[10, 20, 30, 40, 50, 60, 70, 80, 90]
+</pre></div>
+  </div>
+  <div class="demo" data-demo="k2-slice-step">
+    <div class="demo-head">
+      <span class="demo-title">步长与负索引：隔一个取一个、倒着取、越界不报错</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">nums = [10, 20, 30, 40, 50, 60, 70, 80, 90]
+print(nums[0:6:2])     # 从 0 开始，每 2 个取一个
+print(nums[::2])       # 整个列表隔一个取一个
+print(nums[::-1])      # 步长为负：倒序
+print(nums[-3:-1])     # 负索引也能切片
+print(nums[100:200])   # 越界：不报错，返回空列表</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+[10, 30, 50]
+[10, 30, 50, 70, 90]
+[90, 80, 70, 60, 50, 40, 30, 20, 10]
+[70, 80]
+[]
+</pre></div>
+  </div>
+  <div class="sumline">✅ <b>本节小结</b>：<strong>索引取一个，切片取一段。</strong> 索引从 0 开始、负数从 -1 开始，越界会报 <code class="inline">IndexError</code>；切片写 <code class="inline">[start:stop:step]</code>，<strong>含头不含尾</strong>，三个参数都可省略，越界不会报错。常用套路：<code class="inline">nums[::-1]</code> 倒序、<code class="inline">nums[::2]</code> 隔一个取一个。</div>
+  <div class="vid">
+    <span class="vtag">配套视频</span>
+    <a href="https://www.bilibili.com/video/BV1qW4y1a7fU/?p=63" target="_blank" rel="noopener">黑马程序员 · 第 63 讲 列表的定义语法</a>
+    <span class="vmeta">B站 · 下标索引见第 64 讲，切片见第 71 讲</span>
+  </div>
+
+  <h3 id="c2-4">2.4 列表的运算符操作</h3>
+  <div class="tbl-wrap">
+    <table class="mini-table">
+      <thead><tr><th>运算符</th><th>功能</th><th>例子</th></tr></thead>
+      <tbody>
+        <tr><td><code class="inline">=</code></td><td>赋值运算</td><td><code class="inline">scores = [75, 80]</code></td></tr>
+        <tr><td><code class="inline">+</code></td><td>合并两个列表，得到<strong>新</strong>列表</td><td><code class="inline">[1,2,3] + [4,5]</code> → <code class="inline">[1,2,3,4,5]</code></td></tr>
+        <tr><td><code class="inline">*</code></td><td>重复列表元素</td><td><code class="inline">['a','b'] * 2</code> → <code class="inline">['a','b','a','b']</code></td></tr>
+        <tr><td><code class="inline">in</code></td><td>成员测试，判断元素是否在列表中</td><td><code class="inline">90 in scores</code> → <code class="inline">True</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="demo" data-demo="k2-ops">
+    <div class="demo-head">
+      <span class="demo-title">合并、重复、成员测试</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">print([1, 2, 3] + [4, 5])              # 合并得到新列表
+print(['a', 'b', 'c'] * 2)             # 重复
+
+scores = [75, 80, 85, 70, 65, 90]
+print(90 in scores)                    # 90 在列表里吗？
+print('zhao' in ['zhang', 'wang'])     # 字符串也能用 in
+print(60 not in scores)</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+[1, 2, 3, 4, 5]
+['a', 'b', 'c', 'a', 'b', 'c']
+True
+False
+True
+</pre></div>
+  </div>
+  <div class="sumline">✅ <b>本节小结</b>：<code class="inline">+</code> 合并、<code class="inline">*</code> 重复、<code class="inline">in</code> 判断"在不在"。注意 <code class="inline">+</code> 是<strong>生成一个新列表</strong>，原来的两个列表不变——这一点和后面要讲的 <code class="inline">extend()</code> 正好相反。</div>
+
+  <h3 id="c2-5">2.5 修改、删除元素</h3>
+  <div class="demo" data-demo="k2-modify">
+    <div class="demo-head">
+      <span class="demo-title">改一个元素、改一段元素、删一个元素</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">scores = [75, 80, 85, 70, 65, 90]
+scores[3] = 77                 # ① 按下标改一个
+print(scores)
+
+scores[:3] = [70, 72, 74]      # ② 用切片改一段（个数可以不一样）
+print(scores)
+
+del scores[0]                  # ③ 按下标删一个
+print(scores)
+print("现在还剩", len(scores), "个元素")</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+[75, 80, 85, 77, 65, 90]
+[70, 72, 74, 77, 65, 90]
+[72, 74, 77, 65, 90]
+现在还剩 5 个元素
+</pre></div>
+  </div>
+  <div class="sumline">✅ <b>本节小结</b>：<strong>列表的元素可以"就地改"</strong>：<code class="inline">scores[3] = 77</code> 改一个，<code class="inline">scores[:3] = [...]</code> 改一段（长度都不要求一样），<code class="inline">del scores[0]</code> 删一个。这正是"可变序列"的含义——不改变量名，改的是里面的格子。</div>
+
+  <h3 id="c2-6">2.6 列表常用函数：len / max / min / sum</h3>
+  <div class="tbl-wrap">
+    <table class="mini-table">
+      <thead><tr><th>函数</th><th>功能</th></tr></thead>
+      <tbody>
+        <tr><td><code class="inline">len()</code></td><td>返回列表中元素的个数</td></tr>
+        <tr><td><code class="inline">max()</code></td><td>返回列表元素的最大值</td></tr>
+        <tr><td><code class="inline">min()</code></td><td>返回列表元素的最小值</td></tr>
+        <tr><td><code class="inline">sum()</code></td><td>返回列表元素的和（元素必须是数字）</td></tr>
+        <tr><td><code class="inline">zip()</code> / <code class="inline">enumerate()</code></td><td>把多个列表对应组合、给元素配上序号（返回可迭代对象，详见第 7 节）</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="demo" data-demo="k2-func">
+    <div class="demo-head">
+      <span class="demo-title">例 4-1　计算一组成绩的最高分、最低分和平均分</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">scores = [75, 80, 85, 70, 65, 90]
+print('最高分：', max(scores))
+print('最低分：', min(scores))
+
+total = sum(scores)          # 总分
+n = len(scores)              # 人数
+print('总分：', total, ' 人数：', n)
+print('平均分：', round(total / n, 2))    # 保留 2 位小数</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+最高分： 90
+最低分： 65
+总分： 465  人数： 6
+平均分： 77.5
+</pre></div>
+  </div>
+  <div class="sumline">✅ <b>本节小结</b>：求最大值、最小值、求和、计数都是<strong>现成的内置函数</strong>——<code class="inline">max()</code>、<code class="inline">min()</code>、<code class="inline">sum()</code>、<code class="inline">len()</code>，不要自己写循环去比大小。平均值就是 <code class="inline">sum(scores) / len(scores)</code>，别忘了用 <code class="inline">round()</code> 控制小数位。</div>
+
+  <h3 id="c2-7">2.7 列表常用方法：增删改查都在这儿</h3>
+  <p>函数和方法的区别在写法：<strong>函数是"函数名(参数)"，方法是"对象名.方法名(参数)"</strong>。列表的方法都是"就地修改"，改完原列表就变了，返回的往往是 <code class="inline">None</code>。</p>
+  <div class="tbl-wrap">
+    <table class="mini-table">
+      <thead><tr><th>方法</th><th>功能</th></tr></thead>
+      <tbody>
+        <tr><td><code class="inline">append(x)</code></td><td>在列表<strong>末尾追加一个元素</strong> x（如果 x 是列表，就变成嵌套列表）</td></tr>
+        <tr><td><code class="inline">extend(L)</code></td><td>把列表 L 中的元素<strong>逐个追加</strong>到末尾</td></tr>
+        <tr><td><code class="inline">insert(index, x)</code></td><td>在下标 index 处插入元素 x</td></tr>
+        <tr><td><code class="inline">remove(x)</code></td><td>删除第一个值与 x 相等的元素（找不到会报错）</td></tr>
+        <tr><td><code class="inline">pop([index])</code></td><td>移除并返回下标 index 处的元素，不写则删最后一个</td></tr>
+        <tr><td><code class="inline">count(x)</code> / <code class="inline">index(x)</code></td><td>统计 x 出现次数 / 返回 x 第一次出现的下标</td></tr>
+        <tr><td><code class="inline">reverse()</code></td><td>把列表元素逆序翻转（就地改）</td></tr>
+        <tr><td><code class="inline">sort(key=None, reverse=False)</code></td><td>排序，<code class="inline">reverse=True</code> 表示降序；数字按大小、字符串按 Unicode 编码</td></tr>
+        <tr><td><code class="inline">copy()</code> / <code class="inline">clear()</code></td><td>复制列表（浅复制）/ 清空列表</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="demo" data-demo="k2-methods1">
+    <div class="demo-head">
+      <span class="demo-title">append / extend / insert：三个"加元素"的方法，别搞混</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">x1 = [1, 2, 3]
+x1.append(5)             # 追加一个元素
+print('append(5)     :', x1)
+x1.append([7, 8])        # 追加的是"一个列表"
+print('append([7,8]) :', x1)
+
+x2 = [1, 2, 3]
+x2.extend([7, 8])        # 把列表里的元素逐个加进来
+print('extend([7,8]) :', x2)
+
+x3 = [1, 2, 3]
+x3.insert(1, 99)         # 在下标 1 处插入
+print('insert(1,99)  :', x3)</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+append(5)     : [1, 2, 3, 5]
+append([7,8]) : [1, 2, 3, 5, [7, 8]]
+extend([7,8]) : [1, 2, 3, 7, 8]
+insert(1,99)  : [1, 99, 2, 3]
+</pre></div>
+  </div>
+  <div class="warn"><strong>最经典的混淆</strong>：<code class="inline">append([7,8])</code> 加进去的是<strong>一个列表</strong>（列表长度 +1，最后一项是 <code class="inline">[7, 8]</code>）；<code class="inline">extend([7,8])</code> 加进去的是<strong>两个数字</strong>（列表长度 +2）。要"合并两个列表"，用 <code class="inline">extend()</code> 或 <code class="inline">+</code>。</div>
+  <div class="demo" data-demo="k2-methods2">
+    <div class="demo-head">
+      <span class="demo-title">删（remove / pop）、统计（count / index）、复制（copy）</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">x = [1, 5, 7, 2, 5]
+print('count(5)  :', x.count(5))     # 5 出现了几次
+print('index(7)  :', x.index(7))     # 7 在哪个下标
+
+x.remove(5)                          # 删掉第一个 5
+print('remove(5) :', x)
+
+last = x.pop()                       # 弹出最后一个
+print('pop()     :', last, ' 剩余', x)
+first = x.pop(0)                     # 弹出下标 0
+print('pop(0)    :', first, ' 剩余', x)
+
+y = x.copy()                         # 复制一份
+y.append(100)
+print('原列表    :', x)
+print('副本追加后:', y)</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+count(5)  : 2
+index(7)  : 2
+remove(5) : [1, 7, 2, 5]
+pop()     : 5  剩余 [1, 7, 2]
+pop(0)    : 1  剩余 [7, 2]
+原列表    : [7, 2]
+副本追加后: [7, 2, 100]
+</pre></div>
+  </div>
+  <div class="demo" data-demo="k2-sort">
+    <div class="demo-head">
+      <span class="demo-title">reverse / sort / sorted：自己要会分辨"就地的"和"不改原列表的"</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">x = [1, 5, 7, 2]
+x.reverse()                    # 逆序翻转（就地改）
+print('reverse()          :', x)
+
+x.sort()                       # 升序（就地改）
+print('sort()             :', x)
+
+x.sort(reverse=True)           # 降序（就地改）
+print('sort(reverse=True) :', x)
+
+print('sorted() 不改原列表 :', sorted(x))
+print('原列表仍然是        :', x)</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+reverse()          : [2, 7, 5, 1]
+sort()             : [1, 2, 5, 7]
+sort(reverse=True) : [7, 5, 2, 1]
+sorted() 不改原列表 : [1, 2, 5, 7]
+原列表仍然是        : [7, 5, 2, 1]
+</pre></div>
+  </div>
+  <div class="demo" data-demo="k2-copy-trap">
+    <div class="demo-head">
+      <span class="demo-title">copy() 是"浅复制"：改成嵌套里的列表，两个都要变</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">a = [1, 2, [3, 4]]
+b = a.copy()          # 浅复制
+
+b[0] = 100            # 改顶层的元素：互不影响
+print('a =', a)
+print('b =', b)
+
+b[2][0] = 999         # 改嵌套子列表里的元素：两个都变
+print('a =', a)
+print('b =', b)</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+a = [1, 2, [3, 4]]
+b = [100, 2, [3, 4]]
+a = [1, 2, [999, 4]]
+b = [100, 2, [999, 4]]
+</pre></div>
+  </div>
+  <div class="sumline">✅ <b>本节小结</b>：<strong>加用 append / extend / insert，删用 remove / pop，排序用 sort(reverse=True)，复制用 copy()</strong>。三个坑记住：① <code class="inline">append([7,8])</code> 加的是"一个列表"，<code class="inline">extend([7,8])</code> 加的是"两个元素"；② <code class="inline">sort()</code> 就地改，<code class="inline">sorted()</code> 返回新列表、原列表不动；③ <code class="inline">copy()</code> 只复制第一层，嵌套的子列表还是共用的。</div>
+  <div class="vid">
+    <span class="vtag">配套视频</span>
+    <a href="https://www.bilibili.com/video/BV1qW4y1a7fU/?p=65" target="_blank" rel="noopener">黑马程序员 · 第 65 讲 列表的常用操作方法</a>
+    <span class="vmeta">B站 · 配套练习讲解见第 66 讲</span>
+  </div>
+
+  <h3 id="c2-8">2.8 例题：成绩合并、排序与统计</h3>
+  <div class="demo" data-demo="k2-ex4-2">
+    <div class="demo-head">
+      <span class="demo-title">例 4-2　合并两个成绩列表，降序排列并统计 80 分以上人数</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">scores = [75, 80, 85, 70, 65, 90]
+scores2 = [90, 76, 80, 90]
+
+scores.extend(scores2)         # 合并（等价写法：scores = scores + scores2）
+scores.sort(reverse=True)      # 降序
+print('合并降序后：', scores)
+
+n = 0
+for s in scores:
+    if s >= 80:
+        n += 1
+print('80 分以上人数：', n)
+print('最高分：', max(scores), ' 最低分：', min(scores))
+print('总人数：', len(scores))</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+合并降序后： [90, 90, 90, 85, 80, 80, 76, 75, 70, 65]
+80 分以上人数： 6
+最高分： 90  最低分： 65
+总人数： 10
+</pre></div>
+  </div>
+  <div class="sumline">✅ <b>本节小结</b>：统计类题目就三步——<strong>先把数据装进列表，再排序 / 求函数值，最后用循环或推导式筛条件</strong>。注意 <code class="inline">extend</code> 会改原列表，<code class="inline">+</code> 会生成新列表，两种写法都对，但要清楚区别。</div>
+
+  <h3 id="c2-9">2.9 列表推导式：一行生成一个新列表</h3>
+  <p>列表推导式用"描述"的方式说明要什么样的元素，把<strong>循环和条件判断浓缩成一行</strong>。语法：<code class="inline">[ 表达式 for 迭代变量 in 可迭代对象 [if 条件表达式] ]</code>，执行逻辑等价于一个 for 循环加一个 if。</p>
+  <div class="figsvg">
+    <svg viewBox="0 0 900 240" role="img" aria-label="列表推导式的执行流程">
+      <text x="450" y="28" text-anchor="middle" font-size="18" font-weight="bold" fill="#1f3864">列表推导式：[ i*i for i in range(1, 6) if i % 2 == 1 ]</text>
+      <rect x="30" y="60" width="150" height="58" rx="10" fill="#eaf1f8" stroke="#306998" stroke-width="2"/>
+      <text x="105" y="86" text-anchor="middle" font-size="13" fill="#1f3864">可迭代对象</text>
+      <text x="105" y="106" text-anchor="middle" font-size="12.5" fill="#5d594c">range(1,6)</text>
+      <rect x="210" y="60" width="150" height="58" rx="10" fill="#ffffff" stroke="#306998" stroke-width="2"/>
+      <text x="285" y="86" text-anchor="middle" font-size="13" fill="#1f3864">取出迭代变量</text>
+      <text x="285" y="106" text-anchor="middle" font-size="12.5" fill="#5d594c">i = 1, 2, 3, 4, 5</text>
+      <rect x="390" y="60" width="150" height="58" rx="10" fill="#fdf3e3" stroke="#b8860b" stroke-width="2"/>
+      <text x="465" y="86" text-anchor="middle" font-size="13" fill="#7a4a0a">条件判断（可选）</text>
+      <text x="465" y="106" text-anchor="middle" font-size="12.5" fill="#5d594c">if i % 2 == 1</text>
+      <rect x="570" y="60" width="150" height="58" rx="10" fill="#ffffff" stroke="#2e7d32" stroke-width="2"/>
+      <text x="645" y="86" text-anchor="middle" font-size="13" fill="#215c26">计算表达式</text>
+      <text x="645" y="106" text-anchor="middle" font-size="12.5" fill="#5d594c">i * i</text>
+      <rect x="750" y="60" width="120" height="58" rx="10" fill="#eaf5eb" stroke="#2e7d32" stroke-width="2"/>
+      <text x="810" y="84" text-anchor="middle" font-size="13" fill="#215c26">新列表</text>
+      <text x="810" y="104" text-anchor="middle" font-size="12.5" fill="#5d594c">[1, 9, 25]</text>
+      <path d="M180 89 L206 89" stroke="#306998" stroke-width="2" marker-end="url(#ar3)"/>
+      <path d="M360 89 L386 89" stroke="#306998" stroke-width="2" marker-end="url(#ar3)"/>
+      <path d="M540 89 L566 89" stroke="#b8860b" stroke-width="2" marker-end="url(#ar3)"/>
+      <path d="M720 89 L746 89" stroke="#2e7d32" stroke-width="2" marker-end="url(#ar3)"/>
+      <defs>
+        <marker id="ar3" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
+          <path d="M0,0 L8,4 L0,8 z" fill="#5d594c"/>
+        </marker>
+      </defs>
+      <path d="M810 130 Q810 165 465 165 Q120 165 105 130" fill="none" stroke="#8a8577" stroke-width="1.6" stroke-dasharray="6 5"/>
+      <text x="450" y="186" text-anchor="middle" font-size="12.5" fill="#8a8577">取下一个元素，重复上面的过程，直到可迭代对象取完</text>
+      <text x="450" y="216" text-anchor="middle" font-size="13.5" fill="#5d594c">等价于：for i in range(1,6):  if i % 2 == 1:  新列表.append(i * i)</text>
+    </svg>
+    <div class="figcap">图 4-7　列表推导式的执行流程：取元素 → 判条件 → 算表达式 → 放进新列表（和 for 循环完全等价）</div>
+  </div>
+  <div class="demo" data-demo="k2-comp1">
+    <div class="demo-head">
+      <span class="demo-title">列表推导式基本写法</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">print([2 * n for n in [1, 2, 3]])                 # 每个元素乘 2
+print([n for n in range(10) if n % 2 == 1])       # 只要奇数
+print([n * n for n in range(1, 6)])               # 1~5 的平方
+print([c.upper() for c in 'python'])              # 每个字母变大写</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+[2, 4, 6]
+[1, 3, 5, 7, 9]
+[1, 4, 9, 16, 25]
+['P', 'Y', 'T', 'H', 'O', 'N']
+</pre></div>
+  </div>
+  <div class="demo" data-demo="k2-comp2">
+    <div class="demo-head">
+      <span class="demo-title">例 4-3　求 1 + 1/2 + 1/3 + … + 1/10</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">alist = [1 / i for i in range(1, 11)]     # 生成 10 个分数
+print(alist)
+print('累加和 =', sum(alist))</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+[1.0, 0.5, 0.3333333333333333, 0.25, 0.2, 0.16666666666666666, 0.14285714285714285, 0.125, 0.1111111111111111, 0.1]
+累加和 = 2.9289682539682538
+</pre></div>
+  </div>
+  <div class="demo" data-demo="k2-comp3">
+    <div class="demo-head">
+      <span class="demo-title">例 4-4　把所有价格保留 1 位小数</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">prices = [52.456, 92.012, 89.65, 14.22, 65.14]
+new_prices = [round(p, 1) for p in prices]
+print('原价：', prices)
+print('新价：', new_prices)</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+原价： [52.456, 92.012, 89.65, 14.22, 65.14]
+新价： [52.5, 92.0, 89.7, 14.2, 65.1]
+</pre></div>
+  </div>
+  <div class="demo" data-demo="k2-comp4">
+    <div class="demo-head">
+      <span class="demo-title">实战：取商品编号的前两位当类别 + 求 1~100 中 5 的倍数</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">alist = ['137401', '177562', '157586', '1171123']
+types = [s[0:2] for s in alist]        # 每个编号取前两位
+print('商品类别：', types)
+
+five = [n for n in range(1, 101) if n % 5 == 0]
+print('5 的倍数共', len(five), '个')
+print('前 10 个：', five[:10])
+print('累加和：', sum(five))</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+商品类别： ['13', '17', '15', '11']
+5 的倍数共 20 个
+前 10 个： [5, 10, 15, 20, 25, 30, 35, 40, 45, 50]
+累加和： 1050
+</pre></div>
+  </div>
+  <div class="sumline">✅ <b>本节小结</b>：列表推导式 = <strong>把"循环 + 判断 + 加工"塞进一对方括号</strong>：<code class="inline">[表达式 for 变量 in 数据 if 条件]</code>。它不改变原列表，而是生成新列表；能一行写清就用它，逻辑一复杂就老实写 for 循环。考试里它是列表题的高频写法。</div>
+  <div class="vid">
+    <span class="vtag">配套视频</span>
+    <a href="https://www.bilibili.com/video/BV1qW4y1a7fU/?p=71" target="_blank" rel="noopener">黑马程序员 · 第 71 讲 数据容器（序列）的切片</a>
+    <span class="vmeta">B站 · 列表的循环遍历见第 67 讲；五类容器总结对比见第 78 讲</span>
+  </div>
+</section>
+
+<!-- ===== 模块三：元组 ===== -->
+<section id="c3">
+  <div class="sec-head">
+    <div class="sec-num">三</div>
+    <div>
+      <h2>元组 Tuple</h2>
+      <p class="sec-sub">4.3 · 不可变序列 · 创建与访问 · 与列表怎么选</p>
+    </div>
+  </div>
+
+  <p>元组和列表长得像、用法也像，只有一个关键区别：<strong>元组是不可变的</strong>——创建之后元素不能修改、不能增删。用圆括号 <code class="inline">( )</code> 作定界符，元素之间同样用英文逗号分隔。</p>
+
+  <h3 id="c3-1">3.1 创建与访问</h3>
+  <div class="figsvg">
+    <svg viewBox="0 0 900 210" role="img" aria-label="单元素元组的逗号陷阱">
+      <text x="450" y="28" text-anchor="middle" font-size="18" font-weight="bold" fill="#1f3864">单元素元组：少写一个逗号，类型就变了</text>
+      <rect x="60" y="52" width="360" height="140" rx="14" fill="#fbeceb" stroke="#b3392f" stroke-width="2"/>
+      <text x="240" y="82" text-anchor="middle" font-size="16" fill="#8c2f28">t1 = (3)</text>
+      <text x="240" y="116" text-anchor="middle" font-size="14" fill="#2b2820">&lt;class 'int'&gt;</text>
+      <text x="240" y="144" text-anchor="middle" font-size="13" fill="#8c2f28">圆括号只是"运算优先级"，不是元组</text>
+      <text x="240" y="170" text-anchor="middle" font-size="13" fill="#8c2f28">t1 + 1 = 4，它是一个整数</text>
+      <rect x="480" y="52" width="360" height="140" rx="14" fill="#eaf5eb" stroke="#2e7d32" stroke-width="2"/>
+      <text x="660" y="82" text-anchor="middle" font-size="16" fill="#215c26">t2 = (3<tspan font-size="20" font-weight="bold" fill="#b3392f">,</tspan>)</text>
+      <text x="660" y="116" text-anchor="middle" font-size="14" fill="#2b2820">&lt;class 'tuple'&gt;</text>
+      <text x="660" y="144" text-anchor="middle" font-size="13" fill="#215c26">逗号才是元组的标志，一个元素也要写</text>
+      <text x="660" y="170" text-anchor="middle" font-size="13" fill="#215c26">len(t2) = 1</text>
+    </svg>
+    <div class="figcap">图 4-8　单元素元组的坑：决定类型的是<strong>逗号</strong>，不是圆括号</div>
+  </div>
+  <div class="demo" data-demo="k3-create">
+    <div class="demo-head">
+      <span class="demo-title">创建元组：圆括号、tuple()、单元素与空元组</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">x = (1, 2, 3)
+print(x, type(x))
+print(tuple(range(5)))      # 其他可迭代对象 → 元组
+print(tuple('abc'))         # 字符串 → 逐字符元组
+
+t1 = (3)                    # 注意：这是整数，不是元组！
+t2 = (3,)                   # 一个元素的元组必须多写一个逗号
+print(t1, type(t1))
+print(t2, type(t2), len(t2))
+
+empty = ()
+print(empty, type(empty))</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+(1, 2, 3) &lt;class 'tuple'&gt;
+(0, 1, 2, 3, 4)
+('a', 'b', 'c')
+3 &lt;class 'int'&gt;
+(3,) &lt;class 'tuple'&gt; 1
+() &lt;class 'tuple'&gt;
+</pre></div>
+  </div>
+  <div class="demo" data-demo="k3-index-slice">
+    <div class="demo-head">
+      <span class="demo-title">元组也支持索引和切片（读可以，改不行）</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">x = (10, 20, 30, 40, 50)
+print(x[0])          # 索引访问
+print(x[-1])         # 反向索引
+print(x[:2])         # 切片：返回的还是元组
+print(x[::2])        # 步长
+print(x[::-1])       # 倒序</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+10
+50
+(10, 20)
+(10, 30, 50)
+(50, 40, 30, 20, 10)
+</pre></div>
+  </div>
+  <div class="sumline">✅ <b>本节小结</b>：元组的<strong>读法和列表一样</strong>（索引、切片、双向索引都行），区别只在"不能改"。单元素元组一定要写逗号：<code class="inline">(3,)</code> 是元组，<code class="inline">(3)</code> 是整数——这个坑考试很爱考。</div>
+
+  <h3 id="c3-2">3.2 不可变：改了就报错</h3>
+  <div class="demo" data-demo="k3-immutable" data-expect-error="1">
+    <div class="demo-head">
+      <span class="demo-title">给元组元素赋值会怎样？（故意报错）</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">x = (10, 20, 30)
+print("改之前：", x)
+x[1] = 99          # 元组的元素不能修改</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+改之前： (10, 20, 30)
+Traceback (most recent call last):
+  File "&lt;pyshell&gt;", line 3, in &lt;module&gt;
+    x[1] = 99          # 元组的元素不能修改
+TypeError: 'tuple' object does not support item assignment
+</pre></div>
+  </div>
+  <div class="sumline">✅ <b>本节小结</b>：元组<strong>没有 append / extend / insert / remove / pop</strong>，因为它是不可变序列；给它赋值会直接抛 <code class="inline">TypeError: 'tuple' object does not support item assignment</code>。记住：不可变 ≠ 不能用，只是不能改。</div>
+
+  <h3 id="c3-3">3.3 元组的常用操作</h3>
+  <div class="demo" data-demo="k3-func">
+    <div class="demo-head">
+      <span class="demo-title">元组支持的运算符、函数和方法</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">x = (1, 5, 7, 2, 5)
+print('长度：', len(x))
+print('最大：', max(x), ' 最小：', min(x), ' 求和：', sum(x))
+print('5 出现次数：', x.count(5))
+print('7 的下标：', x.index(7))
+print('拼接：', (1, 2) + (3,))
+print('重复：', (0,) * 3)
+print('成员测试 3 in x：', 3 in x)
+print('5 in x：', 5 in x)</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+长度： 5
+最大： 7  最小： 1  求和： 20
+5 出现次数： 2
+7 的下标： 2
+拼接： (1, 2, 3)
+重复： (0, 0, 0)
+成员测试 3 in x： False
+5 in x： True
+</pre></div>
+  </div>
+  <div class="sumline">✅ <b>本节小结</b>：元组支持 <code class="inline">+</code>、<code class="inline">*</code>、<code class="inline">in</code> 运算符，支持 <code class="inline">len()/max()/min()/sum()</code> 函数和 <code class="inline">count()/index()</code> 方法，<strong>唯独没有"增删改"那一套</strong>——这就是判断"某个方法是列表的还是元组的"最快的办法。</div>
+
+  <h3 id="c3-4">3.4 元组 vs 列表：什么时候用哪个</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>对比项</th><th>列表 list</th><th>元组 tuple</th></tr></thead>
+      <tbody>
+        <tr><td>定界符</td><td><code class="inline">[ ]</code></td><td><code class="inline">( )</code></td></tr>
+        <tr><td>能否修改</td><td>可变（可增删改）</td><td><strong>不可变</strong></td></tr>
+        <tr><td>能否当字典的键 / 放进集合</td><td><strong>不能</strong></td><td><strong>能</strong></td></tr>
+        <tr><td>创建与存储</td><td>稍慢、占空间略多</td><td>更快、更省空间</td></tr>
+        <tr><td>适用场景</td><td>一组会变的数据（成绩表、待办清单）</td><td>一组固定的值（坐标、配置、函数返回多个值）</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="demo" data-demo="k3-hashable" data-expect-error="1">
+    <div class="demo-head">
+      <span class="demo-title">为什么"不可变"是优点：元组能当键，列表不能</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">d = {(1, 2): '坐标点'}        # 元组可以当字典的键
+print(d[(1, 2)])
+
+s = {(1, 2), (3, 4)}          # 元组也可以放进集合
+print(s)
+
+d2 = {[1, 2]: '列表行不行？'}   # 列表是可变类型 → 报错</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+坐标点
+{(1, 2), (3, 4)}
+Traceback (most recent call last):
+  File "&lt;pyshell&gt;", line 7, in &lt;module&gt;
+    d2 = {[1, 2]: '列表行不行？'}   # 列表是可变类型 → 报错
+TypeError: cannot use 'list' as a dict key (unhashable type: 'list')
+</pre></div>
+  </div>
+  <div class="sumline">✅ <b>本节小结</b>：<strong>会变的数据用列表，固定的数据用元组</strong>。因为元组不可变，所以它可以作为字典的键、可以作为集合的元素（列表不行，会报 <code class="inline">TypeError: unhashable type: 'list'</code>）。另外，函数要"返回多个值"时，返回的其实就是一个元组（第 5 章会用到）。</div>
+  <div class="vid">
+    <span class="vtag">配套视频</span>
+    <a href="https://www.bilibili.com/video/BV1qW4y1a7fU/?p=68" target="_blank" rel="noopener">黑马程序员 · 第 68 讲 元组的定义和操作</a>
+    <span class="vmeta">B站</span>
+  </div>
+</section>
+
+<!-- ===== 模块四：字典 ===== -->
+<section id="c4">
+  <div class="sec-head">
+    <div class="sec-num">四</div>
+    <div>
+      <h2>字典 Dict <span class="tag red">本章重点</span></h2>
+      <p class="sec-sub">4.4 · 键值对 · 按键访问 · 增删改查 · 三种遍历 · 统计类任务</p>
+    </div>
+  </div>
+
+  <p>字典由<strong>键值对（key-value）</strong>组成，用大括号 <code class="inline">{键: 值}</code> 作定界符，键和值之间用英文冒号、不同元素之间用英文逗号分隔。它是<strong>无序、可变</strong>的映射类型：<strong>同一个字典里键必须唯一，值可以重复</strong>。</p>
+
+  <div class="figsvg">
+    <svg viewBox="0 0 900 260" role="img" aria-label="字典的键值映射示意">
+      <text x="450" y="28" text-anchor="middle" font-size="18" font-weight="bold" fill="#1f3864">字典 = 查号台：给它"键"，它还你"值"</text>
+      <text x="200" y="62" text-anchor="middle" font-size="14" font-weight="bold" fill="#7a4a0a">键 key（唯一）</text>
+      <text x="640" y="62" text-anchor="middle" font-size="14" font-weight="bold" fill="#215c26">值 value（可重复）</text>
+      <rect x="60" y="76" width="280" height="42" rx="9" fill="#fdf3e3" stroke="#b8860b" stroke-width="2"/>
+      <text x="200" y="103" text-anchor="middle" font-size="15" fill="#2b2820">'zhang'</text>
+      <rect x="500" y="76" width="280" height="42" rx="9" fill="#eaf5eb" stroke="#2e7d32" stroke-width="2"/>
+      <text x="640" y="103" text-anchor="middle" font-size="15" fill="#2b2820">90</text>
+      <path d="M344 97 L496 97" stroke="#8a8577" stroke-width="1.8" marker-end="url(#ar4)"/>
+      <rect x="60" y="126" width="280" height="42" rx="9" fill="#fdf3e3" stroke="#b8860b" stroke-width="2"/>
+      <text x="200" y="153" text-anchor="middle" font-size="15" fill="#2b2820">'li'</text>
+      <rect x="500" y="126" width="280" height="42" rx="9" fill="#eaf5eb" stroke="#2e7d32" stroke-width="2"/>
+      <text x="640" y="153" text-anchor="middle" font-size="15" fill="#2b2820">85</text>
+      <path d="M344 147 L496 147" stroke="#8a8577" stroke-width="1.8" marker-end="url(#ar4)"/>
+      <rect x="60" y="176" width="280" height="42" rx="9" fill="#fdf3e3" stroke="#b8860b" stroke-width="2"/>
+      <text x="200" y="203" text-anchor="middle" font-size="15" fill="#2b2820">'wang'</text>
+      <rect x="500" y="176" width="280" height="42" rx="9" fill="#eaf5eb" stroke="#2e7d32" stroke-width="2"/>
+      <text x="640" y="203" text-anchor="middle" font-size="15" fill="#2b2820">92</text>
+      <path d="M344 197 L496 197" stroke="#8a8577" stroke-width="1.8" marker-end="url(#ar4)"/>
+      <defs>
+        <marker id="ar4" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
+          <path d="M0,0 L8,4 L0,8 z" fill="#8a8577"/>
+        </marker>
+      </defs>
+      <text x="450" y="243" text-anchor="middle" font-size="13.5" fill="#5d594c">d['li'] → 85　（拿键去查，立刻拿到值；键不存在则报 KeyError）</text>
+    </svg>
+    <div class="figcap">图 4-9　字典的"键 → 值"映射：它没有 0 号位，不能用下标索引，只能按"键"取值</div>
+  </div>
+
+  <h3 id="c4-1">4.1 创建字典</h3>
+  <div class="demo" data-demo="k4-create">
+    <div class="demo-head">
+      <span class="demo-title">三种创建方式：直接写、空字典、dict() 转换</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">color = {1: 'red', 2: 'yellow', 3: 'green'}
+print(color, type(color))
+
+std_sc = {'zhang': 90, 'li': 85, 'wang': 92, 'zhao': 76}
+print(std_sc)
+print('一共有', len(std_sc), '个键值对')
+
+empty = {}
+print('空字典：', empty, type(empty))
+
+d = dict([('zhang', 90), ('li', 85)])       # 用键值对序列创建
+print(d)</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+{1: 'red', 2: 'yellow', 3: 'green'} &lt;class 'dict'&gt;
+{'zhang': 90, 'li': 85, 'wang': 92, 'zhao': 76}
+一共有 4 个键值对
+空字典： {} &lt;class 'dict'&gt;
+{'zhang': 90, 'li': 85}
+</pre></div>
+  </div>
+  <div class="sumline">✅ <b>本节小结</b>：字典的写法是 <code class="inline">{键: 值, 键: 值}</code>；<strong>空字典是 <code class="inline">{}</code></strong>（注意：空的大括号是字典，不是集合！空集合要写 <code class="inline">set()</code>，下一节会讲到）。键必须是不可变类型（字符串、数字、元组都可以，列表不行）。</div>
+
+  <h3 id="c4-2">4.2 按键访问：d[键] 与 get()</h3>
+  <div class="demo" data-demo="k4-access">
+    <div class="demo-head">
+      <span class="demo-title">取值、get() 与"键在不在"</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">std_sc = {'zhang': 90, 'li': 85, 'wang': 92, 'zhao': 76}
+print(std_sc['zhang'])                  # 按键取值
+print(std_sc.get('wang'))               # get 方法
+print(std_sc.get('sun'))                # 键不存在：返回 None
+print(std_sc.get('sun', '查无此人'))     # 给个默认值，更安全
+print('sun' in std_sc)                  # 判断键在不在
+print('zhang' in std_sc)</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+90
+92
+None
+查无此人
+False
+True
+</pre></div>
+  </div>
+  <div class="demo" data-demo="k4-keyerror" data-expect-error="1">
+    <div class="demo-head">
+      <span class="demo-title">用不存在的键取值会怎样？（故意报错）</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">std_sc = {'zhang': 90, 'li': 85}
+print(std_sc['sun'])        # 'sun' 这个键不存在</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+Traceback (most recent call last):
+  File "&lt;pyshell&gt;", line 2, in &lt;module&gt;
+    print(std_sc['sun'])        # 'sun' 这个键不存在
+KeyError: 'sun'
+</pre></div>
+  </div>
+  <div class="sumline">✅ <b>本节小结</b>：<strong><code class="inline">d[键]</code> 取值快但键不存在会报 KeyError；<code class="inline">d.get(键, 默认值)</code> 更安全</strong>，键不存在时返回默认值（不写默认值就返回 <code class="inline">None</code>）。写程序时先用 <code class="inline">in</code> 判断或直接用 <code class="inline">get()</code>，能少一半报错。</div>
+
+  <h3 id="c4-3">4.3 修改、添加、删除元素</h3>
+  <div class="demo" data-demo="k4-modify">
+    <div class="demo-head">
+      <span class="demo-title">一个赋值语句，既可能是"改"也可能是"加"</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">std_sc = {'zhang': 90, 'li': 85, 'wang': 92, 'zhao': 76}
+
+std_sc['sun'] = 75          # 键不存在 → 添加一对
+print(std_sc)
+
+std_sc['zhang'] = 95        # 键已存在 → 修改值
+print(std_sc)
+
+del std_sc['zhao']          # 删除整个键值对
+print(std_sc)
+print('现在有', len(std_sc), '个键值对，键是：', list(std_sc.keys()))</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+{'zhang': 90, 'li': 85, 'wang': 92, 'zhao': 76, 'sun': 75}
+{'zhang': 95, 'li': 85, 'wang': 92, 'zhao': 76, 'sun': 75}
+{'zhang': 95, 'li': 85, 'wang': 92, 'sun': 75}
+现在有 4 个键值对，键是： ['zhang', 'li', 'wang', 'sun']
+</pre></div>
+  </div>
+  <div class="sumline">✅ <b>本节小结</b>：<strong><code class="inline">d[键] = 值</code> 一句顶两句——键存在就是改，键不存在就是加。</strong> 删除用 <code class="inline">del d[键]</code>。正因为这样，字典特别适合"边遍历边统计"：见到一个新键就建，见到老键就累加（后面例 4-9 就是这么写的）。</div>
+
+  <h3 id="c4-4">4.4 三种遍历：keys() / values() / items()</h3>
+  <div class="tbl-wrap">
+    <table class="mini-table">
+      <thead><tr><th>方法</th><th>返回什么</th><th>常用写法</th></tr></thead>
+      <tbody>
+        <tr><td><code class="inline">keys()</code></td><td>所有键</td><td><code class="inline">for k in d.keys():</code>（也可直接 <code class="inline">for k in d:</code>）</td></tr>
+        <tr><td><code class="inline">values()</code></td><td>所有值</td><td><code class="inline">for v in d.values():</code></td></tr>
+        <tr><td><code class="inline">items()</code></td><td>所有"键值对"</td><td><code class="inline">for k, v in d.items():</code> ← <strong>最常用</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="demo" data-demo="k4-traverse">
+    <div class="demo-head">
+      <span class="demo-title">把字典的键、值、键值对分别打印出来</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">std_sc = {'zhang': 90, 'li': 85, 'wang': 92}
+print('键：', list(std_sc.keys()))
+print('值：', list(std_sc.values()))
+print('键值对：', list(std_sc.items()))
+
+print()
+for k in std_sc:                  # 直接遍历字典 = 遍历键
+    print('姓名：', k)
+
+print()
+for k, v in std_sc.items():       # 同时拿到键和值
+    print(k, '的成绩是', v)
+
+print()
+total = sum(std_sc.values())
+print('总分：', total, ' 平均分：', round(total / len(std_sc), 2))</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+键： ['zhang', 'li', 'wang']
+值： [90, 85, 92]
+键值对： [('zhang', 90), ('li', 85), ('wang', 92)]
+
+姓名： zhang
+姓名： li
+姓名： wang
+
+zhang 的成绩是 90
+li 的成绩是 85
+wang 的成绩是 92
+
+总分： 267  平均分： 89.0
+</pre></div>
+  </div>
+  <div class="sumline">✅ <b>本节小结</b>：<strong>只要"键和值都要"，就用 <code class="inline">for k, v in d.items():</code></strong>；只要值就用 <code class="inline">d.values()</code>（配合 <code class="inline">sum()</code>、<code class="inline">max()</code> 做统计特别顺手）；只要键直接遍历字典即可。注意 <code class="inline">keys()</code> 等返回的是"视图对象"，想当列表用得套 <code class="inline">list()</code>。</div>
+
+  <h3 id="c4-5">4.5 例题：英汉字典（查 5 次单词）</h3>
+  <p>需求：构建一个"英文季节 → 中文"的字典，键盘输入英文单词就显示中文；不是季节单词就提示输入错误。可以连续查 5 次。</p>
+  <div class="figure">
+    <img src="assets/python-bigdata-2026/lesson4/dict-flowchart.png" alt="例4-8 的程序流程图：构建字典、循环 5 次、判断单词是否是字典的键" loading="lazy">
+    <figcaption>图 4-10　例 4-8 的程序流程图（课件原图）：构建字典 → 判断次数用完没 → 输入单词 → 判断是不是字典的键 → 取出中文或提示错误</figcaption>
+  </div>
+  <div class="demo" data-demo="k4-ex4-8" data-stdin="spring|summer|pear|autumn|winter">
+    <div class="demo-head">
+      <span class="demo-title">例 4-8　英汉字典（依次输入 spring / summer / pear / autumn / winter）</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">en_zh_dict = {'spring': '春', 'summer': '夏', 'autumn': '秋', 'winter': '冬'}
+print('使用英汉字典：', en_zh_dict)
+
+for i in range(5):                       # 连续查 5 次
+    en = input('请输入英文季节单词：')
+    if en in en_zh_dict:                 # 先判断是不是字典的键
+        print('  → 中文意思是：', en_zh_dict[en])
+    else:
+        print('  → 输入错误：字典里没有', en)</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+使用英汉字典： {'spring': '春', 'summer': '夏', 'autumn': '秋', 'winter': '冬'}
+请输入英文季节单词：spring
+  → 中文意思是： 春
+请输入英文季节单词：summer
+  → 中文意思是： 夏
+请输入英文季节单词：pear
+  → 输入错误：字典里没有 pear
+请输入英文季节单词：autumn
+  → 中文意思是： 秋
+请输入英文季节单词：winter
+  → 中文意思是： 冬
+</pre></div>
+  </div>
+  <div class="sumline">✅ <b>本节小结</b>：字典查表的标准套路是<strong>先 <code class="inline">in</code> 判断、再取值</strong>（或者直接用 <code class="inline">get()</code> 加默认值）。<code class="inline">for + input() + if</code> 的组合是最常见的"交互式小工具"骨架——回忆第 3 章的猜数字，把"比大小"换成"查字典"，就成了这道题。</div>
+
+  <h3 id="c4-6">4.6 例题：统计各星级数量</h3>
+  <div class="demo" data-demo="k4-ex4-9">
+    <div class="demo-head">
+      <span class="demo-title">例 4-9　统计评分星级列表里每个星级出现多少次</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">stars = ['A', 'B', 'C', 'D', 'A', 'C', 'A', 'A', 'B', 'C']
+
+adict = {}                        # 空字典，用来统计
+for s in stars:
+    if s not in adict:            # 第一次见到这个星级
+        adict[s] = 1
+    else:                         # 见过了，累加
+        adict[s] += 1
+print('统计结果：', adict)
+
+adict2 = {}                       # 更简洁的写法：get(键, 0) 顺手拿到当前计数
+for s in stars:
+    adict2[s] = adict2.get(s, 0) + 1
+print('get 写法：', adict2)
+
+print('一共有', len(adict), '种星级')
+print('出现最多的星级：', max(adict, key=adict.get))</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+统计结果： {'A': 4, 'B': 2, 'C': 3, 'D': 1}
+get 写法： {'A': 4, 'B': 2, 'C': 3, 'D': 1}
+一共有 4 种星级
+出现最多的星级： A
+</pre></div>
+  </div>
+  <div class="sumline">✅ <b>本节小结</b>：<strong>"统计每个 xx 出现几次"就用字典：键是 xx，值是次数。</strong> 第一次遇到先建键赋 1，之后再遇到就累加；熟练之后可以写成 <code class="inline">d[x] = d.get(x, 0) + 1</code> 一行搞定。这是数据统计里最高频的三行代码之一。</div>
+
+  <h3 id="c4-7">4.7 例题：统计英文短句中的词频</h3>
+  <div class="demo" data-demo="k4-wordfreq">
+    <div class="demo-head">
+      <span class="demo-title">例 4-15　把"字符串 + 列表 + 字典"串起来做词频统计</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">text = 'The city was covered by the green trees I like the green city'
+text = text.lower()                    # 统一成小写，避免 The / the 被当成两个词
+words_list = text.split()              # 字符串 → 单词列表
+print('单词表：', words_list)
+
+words_dict = {}                        # 单词 → 次数
+for word in words_list:
+    if word not in words_dict:
+        words_dict[word] = 1
+    else:
+        words_dict[word] += 1
+print('词频：', words_dict)
+
+top = max(words_dict, key=words_dict.get)
+print('出现最多的词：', top, '，共', words_dict[top], '次')</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+单词表： ['the', 'city', 'was', 'covered', 'by', 'the', 'green', 'trees', 'i', 'like', 'the', 'green', 'city']
+词频： {'the': 3, 'city': 2, 'was': 1, 'covered': 1, 'by': 1, 'green': 2, 'trees': 1, 'i': 1, 'like': 1}
+出现最多的词： the ，共 3 次
+</pre></div>
+  </div>
+  <div class="sumline">✅ <b>本节小结</b>：这道题把本章三样东西串成了一条线——<strong>字符串 <code class="inline">split()</code> 拆成列表 → 列表 <code class="inline">for</code> 遍历 → 字典统计次数</strong>。这也是文本分析最小可用的模型：AI 处理文本的第一步，做的正是同样的事。</div>
+  <div class="vid">
+    <span class="vtag">配套视频</span>
+    <a href="https://www.bilibili.com/video/BV1qW4y1a7fU/?p=75" target="_blank" rel="noopener">黑马程序员 · 第 75 讲 字典的定义</a>
+    <span class="vmeta">B站 · 字典的常用操作见第 76 讲，练习讲解见第 77 讲</span>
+  </div>
+</section>
+
+<!-- ===== 模块五：集合 ===== -->
+<section id="c5">
+  <div class="sec-head">
+    <div class="sec-num">五</div>
+    <div>
+      <h2>集合 Set</h2>
+      <p class="sec-sub">4.5 · 元素唯一 · 去重 · 交集并集差集</p>
+    </div>
+  </div>
+
+  <p>集合是<strong>无序、可变</strong>的容器，用大括号 <code class="inline">{ }</code> 作定界符。<strong>它最大的特点是"元素不重复"</strong>，而且不能索引、不能切片——因为无序，没有"第 0 个"这一说。集合里只能放数字、字符串、元组这类不可变数据，不能放列表、字典、集合。</p>
+
+  <div class="figsvg">
+    <svg viewBox="0 0 900 200" role="img" aria-label="空集合与空字典的区别">
+      <text x="450" y="28" text-anchor="middle" font-size="18" font-weight="bold" fill="#1f3864">写法陷阱：<tspan font-size="19">{ }</tspan> 是空字典，空集合要写 <tspan font-size="19">set()</tspan></text>
+      <rect x="70" y="54" width="360" height="120" rx="14" fill="#fdf3e3" stroke="#b8860b" stroke-width="2"/>
+      <text x="250" y="86" text-anchor="middle" font-size="17" fill="#7a4a0a">d = { }</text>
+      <text x="250" y="116" text-anchor="middle" font-size="14" fill="#2b2820">&lt;class 'dict'&gt;</text>
+      <text x="250" y="146" text-anchor="middle" font-size="13" fill="#7a4a0a">大括号优先给字典，所以这是"空字典"</text>
+      <rect x="470" y="54" width="360" height="120" rx="14" fill="#eaf5eb" stroke="#2e7d32" stroke-width="2"/>
+      <text x="650" y="86" text-anchor="middle" font-size="17" fill="#215c26">s = set( )</text>
+      <text x="650" y="116" text-anchor="middle" font-size="14" fill="#2b2820">&lt;class 'set'&gt;</text>
+      <text x="650" y="146" text-anchor="middle" font-size="13" fill="#215c26">空集合只能用 set() 创建</text>
+    </svg>
+    <div class="figcap">图 4-11　空字典与空集合：<code class="inline">{}</code> 创建的是空字典，空集合必须写 <code class="inline">set()</code></div>
+  </div>
+
+  <h3 id="c5-1">5.1 创建集合与去重</h3>
+  <div class="demo" data-demo="k5-create">
+    <div class="demo-head">
+      <span class="demo-title">直接创建、set() 转换、空集合</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">a = {3, 5}
+print(a, type(a))
+
+print(set(range(8, 12)))      # range 对象 → 集合
+print(sorted(set('hello')))   # 字符串 → 逐字符集合（自动去重，排序后看）
+
+empty_set = set()             # 空集合只能这么写
+print('空集合：', empty_set, type(empty_set))
+print('注意 { } 是空字典：', {}, type({}))</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+{3, 5} &lt;class 'set'&gt;
+{8, 9, 10, 11}
+['e', 'h', 'l', 'o']
+空集合： set() &lt;class 'set'&gt;
+注意 { } 是空字典： {} &lt;class 'dict'&gt;
+</pre></div>
+  </div>
+  <div class="demo" data-demo="k5-dedup">
+    <div class="demo-head">
+      <span class="demo-title">例 4-10　去除课程清单中的重复课程</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">courses = ['en', 'pe', 'info', 'pe', 'art', 'math']
+print('原始列表：', courses)
+print('共', len(courses), '条记录')
+
+courses_set = set(courses)          # 列表 → 集合：自动去重
+print('去重后（集合）：', courses_set)
+print('去重后（排序）：', sorted(courses_set))
+print('种类数：', len(courses_set))
+print('pe 在不在：', 'pe' in courses_set)</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测，集合无序遍历顺序可能与你的电脑不同）</div><pre class="out">
+原始列表： ['en', 'pe', 'info', 'pe', 'art', 'math']
+共 6 条记录
+去重后（集合）： {'math', 'art', 'en', 'pe', 'info'}
+去重后（排序）： ['art', 'en', 'info', 'math', 'pe']
+种类数： 5
+pe 在不在： True
+</pre></div>
+  </div>
+  <div class="sumline">✅ <b>本节小结</b>：集合的两个招牌用途是<strong>去重</strong>（<code class="inline">set(列表)</code>）和<strong>快速判断"在不在"</strong>（<code class="inline">in</code>）。记住三条：元素唯一、无序（不要指望打印顺序）、不能索引；空集合只能写 <code class="inline">set()</code>，因为 <code class="inline">{}</code> 是空字典。</div>
+
+  <h3 id="c5-2">5.2 集合运算：交集、并集、差集</h3>
+  <div class="figsvg">
+    <svg viewBox="0 0 900 230" role="img" aria-label="集合的交集、并集、差集、对称差示意">
+      <text x="450" y="26" text-anchor="middle" font-size="18" font-weight="bold" fill="#1f3864">四个最常用的集合运算（阴影部分就是结果）</text>
+      <defs>
+        <clipPath id="clipA"><circle cx="120" cy="130" r="52"/></clipPath>
+        <clipPath id="clipC"><circle cx="640" cy="130" r="52"/></clipPath>
+        <clipPath id="clipDL"><circle cx="800" cy="130" r="52"/></clipPath>
+      </defs>
+      <!-- 交集 -->
+      <circle cx="120" cy="130" r="52" fill="none" stroke="#306998" stroke-width="2"/>
+      <circle cx="180" cy="130" r="52" fill="none" stroke="#306998" stroke-width="2"/>
+      <circle cx="180" cy="130" r="52" fill="#306998" fill-opacity="0.35" clip-path="url(#clipA)"/>
+      <text x="150" y="205" text-anchor="middle" font-size="13.5" fill="#1f3864">a &amp; b　交集（都有的）</text>
+      <!-- 并集 -->
+      <circle cx="380" cy="130" r="52" fill="#306998" fill-opacity="0.3" stroke="#306998" stroke-width="2"/>
+      <circle cx="440" cy="130" r="52" fill="#306998" fill-opacity="0.3" stroke="#306998" stroke-width="2"/>
+      <text x="410" y="205" text-anchor="middle" font-size="13.5" fill="#1f3864">a | b　并集（合起来）</text>
+      <!-- 差集 -->
+      <circle cx="640" cy="130" r="52" fill="#306998" fill-opacity="0.3" stroke="#306998" stroke-width="2"/>
+      <circle cx="700" cy="130" r="52" fill="none" stroke="#306998" stroke-width="2"/>
+      <circle cx="700" cy="130" r="52" fill="#fbf8f1" clip-path="url(#clipC)"/>
+      <text x="670" y="205" text-anchor="middle" font-size="13.5" fill="#1f3864">a - b　差集（在 a 不在 b）</text>
+      <!-- 对称差 -->
+      <circle cx="800" cy="130" r="52" fill="#306998" fill-opacity="0.3" stroke="#306998" stroke-width="2"/>
+      <circle cx="860" cy="130" r="52" fill="#306998" fill-opacity="0.3" stroke="#306998" stroke-width="2"/>
+      <circle cx="860" cy="130" r="52" fill="#fbf8f1" clip-path="url(#clipDL)"/>
+      <text x="830" y="205" text-anchor="middle" font-size="13.5" fill="#1f3864">a ^ b　对称差</text>
+    </svg>
+    <div class="figcap">图 4-12　集合运算：<code class="inline">&amp;</code> 交集、<code class="inline">|</code> 并集、<code class="inline">-</code> 差集（<code class="inline">^</code> 对称差 = 只在一方出现）</div>
+  </div>
+  <div class="demo" data-demo="k5-ops">
+    <div class="demo-head">
+      <span class="demo-title">交集 / 并集 / 差集 / 对称差 + 子集判断</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">a = {1, 2, 3, 4}
+b = {3, 4, 5, 6}
+
+print('a & b 交集  ：', sorted(a &amp; b))     # 两个都有
+print('a | b 并集  ：', sorted(a | b))     # 合起来
+print('a - b 差集  ：', sorted(a - b))     # 在 a 不在 b
+print('b - a 差集  ：', sorted(b - a))
+print('a ^ b 对称差：', sorted(a ^ b))     # 只在一方出现
+
+print('{1, 2} 是 a 的子集吗：', {1, 2} &lt;= a)
+print('{9} 是 a 的子集吗   ：', {9} &lt;= a)
+
+c = {1, 2}
+c.add(3)
+print('add(3) 之后：', sorted(c))
+c.remove(1)
+print('remove(1) 之后：', sorted(c))</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+a &amp; b 交集  ： [3, 4]
+a | b 并集  ： [1, 2, 3, 4, 5, 6]
+a - b 差集  ： [1, 2]
+b - a 差集  ： [5, 6]
+a ^ b 对称差： [1, 2, 5, 6]
+{1, 2} 是 a 的子集吗： True
+{9} 是 a 的子集吗   ： False
+add(3) 之后： [1, 2, 3]
+remove(1) 之后： [2, 3]
+</pre></div>
+  </div>
+  <div class="sumline">✅ <b>本节小结</b>：<strong><code class="inline">&amp;</code> 求共同的、<code class="inline">|</code> 求全部的、<code class="inline">-</code> 求"我有你没有"的</strong>。典型场景：两门课都选了的学生（交集）、两个班合起来的花名册（并集）、选了 A 没选 B 的学生（差集）。集合里的元素互不相同，所以交集并集会自动去重。</div>
+
+  <h3 id="c5-3">5.3 集合里只能放"不可变"元素</h3>
+  <div class="demo" data-demo="k5-limit" data-expect-error="1">
+    <div class="demo-head">
+      <span class="demo-title">元组能进集合，列表不能（故意报错）</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">s = {(1, 2), 3, 'abc'}     # 元组、数字、字符串都可以
+print('元组可以放进集合：', s)
+
+s.add([4, 5])              # 列表是可变类型，不能放进集合</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+元组可以放进集合： {(1, 2), 'abc', 3}
+Traceback (most recent call last):
+  File "&lt;pyshell&gt;", line 4, in &lt;module&gt;
+    s.add([4, 5])              # 列表是可变类型，不能放进集合
+TypeError: cannot use 'list' as a set element (unhashable type: 'list')
+</pre></div>
+  </div>
+  <div class="sumline">✅ <b>本节小结</b>：集合的元素必须是<strong>不可变类型</strong>——数字、字符串、元组都行，列表、字典、集合不行（会报 <code class="inline">TypeError: unhashable type</code>）。原因和"元组能当字典的键"是同一个：不可变才能算出唯一的位置。这一条和第 3 节的结论合起来看，就完全通了。</div>
+  <div class="vid">
+    <span class="vtag">配套视频</span>
+    <a href="https://www.bilibili.com/video/BV1qW4y1a7fU/?p=73" target="_blank" rel="noopener">黑马程序员 · 第 73 讲 集合的定义和操作</a>
+    <span class="vmeta">B站 · 集合的课后练习见第 74 讲</span>
+  </div>
+</section>
+
+<!-- ===== 模块六：字符串 ===== -->
+<section id="c6">
+  <div class="sec-head">
+    <div class="sec-num">六</div>
+    <div>
+      <h2>字符串 String</h2>
+      <p class="sec-sub">4.6 · 有序不可变序列 · 索引切片 · 常用方法</p>
+    </div>
+  </div>
+
+  <p>字符串是<strong>由字符组成的有序、不可变序列</strong>，用引号作定界符。既然是有序序列，前面学的索引和切片它全都有；既然是"不可变"，它的内容就不能改——想"改字符串"，只能生成一个新字符串。</p>
+
+  <div class="figsvg">
+    <svg viewBox="0 0 900 230" role="img" aria-label="字符串 Python 的索引与切片">
+      <text x="450" y="26" text-anchor="middle" font-size="18" font-weight="bold" fill="#1f3864">字符串也是"一排格子"：s = 'Python'</text>
+      <g>
+        <rect x="180" y="70" width="72" height="52" rx="9" fill="#ffffff" stroke="#e4ddcc"/>
+        <text x="216" y="104" text-anchor="middle" font-size="22" fill="#2b2820">P</text>
+        <rect x="256" y="70" width="72" height="52" rx="9" fill="#eaf1f8" stroke="#306998" stroke-width="2"/>
+        <text x="292" y="104" text-anchor="middle" font-size="22" fill="#2b2820">y</text>
+        <rect x="332" y="70" width="72" height="52" rx="9" fill="#eaf1f8" stroke="#306998" stroke-width="2"/>
+        <text x="368" y="104" text-anchor="middle" font-size="22" fill="#2b2820">t</text>
+        <rect x="408" y="70" width="72" height="52" rx="9" fill="#eaf1f8" stroke="#306998" stroke-width="2"/>
+        <text x="444" y="104" text-anchor="middle" font-size="22" fill="#2b2820">h</text>
+        <rect x="484" y="70" width="72" height="52" rx="9" fill="#ffffff" stroke="#e4ddcc"/>
+        <text x="520" y="104" text-anchor="middle" font-size="22" fill="#2b2820">o</text>
+        <rect x="560" y="70" width="72" height="52" rx="9" fill="#ffffff" stroke="#e4ddcc"/>
+        <text x="596" y="104" text-anchor="middle" font-size="22" fill="#2b2820">n</text>
+      </g>
+      <text x="216" y="148" text-anchor="middle" font-size="13" fill="#8a8577">0</text>
+      <text x="292" y="148" text-anchor="middle" font-size="13" fill="#306998" font-weight="bold">1</text>
+      <text x="368" y="148" text-anchor="middle" font-size="13" fill="#8a8577">2</text>
+      <text x="444" y="148" text-anchor="middle" font-size="13" fill="#8a8577">3</text>
+      <text x="520" y="148" text-anchor="middle" font-size="13" fill="#b3392f" font-weight="bold">4</text>
+      <text x="596" y="148" text-anchor="middle" font-size="13" fill="#8a8577">5</text>
+      <text x="216" y="176" text-anchor="middle" font-size="13" fill="#8a8577">-6</text>
+      <text x="292" y="176" text-anchor="middle" font-size="13" fill="#8a8577">-5</text>
+      <text x="368" y="176" text-anchor="middle" font-size="13" fill="#8a8577">-4</text>
+      <text x="444" y="176" text-anchor="middle" font-size="13" fill="#8a8577">-3</text>
+      <text x="520" y="176" text-anchor="middle" font-size="13" fill="#8a8577">-2</text>
+      <text x="596" y="176" text-anchor="middle" font-size="13" fill="#8a8577">-1</text>
+      <text x="450" y="212" text-anchor="middle" font-size="13.5" fill="#5d594c">s[0] → 'P'　s[-1] → 'n'　s[1:4] → 'yth'（下标 1、2、3，不含 4）</text>
+    </svg>
+    <div class="figcap">图 4-13　字符串的索引与切片：和列表的规则完全一样（含头不含尾）</div>
+  </div>
+
+  <h3 id="c6-1">6.1 索引与切片</h3>
+  <div class="demo" data-demo="k6-index-slice">
+    <div class="demo-head">
+      <span class="demo-title">字符串的索引、切片、步长、倒序</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">s = 'Hello World!'
+print(s[0], s[1], s[-1])      # 索引
+print(s[0:5])                 # 切片：Hello
+print(s[:5])                  # start 省略
+print(s[6:])                  # stop 省略
+print(s[::2])                 # 隔一个取一个
+print(s[::-1])                # 倒序
+print('长度：', len(s))</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+H e !
+Hello
+Hello
+World!
+HloWrd
+!dlroW olleH
+长度： 12
+</pre></div>
+  </div>
+  <div class="sumline">✅ <b>本节小结</b>：字符串的索引和切片<strong>与列表完全一致</strong>，所以第 2 节学的规则可以直接搬过来用；<code class="inline">s[::-1]</code> 是"反转字符串"的最简写法。</div>
+
+  <h3 id="c6-2">6.2 运算符与函数</h3>
+  <div class="demo" data-demo="k6-ops">
+    <div class="demo-head">
+      <span class="demo-title">拼接、重复、成员测试、比较</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">print('Hello ' + 'World')      # 拼接
+print('abc' * 3)               # 重复
+print('a' in 'abc')            # 成员测试
+print('abc' == 'abc', 'abc' == 'Abc')     # 区分大小写
+print('abc' &lt; 'abd')           # 按字符编码逐位比较</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+Hello World
+abcabcabc
+True
+True False
+True
+</pre></div>
+  </div>
+  <div class="demo" data-demo="k6-func" data-stdin="3.5 + 9">
+    <div class="demo-head">
+      <span class="demo-title">len()、str()、eval()：长度、类型转换、字符串当表达式算</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">s = 'I am happy'
+print('长度：', len(s))
+
+n = 85.5
+print('数字转字符串拼接：' + str(n))       # 不加 str() 会报 TypeError
+
+e = input('输入一个表达式：')              # 输入 3.5 + 9
+print('eval 计算结果：', eval(e))          # 把字符串当表达式算</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+长度： 10
+数字转字符串拼接：85.5
+输入一个表达式：3.5 + 9
+eval 计算结果： 12.5
+</pre></div>
+  </div>
+  <div class="warn"><strong>eval() 要慎用</strong>：它会把字符串当成 Python 代码执行。课堂上用来"算一个算式"很方便，但<strong>绝不能</strong>把用户随便输入的内容直接丢给 eval——如果输入的是删除文件的代码，它也会照做。后面第 8 章处理数据时，我们改用更安全的转换方式。</div>
+
+  <h3 id="c6-3">6.3 常用方法：split / join / find / replace / strip</h3>
+  <div class="tbl-wrap">
+    <table class="mini-table">
+      <thead><tr><th>方法</th><th>功能</th></tr></thead>
+      <tbody>
+        <tr><td><code class="inline">split()</code></td><td>按分隔符把字符串切成列表，不写分隔符就按空白切</td></tr>
+        <tr><td><code class="inline">join()</code></td><td>把若干字符串用指定字符连成一个字符串</td></tr>
+        <tr><td><code class="inline">find()</code> / <code class="inline">rfind()</code> / <code class="inline">index()</code></td><td>找子串位置；find 找不到返回 -1，index 找不到报错</td></tr>
+        <tr><td><code class="inline">replace(a, b)</code></td><td>把 a 替换成 b，<strong>返回新字符串</strong></td></tr>
+        <tr><td><code class="inline">count()</code></td><td>统计子串出现次数</td></tr>
+        <tr><td><code class="inline">strip()</code> / <code class="inline">lstrip()</code> / <code class="inline">rstrip()</code></td><td>去掉首尾 / 左侧 / 右侧的空白或指定字符</td></tr>
+        <tr><td><code class="inline">upper()</code> / <code class="inline">lower()</code> / <code class="inline">title()</code></td><td>全部大写 / 全部小写 / 每个单词首字母大写</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="demo" data-demo="k6-methods">
+    <div class="demo-head">
+      <span class="demo-title">最常用的六个字符串方法</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">s = 'I am happy'
+words = s.split()                       # 按空白切成列表
+print('split()  ：', words)
+print('join()   ：', '-'.join(words))    # 列表拼回字符串
+print('find(a)  ：', s.find('a'))        # 第一次出现的位置
+print('count(a) ：', s.count('a'))
+print('replace  ：', s.replace('happy', 'tired'))
+print('upper    ：', s.upper())
+print('lower    ：', s.lower())
+
+raw = '  python  '
+print('strip 前：[' + raw + ']')
+print('strip 后：[' + raw.strip() + ']')</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+split()  ： ['I', 'am', 'happy']
+join()   ： I-am-happy
+find(a)  ： 2
+count(a) ： 2
+replace  ： I am tired
+upper    ： I AM HAPPY
+lower    ： i am happy
+strip 前：[  python  ]
+strip 后：[python]
+</pre></div>
+  </div>
+  <div class="sumline">✅ <b>本节小结</b>：字符串方法记两条主线——<strong>切和拼</strong>（<code class="inline">split()</code> 切、<code class="inline">join()</code> 拼，正好是第 8 节词频统计的第一步）、<strong>查和换</strong>（<code class="inline">find()</code>、<code class="inline">count()</code>、<code class="inline">replace()</code>）。<code class="inline">strip()</code> 专治输入里的多余空格，<code class="inline">upper()/lower()</code> 专治大小写不统一。</div>
+
+  <h3 id="c6-4">6.4 字符串不能改</h3>
+  <div class="demo" data-demo="k6-immutable" data-expect-error="1">
+    <div class="demo-head">
+      <span class="demo-title">想改字符串里的字符？（故意报错）</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">s = 'Hello'
+print('原字符串：', s, ' 第 1 个字符：', s[0])
+s[0] = 'h'          # 字符串是不可变序列，不能这样改</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+原字符串： Hello  第 1 个字符： H
+Traceback (most recent call last):
+  File "&lt;pyshell&gt;", line 3, in &lt;module&gt;
+    s[0] = 'h'          # 字符串是不可变序列，不能这样改
+TypeError: 'str' object does not support item assignment
+</pre></div>
+  </div>
+  <div class="sumline">✅ <b>本节小结</b>：字符串<strong>能读不能改</strong>（和元组一样）。要"改"，就用 <code class="inline">replace()</code>、<code class="inline">upper()</code> 等方法<strong>生成一个新字符串</strong>，或者用切片拼接：<code class="inline">'h' + s[1:]</code>。注意所有字符串方法都<strong>不会改原字符串</strong>，一定会返回新值。</div>
+  <div class="vid">
+    <span class="vtag">配套视频</span>
+    <a href="https://www.bilibili.com/video/BV1qW4y1a7fU/?p=69" target="_blank" rel="noopener">黑马程序员 · 第 69 讲 字符串的定义和操作</a>
+    <span class="vmeta">B站 · 字符串练习讲解见第 70 讲；大小比较见第 80 讲</span>
+  </div>
+</section>
+
+<!-- ===== 模块七：序列解包 ===== -->
+<section id="c7">
+  <div class="sec-head">
+    <div class="sec-num">七</div>
+    <div>
+      <h2>序列解包</h2>
+      <p class="sec-sub">4.7 · 一次给多个变量赋值 · 交换变量 · 星号收集</p>
+    </div>
+  </div>
+
+  <p>序列解包就是<strong>把一个序列"拆开"分别赋给多个变量</strong>。列表、元组、字符串都支持。它不只是语法糖——第 3 章里 <code class="inline">for k, v in d.items()</code> 和这里 <code class="inline">a, b = b, a</code> 都是它在背后起作用。</p>
+
+  <div class="figsvg">
+    <svg viewBox="0 0 900 220" role="img" aria-label="序列解包：交换两个变量与星号收集">
+      <text x="450" y="26" text-anchor="middle" font-size="18" font-weight="bold" fill="#1f3864">解包的两种常见用法</text>
+      <rect x="40" y="48" width="380" height="150" rx="14" fill="#eaf1f8" stroke="#306998" stroke-width="2"/>
+      <text x="230" y="76" text-anchor="middle" font-size="15" font-weight="bold" fill="#1f3864">① 交换两个变量</text>
+      <text x="230" y="104" text-anchor="middle" font-size="14" fill="#2b2820">a, b = 1, 2</text>
+      <text x="230" y="130" text-anchor="middle" font-size="14" fill="#2b2820">a, b = b, a</text>
+      <text x="230" y="158" text-anchor="middle" font-size="14" fill="#215c26">→ a = 2，b = 1</text>
+      <text x="230" y="182" text-anchor="middle" font-size="12.5" fill="#5d594c">一行搞定，不用临时变量</text>
+      <rect x="480" y="48" width="380" height="150" rx="14" fill="#eaf5eb" stroke="#2e7d32" stroke-width="2"/>
+      <text x="670" y="76" text-anchor="middle" font-size="15" font-weight="bold" fill="#215c26">② 星号收集剩余元素</text>
+      <text x="670" y="104" text-anchor="middle" font-size="14" fill="#2b2820">first, *rest = [1, 2, 3, 4, 5]</text>
+      <text x="670" y="130" text-anchor="middle" font-size="14" fill="#2b2820">→ first = 1，rest = [2, 3, 4, 5]</text>
+      <text x="670" y="158" text-anchor="middle" font-size="14" fill="#215c26">*head, last = [1, 2, 3, 4, 5]</text>
+      <text x="670" y="182" text-anchor="middle" font-size="12.5" fill="#5d594c">→ head = [1, 2, 3, 4]，last = 5</text>
+    </svg>
+    <div class="figcap">图 4-14　序列解包：一行交换两个变量、一行把"第一个"和"剩下的"分开</div>
+  </div>
+
+  <div class="demo" data-demo="k7-basic">
+    <div class="demo-head">
+      <span class="demo-title">基础解包与交换变量</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">a, b = 1, 2
+print('交换前：', a, b)
+a, b = b, a                 # 交换，不需要临时变量
+print('交换后：', a, b)
+
+name, score = ['zhang', 90]     # 列表解包
+print(name, score)
+
+x, y, z = (1, 2, 3)             # 元组解包
+print(x, y, z)
+
+p, q = 'AB'                     # 字符串也能解包
+print(p, q)</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+交换前： 1 2
+交换后： 2 1
+zhang 90
+1 2 3
+A B
+</pre></div>
+  </div>
+  <div class="demo" data-demo="k7-star">
+    <div class="demo-head">
+      <span class="demo-title">星号收集：把"剩下的"一次性装进列表</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">first, *rest = [1, 2, 3, 4, 5]
+print('first =', first, ' rest =', rest)
+
+*head, last = [1, 2, 3, 4, 5]
+print('head =', head, ' last =', last)
+
+a, *mid, b = 'Python'
+print('首字符：', a, ' 尾字符：', b)
+print('中间部分：', mid)</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+first = 1  rest = [2, 3, 4, 5]
+head = [1, 2, 3, 4]  last = 5
+首字符： P  尾字符： n
+中间部分： ['y', 't', 'h', 'o']
+</pre></div>
+  </div>
+  <div class="demo" data-demo="k7-zip">
+    <div class="demo-head">
+      <span class="demo-title">和 zip() / enumerate() 配合：一次遍历两个列表、顺便带上序号</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">names = ['zhang', 'li', 'wang']
+scores = [90, 85, 92]
+
+for n, s in zip(names, scores):        # 两个列表"拉链式"配对
+    print(n, '的成绩是', s)
+
+print('配对结果：', list(zip(names, scores)))
+print('直接变成字典：', dict(zip(names, scores)))
+
+for i, n in enumerate(names, start=1):  # 带序号遍历
+    print('第', i, '个同学：', n)</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+zhang 的成绩是 90
+li 的成绩是 85
+wang 的成绩是 92
+配对结果： [('zhang', 90), ('li', 85), ('wang', 92)]
+直接变成字典： {'zhang': 90, 'li': 85, 'wang': 92}
+第 1 个同学： zhang
+第 2 个同学： li
+第 3 个同学： wang
+</pre></div>
+  </div>
+  <div class="sumline">✅ <b>本节小结</b>：解包让代码短很多：<strong><code class="inline">a, b = b, a</code> 交换变量</strong>、<code class="inline">first, *rest = 序列</code> 拿走第一个剩下的打包、<code class="inline">for n, s in zip(...)</code> 同时遍历两个列表、<code class="inline">for i, x in enumerate(...)</code> 带序号遍历。前提是<strong>左边变量个数要和右边元素个数对得上</strong>，否则报 <code class="inline">ValueError</code>（写了星号就自动兜住多余的）。</div>
+  <div class="vid">
+    <span class="vtag">配套视频</span>
+    <a href="https://www.bilibili.com/video/BV1qW4y1a7fU/?p=78" target="_blank" rel="noopener">黑马程序员 · 第 78 讲 5 类数据容器的总结对比</a>
+    <span class="vmeta">B站 · 数据容器的通用操作见第 79 讲</span>
+  </div>
+</section>
+
+<!-- ===== 模块八：综合应用 ===== -->
+<section id="c8">
+  <div class="sec-head">
+    <div class="sec-num">八</div>
+    <div>
+      <h2>序列结构综合应用</h2>
+      <p class="sec-sub">4.8 · 评委打分 · 敏感词过滤 · 上机任务 · 课后作业 · AI 渗透</p>
+    </div>
+  </div>
+
+  <h3 id="c8-1">8.1 例 4-14　评委打分：去掉一个最高分和一个最低分</h3>
+  <p>7 个评委打分，去掉一个最高分和一个最低分，剩下的算平均分——这是各种比赛里最常见的规则，用"列表 + 排序 + 切片"三步就能写完。</p>
+  <div class="demo" data-demo="k8-judge" data-stdin="9.5|9.0|8.5|9.8|9.2|8.8|9.6">
+    <div class="demo-head">
+      <span class="demo-title">例 4-14　评委打分（依次输入 9.5 9.0 8.5 9.8 9.2 8.8 9.6）</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">sc = []                                  # 空列表，用来存评分
+for i in range(7):
+    n = float(input(f'请输入第{i+1}个评委的分数：'))
+    sc.append(n)                         # 把分数加进列表
+
+print('原始评分：', sc)
+sc_s = sorted(sc)                        # sorted 不改原列表，返回排好序的新列表
+print('排序后  ：', sc_s)
+print('去掉一个最高分', sc_s[-1], '和一个最低分', sc_s[0])
+
+valid = sc_s[1:-1]                       # 切片掐头去尾
+print('有效分数：', valid)
+print('最终得分：%.2f' % (sum(valid) / len(valid)))</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+请输入第1个评委的分数：9.5
+请输入第2个评委的分数：9.0
+请输入第3个评委的分数：8.5
+请输入第4个评委的分数：9.8
+请输入第5个评委的分数：9.2
+请输入第6个评委的分数：8.8
+请输入第7个评委的分数：9.6
+原始评分： [9.5, 9.0, 8.5, 9.8, 9.2, 8.8, 9.6]
+排序后  ： [8.5, 8.8, 9.0, 9.2, 9.5, 9.6, 9.8]
+去掉一个最高分 9.8 和一个最低分 8.5
+有效分数： [8.8, 9.0, 9.2, 9.5, 9.6]
+最终得分：9.22
+</pre></div>
+  </div>
+  <div class="sumline">✅ <b>本节小结</b>：<strong>"排序 + 切片"是处理"去掉极端值"类问题的标准组合</strong>：<code class="inline">sorted()</code> 排好序，<code class="inline">[1:-1]</code> 掐掉头尾，再 <code class="inline">sum()/len()</code> 求平均。这里顺带复习了三件事：列表的 append、排序、切片。</div>
+
+  <h3 id="c8-2">8.2 例 4-16　敏感词过滤：元组 + 字符串替换</h3>
+  <div class="demo" data-demo="k8-sensitive">
+    <div class="demo-head">
+      <span class="demo-title">例 4-16　把句子里的敏感词替换成 ***</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">words = ('非法', '暴力', '滚开')        # 元组：词表是固定的，用元组更合适
+text = '这篇文章中含有非法的暴力的文字描述，还有暴力图片。'
+print('原文　：', text)
+
+for w in words:                       # 逐个敏感词检查
+    if w in text:
+        text = text.replace(w, '***')  # 替换会生成新字符串，所以要重新赋值
+
+print('替换后：', text)</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+原文　： 这篇文章中含有非法的暴力的文字描述，还有暴力图片。
+替换后： 这篇文章中含有***的***的文字描述，还有***图片。
+</pre></div>
+  </div>
+  <div class="sumline">✅ <b>本节小结</b>：<strong>词表用元组（固定不变），文本用字符串方法 <code class="inline">replace()</code> 处理</strong>；注意 <code class="inline">in</code> 判断之后 <code class="inline">replace</code> 得到的<strong>是新字符串</strong>，必须写回变量才生效。这也是内容审核、数据清洗里最简单的一道工序。</div>
+
+  <h3 id="c8-3">8.3 上机任务与课后作业</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>编号</th><th>任务</th><th>练什么</th><th>难度</th></tr></thead>
+      <tbody>
+        <tr><td>上机 1</td><td>输入 6 个成绩存入列表，输出最高、最低、平均分</td><td>列表 + 内置函数</td><td>★</td></tr>
+        <tr><td>上机 2</td><td>输入一句话，统计有多少个单词、每个单词出现几次</td><td>split + 字典统计</td><td>★★</td></tr>
+        <tr><td>上机 3</td><td>把两个班的名单合并、去掉重复姓名后按拼音排序</td><td>列表 + 集合 + 排序</td><td>★★</td></tr>
+        <tr><td>作业 1</td><td>合并两个列表并降序排序</td><td>extend / sort</td><td>★★</td></tr>
+        <tr><td>作业 2</td><td>输入 6 个整数，用推导式分出正数、负数、零，并统计个数</td><td>列表推导式</td><td>★★</td></tr>
+        <tr><td>作业 3</td><td>用字典存学号与姓名，输入学号查姓名（可查 3 次）</td><td>字典按键访问</td><td>★★</td></tr>
+        <tr><td>选做</td><td>用字典做一个自动回复的聊天机器人</td><td>字典 + 循环</td><td>★★★</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="demo" data-demo="k8-hw2">
+    <div class="demo-head">
+      <span class="demo-title">作业 1　合并两个列表并降序排序</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">list1 = [57, 71, 78, 73, 85, 90, 65, 87]
+list2 = [78, 90, 68, 82, 71, 89, 93, 82]
+
+alist = list1 + list2          # 合并（生成新列表）
+alist.sort(reverse=True)       # 降序
+print('合并降序后：', alist)
+print('最高分：', alist[0], ' 最低分：', alist[-1])
+print('平均分：', round(sum(alist) / len(alist), 2))</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+合并降序后： [93, 90, 90, 89, 87, 85, 82, 82, 78, 78, 73, 71, 71, 68, 65, 57]
+最高分： 93  最低分： 57
+平均分： 78.69
+</pre></div>
+  </div>
+  <div class="demo" data-demo="k8-hw4" data-stdin="3|-5|0|8|-2|0">
+    <div class="demo-head">
+      <span class="demo-title">作业 2　输入 6 个整数，用推导式分出正数 / 负数 / 零（依次输入 3 -5 0 8 -2 0）</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">nums = []
+for i in range(6):
+    n = int(input(f'请输入第{i+1}个整数：'))
+    nums.append(n)
+print('输入的数字：', nums)
+
+pos_list = [n for n in nums if n &gt; 0]     # 正数
+neg_list = [n for n in nums if n &lt; 0]     # 负数
+zero_list = [n for n in nums if n == 0]   # 零
+
+print('正数：', pos_list, '共', len(pos_list), '个')
+print('负数：', neg_list, '共', len(neg_list), '个')
+print('零　：', zero_list, '共', len(zero_list), '个')</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+请输入第1个整数：3
+请输入第2个整数：-5
+请输入第3个整数：0
+请输入第4个整数：8
+请输入第5个整数：-2
+请输入第6个整数：0
+输入的数字： [3, -5, 0, 8, -2, 0]
+正数： [3, 8] 共 2 个
+负数： [-5, -2] 共 2 个
+零　： [0, 0] 共 2 个
+</pre></div>
+  </div>
+  <div class="demo" data-demo="k8-hw5" data-stdin="2024002|2024009|2024001">
+    <div class="demo-head">
+      <span class="demo-title">作业 3　学号查姓名（依次输入 2024002 / 2024009 / 2024001）</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">students = {'2024001': '张三', '2024002': '李四', '2024003': '王五'}
+
+for i in range(3):                    # 可以查 3 次
+    sid = input('请输入学号：')
+    if sid in students:
+        print('  → 姓名：', students[sid])
+    else:
+        print('  → 没有这个学号')</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+请输入学号：2024002
+  → 姓名： 李四
+请输入学号：2024009
+  → 没有这个学号
+请输入学号：2024001
+  → 姓名： 张三
+</pre></div>
+  </div>
+  <div class="demo" data-demo="k8-chat" data-stdin="你好|你是谁|今天天气怎么样|再见">
+    <div class="demo-head">
+      <span class="demo-title">选做　用字典做聊天机器人（输入"再见"结束）</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">chat = {
+    '你好': '你好呀，我是用小字典做的机器人',
+    '你是谁': '我是一个用字典存问答的聊天机器人',
+    '再见': '再见，下次再聊',
+}
+
+while True:
+    q = input('你说：')
+    print('机器人：', chat.get(q, '这句话我还不会回答，教我一下吧'))
+    if q == '再见':
+        break</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+你说：你好
+机器人： 你好呀，我是用小字典做的机器人
+你说：你是谁
+机器人： 我是一个用字典存问答的聊天机器人
+你说：今天天气怎么样
+机器人： 这句话我还不会回答，教我一下吧
+你说：再见
+机器人： 再见，下次再聊
+</pre></div>
+  </div>
+  <div class="sumline">✅ <b>本节小结</b>：这四道题几乎用到了本章全部知识点——<strong>列表存储、排序、切片、推导式筛选、字典查表、字符串处理</strong>。判断自己是否学会了，就看能不能不看书把"作业 1"和"作业 2"写出来。</div>
+
+  <h3 id="c8-4">8.4 AI 渗透　用本章的容器看 AI 的数据形态</h3>
+  <div class="ai">
+    <span class="ai-tag">本讲定位</span>本章属于基础阶段（第 1—5 周），仍然<strong>不使用 AI 工具</strong>，只用手写的容器把 AI 的"数据长什么样"跑出来看。下面 4 段代码全部只用列表、字典、集合，不导入任何 AI 库。
+  </div>
+  <div class="demo" data-demo="kai-matrix">
+    <div class="demo-head">
+      <span class="demo-title">AI-1　嵌套列表 = 矩阵（图片、词向量、批量数据都是它）</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">matrix = [                     # 2 行 3 列：嵌套列表就是"二维表"
+    [1, 2, 3],
+    [4, 5, 6],
+]
+print('矩阵：', matrix)
+print('第 2 行第 3 列：', matrix[1][2])      # 先取行，再取列
+
+# 转置：把行变成列（两层嵌套推导式）
+transposed = [[row[i] for row in matrix] for i in range(3)]
+print('转置后：', transposed)</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+矩阵： [[1, 2, 3], [4, 5, 6]]
+第 2 行第 3 列： 6
+转置后： [[1, 4], [2, 5], [3, 6]]
+</pre></div>
+  </div>
+  <div class="demo" data-demo="kai-vocab">
+    <div class="demo-head">
+      <span class="demo-title">AI-2　字典 = 词表（token → id）：大模型把字变成数字的那一步</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">vocab = {'我': 0, '爱': 1, '你': 2, '&lt;pad&gt;': 3}     # 词表：字 → 编号
+sentence = '我爱我你'
+
+ids = [vocab[ch] for ch in sentence]      # 查表编码
+print('词表：', vocab)
+print('句子：', sentence)
+print('编码后的 id 序列：', ids)
+print('序列长度（token 数）：', len(ids))</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+词表： {'我': 0, '爱': 1, '你': 2, '&lt;pad&gt;': 3}
+句子： 我爱我你
+编码后的 id 序列： [0, 1, 0, 2]
+序列长度（token 数）： 4
+</pre></div>
+  </div>
+  <div class="demo" data-demo="kai-oneshot">
+    <div class="demo-head">
+      <span class="demo-title">AI-3　集合 = 去重后的词表（词表大小就是这么数出来的）</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">tokens = ['我', '爱', '你', '我', '爱', '编程', '你']
+print('原始 token 序列：', tokens)
+print('一共', len(tokens), '个 token')
+
+unique = sorted(set(tokens))          # 集合去重 → 排序方便看
+print('去重后的词表：', unique)
+print('词表大小：', len(unique))
+print('"爱"在不在词表里：', '爱' in set(tokens))</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+原始 token 序列： ['我', '爱', '你', '我', '爱', '编程', '你']
+一共 7 个 token
+去重后的词表： ['你', '我', '爱', '编程']
+词表大小： 4
+"爱"在不在词表里： True
+</pre></div>
+  </div>
+  <div class="demo" data-demo="kai-param">
+    <div class="demo-head">
+      <span class="demo-title">AI-4　字典 = 超参数配置，列表 = 训练过程记录</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">config = {'batch_size': 32, 'lr': 0.001, 'epochs': 10}     # 配置：键值对最合适
+for k, v in config.items():
+    print(k, '=', v)
+
+loss = [2.50, 1.80, 1.35, 1.28, 1.27]      # 每一轮的损失：用列表按顺序记
+print('损失记录：', loss)
+print('最好（最小）损失：', min(loss))
+print('最后一轮损失：', loss[-1])
+print('是否收敛（最后比最好只高一点）：', loss[-1] - min(loss) &lt; 0.01)</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+batch_size = 32
+lr = 0.001
+epochs = 10
+损失记录： [2.5, 1.8, 1.35, 1.28, 1.27]
+最好（最小）损失： 1.27
+最后一轮损失： 1.27
+是否收敛（最后比最好只高一点）： True
+</pre></div>
+  </div>
+  <div class="sumline">✅ <b>本节小结</b>：AI 里的数据形态，你在这一章全都见过——<strong>嵌套列表是矩阵（图片、词向量、批量数据），字典是词表和配置，集合是去重后的词表，列表是训练过程的记录</strong>。第 7 章学的 NumPy 数组，本质就是把"嵌套列表"换成了运算更快的专用结构；第 8 章的 Pandas 表格，是一张带行名和列名的二维数据。地基就在这里。</div>
+  <div class="vid">
+    <span class="vtag">配套视频</span>
+    <a href="https://www.bilibili.com/video/BV1qW4y1a7fU/?p=79" target="_blank" rel="noopener">黑马程序员 · 第 79 讲 数据容器的通用操作</a>
+    <span class="vmeta">B站 · 五类容器怎么选，看第 78 讲</span>
+  </div>
+</section>
+
+<!-- ===== 模块九：交互演示 ===== -->
+<section id="lab">
+  <div class="sec-head">
+    <div class="sec-num">九</div>
+    <div>
+      <h2>交互演示区</h2>
+      <p class="sec-sub">改参数、点按钮，立刻看结果 · 浏览器内 JS 模拟（已与 Python 运行结果逐一对齐）</p>
+    </div>
+  </div>
+
+  <div class="inter">
+    <h4>演示 1：切片器（含头不含尾）</h4>
+    <div class="inter-row">
+      <label>列表元素 <input id="sl-list" type="text" value="10,20,30,40,50,60,70,80,90" class="wide"></label>
+    </div>
+    <div class="inter-row">
+      <label>start <input id="sl-start" type="number" value="2"></label>
+      <label>stop <input id="sl-stop" type="number" value="7"></label>
+      <label>step <input id="sl-step" type="number" value="1"></label>
+      <button class="inter-btn" id="sl-btn" type="button">切片</button>
+    </div>
+    <div class="inter-out" id="sl-out">试试 start=2、stop=7；再把 step 改成 2，或者 start=-3、stop 留空。</div>
+  </div>
+
+  <div class="inter">
+    <h4>演示 2：列表推导式生成器</h4>
+    <div class="inter-row">
+      <label>范围 1~<input id="lc-n" type="number" value="20"></label>
+      <label>筛选
+        <select id="lc-cond" class="sel">
+          <option value="all">全部</option>
+          <option value="odd">奇数</option>
+          <option value="even" selected>偶数</option>
+          <option value="five">5 的倍数</option>
+        </select>
+      </label>
+      <label>加工
+        <select id="lc-expr" class="sel">
+          <option value="id">原值</option>
+          <option value="sq" selected>平方</option>
+          <option value="half">除以 2</option>
+        </select>
+      </label>
+      <button class="inter-btn" id="lc-btn" type="button">生成</button>
+    </div>
+    <div class="inter-out" id="lc-out">对应 [ 表达式 for i in range(1, n+1) if 条件 ]。</div>
+  </div>
+
+  <div class="inter">
+    <h4>演示 3：词频统计（字符串 → 列表 → 字典）</h4>
+    <div class="inter-row">
+      <label>英文句子 <input id="wf-text" type="text" value="the green city and the blue city" class="wide"></label>
+      <button class="inter-btn" id="wf-btn" type="button">统计</button>
+    </div>
+    <div class="inter-out" id="wf-out">会自动转小写、按空格切分，再统计每个词出现几次。</div>
+  </div>
+
+  <div class="inter">
+    <h4>演示 4：评委打分（去掉最高分和最低分）</h4>
+    <div class="inter-row">
+      <label>7 个分数 <input id="jd-sc" type="text" value="9.5,9.0,8.5,9.8,9.2,8.8,9.6" class="wide"></label>
+      <button class="inter-btn" id="jd-btn" type="button">计算</button>
+    </div>
+    <div class="inter-out" id="jd-out">排序后掐头去尾，再求平均。</div>
+  </div>
+
+  <div class="inter">
+    <h4>演示 5：字典查询（学号 → 姓名）</h4>
+    <div class="inter-row">
+      <label>学号 <input id="dc-id" type="text" value="2024002"></label>
+      <button class="inter-btn" id="dc-btn" type="button">查询</button>
+    </div>
+    <div class="inter-out" id="dc-out">内置字典：2024001 张三、2024002 李四、2024003 王五。试试查一个不存在的学号。</div>
+  </div>
+
+  <div class="inter">
+    <h4>演示 6：集合运算（交集 / 并集 / 差集）</h4>
+    <div class="inter-row">
+      <label>集合 a <input id="st-a" type="text" value="1,2,3,4" class="wide"></label>
+    </div>
+    <div class="inter-row">
+      <label>集合 b <input id="st-b" type="text" value="3,4,5,6" class="wide"></label>
+      <button class="inter-btn" id="st-btn" type="button">计算</button>
+    </div>
+    <div class="inter-out" id="st-out">自动去重，输出 &amp;、|、- 三种结果。</div>
+  </div>
+
+  <div class="note">这 6 个面板的逻辑与页面上对应的 Python 代码一致，只是用 JavaScript 重写以便在网页上直接运行；每一段的输出都与 Python 实跑结果对过账。</div>
+</section>
+
+<!-- ===== 小结 · 易错 · 作业 ===== -->
+<section id="summary">
+  <div class="sec-head">
+    <div class="sec-num">结</div>
+    <div>
+      <h2>知识点总结卡 · 易错清单 · 作业</h2>
+      <p class="sec-sub">Summary · 学生速查 / 可打印</p>
+    </div>
+  </div>
+
+  <h3>五类容器总结对比</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>容器</th><th>定界符</th><th>有序</th><th>可变</th><th>可索引</th><th>元素重复</th><th>一句话</th></tr></thead>
+      <tbody>
+        <tr><td>列表 list</td><td><code class="inline">[ ]</code></td><td>是</td><td>是</td><td>是</td><td>可以</td><td>一排可改的格子</td></tr>
+        <tr><td>元组 tuple</td><td><code class="inline">( )</code></td><td>是</td><td><strong>否</strong></td><td>是</td><td>可以</td><td>一排锁住的格子</td></tr>
+        <tr><td>字符串 str</td><td>引号</td><td>是</td><td><strong>否</strong></td><td>是</td><td>可以</td><td>一串锁住的字符</td></tr>
+        <tr><td>字典 dict</td><td><code class="inline">{键: 值}</code></td><td>否</td><td>是</td><td>否（按键）</td><td>键不可、值可</td><td>查号台</td></tr>
+        <tr><td>集合 set</td><td><code class="inline">{ }</code></td><td>否</td><td>是</td><td>否</td><td><strong>不可以</strong></td><td>一袋不重复的球</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>本章高频操作速查</h3>
+  <div class="grid3">
+    <div class="cell">
+      <h4>列表</h4>
+      <ul>
+        <li><code class="inline">a[i]</code> / <code class="inline">a[1:4]</code> 取值</li>
+        <li><code class="inline">a.append(x)</code> 末尾加一个</li>
+        <li><code class="inline">a.extend(L)</code> 批量加进去</li>
+        <li><code class="inline">a.remove(x)</code> / <code class="inline">a.pop()</code> 删</li>
+        <li><code class="inline">a.sort(reverse=True)</code> 降序</li>
+        <li><code class="inline">sorted(a)</code> 不改原列表</li>
+        <li><code class="inline">[x*2 for x in a if x&gt;0]</code> 推导式</li>
+      </ul>
+    </div>
+    <div class="cell">
+      <h4>字典</h4>
+      <ul>
+        <li><code class="inline">d[键]</code> 取值（键不存在报错）</li>
+        <li><code class="inline">d.get(键, 默认值)</code> 安全取值</li>
+        <li><code class="inline">d[键] = 值</code> 改或加</li>
+        <li><code class="inline">del d[键]</code> 删</li>
+        <li><code class="inline">d.keys() / values() / items()</code> 遍历</li>
+        <li><code class="inline">d[x] = d.get(x, 0) + 1</code> 计数</li>
+      </ul>
+    </div>
+    <div class="cell">
+      <h4>字符串 / 集合</h4>
+      <ul>
+        <li><code class="inline">s.split()</code> 切成列表</li>
+        <li><code class="inline">'x'.join(L)</code> 拼回字符串</li>
+        <li><code class="inline">s.replace(a, b)</code> 替换</li>
+        <li><code class="inline">s.strip() / upper() / count()</code></li>
+        <li><code class="inline">set(L)</code> 去重</li>
+        <li><code class="inline">a &amp; b / a | b / a - b</code> 集合运算</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>易错清单（巡机速查）</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>编号</th><th>症状</th><th>原因</th><th>一句话诊断</th></tr></thead>
+      <tbody>
+        <tr><td>E-01</td><td><code class="inline">IndexError</code></td><td>下标越界</td><td>长度为 n 的列表，最大下标是 n-1</td></tr>
+        <tr><td>E-02</td><td>切片"少取一个"</td><td>忘了 stop 取不到</td><td>要取到第 7 个位置，就写 <code class="inline">[2:7]</code></td></tr>
+        <tr><td>E-03</td><td><code class="inline">TypeError: 'tuple' object does not support item assignment</code></td><td>改元组元素</td><td>元组不可变，要改就先转成列表</td></tr>
+        <tr><td>E-04</td><td>单元素元组变成了整数</td><td>忘了写逗号</td><td><code class="inline">(3,)</code> 才是元组</td></tr>
+        <tr><td>E-05</td><td>列表长度只加了 1，最后一项却是列表</td><td>用了 append 而不是 extend</td><td>合并两个列表用 <code class="inline">extend()</code> 或 <code class="inline">+</code></td></tr>
+        <tr><td>E-06</td><td><code class="inline">KeyError</code></td><td>键不存在还硬取</td><td>先 <code class="inline">in</code> 判断，或用 <code class="inline">get(键, 默认值)</code></td></tr>
+        <tr><td>E-07</td><td>统计结果全是 1</td><td>每次都重新赋值</td><td>要写成 <code class="inline">d[x] += 1</code> 或 <code class="inline">d.get(x, 0) + 1</code></td></tr>
+        <tr><td>E-08</td><td><code class="inline">TypeError: unhashable type: 'list'</code></td><td>把列表放进集合或当字典的键</td><td>换成元组</td></tr>
+        <tr><td>E-09</td><td>集合打印顺序每次都不同</td><td>集合本来就无序</td><td>要固定顺序就 <code class="inline">sorted(set)</code></td></tr>
+        <tr><td>E-10</td><td>字符串调用方法后"没变化"</td><td>字符串不可变，方法返回新串</td><td>要写回变量：<code class="inline">s = s.replace(...)</code></td></tr>
+        <tr><td>E-11</td><td><code class="inline">TypeError: can only concatenate str...</code></td><td>字符串和数字直接相加</td><td>用 <code class="inline">str(n)</code> 转换，或用 f-string</td></tr>
+        <tr><td>E-12</td><td>复制列表后改一个，另一个也变了</td><td><code class="inline">copy()</code> 是浅复制</td><td>嵌套结构要改，就得连子列表一起复制</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>课后作业</h3>
+  <div class="homework">
+    <h4>必做</h4>
+    <ol>
+      <li>合并两个成绩列表并降序排序，输出最高分、最低分、平均分。</li>
+      <li>输入 6 个整数存入列表，用<strong>列表推导式</strong>分出正数、负数、零三个列表，并统计各自个数。</li>
+      <li>用字典存 3 个学号与姓名，输入学号查姓名，可以查 3 次，查不到要提示。</li>
+    </ol>
+    <h4>选做</h4>
+    <ul>
+      <li>用字典做一个能自动回复的聊天机器人（参考 8.3 的选做题）。</li>
+      <li>输入一段英文，统计每个单词出现的次数，并输出出现次数最多的 3 个词。</li>
+    </ul>
+  </div>
+
+  <h3>课堂自测（7 题 · 5 分钟）</h3>
+  <ol>
+    <li><code class="inline">nums = [10,20,30,40,50]</code>，<code class="inline">nums[1:4]</code> 的结果是什么？</li>
+    <li><code class="inline">(3)</code> 和 <code class="inline">(3,)</code> 有什么不同？</li>
+    <li><code class="inline">[]</code>、<code class="inline">()</code>、<code class="inline">{}</code> 分别是什么类型？</li>
+    <li>列表和元组最大的区别是什么？</li>
+    <li><code class="inline">x = [1, 2]; x.append([3, 4])</code> 之后，<code class="inline">len(x)</code> 是多少？</li>
+    <li><code class="inline">{'a': 1}</code> 里，<code class="inline">d.get('b', 0)</code> 返回什么？</li>
+    <li><code class="inline">[i*i for i in range(5) if i % 2 == 0]</code> 的结果是什么？</li>
+  </ol>
+  <details class="recap">
+    <summary style="cursor:pointer;font-weight:700;color:var(--blue-deep);">查看答案</summary>
+    <ol style="margin-top:10px;">
+      <li><code class="inline">[20, 30, 40]</code>（下标 1、2、3，不含 4）</li>
+      <li><code class="inline">(3)</code> 是整数 3；<code class="inline">(3,)</code> 是含 1 个元素的元组</li>
+      <li>分别是空列表、空元组、空<strong>字典</strong>（空集合要写 <code class="inline">set()</code>）</li>
+      <li>列表可变、元组不可变；元组因此能当字典的键</li>
+      <li>3（append 只加了一个元素，那个元素是列表）</li>
+      <li>0（键不存在时返回默认值）</li>
+      <li><code class="inline">[0, 4, 16]</code>（i = 0、2、4）</li>
+    </ol>
+  </details>
+
+  <div class="recap">
+    <h4 style="margin-top:0;">备课提醒：本讲课件（PPT）需要注意的几处</h4>
+    <ul>
+      <li><strong>第 3 页标题"组合数据机构"</strong>是错别字，应为"组合数据结构"。</li>
+      <li><strong>第 9 页</strong>正/负索引示例里，代码与其输出对不上（red/green/blue 与 black/white/yellow 分栏错位）——上课时按"<code class="inline">print(list[0])</code> 输出 red"讲，别照投影片念。</li>
+      <li><strong>第 12 页</strong>提示"注意 start 和 end 的顺序"，建议补一句"start 大于 stop 且步长为正时，切片结果为空列表"。</li>
+      <li><strong>第 26 页</strong>商品编号用了中文全角引号 <code class="inline">“137401”</code>，学生复制进 IDLE 必然报错——让学生手打。</li>
+      <li><strong>例题编号有重复</strong>：列表推导式部分例 4-3、4-4 与后面章节编号交叉；第 47 页与第 63 页两页"重点"内容完全重复，可只讲一页。</li>
+      <li><strong>第 37、62 页</strong>把集合、字典称为"无序可变<strong>序列</strong>"，严格说它们不是序列（序列才有索引）；讲课时改口为"无序的可变容器"更准确。</li>
+      <li><strong>第 56 页与第 66 页</strong>都写"课后习题 5"，作业编号建议统一（本页已按"作业 3"编排）。</li>
+    </ul>
+  </div>
+
+  <div class="warn"><strong>学时提示</strong>：本章 8 个模块 + 6 个例题，按"讲授 2 学时 + 上机 4 学时"排比较紧。建议讲授只精讲<strong>列表（含推导式）与字典</strong>两块重点，元组、集合、字符串、解包放到上机任务里边做边讲；作业 1—3 必做，选做题留给学有余力的同学。</div>
+
+  <h3>下讲预告</h3>
+  <a class="nextcard" href="python-bigdata-2026.html">
+    <div>
+      <div class="nc-title">第 5 次课 · 第 5 章 函数</div>
+      <div class="nc-desc">函数的定义与调用 · 参数传递 · 返回值 · 变量作用域 · 模块化程序设计</div>
+    </div>
+    <span class="nc-go">回到课程主页查看课次 →</span>
+  </a>
+</section>
+
+</main>
+
+<footer>
+  <div class="f-main">中华女子学院 · Python大数据分析基础</div>
+  <div>第 4 次课 · 第 4 章 组合数据结构 · 6 学时（讲授 2 + 上机 4）· 授课人：孙琪翔</div>
+  <div style="margin-top:6px;font-size:12px;opacity:.7;">本页依据课程课件《4-组合数据结构》与《Python 编程与数据分析基础》（陈洁、刘姝，清华大学出版社）第 4 章整理；页面中每段示例代码都实际运行后回填结果，运行结果默认隐藏、点"运行"查看。</div>
+  <div style="margin-top:12px;font-size:14px;">
+    <a href="python-bigdata-2026.html">课程主页</a>
+    <span style="opacity:.45;margin:0 8px;">|</span>
+    <a href="python-bigdata-2026-lesson1.html">第1次课</a>
+    <span style="opacity:.45;margin:0 8px;">|</span>
+    <a href="python-bigdata-2026-lesson2.html">第2次课</a>
+    <span style="opacity:.45;margin:0 8px;">|</span>
+    <a href="python-bigdata-2026-lesson3.html">第3次课</a>
+  </div>
+</footer>
+
+<button id="toTop" title="回到顶部">↑</button>
+
+<script>
+/* ===== 复制代码 / 运行（结果默认隐藏，点了才显示） ===== */
+document.addEventListener('DOMContentLoaded', function () {
+  document.querySelectorAll('.btn-copy').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var box = btn.closest('.demo');
+      var pre = box ? box.querySelector('pre.code') : null;
+      if (!pre) return;
+      var text = pre.textContent;
+      var done = function () {
+        var old = btn.textContent;
+        btn.textContent = '已复制 ✓';
+        btn.classList.add('ok');
+        setTimeout(function () { btn.textContent = old; btn.classList.remove('ok'); }, 1500);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done, function () { fallback(text, done); });
+      } else { fallback(text, done); }
+    });
+  });
+  function fallback(text, done) {
+    var ta = document.createElement('textarea');
+    ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); done(); } catch (e) {}
+    document.body.removeChild(ta);
+  }
+  document.querySelectorAll('.btn-run').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var box = btn.closest('.demo');
+      if (!box) return;
+      var out = box.querySelector('pre.out');
+      if (!out) return;
+      var full = out.getAttribute('data-full') || out.textContent;
+      out.setAttribute('data-full', full);
+      box.classList.add('shown');
+      btn.textContent = '▶ 重新运行';
+      var lines = full.replace(/\n$/, '').split('\n');
+      out.textContent = '';
+      box.classList.add('flash');
+      var i = 0;
+      (function step() {
+        if (i >= lines.length) { box.classList.remove('flash'); return; }
+        out.textContent += lines[i++] + '\n';
+        setTimeout(step, 70);
+      })();
+    });
+  });
+});
+
+/* ===== 交互演示（与对应 Python 代码逻辑一致） ===== */
+function setOut(id, text) { document.getElementById(id).textContent = text; }
+function splitList(v) {
+  return v.split(',').map(function (s) { return s.trim(); }).filter(function (s) { return s !== ''; });
+}
+function pySlice(a, start, stop, step) {
+  var n = a.length, out = [], i;
+  if (step === 0) throw new Error('step 不能为 0');
+  var negStep = step < 0;
+  if (start === null || isNaN(start)) start = negStep ? n - 1 : 0;
+  if (stop === null || isNaN(stop)) stop = negStep ? -n - 1 : n;
+  if (start < 0) start += n;
+  if (stop < 0) stop += n;
+  if (!negStep) {
+    if (start < 0) start = 0;
+    if (stop > n) stop = n;
+    for (i = start; i < stop; i += step) out.push(a[i]);
+  } else {
+    if (start > n - 1) start = n - 1;
+    if (stop < -1) stop = -1;
+    for (i = start; i > stop; i += step) out.push(a[i]);
+  }
+  return out;
+}
+function numOrNull(id) {
+  var v = document.getElementById(id).value.trim();
+  if (v === '') return null;
+  var n = parseInt(v, 10);
+  return isNaN(n) ? null : n;
+}
+document.getElementById('sl-btn').addEventListener('click', function () {
+  var arr = splitList(document.getElementById('sl-list').value);
+  var s = numOrNull('sl-start'), e = numOrNull('sl-stop'), st = numOrNull('sl-step');
+  var stText = document.getElementById('sl-step').value.trim();
+  if (st === null) st = 1;
+  try {
+    var r = pySlice(arr, s, e, st);
+    var show = function (x) { return x === null ? '' : x; };
+    var stShow = stText === '' ? '' : st;
+    setOut('sl-out', '列表长度 n = ' + arr.length + '\n' +
+      'nums[' + show(s) + ' : ' + show(e) + ' : ' + stShow + '] → [' + r.join(', ') + ']\n' +
+      '（共 ' + r.length + ' 个元素；stop 那个位置取不到）');
+  } catch (err) {
+    setOut('sl-out', '错误：' + err.message);
+  }
+});
+document.getElementById('lc-btn').addEventListener('click', function () {
+  var n = parseInt(document.getElementById('lc-n').value, 10);
+  if (isNaN(n) || n < 1) { setOut('lc-out', '请输入一个正整数'); return; }
+  var cond = document.getElementById('lc-cond').value;
+  var expr = document.getElementById('lc-expr').value;
+  var out = [], i, pass;
+  for (i = 1; i <= n; i++) {
+    pass = cond === 'all' || (cond === 'odd' && i % 2 === 1) || (cond === 'even' && i % 2 === 0) || (cond === 'five' && i % 5 === 0);
+    if (!pass) continue;
+    out.push(expr === 'sq' ? i * i : (expr === 'half' ? i / 2 : i));
+  }
+  var condText = { all: '', odd: ' if i % 2 == 1', even: ' if i % 2 == 0', five: ' if i % 5 == 0' }[cond];
+  var exprText = { id: 'i', sq: 'i * i', half: 'i / 2' }[expr];
+  setOut('lc-out', '展开写法：[' + exprText + ' for i in range(1, ' + (n + 1) + ')' + condText + ']\n' +
+    '结果（' + out.length + ' 个）：' + JSON.stringify(out));
+});
+document.getElementById('wf-btn').addEventListener('click', function () {
+  var text = document.getElementById('wf-text').value.toLowerCase();
+  var words = text.split(/\s+/).filter(function (w) { return w !== ''; });
+  var dict = {}, i;
+  for (i = 0; i < words.length; i++) { dict[words[i]] = (dict[words[i]] || 0) + 1; }
+  var keys = Object.keys(dict).sort(function (a, b) { return dict[b] - dict[a] || (a < b ? -1 : 1); });
+  var lines = ['单词表：' + JSON.stringify(words),
+    '共 ' + words.length + ' 个单词，' + keys.length + ' 个不同的词',
+    '词频（按次数降序）：'];
+  keys.forEach(function (k) { lines.push('  ' + k + ' : ' + dict[k]); });
+  /* 与 Python 的 max(d, key=d.get) 一致：次数相同时取先出现的那个词 */
+  var allKeys = Object.keys(dict), bestKey = allKeys[0], bestVal = dict[bestKey];
+  allKeys.forEach(function (k) { if (dict[k] > bestVal) { bestVal = dict[k]; bestKey = k; } });
+  lines.push('出现最多的词：' + bestKey + '（' + bestVal + ' 次）');
+  setOut('wf-out', lines.join('\n'));
+});
+document.getElementById('jd-btn').addEventListener('click', function () {
+  var nums = splitList(document.getElementById('jd-sc').value).map(parseFloat).filter(function (v) { return !isNaN(v); });
+  if (nums.length < 3) { setOut('jd-out', '至少输入 3 个分数'); return; }
+  var sorted = nums.slice().sort(function (a, b) { return a - b; });
+  var valid = sorted.slice(1, sorted.length - 1);
+  var sum = valid.reduce(function (a, b) { return a + b; }, 0);
+  setOut('jd-out', '原始评分：' + nums.join(', ') + '\n' +
+    '排序后　：' + sorted.join(', ') + '\n' +
+    '去掉最高分 ' + sorted[sorted.length - 1] + ' 和最低分 ' + sorted[0] + '\n' +
+    '有效分数：' + valid.join(', ') + '（' + valid.length + ' 个）\n' +
+    '最终得分：' + (sum / valid.length).toFixed(2));
+});
+var STUDENTS = { '2024001': '张三', '2024002': '李四', '2024003': '王五' };
+document.getElementById('dc-btn').addEventListener('click', function () {
+  var sid = document.getElementById('dc-id').value.trim();
+  if (Object.prototype.hasOwnProperty.call(STUDENTS, sid)) {
+    setOut('dc-out', "students['" + sid + "'] → " + STUDENTS[sid]);
+  } else {
+    setOut('dc-out', "d['" + sid + "'] 会报 KeyError；\n改用 get()：students.get('" + sid + "', '查无此人') → 查无此人");
+  }
+});
+document.getElementById('st-btn').addEventListener('click', function () {
+  /* 数字样式的元素按数字处理，和 Python 的 {1,2,3} 表现一致 */
+  var conv = function (v) { return v !== '' && !isNaN(v) ? Number(v) : v; };
+  var a = splitList(document.getElementById('st-a').value).map(conv);
+  var b = splitList(document.getElementById('st-b').value).map(conv);
+  var sa = new Set(a), sb = new Set(b);
+  var inter = [], uni = [], diff = [];
+  sa.forEach(function (x) { if (sb.has(x)) inter.push(x); uni.push(x); });
+  sb.forEach(function (x) { if (!sa.has(x)) uni.push(x); });
+  sa.forEach(function (x) { if (!sb.has(x)) diff.push(x); });
+  var sortNum = function (arr) {
+    return arr.sort(function (x, y) {
+      if (typeof x === 'number' && typeof y === 'number') return x - y;
+      return String(x) < String(y) ? -1 : 1;
+    });
+  };
+  setOut('st-out', '集合 a（去重后）：' + JSON.stringify(sortNum(Array.from(sa))) + '\n' +
+    '集合 b（去重后）：' + JSON.stringify(sortNum(Array.from(sb))) + '\n' +
+    'a & b 交集：' + JSON.stringify(sortNum(inter)) + '\n' +
+    'a | b 并集：' + JSON.stringify(sortNum(uni)) + '\n' +
+    'a - b 差集：' + JSON.stringify(sortNum(diff)));
+});
+
+/* ===== 知识树交互 ===== */
+function jumpTarget(id) { var el = document.getElementById(id); if (el) el.scrollIntoView({ behavior: 'smooth' }); }
+document.addEventListener('DOMContentLoaded', function () {
+  document.querySelectorAll('#knowledgeTree .tn.branch').forEach(function (el) {
+    el.addEventListener('click', function (e) {
+      var link = e.target.closest('.golink');
+      if (link) { jumpTarget(link.getAttribute('data-target')); return; }
+      var kids = el.nextElementSibling;
+      if (kids && kids.classList.contains('kids')) { kids.classList.toggle('show'); el.classList.toggle('open'); }
+    });
+  });
+  document.querySelectorAll('#knowledgeTree .tn.leaf').forEach(function (el) {
+    el.addEventListener('click', function () { jumpTarget(el.getAttribute('data-target')); });
+  });
+});
+
+/* ===== 导航滚动高亮 ===== */
+document.addEventListener('DOMContentLoaded', function () {
+  var navLinks = {};
+  document.querySelectorAll('#nav a[data-sec]').forEach(function (a) { navLinks[a.getAttribute('data-sec')] = a; });
+  var sections = ['guide', 'c1', 'c2', 'c3', 'c4', 'c5', 'c6', 'c7', 'c8', 'lab', 'summary'];
+  if ('IntersectionObserver' in window) {
+    var obs = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        if (en.isIntersecting) {
+          document.querySelectorAll('#nav a').forEach(function (a) { a.classList.remove('on'); });
+          var a = navLinks[en.target.id];
+          if (a) a.classList.add('on');
+        }
+      });
+    }, { rootMargin: '-15% 0px -70% 0px' });
+    sections.forEach(function (s) { var el = document.getElementById(s); if (el) obs.observe(el); });
+  }
+});
+
+/* ===== 回到顶部 ===== */
+document.addEventListener('DOMContentLoaded', function () {
+  var toTop = document.getElementById('toTop');
+  window.addEventListener('scroll', function () {
+    if (window.scrollY > 600) toTop.classList.add('show');
+    else toTop.classList.remove('show');
+  });
+  toTop.addEventListener('click', function () { window.scrollTo({ top: 0, behavior: 'smooth' }); });
+});
+</script>
+</body>
+</html>
