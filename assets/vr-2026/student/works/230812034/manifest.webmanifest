@@ -1,0 +1,17 @@
+{
+  "name": "故宫 · 紫禁城 WebXR 沉浸漫游",
+  "short_name": "紫禁城 WebXR",
+  "description": "Three.js + WebXR 程序化生成的故宫中轴线漫游场景，支持 PICO Neo3 沉浸模式",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "fullscreen",
+  "orientation": "landscape",
+  "background_color": "#100a06",
+  "theme_color": "#100a06",
+  "lang": "zh-CN",
+  "icons": [
+    { "src": "./icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "./icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "./icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" }
+  ]
+}

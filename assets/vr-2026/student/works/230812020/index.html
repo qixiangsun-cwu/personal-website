@@ -1,0 +1,1814 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#8fc0e6">
+<title>天空岛 · Celestia WebXR</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;overflow:hidden;background:#8fc0e6;
+  font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Songti SC","Microsoft YaHei",sans-serif;
+  -webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
+canvas{display:block}
+#ui{position:fixed;inset:0;color:#fff;pointer-events:none;
+  text-shadow:0 2px 14px rgba(30,70,120,.55);transition:opacity .6s}
+#title{position:absolute;right:28px;top:24px;text-align:right;
+  margin-right:-11px}   /* 抵消 h1 字间距带来的右侧偏移，视觉上真正贴边 */
+#title h1{font:400 27px "Songti SC",serif;letter-spacing:11px}
+#title p{margin-top:7px;font-size:10px;letter-spacing:3.5px;opacity:.78}
+#tip{position:absolute;left:28px;bottom:22px;font-size:11px;line-height:2.15;opacity:.85}
+#tip b{font-weight:600}
+#actions{position:absolute;right:22px;bottom:22px;display:flex;gap:8px;align-items:center;pointer-events:auto}
+#stat{font-size:10px;letter-spacing:.5px;opacity:.7;margin-right:8px;text-align:right;line-height:1.75}
+button{border:1px solid rgba(255,255,255,.55);border-radius:22px;background:rgba(24,62,104,.4);color:#fff;
+  padding:10px 17px;font-size:12px;letter-spacing:2px;backdrop-filter:blur(8px);
+  cursor:pointer;transition:.2s;font-family:inherit}
+button:hover{background:rgba(255,255,255,.2);transform:translateY(-1px)}
+button:disabled{opacity:.45;cursor:default;transform:none}
+button.on{border-color:rgba(255,228,150,.9);color:#ffe9b0;background:rgba(255,220,130,.18)}
+#enterVR{border-color:rgba(255,228,150,.9);color:#ffe9b0}
+body.XR #ui{opacity:0;pointer-events:none}
+
+/* -------- 时间系统面板（左上角） -------- */
+#timePanel{position:absolute;left:28px;top:24px;width:200px;pointer-events:auto;
+  background:rgba(16,44,80,.42);backdrop-filter:blur(10px);
+  border:1px solid rgba(255,255,255,.26);border-radius:14px;padding:12px 14px 9px}
+#timePanel .trow{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px}
+#todLabel{font:500 20px "Songti SC",serif;letter-spacing:2px}
+#timePanel button{padding:5px 11px;font-size:11px;letter-spacing:1px;border-radius:14px}
+#todRange{-webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:3px;outline:none;
+  cursor:pointer;background:linear-gradient(90deg,#16233f 0%,#5b83b8 22%,#8dc0e8 40%,#ffd9a0 50%,
+  #8dc0e8 60%,#5b83b8 78%,#16233f 100%)}
+#todRange::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:15px;height:15px;
+  border-radius:50%;background:#fff;border:2px solid rgba(255,228,150,.9);
+  cursor:pointer;box-shadow:0 1px 6px rgba(0,0,0,.4)}
+#todRange::-moz-range-thumb{width:13px;height:13px;border-radius:50%;background:#fff;
+  border:2px solid rgba(255,228,150,.9);cursor:pointer}
+#phaseHint{margin-top:7px;font-size:9.5px;letter-spacing:1.5px;opacity:.68;text-align:center}
+#flash{position:fixed;inset:0;z-index:15;pointer-events:none;opacity:0;background:#fff}
+
+/* -------- 彩蛋：坠入虚空 -------- */
+#void{position:fixed;inset:0;z-index:30;display:none;pointer-events:auto;
+  font-family:inherit;color:#e6e6e8;text-align:center;
+  background:radial-gradient(ellipse at 50% 45%,#43464c 0%,#22242a 55%,#0b0c0e 100%);
+  flex-direction:column;align-items:center;justify-content:center}
+#void.show{display:flex;animation:voidIn .5s ease-out both}
+@keyframes voidIn{from{opacity:0}to{opacity:1}}
+#void h2{margin:0;font:400 36px "Songti SC",serif;letter-spacing:9px;color:#fff;
+  text-shadow:0 2px 26px rgba(0,0,0,.6)}
+#void .sub{margin-top:14px;font-size:10.5px;letter-spacing:4px;opacity:.5}
+#void .line{margin:26px 0 4px;width:120px;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(255,228,150,.55),transparent)}
+#void button{margin-top:18px;padding:12px 32px;font-size:13px;letter-spacing:4px;
+  border-color:rgba(255,228,150,.75);color:#ffe9b0;background:rgba(255,228,150,.10)}
+#loading{position:fixed;inset:0;z-index:20;background:linear-gradient(180deg,#1c3f66,#6ea3cf);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;transition:opacity .9s}
+#loading h2{font:400 21px "Songti SC",serif;letter-spacing:9px;margin-bottom:20px}
+#loadbar{width:250px;height:2px;background:rgba(255,255,255,.25);border-radius:2px;overflow:hidden}
+#loadbar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#ffe9b0,#fff);transition:width .25s}
+#loadmsg{margin-top:14px;font-size:11px;letter-spacing:2.5px;opacity:.75}
+@media(max-width:700px){#tip{display:none}#title h1{font-size:20px;letter-spacing:7px}}
+</style>
+</head>
+<body>
+<div id="ui">
+  
+  <div id="timePanel">
+    <div class="trow">
+      <span id="todLabel">14:30</span>
+      <button id="btnAutoTime" class="on">自动</button>
+    </div>
+    <input id="todRange" type="range" min="0" max="24" step="0.05" value="14.5">
+    <div id="phaseHint">午后</div>
+  </div>
+  <div id="title"><h1>天 空 岛</h1><p>CELESTIA · WEBXR</p></div>
+
+  <div id="tip">
+    <b>PC</b>　W A S D 移动　·　Q E 升降　·　拖动环视　·　Shift 加速<br>
+    <b>VR</b>　左摇杆 移动　·　右摇杆 转向 / 升降<br>
+    <b>时间</b>　左上角滑块，或 [ ] 调时 · P 昼夜自动播放<br>
+    <b>神门</b>　点击前方的拱门　→　回到原点<br>
+    <b>注意</b>　走出路面会坠入虚空（彩蛋）
+  </div>
+  <div id="actions">
+    <div id="stat"></div>
+    <button id="enterVR">进入 VR</button>
+  </div>
+</div>
+<div id="flash"></div>
+<div id="void">
+  <h2>你掉入了虚空</h2>
+  <div class="sub">THE VOID · CELESTIA</div>
+  <div class="line"></div>
+  <button id="btnVoidBack">回到原点</button>
+</div>
+<div id="loading"><h2>正在构筑天空岛</h2><div id="loadbar"><i></i></div><div id="loadmsg">初始化…</div></div>
+
+<script src="./three.min.js"></script>
+<script>
+/* =============================================================================
+ * 天空岛 · Celestia WebXR 沉浸漫游
+ * 架构参考 gugong.html：Three.js r128 + 全程序化建模/贴图，零外部资源
+ *  - 节状大理石柱廊：LatheGeometry 旋转体 + 每节金环纹理
+ *  - 无限前后循环 chunk：真 3D 几何体，任意走动都不会穿帮
+ *  - 多层视差（近柱/中柱/远柱/浮空岛群）+ 空气透视雾 → 强纵深景深
+ * ========================================================================== */
+(function(){
+'use strict';
+
+/* ---------------------------------- 常量 ---------------------------------- */
+var CHUNK_L = 84;        // 单个循环模块长度
+var N_CHUNK = 6;         // 模块数量（覆盖 504 单位）
+var FOG_NEAR = 38, FOG_FAR = 245;
+
+/* 神门与视角：等比缩小门，并把镜头抬到门高的 3/4（开局可远观整座门） */
+var GATE_S = 0.75;               // 门的等比缩放系数
+var GATE_H = 10.4 * GATE_S;      // 缩放后的门高 ≈ 7.8
+var STAND_EYE = 1.65;            // 眼睛相对“基座”的高度（VR / PC 通用）
+var EYE_RATIO = 0.30;            // 眼高 / 门高（调大=更高更俯视，调小=更贴近地面）
+var EYE_H = GATE_H * EYE_RATIO;  // 开局眼高 ≈ 2.34，接近站立视角
+var BASE_Y = EYE_H - STAND_EYE;  // 基座高度 ≈ 0.69，使 player.y + 眼高 = EYE_H
+
+var renderer, scene, camera, player, clock;
+var sun, hemi, ambient;
+var tex = {}, mat = {};
+var chunks = [], farGroup, skyDome, sunSprite, moonSprite, stars;
+
+/* ----------------------------- 时间系统 ----------------------------- */
+var CLOCK = { tod: 14.5, auto: true, dayLen: 300 };   // dayLen：一整天的真实秒数（默认自动播放昼夜）
+var C_DAY = {                       // 白昼：明亮通透的云海蓝天
+  top: 0x3f7fc0, mid: 0x8dc0e8, hor: 0xe8f3fb,
+  sun: 0xfff6e8, amb: 0.60, ambGnd: 0xf2ead6, exp: 0.98,
+  fog: 0xcfe2f4, cloud: 0xffffff, cloudFar: 0xeaf4ff, isl: 0xdfeaf5
+};
+var C_DUSK = {                      // 晨昏：金色斜阳
+  top: 0x4a5a9a, mid: 0xe89a72, hor: 0xffd9a0,
+  sun: 0xffb070, amb: 0.46, ambGnd: 0xf0c9a0, exp: 1.02,
+  fog: 0xecc9b8, cloud: 0xffdcc0, cloudFar: 0xffd9b8, isl: 0xe0c8c0
+};
+var C_NIGHT = {                     // 夜：星河与冷蓝月光
+  top: 0x0a1430, mid: 0x1c3260, hor: 0x3c5a86,
+  sun: 0xa8c4ff, amb: 0.24, ambGnd: 0x2a3a58, exp: 1.18,
+  fog: 0x2a3d5e, cloud: 0x7f95bb, cloudFar: 0x5f76a0, isl: 0x4a5f80
+};
+var tmpA = new THREE.Color(), tmpB = new THREE.Color();
+var cTop = new THREE.Color(), cMid = new THREE.Color(), cHor = new THREE.Color();
+var cSun = new THREE.Color(), cFog = new THREE.Color();
+var cCloud = new THREE.Color(), cCloudFar = new THREE.Color(), cIsl = new THREE.Color();
+var cGnd = new THREE.Color();
+
+var stats = { fps: 0, acc: 0, cnt: 0 };
+
+/* ---------------------------------- 工具 ---------------------------------- */
+function clamp(v,a,b){ return v<a?a:(v>b?b:v); }
+function lerp(a,b,t){ return a+(b-a)*t; }
+function smoothstep(a,b,x){ var t=clamp((x-a)/(b-a),0,1); return t*t*(3-2*t); }
+function deg(d){ return d*Math.PI/180; }
+
+// 可重复的种子随机（保证模块每次生成一致）
+function mulberry32(seed){
+  return function(){
+    seed |= 0; seed = seed + 0x6D2B79F5 | 0;
+    var t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+
+function setProgress(p, msg){
+  var bar = document.querySelector('#loadbar i'), el = document.getElementById('loadmsg');
+  if (bar) bar.style.width = (p*100).toFixed(0)+'%';
+  if (el && msg) el.textContent = msg;
+}
+
+/* =========================== 1. 程序化纹理（Canvas） =========================== */
+function makeTex(w, h, fn, repX, repY){
+  var c = document.createElement('canvas');
+  c.width = w; c.height = h;
+  fn(c.getContext('2d'), w, h);
+  var t = new THREE.CanvasTexture(c);
+  t.wrapS = t.wrapT = THREE.RepeatWrapping;
+  if (repX || repY) t.repeat.set(repX||1, repY||1);
+  t.anisotropy = 4;
+  t.encoding = THREE.sRGBEncoding;
+  return t;
+}
+function noise(g, w, h, alpha, n, dark){
+  for (var i=0;i<n;i++){
+    var v = Math.floor(Math.random()*70) + (dark===false?150:0);
+    g.fillStyle = 'rgba('+v+','+v+','+v+','+alpha+')';
+    g.fillRect(Math.random()*w, Math.random()*h, 1+Math.random()*2, 1+Math.random()*2);
+  }
+}
+function roundRectPath(g, x, y, w, h, r){
+  g.beginPath();
+  g.moveTo(x + r, y);
+  g.lineTo(x + w - r, y);
+  g.quadraticCurveTo(x + w, y, x + w, y + r);
+  g.lineTo(x + w, y + h - r);
+  g.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  g.lineTo(x + r, y + h);
+  g.quadraticCurveTo(x, y + h, x, y + h - r);
+  g.lineTo(x, y + r);
+  g.quadraticCurveTo(x, y, x + r, y);
+  g.closePath();
+}
+
+/* 神门提示图标：圆环 + 三角箭头 + 文字标签（参考 fangjian.html 的 spot） */
+function spotTexture(label){
+  var W = 512, H = 256;
+  var c = document.createElement('canvas');
+  c.width = W; c.height = H;
+  var g = c.getContext('2d');
+  var cx = 256, cy = 84, R = 46;
+
+  // 外圈金色柔光
+  var glow = g.createRadialGradient(cx, cy, R*0.45, cx, cy, R*2.0);
+  glow.addColorStop(0, 'rgba(255,236,180,0.32)');
+  glow.addColorStop(1, 'rgba(255,236,180,0)');
+  g.fillStyle = glow;
+  g.beginPath(); g.arc(cx, cy, R*2.0, 0, Math.PI*2); g.fill();
+
+  // 圆环
+  g.lineWidth = 9;
+  g.strokeStyle = 'rgba(255,255,255,0.95)';
+  g.beginPath(); g.arc(cx, cy, R, 0, Math.PI*2); g.stroke();
+  g.fillStyle = 'rgba(255,255,255,0.18)';
+  g.beginPath(); g.arc(cx, cy, R, 0, Math.PI*2); g.fill();
+
+  // 三角箭头
+  g.beginPath();
+  g.moveTo(cx - 13, cy - 19);
+  g.lineTo(cx + 20, cy);
+  g.lineTo(cx - 13, cy + 19);
+  g.closePath();
+  g.fillStyle = 'rgba(255,255,255,0.95)';
+  g.fill();
+
+  // 文字标签
+  g.font = 'bold 56px "PingFang SC","Microsoft YaHei",sans-serif';
+  var tw = g.measureText(label).width, bw = tw + 52, bh = 70;
+  var bx = (W - bw) / 2, by = cy + R + 14;
+  g.fillStyle = 'rgba(12,20,32,0.82)';
+  roundRectPath(g, bx, by, bw, bh, 15);
+  g.fill();
+  g.strokeStyle = 'rgba(255,230,160,0.55)';
+  g.lineWidth = 2.5;
+  g.stroke();
+  g.fillStyle = '#ffffff';
+  g.textAlign = 'center';
+  g.textBaseline = 'middle';
+  g.fillText(label, W / 2, by + bh / 2 + 2);
+
+  var t = new THREE.CanvasTexture(c);
+  if (THREE.sRGBEncoding !== undefined) t.encoding = THREE.sRGBEncoding;
+  return t;
+}
+
+function buildTextures(){
+  /* --- 大理石：暖白底 + 淡灰脉络 + 微噪点（一个“节”的图案，纵向循环） --- */
+  tex.marble = makeTex(256, 256, function(g,w,h){
+    var bg = g.createLinearGradient(0,0,0,h);
+    bg.addColorStop(0,   '#eee5d4');
+    bg.addColorStop(0.5, '#fbf6ea');
+    bg.addColorStop(1,   '#e4dac5');
+    g.fillStyle = bg; g.fillRect(0,0,w,h);
+    // 大理石脉络（加深，提升石材质感）
+    for (var i=0;i<30;i++){
+      g.strokeStyle = 'rgba(168,160,146,' + (0.09+Math.random()*0.13) + ')';
+      g.lineWidth = 0.7 + Math.random()*2.2;
+      g.beginPath();
+      var x = Math.random()*w, y = Math.random()*h;
+      g.moveTo(x,y);
+      for (var k=0;k<5;k++){
+        x += (Math.random()-0.5)*95; y += (Math.random()-0.35)*62;
+        g.lineTo(x,y);
+      }
+      g.stroke();
+    }
+    // 暖色晕斑
+    for (var j=0;j<14;j++){
+      var cxp=Math.random()*w, cyp=Math.random()*h, r=18+Math.random()*46;
+      var rg = g.createRadialGradient(cxp,cyp,0,cxp,cyp,r);
+      rg.addColorStop(0,'rgba(226,208,172,0.13)');
+      rg.addColorStop(1,'rgba(226,208,172,0)');
+      g.fillStyle = rg; g.beginPath(); g.arc(cxp,cyp,r,0,6.2832); g.fill();
+    }
+    noise(g,w,h,0.05,2800);
+    // 每节底部的金环（柱身纹理 v 方向重复 = 节数）
+    g.fillStyle = 'rgba(206,162,74,0.95)'; g.fillRect(0, h-12, w, 7);
+    g.fillStyle = 'rgba(255,246,210,0.9)'; g.fillRect(0, h-12, w, 2.2);
+    g.fillStyle = 'rgba(140,100,36,0.45)'; g.fillRect(0, h-5, w, 1.8);
+  });
+
+  /* --- 远景柱：被空气透视洗淡的冷白 --- */
+  tex.marbleFar = makeTex(128, 128, function(g,w,h){
+    g.fillStyle = '#dbe7f2'; g.fillRect(0,0,w,h);
+    g.fillStyle = 'rgba(255,255,255,0.5)'; g.fillRect(0,0,w,h*0.45);
+    noise(g,w,h,0.03,700);
+  });
+
+  /* --- 路面石板：浅米色大石板 + 接缝 + 细纹 --- */
+  tex.road = makeTex(256, 512, function(g,w,h){
+    var bg = g.createLinearGradient(0,0,w,0);
+    bg.addColorStop(0,   '#d9cfb8');
+    bg.addColorStop(0.35,'#ece5d2');
+    bg.addColorStop(0.65,'#eee8d6');
+    bg.addColorStop(1,   '#d7cdb4');
+    g.fillStyle = bg; g.fillRect(0,0,w,h);
+    // 横向石板缝
+    for (var y=0;y<h;y+=64){
+      g.fillStyle = 'rgba(140,130,110,0.38)'; g.fillRect(0,y,w,2.4);
+      g.fillStyle = 'rgba(255,255,255,0.45)'; g.fillRect(0,y+2.4,w,1.4);
+    }
+    // 纵向分板
+    g.fillStyle = 'rgba(140,130,110,0.26)'; g.fillRect(w*0.5-1,0,2,h);
+    // 中部金色纹样带（原神式三角纹）
+    for (var yy=0;yy<h;yy+=128){
+      g.save(); g.translate(w*0.5, yy+36);
+      g.strokeStyle = 'rgba(190,148,66,0.9)'; g.lineWidth = 3;
+      for (var d=-3;d<=3;d++){
+        g.beginPath();
+        g.moveTo(d*20-10, -11); g.lineTo(d*20, 11); g.lineTo(d*20+10, -11);
+        g.stroke();
+      }
+      g.restore();
+    }
+    noise(g,w,h,0.05,3600);
+  });
+
+  /* --- 路缘石：白石为主，上下细金线 + 疏朗回纹 --- */
+  tex.ledge = makeTex(256, 128, function(g,w,h){
+    var bg = g.createLinearGradient(0,0,0,h);
+    bg.addColorStop(0,'#ffffff');
+    bg.addColorStop(1,'#f0ebe0');
+    g.fillStyle = bg; g.fillRect(0,0,w,h);
+    // 上下两道细金线
+    g.fillStyle = 'rgba(198,158,80,0.85)';
+    g.fillRect(0, 13, w, 4);
+    g.fillRect(0, h - 17, w, 4);
+    // 每周期一个疏朗回纹
+    g.strokeStyle = 'rgba(190,148,66,0.8)'; g.lineWidth = 4;
+    g.beginPath();
+    g.moveTo(w*0.18, h*0.52);
+    g.lineTo(w*0.34, h*0.26);
+    g.lineTo(w*0.50, h*0.52);
+    g.lineTo(w*0.66, h*0.26);
+    g.lineTo(w*0.82, h*0.52);
+    g.stroke();
+    noise(g,w,h,0.025,700);
+  });
+
+  /* --- 金材质贴图：渐变金 + 菱形神纹 + 珠点（神圣感） --- */
+  tex.gold = makeTex(128, 128, function(g,w,h){
+    var bg = g.createLinearGradient(0,0,w,h);
+    bg.addColorStop(0,   '#f4dda6');
+    bg.addColorStop(0.45,'#dfb96a');
+    bg.addColorStop(0.55,'#c69b48');
+    bg.addColorStop(1,   '#e8ca84');
+    g.fillStyle = bg; g.fillRect(0,0,w,h);
+    // 横向高光丝
+    g.fillStyle = 'rgba(255,250,225,0.34)';
+    for (var i=0;i<5;i++) g.fillRect(0, i*26+4, w, 2);
+    // 菱形神纹
+    g.strokeStyle = 'rgba(255,248,214,0.58)';
+    g.lineWidth = 2.2;
+    for (var x=14; x<w+32; x+=32){
+      g.beginPath();
+      g.moveTo(x, 26); g.lineTo(x+12, 64); g.lineTo(x, 102); g.lineTo(x-12, 64);
+      g.closePath(); g.stroke();
+    }
+    // 菱心珠点
+    g.fillStyle = 'rgba(255,252,235,0.55)';
+    for (var x2=-18; x2<w+32; x2+=32){
+      g.beginPath(); g.arc(x2, 64, 2.8, 0, 6.2832); g.fill();
+    }
+    noise(g,w,h,0.04,500);
+  });
+
+  /* --- 云：径向渐变团块，带 alpha（交叉平面云用） --- */
+  tex.cloud = makeTex(256, 256, function(g,w,h){
+    g.clearRect(0,0,w,h);
+    for (var i=0;i<34;i++){
+      var a = Math.random()*6.2832, rr = Math.random()*w*0.30;
+      var x = w*0.5 + Math.cos(a)*rr, y = h*0.5 + Math.sin(a)*rr*0.55;
+      var r = w*(0.10 + Math.random()*0.20);
+      var rg = g.createRadialGradient(x,y,0,x,y,r);
+      rg.addColorStop(0,   'rgba(255,255,255,0.80)');
+      rg.addColorStop(0.45,'rgba(246,251,255,0.46)');
+      rg.addColorStop(0.78,'rgba(230,243,255,0.16)');
+      rg.addColorStop(1,   'rgba(220,238,255,0)');
+      g.fillStyle = rg; g.beginPath(); g.arc(x,y,r,0,6.2832); g.fill();
+    }
+    // 边缘自然消散
+    g.globalCompositeOperation = 'destination-in';
+    var mask = g.createRadialGradient(w/2,h/2,0,w/2,h/2,w*0.5);
+    mask.addColorStop(0,'rgba(0,0,0,1)');
+    mask.addColorStop(0.62,'rgba(0,0,0,0.95)');
+    mask.addColorStop(1,'rgba(0,0,0,0)');
+    g.fillStyle = mask; g.fillRect(0,0,w,h);
+    g.globalCompositeOperation = 'source-over';
+  });
+
+  /* --- 远景浮空岛表面 --- */
+  tex.island = makeTex(128,128,function(g,w,h){
+    g.fillStyle = '#c3d8ea'; g.fillRect(0,0,w,h);
+    g.fillStyle = 'rgba(255,255,255,0.42)'; g.fillRect(0,0,w,h*0.35);
+    noise(g,w,h,0.03,600);
+  });
+
+  /* --- 纯净大理石（门框用，不含节间金环） --- */
+  tex.marblePlain = makeTex(256, 256, function(g,w,h){
+    var bg = g.createLinearGradient(0,0,0,h);
+    bg.addColorStop(0,   '#f3ecdd');
+    bg.addColorStop(0.45,'#fdfaf3');
+    bg.addColorStop(1,   '#e7ddc9');
+    g.fillStyle = bg; g.fillRect(0,0,w,h);
+    for (var i=0;i<22;i++){
+      g.strokeStyle = 'rgba(174,166,152,' + (0.06+Math.random()*0.10) + ')';
+      g.lineWidth = 0.7 + Math.random()*1.8;
+      g.beginPath();
+      var x = Math.random()*w, y = Math.random()*h;
+      g.moveTo(x,y);
+      for (var k=0;k<4;k++){
+        x += (Math.random()-0.5)*90; y += (Math.random()-0.4)*66;
+        g.lineTo(x,y);
+      }
+      g.stroke();
+    }
+    noise(g,w,h,0.04,2200);
+  });
+
+  /* --- 神门门板：对称浮雕纹样（参考 damen 图） --- */
+  tex.gatePanel = makeTex(256, 512, function(g,w,h){
+    var bg = g.createLinearGradient(0,0,w,0);
+    bg.addColorStop(0,   '#dcd8ce');
+    bg.addColorStop(0.5, '#eae7df');
+    bg.addColorStop(1,   '#dcd8ce');
+    g.fillStyle = bg; g.fillRect(0,0,w,h);
+
+    // 内外双线框（凹槽感）
+    g.strokeStyle = 'rgba(158,152,140,0.55)'; g.lineWidth = 3.4;
+    g.strokeRect(20, 20, w-40, h-40);
+    g.strokeStyle = 'rgba(255,255,255,0.72)'; g.lineWidth = 1.6;
+    g.strokeRect(25, 25, w-50, h-50);
+    g.strokeStyle = 'rgba(158,152,140,0.34)'; g.lineWidth = 2;
+    g.strokeRect(34, 34, w-68, h-68);
+
+    // ---- 对称浮雕：先画左半，再镜像 ----
+    g.save();
+    g.translate(w/2, 0);
+    g.lineCap = 'round';
+    g.lineJoin = 'round';
+    function half(){
+      g.strokeStyle = 'rgba(146,140,128,0.52)'; g.lineWidth = 3.2;
+      // 中央竖脊
+      g.beginPath(); g.moveTo(-4, 62); g.lineTo(-4, h-62); g.stroke();
+      // 上段涡卷
+      g.beginPath(); g.moveTo(-8, 118);
+      g.bezierCurveTo(-72, 128, -70, 208, -16, 232); g.stroke();
+      g.beginPath(); g.moveTo(-20, 158);
+      g.bezierCurveTo(-38, 172, -34, 200, -18, 208); g.stroke();
+      // 中段大弧
+      g.beginPath(); g.moveTo(-10, 254);
+      g.bezierCurveTo(-92, 276, -90, 362, -14, 386); g.stroke();
+      // 下段涡卷
+      g.beginPath(); g.moveTo(-10, 402);
+      g.bezierCurveTo(-66, 414, -64, h-96, -10, h-72); g.stroke();
+      g.beginPath(); g.moveTo(-22, 432);
+      g.bezierCurveTo(-44, 448, -42, h-118, -18, h-100); g.stroke();
+      // 点缀
+      g.fillStyle = 'rgba(146,140,128,0.44)';
+      for (var i=0;i<3;i++){
+        g.beginPath(); g.arc(-40 - i*15, 320, 3.2, 0, 6.2832); g.fill();
+        g.beginPath(); g.arc(-46 - i*15, 168, 2.6, 0, 6.2832); g.fill();
+      }
+    }
+    half();
+    g.scale(-1, 1);
+    half();
+    g.restore();
+
+    // 中央菱形纹章
+    g.save();
+    g.translate(w/2, h*0.44);
+    g.strokeStyle = 'rgba(150,144,132,0.62)'; g.lineWidth = 3.6;
+    g.beginPath();
+    g.moveTo(0,-40); g.lineTo(28,0); g.lineTo(0,40); g.lineTo(-28,0); g.closePath();
+    g.stroke();
+    g.lineWidth = 2.6;
+    g.beginPath();
+    g.moveTo(0,-22); g.lineTo(15,0); g.lineTo(0,22); g.lineTo(-15,0); g.closePath();
+    g.stroke();
+    g.fillStyle = 'rgba(198,158,80,0.55)';
+    g.beginPath(); g.arc(0, 0, 5.5, 0, 6.2832); g.fill();
+    g.restore();
+
+    noise(g,w,h,0.035,1800);
+  });
+}
+
+/* =========================== 2. 材质 =========================== */
+function buildMaterials(){
+  mat.marble = new THREE.MeshStandardMaterial({ map: tex.marble, roughness: 0.72, metalness: 0.02 });
+  mat.marbleFar = new THREE.MeshStandardMaterial({ map: tex.marbleFar, roughness: 0.9, metalness: 0 });
+  tex.road.repeat.set(2, 14);            // 沿路长方向重复，避免拉伸
+  mat.road = new THREE.MeshStandardMaterial({ map: tex.road, roughness: 0.84, metalness: 0.02 });
+  tex.ledge.repeat.set(12, 1);           // 沿路缘长度方向重复回纹（疏朗）
+  mat.ledge = new THREE.MeshStandardMaterial({ map: tex.ledge, roughness: 0.7, metalness: 0.05 });
+  mat.gold = new THREE.MeshStandardMaterial({ map: tex.gold, roughness: 0.34, metalness: 0.72,
+                color: 0xfff0cf, emissive: 0x3a2a08, emissiveIntensity: 0.35,
+                side: THREE.DoubleSide });
+  mat.cloud = new THREE.MeshBasicMaterial({ map: tex.cloud, transparent: true, opacity: 0.80,
+                depthWrite: false, side: THREE.DoubleSide, fog: true });
+  mat.cloudFar = new THREE.MeshBasicMaterial({ map: tex.cloud, transparent: true, opacity: 0.55,
+                depthWrite: false, side: THREE.DoubleSide, fog: false, color: 0xeaf4ff });
+  mat.islandFar = new THREE.MeshStandardMaterial({ map: tex.island, roughness: 1, metalness: 0,
+                color: 0xdfeaf5, fog: false, transparent: true, opacity: 0.96 });
+  mat.islandMid = new THREE.MeshStandardMaterial({ map: tex.island, roughness: 1, metalness: 0,
+                color: 0xcfe0ee, fog: true });
+
+  /* --- 神门：ExtrudeGeometry 的 UV 即 (x,y)，用 repeat/offset 归一到纹理 --- */
+  tex.marblePlain.repeat.set(0.45, 0.30);
+  mat.gateFrame = new THREE.MeshStandardMaterial({
+    map: tex.marblePlain, roughness: 0.66, metalness: 0.04, color: 0xfaf6ec,
+    side: THREE.DoubleSide                    // 玩家会穿过门，背面也要可见
+  });
+  tex.gatePanel.repeat.set(1/3.4, 1/8.9);
+  tex.gatePanel.offset.set(0.5, 0);
+  mat.gatePanel = new THREE.MeshStandardMaterial({
+    map: tex.gatePanel, roughness: 0.74, metalness: 0.06,
+    side: THREE.DoubleSide, emissive: 0x5570a0, emissiveIntensity: 0
+  });
+}
+
+/* =========================== 3. 几何：罗马柱 =========================== */
+/* 经典罗马柱（归一化：总高 1，柱身半径约 1）
+   · Attic 柱础：多层圆盘递收
+   · 柱身：向上收分 + 中鼓(entasis) + N 条竖向凹槽(fluting)
+   · 科林斯柱头：两圈莨苕叶(8 片) + 4 个涡卷(volute) + 顶板(abacus)
+   做法：先按“层”定义半径剖面，再按角度 θ 调制出凹槽/叶片/涡卷，
+   因此整根柱子只需一个几何，可继续用 InstancedMesh 合批。 */
+function romanColumnGeo(flutes, SEG){
+  var L = [];                              // [y, r, 凹槽, 叶片, 涡卷, 方形]
+  function add(y, r, f, lf, v, sq){ L.push([y, r, f || 0, lf || 0, v || 0, sq || 0]); }
+
+  /* ---- 柱础 Attic base ---- */
+  add(0.000, 0.00);                        // 底心封盖
+  add(0.000, 1.56);
+  add(0.012, 1.54);
+  add(0.022, 1.46);
+  add(0.032, 1.34);
+  add(0.040, 1.28);
+  add(0.048, 1.20);
+  add(0.056, 1.15);
+  add(0.063, 1.15);
+
+  /* ---- 柱身：收分 + entasis + 凹槽（高径比 ≈ 6，古典敦实比例）---- */
+  var N = 16;
+  for (var i = 1; i <= N; i++){
+    var t = i / N;
+    var y = 0.063 + t * (0.770 - 0.063);
+    var r = 1.15 + (0.97 - 1.15) * t + 0.045 * Math.sin(Math.PI * t);
+    add(y, r, 1, 0, 0);
+  }
+  add(0.770, 0.995, 0.35);                 // 柱身上端环带
+  add(0.784, 0.975, 0);
+
+  /* ---- 科林斯柱头 ---- */
+  add(0.796, 0.955);
+  add(0.808, 0.978);
+  add(0.820, 1.028);
+  for (var j = 1; j <= 4; j++){            // 下圈莨苕叶：由弱渐强
+    var tl = j / 4;
+    add(0.820 + tl * 0.048, 1.028 + 0.115 * tl, 0, tl * 0.95, 0);
+  }
+  for (var j2 = 1; j2 <= 4; j2++){         // 上圈莨苕叶：由强渐弱
+    var tl2 = j2 / 4;
+    add(0.868 + tl2 * 0.046, 1.143 + 0.135 * tl2, 0, 1 - tl2 * 0.50, 0);
+  }
+  add(0.920, 1.295, 0, 0, 0.45);           // 涡卷
+  add(0.938, 1.380, 0, 0, 1.00);
+  add(0.955, 1.445, 0, 0, 0.55);
+  add(0.964, 1.500, 0, 0, 0, 1);           // 方形顶板 abacus
+  add(0.980, 1.528, 0, 0, 0, 1);
+  add(0.992, 1.498, 0, 0, 0, 1);
+  add(0.999, 1.270, 0, 0, 0, 0.7);
+  add(1.000, 0.00);                        // 顶心封盖
+
+  /* ---- 生成环形网格 ---- */
+  var pos = [], uvs = [], idx = [];
+  for (var k = 0; k < L.length; k++){
+    var yy = L[k][0], rr = L[k][1], ff = L[k][2], lf = L[k][3], vv = L[k][4], sq = L[k][5];
+    for (var s = 0; s <= SEG; s++){
+      var th = s / SEG * Math.PI * 2;
+      var r = rr;
+      // 凹槽：谷深 11%，谷底用 pow 收紧成圆弧内凹（法线变化更明显，靠光照出阴影）
+      if (ff > 0) r *= 1 - 0.115 * ff * Math.pow(0.5 + 0.5 * Math.cos(flutes * th), 0.8);
+      if (lf > 0) r += 0.140 * lf * (0.5 + 0.5 * Math.cos(8 * th));
+      if (vv > 0) r += 0.150 * vv * Math.pow(0.5 + 0.5 * Math.cos(4 * th), 2);
+      if (sq > 0){                          // 方形（abacus 顶板）调制
+        var sqr = r / Math.max(Math.abs(Math.cos(th)), Math.abs(Math.sin(th)), 1e-3) * 0.80;
+        r = r * (1 - sq) + sqr * sq;
+      }
+      pos.push(Math.cos(th) * r, yy, Math.sin(th) * r);
+      uvs.push(s / SEG, yy);
+    }
+  }
+  for (var k2 = 0; k2 < L.length - 1; k2++){
+    for (var s2 = 0; s2 < SEG; s2++){
+      var a = k2 * (SEG + 1) + s2;
+      var b = a + 1, c = a + SEG + 1, d = c + 1;
+      idx.push(a, d, b, a, c, d);
+    }
+  }
+  var g = new THREE.BufferGeometry();
+  g.setIndex(idx);
+  g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  g.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
+  g.computeVertexNormals();
+  return g;
+}
+
+var COL_GEO = [], MAT_COL = [], RING_GEO;   // 三档精度的罗马柱、材质、金色装饰环
+function buildColumnGeos(){
+  COL_GEO[0] = romanColumnGeo(12, 72);   // 近景：6 段/条，凹槽清晰
+  COL_GEO[1] = romanColumnGeo(12, 48);   // 中景：4 段/条
+  COL_GEO[2] = romanColumnGeo(12, 24);   // 远景：2 段/条，简化
+  [0, 1, 2].forEach(function(i){
+    var m = tex.marblePlain.clone();     // 纯净大理石：不叠加任何竖向暗纹
+    m.needsUpdate = true;
+    m.repeat.set(2.5, 3.0);
+    MAT_COL[i] = new THREE.MeshStandardMaterial({ map: m, roughness: 0.70, metalness: 0.03 });
+  });
+  RING_GEO = new THREE.CylinderGeometry(1, 1, 1, 24);   // 单位圆柱，实例化缩放成各柱的金环
+}
+
+/* ================= 3.4 初始位置的署名立牌 ================= */
+var startSign;
+
+/* 牌面：暖白大理石底 + 金色双框 + 上下三角纹 + 文字 */
+function signTexture(line1, line2){
+  var W = 1024, H = 546;
+  var c = document.createElement('canvas');
+  c.width = W; c.height = H;
+  var g = c.getContext('2d');
+
+  var bg = g.createLinearGradient(0, 0, 0, H);
+  bg.addColorStop(0,   '#f9f5ec');
+  bg.addColorStop(0.5, '#f2ecdd');
+  bg.addColorStop(1,   '#e4dbc6');
+  g.fillStyle = bg; g.fillRect(0, 0, W, H);
+  noise(g, W, H, 0.028, 3200);
+
+  // 金色双层边框
+  g.strokeStyle = 'rgba(198,158,80,0.92)'; g.lineWidth = 9;
+  g.strokeRect(20, 20, W - 40, H - 40);
+  g.strokeStyle = 'rgba(255,242,205,0.85)'; g.lineWidth = 3.5;
+  g.strokeRect(41, 41, W - 82, H - 82);
+
+  // 上下三角纹带
+  g.fillStyle = 'rgba(200,160,84,0.50)';
+  for (var x = 62; x < W - 62; x += 34){
+    g.beginPath();
+    g.moveTo(x - 11, 96); g.lineTo(x + 11, 96); g.lineTo(x, 78);
+    g.closePath(); g.fill();
+    g.beginPath();
+    g.moveTo(x - 11, H - 96); g.lineTo(x + 11, H - 96); g.lineTo(x, H - 78);
+    g.closePath(); g.fill();
+  }
+
+  g.textAlign = 'center';
+  g.textBaseline = 'middle';
+  g.font = 'bold 96px "PingFang SC","Microsoft YaHei",sans-serif';
+  g.fillStyle = '#8a6a2e';
+  g.fillText(line1, W / 2, H * 0.40);
+  g.font = 'bold 138px "PingFang SC","Microsoft YaHei",sans-serif';
+  g.fillStyle = '#38322a';
+  g.fillText(line2, W / 2, H * 0.685);
+
+  var t = new THREE.CanvasTexture(c);
+  if (THREE.sRGBEncoding !== undefined) t.encoding = THREE.sRGBEncoding;
+  return t;
+}
+
+function buildStartSign(){
+  var g = new THREE.Group();
+  var boardMat = new THREE.MeshStandardMaterial({
+    map: signTexture('230812020', '许思甜'), roughness: 0.66, metalness: 0.04
+  });
+  var sideMat = new THREE.MeshStandardMaterial({
+    map: tex.marblePlain, roughness: 0.70, metalness: 0.03, color: 0xf6f2e8
+  });
+
+  var W = 2.2, H = 1.173;                 // 与纹理 1024×546 同比例
+  var boardY = 2.28;                      // 牌面中心 ≈ 开局眼高
+
+  // 底座
+  var base = new THREE.Mesh(new THREE.BoxGeometry(2.4, 0.24, 0.9), sideMat);
+  base.position.y = 0.12;
+  base.castShadow = true; base.receiveShadow = true;
+  g.add(base);
+
+  // 双立柱
+  [-0.85, 0.85].forEach(function(x){
+    var p = new THREE.Mesh(new THREE.CylinderGeometry(0.10, 0.13, 1.45, 10), sideMat);
+    p.position.set(x, 0.965, 0);
+    p.castShadow = true;
+    g.add(p);
+  });
+
+  // 牌面（正面贴文字）
+  var board = new THREE.Mesh(
+    new THREE.BoxGeometry(W, H, 0.17),
+    [sideMat, sideMat, sideMat, sideMat, boardMat, sideMat]
+  );
+  board.position.y = boardY;
+  board.castShadow = true; board.receiveShadow = true;
+  g.add(board);
+
+  // 金色压边 + 顶部尖饰
+  [1, -1].forEach(function(s){
+    var t = new THREE.Mesh(new THREE.BoxGeometry(W + 0.14, 0.09, 0.26), mat.gold);
+    t.position.set(0, boardY + s * (H / 2 + 0.02), 0);
+    g.add(t);
+  });
+  var finial = new THREE.Mesh(new THREE.OctahedronGeometry(0.22, 0), mat.gold);
+  finial.scale.set(0.8, 1.3, 0.8);
+  finial.position.set(0, boardY + H / 2 + 0.24, 0);
+  g.add(finial);
+
+  g.position.set(2.8, 0, -10);                 // 初始位置右前方（路面边侧，不挡道）
+  g.rotation.y = Math.atan2(-2.8, 10);         // 转向开局视角
+  scene.add(g);
+  startSign = g;
+}
+
+/* ================= 3.5 道路尽头的神门（参考 damen.jpg） ================= */
+var GATE = {}, gateMeshes = [], gateList = [], gateIcon;
+var GATE_SHOW_DIST = 34;          // 进入此距离（沿路方向）显示“回到原点”图标
+
+/* 尖拱轮廓：两侧垂直边 → 上部贝塞尔曲线收成尖顶 */
+function gateShape(w, h){
+  var s = new THREE.Shape();
+  var hw = w * 0.5;
+  var shoulder = h * 0.66;                    // 直段结束、开始起拱的高度
+  s.moveTo(-hw, 0);
+  s.lineTo(hw, 0);
+  s.lineTo(hw, shoulder);
+  s.quadraticCurveTo(hw * 0.99, h * 0.90, 0, h);
+  s.quadraticCurveTo(-hw * 0.99, h * 0.90, -hw, shoulder);
+  s.lineTo(-hw, 0);
+  return s;
+}
+function shapeToPath(shape){
+  var pts = shape.getPoints(52);
+  var p = new THREE.Path();
+  p.moveTo(pts[0].x, pts[0].y);
+  for (var i = 1; i < pts.length; i++) p.lineTo(pts[i].x, pts[i].y);
+  p.closePath();
+  return p;
+}
+
+function buildGateGeos(){
+  function extrude(shape, depth, bevel){
+    return new THREE.ExtrudeGeometry(shape, {
+      depth: depth, curveSegments: 28,
+      bevelEnabled: !!bevel, bevelSize: 0.07, bevelThickness: 0.07, bevelSegments: 2
+    });
+  }
+  var W = 5.0, H = 10.4;                      // 修长的尖拱比例（贴近参考图）
+
+  // 门框：外尖拱挖去内尖拱
+  var outer = gateShape(W, H);
+  outer.holes.push(shapeToPath(gateShape(3.6, 9.1)));
+  GATE.frame = extrude(outer, 0.95, true);
+  GATE.frame.translate(0, 0, -0.475);
+
+  // 内缘金线框（贴在前表面）
+  var go = gateShape(3.95, 9.42);
+  go.holes.push(shapeToPath(gateShape(3.50, 9.00)));
+  GATE.goldTrim = extrude(go, 0.13, false);
+  GATE.goldTrim.translate(0, 0, 0.40);
+
+  // 门板（带浮雕纹样）
+  GATE.panel = extrude(gateShape(3.4, 8.9), 0.30, false);
+  GATE.panel.translate(0, 0, -0.16);
+
+  // 尖顶金饰（菱形）
+  GATE.keystone = new THREE.OctahedronGeometry(0.36, 0);
+  GATE.keystone.scale(0.62, 1.45, 0.62);
+  GATE.keystone.translate(0, H + 0.40, 0);
+
+  // 门脚金色涡卷
+  GATE.foot = new THREE.TorusGeometry(0.38, 0.092, 8, 20, Math.PI * 1.2);
+
+  // 等比缩小整座门：scale 只改顶点、不改 UV，因此纹理映射保持原样
+  [GATE.frame, GATE.goldTrim, GATE.panel, GATE.keystone, GATE.foot]
+    .forEach(function(g){ g.scale(GATE_S, GATE_S, GATE_S); });
+}
+
+function makeGate(){
+  var g = new THREE.Group();
+
+  var frame = new THREE.Mesh(GATE.frame, mat.gateFrame);
+  frame.castShadow = true; frame.receiveShadow = true;
+  g.add(frame);
+
+  var trim = new THREE.Mesh(GATE.goldTrim, mat.gold);
+  trim.castShadow = true;
+  g.add(trim);
+
+  var panel = new THREE.Mesh(GATE.panel, mat.gatePanel);
+  g.add(panel);
+
+  var key = new THREE.Mesh(GATE.keystone, mat.gold);
+  g.add(key);
+
+  // 门脚涡卷：贴住门框下缘（半宽 1.875），不悬在框外
+  [-1, 1].forEach(function(sgn){
+    var t = new THREE.Mesh(GATE.foot, mat.gold);
+    t.position.set(sgn * 1.72, 0.40, 0.34);
+    t.rotation.z = sgn * -0.45;
+    g.add(t);
+  });
+
+  // 收集可点击对象（点击后回到原点）
+  gateMeshes.push(frame, panel, trim, key);
+  g.userData.isGate = true;
+  return g;
+}
+
+/* 接近提示图标：悬浮在门顶上方，带“回到原点”文字标签 */
+function buildGateIcon(){
+  gateIcon = new THREE.Sprite(new THREE.SpriteMaterial({
+    map: spotTexture('回到原点'), transparent: true, fog: false,
+    depthTest: false, depthWrite: false, opacity: 0
+  }));
+  gateIcon.scale.set(3.6, 1.8, 1);   // 略窄于门宽，刚好嵌在门洞中
+  gateIcon.renderOrder = 999;
+  gateIcon.visible = false;
+  scene.add(gateIcon);
+  gateMeshes.push(gateIcon);        // 点图标本身也能回到原点
+}
+
+function updateGateIcon(t){
+  if (!gateIcon || !gateList.length) return;
+  var bestZ = 0, bestD = 1e9;
+  for (var i=0;i<gateList.length;i++){
+    var it = gateList[i];
+    var wz = it.parent.position.z + it.obj.position.z;   // 门的世界 z
+    var d = Math.abs(wz - player.position.z);
+    if (d < bestD){ bestD = d; bestZ = wz; }
+  }
+  // 距离越近越实，超出范围淡出
+  var target = 1 - smoothstep(GATE_SHOW_DIST * 0.55, GATE_SHOW_DIST, bestD);
+  gateIcon.material.opacity = lerp(gateIcon.material.opacity, target, 0.12);
+  gateIcon.visible = gateIcon.material.opacity > 0.02;
+  if (!gateIcon.visible) return;
+  // 悬在门洞正中（门高一半处），而不是门顶上方
+  gateIcon.position.set(0, GATE_H * 0.52 + Math.sin(t * 2.2) * 0.12, bestZ);
+}
+
+/* =========================== 4. 场景骨架 =========================== */
+function buildSky(){
+  var uni = {
+    top:  { value: new THREE.Color(0x3f7fc0) },
+    mid:  { value: new THREE.Color(0x8dc0e8) },
+    hor:  { value: new THREE.Color(0xe8f3fb) }
+  };
+  skyDome = new THREE.Mesh(
+    new THREE.SphereGeometry(900, 32, 20),
+    new THREE.ShaderMaterial({
+      side: THREE.BackSide, depthWrite: false, fog: false,
+      uniforms: uni,
+      vertexShader: 'varying vec3 vD; void main(){ vD = position;' +
+        'gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }',
+      fragmentShader: 'uniform vec3 top, mid, hor; varying vec3 vD;' +
+        'void main(){ float h = normalize(vD).y;' +
+        'vec3 c = h > 0.0 ? mix(mid, top, pow(min(h*1.5,1.0), 0.8)) : mix(mid, hor, min(-h*4.0,1.0));' +
+        'gl_FragColor = vec4(c, 1.0); }'
+    })
+  );
+  scene.add(skyDome);
+
+  // 太阳光晕
+  var sunTex = makeTex(128,128,function(g,w,h){
+    var rg = g.createRadialGradient(w/2,h/2,0,w/2,h/2,w/2);
+    rg.addColorStop(0,   'rgba(255,255,250,1)');
+    rg.addColorStop(0.16,'rgba(255,248,215,0.85)');
+    rg.addColorStop(0.45,'rgba(255,236,180,0.22)');
+    rg.addColorStop(1,   'rgba(255,236,180,0)');
+    g.fillStyle = rg; g.fillRect(0,0,w,h);
+  });
+  sunSprite = new THREE.Sprite(new THREE.SpriteMaterial({
+    map: sunTex, transparent: true, fog: false, depthWrite: false,
+    blending: THREE.AdditiveBlending, opacity: 0.9
+  }));
+  sunSprite.scale.set(120, 120, 1);
+  scene.add(sunSprite);
+
+  // 月亮（夜晚）
+  var moonTex = makeTex(128,128,function(g,w,h){
+    var rg = g.createRadialGradient(w/2,h/2,0,w/2,h/2,w/2);
+    rg.addColorStop(0,    'rgba(255,255,255,1)');
+    rg.addColorStop(0.13, 'rgba(238,246,255,0.92)');
+    rg.addColorStop(0.30, 'rgba(198,220,255,0.30)');
+    rg.addColorStop(1,    'rgba(170,200,255,0)');
+    g.fillStyle = rg; g.fillRect(0,0,w,h);
+  });
+  moonSprite = new THREE.Sprite(new THREE.SpriteMaterial({
+    map: moonTex, transparent: true, fog: false, depthWrite: false,
+    blending: THREE.AdditiveBlending, opacity: 0
+  }));
+  moonSprite.scale.set(78, 78, 1);
+  scene.add(moonSprite);
+
+  // 星空（球面均匀撒点，低空更密，便于平视时也能看到星）
+  var n = 1100, pos = new Float32Array(n * 3), sz = new Float32Array(n);
+  var R_STAR = 800;
+  for (var i=0;i<n;i++){
+    var y = Math.random() * (R_STAR - 15) + 12;              // 高度均匀分布
+    var rr = Math.sqrt(Math.max(0, R_STAR*R_STAR - y*y));    // 对应球面半径
+    var ang = Math.random() * Math.PI * 2;
+    pos[i*3]   = Math.cos(ang) * rr;
+    pos[i*3+1] = y;
+    pos[i*3+2] = Math.sin(ang) * rr;
+    sz[i] = 2.0 + Math.random() * 5.0;
+  }
+  var sg = new THREE.BufferGeometry();
+  sg.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  sg.setAttribute('aSize', new THREE.BufferAttribute(sz, 1));
+  var starMat = new THREE.ShaderMaterial({
+    transparent: true, depthWrite: false, fog: false,
+    blending: THREE.AdditiveBlending,
+    uniforms: { uOpacity: { value: 0 }, uTime: { value: 0 } },
+    vertexShader: 'attribute float aSize; uniform float uTime; varying float vTw;' +
+      'void main(){ vec4 mv = modelViewMatrix * vec4(position,1.0);' +
+      'vTw = 0.65 + 0.35 * sin(uTime * 1.6 + position.x * 0.05 + position.z * 0.03);' +
+      'gl_PointSize = aSize; gl_Position = projectionMatrix * mv; }',
+    fragmentShader: 'uniform float uOpacity; varying float vTw;' +
+      'void main(){ vec2 uv = gl_PointCoord * 2.0 - 1.0;' +
+      'float a = exp(-dot(uv,uv) * 3.2);' +
+      'gl_FragColor = vec4(vec3(1.0, 0.98, 0.92), a * uOpacity * vTw); }'
+  });
+  stars = new THREE.Points(sg, starMat);
+  stars.frustumCulled = false;
+  scene.add(stars);
+}
+
+function buildLights(){
+  hemi = new THREE.HemisphereLight(0xcfe6ff, 0xf2ead6, 0.60);
+  scene.add(hemi);
+  ambient = new THREE.AmbientLight(0xffffff, 0.12);
+  scene.add(ambient);
+
+  sun = new THREE.DirectionalLight(0xfff3dc, 1.30);
+  sun.position.set(46, 74, 30);
+  sun.castShadow = true;
+  sun.shadow.mapSize.width = 2048;
+  sun.shadow.mapSize.height = 2048;
+  var sc = sun.shadow.camera;
+  sc.left = -46; sc.right = 46; sc.top = 46; sc.bottom = -46;
+  sc.near = 1; sc.far = 240;
+  sun.shadow.bias = -0.0009;
+  sun.shadow.normalBias = 0.02;
+  scene.add(sun);
+  scene.add(sun.target);
+}
+
+/* =========================== 5. 多层视差远景（强纵深） =========================== */
+/* 远景组跟随玩家 z（永远在远方），但不跟随 x/y → 玩家横移时产生视差层 */
+function buildFarScenery(){
+  farGroup = new THREE.Group();
+  scene.add(farGroup);
+
+  // 三座巨大浮空岛（最远层，无雾，用淡色模拟空气透视）
+  var defs = [
+    // 前方远景
+    { x:-210, y:-26, z:-430, r:62, h:78,  tilt:-0.05 },
+    { x: 245, y:  34, z:-470, r:78, h:96,  tilt: 0.06 },
+    { x:  60, y: -12, z:-560, r:96, h:120, tilt:-0.02 },
+    { x:-140, y:  60, z:-620, r:70, h:88,  tilt: 0.03 },
+    // 后方远景（转身 180° 也能看到层次）
+    { x: 205, y: -18, z: 415, r:70, h:86,  tilt: 0.04 },
+    { x:-235, y:  42, z: 465, r:84, h:102, tilt:-0.06 },
+    { x: -66, y:  -8, z: 545, r:100, h:126, tilt: 0.02 },
+    { x: 158, y:  62, z: 615, r:74, h:92,  tilt:-0.03 }
+  ];
+  defs.forEach(function(d, i){
+    var island = new THREE.Group();
+    // 倒锥主体
+    var cone = new THREE.Mesh(new THREE.CylinderGeometry(d.r, d.r*0.16, d.h, 9, 1), mat.islandFar);
+    cone.position.y = -d.h*0.5;
+    island.add(cone);
+    // 顶面平台
+    var top = new THREE.Mesh(new THREE.CylinderGeometry(d.r*1.03, d.r, d.h*0.055, 9), mat.islandFar);
+    island.add(top);
+    // 平台上的建筑剪影柱群
+    for (var k=0;k<5;k++){
+      var a = k/5*6.2832 + i;
+      var rr = d.r*(0.15 + Math.random()*0.55);
+      var pr = d.r*0.05, ph = d.r*(0.35+Math.random()*0.5);
+      var pil = new THREE.Mesh(new THREE.CylinderGeometry(pr*1.25, pr, ph, 6), mat.islandFar);
+      pil.position.set(Math.cos(a)*rr, ph*0.5, Math.sin(a)*rr);
+      island.add(pil);
+    }
+    // 漂浮的碎石
+    for (var j=0;j<6;j++){
+      var s = d.r*(0.03+Math.random()*0.075);
+      var rock = new THREE.Mesh(new THREE.DodecahedronGeometry(s, 0), mat.islandFar);
+      rock.position.set(
+        (Math.random()-0.5)*d.r*2.6,
+        -d.h*(0.25+Math.random()*0.85),
+        (Math.random()-0.5)*d.r*1.4
+      );
+      rock.rotation.set(Math.random()*3, Math.random()*3, Math.random()*3);
+      island.add(rock);
+    }
+    island.position.set(d.x, d.y, d.z);
+    island.rotation.z = d.tilt;
+    island.userData.baseY = d.y;
+    island.userData.phase = i * 1.7;
+    farGroup.add(island);
+  });
+
+  // 中层：云海上漂浮的小岛（受雾影响，与远层拉开层次）
+  for (var i=0;i<7;i++){
+    var rr = 16 + Math.random()*26;
+    var hh = 26 + Math.random()*46;
+    var isl = new THREE.Group();
+    var c = new THREE.Mesh(new THREE.CylinderGeometry(rr, rr*0.2, hh, 7), mat.islandMid);
+    c.position.y = -hh*0.5; isl.add(c);
+    var t2 = new THREE.Mesh(new THREE.CylinderGeometry(rr*1.05, rr, hh*0.07, 7), mat.islandMid);
+    isl.add(t2);
+    isl.position.set((Math.random()-0.5)*300, -30 + Math.random()*90,
+                     (Math.random() < 0.5 ? -1 : 1) * (220 + Math.random()*180));
+    isl.userData.baseY = isl.position.y;
+    isl.userData.phase = i * 0.9 + 3;
+    farGroup.add(isl);
+  }
+
+  // 天空高处交叉平面云（远景层）
+  var cu = new THREE.Group();
+  farGroup.add(cu);
+  for (var q=0;q<26;q++){
+    var size = 120 + Math.random()*260;
+    var zz = (Math.random() < 0.5 ? -1 : 1) * (380 + Math.random()*300);
+    for (var o=0;o<2;o++){
+      var pl = new THREE.Mesh(new THREE.PlaneGeometry(size, size*0.5), mat.cloudFar);
+      pl.position.set((Math.random()-0.5)*760, 90+Math.random()*180, zz);
+      pl.rotation.z = (Math.random()-0.5)*0.25;
+      pl.rotation.y = o*Math.PI/2 + (Math.random()-0.5)*0.4;
+      cu.add(pl);
+    }
+  }
+}
+
+/* =========================== 6. 循环模块（chunk） =========================== */
+function buildChunk(idx){
+  var R = mulberry32(9001 + idx * 137);
+  var g = new THREE.Group();
+
+  /* --- 路面 --- */
+  var road = new THREE.Mesh(new THREE.BoxGeometry(8.2, 0.9, CHUNK_L + 0.2), mat.road);
+  road.position.set(0, -0.45, -CHUNK_L/2);
+  road.receiveShadow = true;
+  g.add(road);
+
+  /* --- 两侧路缘 + 栏杆 ---
+     BoxGeometry 六面材质序：+x, -x, +y, -y, +z, -z
+     侧面用金饰回纹贴图，顶面用白石，避免顶面被拉伸成整片金色 */
+  var ledgeMats = [mat.ledge, mat.ledge, mat.marble, mat.marble, mat.ledge, mat.ledge];
+  [-1, 1].forEach(function(sgn){
+    var ledge = new THREE.Mesh(new THREE.BoxGeometry(0.8, 1.30, CHUNK_L + 0.2), ledgeMats);
+    ledge.position.set(sgn * 4.4, -0.18, -CHUNK_L/2);
+    ledge.castShadow = true; ledge.receiveShadow = true;
+    g.add(ledge);
+
+    // 金饰压条（沿路缘顶部）
+    var trim = new THREE.Mesh(new THREE.BoxGeometry(0.86, 0.08, CHUNK_L + 0.2), mat.gold);
+    trim.position.set(sgn * 4.4, 0.5, -CHUNK_L/2);
+    g.add(trim);
+
+    // 栏杆小柱（instanced）
+    var count = 6;
+    var post = new THREE.InstancedMesh(new THREE.CylinderGeometry(0.16, 0.2, 0.95, 8), mat.marble, count);
+    var mtx = new THREE.Matrix4();
+    var qq = new THREE.Quaternion(), vv = new THREE.Vector3(), sv = new THREE.Vector3();
+    for (var i=0;i<count;i++){
+      var pz = -6 - i * (CHUNK_L-4)/count;
+      vv.set(sgn*4.4, 0.62, pz);
+      sv.set(1,1,1);
+      mtx.compose(vv, qq, sv);
+      post.setMatrixAt(i, mtx);
+    }
+    post.instanceMatrix.needsUpdate = true;
+    post.castShadow = true;
+    g.add(post);
+  });
+
+  /* --- 石柱群（每种节数一个 InstancedMesh 合批） --- */
+  // 柱子布局：[x, z(相对), 高度, 半径, 倾角]
+  var cols = [
+    // 近柱（左右交错）
+    [ -7.2,  10, 12.0, 0.88, 0],
+    [  7.1,  24, 13.5, 0.94, 0],
+    [ -7.5,  38, 11.8, 0.86, 0],
+    [  7.3,  52, 14.8, 0.97, 0],
+    [ -7.0,  66, 11.4, 0.86, 0],
+    [  7.5,  80, 14.2, 0.92, 0],
+    // 中柱
+    [-12.4,   4, 19.0, 1.06,  0],
+    [ 12.8,  34, 22.5, 1.16,  0],
+    [-12.0,  62, 18.0, 1.02,  0],
+    [ 12.2,  88, 21.0, 1.12,  0],
+    // 远景高柱（部分倾斜，增加原神式的遗迹感）
+    [-20.5,  -4, 30.0, 1.30,  7],
+    [ 22.5,  18, 34.0, 1.42, -6],
+    [-25.5,  44, 27.0, 1.22, -9],
+    [ 20.0,  70, 31.0, 1.34,  5],
+    [-28.5,  92, 25.0, 1.18,  3],
+    [ 27.5, 106, 29.0, 1.26, -4]
+  ];
+
+  var groups = [[], [], []];           // 按几何类型分桶
+  cols.forEach(function(c){
+    var h = c[2], r = c[3];
+    var gi = h > 26 ? 2 : (h > 16 ? 1 : 0);
+    groups[gi].push(c);
+  });
+
+  groups.forEach(function(list, gi){
+    if (!list.length) return;
+    var isNear = gi === 0;
+    var im = new THREE.InstancedMesh(COL_GEO[gi], isNear ? MAT_COL[gi] : (gi === 2 ? mat.marbleFar : MAT_COL[gi]), list.length);
+    var mtx = new THREE.Matrix4(), q = new THREE.Quaternion(), e = new THREE.Euler();
+    var p = new THREE.Vector3(), s = new THREE.Vector3();
+    list.forEach(function(c, i){
+      var tilt = deg(c[4]);
+      e.set(0, R()*6.28, tilt);
+      q.setFromEuler(e);
+      // 柱子几何高度归一化后由 scale 拉伸；绕柱底旋转，柱底始终贴地（不做抬升，否则整柱悬空）
+      p.set(c[0], -0.1, -c[1]);
+      s.set(c[3], c[2], c[3]);
+      mtx.compose(p, q, s);
+      im.setMatrixAt(i, mtx);
+    });
+    im.instanceMatrix.needsUpdate = true;
+    im.castShadow = true;
+    im.receiveShadow = true;
+    g.add(im);
+  });
+
+  /* --- 金色装饰环：按离路远近分级 ---
+     近柱（|x|<9）两道、中柱（9~16）一道上部、远景柱不设。
+     远景本就被雾洗淡，省去碎金更显层次，金环总量也随之减半。 */
+  /* 半径系数按柱身收分后的实测值取（脊部）：底 1.150、上 0.988，各留 ~1.5% 贴合余量 */
+  var RINGS = [
+    [0.068, 1.17, 0.22],      // [归一化高度, 半径系数, 绝对厚度]
+    [0.730, 1.00, 0.20]       // 上环贴近柱头；此处柱身已收细，系数随之收小
+  ];
+  function ringCount(x){
+    var ax = Math.abs(x);
+    return ax < 9 ? 2 : (ax < 16 ? 1 : 0);
+  }
+  var ringTotal = 0;
+  cols.forEach(function(c){ ringTotal += ringCount(c[0]); });
+  var ringMesh = new THREE.InstancedMesh(RING_GEO, mat.gold, Math.max(ringTotal, 1));
+  var rmtx = new THREE.Matrix4(), rq = new THREE.Quaternion(), re = new THREE.Euler();
+  var rp = new THREE.Vector3(), rs = new THREE.Vector3(), rl = new THREE.Vector3();
+  var ri2 = 0;
+  cols.forEach(function(c){
+    var hgt = c[2], rad = c[3], tilt = deg(c[4]);
+    re.set(0, R() * 6.2832, tilt);
+    rq.setFromEuler(re);
+    var n = ringCount(c[0]);
+    for (var k = 0; k < n; k++){
+      var rg = RINGS[RINGS.length - n + k];              // 只设一道时取上部那道
+      rl.set(0, rg[0] * hgt, 0).applyQuaternion(rq);     // 沿柱身局部高度求得实际偏移
+      rp.set(c[0] + rl.x, -0.1 + rl.y, -c[1] + rl.z);    // 与柱底同一基准，不抬升
+      rs.set(rg[1] * rad, rg[2], rg[1] * rad);
+      rmtx.compose(rp, rq, rs);
+      ringMesh.setMatrixAt(ri2++, rmtx);
+    }
+  });
+  ringMesh.instanceMatrix.needsUpdate = true;
+  ringMesh.castShadow = true;
+  g.add(ringMesh);
+
+  /* --- 云（云海 + 飘云，交叉平面，按朝向合批） --- */
+  var clouds = [];
+  // 云海：从路缘外侧“涌出”（避开路面上方，保证柱廊视线通透）
+  for (var ci=0; ci<13; ci++){
+    var side = R() < 0.5 ? -1 : 1;
+    clouds.push({
+      x: side * (7.8 + R()*32),
+      y: -2.4 + R()*3.4,
+      z: -R()*CHUNK_L,
+      s: 6 + R()*13
+    });
+  }
+  // 更低更远的大片云海层
+  for (var cl=0; cl<7; cl++){
+    var sd = R() < 0.5 ? -1 : 1;
+    clouds.push({
+      x: sd * (18 + R()*44),
+      y: -8 + R()*4.5,
+      z: -R()*CHUNK_L,
+      s: 9 + R()*15
+    });
+  }
+  // 道路尽头的云雾：抬高到路面上方，让长路从云下穿过（纵深关键）
+  for (var cm=0; cm<4; cm++){
+    var sdm = R() < 0.5 ? -1 : 1;
+    clouds.push({
+      x: sdm * (10 + R()*30),
+      y: 2.6 + R()*5.0,
+      z: -CHUNK_L*0.5 - R()*CHUNK_L*0.5,
+      s: 8 + R()*12
+    });
+  }
+  // 高空飘云
+  for (var cj=0; cj<5; cj++){
+    clouds.push({ x: (R()-0.5)*80, y: 13 + R()*16, z: -R()*CHUNK_L, s: 5 + R()*9 });
+  }
+
+  [0, Math.PI/3, Math.PI*2/3].forEach(function(ang){
+    var im = new THREE.InstancedMesh(new THREE.PlaneGeometry(1, 0.58), mat.cloud, clouds.length);
+    var mtx = new THREE.Matrix4(), q = new THREE.Quaternion(), p = new THREE.Vector3(), s = new THREE.Vector3();
+    clouds.forEach(function(c, i){
+      q.setFromEuler(new THREE.Euler(0, ang, 0));
+      p.set(c.x, c.y, c.z);
+      s.set(c.s, c.s, c.s);
+      mtx.compose(p, q, s);
+      im.setMatrixAt(i, mtx);
+    });
+    im.instanceMatrix.needsUpdate = true;
+    im.renderOrder = 2;
+    g.add(im);
+  });
+
+  /* --- 道路尽头的神门（每个模块一座，点击回到原点） --- */
+  var gate = makeGate();
+  gate.position.set(0, 0, -CHUNK_L * 0.08);   // 开局时最近的门约在前方 49 单位
+  g.add(gate);
+  gateList.push({ obj: gate, parent: g });
+
+  g.position.z = -idx * CHUNK_L;
+  return g;
+}
+
+/* =========================== 7. 控制 =========================== */
+var keys = {}, yaw = 0, pitch = 0, dragging = false, lx = 0, ly = 0;
+var moveFwd = 0, moveSide = 0, moveUp = 0, turn = 0;
+
+function setupPCControls(){
+  var dom = renderer.domElement;
+  var downX = 0, downY = 0;
+  dom.addEventListener('pointerdown', function(e){
+    dragging = true; lx = e.clientX; ly = e.clientY;
+    downX = e.clientX; downY = e.clientY;
+  });
+  window.addEventListener('pointermove', function(e){
+    if (!dragging) return;
+    yaw   -= (e.clientX - lx) * 0.0026;
+    pitch  = clamp(pitch - (e.clientY - ly) * 0.0026, -1.25, 1.25);
+    lx = e.clientX; ly = e.clientY;
+  });
+  window.addEventListener('pointerup', function(e){
+    dragging = false;
+    // 位移很小才算“点击”（区分拖拽环视）
+    if (Math.abs(e.clientX - downX) > 7 || Math.abs(e.clientY - downY) > 7) return;
+    if (!gateMeshes.length) return;
+    rayNDC.set((e.clientX / innerWidth) * 2 - 1, -(e.clientY / innerHeight) * 2 + 1);
+    rayCaster.setFromCamera(rayNDC, camera);
+    if (rayCaster.intersectObjects(gateMeshes, false).length) teleportToOrigin();
+  });
+  window.addEventListener('keydown', function(e){
+    keys[e.key.toLowerCase()] = true;
+    var k = e.key;
+    if (k === '[' || k === ']' || k === 'p' || k === 'P'){
+      CLOCK.auto = false;
+      var btn = document.getElementById('btnAutoTime');
+      if (btn) btn.className = '';
+      if (k === '[') CLOCK.tod = (CLOCK.tod + 23) % 24;          // 倒退 1 小时
+      if (k === ']') CLOCK.tod = (CLOCK.tod + 1) % 24;           // 前进 1 小时
+      if (k === 'p' || k === 'P'){                               // 昼夜自动播放
+        CLOCK.auto = true;
+        if (btn) btn.className = 'on';
+      }
+    }
+  });
+  window.addEventListener('keyup', function(e){ keys[e.key.toLowerCase()] = false; });
+}
+
+function readPC(){
+  moveFwd = 0; moveSide = 0; moveUp = 0;
+  var k = keys;
+  if (k['w'] || k['arrowup'])    moveFwd += 1;
+  if (k['s'] || k['arrowdown'])  moveFwd -= 1;
+  if (k['d'] || k['arrowright']) moveSide += 1;
+  if (k['a'] || k['arrowleft'])  moveSide -= 1;
+  if (k['e']) moveUp += 1;
+  if (k['q']) moveUp -= 1;
+  turn = 0;
+}
+
+function setupVRControls(){
+  for (var i=0;i<2;i++){
+    (function(idx){
+      var c = renderer.xr.getController(idx);
+      player.add(c);
+      var lg = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0,0,0), new THREE.Vector3(0,0,-1.6)]);
+      var line = new THREE.Line(lg, new THREE.LineBasicMaterial({
+        color: 0xffe0a0, transparent: true, opacity: 0.55
+      }));
+      c.add(line);
+      // 扳机：虚空中 → 回到原点；否则点击神门 → 回到原点
+      c.addEventListener('selectstart', function(){
+        if (voidState.falling){ teleportToOrigin(); return; }
+        if (!gateMeshes.length) return;
+        var o = new THREE.Vector3().setFromMatrixPosition(c.matrixWorld);
+        var q = new THREE.Quaternion();
+        c.getWorldQuaternion(q);
+        var d = new THREE.Vector3(0, 0, -1).applyQuaternion(q).normalize();
+        rayCaster.set(o, d);
+        if (rayCaster.intersectObjects(gateMeshes, false).length) teleportToOrigin();
+      });
+    })(i);
+  }
+  renderer.xr.addEventListener('sessionstart', function(){
+    document.body.classList.add('XR');
+    farGroup.visible = true;
+  });
+  renderer.xr.addEventListener('sessionend', function(){
+    document.body.classList.remove('XR');
+    resetVoid();
+    player.position.set(0, BASE_Y, 0);
+    player.rotation.y = 0;
+    yaw = 0; pitch = 0;
+  });
+}
+
+function readXR(session, dt){
+  moveFwd = 0; moveSide = 0; moveUp = 0; turn = 0;
+  if (!session) return;
+  for (var i=0;i<session.inputSources.length;i++){
+    var src = session.inputSources[i];
+    var gp = src.gamepad;
+    if (!gp) continue;
+    var ax = gp.axes;
+    var x = ax.length > 2 ? ax[2] : (ax[0]||0);
+    var y = ax.length > 3 ? ax[3] : (ax[1]||0);
+    if (src.handedness === 'left'){ moveSide += x; moveFwd += -y; }
+    else if (src.handedness === 'right'){ turn -= x * 1.9 * dt; moveUp += -y * 1.4 * dt; }
+  }
+}
+
+/* =========================== 8. 交互与主循环 =========================== */
+var prevT = 0;
+var rayCaster = new THREE.Raycaster();
+var rayNDC = new THREE.Vector2();
+
+/* ---------------------------------------------------------------------------
+ * 彩蛋：走出路面 → 坠入虚空
+ *   · 触发条件：横向离开道路/路缘（|x| > VOID_EDGE_X），或跌到 VOID_Y 以下
+ *   · 触发后进入自由坠落（有重力），VOID_FALL_T 秒后浮出灰屏
+ *   · PC 显示 DOM 灰屏 + “回到原点”按钮；VR 中 DOM 不可见，改用跟随头显的 3D 灰幕
+ * ------------------------------------------------------------------------- */
+var VOID_EDGE_X = 5.4;        // 路缘外沿 4.8 + 0.6 容差
+var VOID_Y = -7.0;            // 低于此高度判定为坠落（手动 Q 下降到 -5 不会误触）
+var VOID_FALL_T = 1.05;       // 坠落后灰屏浮出的延迟
+var VOID_MAX_FALL = -60;      // 坠落的最低下限
+var voidState = { falling: false, shown: false, vy: 0, timer: 0 };
+var voidScreen;
+
+function voidTexture(){
+  var W = 512, H = 256;
+  var c = document.createElement('canvas');
+  c.width = W; c.height = H;
+  var g = c.getContext('2d');
+  g.textAlign = 'center'; g.textBaseline = 'middle';
+  g.fillStyle = 'rgba(255,255,255,0.96)';
+  g.font = 'bold 52px "Songti SC","PingFang SC",serif';
+  g.fillText('你掉入了虚空', W / 2, H * 0.40);
+  g.fillStyle = 'rgba(226,230,238,0.66)';
+  g.font = '500 24px "PingFang SC","Microsoft YaHei",sans-serif';
+  g.fillText('扣动扳机键   回到原点', W / 2, H * 0.70);
+  var t = new THREE.CanvasTexture(c);
+  if (THREE.sRGBEncoding !== undefined) t.encoding = THREE.sRGBEncoding;
+  return t;
+}
+
+/* VR 用：挂在 camera 下的灰幕（随头显转动，永远糊在脸上） */
+function buildVoidScreen(){
+  voidScreen = new THREE.Group();
+  var plate = new THREE.Mesh(
+    new THREE.PlaneGeometry(3.4, 2.6),      // 尺寸按 XR 的大视场角留足，保证四边不漏
+    new THREE.MeshBasicMaterial({ color: 0x1d1f24, transparent: true,
+      opacity: 0, depthTest: false, depthWrite: false, fog: false })
+  );
+  plate.position.z = -1.15;
+  plate.renderOrder = 9998;
+  voidScreen.add(plate);
+
+  var label = new THREE.Sprite(new THREE.SpriteMaterial({
+    map: voidTexture(), transparent: true, opacity: 0,
+    depthTest: false, depthWrite: false, fog: false
+  }));
+  label.scale.set(1.55, 0.78, 1);
+  label.position.set(0, 0, -1.14);
+  label.renderOrder = 9999;
+  voidScreen.add(label);
+
+  voidScreen.visible = false;
+  voidScreen.userData.plate = plate;
+  voidScreen.userData.label = label;
+  camera.add(voidScreen);
+}
+
+function setVoidVisual(on){
+  var el = document.getElementById('void');
+  var isXR = renderer.xr.isPresenting;
+  if (el) el.classList.toggle('show', !!on && !isXR);
+  if (voidScreen){
+    voidScreen.visible = !!on && !!isXR;
+    if (!voidScreen.visible){
+      voidScreen.userData.plate.material.opacity = 0;
+      voidScreen.userData.label.material.opacity = 0;
+    }
+  }
+}
+
+function startVoidFall(){
+  voidState.falling = true;
+  voidState.shown = false;
+  voidState.vy = 0;
+  voidState.timer = 0;
+  setVoidVisual(true);
+}
+
+function resetVoid(){
+  voidState.falling = false;
+  voidState.shown = false;
+  voidState.vy = 0;
+  voidState.timer = 0;
+  setVoidVisual(false);
+}
+
+function updateVoid(dt){
+  if (!voidState.falling) return;
+
+  if (!voidState.shown){
+    voidState.vy -= 30 * dt;                          // 重力
+    player.position.y = Math.max(VOID_MAX_FALL, player.position.y + voidState.vy * dt);
+    player.position.x *= 1 + 0.28 * dt;               // 边落边向外飘
+    player.rotation.y += 0.30 * dt;                   // 缓慢打转，强化失重感
+    voidState.timer += dt;
+    if (voidState.timer >= VOID_FALL_T || player.position.y <= VOID_MAX_FALL){
+      voidState.shown = true;
+      voidState.vy = 0;
+    }
+  }
+
+  // VR 灰幕淡入
+  if (voidScreen && voidScreen.visible){
+    var pm = voidScreen.userData.plate.material, lm = voidScreen.userData.label.material;
+    pm.opacity = lerp(pm.opacity, 0.97, 0.15);
+    lm.opacity = lerp(lm.opacity, 1.00, 0.15);
+  }
+}
+
+/* 点击神门 → 回到原点（配一次白光过渡） */
+function teleportToOrigin(){
+  resetVoid();                       // 若在虚空中，先退出坠落状态
+  var f = document.getElementById('flash');
+  if (f){
+    f.style.transition = 'none';
+    f.style.opacity = 0.95;
+    requestAnimationFrame(function(){
+      f.style.transition = 'opacity .85s';
+      f.style.opacity = 0;
+    });
+  }
+  player.position.set(0, BASE_Y, 0);
+  player.rotation.y = 0;
+  yaw = 0; pitch = 0;
+  updateChunks();
+}
+
+function updateChunks(){
+  /* 双向无限循环：把每个模块相对玩家的偏移按 SPAN 取模，强制落在
+     [-SPAN/2, SPAN/2) 内。前后铺满且不会来回震荡 —— 前进/后退都不见尽头。 */
+  var SPAN = CHUNK_L * N_CHUNK;
+  var pz = player.position.z;
+  for (var i=0;i<chunks.length;i++){
+    var c = chunks[i];
+    var rel = c.position.z - pz;
+    rel = ((rel % SPAN) + SPAN * 1.5) % SPAN - SPAN * 0.5;
+    c.position.z = pz + rel;
+  }
+  // 长时间飞行的坐标归一化：世界整体回搬，避免浮点精度衰减
+  if (pz < -40000){
+    var shift = 40000;
+    player.position.z = pz + shift;
+    for (var j=0;j<chunks.length;j++) chunks[j].position.z += shift;
+    if (startSign) startSign.position.z += shift;     // 立牌随世界一起回搬
+  }
+}
+
+/* ---------------------------------------------------------------------------
+ * 时间系统：在 黄昏 / 白昼 / 夜 三套配色间插值
+ * tod：0~24 小时；太阳沿 east→west 弧线升降，夜间切换为月亮方向
+ * ------------------------------------------------------------------------- */
+function mixCol(a, b, t, out){
+  tmpA.setHex(a); tmpB.setHex(b);
+  out.copy(tmpA).lerp(tmpB, t);
+}
+
+function phaseName(tod, sunH){
+  if (sunH >  0.72) return '正午';
+  if (sunH >  0.30) return tod < 12 ? '上午' : '午后';
+  if (sunH >  0.05) return tod < 12 ? '清晨' : '傍晚';
+  if (sunH > -0.06) return tod < 12 ? '日出' : '日落';
+  if (sunH > -0.45) return tod < 12 ? '破晓' : '暮色';
+  return '深夜';
+}
+
+function updateDayNight(dt){
+  if (CLOCK.auto) CLOCK.tod = (CLOCK.tod + dt * 24 / CLOCK.dayLen) % 24;
+  var tod  = CLOCK.tod;
+  var dayT = (tod - 6) / 12;                      // 6 点日出 = 0，18 点日落 = 1
+  var sunH = Math.sin(dayT * Math.PI);            // 太阳高度：-1 午夜 → +1 正午
+  var sunDir = new THREE.Vector3(Math.cos(dayT * Math.PI) * 0.92, sunH, -0.32).normalize();
+
+  var wDay   = smoothstep(0.10, 0.42, sunH);      // 白昼权重
+  var wNight = smoothstep(0.04, 0.22, -sunH);     // 夜色权重
+
+  // --- 天空三段渐变 ---
+  mixCol(C_DUSK.top, C_DAY.top, wDay, cTop); mixCol(C_NIGHT.top, cTop.getHex(), 1 - wNight, cTop);
+  mixCol(C_DUSK.mid, C_DAY.mid, wDay, cMid); mixCol(C_NIGHT.mid, cMid.getHex(), 1 - wNight, cMid);
+  mixCol(C_DUSK.hor, C_DAY.hor, wDay, cHor); mixCol(C_NIGHT.hor, cHor.getHex(), 1 - wNight, cHor);
+  skyDome.material.uniforms.top.value.copy(cTop);
+  skyDome.material.uniforms.mid.value.copy(cMid);
+  skyDome.material.uniforms.hor.value.copy(cHor);
+
+  // --- 雾色 = 地平线色（空气透视随天色变化） ---
+  mixCol(C_DUSK.fog, C_DAY.fog, wDay, cFog); mixCol(C_NIGHT.fog, cFog.getHex(), 1 - wNight, cFog);
+  scene.fog.color.copy(cFog);
+
+  // --- 云与远景岛的色调 ---
+  mixCol(C_DUSK.cloud, C_DAY.cloud, wDay, cCloud);
+  mixCol(C_NIGHT.cloud, cCloud.getHex(), 1 - wNight, cCloud);
+  mat.cloud.color.copy(cCloud);
+  mat.cloud.opacity = lerp(0.80, 0.52, wNight);
+  mixCol(C_DUSK.cloudFar, C_DAY.cloudFar, wDay, cCloudFar);
+  mixCol(C_NIGHT.cloudFar, cCloudFar.getHex(), 1 - wNight, cCloudFar);
+  mat.cloudFar.color.copy(cCloudFar);
+  mixCol(C_DUSK.isl, C_DAY.isl, wDay, cIsl);
+  mixCol(C_NIGHT.isl, cIsl.getHex(), 1 - wNight, cIsl);
+  mat.islandFar.color.copy(cIsl);
+  mat.islandMid.color.copy(cIsl);
+
+  // --- 神门：夜里门板内透光、金饰加亮（成为夜色中的地标） ---
+  mat.gatePanel.emissiveIntensity = wNight * 0.55;
+  mat.gold.emissiveIntensity = lerp(0.35, 0.95, wNight);
+
+  // --- 主光源：白天为日，入夜转为冷月光 ---
+  var lightDir = sunH > -0.06 ? sunDir : sunDir.clone().negate();
+  sun.position.copy(lightDir).multiplyScalar(120).add(player.position);
+  sun.target.position.set(player.position.x, 0, player.position.z);
+  sun.target.updateMatrixWorld();
+  mixCol(C_DUSK.sun, C_DAY.sun, wDay, cSun);
+  mixCol(C_NIGHT.sun, cSun.getHex(), 1 - wNight, cSun);
+  sun.color.copy(cSun);
+  sun.intensity = sunH > -0.06
+    ? 1.30 * Math.pow(Math.max(sunH, 0), 0.55) + 0.05
+    : 0.30;
+  sun.castShadow = sunH > 0.06;                   // 入夜关闭阴影
+
+  // --- 环境光 ---
+  var ambD = lerp(C_DUSK.amb, C_DAY.amb, wDay);
+  hemi.intensity = lerp(C_NIGHT.amb, ambD, 1 - wNight);
+  hemi.color.copy(cHor);
+  mixCol(C_DUSK.ambGnd, C_DAY.ambGnd, wDay, cGnd);
+  mixCol(C_NIGHT.ambGnd, cGnd.getHex(), 1 - wNight, cGnd);
+  hemi.groundColor.copy(cGnd);
+  ambient.intensity = lerp(0.14, 0.06, wNight);
+
+  // --- 曝光：夜晚提亮，保证能看清柱廊 ---
+  var expD = lerp(C_DUSK.exp, C_DAY.exp, wDay);
+  renderer.toneMappingExposure = lerp(C_NIGHT.exp, expD, 1 - wNight);
+
+  // --- 日 / 月 ---
+  var isDay = sunH > -0.08;
+  sunSprite.visible = isDay;
+  moonSprite.visible = !isDay;
+  if (isDay){
+    sunSprite.position.copy(sunDir).multiplyScalar(700).add(player.position);
+    sunSprite.material.opacity = clamp(sunH * 5, 0, 1) * 0.95;
+  } else {
+    moonSprite.position.copy(sunDir).negate().multiplyScalar(700).add(player.position);
+    moonSprite.material.opacity = clamp(-sunH * 4, 0, 1) * 0.92;
+  }
+
+  // --- 星空 ---
+  stars.visible = wNight > 0.02;
+  if (stars.visible){
+    stars.material.uniforms.uOpacity.value = wNight * 0.95;
+    stars.material.uniforms.uTime.value = clock.getElapsedTime();
+    stars.position.set(player.position.x, 0, player.position.z);
+  }
+
+  // --- HUD ---
+  var hh = Math.floor(tod), mm = Math.floor((tod - hh) * 60);
+  var lab = document.getElementById('todLabel');
+  if (lab) lab.textContent = (hh < 10 ? '0' : '') + hh + ':' + (mm < 10 ? '0' : '') + mm;
+  var ph = document.getElementById('phaseHint');
+  if (ph) ph.textContent = phaseName(tod, sunH);
+  var sl = document.getElementById('todRange');
+  if (sl && document.activeElement !== sl) sl.value = tod;
+}
+
+function setupTimeUI(){
+  var sl  = document.getElementById('todRange');
+  var btn = document.getElementById('btnAutoTime');
+  sl.addEventListener('input', function(){
+    CLOCK.tod = parseFloat(sl.value);
+    CLOCK.auto = false;
+    btn.className = '';
+  });
+  btn.addEventListener('click', function(){
+    CLOCK.auto = !CLOCK.auto;
+    btn.className = CLOCK.auto ? 'on' : '';
+  });
+}
+
+function animate(t){
+  var dt = Math.min((t - prevT) / 1000, 0.05);
+  if (!prevT) dt = 0.016;
+  prevT = t;
+
+  var xr = renderer.xr.isPresenting;
+  var session = renderer.xr.getSession ? renderer.xr.getSession() : null;
+  if (xr) readXR(session, dt); else readPC();
+
+  // ---- 移动（纯手动：键盘 / 摇杆）----  坠落中冻结一切输入
+  if (voidState.falling){ moveFwd = 0; moveSide = 0; moveUp = 0; turn = 0; }
+  var spd = 3.0 * (keys['shift'] ? 2.2 : 1) * dt;
+  if (moveFwd || moveSide || moveUp || turn){
+    var sy = Math.sin(player.rotation.y), cy = Math.cos(player.rotation.y);
+    player.position.x += (-sy * moveFwd + cy * moveSide) * spd;
+    player.position.z += (-cy * moveFwd - sy * moveSide) * spd;
+    player.position.y += moveUp * spd * 0.85;
+    player.rotation.y += turn;
+  }
+  player.position.x = clamp(player.position.x, -70, 70);
+  player.position.y = clamp(player.position.y, voidState.falling ? VOID_MAX_FALL : -5.0, 26);
+
+  // ---- 彩蛋：踩出路面 → 坠入虚空 ----
+  if (!voidState.falling &&
+      (Math.abs(player.position.x) > VOID_EDGE_X || player.position.y < VOID_Y)){
+    startVoidFall();
+  }
+  updateVoid(dt);
+
+  if (!xr){
+    camera.rotation.set(pitch, yaw, 0, 'YXZ');
+    camera.position.y = STAND_EYE;
+  } else {
+    camera.rotation.set(0, 0, 0);
+  }
+
+  updateChunks();
+
+  // ---- 天空 / 远景跟随（保持“永恒远方”，但保留横向视差） ----
+  skyDome.position.set(player.position.x, 0, player.position.z);
+  farGroup.position.z = player.position.z - 40;      // 只跟随 z，横向不跟 → 视差层
+
+  // 接近神门时浮出“回到原点”提示图标
+  updateGateIcon(t / 1000);
+
+  // 远景缓慢浮动
+  var tt = t / 1000;
+  farGroup.children.forEach(function(o){
+    if (o.userData.baseY !== undefined){
+      o.position.y = o.userData.baseY + Math.sin(tt * 0.22 + o.userData.phase) * 2.4;
+      o.rotation.y += 0.00025;
+    }
+  });
+
+  // ---- 时间系统：天空 / 阳光 / 月色 / 星空 / 雾 全部随时刻变化 ----
+  updateDayNight(dt);
+
+  renderer.render(scene, camera);
+
+  // ---- 统计 ----
+  stats.acc += dt; stats.cnt++;
+  if (stats.acc >= 0.5){
+    stats.fps = Math.round(stats.cnt / stats.acc);
+    stats.acc = 0; stats.cnt = 0;
+    var info = renderer.info.render;
+    document.getElementById('stat').innerHTML =
+      stats.fps + ' FPS<br>draw ' + info.calls + ' ｜ tri ' + (info.triangles/1000).toFixed(0) + 'k';
+  }
+}
+
+/* =========================== 9. 启动 =========================== */
+function init(){
+  renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
+  renderer.setSize(innerWidth, innerHeight);
+  renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 1.5));
+  renderer.outputEncoding = THREE.sRGBEncoding;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 0.98;
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  document.body.appendChild(renderer.domElement);
+
+  scene = new THREE.Scene();
+  scene.fog = new THREE.Fog(0xcfe2f4, FOG_NEAR, FOG_FAR);
+
+  camera = new THREE.PerspectiveCamera(62, innerWidth/innerHeight, 0.08, 2200);
+  player = new THREE.Group();
+  player.add(camera);
+  camera.position.set(0, STAND_EYE, 0);   // 眼高 = player.y + STAND_EYE
+  player.position.set(0, BASE_Y, 0);      // 开局悬浮在 BASE_Y，视线齐门高 3/4
+  scene.add(player);
+
+  clock = new THREE.Clock();
+
+  setProgress(0.08, '生成程序化纹理…');
+  buildTextures();
+  setProgress(0.3, '构建材质…');
+  buildMaterials();
+  setProgress(0.45, '车制大理石柱…');
+  buildColumnGeos();
+  buildGateGeos();
+  setProgress(0.6, '点亮天空与日光…');
+  buildSky();
+  buildLights();
+  setProgress(0.72, '铺展浮空岛群…');
+  buildFarScenery();
+  setProgress(0.86, '铺设无限柱廊…');
+  for (var i=0;i<N_CHUNK;i++){
+    var c = buildChunk(i);
+    c.position.z = (N_CHUNK*0.5 - i - 0.5) * CHUNK_L;   // 居中分布，前后均覆盖
+    scene.add(c);
+    chunks.push(c);
+  }
+  buildGateIcon();
+  buildStartSign();
+  buildVoidScreen();
+  setProgress(0.97, '初始化 WebXR…');
+
+  setupPCControls();
+  setupVRControls();
+  setupVRButton();
+  setupTimeUI();
+  document.getElementById('btnVoidBack').addEventListener('click', teleportToOrigin);
+
+  window.addEventListener('resize', function(){
+    camera.aspect = innerWidth / innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(innerWidth, innerHeight);
+  });
+
+  renderer.xr.enabled = true;
+  if (renderer.xr.setReferenceSpaceType) renderer.xr.setReferenceSpaceType('local-floor');
+  renderer.setAnimationLoop(animate);
+
+  setProgress(1, '完成');
+  setTimeout(function(){
+    var l = document.getElementById('loading');
+    l.style.opacity = 0;
+    setTimeout(function(){ l.style.display = 'none'; }, 950);
+  }, 260);
+}
+
+function setupVRButton(){
+  var btn = document.getElementById('enterVR');
+  if (!navigator.xr){
+    btn.disabled = true; btn.textContent = '不支持 WebXR'; return;
+  }
+  navigator.xr.isSessionSupported('immersive-vr').then(function(ok){
+    if (!ok){ btn.disabled = true; btn.textContent = 'VR 不可用'; }
+  }).catch(function(){});
+  btn.addEventListener('click', function(){
+    navigator.xr.requestSession('immersive-vr', {
+      optionalFeatures: ['local-floor', 'bounded-floor', 'hand-tracking', 'layers']
+    }).then(function(s){
+      return renderer.xr.setSession(s);
+    }).catch(function(){ btn.textContent = '进入失败'; });
+  });
+}
+
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+else init();
+
+})();
+</script>
+</body>
+</html>
