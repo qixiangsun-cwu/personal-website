@@ -1,80 +1,192 @@
 {
-  "generated": "2026-10-02 15:20:24",
-  "updated": "2026-10-02",
+  "generated": "2026-10-08 03:45:27",
+  "updated": "2026-10-08",
   "current": [
     {
-      "date": "2026-10-01",
+      "date": "2026-10-08",
+      "source": "blogs.nvidia.com",
+      "url": "https://blogs.nvidia.com/blog/local-ai-rtx-spark-microsoft-windows-event/",
+      "title": "英伟达携手微软发布 RTX Spark：让 AI 智能体跑上 Windows PC",
+      "title_en": "NVIDIA, Microsoft Kick Off a New Beginning for Windows PCs With RTX Spark and AI Agents",
+      "summary": "在旧金山的一场微软活动上，英伟达 CEO 黄仁勋与微软 CEO 纳德拉共同介绍双方如何从硬件到软件协同设计，让 AI 智能体能在 Windows PC 上运行（RTX Spark 平台）。黄仁勋称「英伟达正是因 Windows 而生，如今 AI 智能体正来到 Windows」。这标志着「端侧 AI 智能体」正成为 PC 厂商的新战场。"
+    },
+    {
+      "date": "2026-10-08",
       "source": "techcrunch.com",
-      "url": "https://techcrunch.com/2026/09/30/google-releases-gemini-4-argon-called-its-most-powerful-model-yet/",
-      "title": "谷歌发布 Gemini 4 Argon，称其为迄今最强模型",
-      "title_en": "Google releases Gemini 4 Argon, called its most powerful model yet",
-      "summary": "谷歌发布最新 Gemini 模型 Gemini 4 Argon，主打编程与网络安全场景，被宣传为「迄今最强」。TechCrunch 指出，谷歌把它定位为处理高强度代码与安全工作的「主力模型」，这是继 GPT-6 系列之后前沿模型竞争的又一回合，也标志着谷歌把新模型直接对准商业化最重的工程场景。"
+      "url": "https://techcrunch.com/2026/10/07/chatgpt-is-getting-a-lot-more-visual-with-the-launch-of-a-new-interface/",
+      "title": "ChatGPT 上线全新界面，回复变得“视觉化”",
+      "title_en": "ChatGPT is getting a lot more visual, with the launch of a new interface",
+      "summary": "OpenAI 为 ChatGPT 推出全新用户界面，把可交互的视觉内容（图片、图表、按钮等）直接带进回复。TechCrunch 指出，这让 ChatGPT 从「纯文字对话」转向更丰富、可操作的交互形态，回应了用户对更直观呈现的需求。"
     },
     {
-      "date": "2026-10-01",
-      "source": "www.theverge.com",
-      "url": "https://www.theverge.com/tech/1002980/google-gemini-4-argon",
-      "title": "谷歌发布 Gemini 4，称其能力太强，目前仅限“可信网络防御者”使用",
-      "title_en": "Google announces Gemini 4 and says it's so capable that only 'trusted cyber defenders' can have it right now",
-      "summary": "谷歌发布 Gemini 4，并称其能力之强以至于目前只向「可信网络防御者」开放使用。The Verge 指出，这种受限发布策略既是对模型在网络安全攻防上双重用途风险的回应，也是一种市场与叙事手段——前沿模型既是防御工具，也可能被用于攻击。"
-    },
-    {
-      "date": "2026-10-02",
-      "source": "www.qbitai.com",
-      "url": "https://www.qbitai.com/2026/10/499991.html",
-      "title": "丘成桐新论文致谢了GPT和Claude",
-      "title_en": "丘成桐新论文致谢了GPT和Claude",
-      "summary": "数学家丘成桐在新论文的致谢中向 GPT 和 Claude 表示感谢，而该研究问题的源头可追溯到 44 年前他被亲自列入的问题清单。这一细节被解读为顶级数学研究开始公开承认 AI 工具的辅助作用，呼应了此前「数学家既依赖又警惕 AI」的讨论。"
-    },
-    {
-      "date": "2026-10-01",
-      "source": "www.infoq.cn",
-      "url": "https://www.infoq.cn/article/t5i2Yv2z0LwIbK36lteR?utm_source=rss&utm_medium=article",
-      "title": "DeepSeek 开源昇腾平台基础设施组件，覆盖 TileLang、计算库与分布式通信库",
-      "title_en": "DeepSeek 开源昇腾平台基础设施组件，覆盖 TileLang、计算库与分布式通信库",
-      "summary": "DeepSeek 开源了面向华为昇腾平台的基础设施组件，覆盖 TileLang、计算库与分布式通信库等。此举意在降低大模型在国产 AI 芯片上的开发与迁移门槛，与昇腾共建软件生态，是国产算力栈「软硬协同」的重要一步，也表明头部模型团队正加大对国产芯片的适配投入。"
-    },
-    {
-      "date": "2026-10-02",
-      "source": "www.ithome.com",
-      "url": "https://www.ithome.com/1/009/343.htm",
-      "title": "Anthropic 招股书警告：美国政府的态度会影响公司与客户的关系，甚至波及人类文明",
-      "title_en": "Anthropic 招股书警告：美国政府的态度会影响公司与客户的关系，甚至波及人类文明",
-      "summary": "路透社公布的 Anthropic IPO 招股书提出警告：美国政府对公司及其技术的态度不仅影响政府业务，还可能波及商业客户和合作伙伴，甚至「波及人类文明」；文件同时提示先进 AI 可能带来灾难性乃至生存性风险。在企业招股文件中出现这类表述较为罕见，凸显 AI 公司对政策环境与安全争议的高度敏感。"
-    },
-    {
-      "date": "2026-10-01",
-      "source": "www.technologyreview.com",
-      "url": "https://www.technologyreview.com/2026/10/01/1145588/ai-mind-reading-reconstructs-what-youre-looking-at/",
-      "title": "AI“读心”工具能凭脑扫描重建你正在看的画面",
-      "title_en": "An AI \"mind-reading\" tool can reconstruct what you're looking at from a brain scan",
-      "summary": "《麻省理工科技评论》报道一种新的 AI「读心」工具：仅通过分析脑扫描（fMRI），就能以相当高的精度重建受试者正在看的图像，反过来也能根据所见图像预测其脑活动。该技术在脑机接口与认知科学上颇具潜力，同时也引发对「思维隐私」的伦理担忧。"
-    },
-    {
-      "date": "2026-10-01",
-      "source": "www.wired.com",
-      "url": "https://www.wired.com/story/ai-agents-dots-devday-muse-battling-it-out/",
-      "title": "争夺“你的个人 AI 智能体”之战已经打响",
-      "title_en": "The Battle to Be Your Personal AI Agent Is Here",
-      "summary": "Wired 记者亲身体验了 OpenAI 的 Dots 与 Meta 的 Muse 两款个人 AI 智能体，认为二者的竞争已经展开。文章从实际使用感受出发，讨论个人智能体在日常任务代办上的能力与局限，并预判用户将越来越多地借助它们完成琐事，个人 AI 助手正成为巨头争夺的新入口。"
-    },
-    {
-      "date": "2026-10-01",
+      "date": "2026-10-07",
       "source": "openai.com",
-      "url": "https://openai.com/index/the-den-family-social",
-      "title": "The Den 借助 ChatGPT Work 每周省出 10-15 小时",
-      "title_en": "The Den frees up 10-15 hours a week to grow with ChatGPT Work",
-      "summary": "OpenAI 案例：社交俱乐部 The Den 在开设新店的过程中，用 ChatGPT Work 把助学金申请材料从 3 天缩短到 2 小时、酒类执照材料从 4 天缩短到 3 小时，每周节省 10-15 小时。案例展示了 ChatGPT 在中小企业日常行政与文书工作中的实用价值。"
+      "url": "https://openai.com/index/gpt-6-for-everyone",
+      "title": "GPT-6 与“Intelligent UI”向所有人开放",
+      "title_en": "GPT-6 and Intelligent UI for everyone",
+      "summary": "OpenAI 宣布 GPT-6 随「Intelligent UI」在全球 ChatGPT 中上线：响应更快，并带来可直接探索使用的可视化与交互体验。此前 GPT-6 主要面向付费用户，此次「面向所有人」的开放意味着 OpenAI 把最新模型与交互形态同时推向大众市场。"
+    },
+    {
+      "date": "2026-10-08",
+      "source": "www.qbitai.com",
+      "url": "https://www.qbitai.com/2026/10/501832.html",
+      "title": "Claude新模型发布！跑分暴击GPT-6 Luna，价格更便宜",
+      "title_en": "Claude新模型发布！跑分暴击GPT-6 Luna，价格比梁文谷还便宜，OpenAI只能送重置卡挽尊",
+      "summary": "量子位报道 Anthropic 发布 Claude 新模型：在基准测试中「暴击」GPT-6 Luna，价格更低（甚至比部分国产模型便宜），被形容为「小模型新守门员」；同期 OpenAI 只能以「送重置卡」的方式应对。文章从跑分与定价两方面解读这轮小模型竞争。"
+    },
+    {
+      "date": "2026-10-08",
+      "source": "www.ithome.com",
+      "url": "https://www.ithome.com/1/010/387.htm",
+      "title": "黄仁勋焦虑 AI 需求降温，曝英伟达拟再投 10 亿美元加码人形机器人企业 Figure",
+      "title_en": "黄仁勋焦虑 AI 需求降温，曝英伟达拟再投 10 亿美元加码人形机器人企业 Figure",
+      "summary": "据 The Information 援引知情人士，英伟达曾讨论向人形机器人制造商 Figure 再投资 10 亿美元（约 67 亿元人民币），Figure 本轮投前估值约 380 亿美元。英伟达本就是 Figure 的投资者，一年前曾以同样估值向其投资超 10 亿美元。在人形机器人热潮与「AI 需求降温」的焦虑下，英伟达正加大对该赛道的押注。"
+    },
+    {
+      "date": "2026-10-06",
+      "source": "www.wired.com",
+      "url": "https://www.wired.com/story/mistral-new-model-le-chonk-open-source-china-us-frontier/",
+      "title": "Mistral 发布新模型“Le Chonk”：称中国之外最强开源权重模型",
+      "title_en": "Mistral Says Its New AI Model 'Le Chonk' Is the Best Open-Weight Offering Outside of China",
+      "summary": "Mistral 发布万亿参数新模型「Le Chonk」，并宣称它是「中国之外最强的开源权重模型」，希望借此证明自己在追求前沿 AI 的竞赛中「仍在牌桌上」。该模型被视为欧洲厂商对美国与中国开源模型攻势的回应。"
+    },
+    {
+      "date": "2026-10-07",
+      "source": "www.theverge.com",
+      "url": "https://www.theverge.com/ai-artificial-intelligence/1006355/openai-chatgpt-for-teens-common-sense-media",
+      "title": "Common Sense Media：ChatGPT 青少年模式是“不可接受的风险”",
+      "title_en": "ChatGPT for Teens is an 'unacceptable risk,' says Common Sense Media",
+      "summary": "非营利机构 Common Sense Media 发布报告，认为 OpenAI 的「ChatGPT for Teens（青少年模式）」构成「不可接受的风险」，并批评其安全防护不足。这一评价与此前「ChatGPT 青少年模式并不适合青少年」的报道相呼应，凸显各方对青少年使用 AI 的持续担忧。"
     }
   ],
   "archive": [
     {
-      "date": "2026-10-02",
+      "date": "2026-10-08",
       "source": "techcrunch.com",
-      "url": "https://techcrunch.com/2026/10/01/musks-ai-chatbot-grok-reportedly-encouraged-trump-to-capture-venezuelas-president/",
+      "url": "https://techcrunch.com/2026/10/07/nous-research-confirms-it-hit-1-5b-valuation-launches-ai-agents-for-business-users/",
+      "title": "Nous Research 确认 15 亿美元估值，推出面向企业的 AI 智能体",
+      "title_en": "Nous Research confirms it hit $1.5B valuation, launches AI agents for business users",
+      "summary": "Hermes Agent 的开发者 Nous Research 完成 9000 万美元 B 轮融资，确认估值达 15 亿美元，并推出面向企业用户的 AI 智能体产品。这反映出开源模型团队正把技术能力转化为企业级 Agent 产品，切入商业化落地。"
+    },
+    {
+      "date": "2026-10-08",
+      "source": "www.ithome.com",
+      "url": "https://www.ithome.com/1/010/352.htm",
+      "title": "消息称博通拟为 OpenAI 定制 AI 芯片筹资超 500 亿美元",
+      "title_en": "消息称博通拟为 OpenAI 定制 AI 芯片筹资超 500 亿美元，SpaceX 洽谈 400 亿美元融资",
+      "summary": "据《华尔街日报》与彭博社报道，博通近几周在为 OpenAI 的定制 AI 芯片安排超 500 亿美元（约 3356 亿元人民币）融资，已与阿波罗、黑石等私人信贷机构早期洽谈。双方此前宣布合作开发 10 吉瓦定制 AI 芯片系统（OpenAI 内部代号 Nexus），计划 2026 下半年起部署。这显示 AI 基础设施的巨额资金需求正催生大规模私人债务融资。"
+    },
+    {
+      "date": "2026-10-08",
+      "source": "www.ithome.com",
+      "url": "https://www.ithome.com/1/010/359.htm",
+      "title": "马斯克：Grok Bot 不再只认自家模型，按任务择优用 Claude 等最佳 AI",
+      "title_en": "马斯克：Grok Bot 不再只认自家模型，按用户任务择优用 Claude 等最佳 AI",
+      "summary": "马斯克在 X 上说明，旗下 Grok Bot 不再局限于自研 Grok 系列，而是根据具体任务自动选择「最好的后端模型」——包括 Claude Opus 5.5、Midjourney、Suno 及其他领先 API，以「最可能给用户最佳结果」为标准。这反映多模型择优调用正成为 AI 产品的主流架构。"
+    },
+    {
+      "date": "2026-10-08",
+      "source": "www.ithome.com",
+      "url": "https://www.ithome.com/1/010/378.htm",
+      "title": "美国一男子用 AI 骗取音乐版权收入，被判 18 个月监禁、罚没 800 万美元",
+      "title_en": "美国一男子因利用 AI 骗取音乐版权收入被判 18 个月监禁并罚没 800 万美元",
+      "summary": "美国司法部公告称，北卡罗来纳州男子 Michael Smith 在 2017—2024 年间用 AI 生成数十万首歌曲，通过上万个用虚假邮箱和非法借记卡注册的账号上线流媒体，再用机器人账号矩阵刷播放量牟利，最终被判 18 个月监禁并罚没 800 万美元（约 5370 万元人民币）。该案是 AI 音乐版权欺诈的典型案例。"
+    },
+    {
+      "date": "2026-10-07",
+      "source": "www.qbitai.com",
+      "url": "https://www.qbitai.com/2026/10/501749.html",
+      "title": "OpenAI一夜甩出722篇数学论文！黎曼、霍奇、BSD全上阵",
+      "title_en": "OpenAI一夜甩出722篇数学论文！黎曼霍奇BSD全上阵，数学家：读不过来",
+      "summary": "量子位报道 OpenAI 一次性发布 722 篇数学相关论文，涉及黎曼猜想、霍奇猜想、BSD 猜想等重大方向，引来数学家「读不过来」的感叹；三位菲尔兹奖得主也表示「（我们的参与）不代表认可」。报道既展示 AI 在数学上的高产，也点出学界对其结论质量的审慎态度。"
+    },
+    {
+      "date": "2026-10-07",
+      "source": "techcrunch.com",
+      "url": "https://techcrunch.com/2026/10/07/googles-new-synthid-website-can-identify-ai-generated-media/",
+      "title": "谷歌上线 SynthID 网站：任何人都能检测 AI 生成内容",
+      "title_en": "Google's new SynthID website can identify AI-generated media",
+      "summary": "谷歌推出新的 SynthID 网站，让任何人都可以验证图片、视频或音频是否为 AI 生成。这是谷歌把「AI 内容溯源」能力推向公众的一步，为应对深度伪造与内容真伪问题提供了可用工具。"
+    },
+    {
+      "date": "2026-10-07",
+      "source": "techcrunch.com",
+      "url": "https://techcrunch.com/2026/10/06/ai-computing-startup-lambda-to-raise-4b-ahead-of-planned-ipo/",
+      "title": "AI 算力公司 Lambda 拟融资 40 亿美元，冲刺 IPO",
+      "title_en": "AI computing startup Lambda to raise $4B ahead of planned IPO",
+      "summary": "获英伟达投资的 AI 算力公司 Lambda 正以 145 亿美元投前估值融资最高 40 亿美元，由 Coatue 与黑石领投，为计划中的 2027 年 IPO 做准备。这显示 AI 基础设施投资热度不减。"
+    },
+    {
+      "title": "丘成桐新论文致谢了GPT和Claude",
+      "title_en": "丘成桐新论文致谢了GPT和Claude",
+      "summary": "数学家丘成桐在新论文的致谢中向 GPT 和 Claude 表示感谢，而该研究问题的源头可追溯到 44 年前他被亲自列入的问题清单。这一细节被解读为顶级数学研究开始公开承认 AI 工具的辅助作用，呼应了此前「数学家既依赖又警惕 AI」的讨论。",
+      "source": "www.qbitai.com",
+      "url": "https://www.qbitai.com/2026/10/499991.html",
+      "date": "2026-10-02"
+    },
+    {
+      "title": "Anthropic 招股书警告：美国政府的态度会影响公司与客户的关系，甚至波及人类文明",
+      "title_en": "Anthropic 招股书警告：美国政府的态度会影响公司与客户的关系，甚至波及人类文明",
+      "summary": "路透社公布的 Anthropic IPO 招股书提出警告：美国政府对公司及其技术的态度不仅影响政府业务，还可能波及商业客户和合作伙伴，甚至「波及人类文明」；文件同时提示先进 AI 可能带来灾难性乃至生存性风险。在企业招股文件中出现这类表述较为罕见，凸显 AI 公司对政策环境与安全争议的高度敏感。",
+      "source": "www.ithome.com",
+      "url": "https://www.ithome.com/1/009/343.htm",
+      "date": "2026-10-02"
+    },
+    {
       "title": "报道称马斯克 AI 聊天机器人 Grok 曾建议特朗普抓捕委内瑞拉总统",
       "title_en": "Musk's AI chatbot Grok reportedly encouraged Trump to capture Venezuela's president",
-      "summary": "据多家媒体报道，美国前总统特朗普在决定对委内瑞拉采取军事行动、抓捕总统马杜罗之前，曾征询马斯克旗下 AI 聊天机器人 Grok 的意见，而 Grok 给出了支持性建议。报道把这一细节视为 AI 进入高层政治与军事决策圈的标志性案例，也引发对「聊天机器人影响最高决策」的争议。"
+      "summary": "据多家媒体报道，美国前总统特朗普在决定对委内瑞拉采取军事行动、抓捕总统马杜罗之前，曾征询马斯克旗下 AI 聊天机器人 Grok 的意见，而 Grok 给出了支持性建议。报道把这一细节视为 AI 进入高层政治与军事决策圈的标志性案例，也引发对「聊天机器人影响最高决策」的争议。",
+      "source": "techcrunch.com",
+      "url": "https://techcrunch.com/2026/10/01/musks-ai-chatbot-grok-reportedly-encouraged-trump-to-capture-venezuelas-president/",
+      "date": "2026-10-02"
+    },
+    {
+      "title": "谷歌发布 Gemini 4 Argon，称其为迄今最强模型",
+      "title_en": "Google releases Gemini 4 Argon, called its most powerful model yet",
+      "summary": "谷歌发布最新 Gemini 模型 Gemini 4 Argon，主打编程与网络安全场景，被宣传为「迄今最强」。TechCrunch 指出，谷歌把它定位为处理高强度代码与安全工作的「主力模型」，这是继 GPT-6 系列之后前沿模型竞争的又一回合，也标志着谷歌把新模型直接对准商业化最重的工程场景。",
+      "source": "techcrunch.com",
+      "url": "https://techcrunch.com/2026/09/30/google-releases-gemini-4-argon-called-its-most-powerful-model-yet/",
+      "date": "2026-10-01"
+    },
+    {
+      "title": "谷歌发布 Gemini 4，称其能力太强，目前仅限“可信网络防御者”使用",
+      "title_en": "Google announces Gemini 4 and says it's so capable that only 'trusted cyber defenders' can have it right now",
+      "summary": "谷歌发布 Gemini 4，并称其能力之强以至于目前只向「可信网络防御者」开放使用。The Verge 指出，这种受限发布策略既是对模型在网络安全攻防上双重用途风险的回应，也是一种市场与叙事手段——前沿模型既是防御工具，也可能被用于攻击。",
+      "source": "www.theverge.com",
+      "url": "https://www.theverge.com/tech/1002980/google-gemini-4-argon",
+      "date": "2026-10-01"
+    },
+    {
+      "title": "DeepSeek 开源昇腾平台基础设施组件，覆盖 TileLang、计算库与分布式通信库",
+      "title_en": "DeepSeek 开源昇腾平台基础设施组件，覆盖 TileLang、计算库与分布式通信库",
+      "summary": "DeepSeek 开源了面向华为昇腾平台的基础设施组件，覆盖 TileLang、计算库与分布式通信库等。此举意在降低大模型在国产 AI 芯片上的开发与迁移门槛，与昇腾共建软件生态，是国产算力栈「软硬协同」的重要一步，也表明头部模型团队正加大对国产芯片的适配投入。",
+      "source": "www.infoq.cn",
+      "url": "https://www.infoq.cn/article/t5i2Yv2z0LwIbK36lteR?utm_source=rss&utm_medium=article",
+      "date": "2026-10-01"
+    },
+    {
+      "title": "AI“读心”工具能凭脑扫描重建你正在看的画面",
+      "title_en": "An AI \"mind-reading\" tool can reconstruct what you're looking at from a brain scan",
+      "summary": "《麻省理工科技评论》报道一种新的 AI「读心」工具：仅通过分析脑扫描（fMRI），就能以相当高的精度重建受试者正在看的图像，反过来也能根据所见图像预测其脑活动。该技术在脑机接口与认知科学上颇具潜力，同时也引发对「思维隐私」的伦理担忧。",
+      "source": "www.technologyreview.com",
+      "url": "https://www.technologyreview.com/2026/10/01/1145588/ai-mind-reading-reconstructs-what-youre-looking-at/",
+      "date": "2026-10-01"
+    },
+    {
+      "title": "争夺“你的个人 AI 智能体”之战已经打响",
+      "title_en": "The Battle to Be Your Personal AI Agent Is Here",
+      "summary": "Wired 记者亲身体验了 OpenAI 的 Dots 与 Meta 的 Muse 两款个人 AI 智能体，认为二者的竞争已经展开。文章从实际使用感受出发，讨论个人智能体在日常任务代办上的能力与局限，并预判用户将越来越多地借助它们完成琐事，个人 AI 助手正成为巨头争夺的新入口。",
+      "source": "www.wired.com",
+      "url": "https://www.wired.com/story/ai-agents-dots-devday-muse-battling-it-out/",
+      "date": "2026-10-01"
+    },
+    {
+      "title": "The Den 借助 ChatGPT Work 每周省出 10-15 小时",
+      "title_en": "The Den frees up 10-15 hours a week to grow with ChatGPT Work",
+      "summary": "OpenAI 案例：社交俱乐部 The Den 在开设新店的过程中，用 ChatGPT Work 把助学金申请材料从 3 天缩短到 2 小时、酒类执照材料从 4 天缩短到 3 小时，每周节省 10-15 小时。案例展示了 ChatGPT 在中小企业日常行政与文书工作中的实用价值。",
+      "source": "openai.com",
+      "url": "https://openai.com/index/the-den-family-social",
+      "date": "2026-10-01"
     },
     {
       "title": "Anthropic 发布 Sonnet 5.5：更快更便宜的日常助手",
