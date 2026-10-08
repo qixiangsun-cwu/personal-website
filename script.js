@@ -54,32 +54,12 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // ---------- 滚动渐入动画 (IntersectionObserver) ----------
+    // ---------- 入场动效（渐进增强） ----------
+    // 只有 JS 就绪才挂 .js-motion，保证禁用 JS 时内容完整可见
     if (!prefersReducedMotion) {
-        const revealEls = document.querySelectorAll(
-            '.glass-card, .section-header, .hero-content, .timeline-item, .benefit-item'
-        );
-
-        revealEls.forEach(function(el, i) {
-            el.classList.add('reveal');
-            // 交错延迟：每 5 个一组轮换
-            const delayClass = 'reveal-delay-' + ((i % 3) + 1);
-            el.classList.add(delayClass);
-        });
-
-        const observer = new IntersectionObserver(function(entries) {
-            entries.forEach(function(entry) {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('visible');
-                }
-            });
-        }, {
-            threshold: 0.08,
-            rootMargin: '0px 0px -40px 0px'
-        });
-
-        revealEls.forEach(function(el) { observer.observe(el); });
+        document.documentElement.classList.add('js-motion');
     }
+    initReveal(prefersReducedMotion);
 
     // ---------- 平滑滚动 ----------
     document.querySelectorAll('a[href^="#"]').forEach(function(anchor) {
@@ -97,14 +77,11 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // ---------- 下载按钮交互 ----------
+    // ---------- 待补充项：声明式禁用 ----------
+    // 原实现点击时注入 shake 抖动关键帧，但按钮仍可被键盘触发、也无 aria-disabled。
+    // 现在只声明状态；不可交互由 CSS（pointer-events + aria-disabled）保证。
     document.querySelectorAll('.download-pending').forEach(function(btn) {
-        btn.addEventListener('click', function(e) {
-            e.preventDefault();
-            btn.style.animation = 'none';
-            btn.offsetHeight; // 触发回流
-            btn.style.animation = 'shake 0.4s ease';
-        });
+        btn.setAttribute('aria-disabled', 'true');
     });
 
     // ---------- 视差背景效果 (pointer-driven, passive) ----------
@@ -134,35 +111,136 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // ---------- 导航高亮当前 section ----------
-    var sections = document.querySelectorAll('section[id]');
-    var navLinks = document.querySelectorAll('.nav-links a');
-
-    if (sections.length && navLinks.length) {
-        var sectionObserver = new IntersectionObserver(function(entries) {
-            entries.forEach(function(entry) {
-                if (entry.isIntersecting) {
-                    var id = entry.target.getAttribute('id');
-                    navLinks.forEach(function(link) {
-                        link.style.color = '';
-                        link.style.fontWeight = '';
-                        if (link.getAttribute('href') === '#' + id) {
-                            link.style.color = 'var(--color-ink)';
-                            link.style.fontWeight = '500';
-                        }
-                    });
-                }
-            });
-        }, { threshold: 0.25 });
-
-        sections.forEach(function(section) { sectionObserver.observe(section); });
-    }
+    // 原实现用 IntersectionObserver threshold 0.25：视口高 900px 时
+    // 没有任何 section 能占满 25%（hero 仅 591px），导致顶部经常无高亮，
+    // 且用内联 style 改色、不写 aria-current、与 hover 下划线不是同一套语言。
+    // 现改为按「距导航栏最近的 section」计算，纯类切换 + aria-current。
+    initNavHighlight();
 
     // ---------- AI 新闻加载 ----------
     loadNews();
 
+    // ---------- 工具区检索与筛选 ----------
+    initToolFilter();
+
     // ---------- 访问统计 ----------
     recordVisit();
 });
+
+// ---------- 入场动效 ----------
+// 原实现给每一个 .glass-card（60+ 个）单独加 reveal + 3 档循环延迟，
+// 导致工具区一滚进来 60 张卡同时淡入：既无分组意义，也浪费合成层。
+// 现在改为「按区块入场」：区块整体位移，区块内元素用短间隔错开。
+function initReveal(reduced) {
+    var docEl = document.documentElement;
+
+    if (reduced || typeof window.IntersectionObserver !== 'function') {
+        docEl.classList.add('reveal-ready');
+        return;
+    }
+
+    var targets = document.querySelectorAll('.section, .hero-content');
+
+    targets.forEach(function(section) {
+        var probe = section.matches('.hero-content')
+            ? section
+            : section.querySelector('.section-header') || section;
+
+        if (probe.closest('.section, .hero-content') !== section) return;
+
+        section.classList.add('reveal');
+
+        // 区块内首屏可见的少数元素做轻量错开（最多 4 个）
+        var members = section.querySelectorAll(
+            '.glass-card, .timeline-item, .benefit-item, .module-card, .course-card, .download-card, .tool-card'
+        );
+        var n = 0;
+        members.forEach(function(el) {
+            if (n >= 4) return;
+            if (el.closest('.section, .hero-content') !== section) return;
+            el.style.setProperty('--reveal-delay', (0.06 * (++n)) + 's');
+            el.classList.add('reveal-child');
+        });
+    });
+
+    var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+                observer.unobserve(entry.target);
+            }
+        });
+    }, {
+        threshold: 0.06,
+        rootMargin: '0px 0px -60px 0px'
+    });
+
+    targets.forEach(function(el) { observer.observe(el); });
+}
+
+// ---------- 导航当前区块 ----------
+function initNavHighlight() {
+    var sections = Array.prototype.slice.call(document.querySelectorAll('section[id]'));
+    var navLinks = Array.prototype.slice.call(document.querySelectorAll('.nav-links a'));
+    if (!sections.length || !navLinks.length) return;
+
+    var NAVH = 62;         // 导航栏高度 + 余量
+    var appliedId = null;  // 实际已写入的链接（注意不是「当前区块 id」）
+    var ticking = false;
+
+    // 只高亮「有对应导航链接」的区块。#hero 没有导航项，
+    // 若直接用最近区块 id 去匹配，顶部会没有任何高亮 —— 改为此处直接过滤。
+    var linked = sections.filter(function(sec) {
+        var id = sec.getAttribute('id');
+        return navLinks.some(function(a) { return a.getAttribute('href') === '#' + id; });
+    });
+    if (!linked.length) return;
+
+    function update() {
+        ticking = false;
+        var best = null;
+        var bestDist = Infinity;
+
+        linked.forEach(function(sec) {
+            // section 顶边到导航栏下沿的距离；负数表示已经滚过头
+            var top = sec.getBoundingClientRect().top - NAVH;
+            var dist = top <= 0 ? -top : top;
+            if (dist < bestDist) {
+                bestDist = dist;
+                best = sec;
+            }
+        });
+
+        // 滚到页面最底部时，强制命中最后一个有导航的区块
+        var atBottom = (window.innerHeight + window.pageYOffset) >= (document.documentElement.scrollHeight - 4);
+        if (atBottom) best = linked[linked.length - 1];
+
+        if (!best) return;
+        var id = best.getAttribute('id');
+        if (id === appliedId) return;
+        appliedId = id;
+
+        navLinks.forEach(function(link) {
+            var match = link.getAttribute('href') === '#' + id;
+            link.classList.toggle('is-current', match);
+            if (match) {
+                link.setAttribute('aria-current', 'true');
+            } else {
+                link.removeAttribute('aria-current');
+            }
+        });
+    }
+
+    function onScroll() {
+        if (ticking) return;
+        ticking = true;
+        window.requestAnimationFrame(update);
+    }
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    update();
+}
 
 // ---------- 加载AI新闻 ----------
 async function loadNews() {
@@ -174,15 +252,7 @@ async function loadNews() {
         var dateEl = document.getElementById('newsUpdateDate');
         if (dateEl) dateEl.textContent = '更新于 ' + data.updated;
 
-        // 最新动态：今日/近两日精选
-        var currentList = document.getElementById('newsCurrentList');
-        if (currentList && data.current && data.current.length > 0) {
-            currentList.innerHTML = data.current.map(createNewsItem).join('');
-        } else if (currentList) {
-            currentList.innerHTML = '<p class="news-empty-hint">暂无新闻，今日更新中。</p>';
-        }
-
-        // 全部动态：合并去重 + 按日期倒序
+        // 合并去重 + 按日期倒序
         var allItems = dedupeNews(data.current || []).concat(dedupeNews(data.archive || []));
         allItems.sort(function(a, b) {
             return String(b.date || '').localeCompare(String(a.date || ''));
@@ -193,10 +263,11 @@ async function loadNews() {
 
         var moreSub = document.getElementById('newsMoreSub');
         if (moreSub && allItems.length > 0) {
-            moreSub.textContent = '共 ' + allItems.length + ' 条 · ' + allItems[allItems.length - 1].date + ' 至 ' + allItems[0].date;
+            moreSub.textContent = '共 ' + allItems.length + ' 条 · ' +
+                allItems[allItems.length - 1].date + ' 至 ' + allItems[0].date;
         }
 
-        renderMoreNews(allItems);
+        renderNews(allItems);
     } catch (e) {
         var currentList = document.getElementById('newsCurrentList');
         if (currentList) {
@@ -218,33 +289,53 @@ function dedupeNews(items) {
     return out;
 }
 
-var NEWS_PAGE_SIZE = 12;
+var NEWS_PAGE_SIZE = 8;
 
-function renderMoreNews(items) {
-    var listEl = document.getElementById('newsMoreList');
+// 单一列表：默认展示最新 8 条，可展开全部
+function renderNews(items) {
+    var listEl = document.getElementById('newsCurrentList');
     var btn = document.getElementById('newsMoreBtn');
     if (!listEl) return;
+
     if (!items.length) {
-        listEl.innerHTML = '<p class="news-empty-hint">暂无历史动态。</p>';
+        listEl.innerHTML = '<p class="news-empty-hint">暂无新闻，今日更新中。</p>';
         if (btn) btn.style.display = 'none';
         return;
     }
 
-    var showAll = false;
+    var expanded = false;
 
     function paint() {
-        listEl.innerHTML = showAll ? items.map(createNewsItem).join('') : '';
-        if (btn) {
-            btn.style.display = '';
-            btn.textContent = showAll ? '收起' : '展开全部动态（' + items.length + ' 条）';
+        var shown = expanded ? items : items.slice(0, NEWS_PAGE_SIZE);
+        listEl.innerHTML = shown.map(createNewsItem).join('');
+
+        if (items.length <= NEWS_PAGE_SIZE) {
+            if (btn) btn.style.display = 'none';
+            return;
+        }
+        if (!btn) return;
+        btn.style.display = '';
+        btn.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+        btn.innerHTML = expanded
+            ? '<i class="ph ph-caret-up" aria-hidden="true"></i>收起'
+            : '展开全部动态（' + items.length + ' 条）<i class="ph ph-caret-down" aria-hidden="true"></i>';
+        if (expanded) {
+            btn.classList.add('is-expanded');
+        } else {
+            btn.classList.remove('is-expanded');
         }
     }
 
     paint();
-    if (btn) {
+
+    if (btn && !btn.dataset.bound) {
+        btn.dataset.bound = '1';
         btn.addEventListener('click', function() {
-            showAll = !showAll;
+            expanded = !expanded;
             paint();
+            if (!expanded) {
+                listEl.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+            }
         });
     }
 }
@@ -264,6 +355,77 @@ function escapeHtml(str) {
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;');
+}
+
+// ---------- 工具区：搜索 + 等级筛选 + 分类折叠 ----------
+function initToolFilter() {
+    var searchInput = document.getElementById('toolSearch');
+    var resultEl = document.getElementById('toolResult');
+    var filterBtns = Array.prototype.slice.call(document.querySelectorAll('.tool-filter'));
+    var sections = Array.prototype.slice.call(document.querySelectorAll('.tool-cat'));
+    if (!sections.length) return;
+
+    var activeLevel = 'all';
+    var query = '';
+
+    function apply() {
+        var q = query.trim().toLowerCase();
+        var total = 0;
+        var filtering = !!q || activeLevel !== 'all';
+
+        sections.forEach(function(sec) {
+            var cards = Array.prototype.slice.call(sec.querySelectorAll('.tool-card'));
+            var visible = 0;
+
+            cards.forEach(function(card) {
+                var matchLevel = activeLevel === 'all' || card.dataset.level === activeLevel;
+                var matchText = !q || (card.dataset.search || '').indexOf(q) !== -1;
+                if (matchLevel && matchText) {
+                    card.hidden = false;
+                    visible++;
+                } else {
+                    card.hidden = true;
+                }
+            });
+
+            total += visible;
+
+            if (visible === 0) {
+                sec.hidden = true;
+            } else {
+                sec.hidden = false;
+                if (filtering) {
+                    // 检索态自动展开命中分类，并记住用户原本的折叠状态
+                    if (sec.dataset.userOpen === undefined) {
+                        sec.dataset.userOpen = sec.open ? '1' : '0';
+                    }
+                    sec.open = true;
+                } else if (sec.dataset.userOpen !== undefined) {
+                    sec.open = sec.dataset.userOpen === '1';
+                    delete sec.dataset.userOpen;
+                }
+            }
+        });
+
+        if (resultEl) {
+            resultEl.textContent = filtering ? ('筛选出 ' + total + ' 款工具') : '';
+        }
+    }
+
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            query = searchInput.value || '';
+            apply();
+        });
+    }
+
+    filterBtns.forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            activeLevel = btn.dataset.level || 'all';
+            filterBtns.forEach(function(b) { b.classList.toggle('is-active', b === btn); });
+            apply();
+        });
+    });
 }
 
 // ---------- 访问统计 ----------
@@ -299,10 +461,3 @@ function getVisitorId() {
     }
     return id;
 }
-
-// ---------- 抖动动画 ----------
-(function() {
-    var style = document.createElement('style');
-    style.textContent = '@keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }';
-    document.head.appendChild(style);
-})();
