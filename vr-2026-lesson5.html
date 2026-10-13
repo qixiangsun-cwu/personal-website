@@ -958,7 +958,11 @@ scene.add(makeNamePlate('2023xxxx 张三'));</pre>
     </div>
   </div>
 
-  <p>上一次课你做出来的是一张全景图加几个热点——<strong>它是一个房间，不是一条路</strong>。这一节（4 学时：理论 1 + 实验 3）把它变成一座能走进去的空间，而真正的难点几乎全在<strong>“设计”</strong>上，不在画质上。</p>
+  <p>上一次课你做出来的是一张全景图加几个热点——<strong>它是一个房间，不是一条路</strong>。这一节（4 学时）把它变成一座能走进去的空间，而真正的难点几乎全在<strong>“设计”</strong>上，不在画质上。</p>
+
+  <div class="note"><strong>本节的上课形式（和上次不同，注意）：</strong>
+    <b>前两节（90 分钟）在 646 教室讲理论</b>，<b>后两节（90 分钟）换到 430 教室上机</b>——头显<b>一人一台</b>，<b>记得带自己的笔记本过去</b>。
+    本节的验收方式是<b>课上展示</b>：最后 16 分钟抽 4—5 人上台，说清“我改了什么、为什么”。</div>
 
   <div class="key"><strong>本节的核心转向</strong>：多人漫游和单张全景的本质区别是——<strong>它是一个图（节点 + 边），不是一张图</strong>。<br>
     一旦承认这一点，四个问题就必须回答，而且<strong>全都可以先在电脑上算出来，不用戴头显、也不用请人试</strong>：
@@ -975,30 +979,34 @@ scene.add(makeNamePlate('2023xxxx 张三'));</pre>
     </figcaption>
   </figure>
 
-  <h3>一、理论（45 分钟）</h3>
+  <h3>一、理论（前两节 90 分钟 · 646 教室）</h3>
   <div class="tbl-wrap">
     <table>
       <thead><tr><th>时段</th><th>讲什么</th><th>要记住的</th></tr></thead>
       <tbody>
-        <tr><td>10′</td><td><strong>从“一个点”到“一条路”：节点与边</strong></td><td>每个全景图是一个<strong>节点</strong>，每条热点是一条<strong>边</strong>；作品是一张有向图。要求：<strong>双向都有边</strong>（进得去、出得来）、<strong>从入口全部可达</strong>、<strong>路径不要超过 3 步</strong></td></tr>
-        <tr><td>10′</td><td><strong>进门第一眼：初始朝向 yaw</strong></td><td>三个判断标准：① 第一眼要能回答“这里是哪儿”（主体在画面里）；② 要能回答“还能去哪儿”（至少一条出口在视锥里）；③ <strong>不要背对来路</strong>。当场用<a href="assets/vr-2026/panorama/pano-frustum-check.html" target="_blank" rel="noopener">《视锥可见性检查器》</a>算一遍“这一眼看得见几个出口”</td></tr>
-        <tr><td>15′</td><td><strong>导览信息的两层与密度</strong></td><td><strong>热点负责“路”，简介负责“人话”</strong>；样式要一眼可分；<strong>简介 ≤ 2 行 / 40 字</strong>；信息块不许压住主体</td></tr>
-        <tr><td>10′</td><td><strong>两种移动方式、转向与转场</strong></td><td>跳转（瞬时切换）适合全景；<strong>步进式漫游</strong>让两点之间“走过去”，但更容易晕。移动范式上<strong>瞬移比平滑更不易晕</strong>，隧道视野会随速度自动出现（本课内核已内置）。转向也一样：<strong>Snap 转向比平滑转向更不易晕</strong>。三个演示现场比：<a href="assets/vr-2026/panorama/pano-turn-comfort.html" target="_blank" rel="noopener">《转向与舒适度》</a>、<a href="assets/vr-2026/panorama/pano-transition.html" target="_blank" rel="noopener">《转场方式对比器》</a>、<a href="assets/vr-2026/panorama/pano-dwell-tuning.html" target="_blank" rel="noopener">《注视停留时间调参》</a></td></tr>
+        <tr><td>15′</td><td><strong>作品讲评：全班 9 份已交作业</strong></td><td>四个梯队 + <strong>三个可复用的做法</strong>：① 把名字做成 <strong>3D 物件</strong>（不是网页浮层）；② 自己写一行说明（我改了什么、为什么）；③ 依赖自己带着走（<strong>不引 CDN、版本不同就别换</strong>）。全部作品在<a href="assets/vr-2026/student/works/" target="_blank" rel="noopener">《学生作业》</a>页，可点开</td></tr>
+        <tr><td>15′</td><td><strong>从“一个点”到“一条路”：节点与边</strong></td><td>每个全景图是一个<strong>节点</strong>，每条热点是一条<strong>边</strong>；作品是一张有向图。要求：<strong>双向都有边</strong>（进得去、出得来）、<strong>从入口全部可达</strong>、<strong>路径不要超过 3 步</strong>。现场看 <a href="assets/vr-2026/panorama/pano-route-checker.html" target="_blank" rel="noopener">《漫游路线与连通性检查器》</a>的预设<b>「故意做个死胡同」</b>怎么变红</td></tr>
+        <tr><td>17′</td><td><strong>进门第一眼：初始朝向 yaw</strong></td><td>三个判断标准：① 第一眼要能回答“这里是哪儿”（主体在画面里）；② 要能回答“还能去哪儿”（至少一条出口在视锥里）；③ <strong>不要背对来路</strong>。<strong>当场算一个真实例子</strong>：餐厅有 5 个出口，按 <code class="inline">yaw = −90°</code> 进门<b>第一眼只看得见 1 个</b>（用<a href="assets/vr-2026/panorama/pano-frustum-check.html" target="_blank" rel="noopener">《视锥可见性检查器》</a>）</td></tr>
+        <tr><td>10′</td><td><strong>导览信息的两层与密度</strong></td><td><strong>热点负责“路”，简介负责“人话”</strong>；样式要一眼可分；<strong>简介 ≤ 2 行 / 40 字</strong>；信息块不许压住主体</td></tr>
+        <tr><td>12′</td><td><strong>两种移动方式、转向与转场</strong></td><td>跳转（瞬时切换）适合全景；<strong>步进式漫游</strong>让两点之间“走过去”，但更容易晕。移动范式上<strong>瞬移比平滑更不易晕</strong>，隧道视野会随速度自动出现（本课内核已内置）。转向也一样：<strong>Snap 转向比平滑转向更不易晕</strong>。三个演示现场比：<a href="assets/vr-2026/panorama/pano-turn-comfort.html" target="_blank" rel="noopener">《转向与舒适度》</a>、<a href="assets/vr-2026/panorama/pano-transition.html" target="_blank" rel="noopener">《转场方式对比器》</a>、<a href="assets/vr-2026/panorama/pano-dwell-tuning.html" target="_blank" rel="noopener">《注视停留时间调参》</a></td></tr>
+        <tr><td>10′</td><td><strong>性能与部署</strong></td><td><strong>优化先看 DrawCall，不要先看面数</strong>；三角面<b>10 万以内</b>比较保险；<b>页面不许有外部网络依赖</b>（不引 CDN，库放本地同目录）；<code class="inline">navigator.xr</code> 只在安全上下文暴露</td></tr>
+        <tr><td>6′</td><td><strong>布置上机任务 ＋ 换场说明</strong></td><td>念一遍任务卡；<b>带上笔记本，到头显那边先坐好、再开机、最后才戴</b></td></tr>
       </tbody>
     </table>
   </div>
 
-  <h3>二、实验（135 分钟）——五个任务，从“画图”做到“验收”</h3>
+  <h3>二、上机与验收（后两节 90 分钟 · 430 教室）——四个任务，从“画图”做到“展示”</h3>
   <div class="tbl-wrap">
     <table>
       <thead><tr><th>#</th><th>任务</th><th>怎么做</th><th>产出</th></tr></thead>
       <tbody>
-        <tr><td>1</td><td><strong>把六个房间连成一张图</strong>（30′）</td><td>用<a href="assets/vr-2026/panorama/pano-route-checker.html" target="_blank" rel="noopener">《漫游路线与连通性检查器》</a>连线，直到体检三项全绿；再复制路线清单回到自己的作品</td><td>一张全绿的连通图 + 路线清单</td></tr>
-        <tr><td>2</td><td><strong>给每个房间设计“第一眼”</strong>（20′）</td><td>先用<a href="assets/vr-2026/panorama/pano-first-look.html" target="_blank" rel="noopener">《进门第一眼》</a>对比四种朝向，选一个；再用<a href="assets/vr-2026/panorama/pano-frustum-check.html" target="_blank" rel="noopener">《视锥可见性检查器》</a><strong>验算“这一眼到底看得见几个出口”</strong>——看不见就改 yaw，直到至少一条出口进画面；最后反算 <code class="inline">yaw = (u − 0.75) × 360</code> 填进配置</td><td>六个房间各自的 yaw + 一句理由 + 每间“第一眼可见出口数”</td></tr>
-        <tr><td>3</td><td><strong>把信息压到两行以内</strong>（20′）</td><td>用<a href="assets/vr-2026/panorama/pano-info-density.html" target="_blank" rel="noopener">《导览信息密度》</a>看三档差别，然后改自己的作品：出口热点与简介分开样式，每条简介 ≤ 40 字</td><td>改过的作品 + 改前/改后截图</td></tr>
-        <tr><td>4</td><td><strong>全流程自验</strong>（30′）</td><td>先用<a href="assets/vr-2026/panorama/pano-spec-checker.html" target="_blank" rel="noopener">《全景图规格检查器》</a>体检一遍自己的素材，再在<a href="assets/vr-2026/check/" target="_blank" rel="noopener">《VR 作品自检》</a>确认环境，然后戴上头显走完整条路线：<strong>每个房间都进一次、每个热点都点一次、三条退出路都试一遍</strong>；记录 FPS / DrawCall / 三角面与退出用时</td><td>自验记录表（含素材体检结论、三率读数与退出用时）</td></tr>
-        <tr><td>5</td><td><strong>互评</strong>（20′）</td><td>用<a href="assets/vr-2026/panorama/pano-rubric.html" target="_blank" rel="noopener">《作品验收量规》</a>给同伴的作品打分，写完“下一步改进”那一行，再交给对方</td><td>一份互评记录</td></tr>
-        <tr><td>收束</td><td><strong>验收</strong>（15′）</td><td>教师抽验：现场走一条路线 + 口头说出“我改了什么、为什么”；宣布达标名单</td><td>达标线判定</td></tr>
+        <tr><td>0</td><td><strong>就位 ＋ 环境自检</strong>（8′）</td><td>坐好 → 开机 → 在<a href="assets/vr-2026/check/" target="_blank" rel="noopener">《VR 作品自检》</a>看六项。<strong>第 ②③④ 项有 ❌ 就先解决环境，不要去看自己的代码</strong></td><td>六项全绿的截图或口报</td></tr>
+        <tr><td>1</td><td><strong>升级成“多点漫游”</strong>（22′）</td><td><b>两类作品两种做法</b>：<b>全景漫游类</b>——用<a href="assets/vr-2026/panorama/pano-route-checker.html" target="_blank" rel="noopener">《漫游路线与连通性检查器》</a>把 ≥4 个房间连成一张图，直到体检三项全绿；<b>自建 3D 类</b>——加第二个区域（门里／门外、屋里／屋外），做一个<b>能过去也能回来的</b>传送点</td><td>一张全绿的连通图 + 路线清单</td></tr>
+        <tr><td>2</td><td><strong>给每个节点设计“第一眼”</strong>（15′）</td><td>先用<a href="assets/vr-2026/panorama/pano-first-look.html" target="_blank" rel="noopener">《进门第一眼》</a>对比四种朝向，选一个；再用<a href="assets/vr-2026/panorama/pano-frustum-check.html" target="_blank" rel="noopener">《视锥可见性检查器》</a><strong>验算“这一眼到底看得见几个出口”</strong>——看不见就改 yaw，直到至少一条出口进画面；最后反算 <code class="inline">yaw = (u − 0.75) × 360</code> 填进配置</td><td>每个节点的 yaw + 一句理由 + “第一眼可见出口数”</td></tr>
+        <tr><td>3</td><td><strong>戴头显，走完整条路线</strong>（15′）</td><td><strong>每个房间都进一次、每个热点都点一次、三条退出路都试一遍</strong>；记录 FPS / DrawCall / 三角面与退出用时。<b>戴之前先看周围有没有人；戴着头显不许走动</b></td><td>验收记录（三率读数 + 退出用时）</td></tr>
+        <tr><td>4</td><td><strong>同桌互评</strong>（8′）</td><td>用<a href="assets/vr-2026/panorama/pano-rubric.html" target="_blank" rel="noopener">《作品验收量规》</a>给同伴的作品打分，<b>必须写完“下一步改进”那一行</b>，再交给对方</td><td>一份互评记录</td></tr>
+        <tr><td>展示</td><td><strong>★ 课上展示</strong>（16′）</td><td>抽 4—5 人上台，<strong>用一句话说清</strong>：“我改了什么、为什么这么改”“我卡在哪一环——环境、作品还是设备”</td><td>教师当场判达标</td></tr>
+        <tr><td>收束</td><td><strong>小结与预告</strong>（6′）</td><td>宣布达标名单；预告第 7 次课（<b>第 6 章 Unity · 密室逃脱「敦煌寻宝」</b>）</td><td>达标线判定</td></tr>
       </tbody>
     </table>
   </div>
