@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 10 次课 · 好看和跑得动是两件事 | 2026年虚拟现实技术</title>
+<meta name="description" content="《虚拟现实技术》第 10 次课课堂内容：帧预算为什么是 13.9 ms 而不是 16.7 ms（72Hz ＋ 浏览器合成要占时间）、优化先看 DrawCall 不要先看面数（同一场景 101 次 → 2 次）、实例化 / 合批 / 贴图复用 / 阴影分辨率四个手段、动态降级 L1 降像素比 0.78 → L2 关阴影 0.62 且可逆、隧道视野与默认传送 ＋ Snap 45°，并拆解案例 03「编钟之韵」的判定窗口、WebAudio 加法合成非谐泛音列（零音频文件）与触觉三档；含 180 分钟时间轴、工作室性能体检与一次优化对照任务、里程碑 M4 性能报告，以及任何情况下都不降的三条底线。">
+<link rel="stylesheet" href="assets/vr-2026/course.css">
+</head>
+<body>
+
+<!-- ===== 顶部 ===== -->
+<header class="hero">
+  <div class="hero-inner">
+    <span class="kicker">虚拟现实技术 · 第 10 次课 · 性能工程</span>
+    <h1>好看和跑得动是两件事</h1>
+    <p class="sub">第 10 次课 · 帧预算 13.9 ms · DrawCall · 动态降级与舒适度 —— 上一次课你的作品已经「能玩」了，这一次课要让它「扛得住」</p>
+    <div class="meta">
+      <span>中华女子学院</span><span>4 学时（180 分钟）· 第 12 周</span><span>授课人：孙琪翔</span><span>2026-11-18（周三）</span><span>设备与场地【待确认】</span>
+    </div>
+  </div>
+</header>
+
+<!-- ===== 目录导航 ===== -->
+<nav class="nav" id="nav">
+  <div class="nav-inner" id="navInner">
+    <a href="vr-2026.html" class="nav-back">← 课程主页</a>
+    <a href="#guide" data-sec="guide" class="on">本课导览</a>
+    <a href="#c1" data-sec="c1">一、帧预算</a>
+    <a href="#c2" data-sec="c2">二、先看 DrawCall</a>
+    <a href="#c3" data-sec="c3">三、优化四手段</a>
+    <a href="#c4" data-sec="c4">四、动态降级</a>
+    <a href="#c5" data-sec="c5">五、舒适度</a>
+    <a href="#cases" data-sec="cases">案例拆解</a>
+    <a href="#demo" data-sec="demo">工作室</a>
+    <a href="#hw" data-sec="hw">达标 · M4</a>
+    <a href="#practice" data-sec="practice">一页速查</a>
+    <a href="#appendix" data-sec="appendix">附录 · 工程纪律</a>
+  </div>
+</nav>
+
+<main>
+
+<!-- ===== 导览 ===== -->
+<section id="guide">
+  <div class="sec-head">
+    <div class="sec-num">导</div>
+    <div>
+      <h2>本课导览：能玩，不等于扛得住</h2>
+      <p class="sec-sub">上一次课你们过的是这门课唯一的一道硬门槛（<strong>M3 主流程可玩</strong>）；这一课补上后半句——<strong>路子通了、也退得出去，但戴进去掉帧，同样不算完成</strong></p>
+    </div>
+  </div>
+
+  <p>第 9 次课的结论是「<strong>路子不通、或者退不出去的作品，画面再好看也不算完成</strong>」。但那时的作品只是「<strong>能玩</strong>」，不是「<strong>扛得住</strong>」。这一节课只解决一个问题：</p>
+  <div class="key"><strong>同一件作品，在头显里掉帧和在你笔记本上流畅，是两件事。</strong><br>
+    头显是<strong>两只眼睛、两块屏、一个移动芯片</strong>在跑；你的笔记本是<strong>一块屏、一个桌面显卡、还插着电</strong>。你在电脑上看到的帧率，跟它没有关系。</div>
+
+  <p>这一课和第 6 次课的关系要说清楚，免得变成重复：第 6 次课那 10 分钟讲的是「<strong>要去看哪几个数</strong>」；这一课讲的是「<strong>这几个数意味着什么、超了按什么顺序改、改到什么程度算达标</strong>」。口径完全继承、不另立一套——<strong>72Hz 帧预算、移动头显三角面 ≤ 10 万、优化先看 DrawCall</strong>，这三条一个字没改。</p>
+
+  <div class="key"><strong>本课产出 = 每人一份性能体检与优化对照记录</strong>：<strong>改前 / 改后</strong>两组读数（DrawCall / 三角面 / 帧时间）＋ <strong>改动依据</strong>说明 ＋ <strong>与页面 HUD 一致的核对栏</strong>。<br>
+    这就是<strong>里程碑 M4 性能报告</strong>。M4 只交一份对照，不交第二份优化——65 分钟够「体检 ＋ 一次优化 ＋ 真机对照」，要求两次优化会挤掉真机验证。</div>
+
+  <h3>一、今天三件事</h3>
+  <ol>
+    <li>讲清一句话：<strong>帧预算是 13.9 ms，不是 16.7 ms</strong>；</li>
+    <li>放两个演示，亲眼看到同一场景 <strong>101 次 DrawCall → 2 次</strong>、画面一模一样；</li>
+    <li>给自己作品做一次<strong>性能体检 ＋ 一次优化</strong>，把改前 / 改后的数抄下来。</li>
+  </ol>
+
+  <h3>二、180 分钟怎么分</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>段</th><th>墙钟</th><th>时长</th><th>环节</th></tr></thead>
+      <tbody>
+        <tr><td>① 开场</td><td>0:00—0:10</td><td><strong>10′</strong></td><td>M3 点评 ＋ 三类卡壳统计（环境 / 作品 / 设备各多少人）</td></tr>
+        <tr><td>② 讲授</td><td>0:10—0:55</td><td><strong>45′</strong></td><td>性能工程：帧预算 · DrawCall · 优化手段 · 动态降级 · 舒适度</td></tr>
+        <tr><td>③ 课间</td><td>0:55—1:05</td><td><strong>10′</strong></td><td>——（<strong>不计入教学时长</strong>）</td></tr>
+        <tr><td>④ 演示 ＋ 拆解</td><td>1:05—1:40</td><td><strong>35′</strong></td><td>两个性能演示（15′）＋ 拆案例 03 的判定 / 程序化音频 / 触觉三档（20′）</td></tr>
+        <tr><td>⑤ 工作室</td><td>1:40—2:45</td><td><strong>65′</strong></td><td>给自己作品做性能体检 ＋ 一次优化前后对照</td></tr>
+        <tr><td>⑥ 收束</td><td>2:45—3:00</td><td><strong>15′</strong></td><td>M4 提交要求 ＋ 读数必须与 HUD 一致</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>逐段相加：10 ＋ 45 ＋ 10 ＋ 35 ＋ 65 ＋ 15 ＝ <strong>180 分钟</strong>；<strong>教学时长 = 180 − 10 = 170 分钟</strong>。墙钟累加 0:10 → 0:55 → 1:05 → 1:40 → 2:45 → 3:00，正好 3 小时。任何一段超 5 分钟，就从「时间不够时的降级优先级」往下砍（见「工作室」一节）。</p>
+
+  <div class="note"><strong>开场段要投屏的三个数字：</strong>【待补充：M3 收件数与环境 / 作品 / 设备三类卡壳人数】——<strong>必须在 11-18 上课前统计完</strong>，课上不现编。<br>
+    这三个数字不是走过场，它就是后面降级优先级的依据：如果「环境」类的人最多，那么工作室的<strong>第一件事就不是优化，是让每个人先进得去 VR</strong>。老话再念一遍：<strong>先怀疑环境，再怀疑代码。</strong></div>
+
+  <div class="note"><strong>设备与场地口径：</strong>头显型号与数量【待确认】、上课地点【待确认】。本课的统一性能口径来自共享工程内核附录——<strong>72Hz ⇒ 13.9 ms/帧</strong>（对应 PICO Neo3）。<strong>若实际头显是别的刷新率（如 90Hz），帧预算要按 1 ÷ 刷新率重算</strong>，但「先看 DrawCall」的顺序不变。</div>
+
+  <h3>三、课上要放的两个演示</h3>
+  <div class="btn-row">
+    <a class="btn" href="assets/vr-2026/panorama/pano-drawcall-lab.html" target="_blank" rel="noopener">★ DrawCall 对照实验室（必放）→</a>
+    <a class="btn ghost" href="assets/vr-2026/panorama/pano-perf-budget.html" target="_blank" rel="noopener">移动 VR 性能预算计算器 →</a>
+  </div>
+  <p style="font-size:14px;color:var(--ink-soft);">左边那个<strong>绝不砍</strong>；右边那个时间不够时可以砍，省下的时间并进工作室。<strong>两个页面课前都要在教师机上预演一遍</strong>，并准备好断网时的本地离线副本——不要在课上现场搜链接。</p>
+</section>
+
+<!-- ===== 一、帧预算 ===== -->
+<section id="c1">
+  <div class="sec-head">
+    <div class="sec-num">一</div>
+    <div>
+      <h2>帧预算：13.9 ms，不是 16.7 ms</h2>
+      <p class="sec-sub">整节课的骨头就这一根。这一句话后面挂着三个必须回答的问题：预算有多少 / 超了先看哪个数 / 超了怎么降回来</p>
+    </div>
+  </div>
+
+  <div class="key"><strong>头显的目标刷新率 72 Hz → 一帧的时间 = 1 ÷ 72 = 13.9 ms。这就是你的全部预算。</strong><br>
+    你这一帧里要做的一切——JS、绘制命令、GPU 画图、浏览器合成——都得塞进这 13.9 毫秒。</div>
+
+  <h3>一、为什么是 13.9，不是 16.7</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>数值</th><th>它是谁的</th><th>含义</th></tr></thead>
+      <tbody>
+        <tr><td><strong>16.7 ms</strong></td><td>1 ÷ <strong>60</strong> Hz</td><td>那是「<strong>一整帧的时间</strong>」——很多人记得的是这个数</td></tr>
+        <tr><td><strong>13.9 ms</strong></td><td>1 ÷ <strong>72</strong> Hz</td><td>那是「<strong>你这一帧能支配的时间</strong>」</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>两个原因叠在一起：<strong>第一，目标刷新率更高（72Hz），一帧本来就短；第二，也是最容易忘的一点——你的代码画完之后，浏览器还要把这一帧合成、交给头显显示，这段时间也要算在这一帧里。</strong></p>
+  <div class="warn"><strong>这一屏不做除法推导。</strong>要能说出口的是那<strong>一句解释</strong>：<strong>「浏览器合成要占时间。」</strong>能说出这一句，这一条就过了。</div>
+
+  <h3>二、13.9 ms 里都装着谁</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>谁在用这 13.9 ms</th><th>具体在干什么</th></tr></thead>
+      <tbody>
+        <tr><td><strong>你的 JS</strong></td><td>每一帧的状态更新、判定、谱面推进</td></tr>
+        <tr><td><strong>渲染提交（CPU）</strong></td><td>把每个物体整理好、<strong>喊一次 DrawCall</strong></td></tr>
+        <tr><td>GPU</td><td>真正把像素画出来</td></tr>
+        <tr><td>浏览器合成</td><td>把画面送进头显</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p><strong>你唯一能直接控制的是前两项。</strong>这也是为什么「减少绘制命令的次数」是最见效的一招——它正好落在你能控制的那一半里。</p>
+
+  <h3>三、打开面板，你会看到六个数字</h3>
+  <p>工程面板 / 探针面板上能看到的六个读数：<strong>FPS</strong> ｜ <strong>帧时间</strong> ｜ <strong>最差 1% 帧</strong> ｜ <strong>DrawCalls</strong> ｜ <strong>三角面</strong> ｜ <strong>贴图数</strong>。</p>
+  <div class="grid2">
+    <div class="cell">
+      <h4>第一重要：帧时间</h4>
+      <p>它直接告诉你<strong>超没超 13.9</strong>。这是唯一一个能和预算直接比的数；FPS 只是它的另一种说法。</p>
+    </div>
+    <div class="cell">
+      <h4>第二重要：DrawCall</h4>
+      <p>它是最容易改得动的那一个。三角面、贴图数、FPS、最差 1% 帧都是辅助——它们帮你判断「问题出在哪个方向」。</p>
+    </div>
+  </div>
+
+  <h3>四、超了会怎样：引擎会替你降级（先给结论）</h3>
+  <p>内核的<strong>动态降级</strong>：<strong>帧时间持续超预算 20% 达 2 秒 → 降像素比（L1）→ 再关阴影（L2）；余量恢复时回升——可逆。</strong>具体怎么降、什么时候降，见「四、动态降级」一节。这里只要先记住一句话：<strong>降级是可逆的。</strong>这一点非常关键。</p>
+  <p><strong>掉帧在头显里比画面糊严重得多——糊你能忍，卡你不能忍。</strong></p>
+</section>
+
+<!-- ===== 二、先看 DrawCall ===== -->
+<section id="c2">
+  <div class="sec-head">
+    <div class="sec-num">二</div>
+    <div>
+      <h2>超了先看哪个数：先看 DrawCall，不要先看面数</h2>
+      <p class="sec-sub">顺序错了，学生会去删模型。这一节的证据不是讲出来的，是放出来的</p>
+    </div>
+  </div>
+
+  <div class="key"><strong>优化先看 DrawCall，不要先看面数。</strong><br>
+    面数大，<strong>不一定</strong>慢——GPU 画三角面是它的本职工作；<strong>DrawCall 多，一定慢</strong>——每一次绘制命令，都是 CPU 到 GPU 的一次沟通，而这个沟通有固定开销。</div>
+
+  <p>打个比方：<strong>面数是你让工人搬多少砖；DrawCall 是你喊了多少次「开始搬」。</strong>你搬的砖不多，但你喊了一百次——<strong>工人全花在听你喊上了。</strong></p>
+
+  <h3>一、现场放《DrawCall 对照实验室》</h3>
+  <p>同一个场景，100 个方块，两种做法：</p>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>做法</th><th>DrawCall</th><th>为什么</th></tr></thead>
+      <tbody>
+        <tr><td><strong>左边：各交各的</strong></td><td><strong>101 次</strong></td><td>100 个方块各喊一次，加上地面 1 次</td></tr>
+        <tr><td><strong>右边：一个 InstancedMesh 打包交一次</strong></td><td><strong>2 次</strong></td><td>1 次把 100 个方块一起交上去，加上地面 1 次</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>拖一拖滑杆，让学生盯着数字：<strong>左边随方块数一路涨，右边一直趴在 2——而画面一模一样。</strong></p>
+  <div class="key"><strong>画面一模一样。开销差 50 倍。</strong><br>
+    为什么可以这样合？<strong>因为这 100 个方块「几何相同、材质相同」。</strong>用一个 <code class="inline">InstancedMesh</code> 把「同一个几何 ＋ 同一个材质」的 100 个实例打包交一次，就变成 1 次。<br>
+    <strong>你看到的画面，和机器付出的代价，是两件事。</strong></div>
+
+  <div class="btn-row">
+    <a class="btn" href="assets/vr-2026/panorama/pano-drawcall-lab.html" target="_blank" rel="noopener">打开 DrawCall 对照实验室 →</a>
+    <a class="btn ghost" href="assets/vr-2026/panorama/pano-perf-budget.html" target="_blank" rel="noopener">性能预算计算器（可降级）→</a>
+  </div>
+
+  <h3>二、演示区还有三句话要念</h3>
+  <ol>
+    <li><strong>「一次 DrawCall = CPU 把这一批数据整理好、交给 GPU 开始画」</strong>——把这个「交接」讲清楚，学生就明白为什么它有固定开销；</li>
+    <li><strong>「实例数量很少（比如 3 个）时，改不改差不多，别为了 3 个物体重构代码。」</strong></li>
+    <li><strong>这个演示的场景是「100 个一模一样的方块」</strong>——所以别指望在自己作品里也做出「101 → 2」这种数字。<strong>你要找的是同一类问题，不是同一个数字。</strong></li>
+  </ol>
+  <div class="warn"><strong>紧接着补一句，防止学生课后空手而归：</strong>你作品里的「100 个方块」可能只有 8 个。<strong>那也值得改——8 次变 1 次，就是省了 7 次。</strong><br>
+    放完演示立刻接一句提问：<strong>「你作品里有几组『长得一样、只是位置不同』的东西？那几组就是你今天要动手的地方。」</strong></div>
+
+  <h3>三、第二个演示：性能预算计算器（可降级）</h3>
+  <p>填进 <strong>Mesh 数 / 材质数 / 贴图分辨率 / 三角面</strong>，它算出 <strong>DrawCall、纹理显存、面数占预算的比例</strong>三条预算条，并给出「<strong>先改哪个</strong>」的顺序。用法：<strong>用一份学生作品的真实读数填进去</strong>（三角面 70k 的预设即可），回答的是那句话——<strong>「我这作品到底超没超」是可以算的。</strong></p>
+  <div class="note">时间不够时砍这一个（7′），<strong>只放《DrawCall 对照实验室》</strong>，省下的时间并进工作室。<strong>第一个绝不砍。</strong></div>
+</section>
+
+<!-- ===== 三、优化四手段 ===== -->
+<section id="c3">
+  <div class="sec-head">
+    <div class="sec-num">三</div>
+    <div>
+      <h2>四个优化手段：改哪一处、看哪个数</h2>
+      <p class="sec-sub">按性价比从上往下用。<strong>别一上来就动阴影</strong>——阴影是第四顺位</p>
+    </div>
+  </div>
+
+  <h3>一、四个手段，按性价比排（本课最实用的一张表）</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>优先级</th><th>手段</th><th>什么情况下用</th><th>改完主要看哪个数</th><th>案例 03 里的对应</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>1</strong></td>
+          <td><strong>实例化（InstancedMesh）</strong></td>
+          <td>有<strong>多个「几何相同 ＋ 材质相同」</strong>的物体（<strong>≥3 个</strong>才值得；很少时改不改差不多）</td>
+          <td><strong>DrawCall ↓</strong></td>
+          <td>七口钟用同一套几何 / 贴图，整场 <strong>48 个几何体 / 59 次 DrawCall</strong></td>
+        </tr>
+        <tr>
+          <td><strong>2</strong></td>
+          <td><strong>合批 / 合并几何</strong></td>
+          <td>静态不动的东西多、材质可共享</td>
+          <td><strong>DrawCall ↓</strong>（三角面不变）</td>
+          <td>钟架（双立柱 ＋ 横梁）</td>
+        </tr>
+        <tr>
+          <td><strong>3</strong></td>
+          <td><strong>贴图复用 / 降分辨率</strong></td>
+          <td>贴图张数多、纹理内存吃紧</td>
+          <td><strong>贴图数 ↓</strong>（DrawCall 可能不变）</td>
+          <td>只有 <strong>10 张程序化贴图</strong>，全部 canvas 现画</td>
+        </tr>
+        <tr>
+          <td><strong>4</strong></td>
+          <td><strong>阴影分辨率</strong></td>
+          <td>阴影 pass 吃掉帧时间、画面不依赖精细阴影</td>
+          <td><strong>帧时间 ↓</strong>（DrawCall 可能只降一点点）</td>
+          <td>单平行光 <strong>1024×1024 PCFSoft</strong>，<strong>仅钟架与钟体投影</strong></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="key"><strong>给学生的一句判断法：</strong><strong>先数一数，你场景里有几组「长得一样、只是位置不同」的东西。有几组，就有几个能立刻见效的地方。</strong></div>
+
+  <h3>二、手段 ①②：实例化 / 合批</h3>
+  <p>案例 03「编钟之韵」在这两点上是一个可以<strong>照抄</strong>的样板：<strong>七口钟用的是同一套几何 ＋ 同一套程序化贴图</strong>，整场 <strong>48 个几何体 / 59 次 DrawCall / 8.9k 三角面</strong>。</p>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>来源</th><th>DrawCall</th><th>三角面</th><th>其他</th></tr></thead>
+      <tbody>
+        <tr><td><strong>案例 03 README</strong></td><td><strong>59</strong></td><td><strong>8.9k（8 949）</strong></td><td><strong>10 张程序化贴图</strong>、48 个几何体</td></tr>
+        <tr><td><code class="inline">_标准与审计</code> 审计文件口径</td><td><strong>60</strong></td><td><strong>8950</strong></td><td>——</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="note"><strong>两个口径都来自实测，差 1 次是统计口径（是否计入某个 pass / 取整方式）造成的，不是编数据。</strong>课上两个数都念出来，并落一句：<strong>「两个都来自实测，差 1 次是口径问题；但你自己记录表上的数，必须和当时页面 HUD 上显示的一致。」</strong><br>
+    两个数都远低于 10 万面预算——这正是「案例 03 是可以放心照抄的性能样板」的原因。它是<strong>样板</strong>，不是「看我怎么把它救回来」的优化案例。</div>
+
+  <h3>三、手段 ③：贴图复用 / 降分辨率</h3>
+  <p>案例 03 在这一块给了一个极端做法：<strong>一张音频文件都没有，一张外部图片也没有</strong>。它只有 <strong>10 张程序化贴图</strong>，<strong>全部是 canvas 现画的</strong>：</p>
+  <ul>
+    <li>青铜钟体的「枚」（乳钉）：<strong>3 列 × 4 排</strong>；</li>
+    <li>篆部横带、铣（侧棱）；</li>
+    <li><strong>同一张图案再生成 <code class="inline">bumpMap</code></strong>，做出凹凸光照；</li>
+    <li>钟架木纹。</li>
+  </ul>
+  <p>环境反射用<strong>一次性生成的 PMREM 贴图</strong>（解决金属材质发黑，<strong>已 try/catch 降级</strong>）。</p>
+  <div class="key"><strong>「贴图复用」不只是把大图改小，还能是「根本不引入那张图」。</strong><br>
+    另外注意括号里那句——它的环境反射已经做了 <code class="inline">try/catch</code> 降级。这就是「降级是设计的一部分」的实例。</div>
+
+  <h3>四、手段 ④：阴影分辨率——案例 03 的阴影只投两个东西</h3>
+  <ul>
+    <li>单平行光，阴影贴图 <strong>1024×1024</strong>，<strong>PCFSoft</strong>；</li>
+    <li><strong>仅钟架与钟体投影</strong>，其他东西不投；</li>
+    <li>全场只有 <strong>3 个光源</strong>：半球光 ＋ 主平行光 ＋ 暖色补光；</li>
+    <li><strong>无实时点光源</strong>——两侧宫灯是<strong>自发光球，不是实时光源</strong>（它不发光，它只是看起来在发光）。</li>
+  </ul>
+  <p>这三个克制的决定加起来，就是把阴影 pass 的成本压到很低。<strong>你要动阴影的时候，先问自己：「我的画面，真的需要这么精细的阴影吗？」</strong></p>
+</section>
+
+<!-- ===== 四、动态降级 ===== -->
+<section id="c4">
+  <div class="sec-head">
+    <div class="sec-num">四</div>
+    <div>
+      <h2>动态降级：L1 降像素比 → L2 关阴影，而且可逆</h2>
+      <p class="sec-sub">这一段最关键的三个字是<strong>可逆</strong>——一个不会回升的降级，等于把作品永久变丑</p>
+    </div>
+  </div>
+
+  <h3>一、两级：L1 → L2，顺序固定</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>等级</th><th>做什么</th><th>代价</th></tr></thead>
+      <tbody>
+        <tr><td><strong>L0</strong></td><td>不降级（正常）</td><td>——</td></tr>
+        <tr><td><strong>L1</strong></td><td><strong>降像素比</strong>（渲染像素比降到 <strong>0.78</strong>）</td><td>画面变软（有点糊）</td></tr>
+        <tr><td><strong>L2</strong></td><td><strong>再关阴影</strong>（像素比进一步降到 <strong>0.62</strong>）</td><td>立体感和落地感下降</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p><strong>顺序是固定的：先 L1，后 L2。</strong>为什么？<strong>因为糊一点比没有阴影更容易被接受。</strong></p>
+
+  <h3>二、触发条件：超预算 20%、持续 2 秒、降一级</h3>
+  <div class="key"><strong>帧时间持续超预算 20% 达 2 秒 → 降一级。</strong></div>
+  <p>这句话里有三个词很重要：</p>
+  <div class="grid3">
+    <div class="cell">
+      <h4>① 20%</h4>
+      <p>13.9 × 1.2 ≈ <strong>16.7 ms</strong>。偶然一次抖动不算——它要的是<strong>稳定地超</strong>。</p>
+    </div>
+    <div class="cell">
+      <h4>② 持续 2 秒</h4>
+      <p>进场加载那一下卡顿不算。短暂的一次峰值不触发降级。</p>
+    </div>
+    <div class="cell">
+      <h4>③ 降一级</h4>
+      <p>不是直接掉到 L2——<strong>是一级一级降</strong>。不因为一次抖动就把你的画面变丑。</p>
+    </div>
+  </div>
+
+  <h3>三、最关键的三个字：可逆</h3>
+  <div class="key"><strong>余量恢复时，降级会回升。</strong><br>
+    掉了像素比 → 帧时间回到预算内 → <strong>像素比会回来</strong>；关了阴影 → 余量够了 → <strong>阴影会回来</strong>。</div>
+  <p>为什么要这样设计？因为<strong>一个不会回升的降级，等于把你的作品永久变丑了</strong>——那学生就不敢让它降级了。所以你后面会在真机上看到 L1、L2，<strong>不要把它当成「我的作品坏了」，它是引擎在替你把帧率守住。</strong></p>
+  <div class="note"><strong>内核源码里的实际判定（可现场核对）：</strong>帧时间均值 <strong>超过预算的 1.20 倍</strong>累计满 <strong>2000 ms</strong> → 降一级；帧时间均值<strong>低于预算的 0.85 倍</strong>累计满 <strong>4000 ms</strong> → 升一级。<br>
+    也就是说，<strong>回升比下降更谨慎</strong>（要 4 秒的余量才回升）——这正是「不因为一次抖动就改画面」的同一条思路。数值见 <code class="inline">_xr_core.js</code> 的降级判定段与 <code class="inline">applyDegrade()</code>（像素比 0.78 / 0.62、L2 关阴影）。<strong>唯一可信的，是运行起来以后看到的数。</strong></div>
+
+  <div class="warn"><strong>现场可选演示（若时间允许）</strong>：用 <strong>Chrome DevTools 的 CPU 4× 降速</strong>，让学生<strong>看着面板上的降级等级从 L0 掉到 L1</strong>。若时间紧，这一屏只讲不演。</div>
+  <p><strong>落一句：降级不是失败，是设计的一部分。</strong>下一次课要接 LLM 智能 NPC——「大模型接不上时怎么办」用的是同一套思路。</p>
+</section>
+
+<!-- ===== 五、舒适度 ===== -->
+<section id="c5">
+  <div class="sec-head">
+    <div class="sec-num">五</div>
+    <div>
+      <h2>舒适度：隧道视野、默认传送与 Snap 45°</h2>
+      <p class="sec-sub">性能与舒适度是同一件事的两面：<strong>帧率守住了，还有一件事要守——别让人晕</strong></p>
+    </div>
+  </div>
+
+  <h3>一、隧道视野</h3>
+  <p><strong>平滑移动时，视野自动收窄</strong>（强度 <strong>0—85%</strong> 可调）；<strong>瞬移时</strong>是短闪遮罩。<strong>内核已内置，不用你写。</strong></p>
+  <p>为什么有用？因为晕动来自<strong>前庭系统和视觉信息打架</strong>：你眼睛看到自己在动，身体没动。<strong>把周边视野挡掉一部分，这场「打架」就弱了。</strong></p>
+
+  <h3>二、默认：瞬移（短闪）＋ Snap 45°</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>默认值</th><th>它比什么更不易晕</th><th>学生最容易记反的一点</th></tr></thead>
+      <tbody>
+        <tr><td><strong>移动：瞬移（短闪）</strong></td><td>瞬移比平滑移动更不易晕</td><td>平滑移动给了大脑一段「我在动但身体没动」的时间，<strong>反而更容易晕</strong></td></tr>
+        <tr><td><strong>转向：Snap 45°</strong></td><td>Snap 转向比平滑转向更不易晕</td><td>拨一下摇杆，<strong>直接转一个固定角度</strong>，中间没有那段平滑旋转</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="key">两个结论都和直觉相反。记住这句话：<strong>「更平滑」不等于「更舒服」。</strong></div>
+  <div class="btn-row">
+    <a class="btn ghost" href="assets/vr-2026/panorama/pano-turn-comfort.html" target="_blank" rel="noopener">转向范式与舒适度（现场比一次）→</a>
+  </div>
+
+  <h3>三、还有三件小事</h3>
+  <div class="grid3">
+    <div class="cell">
+      <h4>眼高读数</h4>
+      <p>戴上去第一眼看<strong>当前眼高（m）</strong>，首次进入应看到 <strong>1.5—1.8 m</strong>。不在这个区间，先查站位与地面参考系，别去查代码。</p>
+    </div>
+    <div class="cell">
+      <h4>一键重置（Y）</h4>
+      <p><code class="inline">Y</code> 重置站位与朝向。<strong>换人体验前先按一下</strong>——这是 40 人轮流戴头显时最容易漏的一步。</p>
+    </div>
+    <div class="cell">
+      <h4>10 分钟休息提示</h4>
+      <p>连续体验 10 分钟提示休息。呼应《VR 头显用户健康与安全须知》——<strong>课上不打断，但提示必须开着</strong>。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 案例拆解 ===== -->
+<section id="cases">
+  <div class="sec-head">
+    <div class="sec-num">例</div>
+    <div>
+      <h2>案例拆解：03「编钟之韵」的判定、音频与触觉</h2>
+      <p class="sec-sub">它的性能数字不是重点，它的<strong>判定、音频、触觉</strong>才是——因为这三样回答「<strong>性能省下来的时间用来干什么</strong>」：省下来的帧时间，是用来做反馈的</p>
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <a class="btn" href="assets/vr-2026/cases/03-bianzhong-rhythm/" target="_blank" rel="noopener">打开案例 03「编钟之韵」→</a>
+    <a class="btn ghost" href="assets/vr-2026/panorama/pano-perf-budget.html" target="_blank" rel="noopener">用它的数填一次预算计算器 →</a>
+  </div>
+
+  <h3>一、判定规则：五档，四档给分，两档清零</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>判定</th><th>时间窗（相对音符）</th><th>分值</th><th>连击</th></tr></thead>
+      <tbody>
+        <tr><td><strong>完美</strong></td><td>≤ 70 ms</td><td>100</td><td>＋1</td></tr>
+        <tr><td><strong>很棒</strong></td><td>≤ 140 ms</td><td>70</td><td>＋1</td></tr>
+        <tr><td><strong>不错</strong></td><td>≤ 240 ms</td><td>40</td><td>＋1</td></tr>
+        <tr><td><strong>失误</strong></td><td>241—350 ms，或音符飞过未敲</td><td>0</td><td><strong>清零</strong></td></tr>
+        <tr><td><strong>空击</strong></td><td>附近 350 ms 内根本没有音符</td><td>0</td><td><strong>清零</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>评级：准确率 <strong>≥95% S ／ ≥85% A ／ ≥70% B ／ ≥50% C</strong>，否则 D。</p>
+  <div class="key"><strong>空击惩罚是刻意的</strong>：否则可以对着七口钟乱敲刷满分。<strong>连击与防刷分是一套设计，不是两条规则。</strong></div>
+
+  <h3>二、程序化音频：WebAudio 加法合成非谐泛音列，零音频文件</h3>
+  <p>案例 03 <strong>没有任何音频文件</strong>——钟声是算出来的：<strong>8 个正弦分音叠加</strong>，重建青铜钟的<strong>非谐泛音列</strong>。</p>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>分音</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th></tr></thead>
+      <tbody>
+        <tr><td><strong>频率比</strong></td><td>0.50</td><td>1.00</td><td>1.19</td><td>1.50</td><td>2.00</td><td>2.66</td><td>3.01</td><td>4.07</td></tr>
+        <tr><td><strong>相对强度</strong></td><td>0.34</td><td>1.00</td><td>0.52</td><td>0.38</td><td>0.46</td><td>0.20</td><td>0.13</td><td>0.08</td></tr>
+        <tr><td><strong>衰减时长（s）</strong></td><td>3.4</td><td>2.7</td><td>2.0</td><td>1.5</td><td>1.05</td><td>0.75</td><td>0.55</td><td>0.40</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p><strong>原理一句</strong>：真实钟声「嗡」而不像钢琴，因为泛音<strong>不是整数倍</strong>（非谐）；再叠一段 <strong>60 ms 带通噪声</strong>做「槌击瞬态」。<strong>低分音衰减慢、高分音衰减快 → 起振明亮、尾音变暗。</strong></p>
+  <p>代码入口：<code class="inline">PARTIALS</code> 数组 ＋ <code class="inline">playBell()</code>。</p>
+
+  <h3>三、触觉三档：同一件事，三种分量</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>触发场景</th><th>强度</th><th>时长</th><th>为什么这么定</th></tr></thead>
+      <tbody>
+        <tr><td>射线（指向 / 选中）</td><td><strong>0.45</strong></td><td><strong>28 ms</strong></td><td>最轻、最短——它是「瞄到了」，不是「敲到了」</td></tr>
+        <tr><td>木槌（真的敲中钟）</td><td><strong>0.75</strong></td><td><strong>45 ms</strong></td><td>最重、最长——它对应一次真实的物理撞击</td></tr>
+        <tr><td>UI（面板按钮）</td><td><strong>0.25</strong></td><td><strong>20 ms</strong></td><td>最克制——面板操作不该抢敲钟的反馈</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>谱面：<strong>BPM 100</strong>（每拍 0.6 s）、<strong>48 拍</strong>、全长约 30 s、<strong>固定种子</strong>生成（可复现）。</p>
+
+  <h3>四、想拆代码，照着这些入口找</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>想改什么</th><th>改这里</th></tr></thead>
+      <tbody>
+        <tr><td>音高 / 音阶</td><td><code class="inline">BELL_FREQ</code>、<code class="inline">BELL_NAME</code></td></tr>
+        <tr><td>音色（泛音列）</td><td><code class="inline">PARTIALS</code> 数组、<code class="inline">playBell()</code></td></tr>
+        <tr><td>BPM、曲目长度</td><td><code class="inline">BPM</code>、<code class="inline">TOTAL_BEATS</code>、<code class="inline">LEAD</code></td></tr>
+        <tr><td>判定窗口松紧</td><td><code class="inline">judge()</code> 里的 <code class="inline">0.070 / 0.140 / 0.240</code>，以及 <code class="inline">strike()</code> 里的 <code class="inline">0.35</code></td></tr>
+        <tr><td>难度（用钟 / 密度 / 下落速度）</td><td><code class="inline">DIFF</code> 数组 与 <code class="inline">buildChart()</code></td></tr>
+        <tr><td>音符外观</td><td><code class="inline">buildPool()</code>（几何体）与 <code class="inline">updNotes()</code> 里的 <code class="inline">scale / opacity</code></td></tr>
+        <tr><td>木槌挥击灵敏度</td><td><code class="inline">updMallets()</code> 里的速度阈值 <code class="inline">1.05</code> 与命中半径 <code class="inline">0.30</code></td></tr>
+        <tr><td>钟的数量 / 间距</td><td><code class="inline">NBELL</code>（7）、<code class="inline">SPACING</code>（0.62）——<strong>改 7 → 其他数需同步 <code class="inline">BELL_FREQ</code> 等数组长度</strong></td></tr>
+        <tr><td>HUD 显示内容</td><td><code class="inline">drawHud()</code>（960×192 canvas）</td></tr>
+        <tr><td>面板按钮</td><td><code class="inline">BTN_DEF</code> ＋ <code class="inline">fireUI()</code> ＋ <code class="inline">drawUI()</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>五、这一段必须现场改一处代码</h3>
+  <ol>
+    <li><strong>首选改动</strong>：把 <code class="inline">judge()</code> 里的 <code class="inline">0.070</code> 改成 <code class="inline">0.120</code>，让学生体感「判定窗变松了」，再改回来。<br>
+      <strong>提问：「判定窗越松，游戏越容易吗？」</strong>——不一定：<strong>宽松的判定会让「完美」失去意义。</strong></li>
+    <li><strong>次选改动</strong>：在 <code class="inline">PARTIALS</code> 里<strong>删掉第 3 个分音（1.19）</strong>，听钟声变成什么样。<br>
+      <strong>提问：「为什么去掉一个分音，钟就不像钟了？」</strong>——因为 1.19 那个<strong>非整数倍</strong>的分音正是「钟味」的来源。</li>
+  </ol>
+  <p><strong>「拆解」与「讲解」的分界就在这里：拆解必须现场动一次代码。</strong>时间不够时这一档可降为「只讲判定表 ＋ 音频原理」，但那一降会让拆解退化成讲解，尽量不用。</p>
+
+  <h3>六、三条必须如实讲的边界（不能省）</h3>
+  <div class="warn"><strong>① 它是性能样板，不是优化案例。</strong>案例 03 报 <strong>59 draw calls / 8.9k 三角面 / 10 张程序化贴图</strong>；<code class="inline">_标准与审计</code> 审计文件报 <strong>60 / 8950</strong>——两个口径都来自实测，差 1 次是统计口径。<strong>两个数都远低于 10 万面预算</strong>，所以它是「照这个做就对了」的样板，不是「看我怎么把它救回来」的案例。</div>
+  <div class="warn"><strong>② 已知简化必须主动讲明。</strong>真实<strong>曾侯乙编钟</strong>为 <strong>65 件、三层、一音双音</strong>（音域跨五个八度）；案例 03 简化为 <strong>单层 7 件、一钟一音</strong>（七音：宫 C – 商 D – 角 E – 变徵 F – 徵 G – 羽 A – 变宫 B）。<br>
+    <strong>⚠️ 编钟不是只有七个音——案例是为了「30 秒一局」做的简化。这句话必须说出口。</strong>其他简化：钟体侧面铭文、甬部旋虫等细节用<strong>贴图近似</strong>，未做几何建模。</div>
+  <div class="note"><strong>③ 课堂演示的打开方式。</strong>案例 03 用<strong>今天走通的那条通路</strong>打开，或用教师机投屏；<strong>课前必须在头显里真机跑通一遍（含进入与退出）——没跑过不许进课堂。</strong></div>
+</section>
+
+<!-- ===== 工作室 ===== -->
+<section id="demo">
+  <div class="sec-head">
+    <div class="sec-num">实</div>
+    <div>
+      <h2>工作室（65 分钟）：性能体检 ＋ 一次优化前后对照</h2>
+      <p class="sec-sub">这是本课次的重心。原则沿用整门课后半程：<strong>宁可少讲一个知识点，也要让学生手上有一个能跑的东西</strong></p>
+    </div>
+  </div>
+
+  <div class="key"><strong>今天下午的产出就四样：</strong>① 改前三个数（DrawCall / 三角面 / 帧时间）；② 改了一处并写清依据；③ 改后三个数；④ 戴头显跑一次，把工程面板上的数和记录表逐格对照。</div>
+
+  <h3>一、三个任务（1:40—2:45）</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>任务</th><th>分钟</th><th>墙钟</th><th>做什么</th><th>产出</th></tr></thead>
+      <tbody>
+        <tr><td><strong>任务 1 · 性能体检</strong></td><td>15′</td><td>1:40—1:55</td><td>打开自己作品的性能面板 / 探针，<strong>抄下改前的三个数</strong>：DrawCall、三角面、帧时间；同时看<strong>降级等级是不是 L0</strong></td><td>性能体检表「改前」列</td></tr>
+        <tr><td><strong>任务 2 · 一次优化</strong></td><td>25′</td><td>1:55—2:20</td><td><strong>只改一处</strong>，从四个手段里选一个（实例化 / 合批 / 贴图复用 / 阴影分辨率）；改完<strong>再抄一次三个数</strong>；写清<strong>改动依据</strong></td><td>「改后」列 ＋ 改动依据说明栏</td></tr>
+        <tr><td><strong>任务 3 · 真机验证 ＋ 对照</strong></td><td>25′</td><td>2:20—2:45</td><td><strong>戴头显进自己作品</strong>，看<strong>工程面板</strong>上的 FPS / 帧时间 / DrawCall / 三角面 / 降级等级；<strong>把面板上的数和记录表逐格对照</strong>；若显示 L1/L2，<strong>记录并写原因</strong></td><td>「读数与 HUD 对照」核对栏 ＋ M4 自查清单</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>二、怎么打开性能面板</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>你的情况</th><th>用什么看</th><th>能看到什么</th></tr></thead>
+      <tbody>
+        <tr><td><strong>电脑上看</strong>（不戴头显）</td><td>给页面加一行 <code class="inline">vr-probe.js</code></td><td>角落显示 FPS / DrawCall / 三角面 / JS 报错</td></tr>
+        <tr><td><strong>戴头显看</strong></td><td>场景里的 <strong>XR 工程面板</strong>（3D 物件，在场景里）</td><td>FPS / 帧时间 / 最差 1% 帧 / DrawCalls / 三角面 / 贴图数</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="warn"><strong>必须知道的一条限制：网页上的 DOM 面板，在沉浸模式（戴头显）里是看不见的。</strong>所以戴进去以后，<strong>只能看场景里那块 XR 工程面板</strong>。这也是为什么真机读数不能靠电脑截图代替。</div>
+
+  <h3>三、表 1 · 性能体检表（这张表是 M4 的核心）</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>读数</th><th>改前</th><th>改后</th><th>变化（↓ / ↑ / 不变）</th><th>从哪儿读的（探针 / 工程面板）</th></tr></thead>
+      <tbody>
+        <tr><td><strong>DrawCall</strong></td><td style="color:#a09ab8">＿＿＿＿</td><td style="color:#a09ab8">＿＿＿＿</td><td style="color:#a09ab8">＿＿＿</td><td style="color:#a09ab8">＿＿＿＿＿＿</td></tr>
+        <tr><td><strong>三角面</strong></td><td style="color:#a09ab8">＿＿＿＿</td><td style="color:#a09ab8">＿＿＿＿</td><td style="color:#a09ab8">＿＿＿</td><td style="color:#a09ab8">＿＿＿＿＿＿</td></tr>
+        <tr><td><strong>帧时间（ms）</strong></td><td style="color:#a09ab8">＿＿＿＿</td><td style="color:#a09ab8">＿＿＿＿</td><td style="color:#a09ab8">＿＿＿</td><td style="color:#a09ab8">＿＿＿＿＿＿</td></tr>
+        <tr><td>（可选）FPS</td><td style="color:#a09ab8">＿＿＿＿</td><td style="color:#a09ab8">＿＿＿＿</td><td style="color:#a09ab8">＿＿＿</td><td style="color:#a09ab8">＿＿＿＿＿＿</td></tr>
+        <tr><td>（可选）贴图数</td><td style="color:#a09ab8">＿＿＿＿</td><td style="color:#a09ab8">＿＿＿＿</td><td style="color:#a09ab8">＿＿＿</td><td style="color:#a09ab8">＿＿＿＿＿＿</td></tr>
+        <tr><td><strong>降级等级（L0 / L1 / L2）</strong></td><td style="color:#a09ab8">＿＿＿＿</td><td style="color:#a09ab8">＿＿＿＿</td><td style="color:#a09ab8">＿＿＿</td><td style="color:#a09ab8">＿＿＿＿＿＿</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>我这份作品的三角面达标了吗？　☐ 达标（≤10 万）　☐ 超了 ＿＿ 万，我打算这样砍：＿＿＿＿＿＿＿＿＿＿</p>
+  <div class="note"><strong>参考口径：</strong>帧预算 <strong>13.9 ms</strong>（72Hz）——<strong>不是 16.7 ms</strong>（那是 60Hz 的一整帧，浏览器合成还要占时间）；移动头显三角面 <strong>≤ 10 万</strong>；真机自检：工程面板确认 <strong>FPS ≥ 70、降级 L0</strong>，若 <strong>L1/L2 常驻，记录并在 M4 里分析原因</strong>。</div>
+
+  <h3>四、表 2 · 改动依据说明栏（这一栏填不满，改得再多也不算）</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>项目</th><th>我写的内容</th></tr></thead>
+      <tbody>
+        <tr><td>场景里有几组「长得一样」的东西？各有几个？</td><td style="color:#a09ab8">＿＿＿＿＿＿＿＿＿＿＿＿＿＿</td></tr>
+        <tr><td>我改了哪一处（说具体：哪个物体 / 哪张贴图 / 哪个光源）</td><td style="color:#a09ab8">＿＿＿＿＿＿＿＿＿＿＿＿＿＿</td></tr>
+        <tr><td>为什么选这个手段而不是别的</td><td style="color:#a09ab8">＿＿＿＿＿＿＿＿＿＿＿＿＿＿</td></tr>
+        <tr><td>改之前那个数是多少，改之后是多少</td><td style="color:#a09ab8">＿＿＿＿＿＿＿＿＿＿＿＿＿＿</td></tr>
+        <tr><td>画面看起来有变化吗？哪里变了</td><td style="color:#a09ab8">＿＿＿＿＿＿＿＿＿＿＿＿＿＿</td></tr>
+        <tr><td>如果没效果，我下一步打算改哪里</td><td style="color:#a09ab8">＿＿＿＿＿＿＿＿＿＿＿＿＿＿</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="key"><strong>改得少但说得清，比改得多但说不清，分高。</strong>改了三处但都说不出依据的，<strong>按没改处理</strong>。</div>
+  <p><strong>动手前先想清楚（30 秒，写在任务卡上）：</strong>① 我看到的哪个数不对（DrawCall 偏高 / 三角面超过 10 万 / 帧时间超 13.9 ms / 降级停在 L1 或 L2）？② 我打算改哪一处？③ 用哪个手段？④ 预计改完哪个数会掉？</p>
+
+  <h3>五、表 3 · 「读数与 HUD 对照」核对栏（这节课最重要的一张表）</h3>
+  <p>做法：把<strong>工程面板上的数字</strong>和<strong>表 1 里抄的数字</strong>并排念一遍。<strong>对不上就重抄</strong>，并注明是哪一次读数。</p>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>读数</th><th>我记录表上写的</th><th>工程面板上显示的</th><th>对得上吗</th><th>对不上时说明原因（哪一次 / 什么时候读的）</th></tr></thead>
+      <tbody>
+        <tr><td><strong>DrawCall</strong></td><td style="color:#a09ab8">＿＿＿＿</td><td style="color:#a09ab8">＿＿＿＿</td><td>☐ 对得上　☐ 对不上</td><td style="color:#a09ab8">＿＿＿＿＿＿</td></tr>
+        <tr><td><strong>三角面</strong></td><td style="color:#a09ab8">＿＿＿＿</td><td style="color:#a09ab8">＿＿＿＿</td><td>☐ 对得上　☐ 对不上</td><td style="color:#a09ab8">＿＿＿＿＿＿</td></tr>
+        <tr><td><strong>帧时间（ms）</strong></td><td style="color:#a09ab8">＿＿＿＿</td><td style="color:#a09ab8">＿＿＿＿</td><td>☐ 对得上　☐ 对不上</td><td style="color:#a09ab8">＿＿＿＿＿＿</td></tr>
+        <tr><td><strong>FPS</strong></td><td style="color:#a09ab8">＿＿＿＿</td><td style="color:#a09ab8">＿＿＿＿</td><td>☐ 对得上　☐ 对不上</td><td style="color:#a09ab8">＿＿＿＿＿＿</td></tr>
+        <tr><td><strong>降级等级</strong></td><td style="color:#a09ab8">＿＿＿＿</td><td style="color:#a09ab8">＿＿＿＿</td><td>☐ 对得上　☐ 对不上</td><td style="color:#a09ab8">＿＿＿＿＿＿</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>我看到的降级等级是：☐ <strong>L0</strong>（正常）　☐ <strong>L1</strong>（降像素比）　☐ <strong>L2</strong>（关阴影）。<strong>如果是 L1 / L2 常驻，我判断原因是</strong>＿＿＿＿＿＿＿＿（这一条是 M4 的加分项）。</p>
+
+  <h3>六、戴头显：三条硬规矩 ＋ 两件先做的事</h3>
+  <div class="warn"><strong>三条硬规矩，戴之前念一遍：</strong>① <strong>戴上之前先看清周围有没有人</strong>；② <strong>不许在戴着头显时走动</strong>；③ <strong>觉得晕，立刻摘下来。</strong></div>
+  <p><strong>戴上以后第一件事</strong>：按 <code class="inline">Y</code> 一键重置站位与朝向（换人体验前必须先按）；再确认<strong>眼高读数在 1.5—1.8 m</strong> 之间。走完一遍主流程，顺手把三条退出路里的<strong>至少一条</strong>试通并记下用时——退出路和上一次课一样：注视「退出 VR」按钮 / 长按手柄握把 2 秒 / 头显系统键。</p>
+
+  <h3>七、教师巡回的四个检查点（不要替学生动手）</h3>
+  <ol>
+    <li><strong>他的「改前」数抄了没有？</strong>没抄就先去抄——<strong>没有改前的数，改后无法对照，M4 直接不合格</strong>。</li>
+    <li><strong>他改的那一处有依据吗？</strong>问一句「你是看到哪个数超了才改这里的？」<strong>答不上来就是瞎改</strong>。</li>
+    <li><strong>他的数对得上吗？</strong>让他把记录表和 HUD <strong>并排放在一起</strong>念一遍。对不上就重抄。</li>
+    <li><strong>他戴进去了吗？</strong>工作室段结束前<strong>每个人必须戴一次</strong>——整门课后半程的第 1 优先级，<strong>绝不砍</strong>。</li>
+  </ol>
+
+  <h3>八、环境问题吃掉时间怎么办</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>情况</th><th>怎么处理</th></tr></thead>
+      <tbody>
+        <tr><td><strong>环境类卡壳 &gt; 10 人</strong></td><td>工作室<strong>前 10 分钟专门用于通路</strong>，全员按白板上那句话重走一遍；任务 2 的「一次优化」<strong>压缩到一处最小改动</strong>（例如只把阴影分辨率从 2048 降到 1024），<strong>保证对照读数能拿到</strong></td></tr>
+        <tr><td>环境已通的学生</td><td>先做任务 1、2；教师只处理环境问题，学生管理员一对一带</td></tr>
+        <tr><td>最差情况：通路完全走不通</td><td><strong>用 PC 端完成同一套体检与优化</strong>（<code class="inline">vr-probe.js</code> 在非沉浸模式下可读 FPS / DrawCall / 三角面），<strong>M4 依然可以交</strong>；真机那一次留到下次课开头补</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="note"><strong>排课现实：40 人选课 / 机位有限。</strong>若头显不是一人一台，按审计文件的现实做法——<strong>一组戴头显、其余人用 PC 端完成同一套功能</strong>，各自导出体验数据 JSON，<strong>轮换后比对读数</strong>（这本身就是一次真实的人因实验）。</div>
+</section>
+
+<!-- ===== 达标 · M4 ===== -->
+<section id="hw">
+  <div class="sec-head">
+    <div class="sec-num">作</div>
+    <div>
+      <h2>达标线与里程碑 M4 性能报告</h2>
+      <p class="sec-sub">本课不为 M4 另立一套评分表——直接用量规里「性能与工程 15 分」这一维，与课堂作业的同一维口径一致</p>
+    </div>
+  </div>
+
+  <h3>一、本课次达标五条（缺一条不算过）</h3>
+  <ol>
+    <li><strong>有预算意识</strong>：能说出<strong>帧预算是 13.9 ms（72Hz）</strong>，并解释<strong>为什么不是 16.7</strong>（浏览器合成要占时间）；</li>
+    <li><strong>先看 DrawCall</strong>：能说清「优化先看 DrawCall，不要先看面数」，并指出自己作品里<strong>哪一组物体可以合并</strong>；</li>
+    <li><strong>有一处真实优化</strong>：改前 / 改后各一组读数（DrawCall / 三角面 / 帧时间），且<strong>改动依据说明栏填满</strong>；</li>
+    <li><strong>三角面达标</strong>：移动头显 <strong>≤ 10 万</strong>（超出要写明打算怎么砍）；</li>
+    <li><strong>读数与 HUD 一致</strong>：记录表上的数字<strong>和当时页面 HUD / 工程面板显示的对得上</strong>。</li>
+  </ol>
+
+  <h3>二、硬条件（写成 M4 的硬门槛）</h3>
+  <div class="warn"><strong>必须有一处「改前 → 改后」的对照读数，且该处改动能一句话说清依据。</strong><br>
+    <strong>只有改后的数、没有改前的数 → M4 不合格</strong>（因为无法判断你到底改了没有）；<strong>读数与 HUD 对不上 → M4 退回重抄。</strong></div>
+
+  <h3>三、M4 要交什么</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>#</th><th>M4 要交什么</th><th>具体口径</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td><strong>优化前后对照</strong></td><td>DrawCall / 三角面 / 帧时间 <strong>各一对</strong>（改前 ＋ 改后）</td></tr>
+        <tr><td>2</td><td><strong>你改了什么</strong></td><td>一句话说清：<strong>看到哪个数超 → 改了哪一处（哪个手段）→ 变成多少</strong></td></tr>
+        <tr><td>3</td><td><strong>读数与 HUD 对照</strong></td><td>记录表上的数<strong>必须和页面 HUD / 工程面板当时显示的一致</strong>；不一致的要注明「是哪一次读数」</td></tr>
+        <tr><td>4</td><td><strong>三角面达标</strong></td><td><strong>移动头显 ≤ 10 万</strong>（超出要写明打算怎么砍）</td></tr>
+        <tr><td>5</td><td><strong>降级等级</strong></td><td>真机跑的时候是 <strong>L0 / L1 / L2</strong>；若是 L1/L2，写原因</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p><strong>任务卡末页还有一张九条的自查清单</strong>（有改前数 / 有改后数 / 依据栏填满 / 三角面达标 / 读数与 HUD 对得上 / 戴头显跑过一次 / 知道 13.9 并能解释 / 能指出哪一组物体可以合并 / 自己的 README 与页面文字里没有和代码不一致的说明），交之前逐条打钩。</p>
+
+  <h3>四、评价量规（本课次只看这一维）</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>维度</th><th>权重</th><th>优（满分）</th><th>合格（60%）</th><th>不合格</th></tr></thead>
+      <tbody>
+        <tr><td><strong>性能与工程</strong></td><td><strong>15</strong>（大作业量规原值）</td><td><strong>达到 72Hz 预算</strong>、有降级意识与优化对照、能说清改动的依据、数据与 HUD 一致</td><td><strong>知道看面板，但没优化</strong></td><td><strong>不看性能</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="note"><strong>过程数据不作排名</strong>：帧率分布、晕动暴露时长只作参与度参考；但<strong>优化对照的读数本身是评分证据</strong>——晕动暴露高可能恰恰说明你在认真测试平滑移动。</div>
+
+  <h3>五、任何情况下都不降的三条</h3>
+  <div class="key">① <strong>达标线本身</strong>（移动头显 ≤ 10 万；有对照；读数与 HUD 一致）；<br>
+    ② <strong>改动必须有依据</strong>（不能「看着不舒服就删了两个东西」）；<br>
+    ③ <strong>记录表上的数字必须和页面 HUD 对得上——编数据比做不出来更严重。</strong></div>
+
+  <h3>六、收束段最后两句（照抄板书）</h3>
+  <div class="grid2">
+    <div class="cell">
+      <h4>第一句（收紧）</h4>
+      <p><strong>「记录表上的数字，必须和页面 HUD 对得上。编数据比做不出来更严重。」</strong></p>
+    </div>
+    <div class="cell">
+      <h4>第二句（放开）</h4>
+      <p><strong>「改得少但说得清，比改得多但说不清，分高。」</strong></p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 一页速查 ===== -->
+<section id="practice">
+  <div class="sec-head">
+    <div class="sec-num">查</div>
+    <div>
+      <h2>一页速查 · 板书 · 下次课</h2>
+      <p class="sec-sub">把这一页抄在笔记本上，这一课的骨架就齐了</p>
+    </div>
+  </div>
+
+  <h3>一、八句话速查</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>主题</th><th>要记住的</th></tr></thead>
+      <tbody>
+        <tr><td><strong>帧预算</strong></td><td>72Hz ⇒ <strong>13.9 ms</strong>／帧；<strong>不是 16.7</strong>——那是 60Hz 的一整帧，浏览器合成还要占时间</td></tr>
+        <tr><td>面板六个数</td><td><strong>FPS ｜ 帧时间 ｜ 最差 1% 帧 ｜ DrawCalls ｜ 三角面 ｜ 贴图数</strong>；帧时间第一重要，DrawCall 第二重要</td></tr>
+        <tr><td>先看谁</td><td><strong>先看 DrawCall，不要先看面数</strong>——面数是搬多少砖，DrawCall 是你喊了多少次「开始搬」</td></tr>
+        <tr><td>证据</td><td>《DrawCall 对照实验室》：同一场景 <strong>101 次 → 2 次</strong>，画面一模一样，开销差 50 倍</td></tr>
+        <tr><td>四个手段</td><td><strong>① 实例化 ② 合批 ③ 贴图复用 / 降分辨率 ④ 阴影分辨率</strong>（按性价比从上往下用）</td></tr>
+        <tr><td>三角面口径</td><td>移动头显 <strong>≤ 10 万</strong>；真机自检 <strong>FPS ≥ 70、降级 L0</strong>，L1/L2 常驻要记录并分析原因</td></tr>
+        <tr><td>动态降级</td><td>帧时间<strong>持续超预算 20% 达 2 秒</strong> → <strong>L1 降像素比（0.78）→ L2 再关阴影（0.62）</strong>；余量恢复时回升，<strong>可逆</strong></td></tr>
+        <tr><td>舒适度</td><td><strong>隧道视野</strong>（平滑移动时视野收窄，0—85% 可调）；默认<strong>传送 ＋ Snap 45°</strong>；眼高 1.5—1.8 m；<code class="inline">Y</code> 重置；10 分钟休息提示</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>二、课上板书（照抄，不要多写）</h3>
+  <pre>帧预算　：72Hz ⇒ 13.9ms（不是 16.7——浏览器合成要占时间）
+先看谁　：先看 DrawCall，不要先看面数
+降级　　：L1 降像素比 → L2 关阴影，可逆
+达标线　：移动头显三角面 ≤ 10 万；有一处优化前后对照；读数与 HUD 一致
+里程碑　：M4 性能报告（改前/改后对照 + 改动说明）</pre>
+
+  <h3>三、收尾四句话</h3>
+  <ol>
+    <li><strong>能玩，不等于扛得住。</strong>在笔记本上流畅和戴进头显里不卡，是两件事；</li>
+    <li><strong>13.9 ms 是全部预算</strong>，你唯一能直接控制的是「你的 JS」和「渲染提交」这两半；</li>
+    <li><strong>降级不是失败，是设计的一部分</strong>——但它必须可逆；一个不会回升的降级，等于把作品永久变丑；</li>
+    <li><strong>唯一可信的，是运行起来以后看到的数。</strong>记录时必须写清「哪个作品、哪一次、哪个面板上读的」。</li>
+  </ol>
+
+  <h3>四、下次课预告（2026-11-25，第 11 次课）</h3>
+  <p><strong>让作品会说话，并且能被度量</strong>——接 LLM 智能 NPC，<strong>并且必须带离线降级兜底</strong>。</p>
+  <div class="key">「今天你学会了『帧时间超了会自动降级』。下次课要学的是同一件事的另一面——<strong>大模型接不上时，你的作品怎么办。</strong>降级不是失败，是设计的一部分。」</div>
+  <p><strong>要带来的三样</strong>：① <strong>M4 的这份记录</strong>（下次课要投屏点评「改前 / 改后」两组读数）；② 你的作品<strong>能跑的最新版本</strong>；③ 提前想一个问题：<strong>「大模型接不上时，我的作品怎么办？」</strong></p>
+</section>
+
+<!-- ===== 附录 · 工程纪律 ===== -->
+<section id="appendix">
+  <div class="sec-head">
+    <div class="sec-num">附</div>
+    <div>
+      <h2>附录 · 工程纪律：你抄的那句话，不一定是真的</h2>
+      <p class="sec-sub">这一节是本课次<strong>最便宜的工程纪律教具</strong>，不要删。它讲的是一个真实发生过的不一致，以及<strong>怎么发现这类不一致</strong></p>
+    </div>
+  </div>
+
+  <h3>一、先看事实：同一门课里，45° 与 30° 并存</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>哪一份</th><th>转向角度</th><th>在哪儿确认</th></tr></thead>
+      <tbody>
+        <tr><td><strong>六个课堂案例</strong>（走共享内核）</td><td><strong>45°</strong></td><td><code class="inline">_xr_core.js</code> 第 29 行 <code class="inline">snapDeg:45</code>（第 73、545 行引用该值）；案例 01 / 02 / 03 / 04 的说明书也都写 45°</td></tr>
+        <tr><td><strong>《故宫》那份作品</strong>（第 4 次课素材）</td><td><strong>30°</strong></td><td><code class="inline">gugong_webxr.html</code> 第 1129—1132 行：<code class="inline">yaw -= Math.sign(rightX) * deg(30)</code>，冷却 <strong>350 ms</strong>；它自己的 README 也写 30°</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p><strong>这两份都「没错」——它们本来就是两套不同的东西。</strong>故宫那份没有接课堂内核，自己写了一套；<strong>它写的是它自己的数，也对得上。</strong>本课统一口径按 45° 讲（因为课堂案例走内核，学生戴进去感受到的就是 45°），同时如实告诉学生 30° 也是真实存在的。</p>
+
+  <h3>二、真实发生过的一次「文档落后于代码」</h3>
+  <div class="warn"><strong>就在本资料包编写时（2026-10-13 前后）撞上了一次：</strong><br>
+    21:44 第一次核验时，<strong>案例 01 的 <code class="inline">index.html</code> 第 61 行</strong>（页面上那块手柄说明面板）写着「右摇杆=<strong>转向30°</strong>」，<strong>而它跑的内核是 <code class="inline">snapDeg:45</code></strong>——<strong>面板文字与代码不一致</strong>。<br>
+    21:45 前后该文件被修改，<strong>现在这一行已经改成「转向45°」，不一致消失</strong>。</div>
+  <div class="key"><strong>这个前后变化不要浪费——它就是本节要讲的工程事实本身：</strong><br>
+    <strong>代码改了，说明文字不一定跟着改。它会在一段时间里留着旧数字——而这段时间正好是你抄它的时候。</strong><br>
+    所以：<strong>你抄的那句话，不一定是真的；而且它不一定错，它可能只是旧的。</strong></div>
+
+  <h3>三、怎么发现这类不一致（方法，不是口号）</h3>
+  <ol>
+    <li><strong>不查文档，查两处能对上的地方，并且当场核一遍。</strong>需要同时看到「文字写的」和「运行起来的」两个来源——只看一个来源，永远发现不了不一致。</li>
+    <li><strong>现场两处对照，一次就够：</strong>
+      <ul>
+        <li>打开<strong>案例 01</strong>：面板上写的是 <strong>45°</strong>，按 <code class="inline">N</code> 切转向范式，内核面板也显示 <strong>Snap 45°</strong> → <strong>对得上</strong>；</li>
+        <li>打开<strong>《故宫》那份</strong>：搜 <code class="inline">deg(30)</code>，看到的就是 <strong>30°</strong> → <strong>它写的是它自己的数，也对得上</strong>。</li>
+      </ul>
+    </li>
+    <li><strong>改一次、看一次，再看文字有没有跟着改。</strong>凡是「改了参数」的改动，都顺手回查一遍 README 与页面提示文字；这一步 30 秒，但能挡住最贵的一类错。</li>
+    <li><strong>发现可疑时，先分清是哪一种：</strong>① <strong>「两个数字不一样，而且都合法」</strong>（两套实现，像上面的 45° / 30°）；② <strong>「两个数字不一样，其中一个是旧的」</strong>（代码改了、说明没改）。<strong>两种情况都要会认。</strong></li>
+    <li><strong>记录数字时写清三件事：这是哪个作品、哪一次、哪个面板上读的。</strong>这正是本课要求「记录表上的数字必须和页面 HUD 对得上」的由来——<strong>唯一可信的，是运行起来以后看到的数。</strong></li>
+  </ol>
+
+  <h3>四、留给你的课后自查（一处「文档 bug」也算收获）</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>我写的 / 面板上写的</th><th>实际是</th><th>要不要改</th></tr></thead>
+      <tbody>
+        <tr><td style="color:#a09ab8">＿＿＿＿＿＿＿＿＿＿＿＿</td><td style="color:#a09ab8">＿＿＿＿＿＿＿＿＿＿＿＿</td><td>☐ 要　☐ 不用</td></tr>
+        <tr><td style="color:#a09ab8">＿＿＿＿＿＿＿＿＿＿＿＿</td><td style="color:#a09ab8">＿＿＿＿＿＿＿＿＿＿＿＿</td><td>☐ 要　☐ 不用</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>检查自己作品的 README 与页面提示文字，<strong>有没有哪一句和代码实际行为不一样</strong>（比如你后来改过 <code class="inline">yaw</code>、速度、判定窗，但说明没改）。有的话，那就是一处要修的「文档 bug」。<strong>见过它一次，以后每交一份作品都会顺手查一遍。</strong></p>
+
+  <div class="note"><strong>留给授课教师的一条未决项：</strong>是否把《故宫》那份也对齐到 45°，或保留 30° 并在说明里写明「这是与课堂案例不同的独立取值」。本页只登记事实，<strong>不修改上述任何文件</strong>。</div>
+</section>
+
+</main>
+
+<footer>
+  <div class="f-main">中华女子学院 · 2026年虚拟现实技术 · 第 10 次课</div>
+  <div>数据科学与信息技术学院 · 授课教师：孙琪翔 · 2026-11-18 · 好看和跑得动是两件事（性能工程 · 4 学时）</div>
+  <div style="margin-top:6px;font-size:12px;opacity:.75;">本页依据第 10 次课资料包（README / 教学方案 180 分钟 / 课件正文 / 学生任务卡）、《WebXR转型设计_第7-12次课与大作业》第 10 次课一节与《README附录_XR工程内核与评分量规》整理，用于课堂与课后复习。</div>
+  <div style="margin-top:12px;font-size:14px;"><a href="vr-2026.html">← 返回课程主页</a> · <a href="index.html">返回个人网站</a></div>
+</footer>
+
+<button id="toTop" title="回到顶部">↑</button>
+
+<script>
+(function(){
+  var navInner = document.getElementById('navInner');
+  var navLinks = {};
+  navInner.querySelectorAll('a[data-sec]').forEach(function(a){
+    navLinks[a.getAttribute('data-sec')] = a;
+  });
+  var sections = ['guide','c1','c2','c3','c4','c5','cases','demo','hw','practice','appendix'];
+  if ('IntersectionObserver' in window) {
+    var obs = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        if (en.isIntersecting) {
+          document.querySelectorAll('#nav a').forEach(function(a){ a.classList.remove('on'); });
+          var a = navLinks[en.target.id];
+          if (a) a.classList.add('on');
+        }
+      });
+    }, {rootMargin:'-15% 0px -70% 0px'});
+    sections.forEach(function(s){
+      var el = document.getElementById(s);
+      if (el) obs.observe(el);
+    });
+  }
+  var toTop = document.getElementById('toTop');
+  if (toTop) {
+    window.addEventListener('scroll', function(){
+      toTop.classList.toggle('show', window.pageYOffset > 400);
+    }, {passive:true});
+    toTop.addEventListener('click', function(){ window.scrollTo({top:0, behavior:'smooth'}); });
+  }
+})();
+</script>
+
+</body>
+</html>

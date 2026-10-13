@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第11次课 · 让作品会说话，并且能被度量 | 2026年虚拟现实技术</title>
+<meta name="description" content="《虚拟现实技术》第 11 次课课堂内容：一条消息的完整旅程（输入 → 历史 + 系统提示词 → 模型 → SSE 流 → 打字机 → TTS / 动作）、提示词工程（现场改 DEFAULT_SYS 一句人设）、多轮窗口的遗忘边界（MAXH=8，约 4 轮）、动作协议与 ACTS 白名单、幻觉治理、API Key 不能放前端（前端 → 自家中介 → 大模型）、案例 04 导览打卡当成品参照、案例 05 AR 对照、experience JSON 字段核对，以及里程碑 M5 功能封版口径。">
+<link rel="stylesheet" href="assets/vr-2026/course.css">
+</head>
+<body>
+
+<!-- ===== 顶部 ===== -->
+<header class="hero">
+  <div class="hero-inner">
+    <span class="kicker">虚拟现实技术 · 第 11 次课 · 模块六 AI+VR 融合</span>
+    <h1>让作品会说话，并且能被度量</h1>
+    <p class="sub">第 11 次课 · 上一次你把渲染压进了 13.9 毫秒；这一次要把对话压进 8 条消息 —— 渲染有预算，智能也有预算</p>
+    <div class="meta">
+      <span>中华女子学院</span><span>4 学时 · 180 分钟</span><span>授课人：孙琪翔</span><span>2026-11-25（周三）· 第 13 周</span><span>数字媒体技术 2023 级 40 人</span>
+    </div>
+  </div>
+</header>
+
+<!-- ===== 目录导航 ===== -->
+<nav class="nav" id="nav">
+  <div class="nav-inner" id="navInner">
+    <a href="vr-2026.html" class="nav-back">← 课程主页</a>
+    <a href="#guide" data-sec="guide" class="on">本讲导览</a>
+    <a href="#c1" data-sec="c1">一、一条消息的旅程</a>
+    <a href="#c2" data-sec="c2">二、提示词工程</a>
+    <a href="#c3" data-sec="c3">三、多轮窗口遗忘边界</a>
+    <a href="#c4" data-sec="c4">四、动作协议与白名单</a>
+    <a href="#c5" data-sec="c5">五、幻觉治理与密钥安全</a>
+    <a href="#cases" data-sec="cases">案例 · 06 / 04</a>
+    <a href="#ar" data-sec="ar">六、AR 对照</a>
+    <a href="#demo" data-sec="demo">课堂实操</a>
+    <a href="#hw" data-sec="hw">达标 · 量规</a>
+    <a href="#practice" data-sec="practice">速查 · M5</a>
+    <a href="#next" data-sec="next">下次课路演</a>
+  </div>
+</nav>
+
+<main>
+
+<!-- ===== 导览 ===== -->
+<section id="guide">
+  <div class="sec-head">
+    <div class="sec-num">导</div>
+    <div>
+      <h2>本讲导览</h2>
+      <p class="sec-sub">上一次课我们数的是毫秒；这一次课我们数的是 token、轮数，以及完成度</p>
+    </div>
+  </div>
+
+  <p>第 10 次课每个人交了一份 <strong>M4 性能报告</strong>——"优化前 / 优化后"两组读数摆在那里，说明你已经会度量自己的作品了。这一次课做两件互为表里的事：<strong>让作品会说话</strong>（接一个真正的智能交互模块，而不只是预设文本），以及<strong>让它能被度量</strong>（把体验过程写成一份 JSON，让"我玩得怎么样"变成可评分的数据）。</p>
+
+  <div class="key"><strong>本课命题（板书第 1 行）</strong>：<strong>智能交互不是"接一个 API"，是设计"接不上时怎么办"。</strong><br>
+    在线大模型会限流、会超时、会断网、会编造。一件要靠它说话的作品，如果没想清楚"它不回答时怎么办"，那不是一件作品，是一次演示。<strong>离线兜底是及格线，在线模型是加分项。</strong>
+  </div>
+
+  <p>这节课最难的也不是画质，是<strong>"边界"</strong>：模型能说什么、能做什么、答不上来时退到哪。这三条想清楚了，作品才敢交出去；想不清楚，路演现场网络一抖就是事故。所以下面六个问题本讲都要回答，而且<strong>全都能在课上动手验证</strong>——</p>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>#</th><th>问题</th><th>一句话判据</th><th>本讲哪一节</th></tr></thead>
+      <tbody>
+        <tr><td>①</td><td><strong>一条消息的完整旅程</strong></td><td>我打的那几个字，到底经过了哪几站才变成屏幕上逐字冒出来的回答？</td><td><a href="#c1">一</a></td></tr>
+        <tr><td>②</td><td><strong>提示词工程</strong></td><td>改一句话，回答会不会真的不一样？</td><td><a href="#c2">二</a></td></tr>
+        <tr><td>③</td><td><strong>多轮窗口的遗忘边界</strong></td><td>第几轮开始，它忘了我前面说过的？</td><td><a href="#c3">三</a></td></tr>
+        <tr><td>④</td><td><strong>动作协议 + 白名单</strong></td><td>为什么不能让模型直接执行任意动作？</td><td><a href="#c4">四</a></td></tr>
+        <tr><td>⑤</td><td><strong>幻觉治理</strong></td><td>它一本正经地编造时，我在哪一层拦住它？</td><td><a href="#c5">五</a></td></tr>
+        <tr><td>⑥</td><td><strong>API Key 不能放前端</strong></td><td>正式架构长什么样？限流和内容审核放在哪？</td><td><a href="#c5">五</a></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>一、180 分钟怎么分（墙钟）</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>段</th><th>时段</th><th>时长</th><th>环节</th><th>用哪个案例</th></tr></thead>
+      <tbody>
+        <tr><td>①</td><td>0:00—0:10</td><td><strong>10′</strong></td><td>开场：M4 点评——把"改前 / 改后"两组读数投出来看</td><td>学生自己的 M4 报告</td></tr>
+        <tr><td>②</td><td>0:10—0:55</td><td><strong>45′</strong></td><td>讲授：一条消息的旅程 ＋ 提示词工程 ＋ 多轮窗口的遗忘边界</td><td><strong>06</strong></td></tr>
+        <tr><td>③</td><td>0:55—1:05</td><td>10′</td><td>课间（<strong>占墙钟、不计入教学时长</strong>）</td><td>—</td></tr>
+        <tr><td>④</td><td>1:05—1:50</td><td><strong>45′</strong></td><td>讲授＋参照：动作协议与白名单 ＋ 幻觉治理 ＋ 密钥安全架构图 ＋ 04 成品参照</td><td><strong>06 → 04</strong></td></tr>
+        <tr><td>⑤</td><td>1:50—2:45</td><td><strong>55′</strong></td><td>工作室：接智能交互模块（必须带离线降级兜底）＋ 导出一次体验数据 JSON</td><td>学生自己的作品</td></tr>
+        <tr><td>⑥</td><td>2:45—3:00</td><td><strong>15′</strong></td><td>收束：M5 功能封版 ＋ 下次课路演抽签与要求</td><td>—</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>核对：10 + 45 + 45 + 55 + 15 = <strong>170′ 教学时长</strong>，＋课间 10′ ＝ <strong>180′ 墙钟</strong>。<strong>本课次的节律与其他课次不同</strong>：第④段是 45′（别次 35′）、第⑤段是 55′（别次 65′）——因为这一次的"讲授"里额外塞进了密钥安全架构图与 04 成品参照，而动手任务本身变窄了（只有"接一个模块 + 导出一次 JSON"）。<strong>是动手任务变窄，不是讲授可以随便膨胀。</strong></p>
+
+  <div class="warn"><strong>第④段有一个真实的时长冲突，课前就要决定，不要现场算。</strong>
+    课次要求"第④段含 05 AR 对照 15′"。但 10′（动作协议）＋ 8′（幻觉治理）＋ 11′（密钥安全）＋ <strong>04 参照至少 8′</strong> ＋ <strong>AR 对照 15′</strong> ＝ <strong>52′ &gt; 45′</strong>。
+    <strong>45 分钟装不下"三段讲授 + 一个 10′ 参照 + 一个 15′ 对照"。</strong>三种处置课前任选一种并写在备课本上：<br>
+    <strong>A（推荐，默认）</strong>04 参照 10′ ＋ 05 对照 6′ ＝ 45′，AR 只讲"入口 + 兼容性 + 模拟跟踪"三句；
+    <strong>B（保住 AR 满 15′）</strong>04 参照压到 4′（评级公式改课后阅读）＋ 幻觉治理 6′ ＋ 动作协议 9′；
+    <strong>C（保住两条线）</strong>从第②段调 5′（多轮窗口 8′ → 4′，从"动手追 5 轮"退化成"看两行代码"）＋ 04 参照 8′ ＋ 05 对照 12′。<br>
+    <strong>绝不做的处置</strong>：把第④段撑到 52′ 以上、吃掉工作室时间——<strong>第⑤段 55′ 是本次课的产出保障</strong>。</div>
+
+  <h3>二、三个案例，三种角色</h3>
+  <div class="grid3">
+    <div class="cell">
+      <h4>主线 · 06 LLM 智能 NPC</h4>
+      <p>覆盖<strong>系统提示词 / 多轮上下文 / 流式输出 / 动作协议 / 离线降级 / 密钥安全</strong>六个教学点。<strong>离线知识库开箱即用，无需任何网络与密钥</strong>——40 人同时打在线模型会撞限流，所以课堂演示默认走离线，在线只在教师机上开。</p>
+    </div>
+    <div class="cell">
+      <h4>参照 · 04 数字校园 + AI 导览</h4>
+      <p>只做<strong>单轮问答</strong>，正好当"成品长什么样"的标尺：<strong>有目标、有评价、有数据沉淀</strong>。「导览打卡」把成绩写进导出 JSON，是本节课"能被度量"的成品示范。</p>
+    </div>
+    <div class="cell">
+      <h4>对照 · 05 AR 文物复原</h4>
+      <p>六例中<strong>唯一保留真 <code class="inline">immersive-ar</code> 入口</strong>的一例，只看 6′（原要求 15′）。<strong>以 VR 沉浸作品为主，AR 只作对照与可选加分。</strong></p>
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <a class="btn" href="assets/vr-2026/cases/06-llm-npc/" target="_blank" rel="noopener">★ 打开案例 06 · LLM 智能 NPC「小澜」→</a>
+    <a class="btn ghost" href="assets/vr-2026/cases/04-campus-tour/" target="_blank" rel="noopener">案例 04 · 数字校园漫游 + AI 导览 →</a>
+    <a class="btn ghost" href="assets/vr-2026/cases/05-ar-relic/" target="_blank" rel="noopener">案例 05 · AR 文物复原（对照）→</a>
+  </div>
+  <p style="font-size:14px;color:var(--ink-soft);">三个页面都是<strong>单文件、零外部资源、离线可用</strong>。案例 06 的 PC 快捷键：<strong>V</strong> 隧道强度 · <strong>B</strong> 移动范式 · <strong>N</strong> 转向范式 · <strong>Y</strong> 重置视角 · <strong>Shift+P</strong> 坐姿 · <strong>Shift+H</strong> 惯用手 · <strong>Shift+G</strong> 注视停留点击 · <strong>T</strong> 语音开关 · <strong>C</strong> 清空对话。</p>
+
+  <div class="warn"><strong>动手之前先记这一条：工作室时段请把 TTS 关掉。</strong>
+    <code class="inline">speechSynthesis</code> 默认开着（<code class="inline">CFG.tts=true</code>）。<strong>40 个人一起朗读，这间教室会像集市。</strong>
+    面板上有语音开关，PC 也可以直接按 <strong>T</strong>。只在教师演示时开。</div>
+
+  <h3>三、本次课的产出：M5 功能封版</h3>
+  <div class="key"><strong>M5 ＝ 功能封版：作品 + 智能模块（含离线降级兜底）+ 一份体验数据 JSON。</strong><br>
+    封版口径从<strong>今天 17:00</strong> 起生效——<strong>只修错、不加功能</strong>。从今天到 12-02 你只能做三件事：<strong>修 bug、写 README、准备 3 分钟讲稿</strong>。再加一个新功能，等于把路演的准备时间吃掉。</div>
+</section>
+
+<!-- ===== 一、一条消息的完整旅程 ===== -->
+<section id="c1">
+  <div class="sec-head">
+    <div class="sec-num">一</div>
+    <div>
+      <h2>一条消息的完整旅程</h2>
+      <p class="sec-sub">你打的那几个字，走了六站才变成你看到的那段话——其中三站是我们能改的</p>
+    </div>
+  </div>
+
+  <h3>一、先玩，后讲：五步（4 分钟走完）</h3>
+  <ol>
+    <li>问 NPC <strong>"你是谁？"</strong> → 看<strong>逐字</strong>冒出来；</li>
+    <li>说 <strong>"天黑了"</strong> → 场景真的变夜；</li>
+    <li>说 <strong>"带我去西展台"</strong> → 你被传送过去；</li>
+    <li>视线对准展品，说 <strong>"讲讲这件展品"</strong> → 它按你<strong>看的方向</strong>选中并高亮讲解；</li>
+    <li>问 <strong>"你能做什么"</strong> → 它说清自己的能力边界。</li>
+  </ol>
+  <p>这五步里藏着四个问题：<strong>为什么它能一个字一个字往外冒？为什么它说完话场景会变？为什么它知道我在看哪件展品？</strong>
+    这一节全部回答。<strong>不要在第一步停下来讲原理——原理是下面十分钟的事。</strong></p>
+
+  <h3>二、六站链路（本次课最需要记住的一张图）</h3>
+  <pre>你打的字（或语音 ASR）
+   │
+   ├─① 拼上「对话历史 HISTORY」——最近 8 条（MAXH=8，约 4 轮）
+   ├─② 拼上「系统提示词 CFG.sys」——内容就是 DEFAULT_SYS，可改
+   ├─③ 发给模型：OpenAI 兼容 POST /chat/completions
+   ├─④ 逐 token 流式回来：SSE（getReader + TextDecoder）
+   ├─⑤ 前端打字机：约 70 字/秒（animate 内 dt*70）
+   └─⑥ 出口两条：TTS 朗读（speechSynthesis）＋ 动作执行（parseAction → ACTS 白名单）</pre>
+  <p>六个站。这六站里<strong>有三站是我们能改的</strong>：<strong>提示词（②）、历史窗口（①）、动作白名单（⑥）</strong>。今天三样都会动。</p>
+
+  <h3>三、最容易被误解的一站：发给模型的不是"你这一句话"</h3>
+  <p>发给模型的是一整个<strong>消息数组</strong>：</p>
+  <pre>[ {role:'system', content: &lt;系统提示词&gt;},
+  … 历史（最多 8 条）…,
+  {role:'user',   content: &lt;你这次问的&gt;} ]</pre>
+  <p><strong>现场演示</strong>（浏览器控制台敲这一行，让全班看这个数组）：</p>
+  <pre>NPC.buildMessages('你是谁')</pre>
+  <div class="key"><strong>"我以为我在聊天，其实我每问一次，都把前面所有对话重新发了一遍。"</strong><br>
+    这句话是理解今天一切成本问题的钥匙：<strong>轮数越多，每次请求越贵、越慢。</strong>
+    顺带说一句，这个函数叫 <code class="inline">buildMessages</code>，它里面还有一道 <code class="inline">slice(-MAXH)</code> 的<strong>双保险截窗</strong>——第三节讲多轮窗口时会回来看它。</div>
+
+  <h3>四、流式不是"更快"，是"更早看见"</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>做法</th><th>你看到什么</th><th>总耗时</th></tr></thead>
+      <tbody>
+        <tr><td><strong>非流式</strong></td><td>等 3 秒 → 一次性出现一整段</td><td>≈ 3 秒</td></tr>
+        <tr><td><strong>流式（SSE）</strong></td><td>第 0.3 秒出现第一个字 → 逐字补齐</td><td><strong>几乎一样</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>很多同学以为流式是"让模型更快"。不是的——<strong>总时间几乎一样</strong>。流式做的是另一件事：<strong>把"等待"变成"进度"。</strong>
+    这一条对 VR 特别重要：<strong>戴上头显的人，比对着电脑屏幕的人更没有耐心；一个静止的画面在头显里会让人以为死机了。</strong></p>
+
+  <h3>五、出口有两条：TTS 和动作</h3>
+  <div class="grid2">
+    <div class="cell">
+      <h4>出口 ① · TTS</h4>
+      <p><code class="inline">speechSynthesis</code> 中文朗读。<strong>可关</strong>——面板语音开关，PC 快捷键 <strong>T</strong>。<strong>工作室时段请统一关掉。</strong></p>
+    </div>
+    <div class="cell">
+      <h4>出口 ② · 动作</h4>
+      <p>模型在回答<strong>末尾</strong>另起一行，输出<strong>且仅输出一个 JSON</strong>。前端做的事：<strong>正则解析 → 执行 → 从展示文本里剥离</strong>（<code class="inline">parseAction</code> / <code class="inline">stripAction</code>）。</p>
+    </div>
+  </div>
+  <div class="key">注意"<strong>从展示文本里剥离</strong>"这五个字。<strong>那串 JSON 本来会在屏幕上显示出来</strong>——因为对模型来说它就是一段文字。是前端把它抠掉、执行掉，你才看见一句干净的话。<strong>这件事在第四节会展开讲，它是今天最重要的一个安全点。</strong></div>
+
+  <h3>六、收束：毫秒与 token 都是预算</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th></th><th>上次课（第 10 次）</th><th>本次课（第 11 次）</th></tr></thead>
+      <tbody>
+        <tr><td>预算是什么</td><td>帧预算 <strong>13.9 ms</strong>（72 Hz）</td><td>上下文预算 <strong>8 条 / 约 4 轮</strong></td></tr>
+        <tr><td>规模上限</td><td>三角面 ≤ <strong>10 万</strong></td><td>单次回答 ≤ <strong>90 字</strong>（可改，第二节就改）</td></tr>
+        <tr><td>看什么读数</td><td>DrawCall / P95 帧时间</td><td>token 数 / 轮数 / 遵守率</td></tr>
+        <tr><td>手段</td><td>实例化、合批、降级</td><td><strong>截窗、摘要、白名单兜底</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p><strong>同一件事，两种预算。</strong>上次你把渲染压进了 13.9 毫秒，这次你要把对话压进 8 条。<strong>会算预算的人，才敢说自己"做完了"。</strong></p>
+</section>
+
+<!-- ===== 二、提示词工程 ===== -->
+<section id="c2">
+  <div class="sec-head">
+    <div class="sec-num">二</div>
+    <div>
+      <h2>提示词工程：现场改一句人设</h2>
+      <p class="sec-sub">本讲高潮 A——同一个问题、同一个模型，只因为一句话不同，回答和动作都变了</p>
+    </div>
+  </div>
+
+  <p>人设就是系统提示词 <code class="inline">DEFAULT_SYS</code>。默认长这样（<strong>一字未改照抄案例 06</strong>）：</p>
+  <pre>你是虚拟现实课堂里的智能 NPC 向导"小澜"，站在文物会客厅中央。
+用中文口语化回答，每次不超过 90 字。
+会客厅有三件【示意】展品：东展台·青花瓷罐、西展台·青铜爵、中央圆台·玉璧。
+你可以操作场景：需要时在回答最后另起一行输出且仅输出一个 JSON——
+{"action":"teleport","target":"center|east|west"}（带我去某处）、
+{"action":"time","value":"day|night"}（切换昼夜）、
+{"action":"show","target":0|1|2}（讲解 0东 1西 2中 展品）。
+没有合适动作就不要输出 JSON。不要编造不确定的事实。</pre>
+
+  <h3>一、这七句话里藏着四类东西</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>是哪几句</th><th>管的是什么</th></tr></thead>
+      <tbody>
+        <tr><td>第 1 句</td><td><strong>身份</strong>——你是谁、站在哪</td></tr>
+        <tr><td>第 2 句</td><td><strong>语气与字数</strong>——怎么说、说多少</td></tr>
+        <tr><td>第 3 句</td><td><strong>事实</strong>——场上有哪三件展品</td></tr>
+        <tr><td>第 4、5 句</td><td><strong>动作协议</strong>——允许输出哪三种 JSON</td></tr>
+        <tr><td>最后两句</td><td><strong>禁止</strong>——没有合适动作就不输出、不要编造不确定的事实</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>二、先猜，再看（不要提前给答案）</h3>
+  <div class="warn"><strong>问题</strong>：如果我把第二句改成"只用文言文回答，每次不超过 30 字"，然后问<strong>一模一样</strong>的问题——回答会变吗？会变在哪几处？<br>
+    举手：① 只变语气　② 语气 + 长度都变　③ 语气 + 长度 + <strong>动作遵守率</strong>都变<br>
+    给你们 20 秒，和旁边的人说一句你选哪个、为什么。选完之后我们真的改一次。<strong>这里不要剧透。</strong></div>
+
+  <h3>三、现场操作（严格按顺序，一步都不要省）</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>步</th><th>做什么</th><th>上屏看到什么</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td><strong>先记基线</strong>：问"你是谁？"停在回答上；再问"带我去西展台"</td><td>回答里出现"小澜""文物会客厅"；<strong>看到传送动作</strong></td></tr>
+        <tr><td>2</td><td>打开设置面板，<strong>只改第二句</strong>：<code class="inline">用中文口语化回答，每次不超过 90 字。</code> → <code class="inline">只用文言文回答，每次不超过 30 字。</code></td><td>——</td></tr>
+        <tr><td>3</td><td><strong>重问同一个问题（一字不改）</strong>："你是谁？"</td><td>风格、长度、用词全变了</td></tr>
+        <tr><td>4</td><td><strong>再问同一个动作问题（一字不改）</strong>："带我去西展台"</td><td><strong>当场看它有没有输出那个 JSON——这就是答案</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p><strong>边操作边说（语速放慢）</strong>："注意我做了什么：<strong>我没有换模型，我没有改问题，我甚至没有改第三句的事实。</strong>我改的是一个字符串里的一句话。现在看——"</p>
+
+  <h3>四、结论：让学生自己说</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th></th><th>改之前</th><th>改之后</th></tr></thead>
+      <tbody>
+        <tr><td>回答风格</td><td>口语化、现代汉语</td><td>文言</td></tr>
+        <tr><td>回答长度</td><td>~90 字以内</td><td>~30 字以内（<strong>信息量肉眼可见地掉</strong>）</td></tr>
+        <tr><td><strong>"带我去西展台"的动作</strong></td><td><strong>有 <code class="inline">{"action":"teleport",…}</code></strong></td><td><strong>当场看它有没有</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>三件事要让学生自己说出来：<strong>第一，我先改的那句话管的是什么？</strong>——它不只管语气，它管<strong>长度</strong>；
+    <strong>第二，改成 30 字之后信息量变了没有？</strong>——变了，<strong>这叫作输出预算</strong>；
+    <strong>第三，也是最关键的：动作还好使吗？</strong>——<strong>动作协议的遵守率会随人设漂移。</strong></p>
+
+  <div class="key"><strong>落点：人设是"输出约束"，不是"角色扮演"。</strong>它同时管<strong>语气 · 字数 · 事实边界 · 动作协议要不要输出</strong>。<br>
+    ➜ 所以：<strong>动作白名单必须写在代码里，不能只写在提示词里。</strong><br>
+    <strong>你在提示词里写"只输出这三种动作"，那是一个请求，不是一道锁。</strong>模型今天遵守，明天可能不遵守；你换一句人设，遵守率就变了。<strong>真正的锁，是前端那三行白名单代码</strong>（见第四节）。</div>
+
+  <div class="warn"><strong>高潮 A 的必要条件：必须走在线模型。</strong>
+    离线模式下 <code class="inline">KB</code> 是关键词匹配，<strong>改人设不会改变回答，高潮当场失效</strong>。
+    教师机课前必须配好一个可用的在线端点，并把两种人设各跑一遍；<strong>把两组回答截图存好做失败备份</strong>——端点当场挂掉时至少还能证明"差异是真的"。<br>
+    <strong>备选人设（课前各试一遍，现场不要试）</strong>：<code class="inline">只用 5 岁小孩的语气回答，每次不超过 20 字。</code> ／ <code class="inline">像严谨的博物馆研究员一样回答，每次必须给出处。</code></div>
+
+  <p>收尾一句：<strong>"今天你改的是一个字符串。明天你会写一整个 <code class="inline">DEFAULT_SYS</code>——那时候你已经知道它会改变什么了。"</strong></p>
+</section>
+
+<!-- ===== 三、多轮窗口的遗忘边界 ===== -->
+<section id="c3">
+  <div class="sec-head">
+    <div class="sec-num">三</div>
+    <div>
+      <h2>多轮窗口的遗忘边界</h2>
+      <p class="sec-sub">窗口 = 最近 8 条消息 ≈ 4 轮对话；第 9 条进来，最旧的那条被挤出去</p>
+    </div>
+  </div>
+
+  <pre>var HISTORY=[], MAXH=8;
+
+function pushMsg(role, content){
+  HISTORY.push({role:role, content:content});
+  while(HISTORY.length&gt;MAXH) HISTORY.shift();     // 超窗就从最旧的开始丢
+}
+function buildMessages(userQ){
+  var ms=[{role:'system', content:CFG.sys}];
+  var hist=HISTORY.slice(-MAXH);                  // 双保险：外部直接 push 也不超窗
+  for(var i=0;i&lt;hist.length;i++) ms.push(hist[i]);
+  ms.push({role:'user', content:userQ});
+  return ms;
+}</pre>
+  <p><code class="inline">MAXH=8</code>——<strong>最近 8 条消息，约 4 轮对话</strong>。<code class="inline">buildMessages</code> 里还有一道
+    <code class="inline">slice(-MAXH)</code> 的<strong>双保险截窗</strong>：就算外部绕过 <code class="inline">pushMsg</code> 直接往 <code class="inline">HISTORY</code> 里塞，也超不了窗。</p>
+
+  <h3>一、现场验：连追 5 轮</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>轮</th><th>你问</th><th>你观察什么</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>"记住一个词：紫藤。"</td><td>它答应了</td></tr>
+        <tr><td>2—4</td><td>随便问三件别的事（"你是谁""天黑了""讲讲这件展品"）</td><td>——</td></tr>
+        <tr><td>5</td><td>"我第 1 轮让你记的词是什么？"</td><td><strong>看它的回答</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="key"><strong>遗忘不是 bug，是设计。</strong>
+    窗口越大越贵——<strong>每一次请求都要把全部历史重发一遍</strong>（回到第一节那个数组）；窗口越大也越慢——token 越多，等待越久。
+    所以"它忘了"和"它记得"之间，是<strong>一个你要主动做的工程决定，不是一个功能开关</strong>。</div>
+
+  <h3>二、想要"真记得"，得换方案</h3>
+  <div class="grid2">
+    <div class="cell">
+      <h4>摘要记忆</h4>
+      <p>把旧对话<strong>压成一段摘要</strong>再塞回上下文。省 token，代价是细节被抹平。<strong>这个词今天只点名，不展开。</strong></p>
+    </div>
+    <div class="cell">
+      <h4>向量检索</h4>
+      <p>按<strong>语义</strong>把相关的旧内容找回来，而不是按时间顺序全带上。这就是后面幻觉治理要说的 <strong>RAG</strong> 的同一条思路。<strong>今天只点名。</strong></p>
+    </div>
+  </div>
+  <p>案例 06 的小测 L2 有一道题专考这一点（<code class="inline">QUIZ</code> 里 <code class="inline">lv:2</code>，题面即"<code class="inline">MAXH=8</code>（约 4 轮）的直接后果是什么"）——<strong>可以当堂让学生先猜再验</strong>。</p>
+  <div class="note">时间紧张时的降级：把"连续追问 5 轮"改成"直接投 <code class="inline">MAXH=8</code> 与双保险截窗两行代码"（8′ → 4′）。这是降级优先级里的第 6 档——<strong>能砍，但砍了就少一次"学生自己看出来"的机会。</strong></div>
+</section>
+
+<!-- ===== 四、动作协议与白名单 ===== -->
+<section id="c4">
+  <div class="sec-head">
+    <div class="sec-num">四</div>
+    <div>
+      <h2>动作协议与白名单</h2>
+      <p class="sec-sub">模型只"建议"，程序才"决定"——本讲唯一需要背下来的工程约束</p>
+    </div>
+  </div>
+
+  <h3>一、先问一个问题（想 10 秒再答）</h3>
+  <div class="warn">如果模型输出的不是 <code class="inline">teleport</code>，而是 <code class="inline">location.href='http://……'</code>，
+    或者 <code class="inline">deleteSave()</code>、<code class="inline">openDoor()</code>——<strong>你的作品会怎么样？</strong><br>
+    ……答案是：<strong>会照做。</strong>因为如果按最朴素的方式写——把模型输出的 JSON 直接丢给执行函数——它就照做。
+    <strong>这就是今天最重要的一个安全点。</strong></div>
+
+  <h3>二、约定好的三种动作（案例 06 的真实约定，照抄未改一字）</h3>
+  <pre>{"action":"teleport","target":"center|east|west"}   传送
+{"action":"time","value":"day|night"}               昼夜切换
+{"action":"show","target":0|1|2}                    高亮讲解 0东·青花瓷罐 1西·青铜爵 2中·玉璧</pre>
+  <p><strong>为什么不用原生 function calling？</strong>——<strong>任何</strong> OpenAI 兼容端点（含免费 / 国产模型）都能用这种约定 JSON，课堂零门槛；原生 tools 调用留作作业。</p>
+
+  <h3>三、白名单：枚举允许的，而不是枚举禁止的</h3>
+  <pre>var ACTS={ teleport:['center','east','west'], time:['day','night'], show:[0,1,2] };
+
+/* parseAction：非法 action / 越界 value 一律拒绝 */
+if(!o.action || !ACTS[o.action]) return null;
+if(ACTS[o.action].indexOf(v)&lt;0) return null;</pre>
+  <p><strong>现场演示</strong>（控制台敲这一行）：</p>
+  <pre>NPC.parseAction('{"action":"teleport","target":"moon"}')</pre>
+  <p>看，<strong>返回 <code class="inline">null</code></strong>。<code class="inline">moon</code> 不在白名单里，这个动作被拒绝。
+    注意另外一件事：<strong>被拒绝了，但对话没有崩。</strong>这一条同样重要——<strong>兜底不是"出错就停下"，是"出错照常继续，只是不做那件事"。</strong></p>
+
+  <h3>四、三层结论（按顺序讲，不要跳）</h3>
+  <div class="grid3">
+    <div class="cell">
+      <h4>① 模型是不可信输入源</h4>
+      <p>它会被<strong>提示注入</strong>（prompt injection）带偏，也会单纯地"想帮你"。</p>
+    </div>
+    <div class="cell">
+      <h4>② 白名单是"只允许这三件事"</h4>
+      <p>不是"禁止可疑的事"——<strong>枚举允许的，不枚举禁止的</strong>。这是安全设计的通用姿势。</p>
+    </div>
+    <div class="cell">
+      <h4>③ 执行权在前端</h4>
+      <p>模型只是<strong>建议</strong>，<code class="inline">ACTS</code> 才<strong>决定</strong>。<strong>"模型说"和"程序做"之间必须隔一层校验。</strong></p>
+    </div>
+  </div>
+
+  <div class="key"><strong>这就是为什么白名单必须写在代码里。</strong>你在提示词里写"只输出这三种动作"是一个<strong>请求</strong>；
+    前端那三行 <code class="inline">ACTS</code> 校验才是一道<strong>锁</strong>。第二节的高潮已经证明：换一句人设，遵守率就变了。</div>
+
+  <h3>五、工作室里怎么查（教师巡回第 2 个检查点）</h3>
+  <p>如果他做了动作，<strong>造一个越界的 target 喂给他的解析函数</strong>，看是否被拒绝、对话是否照常继续。
+    新增一种动作的完整改法是三处：<strong><code class="inline">ACTS</code> 白名单 + <code class="inline">doAction</code> 分支 + 提示词里的说明</strong>——漏掉任何一处都不成立。
+    <strong>改动不超过 20 行</strong>，这是加分项的挑战档。</p>
+</section>
+
+<!-- ===== 五、幻觉治理与密钥安全 ===== -->
+<section id="c5">
+  <div class="sec-head">
+    <div class="sec-num">五</div>
+    <div>
+      <h2>幻觉治理与密钥安全</h2>
+      <p class="sec-sub">事实进知识库，模型只组织语言；Key 进服务器，前端只发问题</p>
+    </div>
+  </div>
+
+  <h3>一、幻觉治理：不要指望"把温度调到 0"</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>做法</th><th>效果</th></tr></thead>
+      <tbody>
+        <tr><td>❌ 把 <code class="inline">temperature</code> 调到 0</td><td>只是让输出<strong>更确定</strong>——<strong>编造时会更理直气壮、更稳定地编造</strong></td></tr>
+        <tr><td>✅ <strong>把事实放进系统提示词 / 知识库</strong></td><td>模型<strong>只负责组织语言</strong>，事实有你给的出处</td></tr>
+        <tr><td>✅ 这个做法有名字：<strong>RAG（检索增强）</strong></td><td>答案的事实来自知识库，模型只做措辞</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p><strong>案例 06 的真实做法</strong>（照 README 原文）：三件展品的讲解文案<strong>刻意不做史实断言</strong>——原话是"避免幻觉示范反面教材"；
+    「安全与合规提醒」里写：<strong>"场景事实类回答应把事实放进系统提示词 / 知识库，模型只负责组织语言。"</strong></p>
+
+  <div class="key"><strong>把这条纪律接到你自己身上——大作业硬门槛第 10 条：诚实。</strong><br>
+    涉及校史、文物、机构等真实信息，<strong>不确定的一律标 <code class="inline">【待补充】</code>，不得编造</strong>；README 写明"已知简化"。<br>
+    ➜ <strong>你要求模型做到的事，你自己的 README 也要做到。</strong></div>
+
+  <h3>二、密钥安全：先看现状</h3>
+  <pre>浏览器（你的机器）  ──[ Key 明文，存在 localStorage + 内存 ]──►  大模型 API</pre>
+  <p><strong>照念案例 06 README 的原话</strong>（<code class="inline">安全与合规提醒</code>）：</p>
+  <div class="note">"本页把 API Key 放在<strong>前端</strong>（localStorage + 内存），<strong>任何能打开控制台的人都看得到</strong>——只适合本机课堂演示。"</div>
+  <p><strong>现场演示（这一步必须让学生自己看见自己的）</strong>：按 F12 → Console → 敲 <code class="inline">NPC.CFG</code>。
+    ……<strong>看见了吗？你的 Key，就在那儿，明文。</strong>现在问一个问题：<strong>你的作品是要交出去、要在路演上给 40 个人看的。你会希望有人当场按一下 F12 吗？</strong></p>
+
+  <h3>三、高潮 B：正式架构图（现场一层一层画，不要一次画完）</h3>
+  <pre>前端（浏览器 / 头显）
+   │  ① 只发问题 —— 不带 Key、不带系统提示词的敏感部分
+   ▼
+自家中介（自建后端 / 边缘函数）
+   │  ② 持有 Key：放服务器环境变量，不进代码、不进仓库
+   │  ③ 限流：每用户每分钟 N 次、每天 M 次
+   │  ④ 内容审核：入参过一遍、出参再过一遍
+   │  ⑤ 日志：谁、什么时候、问了什么、模型答了什么
+   ▼
+大模型 API</pre>
+  <p><strong>讲到哪画到哪</strong>：第一步，Key 从浏览器搬到服务器——<strong>前端从此不知道 Key 是什么</strong>；
+    第二步，<strong>限流</strong>——为什么必须有限流？<strong>今天这间教室就是最好的例子：40 个人，如果每个人都拿自己的 Key 打同一个模型，超限之后是全体静默失败</strong>，你路演那天网络一抖，作品就哑了；
+    第三步，<strong>内容审核</strong>——课堂产品里出现不当内容，责任在课程，不在模型；第四步，<strong>日志</strong>——出了问题你才知道是谁问了什么。</p>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th></th><th>课堂演示（案例 06 现状）</th><th>正式产品（架构图）</th></tr></thead>
+      <tbody>
+        <tr><td>Key 在哪</td><td><strong>前端</strong> localStorage + 内存</td><td>服务器环境变量</td></tr>
+        <tr><td>谁能看到</td><td><strong>任何打开控制台的人</strong></td><td>只有服务端</td></tr>
+        <tr><td>限流</td><td>无</td><td><strong>有</strong>（每用户每分钟 / 每天）</td></tr>
+        <tr><td>内容审核</td><td>无</td><td><strong>有</strong>（入参 + 出参）</td></tr>
+        <tr><td>适合谁</td><td><strong>只适合本机课堂演示</strong></td><td>上线必须</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="key"><strong>板书第 2 行</strong>：<strong>"Key 放前端只适合本机课堂演示；正式产品必须后端代理 + 限流 + 内容审核。"</strong><br>
+    这三条今天<strong>不要求你实现</strong>——55 分钟的工作室时间不够。但要求你做到两件事：<strong>第一，写进 README 的"已知简化"；第二，说得出为什么。</strong>
+    路演的时候如果被问到"你的 Key 放哪"，答"<strong>放前端，因为这节课就是这样演示的；正式产品要后端代理 + 限流 + 内容审核</strong>"——<strong>这是满分答案。答不出来才是问题。</strong></div>
+</section>
+
+<!-- ===== 案例 06 / 04 ===== -->
+<section id="cases">
+  <div class="sec-head">
+    <div class="sec-num">例</div>
+    <div>
+      <h2>案例：06 是主线，04 是成品参照</h2>
+      <p class="sec-sub">同一个场景，两次测量给出两个数——所以你的记录表上每一行读数都要写"从哪个面板读的、什么时候读的"</p>
+    </div>
+  </div>
+
+  <h3>一、同一个案例，两次测量两个数（真实的差异）</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>案例</th><th>案例自己的 README 报</th><th>审计文件报</th><th>差</th></tr></thead>
+      <tbody>
+        <tr><td><strong>06 LLM 智能 NPC</strong>（今天的主线案例）</td><td><strong>27 draw calls / 2262 三角面</strong></td><td><strong>31 / 2312</strong></td><td><strong>draw call 差 4</strong>（六例中最大）</td></tr>
+        <tr><td><strong>04 数字校园 + AI 导览</strong>（今天的参照案例）</td><td><strong>13 / 4478</strong></td><td><strong>14 / 4480</strong></td><td>draw call 差 1</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>审计文件 = <code class="inline">_标准与审计\标准_大四课程标准.md</code>（「验证记录（2026-09-26）」与 v4 第三轮记录两处都写
+    <code class="inline">06: 31calls/2312tris · 04: 14calls/4480tris</code>）。六例的审计读数是
+    <code class="inline">01: 50/2348 · 02: 44/1240 · 03: 60/8950 · 04: 14/4480 · 05: 25/852 · 06: 31/2312</code>——<strong>06 这一组的 draw call 差异（4）是六例中最大的</strong>，其余为 1—2。</p>
+  <div class="key">这不影响结论（两种读法都远低于移动头显预算），但<strong>恰恰是今天要讲的事</strong>：
+    <strong>没有"这个作品的真实性能"这种东西，只有"你什么时候、从哪个面板读到的数"。</strong>
+    所以今天你的记录表上，<strong>每一行读数都要写来源和时间</strong>。这和上次课"编数据比做不出来更严重"是同一条纪律的另一面。<br>
+    另外两组可作量级参考：案例 06 README 另记 <strong>7 贴图 · 22 几何体</strong>、35 个 mesh、阴影 1024 PCFSoft；案例 05 审计为 <strong>25 calls / 852 三角面</strong>。</div>
+
+  <div class="warn"><strong>别把 draw calls 当帧率。</strong>这些结论全部来自 headless Chrome + SwiftShader 软件渲染，
+    <strong>六个案例从未真机验证</strong>。真机上用内核面板看 FPS 与降级等级——<strong>别把"31 draw calls"当"能跑 72 Hz"。</strong></div>
+
+  <h3>二、04 当成品参照：「导览打卡」＝ 目标闭环 + 难度曲线</h3>
+  <p><strong>漫游型 VR 最容易做成"转一圈就完了"。转一圈不是作品，是 demo。</strong>04 加了一条主线：有目标、有评价、有数据沉淀。</p>
+  <ul>
+    <li><strong>路线 5 站</strong>：学校正门 → 中心广场 → 运动场 → 图书馆前 → 生活区（<strong>起始站自动计为已到访，需再走 4 站</strong>）；</li>
+    <li><strong>到访自动打卡</strong>，HUD 实时显示<strong>进度与用时</strong>；</li>
+    <li><strong>线索三段递减</strong>（这是设计重点，不是随便给提示）。</li>
+  </ul>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>已到访站数</th><th>给的线索</th><th>难度从哪里来</th></tr></thead>
+      <tbody>
+        <tr><td>0—1 站</td><td>直给地名 + 详细描述：「下一站是【中心广场】。中心广场：正前方是有柱廊的主楼。」</td><td>建立<strong>校园空间坐标系</strong></td></tr>
+        <tr><td>2—3 站</td><td>只给特征描述，不给地名：「下一步线索：运动场：有标准跑道与看台。」</td><td>开始撤掉外部导引</td></tr>
+        <tr><td>≥4 站</td><td>只给一句功能提示：「再想一想：借书和自习的地方。」</td><td>逼你<strong>凭空间记忆找路</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p><strong>为什么越往后线索越短？</strong>因为前两站的任务是让你<strong>建立校园的空间坐标系</strong>；后面要逼你从"照着地名走"切换到"<strong>凭空间记忆找路</strong>"。
+    这正好对应 VR 里的<strong>空间认知与路径整合（path integration）</strong>——<strong>这就是"VR 能训练空间能力"这句话的证据。</strong></p>
+
+  <h4>评级公式（写在 <code class="inline">finishTask()</code> 里，可当堂改参数做实验）</h4>
+  <pre>扣时分   = clamp(round((用时秒 - 300) / 10), 0, 20)    // 超 5 分钟后，每 10 秒扣 1 分
+扣分线索 = clamp(求助次数 × 4, 0, 20)                  // 每条线索扣 4 分
+扣晕动   = clamp(round((平滑移动秒 - 90) / 6), 0, 15)  // 晕动暴露超 90 秒开始扣
+总分     = clamp(100 − 扣时分 − 扣分线索 − 扣晕动, 0, 100)
+评级：≥85 优秀 / ≥70 良好 / ≥55 合格 / 其他 需要再练一遍</pre>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>扣分项</th><th>它考察的是什么（必须念）</th></tr></thead>
+      <tbody>
+        <tr><td><strong>用时</strong></td><td><strong>找路效率</strong>，不是速度——跑得快但走错方向会同时吃用时和求助扣分</td></tr>
+        <tr><td><strong>求助次数</strong></td><td>多大程度上<strong>依赖外部导引而非自身空间记忆</strong></td></tr>
+        <tr><td><strong>晕动暴露</strong></td><td>把"舒适度"变成<strong>真实代价</strong>：想省时间走平滑移动，就要付晕动的分数——<strong>这是一次真的人因权衡</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="key"><strong>结算后</strong>：<code class="inline">XRCore.goal('campus-tour','数字校园导览打卡', result)</code> → <strong>成绩写进 XR 体验数据 → 导出 JSON ⇒ 过程性评分证据。</strong><br>
+    也就是说：<strong>你今天玩得怎么样，是可以被拿出来当证据的。</strong></div>
+
+  <h3>三、两条边界必须同时讲清（04 README 原文都写了）</h3>
+  <ol>
+    <li><strong>可以当评分证据的只有一类数据</strong>：<code class="inline">XRCore.goal()</code> 写入的<strong>成就数据</strong>；
+      <strong>其余过程数据不作排名</strong>——坐姿或单手模式天然更慢，它用于<strong>你自己前后两次对比</strong>，不是排名。</li>
+    <li><strong>04 没有实现 3D 高斯溅射（3DGS）。</strong>3DGS 需要真实多视角照片 + 训练，无法在单文件离线页面里生成；
+      README 明确建议<strong>单独安排一次采集与训练实验课</strong>。今天谁要是问"我们是不是用了 3DGS"——<strong>答案是：没有，也不该说用了。</strong></li>
+  </ol>
+  <div class="warn"><strong>其他必须在课堂上说明的"已知简化"（如实写）</strong>：<br>
+    ① 06 的 NPC 是<strong>程序化几何拼装</strong>（圆柱 + 球），非骨骼动画角色；"说话"只有头部微动，<strong>无口型</strong>——"会说话"指<strong>内容</strong>会说话，不是<strong>嘴</strong>会动；<br>
+    ② 04 的建筑与地标是<strong>程序化示意</strong>，不是实景——<strong>这是示意场景，不是真实校园</strong>；<br>
+    ③ 04 / 06 缺触觉与抓取类交互，这是<strong>场景性质</strong>决定的，不是遗漏；<br>
+    ④ 04 的语音识别依赖浏览器实现，Safari / Firefox 支持有限——<strong>课堂演示统一用 Chrome 系</strong>。</div>
+</section>
+
+<!-- ===== 六、AR 对照 ===== -->
+<section id="ar">
+  <div class="sec-head">
+    <div class="sec-num">六</div>
+    <div>
+      <h2>AR 对照（原要求 15′，本课只给 6′）</h2>
+      <p class="sec-sub">同一套"识别—配准—叠加"的逻辑，换到 AR 长什么样——只讲三句，多一句都不讲</p>
+    </div>
+  </div>
+
+  <p><strong>案例 05 是六个案例里唯一保留真 <code class="inline">immersive-ar</code> 入口的一例</strong>：</p>
+  <pre>navigator.xr.isSessionSupported('immersive-ar')   // 检测
+  → 支持：控制台"进入 AR"按钮可用（AR_OK），走 requestSession('immersive-ar')
+  → 不支持：按钮显示"AR 不可用"并禁用</pre>
+
+  <h3>一、三句要讲的</h3>
+  <div class="step-grid">
+    <div class="step-card">
+      <div class="sc-no">第 1 句 · 现实</div>
+      <div class="sc-title">PICO Neo3 的浏览器一般不支持 immersive-ar</div>
+      <div class="sc-desc">这是 05 README 对比表的原话。所以这一例<strong>专为 PC 浏览器全流程演示设计</strong>，走的是<strong>模拟跟踪</strong>——用"相机—识别图距离 / 视线夹角 / 正对度"算特征点分。</div>
+    </div>
+    <div class="step-card">
+      <div class="sc-no">第 2 句 · 形态差异</div>
+      <div class="sc-title">"注册"在两个形态下指两件事</div>
+      <div class="sc-desc">AR 里"注册"＝把模型<strong>钉在</strong>识别图上；VR 里"注册"＝把玩家<strong>放进</strong>场景。<strong>"虚实融合"这四个字，在两种形态下指的是两件事。</strong></div>
+    </div>
+    <div class="step-card">
+      <div class="sc-no">第 3 句 · 本课口径</div>
+      <div class="sc-title">以 VR 沉浸作品为主，AR 只作对照与可选加分</div>
+      <div class="sc-desc">本课次 AR 只给这几分钟——<strong>想做的同学，把它做成期末的 +5 加分项</strong>（智能交互 / AR 虚实融合 / 思政题材，三者任一生效且有降级方案才算生效）。</div>
+    </div>
+  </div>
+
+  <div class="note"><strong>如果时间不够，先砍它。</strong>降级优先级里 AR 对照排第 4 位，处置方式就是"<strong>改成课后阅读</strong>"。
+    同样排在第 4 位的还有"05 的 Vuforia 对照"——后者本来就是课后阅读。<strong>但不许把 15′ 讲成 45′。</strong></div>
+
+  <div class="warn"><strong>同类占位提醒（同一纪律）</strong>：案例 05 的 <code class="inline">RELIC</code> 表有 <strong>5 项 <code class="inline">【待补充】</code></strong>
+    （<code class="inline">dynasty</code> 年代 / <code class="inline">kiln</code> 窑口 / <code class="inline">size</code> 尺寸 / <code class="inline">pattern</code> 纹样 / <code class="inline">craft</code> 工艺与修复要点）。
+    本课次只用 05 做 6′ 对照、不做动手环节，<strong>如果对照演示会念到这几项，请一并按博物馆资料核实填写；否则在课堂上说明"这几项是占位，请勿当史实"。</strong></div>
+</section>
+
+<!-- ===== 课堂实操 ===== -->
+<section id="demo">
+  <div class="sec-head">
+    <div class="sec-num">实</div>
+    <div>
+      <h2>课堂实操 · 工作室 55 分钟</h2>
+      <p class="sec-sub">两件必须都做：接智能交互模块（含离线降级兜底）＋ 导出一次体验数据 JSON</p>
+    </div>
+  </div>
+
+  <h3>一、三个任务</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>#</th><th>任务</th><th>时间</th><th>硬要求</th></tr></thead>
+      <tbody>
+        <tr><td>T1</td><td><strong>接智能交互模块</strong>（离线知识库 或 在线大模型，二选一或都接）</td><td>35′</td><td><strong>必须带离线降级兜底</strong>：在线失败 / 未配置 / 断网时走关键词或预设回答，<strong>不许白屏、不许报错、不许卡住</strong></td></tr>
+        <tr><td>T2</td><td><strong>导出一次体验数据 JSON</strong></td><td>12′</td><td>走一遍主流程后导出，<strong>字段逐项核对</strong>（见下表）</td></tr>
+        <tr><td>T3</td><td>填任务卡 + M5 封版自查</td><td>8′</td><td>五张记录表填完，本人签字</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>二、分档要求（任选其一，但不许"我只做了在线、没有兜底"）</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>档</th><th>做到什么</th><th>对应期末量规</th></tr></thead>
+      <tbody>
+        <tr><td><strong>及格档</strong>（人人必做）</td><td>离线知识库 ≥5 条词条 + 未命中时的引导式兜底 + 导出 JSON 成功</td><td>加分项"尝试过但未跑通"以下不算；<strong>及格档本身不算加分</strong></td></tr>
+        <tr><td><strong>标准档</strong>（推荐）</td><td>及格档 + 在线模型通道 + <strong>在线失败自动降级为离线并提示</strong></td><td>加分项"三者任一生效且有降级方案"</td></tr>
+        <tr><td><strong>挑战档</strong>（学有余力）</td><td>标准档 + 一种动作（约定 JSON + 白名单校验）；<strong>改动不超过 20 行</strong></td><td>同上，且可写进 README 的"我改了什么"</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>三、降级方案必须写成表（四列填满）</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>降级触发</th><th>学生要写的</th><th>例子（照案例 04 / 06 的真实设计写）</th></tr></thead>
+      <tbody>
+        <tr><td>① <strong>未配置 / 关闭在线</strong></td><td>系统走哪条路？</td><td><strong>04</strong>：默认走<strong>离线知识库</strong>，关键词最长匹配，14 条词条，命中即答</td></tr>
+        <tr><td>② <strong>请求失败 / 超时</strong></td><td>用户看到什么？</td><td><strong>04</strong>：<strong>在线失败自动降级为离线并提示，不会白屏</strong></td></tr>
+        <tr><td>③ <strong>未命中</strong>（离线也不认识）</td><td>给什么？</td><td><strong>04</strong>：未命中给<strong>引导式兜底</strong>；<strong>06</strong>：引导性回复 + 提示配置在线模型</td></tr>
+        <tr><td>④ <strong>模型输出了非法动作</strong></td><td>谁来拒绝？</td><td><strong>06</strong>：<code class="inline">ACTS</code> 白名单，非法 action / 越界 value <strong>一律拒绝</strong>，且不影响对话</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>四、体验数据 JSON 字段核对表（照 <code class="inline">_xr_core.js</code> 的 <code class="inline">stats()</code> 实际字段写，不是编的）</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>导出 JSON 里的字段</th><th>本次课要求学生核对的</th><th>这说明什么</th></tr></thead>
+      <tbody>
+        <tr><td><code class="inline">sessionMs</code></td><td>本次体验总时长（ms）</td><td>过程性证据的第一项</td></tr>
+        <tr><td><code class="inline">fps</code> / <code class="inline">frameMsAvg</code> / <code class="inline">frameMsP99</code></td><td><strong>帧率分布，必须看 P99</strong>——平均帧率好看不代表不卡</td><td>与第 10 次课的"帧预算 13.9 ms"接上</td></tr>
+        <tr><td><code class="inline">drawCalls</code> / <code class="inline">triangles</code></td><td>与上次课 M4 的读数对照（textures 一并记）</td><td><strong>有对照才叫优化</strong></td></tr>
+        <tr><td><code class="inline">degradeLevel</code></td><td>动态降级等级（0 / 1 / 2）</td><td>有没有触发过降级</td></tr>
+        <tr><td><code class="inline">comfort</code></td><td>舒适度相关设置与状态</td><td>人因设置有没有被真的用上</td></tr>
+        <tr><td><code class="inline">cybersicknessExposureMs</code></td><td><strong>晕动暴露</strong>（平滑移动累计毫秒）</td><td><strong>不作排名</strong>，用于同一学生前后对比</td></tr>
+        <tr><td><code class="inline">accessibility</code></td><td>坐姿 <code class="inline">pose</code> / 惯用手 <code class="inline">handed</code> / 单手 <code class="inline">oneHand</code> / 注视 <code class="inline">gazeDwell</code> + <code class="inline">gazeMs</code></td><td>可复盘"某种交互方式是否拖慢了任务"</td></tr>
+        <tr><td><code class="inline">teleports</code> / <code class="inline">interactions</code></td><td>瞬移次数 / 交互次数</td><td>交互密度</td></tr>
+        <tr><td><code class="inline">eyeHeight</code></td><td>眼高</td><td>坐姿↔站立切换是否生效</td></tr>
+        <tr><td><code class="inline">goals</code></td><td><strong>成就闭环</strong>：<code class="inline">XRCore.goal(id, name, detail)</code> 写入的成绩</td><td><strong>唯一可直接当评分证据的过程数据</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>必须当场重申的三条纪律：① <strong>读数要注明"从哪个面板读的、什么时候读的"</strong>（案例 04 / 06 的 README 与审计读数本身就差 1—4 个 draw call）；
+    ② <strong>不许编数据</strong>；③ <strong>导出成功才算 T2 完成</strong>——走通一次并把文件存到作品目录。</p>
+
+  <h3>五、教师巡回的三个检查点（按顺序，别乱）</h3>
+  <div class="step-grid">
+    <div class="step-card">
+      <div class="sc-no">① 先查兜底</div>
+      <div class="sc-title">把在线配置关掉 / 拔网</div>
+      <div class="sc-desc">问一句——<strong>"现在它说什么？"</strong> <strong>白屏或报错 ＝ 当场返工。</strong>这是降级优先级里排第 1、绝不砍的一项。</div>
+    </div>
+    <div class="step-card">
+      <div class="sc-no">② 再查非法动作</div>
+      <div class="sc-title">造一个越界的 target 喂给解析函数</div>
+      <div class="sc-desc">看他做的动作<strong>是否被拒绝</strong>、对话是否<strong>照常继续</strong>。</div>
+    </div>
+    <div class="step-card">
+      <div class="sc-no">③ 最后查 JSON</div>
+      <div class="sc-title">看 goals 数组里有没有内容</div>
+      <div class="sc-desc"><strong>空数组说明成就闭环没接上。</strong>这一条排在降级优先级第 2 位，也绝不砍。</div>
+    </div>
+  </div>
+
+  <h3>六、时间不够时的降级优先级（八级）</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>优先级</th><th>保什么</th><th>砍什么</th></tr></thead>
+      <tbody>
+        <tr><td><strong>1（绝不砍）</strong></td><td><strong>T1 的离线降级兜底</strong>——"接不上时它说什么"必须当场演示通过</td><td>——</td></tr>
+        <tr><td><strong>2（绝不砍）</strong></td><td><strong>T2 的体验数据 JSON 导出成功</strong>（<code class="inline">goals</code> 非空）</td><td>——</td></tr>
+        <tr><td><strong>3（绝不砍）</strong></td><td><strong>M5 封版口径当场宣布并登记</strong></td><td>——</td></tr>
+        <tr><td>4</td><td>第④段的 <strong>05 AR 对照</strong>（15′ → <strong>6′</strong>）</td><td>原理四步演示、Vuforia 对照（后者本来就是课后阅读）</td></tr>
+        <tr><td>5</td><td>第④段的 <strong>04 参照</strong>（10′ → <strong>6′</strong>）</td><td>评级公式改为课后阅读</td></tr>
+        <tr><td>6</td><td>第②段的 <strong>多轮窗口实验</strong>（8′ → <strong>4′</strong>）</td><td>从"连续追问 5 轮"改成"直接投两行代码"</td></tr>
+        <tr><td>7</td><td>第④段密钥安全的<strong>内容审核</strong>（3′）</td><td>保留限流与架构图，内容审核一句话带过</td></tr>
+        <tr><td>8</td><td>第①段 <strong>M4 点评</strong>（10′ → <strong>6′</strong>）</td><td>只讲两份读数对照，其余改成群里发</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="key"><strong>一句话原则</strong>：<strong>宁可少讲一个知识点，也要让每个人手上有一个"断网也能答话"的智能模块和一份导出的 JSON。</strong>
+    这节课的产出是"<strong>接不上时怎么办</strong>"的答案，不是"我用上了大模型"这句话。</div>
+
+  <div class="warn"><strong>⚠️ 动手前必须确认的一件事：案例 04 的 <code class="inline">CAMPUS_FACTS</code> 有 7 项 <code class="inline">【待补充】</code>。</strong>
+    04 的离线知识库有 <strong>7 条词条直接朗读这些字段</strong>（<code class="inline">校训</code> / <code class="inline">建校</code> / <code class="inline">图书馆</code> / <code class="inline">专业</code> / <code class="inline">食堂</code> / <code class="inline">宿舍</code> / 自我介绍）。
+    具体 7 项是：<code class="inline">address 【待补充：校区地址】</code> · <code class="inline">motto 【待补充：校训】</code> · <code class="inline">founded 【待补充：建校年份】</code> ·
+    <code class="inline">libraryBooks 【待补充：图书馆藏书量】</code> · <code class="inline">colleges 【待补充：学院与专业设置】</code> ·
+    <code class="inline">canteen 【待补充：食堂与商业配套】</code> · <code class="inline">dorm 【待补充：宿舍区概况】</code>。<br>
+    <strong>上课前必须按学校官网核实后填入。</strong>课堂上一旦出现错误校史——建校年份差一年、藏书量随口报一个数——<strong>是硬伤，而且学生会当真。</strong>
+    原作者写这份案例时明确写了"我没有凭印象填写"，本资料包沿用同一条纪律。<strong>宁可不演示 04 的这几条问答，也不要念错。</strong><br>
+    <strong>做法</strong>：打开 04 的 <code class="inline">index.html</code>，搜索 <code class="inline">CAMPUS_FACTS</code>，按官网逐项填入；运行断言测试时<strong>第 17 项会列出仍未填写的字段</strong>，填完后再跑一次，确认该列表为空。<br>
+    <strong>本轮无法代填</strong>：这些是校史事实，工作区内没有可核实的权威来源；凭印象填写正是要避免的事。也可以选择<strong>当堂带着学生一起填</strong>（10 分钟），这本身就是一次很好的"幻觉治理"示范——但这会把第④段的 AR 对照挤掉。</div>
+</section>
+
+<!-- ===== 达标线与评价 ===== -->
+<section id="hw">
+  <div class="sec-head">
+    <div class="sec-num">作</div>
+    <div>
+      <h2>达标线与评价</h2>
+      <p class="sec-sub">缺一条不算过；本次课不另造量规，直接指向期末量规</p>
+    </div>
+  </div>
+
+  <h3>一、本节达标五条（缺一条不算过）</h3>
+  <ol>
+    <li><strong>会说话</strong>：作品里有<strong>可交互的智能模块</strong>——至少一条通道能正常回答（离线知识库或在线模型）；</li>
+    <li><strong>答得上（硬门槛）</strong>：<strong>必须有离线降级兜底</strong>——在线关闭 / 失败 / 断网时，<strong>不白屏、不报错、不卡死</strong>，给出有意义的回复；</li>
+    <li><strong>管得住</strong>：若有动作，动作走<strong>白名单校验</strong>，非法动作被拒绝且<strong>不影响对话</strong>；</li>
+    <li><strong>量得出</strong>：<strong>导出一次体验数据 JSON 成功</strong>，字段与上面的「字段核对表」逐项对得上；<code class="inline">goals</code> 非空（有成就闭环）；</li>
+    <li><strong>说得出</strong>：能<strong>当场回答"你的 Key 放哪、正式产品该怎么放"</strong>（答"放前端，只适合课堂演示，正式产品要后端代理 + 限流 + 内容审核"即满分）。</li>
+  </ol>
+  <div class="warn"><strong>两条硬门槛（写成量规里的硬条件）</strong>：<strong>离线降级兜底可用</strong> 且 <strong>体验数据 JSON 导出成功</strong>。
+    <strong>答不上来（白屏 / 报错）、或者量不出来（导不出 JSON）的作品，功能再多也不算通过 M5。</strong></div>
+
+  <h3>二、评价量规（直接指向期末量规）</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>维度</th><th>权重</th><th>本次课看什么</th></tr></thead>
+      <tbody>
+        <tr><td>功能完整</td><td>25</td><td>智能模块可用 + 降级兜底可用</td></tr>
+        <tr><td>VR 学科理解</td><td>20</td><td>能否讲清"一条消息的旅程"与"遗忘边界为什么是 8 条"</td></tr>
+        <tr><td>交互与人因</td><td>20</td><td>提问通道是否 PC / VR 双端可用；人因设置是否影响智能模块</td></tr>
+        <tr><td>性能与工程</td><td>15</td><td>JSON 字段完整；<strong>读数注明来源与时间</strong>；有 M4 对照</td></tr>
+        <tr><td>演示与文档</td><td>20</td><td>README 写明"已知简化"（Key 在前端 / 无口型 / 无 3DGS）</td></tr>
+        <tr><td><strong>加分 +5</strong>：智能交互 / AR 虚实融合 / 思政</td><td>+5</td><td><strong>"三者任一生效且有降级方案"才算生效</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>三、M5 提交物（当场登记，一人一行）</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>提交物</th><th>形态</th><th>打钩</th></tr></thead>
+      <tbody>
+        <tr><td>功能封版的作品</td><td><code class="inline">index.html</code>（+ 同目录依赖）能跑、无报错</td><td>☐</td></tr>
+        <tr><td>智能模块</td><td>离线兜底可用；在线通道可选</td><td>☐</td></tr>
+        <tr><td>降级方案</td><td>任务卡「降级方案设计表」四行填满</td><td>☐</td></tr>
+        <tr><td>体验数据 JSON</td><td>导出成功，<code class="inline">goals</code> 非空</td><td>☐</td></tr>
+        <tr><td>封版声明</td><td>任务卡「M5 封版自查清单」五项 + 签字</td><td>☐</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="key"><strong>任何情况下都不降的三条</strong>：① <strong>达标线本身</strong>；
+    ② <strong>必须有一份真的能用的降级方案</strong>（写在纸上不算，要当场拔网验）；
+    ③ <strong>JSON 里的数字必须和页面面板对得上——编数据比做不出来更严重。</strong></div>
+</section>
+
+<!-- ===== 速查 ===== -->
+<section id="practice">
+  <div class="sec-head">
+    <div class="sec-num">查</div>
+    <div>
+      <h2>一页速查 · M5 封版口径 · 课前准备</h2>
+      <p class="sec-sub">把这一页抄在笔记本上，本讲的骨架就齐了</p>
+    </div>
+  </div>
+
+  <h3>一、八句话速查</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>主题</th><th>要记住的</th></tr></thead>
+      <tbody>
+        <tr><td>本课命题</td><td><strong>智能交互不是"接一个 API"，是设计"接不上时怎么办"。</strong>离线兜底是及格线，在线模型是加分项</td></tr>
+        <tr><td>一条消息的旅程</td><td>输入 →（① 历史 + ② 系统提示词）→ ③ 模型 → ④ SSE 流 → ⑤ 打字机 → ⑥ TTS / 动作。<strong>六站里三站能改</strong></td></tr>
+        <tr><td>最容易误解的一站</td><td>发给模型的不是"你这一句话"，是 <code class="inline">[{system}, …history…, {user}]</code>——<strong>每问一次都把全部上下文重发一遍</strong></td></tr>
+        <tr><td>流式</td><td>不是"更快"，是<strong>"更早看见"</strong>：总耗时几乎一样，等待被摊平成了进度</td></tr>
+        <tr><td>提示词工程</td><td>人设是<strong>"输出约束"不是"角色扮演"</strong>：同时管语气 · 字数 · 事实边界 · <strong>动作协议要不要输出</strong></td></tr>
+        <tr><td>遗忘边界</td><td><code class="inline">HISTORY</code> + <code class="inline">MAXH=8</code> ≈ <strong>4 轮</strong>；<strong>遗忘不是 bug，是预算</strong>（摘要记忆 / 向量检索只点名）</td></tr>
+        <tr><td>动作协议 + 白名单</td><td>模型只<strong>建议</strong>，程序才<strong>决定</strong>；<strong>枚举允许的，不枚举禁止的</strong>；非法 action / 越界 value <strong>一律拒绝且对话不崩</strong></td></tr>
+        <tr><td>密钥安全</td><td>Key 放前端<strong>只适合本机课堂演示</strong>；正式产品<strong>后端代理 + 限流 + 内容审核</strong>（＋日志）</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>二、M5 封版口径（照念，板书第 3 行）</h3>
+  <div class="key"><strong>封版 ＝ 今天 17:00 之后，只修错、不加功能。</strong>
+    从今天到 12-02 你只能做三件事：<strong>修 bug、写 README、准备 3 分钟讲稿。</strong>
+    <strong>再加一个新功能，等于把路演的准备时间吃掉。</strong></div>
+
+  <h3>三、⚠️ 课前必须做完的一件事（本课次第一优先）</h3>
+  <div class="warn"><strong>案例 04 的 <code class="inline">CAMPUS_FACTS</code> 有 7 项 <code class="inline">【待补充】</code>，上课前必须按学校官网核实填入。</strong>
+    <div class="tbl-wrap" style="margin-top:10px">
+      <table>
+        <thead><tr><th>字段</th><th>占位内容</th><th>填什么</th><th>状态</th></tr></thead>
+        <tbody>
+          <tr><td><code class="inline">address</code></td><td><code class="inline">【待补充：校区地址】</code></td><td>校区地址</td><td>☐ 未核实</td></tr>
+          <tr><td><code class="inline">motto</code></td><td><code class="inline">【待补充：校训】</code></td><td>校训</td><td>☐ 未核实</td></tr>
+          <tr><td><code class="inline">founded</code></td><td><code class="inline">【待补充：建校年份】</code></td><td>建校年份</td><td>☐ 未核实</td></tr>
+          <tr><td><code class="inline">libraryBooks</code></td><td><code class="inline">【待补充：图书馆藏书量】</code></td><td>图书馆藏书量</td><td>☐ 未核实</td></tr>
+          <tr><td><code class="inline">colleges</code></td><td><code class="inline">【待补充：学院与专业设置】</code></td><td>学院与专业设置</td><td>☐ 未核实</td></tr>
+          <tr><td><code class="inline">canteen</code></td><td><code class="inline">【待补充：食堂与商业配套】</code></td><td>食堂与商业配套</td><td>☐ 未核实</td></tr>
+          <tr><td><code class="inline">dorm</code></td><td><code class="inline">【待补充：宿舍区概况】</code></td><td>宿舍区概况</td><td>☐ 未核实</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <strong>为什么这条要单列</strong>：04 的离线知识库有 7 条词条直接朗读这些字段。
+    <strong>课堂上一旦出现错误校史——建校年份差一年、藏书量随口报一个数——是硬伤，而且学生会当真。</strong>
+    填完后再跑一次断言测试，确认"未填写字段"列表为空。<strong>宁可不演示 04 的这几条问答，也不要念错。</strong></div>
+
+  <h3>四、课前 10 分钟检查表（本课次专用，前两项别漏）</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>#</th><th>要检查的</th><th>怎么算通过</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td><strong>【第一优先】案例 04 的 7 项 <code class="inline">CAMPUS_FACTS</code> 已按学校官网核实填入</strong></td><td>跑一次断言测试，确认"未填写字段"列表为空</td></tr>
+        <tr><td>2</td><td><strong>【第二优先】教师机的在线模型端点实测通过</strong></td><td>Base URL / 模型名 / Key 填好，"你是谁？"与"带我去西展台"各问一次有正常回答</td></tr>
+        <tr><td>3</td><td>高潮 A 预演</td><td><code class="inline">DEFAULT_SYS</code> 的两种人设各跑一遍，差异肉眼可见；<strong>两组回答截图存好做失败备份</strong></td></tr>
+        <tr><td>4</td><td>案例 06 在头显里真机跑通一遍（含进入与退出）</td><td>案例 05 的对照页面提前打开</td></tr>
+        <tr><td>5</td><td>检查是否有人误开 TTS</td><td><strong>动手前要统一关掉</strong></td></tr>
+        <tr><td>6</td><td>上屏与板书</td><td>白板写好本课三行：<strong>本课命题 · 达标线 · 里程碑提交要求</strong>；电脑上按序排好：06 主线页 → <code class="inline">NPC.buildMessages('q')</code> 控制台窗口 → 04 参照页 → 05 对照页</td></tr>
+        <tr><td>7</td><td>M4 报告已排序、可投屏</td><td><strong>只挑优点讲；问题一律说"有同学的作品"</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>五、本讲五条真实风险（如实写）</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>#</th><th>风险</th><th>处理</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td><strong>案例 04 的 <code class="inline">CAMPUS_FACTS</code> 有 7 项占位未填</strong></td><td>上课前必须按学校官网核实填入；<strong>课堂出现错误校史是硬伤</strong>，宁可不演示那几条问答</td></tr>
+        <tr><td>2</td><td><strong>在线模型端点可能限流 / 超时 / 挂掉——而高潮依赖它</strong></td><td><strong>只有教师机走在线</strong>，学生统一走离线；课前实测一遍、两种人设各跑一遍；现场失败立即改用<strong>课前录好的两组回答截图</strong></td></tr>
+        <tr><td>3</td><td><strong>40 人同时开 TTS，教室会像集市</strong></td><td>动手前统一宣布：<strong>工作室时段关掉 TTS</strong>（面板语音开关，PC 快捷键 <strong>T</strong>）</td></tr>
+        <tr><td>4</td><td><strong>第④段塞不下"三段讲授 + 04 参照 + 05 满 15′"</strong></td><td>课前就在 A / B / C 三种处置里选定一种（推荐 A：04 参照 10′ + 05 对照 6′ = 45′）。<strong>不要现场算，也不要撑长第④段</strong></td></tr>
+        <tr><td>5</td><td><strong>头显型号与数量、上课地点均未确认</strong></td><td><strong>【待确认】</strong>。在确认之前<strong>不要向学生承诺"人人一台"</strong>；若为轮转，第⑤段的 55′ 需改成"一半人动手、一半人写 README"，并把头显实跑挪到 12-02</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="note"><strong>其他沿用照旧的风险（不再展开）</strong>：设备卫生（一次性眼罩 ≥40 片）；
+    戴头显的两条硬规矩（<strong>戴前先看周围有没有人 / 戴着头显不许走动</strong>）；
+    <strong>六个案例从未真机验证</strong>（全部结论来自 headless Chrome + SwiftShader 软件渲染；
+    真机用内核面板看 FPS 与降级等级，<strong>别把"31 draw calls"当"能跑 72 Hz"</strong>）。</div>
+
+  <h3>六、本资料包里仍未定的四项（<code class="inline">【待确认】</code>）</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>类</th><th>内容</th><th>影响</th></tr></thead>
+      <tbody>
+        <tr><td><strong>【待补充】× 7</strong></td><td>案例 04 <code class="inline">CAMPUS_FACTS</code>：校区地址 / 校训 / 建校年份 / 图书馆藏书量 / 学院与专业设置 / 食堂与商业配套 / 宿舍区概况</td><td><strong>本课次上课前必须按学校官网核实填入</strong></td></tr>
+        <tr><td><strong>【待补充】× 5</strong></td><td>案例 05 <code class="inline">RELIC</code>：年代 / 窑口 / 尺寸 / 纹样 / 工艺与修复要点</td><td>本课次只作 6′ 对照，念到才需填</td></tr>
+        <tr><td><strong>【待确认】</strong></td><td>头显型号与数量</td><td>转型设计文档第九节列了三个互相矛盾的数（PICO Neo 3 一人一台 / PICO 4 Ultra / 10 台轮转），教师未定</td></tr>
+        <tr><td><strong>【待确认】</strong></td><td>上课地点（646 / 430）</td><td>影响第⑤段 55′ 工作室能否容纳 40 台笔记本 + 头显</td></tr>
+        <tr><td><strong>【待确认】</strong></td><td>在线模型端点（教师机演示用）：Base URL / 模型名 / Key / 是否可用、是否限流</td><td>决定高潮 A 能否现场做；<strong>课前必须实测一遍</strong></td></tr>
+        <tr><td><strong>【待确认】</strong></td><td>上次课（第 10 次课）M4 报告的实收份数与两组读数</td><td>开场 10′ 要投出来看；<strong>工作区内没有该次课的收件记录</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ===== 下次课 ===== -->
+<section id="next">
+  <div class="sec-head">
+    <div class="sec-num">附</div>
+    <div>
+      <h2>下次课 · 2026-12-02 结课路演与验收（M6）</h2>
+      <p class="sec-sub">用三分钟讲清"我做了什么、为什么"</p>
+    </div>
+  </div>
+
+  <div class="key"><strong>真实约束</strong>：每人 4 分钟（30″ 说做什么 → 2′ 演示 → 1′ 说"改了什么、为什么"）。
+    40 人 × 4 分钟 ＝ <strong>160 分钟，一个人讲不完</strong>——所以<strong>分 4 组 × 10 人并行</strong>，每组 1 名评审组长（学生管理员）+ 教师巡回。
+    <strong>现场抽签抽的是组别与顺序，不是"要不要讲"——每个人都讲。</strong></div>
+
+  <h3>一、提交物清单</h3>
+  <ul>
+    <li><strong>作品目录</strong>：<code class="inline">index.html</code> + 依赖 + <code class="inline">cover.jpg</code> + <code class="inline">README.md</code>；</li>
+    <li><strong>体验数据 JSON</strong>（<code class="inline">goals</code> 非空）；</li>
+    <li>交到站点 <code class="inline">assets/vr-2026/student/works/&lt;学号&gt;/</code>。</li>
+  </ul>
+
+  <div class="warn"><strong>⚠️ 交作业姿势（照抄转型设计文档）</strong>：右键 →「另存为 → 网页（仅 HTML）」或直接下载原件。
+    <strong>"网页（完整）"会带出一个 <code class="inline">_files</code> 文件夹，只发 .html 必丢依赖、单独打开白屏。</strong></div>
+
+  <h3>二、现场纪律与降级预案</h3>
+  <ul>
+    <li><strong>现场会抽检戴头显实跑</strong>，JSON 是答辩材料；</li>
+    <li><strong>降级预案</strong>：若分组场地不够 → 改为每人 <strong>3 分钟</strong>、只投屏不戴头显，<strong>头显实跑改由教师课后抽检</strong>；</li>
+    <li>从今天 17:00 到 12-02，<strong>只修错、不加功能</strong>。</li>
+  </ul>
+
+  <h3>三、两个前后衔接的提醒</h3>
+  <div class="grid2">
+    <div class="cell">
+      <h4>本次课没做完的，课后补齐</h4>
+      <p>T1 的<strong>离线降级兜底</strong>与 T2 的 <strong>JSON 导出</strong>是两条硬门槛，<strong>课后必须补到"拔网也能答话 + JSON 能导出"</strong>。12-02 一上来就是路演，没有缓冲。</p>
+    </div>
+    <div class="cell">
+      <h4>把今天的两组数字留着</h4>
+      <p><strong>M4 的两组读数</strong>（优化前 / 优化后）与<strong>今天导出的 JSON</strong>，路演时都要用——<strong>有对照才叫优化，有数据才叫"能被度量"。</strong></p>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<button id="toTop" title="回到顶部">↑</button>
+
+<script>
+(function(){
+  var navInner = document.getElementById('navInner');
+  var navLinks = {};
+  navInner.querySelectorAll('a[data-sec]').forEach(function(a){
+    navLinks[a.getAttribute('data-sec')] = a;
+  });
+  var sections = ['guide','c1','c2','c3','c4','c5','cases','ar','demo','hw','practice','next'];
+  if ('IntersectionObserver' in window) {
+    var obs = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        if (en.isIntersecting) {
+          document.querySelectorAll('#nav a').forEach(function(a){ a.classList.remove('on'); });
+          var a = navLinks[en.target.id];
+          if (a) a.classList.add('on');
+        }
+      });
+    }, {rootMargin:'-15% 0px -70% 0px'});
+    sections.forEach(function(s){
+      var el = document.getElementById(s);
+      if (el) obs.observe(el);
+    });
+  }
+  var toTop = document.getElementById('toTop');
+  if (toTop) {
+    window.addEventListener('scroll', function(){
+      toTop.classList.toggle('show', window.pageYOffset > 400);
+    }, {passive:true});
+    toTop.addEventListener('click', function(){ window.scrollTo({top:0, behavior:'smooth'}); });
+  }
+})();
+</script>
+
+</body>
+</html>

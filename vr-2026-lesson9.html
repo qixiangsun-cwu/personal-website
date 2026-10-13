@@ -1,0 +1,1028 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第9次课 · 路要通、退得出、谁都点得到 | 2026年虚拟现实技术</title>
+<meta name="description" content="《虚拟现实技术》第 9 次课（2026-11-11 · 4 学时）：以案例 02 密室逃脱·敦煌寻宝（二）拆解交互实现与可访问性——attach() 抓取与距离阈值 0.45、release() 放置判定 1.6 与吸附槽、UV 命中 3D 密码键盘、S.step 顺序校验与"失败有代价但不惩罚"；人因与可访问性三件套 Shift+P 坐姿 / Shift+H 惯用手 / Shift+G 注视停留，并现场让学生自己得出"面板可免手柄、场景实体仍需手部输入"这条边界；三条退出路与 M3 主流程可玩硬门槛的判定口径。">
+<link rel="stylesheet" href="assets/vr-2026/course.css">
+</head>
+<body>
+
+<!-- ===== 顶部 ===== -->
+<header class="hero">
+  <div class="hero-inner">
+    <span class="kicker">虚拟现实技术 · 第 9 次课 · 实现与验证</span>
+    <h1>路要通、退得出、谁都点得到</h1>
+    <p class="sub">第 9 次课 · 案例 02「密室逃脱 · 敦煌寻宝」（二）——上周你交的两张图证明<span>你想清楚了</span>；这一周要证明它真的能用，而且不是你能用，是一个陌生人戴上头显也能用</p>
+    <div class="meta">
+      <span>中华女子学院</span><span>4 学时 · 180 分钟</span><span>授课人：孙琪翔</span><span>2026-11-11（周三）</span><span>数字媒体技术 2023 级 · 40 人</span>
+    </div>
+  </div>
+</header>
+
+<!-- ===== 目录导航 ===== -->
+<nav class="nav" id="nav">
+  <div class="nav-inner" id="navInner">
+    <a href="vr-2026.html" class="nav-back">← 课程主页</a>
+    <a href="#guide" data-sec="guide" class="on">本课导览</a>
+    <a href="#c1" data-sec="c1">一、抓得住吗</a>
+    <a href="#c2" data-sec="c2">二、放得对吗</a>
+    <a href="#c3" data-sec="c3">三、点得到吗（3D 键盘）</a>
+    <a href="#c4" data-sec="c4">四、顺序与失败代价</a>
+    <a href="#c5" data-sec="c5">五、谁都点得到</a>
+    <a href="#c6" data-sec="c6">六、一条通道铺到一半</a>
+    <a href="#cases" data-sec="cases">案例演示</a>
+    <a href="#demo" data-sec="demo">上机实操</a>
+    <a href="#cast" data-sec="cast">真机验证</a>
+    <a href="#hw" data-sec="hw">达标 · 量规</a>
+    <a href="#practice" data-sec="practice">速查 · 达标</a>
+    <a href="#m3" data-sec="m3">M3 硬门槛</a>
+    <a href="#next" data-sec="next">下次课预告</a>
+  </div>
+</nav>
+
+<main>
+
+<!-- ===== 导览 ===== -->
+<section id="guide">
+  <div class="sec-head">
+    <div class="sec-num">导</div>
+    <div>
+      <h2>本课导览</h2>
+      <p class="sec-sub">上一课证明"有没有目标"；这一课证明"目标能不能被点得到、能不能被退得出来"</p>
+    </div>
+  </div>
+
+  <p>上周（10-28）每人交了 <strong>M2：动线图 + 状态机图 + 可玩入口</strong>。那两张图证明的是<strong>"你想清楚了"</strong>。这一周要证明的是<strong>"它真的能用"</strong>——而且不是"你能用"，是<strong>一个不熟悉你作品的人，戴上头显也能用</strong>。</p>
+
+  <div class="key"><strong>本课命题</strong>：交互的难点不在"能不能点"，<strong>在"点不到时怎么办"</strong>。<br>
+    <strong>今天的产出 = 三样东西</strong>：① 主流程可玩（入口 → 通关，能连走两遍、控制台无报错）；② 一条<strong>"免手柄也能走完"</strong>的通路说明（含<strong>它覆盖不到哪一步</strong>）；③ 真机验证记录（<strong>用时 / 卡点 / 退出路</strong>，三样缺一不可）。</div>
+
+  <h3>一、五个问题，前四个在电脑上就能做完</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>#</th><th>问题</th><th>一句话判据</th><th>本页在哪</th></tr></thead>
+      <tbody>
+        <tr><td>①</td><td><strong>抓得住吗</strong></td><td>手伸到多近才抓得住？<strong>太远抓不到，太近会误抓</strong></td><td><a href="#c1">一、抓得住吗</a></td></tr>
+        <tr><td>②</td><td><strong>放得对吗</strong></td><td>松手那一刻凭什么判断"这是放对了"？<strong>距离阈值 + 吸附槽</strong></td><td><a href="#c2">二、放得对吗</a></td></tr>
+        <tr><td>③</td><td><strong>顺序对不对</strong></td><td>不按设计的顺序做会怎样？<strong>报错之后还能不能接着玩</strong></td><td><a href="#c4">四、顺序与失败代价</a></td></tr>
+        <tr><td>④</td><td><strong>点得到吗</strong></td><td>不用手柄的人能不能走完整个流程？<strong>走到哪一步就走不动了</strong></td><td><a href="#c5">五、谁都点得到</a></td></tr>
+        <tr><td>⑤</td><td><strong>退得出去吗</strong></td><td>玩完了怎么退出？<strong>退不出去的作品，是最严重的可用性事故</strong></td><td><a href="#cast">真机验证</a></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>这节课最难的不是写代码，是<strong>"替别人试"</strong>：你要站在一个没有手柄、坐着的、只用一只手的用户的位置上，把自己的作品从头走一遍。</p>
+
+  <h3>二、180 分钟怎么分（逐段相加已核对）</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>时段</th><th>时长</th><th>段</th><th>内容</th><th>产出</th></tr></thead>
+      <tbody>
+        <tr><td>0:00—0:10</td><td><strong>10′</strong></td><td>① 开场</td><td>M2 点评 + 卡点统计（<strong>只讲优点；问题一律说"有同学的作品"</strong>）</td><td>"画图时才发现想不清楚"的问题清单</td></tr>
+        <tr><td>0:10—0:55</td><td><strong>45′</strong></td><td>② 讲授</td><td>抓取 / 放置 / 顺序校验 + 谜题与失败代价设计（★ 四处现场改码）</td><td>五条实现口径</td></tr>
+        <tr><td>0:55—1:05</td><td><strong>10′</strong></td><td>③ 课间</td><td>——（<strong>若本次课需换场，这 10′ 就是换场时间</strong>）</td><td>——</td></tr>
+        <tr><td>1:05—1:40</td><td><strong>35′</strong></td><td>④ 讲授+实操</td><td>人因与可访问性三件套（<code class="inline">Shift+P</code> / <code class="inline">Shift+H</code> / <code class="inline">Shift+G</code>）+ 边界讨论</td><td>每人当堂按过一次三件套</td></tr>
+        <tr><td>1:40—2:45</td><td><strong>65′</strong></td><td>⑤ 工作室 + 真机验证</td><td>打通主流程 + 补免手柄通路 + 戴头显走完整流程并抄用时</td><td>主流程可玩 + 免手柄通路 + 真机记录</td></tr>
+        <tr><td>2:45—3:00</td><td><strong>15′</strong></td><td>⑥ 收束</td><td><strong>三条退出路当场报用时</strong> + M3 提交要求</td><td>退出用时进全班统计</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="note"><strong>核对行</strong>：10 + 45 + 10 + 35 + 65 + 15 = <strong>180</strong> 分钟；教学时长 = 180 − 10（课间）= <strong>170</strong> 分钟。<br>
+    ⚠️ <strong>第 6 次课的教训</strong>：第一版方案按 110 分钟排而实际只有 90 分钟，超了 30 分钟。本表已逐段相加核对过。</div>
+
+  <h3>三、设备与场地：一律 <code class="inline">【待确认】</code></h3>
+  <div class="warn">
+    <strong>头显型号、数量、上课地点与是否换场，教师尚未确认</strong>，所以本页一律写 <code class="inline">【待确认】</code>，并同时给出两套组织预案：<br>
+    · <strong>预案 A · 一人一台</strong>（头显数量 ≥ 人数）：40 人同时上机，不轮转，教师 + <strong>2 名学生管理员</strong>巡场；<br>
+    · <strong>预案 B · 10 台轮转</strong>（头显数量 ≈ 10）：<strong>5 人一组 × 8 组，每组 8 分钟</strong>，一组戴头显时其余人在电脑上做任务 1 / 任务 2。<br>
+    两套预案的共同底线（不降）：<strong>每个人都要在头显里走完自己作品的主流程，并至少试通一条退出路。</strong>上课前一天必须确认，<strong>不要临场决定</strong>。
+  </div>
+  <p>本课次涉及的真实信息只在两处出现，均按占位处理，<strong>不引用任何具体洞窟编号或文物流转信息</strong>：<br>
+    · 案例场景里的<strong>敦煌壁画名称、洞窟编号、藏经洞史实</strong> → <code class="inline">【待补充：壁画与洞窟信息以敦煌研究院公开资料为准】</code>；<br>
+    · 若学生 M3 作品涉及校史题材，中华女子学院<strong>校史节点</strong> → <code class="inline">【待补充：校史信息以学校官方公开资料为准】</code>。</p>
+
+  <div class="btn-row">
+    <a class="btn" href="assets/vr-2026/cases/02-dunhuang-escape/index.html" target="_blank" rel="noopener">打开本课主案例 · 密室逃脱敦煌寻宝 →</a>
+    <a class="btn ghost" href="assets/vr-2026/cases/index.html" target="_blank" rel="noopener">课堂案例库（六个）→</a>
+    <a class="btn ghost" href="assets/vr-2026/check/" target="_blank" rel="noopener">VR 作品自检 →</a>
+  </div>
+  <p style="font-size:14px;color:var(--ink-soft);">案例与 <code class="inline">three.min.js</code>、<code class="inline">_xr_core.js</code> 同目录，<strong>离线可跑</strong>；三件套快捷键由共享 XR 工程内核提供，不是案例自己写的。</p>
+</section>
+
+<!-- ===== 一、抓得住吗 ===== -->
+<section id="c1">
+  <div class="sec-head">
+    <div class="sec-num">一</div>
+    <div>
+      <h2>抓得住吗：<code class="inline">attach()</code> 与"最近的那一个"</h2>
+      <p class="sec-sub">案例 02 的抓取规则：<strong>0.45 m 内，挑最近的那一块碎片</strong>——"最近"是规则，不是"我想要"</p>
+    </div>
+  </div>
+
+  <p>抓取这个动作，很多人以为是一大段代码。<strong>其实就是一行 <code class="inline">attach</code>。</strong>真正需要你决定的只有一件事：<strong>手伸到多近，才算抓得住？</strong></p>
+
+  <h3>一、抓取的动作与触发器</h3>
+  <ul>
+    <li>动作在 <code class="inline">grab(obj, holder)</code> 里，核心一行是 <strong><code class="inline">holder.attach(obj)</code></strong>——把物体挂到控制器上；</li>
+    <li>触发它的是 <strong><code class="inline">squeezestart</code></strong>（<strong>握持键</strong>被按下）——<strong>不是扳机</strong>；</li>
+    <li>案例 02 的规则：<strong>在 0.45 m 内挑最近的那一块碎片</strong>。</li>
+  </ul>
+<pre>var best = null, bd = 0.45;          // ← 抓取距离
+for (每块碎片 o) {
+  var d = 控制器 到 o 的距离;
+  if (d &lt; bd &amp;&amp; !o.placed) { bd = d; best = o; }   // 越近越优先
+}
+if (best) grab(best, c);</pre>
+
+  <div class="key"><strong>实现口径 1</strong>：<strong>抓取 = 就近取最近的一个</strong>，不是一个范围。所以<strong>两块碎片叠在一起时，你抓到的可能不是你想抓的那块</strong>——"最近"是规则，不是"我想要"。</div>
+
+  <h3>二、★ 现场改 <code class="inline">bd</code>（3 分钟）</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>改成</th><th>现象</th><th>用户的感受</th></tr></thead>
+      <tbody>
+        <tr><td><code class="inline">0.15</code></td><td><strong>抓不到</strong>——手就在碎片上，按握持键没反应</td><td>"这游戏坏了"</td></tr>
+        <tr><td><code class="inline">1.5</code></td><td><strong>隔着半间房，碎片自己飞过来</strong></td><td>"这也太简单了"</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="note"><strong>太小抓不到，太大乱抓。</strong>这个数不是你"想"出来的，是你<strong>"调"</strong>出来的。案例 02 选 0.45，是它的选择，<strong>不是标准答案</strong>。</div>
+</section>
+
+<!-- ===== 二、放得对吗 ===== -->
+<section id="c2">
+  <div class="sec-head">
+    <div class="sec-num">二</div>
+    <div>
+      <h2>放得对吗：放置判定 = 距离阈值 + 吸附槽</h2>
+      <p class="sec-sub">松手（<code class="inline">squeezeend</code>）调 <code class="inline">release(obj)</code>；它里面<strong>没有"放错了"这个分支</strong>，只有一件事：量一下距离</p>
+    </div>
+  </div>
+
+<pre>var p  = obj.getWorldPosition();         // 碎片当前在哪
+var fp = muralFrame.getWorldPosition();  // 壁画框在哪
+if (p.distanceTo(fp) &lt; 1.6 &amp;&amp; !f.placed) {
+    // 吸附到对应凹槽
+    var slotX = -0.95 + f.idx * 0.95;
+    obj.position.set(fp.x + slotX, fp.y, fp.z + 0.16);
+    placeFragment(f);
+}</pre>
+
+  <p><strong>两个数决定了一切</strong>：<strong><code class="inline">1.6</code> m 是"算不算放到框上"的阈值</strong>；<strong><code class="inline">slotX</code> 是"吸到哪个槽"</strong>。</p>
+
+  <h3>一、★ 现场改 <code class="inline">1.6</code>（3 分钟）</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>改成</th><th>现象</th><th>一句话</th></tr></thead>
+      <tbody>
+        <tr><td><code class="inline">0.5</code></td><td><strong>太远放不进</strong>——明明站在框前面，松手还是掉地上</td><td rowspan="2"><strong>阈值是"手感"，不是"正确值"</strong>；你要为你的场景调一个数</td></tr>
+        <tr><td><code class="inline">4.0</code></td><td><strong>太近误触发</strong>——在门口一松手，碎片自己飞过去吸上</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>二、吸附槽：为什么"放对了"还要再看一次代码</h3>
+  <p>案例 02 的槽位是<strong>按碎片索引固定</strong>的：<code class="inline">slotX = -0.95 + f.idx * 0.95</code>——第 0 块 → <code class="inline">−0.95</code>，第 1 块 → <code class="inline">0</code>，第 2 块 → <code class="inline">0.95</code>。也就是说：<strong>无论你先捡到哪一块，它都只会去自己固定的那个位置。</strong></p>
+  <div class="grid2">
+    <div class="cell">
+      <h4>写法 ① · 按索引固定（案例 02）</h4>
+      <p>好处是<strong>不会抢位置</strong>；代价是<strong>顺序感弱</strong>——你随便捡哪块都行，顺序不对也能拼对。</p>
+    </div>
+    <div class="cell">
+      <h4>写法 ② · 自动找最近的空槽</h4>
+      <p>听起来更聪明，但你要多想一件事：<strong>两块碎片同时靠近同一个空槽的时候，谁赢？</strong>（这是案例 02 布置的作业方向）</p>
+    </div>
+  </div>
+  <div class="key"><strong>实现口径 2 与 3</strong>：<strong>放置判定 = 距离阈值</strong>，不是一个"放对了"的 flag；<strong>只要落在阈值内，就自动吸到槽位</strong>。两种写法都对，<strong>但你得知道你选了哪一种，以及代价是什么</strong>。</div>
+  <p class="sec-sub" style="margin-top:14px;">⚑ <strong>要让学生自己看出来的一件事</strong>：<code class="inline">release()</code> 里<strong>没有"放错了"这个分支</strong>——阈值内就吸附，阈值外就掉在原地。<strong>"放错"这件事在你的作品里到底发生了没有？</strong></p>
+</section>
+
+<!-- ===== 三、点得到吗：UV 命中 3D 键盘 ===== -->
+<section id="c3">
+  <div class="sec-head">
+    <div class="sec-num">三</div>
+    <div>
+      <h2>点得到吗：UV 命中 3D 密码键盘</h2>
+      <p class="sec-sub">进了沉浸模式，网页的 DOM 面板不渲染——你在 HTML 里写的 <code class="inline">&lt;button&gt;</code> 在头显里<strong>根本没存在过</strong></p>
+    </div>
+  </div>
+
+  <div class="warn"><strong>先记住这个坑</strong>：进入沉浸模式后，浏览器的网页覆盖层<strong>不渲染</strong>。所以把按钮/面板写成页面的 <code class="inline">&lt;div&gt;</code> 或右上角 HUD，<strong>戴上头显一定看不见、也点不到</strong>。按键必须是<strong>场景里的一个物件</strong>。</div>
+
+  <h3>一、按键是画在 canvas 上、贴到一块平面上的</h3>
+<pre>canvas 384 × 512  →  THREE.CanvasTexture  →  PlaneGeometry(0.62, 0.82)  →  贴到墙上
+var labels = ['1','2','3','4','5','6','7','8','9','C','0','OK'];
+kp.keys.push({ id: labels[i], x: 24 + col*116, y: 150 + row*90, w:100, h:76 });</pre>
+  <p><strong>命中靠 <code class="inline">uv</code></strong>：射线打到平面的哪一点 → 换算成 canvas 的像素坐标 → 落在哪个键的矩形里 → 就是按了哪个键。这就叫 <strong>UV 命中</strong>。</p>
+
+  <h3>二、★ 打开 <code class="inline">buildDoor()</code>，三样东西一起看</h3>
+  <div class="grid3">
+    <div class="cell"><h4><code class="inline">labels</code></h4><p><code class="inline">['1'…'9','C','0','OK']</code>——<strong>12 个键的名字与顺序</strong>。</p></div>
+    <div class="cell"><h4><code class="inline">kp.keys</code></h4><p><code class="inline">x = 24 + col*116</code>、<code class="inline">y = 150 + row*90</code>、<code class="inline">w = 100</code>、<code class="inline">h = 76</code>——<strong>每个键在 canvas 上的矩形</strong>。</p></div>
+    <div class="cell"><h4>canvas 尺寸</h4><p><strong>384 × 512</strong>——所有坐标系都以它为准。</p></div>
+  </div>
+  <p>★ <strong>现场改一处</strong>：把 <code class="inline">labels</code> 里 <code class="inline">'OK'</code> 的位置和 <code class="inline">'C'</code> 换一下，<strong>看墙上的键盘跟着变</strong>。</p>
+  <div class="key"><strong>"改布局 = 改两个数组，不用重新建模。"</strong>这就是"逻辑全部暴露"的好处——这正是这个案例值得当教材的原因。</div>
+
+  <h3>三、密码：错了只清空，不锁死</h3>
+<pre>function keypadPress(id){
+  if (id === 'C') { keypad.display = ''; }              // 清除键
+  else if (id === 'OK') {
+    if (S.step !== 3)                  toast('密码锁还没通电');   // 顺序门
+    else if (keypad.display === CODE)  openDoor();                // 对 → 开门
+    else { toast('密码错误'); keypad.display = ''; }              // 错 → 只清空
+  } else { if (keypad.display.length &lt; 4) keypad.display += id; } // 最多 4 位
+}</pre>
+  <ul>
+    <li>密码：<strong><code class="inline">var CODE = '3719'</code></strong>——<strong>它是星象提示给出的</strong>，不是让用户猜的；</li>
+    <li><strong>错的处理</strong>：清空输入框 + 提示"密码错误" + 音效。<strong>没有尝试次数限制、没有冷却、没有锁死</strong>；</li>
+    <li><strong>输入上限 4 位</strong>：<code class="inline">display.length &lt; 4</code>——<strong>一个很便宜的防误触</strong>，挡住"用户一直按一直按"。</li>
+  </ul>
+  <div class="note">为什么不锁死？<strong>因为这是一个体验作品，不是银行 App。</strong>用户输错了，你的目标是让他<strong>再试一次</strong>，不是让他<strong>记住教训</strong>。</div>
+</section>
+
+<!-- ===== 四、顺序与失败代价 ===== -->
+<section id="c4">
+  <div class="sec-head">
+    <div class="sec-num">四</div>
+    <div>
+      <h2>顺序校验：<code class="inline">S.step</code> 与"失败有代价但不惩罚"</h2>
+      <p class="sec-sub">什么叫顺序？就是你没做完第一步，第二步不认你</p>
+    </div>
+  </div>
+
+  <p>案例 02 用一个对象 <strong><code class="inline">S</code></strong> 装着全部状态，其中 <strong><code class="inline">step</code> 是唯一的裁判</strong>：</p>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th><code class="inline">S.step</code></th><th>状态</th><th>谁能推进它</th></tr></thead>
+      <tbody>
+        <tr><td><strong>0</strong></td><td>找碎片</td><td>3 块碎片全部放置完成 → 进 <strong>2</strong></td></tr>
+        <tr><td><strong>2</strong></td><td>点星</td><td><code class="inline">S.starProgress</code> 满 4 → 进 <strong>3</strong></td></tr>
+        <tr><td><strong>3</strong></td><td>输密码</td><td>密码正确 → 进 <strong>4</strong>（门开）</td></tr>
+        <tr><td><strong>4</strong></td><td>通关</td><td>——</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p><strong>这就是最小成本的顺序校验：每一个动作入口，先问一句"现在轮到你了没有"。</strong></p>
+  <ul>
+    <li><code class="inline">clickStar()</code> 的第一行就是这道门：<code class="inline">if (S.step !== 2) { toast('先找齐壁画碎片'); return false; }</code></li>
+    <li><code class="inline">keypadPress()</code> 也一样：<code class="inline">if (S.step !== 3) { toast('密码锁还没通电'); }</code></li>
+  </ul>
+
+  <h3>一、⚑ 这一屏最值得抄下来的一段</h3>
+<pre>function clickStar(st){
+  if (S.step !== 2) { toast('先找齐壁画碎片'); return false; }   // 门
+  if (st.lit)       { toast('这颗星已点亮');   return false; }   // 已点过
+  var expectIdx = STAR_ORDER[S.starProgress.length];            // 该点哪一颗
+  if (st.idx !== expectIdx) {
+      for (全部星) { 熄灭、order = -1; }        // ← 代价：全部熄灭
+      S.starProgress = [];                      // ← 代价：进度清零
+      toast('顺序不对，星辰归位重来');
+      return false;                             // ← 但：没有任何锁死
+  }
+  ...
+}</pre>
+  <div class="grid2">
+    <div class="cell">
+      <h4>代价是什么</h4>
+      <p>进度清零、四颗星<strong>全部熄灭</strong>、有音效与提示——<strong>这足够让用户知道他做错了</strong>。</p>
+    </div>
+    <div class="cell">
+      <h4>不惩罚是什么</h4>
+      <p><strong>不扣时间 · 不锁死 · 不用刷新页面</strong>——立刻可以重来。<strong>这保证他不会放弃你的作品。</strong></p>
+    </div>
+  </div>
+  <p>正确顺序（案例 02）：<strong><code class="inline">STAR_ORDER = [2, 0, 3, 1]</code></strong>，星名见 <code class="inline">names = ['角','亢','氐','房']</code> → 也就是 <strong>氐 → 角 → 房 → 亢</strong>。</p>
+
+  <h3>二、★ 演示：错序 → 复位 → 接着玩</h3>
+  <p>用控制台直接调 <code class="inline">Dunhuang.clickStar(Dunhuang.stars[0])</code>，<strong>故意点错一颗</strong>，观察三件事：</p>
+  <ol>
+    <li>已亮的星<strong>全部熄灭</strong>；</li>
+    <li>提示"顺序不对，星辰归位重来"；</li>
+    <li><strong>再点正确的那颗，仍然能推进</strong>。</li>
+  </ol>
+  <div class="note"><strong>这三条合起来才是完整的"失败处理"。少任何一条，用户体验就掉一档</strong>：少了复位，用户可以乱点通关；少了提示，用户不知道为什么失败；锁死了，用户直接退出。<br>
+    <strong>顺手一个调试技巧</strong>：这些函数挂在一个叫 <code class="inline">Dunhuang</code> 的对象上，控制台能直接调——<code class="inline">Dunhuang.keypadPress('OK')</code>、<code class="inline">Dunhuang.clickStar(Dunhuang.stars[2])</code>。<strong>你们自己的作品也应该留一个能从控制台推进状态的入口，调试能省一半时间。</strong></div>
+  <div class="key"><strong>实现口径 4 与 5</strong>：<strong>顺序校验必须有"复位"这一半</strong>；<strong>失败有代价但不惩罚</strong>——点错星只是重来，密码输错只是清空，可以立刻重输。</div>
+
+  <h3>三、⚑ 谜题设计：线性，但每一步都不一样</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>步骤</th><th>谜题</th><th>交互方式</th><th>状态推进</th></tr></thead>
+      <tbody>
+        <tr><td>①</td><td>找齐 <strong>3 块</strong>壁画碎片</td><td><strong>直接抓取</strong>（握持键）＋ 走到壁画框旁松手</td><td><code class="inline">S.fragments[i] = true</code></td></tr>
+        <tr><td>②</td><td>壁画拼合</td><td><strong>无操作</strong>（自动过场 / 提示）</td><td><code class="inline">S.step: 0 → 2</code></td></tr>
+        <tr><td>③</td><td>按顺序点亮 <strong>4 颗</strong>星</td><td><strong>射线点击 + 顺序校验</strong></td><td><code class="inline">S.starProgress</code> 满 4 → step 3</td></tr>
+        <tr><td>④</td><td>石门 <strong>4 位</strong>密码</td><td><strong>3D UI 键盘（UV 命中）</strong></td><td>正确 → 门开 → 通关</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>⚑ <strong>四步，四种交互</strong>——这就是"<strong>线性但不枯燥</strong>"的做法。<strong>反例（要让学生自己认出来）</strong>：如果四步全是"点一个按钮"，<strong>这就不叫谜题链，叫四个进度条</strong>。</p>
+
+  <h3>四、提示要分层：<code class="inline">giveHint()</code> 按 <code class="inline">step</code> 给不同粒度</h3>
+  <p>同一个"提示"按钮，在三个步骤给三种不同的话：找碎片（step 0）→ 给<strong>位置</strong>；点星（step 2）→ 给<strong>下一颗是哪一颗</strong>；密码（step 3）→ <strong>直接给密码</strong>。</p>
+  <div class="note"><strong>提示是难度的调节旋钮，不是一句话。</strong>找碎片是空间搜索，最费时间；密码只是记忆力，卡在那里没有任何意义。⚑ 提问：<strong>你的作品里，"提示"现在给了什么？</strong>（很多人根本没写提示。）</div>
+</section>
+
+<!-- ===== 五、谁都点得到 ===== -->
+<section id="c5">
+  <div class="sec-head">
+    <div class="sec-num">五</div>
+    <div>
+      <h2>谁都点得到：人因与可访问性三件套</h2>
+      <p class="sec-sub">三个键，全部由共享 XR 工程内核提供——<strong>你的作品只要接了同一个内核，这三个键自动就有</strong>；但"自动就有"只到<strong>面板</strong>这一层</p>
+    </div>
+  </div>
+
+  <h3>一、先把默认假设拆开：它排除了谁</h3>
+  <p>你的作品现在假设用户：<strong>站着 · 两只手 · 两个能用的手柄 · 眼睛正常 · 不戴眼镜也行 · 不觉得晕</strong>。把这条假设拆开：</p>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>假设</th><th>谁被排除了</th></tr></thead>
+      <tbody>
+        <tr><td>站着 / 能站</td><td>轮椅使用者、久坐不适的人、空间不够的人</td></tr>
+        <tr><td><strong>两只手都在</strong></td><td>单臂用户、临时空不出手的人（拿着一支笔、拄着拐）</td></tr>
+        <tr><td>右利手</td><td><strong>左利手</strong>（约十分之一的人）——40 人的班，四五个</td></tr>
+        <tr><td>双手柄都在、都有电</td><td>手柄漂移 / 没电 / 没配对的人</td></tr>
+        <tr><td>手持控制器</td><td><strong>动作受限用户</strong>——手抬不起来、抖动、抓握无力</td></tr>
+        <tr><td>能看清小字</td><td>低视力用户</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="note">这不是道德课。<strong>"约十分之一是左利手"、"有人暂时腾不出手"——这些是产品问题。</strong>一个作品如果只有一种输入方式，它就只有一个很窄的用户群。</div>
+
+  <h3>二、三个键的真实参数（照抄，不要靠记忆）</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>键</th><th>功能</th><th>真实参数</th><th>现场要看见什么</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong><code class="inline">Shift+P</code></strong></td>
+          <td>坐姿 / 站立</td>
+          <td>坐姿时工程面板与案例自有 UI <strong>一起下沉 0.45 m、下倾 0.18 rad</strong></td>
+          <td>站着很舒服、抬手就能点的面板，<strong>坐下就够不着</strong>——下沉之后坐着也能点到最下面一排键</td>
+        </tr>
+        <tr>
+          <td><strong><code class="inline">Shift+H</code></strong></td>
+          <td>惯用手与单手</td>
+          <td>循环 <strong>双手 → 单手（自动）→ 仅右手 → 仅左手 → 双手</strong>；单手模式下<strong>只接受主手的扳机 / 抓握</strong></td>
+          <td>切到"<strong>仅左手</strong>"后用右手去点——<strong>没有任何反应</strong>，右手突然变成了摆设</td>
+        </tr>
+        <tr>
+          <td><strong><code class="inline">Shift+G</code></strong></td>
+          <td>注视停留点击</td>
+          <td>视线中心射线命中 UI，<strong>停留 1.2 s 即触发</strong>；命中处有<strong>注视准星</strong>，命中时收缩并变金，<strong>移开就重置、同一目标不重复触发</strong>（内核参数 <code class="inline">gazeMs = 1200</code>）</td>
+          <td>不用手柄，<strong>用眼睛点完整块密码键盘</strong>（包括最后按 OK 开门）</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>三、注册与委托：两个必须记住的词</h3>
+<pre>XRCore.ui([keypad.panel]);   /* 把"我自己做的面板"登记给内核，坐姿时才一起下沉 */
+
+XRCore.uiHit(function(rc){   /* 把"我的面板有没有被打中"委托给内核的注视计时器 */
+  ...
+  return { id:'xxx', fire:function(){}, dist:hit.distance };
+});</pre>
+  <div class="grid2">
+    <div class="cell">
+      <h4>不登记会怎样</h4>
+      <p>你在内核之外自己做了一块面板，<strong>不登记，坐姿时它就不动</strong>——这正好是你们接下来改自己作品时会踩的坑。</p>
+    </div>
+    <div class="cell">
+      <h4>为什么要委托</h4>
+      <p>因为<strong>内核不会自己认识你的面板</strong>。你不告诉它，它就只会算工程面板那几块。</p>
+    </div>
+  </div>
+  <p>一个很细但很关键的反馈设计：<strong>准星命中时收缩并变金——这就是进度条</strong>；眼睛移开进度重置；同一个目标不重复触发，所以你不用怕"看多了一眼又点一次"。</p>
+
+  <h3>四、本段的当堂动手（10 分钟）</h3>
+  <ol>
+    <li>打开案例 02，<strong>依次按 <code class="inline">Shift+P</code> → <code class="inline">Shift+H</code>（循环到"仅左手"）→ <code class="inline">Shift+G</code></strong>；</li>
+    <li>在【表 B · 免手柄通路验证表】上<strong>边按边填</strong>：这一步能不能不用手柄完成？卡在哪？</li>
+  </ol>
+  <div class="warn"><strong>⚠️ 这是今天下午你自己作品的选题依据</strong>——三件套里你打算支持哪几条，<strong>今天下午就要定</strong>。而"你的场景实体怎么支持"，是你要自己决定的事。</div>
+</section>
+
+<!-- ===== 六、边界 ===== -->
+<section id="c6">
+  <div class="sec-head">
+    <div class="sec-num">六</div>
+    <div>
+      <h2>一条通道铺到一半：本课的高潮</h2>
+      <p class="sec-sub">⚑ <strong>结论留白，让学生自己说出来</strong>——教师说的话不超过 10 句，动作要慢，问题写在屏上不要马上回答</p>
+    </div>
+  </div>
+
+  <div class="warn"><strong>现场切到 <code class="inline">Shift+G</code> 注视模式，放慢动作演四步：</strong>
+    <ol style="margin-top:8px;">
+      <li><strong>同一个密码键盘</strong>：手柄射线<strong>点得动</strong>；切到 <code class="inline">Shift+G</code>，<strong>用注视也点得动</strong>（停留 1.2 s，准星收缩变金），连按 <code class="inline">OK</code> 开门都可以；</li>
+      <li>接着去点<strong>星星</strong>：注视模式下<strong>点不动</strong>——停 1.2 秒、再停 2 秒，都没反应；</li>
+      <li>再去抓一块<strong>壁画碎片</strong>：注视模式下<strong>也抓不了</strong>——停多久都行，抓不了；</li>
+      <li><strong>停下来，问全班一句</strong>（写在屏上，不要马上回答）：</li>
+    </ol>
+    <p style="margin-top:8px;"><strong>"同一个作品里，为什么有些东西不用手柄也能点，有些东西死活点不动？"</strong></p>
+  </div>
+  <div class="note"><strong>教师注意（这一段最关键）</strong>：<strong>不要自己说出答案。</strong>等 2—3 个学生说完，再确认他们的说法。学生的答案应该指向下面这三句。</div>
+
+  <h3>一、把刚才看到的东西列成一张表</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>元素</th><th>类型</th><th>免手柄能不能用</th><th>为什么</th></tr></thead>
+      <tbody>
+        <tr><td>工程面板</td><td>UI</td><td><strong>能</strong></td><td>内核的注视计时器直接管</td></tr>
+        <tr><td>密码键盘（案例自有）</td><td>UI</td><td><strong>能</strong></td><td>案例用 <code class="inline">XRCore.uiHit()</code> <strong>委托</strong>给内核</td></tr>
+        <tr><td><strong>四颗星</strong></td><td><strong>场景实体</strong></td><td><strong>不能</strong></td><td>判定走<strong>手柄射线</strong>命中（<code class="inline">clickStar</code>）</td></tr>
+        <tr><td><strong>壁画碎片</strong></td><td><strong>场景实体</strong></td><td><strong>不能</strong></td><td>抓取绑在 <strong><code class="inline">squeezestart</code>（握持键）</strong>上</td></tr>
+        <tr><td>传送落点</td><td>场景</td><td><strong>不能</strong></td><td>同样走手柄射线</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="key">两张"能"、三张"不能"，差别在哪儿？——<strong>结论这一行让学生说出来，教师再写上去</strong>：<br>
+    <strong>"面板可免手柄，场景实体仍需手部输入。"</strong></div>
+  <div class="warn"><strong>这不是案例的 bug，是真实产品里最常见的可访问性问题</strong>：<strong>一条替代通道铺到了一半，就以为铺完了。</strong>它在真实产品里天天发生——<strong>因为做的人有手柄，试的人也有手柄。</strong></div>
+
+  <h3>二、⚑ 该不该替？——取舍清单</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>想替代的动作</th><th>替代方案</th><th>代价</th></tr></thead>
+      <tbody>
+        <tr><td>点星</td><td>注视停留 1.2 s</td><td><strong>4 颗星 × 1.2 s ≈ 5 s 纯等待</strong>，节奏垮掉；顺序谜题变成"耐心测试"</td></tr>
+        <tr><td>抓碎片</td><td>注视停留 1.2 s → 吸到手上</td><td><strong>注视没有"握持"这个动作语义</strong>，你得自己发明一个；且<strong>误触代价高</strong>（看到哪抓到哪）</td></tr>
+        <tr><td>传送</td><td>注视地面 + 停留</td><td>与"看着地面思考"冲突；<strong>低头看地面是自然动作</strong>，很容易误触发</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="key"><strong>判断句（板书）</strong>：<strong>能替代的替代；不能替代的，要说出来。</strong><br>
+    "说出来" = <strong>写进 README</strong>（这就是诚实）；"不说" = <strong>骗人</strong>（用户以为你支持了，戴上头显才发现不行）。<br>
+    照这个句式写，不要写成"支持免手柄"：<em>"本作品的可访问性覆盖范围：面板可免手柄；场景实体的抓取与选择仍需手柄。"</em></div>
+
+  <h3>三、下课前的三句话</h3>
+  <ol>
+    <li><strong>本课命题</strong>：交互的难点不在"能不能点"，<strong>在"点不到时怎么办"</strong>；</li>
+    <li><strong>可访问性的诚实口径</strong>：<strong>面板可免手柄，场景实体仍需手部输入</strong>——能替代的替代，不能替代的要说出来；</li>
+    <li><strong>接下来 65 分钟的顺序不能颠倒</strong>：<strong>先改</strong>（在电脑上打通主流程、连走两遍、控制台无报错）→ <strong>再补</strong>（至少补一条免手柄通路，写下它覆盖到哪一步、覆盖不到哪一步）→ <strong>最后戴</strong>（戴上头显走完整流程，抄用时 / 记卡点 / 报退出路）。</li>
+  </ol>
+  <div class="warn"><strong>所有人在戴上头显之前，先把代码改完。</strong>不许一边改一边戴——那样一个人会占住一台头显一整段时间。</div>
+</section>
+
+<!-- ===== 案例演示 ===== -->
+<section id="cases">
+  <div class="sec-head">
+    <div class="sec-num">例</div>
+    <div>
+      <h2>案例演示 · 现场要放的四处改码</h2>
+      <p class="sec-sub">全部是"打开源码、改一个数 / 一个数组、看结果"——每个 ≤ 3 分钟；<strong>本课次只放这四处加一处高潮演示</strong></p>
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <a class="btn" href="assets/vr-2026/cases/02-dunhuang-escape/index.html" target="_blank" rel="noopener">主案例 · 密室逃脱敦煌寻宝 →</a>
+    <a class="btn ghost" href="assets/vr-2026/cases/01-vr-sandbox/index.html" target="_blank" rel="noopener">01 交互沙盒 →</a>
+    <a class="btn ghost" href="assets/vr-2026/cases/_xr_core.js" target="_blank" rel="noopener">共享内核 _xr_core.js →</a>
+    <a class="btn ghost" href="assets/vr-2026/check/" target="_blank" rel="noopener">VR 作品自检 →</a>
+  </div>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>#</th><th>演示</th><th>怎么演</th><th>要让学生看见什么</th></tr></thead>
+      <tbody>
+        <tr><td><strong>A ★</strong></td><td><strong>抓取距离</strong></td><td>把 <code class="inline">bd = 0.45</code> 改成 <code class="inline">0.15</code> 和 <code class="inline">1.5</code>，各抓一次</td><td><strong>太小抓不到、太大隔着半间房就吸走</strong>——阈值是调出来的，不是想出来的</td></tr>
+        <tr><td><strong>B ★</strong></td><td><strong>放置判定</strong></td><td>把 <code class="inline">release()</code> 的 <code class="inline">1.6</code> → <code class="inline">0.5</code> 再 → <code class="inline">4.0</code>，各放一次</td><td><strong>太远放不进</strong>（站在框前松手，碎片掉地上）、<strong>太近误触发</strong>（在门口一松手就算放好）</td></tr>
+        <tr><td><strong>C ★</strong></td><td><strong>错序复位</strong></td><td>控制台调 <code class="inline">Dunhuang.clickStar(Dunhuang.stars[0])</code>，先点错一颗</td><td>已点亮的星<strong>全部熄灭</strong>、提示"顺序不对，星辰归位重来"；<strong>再点一次就能接着玩</strong></td></tr>
+        <tr><td><strong>D ★</strong></td><td><strong>UV 命中 3D 键盘</strong></td><td>打开 <code class="inline">buildDoor()</code>，指出 <code class="inline">labels</code> 与 <code class="inline">kp.keys</code> 坐标；把 <code class="inline">'OK'</code> 与 <code class="inline">'C'</code> 换个位置</td><td>按键是一个画在 canvas 上的矩形，命中靠 <code class="inline">uv</code> 换算成像素坐标；<strong>改布局 = 改两个数组</strong></td></tr>
+        <tr><td><strong>E ★⚑</strong></td><td><strong>本课高潮</strong></td><td>切 <code class="inline">Shift+G</code>，同一个键盘点得动、注视也点得动；<strong>星星和碎片就是不行</strong></td><td>把"面板支持了、场景物件没支持"变成<strong>学生自己得出的结论</strong>（见上一节）</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="warn"><strong>⚠️ 诚实交底（必须说）</strong>：<strong>"这个案例从来没有在任何头显上跑过。"</strong>六个案例的全部结论来自 <strong>headless Chrome + SwiftShader 软件渲染</strong>；<strong>帧率、眩晕感、手柄映射、会话进出，均未实测</strong>。所以它们的帧率、手感、手柄映射——<strong>要等你们今天戴上去，才第一次被真的验证</strong>。</div>
+
+  <h3>一、课前两条必须做的实测</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>项</th><th>事实</th><th>怎么处理</th></tr></thead>
+      <tbody>
+        <tr><td><strong>手柄 <code class="inline">squeeze</code> 与触觉</strong></td><td>在 PICO 固件上的表现<strong>未验证</strong>（案例 02 README「六、性能与验证」明确写入）</td><td><strong>课前 5 分钟实测</strong>：握持键能否触发抓取、触觉是否有反馈；不通过就把抓取改成<strong>"扳机就近抓取"</strong>，并当堂说明这是<strong>已知简化</strong>——<strong>不要装作没这回事</strong></td></tr>
+        <tr><td><strong>案例 02 真机跑通一遍</strong></td><td>含进入与退出<strong>从未在头显上验证</strong></td><td>课前 30 分钟用当次要用的案例 02 在头显里<strong>真机跑通一遍（含进入与退出）</strong>，并确认 <code class="inline">Shift+P</code> / <code class="inline">Shift+H</code> / <code class="inline">Shift+G</code> 按键真的生效</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>二、性能数字：两个口径如实并列</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>来源</th><th>DrawCall</th><th>三角面</th></tr></thead>
+      <tbody>
+        <tr><td>案例 02 <code class="inline">README_教学说明.md</code> 第六节</td><td><strong>42</strong></td><td><strong>1.2k</strong></td></tr>
+        <tr><td><code class="inline">标准_大四课程标准.md</code> 的 <code class="inline">verify.py</code> 复核</td><td><strong>44</strong></td><td><strong>1240</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="key"><strong>两个数都要如实说，不要圆成"两个都对"</strong>——差异来自<strong>统计口径</strong>（何时取样、是否含面板绘制）。<br>
+    并且注意口径本身：<code class="inline">draw calls / 三角面</code> 只是<strong>渲染规模指标</strong>，<strong>不等于能跑满 72Hz</strong>；真机瓶颈常在填充率与纹理带宽。<strong>本课次不把这两个数当帧率结论。</strong></div>
+</section>
+
+<!-- ===== 上机实操 ===== -->
+<section id="demo">
+  <div class="sec-head">
+    <div class="sec-num">实</div>
+    <div>
+      <h2>上机实操：65 分钟，先改、再补、最后戴</h2>
+      <p class="sec-sub">这一段占全部时间的 36%，是本课次的重心；<strong>顺序不能颠倒</strong></p>
+    </div>
+  </div>
+
+  <div class="key">三个小段的判据，一张表看完：</div>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>小段</th><th>时长</th><th>做什么</th><th>判据</th></tr></thead>
+      <tbody>
+        <tr><td><strong>⑤-1 打通主流程</strong></td><td><strong>30′</strong></td><td>在自己电脑上，把自己作品的"入口 → 第一个目标 → …… → 通关"完整<strong>走通两遍</strong></td><td>控制台<strong>无 JS 报错</strong>；连走两遍结果一致</td></tr>
+        <tr><td><strong>⑤-2 补一条免手柄通路</strong></td><td><strong>15′</strong></td><td>至少补一条<strong>不用手柄</strong>也能推进的通路（三选一或全做），并写下<strong>它覆盖到哪一步、覆盖不到哪一步</strong></td><td>【表 B】填满；<strong>"覆盖不到哪里"必须写出来</strong></td></tr>
+        <tr><td><strong>⑤-3 真机验证</strong></td><td><strong>20′</strong>（含组织时间）</td><td><strong>戴上头显，从头走完整流程</strong>：抄<strong>用时</strong>、记<strong>卡点</strong>、记<strong>退出路</strong></td><td>【表 C · 真机验证记录卡】填满</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>一、任务 1：打通自己的主流程（在电脑上做，不戴头显）</h3>
+  <p>做完这三件事，把结果填进【表 A】：</p>
+  <ol>
+    <li>打开控制台（F12），<strong>清空一次</strong>，然后完整走一遍，看有没有红色报错；</li>
+    <li><strong>再走第二遍</strong>——重点看"<strong>状态有没有残留</strong>"（第一遍通关后，第二遍能不能从头开始？）；</li>
+    <li>对照你上周交的<strong>状态机图</strong>，检查每一步是不是真的按图走了。</li>
+  </ol>
+  <div class="warn"><strong>⚠️ 常见的三个"看起来通了"</strong>：<br>
+    ① <strong>第一遍能过、第二遍过不去</strong> → 你的状态没归零（去找你的"重置"函数）；<br>
+    ② 中间某一步<strong>"只能靠老师帮我跳过"</strong> → <strong>这不算通</strong>；<br>
+    ③ 控制台有红色报错但游戏还能玩 → <strong>这不算无报错</strong>。</div>
+
+  <h3>二、任务 2：补一条免手柄通路（在电脑上做）</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>备选通路</th><th>怎么做</th><th>难度</th></tr></thead>
+      <tbody>
+        <tr><td><strong>A · 注视停留点面板</strong></td><td>作品接了共享 XR 工程内核：<strong><code class="inline">XRCore.ui([你的面板])</code></strong> 登记 + <strong><code class="inline">XRCore.uiHit(fn)</code></strong> 委托命中判定</td><td>中</td></tr>
+        <tr><td><strong>B · 键盘快捷键</strong></td><td>在 PC 端给每一个关键动作绑一个键（<strong>必须写进 README</strong>）</td><td>低</td></tr>
+        <tr><td><strong>C · 备用 2D 控制面板</strong></td><td>在页面角落放一排按钮，和 3D 面板<strong>功能等价</strong></td><td>低</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="warn"><strong>必须写清楚（这是本次课的重点，不是可选项）</strong>："我的免手柄通路，<strong>覆盖到哪一步？覆盖不到哪一步？</strong>"<strong>只写"支持免手柄"而不写边界 = 不算过。</strong></div>
+  <p>照这个句式写，不要写成"支持免手柄"：</p>
+<pre>本作品的可访问性覆盖范围：
+- 能免手柄完成的：______（例：打开提示面板、切换提示层次、输入密码）
+- 不能免手柄完成的：______（例：抓取碎片、按顺序点星）
+- 原因：______（例：抓取绑在握持键上，注视通道没有覆盖场景实体的判定）
+- 我用三件套里的哪几条：Shift+P 坐姿 ／ Shift+H 单手 ／ Shift+G 注视（可多选）</pre>
+
+  <h3>三、巡场时教师只问三句话</h3>
+  <ol>
+    <li><strong>你卡在哪一步？</strong></li>
+    <li><strong>这一步是环境问题、作品问题、还是设备问题？</strong>（三分类，直接对应记录表）</li>
+    <li><strong>退出来用了哪条路、几秒？</strong></li>
+  </ol>
+  <div class="note"><strong>"已经做完的人"是这节课最大的资源</strong>——让他们去帮"卡住的人"，比教师一个人巡场快得多。</div>
+
+  <h3>四、40 人同时上机怎么组织（两套预案，按 <code class="inline">【待确认】</code> 的设备数量二选一）</h3>
+  <div class="grid2">
+    <div class="cell">
+      <h4>预案 A · 一人一台（头显数量 ≥ 人数）</h4>
+      <p><strong>40 人同时上机</strong>，不轮转；教师 + 2 名学生管理员巡场。<br>
+        · 0—3′ 就位、开机、跑《VR 作品自检》——巡场<strong>先解决"六项不绿"的人</strong>；<br>
+        · 3—33′ 任务 1；33—48′ 任务 2；<br>
+        · 48—58′ 分批进入任务 3；<strong>守住"戴头显前先看周围人"这条规矩</strong>，管理员掐表记用时；<br>
+        · 58—65′ 回到座位<strong>立刻填【表 C】</strong>。</p>
+    </div>
+    <div class="cell">
+      <h4>预案 B · 10 台轮转（头显数量 ≈ 10）</h4>
+      <p><strong>5 人一组 × 8 组，每组 8 分钟。</strong>一组戴头显时，其余人<strong>在电脑上</strong>做任务 1 / 任务 2 与 PC 端等价验证。<br>
+        三条纪律：① <strong>严格 8 分钟一到就换人</strong>，前一组把记录卡带走继续填，<strong>不要在头显旁边讨论</strong>；② 一组里<strong>先商量好谁先戴</strong>，推让一次就烧掉 1 分钟；③ 任何情况下都不减的是"<strong>人人戴上</strong>"，减的是"任务 1 走两遍 → 走一遍"。</p>
+    </div>
+  </div>
+  <div class="key">两套预案的共同底线（不降）：<strong>每个人都要在头显里走完自己作品的主流程，并至少试通一条退出路。</strong></div>
+
+  <h3>五、三级降级</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>级别</th><th>触发条件</th><th>降到什么程度</th></tr></thead>
+      <tbody>
+        <tr><td><strong>一级</strong></td><td>个别学生进不去 VR</td><td><strong>不要全班等</strong>；让同桌先帮；教师只处理"六项不绿"的环境问题</td></tr>
+        <tr><td><strong>二级</strong></td><td>网络整体不顺（大面积进不去）</td><td>全班切到<strong>通路 ① USB 直连</strong>；同时砍掉免手柄通路的"VR 内"部分（降级为<strong>键盘快捷键通路</strong>，注明取舍）</td></tr>
+        <tr><td><strong>三级</strong></td><td>时间不够（只剩 20 分钟）</td><td><strong>只保"戴上头显走完主流程 + 三条退出路试通一条 + 报退出用时"</strong>；任务 1 的"两遍"改成"一遍"；FPS / DrawCall 改成课后补</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="warn"><strong>任何情况下都不降的三条</strong>：① <strong>达标线本身</strong>；② <strong>每个人都要在头显里真的走完自己作品的主流程</strong>；③ <strong>"能退得出去"没有降级选项。</strong></div>
+</section>
+
+<!-- ===== 真机验证 ===== -->
+<section id="cast">
+  <div class="sec-head">
+    <div class="sec-num">验</div>
+    <div>
+      <h2>真机验证：安全三条、单人脚本、三条退出路</h2>
+      <p class="sec-sub">这节课的产出是"一条能走通、能退出的流程"，不是"一套知识"</p>
+    </div>
+  </div>
+
+  <h3>一、就位与安全（5 分钟，全班一起做，一条都不能省）</h3>
+  <div class="key"><strong>站到座位旁，先不要戴。三条一起念：</strong>
+    <ol style="margin-top:8px;">
+      <li><strong>戴上之前，先看清自己前后左右有没有人</strong>（尤其身后）；</li>
+      <li><strong>戴着头显时不许走动</strong>——本课作品用传送 + Snap 转向，不需要移动身体；</li>
+      <li><strong>眼镜同学先戴眼镜，再戴头显</strong>；线材走身后。</li>
+    </ol>
+  </div>
+  <p>再补两条（本课次要加强的）：</p>
+  <ul>
+    <li><strong>觉得晕，立刻摘下来坐下</strong>，不用报告、不用忍。<strong>晕了硬撑是唯一会被批评的做法。</strong></li>
+    <li><strong>改代码的时候不要戴头显；戴头显的时候不要改代码。</strong>（本课次专用）</li>
+  </ul>
+
+  <h3>二、三条通路：课前选定一条，课上只教那一条</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>通路</th><th>怎么走</th><th>依赖</th><th>适合</th></tr></thead>
+      <tbody>
+        <tr><td><strong>① USB + <code class="inline">adb reverse</code></strong>（最稳）</td><td>数据线连头显（<strong>开发者模式 + 允许 USB 调试</strong>）→ 笔记本执行 <code class="inline">adb reverse tcp:8080 tcp:8080</code> → <strong>头显浏览器打开 <code class="inline">http://127.0.0.1:8080/</code></strong></td><td>一根数据线。<strong>完全不经过网络</strong></td><td>教室网络差；一插就通，<strong>天生安全上下文，不用加白名单</strong></td></tr>
+        <tr><td><strong>② 局域网 + 白名单</strong></td><td>笔记本起服务（<code class="inline">serve.bat</code>，零依赖）→ 头显浏览器打开 <code class="inline">chrome://flags/#unsafely-treat-insecure-origin-as-secure</code>，把 <code class="inline">http://电脑IP:8080</code> 填进去并 Enabled → <strong>重启浏览器</strong></td><td>头显与笔记本同一网段、<strong>网络不隔离</strong></td><td>不插线、反复调试</td></tr>
+        <tr><td><strong>③ 站点 HTTPS</strong></td><td>把作品放到课程站点的学生作品目录，头显直接打开 https 链接</td><td>需要先把文件放上站点</td><td><strong>收作业与互相看</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="warn"><strong>⚠️ 通路 ② 的三个坑</strong>：① <strong>电脑 IP 一变就要重填</strong>；② 校园网 / 手机热点可能开<strong>「客户端隔离」</strong>，两台机器根本连不上，<strong>只能走 ①</strong>；③ 第一次运行 <code class="inline">serve.bat</code> 时 Windows 弹防火墙询问，<strong>必须点"允许"</strong>。<br>
+    <strong>不要课上临时试第二条。</strong>40 台设备一起等一个没验证过的功能，是最容易把课拖垮的场面。</div>
+  <div class="note"><strong>口诀（第 5 次课已确立，全程沿用）</strong>：<strong>先怀疑环境，再怀疑代码。</strong>"进入 VR"只在安全上下文里可用——<code class="inline">https:</code> / <code class="inline">http://localhost</code> / <code class="inline">http://127.0.0.1</code> 算；<strong>你电脑的局域网 IP（<code class="inline">http://192.168.x.x</code>）不算</strong>。用局域网 IP 打开时看不到「进入 VR」按钮、控制台里 <code class="inline">navigator.xr</code> 是 <code class="inline">undefined</code>——<strong>那不是学生的代码写错了，是环境不满足</strong>。这是本节课第一大故障源。</div>
+
+  <h3>三、单人操作脚本（教师投屏演示一遍，学生照做）</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>步</th><th>做什么</th><th>学生会卡在哪</th></tr></thead>
+      <tbody>
+        <tr><td>①</td><td>打开《VR 作品自检》，<strong>六项全绿</strong></td><td>第 ②③④ 项有 ❌ → <strong>先解决环境，不要看作品代码</strong></td></tr>
+        <tr><td>②</td><td>打开自己的作品 → 点「<strong>进入 VR</strong>」</td><td>进 VR <strong>必须由人手点一次</strong>，这是规范要求</td></tr>
+        <tr><td>③</td><td><strong>★ 走一遍主流程并连走两遍</strong>，控制台<strong>无红色报错</strong></td><td>"第一遍能过、第二遍过不去" → <strong>状态没归零</strong>，去找你的重置函数</td></tr>
+        <tr><td>④</td><td>慢慢环视一周，抬头低头各看一眼</td><td>说出<strong>一个具体的东西</strong>（"我看见壁画框"），不要只说"很清楚"</td></tr>
+        <tr><td>⑤</td><td>试<strong>免手柄通路</strong>：注视停留 / 键盘快捷键 / 2D 面板</td><td><strong>面板可以免手柄，场景实体（抓取、点星）仍需手柄射线</strong></td></tr>
+        <tr><td>⑥</td><td><strong>★ 完整走一遍主流程</strong>，<strong>记下总用时</strong></td><td>用时<strong>要真的掐表</strong>，不是估的</td></tr>
+        <tr><td>⑦</td><td>走完 → <strong>至少试通一条退出路</strong>，<strong>报出用时</strong></td><td><strong>只留一条出口的应用，在真实课堂里一定会出事</strong></td></tr>
+        <tr><td>⑧</td><td>抄 <strong>FPS / DrawCall / 三角面</strong>，立刻填【表 C】</td><td>数字<strong>必须和页面 HUD 对得上</strong>（<strong>编数据比做不出来更严重</strong>）</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="note"><strong>探针</strong>：在自己页面里加一行 <code class="inline">&lt;script src="vr-probe.js"&gt;&lt;/script&gt;</code>（从 <a href="assets/vr-2026/check/" target="_blank" rel="noopener">《VR 作品自检》</a>那一页取）。它会把读数<strong>画进 3D 场景</strong>——因为沉浸模式下浏览器不渲染网页覆盖层，<strong>低头才能看到的那块面板，才是头显里唯一看得见的读数</strong>。</div>
+
+  <h3>四、三条退出路（至少试通一条，并当场报用时）</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>路</th><th>怎么做</th><th>备注</th></tr></thead>
+      <tbody>
+        <tr><td><strong>①</strong></td><td><strong>注视 / 射线点自己页面里的「退出 VR」按钮</strong></td><td>前提：作品里<strong>真的有这个按钮</strong>；注视模式下停留时间按内核约定</td></tr>
+        <tr><td><strong>②</strong></td><td><strong>长按握把 2 秒</strong></td><td>前提：页面接了这条兜底；<strong>课前 5 分钟实测握持键</strong></td></tr>
+        <tr><td><strong>③</strong></td><td><strong>按头显系统键 → 退出 VR</strong></td><td>任何情况下都可用，<strong>是最后的安全网</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="key"><strong>退不出去的作品，是最严重的可用性事故</strong>——因为你没法解释，别人也没法帮你。<br>
+    <strong>顺序</strong>：学生自己先试 ① → ② → ③，教师兜底。三条退出路<strong>一条都没试通，M3 直接不过</strong>。</div>
+
+  <h3>五、故障速查（贴在讲台）</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>现象</th><th>先查什么</th></tr></thead>
+      <tbody>
+        <tr><td>头显打不开页面</td><td>① 走通路 ①（USB，不依赖网络）；② 换手机热点；③ 打开已装为应用（PWA）的版本</td></tr>
+        <tr><td>页面能开，但按钮显示"不支持 WebXR"</td><td><strong>先看是不是安全上下文</strong>（协议不是 <code class="inline">https</code> / 不是 <code class="inline">127.0.0.1</code> / 没加白名单）</td></tr>
+        <tr><td>进了 VR <strong>看不见自己的面板</strong></td><td>这是<strong>正常现象</strong>——<strong>沉浸模式下网页 DOM 不渲染</strong>，面板必须是 3D 物件</td></tr>
+        <tr><td><strong>手柄握持键抓不住东西</strong></td><td>课前 5 分钟已实测；若现场失效 → 改用<strong>扳机就近抓取</strong>，并说明这是<strong>已知简化</strong></td></tr>
+        <tr><td>进不去 VR / 进去黑屏</td><td>退出重进一次；换通路；仍不行 → <strong>换备用头显</strong>，原机登记课后查</td></tr>
+        <tr><td><strong>退不出来</strong></td><td>① 视线停退出按钮 → ② <strong>长按握把 2 秒</strong> → ③ 系统键 → ④ 长按电源强制重启</td></tr>
+        <tr><td><strong>注视模式（<code class="inline">Shift+G</code>）没反应</strong></td><td>确认是 PC 焦点窗口；确认页面加载了共享内核 <code class="inline">_xr_core.js</code>；确认准星出现了</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="warn"><strong>一句话原则：坏一台，换一台；课不停，不等人。</strong></div>
+
+  <h3>六、为什么这节课要花 65 分钟在验证上</h3>
+  <div class="key">"你今天做的所有事情，都能在你的电脑上看到结果。但有四件事只有戴上头显才知道：<br>
+    ① 你的东西在<strong>离眼睛十厘米</strong>的地方，看着是不是太大或太小；<br>
+    ② 你的手柄<strong>真的能抓住</strong>你要抓的东西吗；<br>
+    ③ 走完一整套要多久——<strong>这个数你在电脑上永远掐不准</strong>；<br>
+    ④ 你<strong>能不能退出去</strong>。<br>
+    前三条决定你的作品好不好用。<strong>第四条决定你的作品算不算做完了。</strong>"</div>
+</section>
+
+<!-- ===== 达标 · 量规 ===== -->
+<section id="hw">
+  <div class="sec-head">
+    <div class="sec-num">作</div>
+    <div>
+      <h2>达标线与评价量规</h2>
+      <p class="sec-sub">全部课内完成，不卡时间；做不完登记后到实验室补做。<strong>今天的产出是三样东西，不是一张好看的截图</strong></p>
+    </div>
+  </div>
+
+  <h3>一、本节达标五条（缺一条不算过）</h3>
+  <ol>
+    <li><strong>路子通</strong>：从入口到通关能<strong>连走两遍</strong>，控制台无报错；</li>
+    <li><strong>放得对</strong>：抓取与放置各有一个<strong>说得出数值的判定</strong>（阈值 / 槽位）；</li>
+    <li><strong>不锁死</strong>：顺序做错或密码输错之后，<strong>能立刻重来</strong>，不需要刷新页面；</li>
+    <li><strong>能戴能退</strong>：头显里走完主流程，<strong>三条退出路至少试通一条并报出用时</strong>；</li>
+    <li><strong>说得出边界</strong>：能回答"我的免手柄通路<strong>覆盖到哪一步、覆盖不到哪一步</strong>"。</li>
+  </ol>
+  <div class="warn"><strong>两条硬门槛</strong>：<strong>A 主流程可玩</strong> 且 <strong>C 真机验证记录（含退出路）</strong>。路径不通或退不出去的，不进入下面的量规打分。</div>
+
+  <h3>二、本节量规（五维，当场判达标用；与期末量规同源）</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>维度</th><th>权重</th><th>看什么</th></tr></thead>
+      <tbody>
+        <tr><td><strong>主流程完整</strong></td><td><strong>30%</strong></td><td>入口→通关可重复、无报错、失败可恢复</td></tr>
+        <tr><td><strong>交互实现</strong></td><td><strong>25%</strong></td><td>抓取（<code class="inline">attach()</code>）· 放置判定（阈值 + 槽位）· UV 命中 3D UI · 顺序校验（<code class="inline">S.step</code>）</td></tr>
+        <tr><td><strong>人因与可访问性</strong></td><td><strong>20%</strong></td><td>三件套测过几条；免手柄通路覆盖边界说清楚；取舍理由</td></tr>
+        <tr><td><strong>舒适与退出</strong></td><td><strong>15%</strong></td><td>三条退出路至少一条、报出用时；默认传送 + Snap</td></tr>
+        <tr><td><strong>诚实与文档</strong></td><td><strong>10%</strong></td><td>README 写明已知简化与覆盖不到的地方；不确定信息标 <code class="inline">【待补充】</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="note">保留"可访问性"为<strong>必评维度</strong>——它在期末量规里已并入「交互与人因 20 分」，不再作为加分项。这条改动的原因就是<strong>第 9 次课把它教成了硬要求</strong>。</div>
+
+  <h3>三、任何情况下都不降的三条</h3>
+  <ol>
+    <li><strong>达标线本身</strong>；</li>
+    <li><strong>改动必须有依据</strong>——不能瞎填阈值，你得说得出"为什么是 0.45 / 1.6"；</li>
+    <li><strong>记录表上的数字必须和页面 HUD 对得上——编数据比做不出来更严重。</strong></li>
+  </ol>
+
+  <h3>四、"看起来过了其实没过"的四种情况</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>#</th><th>情况</th><th>为什么不算</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td><strong>老师帮着跳过一步</strong></td><td>老师能跳过的，陌生人跳不过去</td></tr>
+        <tr><td>2</td><td><strong>只在 PC 上跑通</strong></td><td>M3 要的是<strong>真机记录</strong>，PC 端的绿灯不算</td></tr>
+        <tr><td>3</td><td><strong>能进不能退</strong></td><td>这一条单独判：<strong>三条退出路一条都没试通，直接不过</strong></td></tr>
+        <tr><td>4</td><td><strong>写"很顺利、没卡点"</strong></td><td>卡点是<strong>作业的一部分</strong>——你写不出卡点，说明你没认真走</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>五、本节要填的四张表（学生任务卡）</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>表</th><th>填什么</th><th>对应</th></tr></thead>
+      <tbody>
+        <tr><td><strong>表 A</strong> 主流程走向记录表</td><td>一行一步：这一步做什么 / 我是怎么触发的（手柄／鼠标／键盘／注视）/ 推进到哪个 step / 有无卡顿 / 控制台有无报错；最后三行填<strong>抓取距离、放置距离、顺序校验做错时的处理</strong></td><td>判据 A</td></tr>
+        <tr><td><strong>表 B</strong> 免手柄通路验证表</td><td>B-1 案例 02 四项（数字键 / <code class="inline">OK</code> / 星星 / 碎片）；B-2 自己作品的 1—3 条通路 + <strong>"可访问性覆盖范围"声明原文</strong></td><td>判据 B</td></tr>
+        <tr><td><strong>表 C</strong> 真机验证记录卡</td><td>走的哪条通路 / 自检六项 / <strong>主流程总用时</strong> / 退出第几路 / <strong>退出用时</strong> / FPS / DrawCall / 三角面 / <strong>卡点（至少一条，写"没卡"视为未通过）</strong> / 只有戴上头显才知道的事</td><td>判据 C</td></tr>
+        <tr><td><strong>表 D</strong> M3 自查清单</td><td>A—C 三项 + D-1 说到判据数值 / D-2 不锁死 / D-3 报了退出用时 / D-4 按过三件套 / D-5 知道已知简化 / D-6 没有编造真实信息</td><td>M3 结论</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="sec-sub">签字确认那一行照原样保留：<strong>"我确认本卡上的数字与页面 HUD 对得上，没有填写我没实测过的数据。"</strong></p>
+</section>
+
+<!-- ===== 速查 ===== -->
+<section id="practice">
+  <div class="sec-head">
+    <div class="sec-num">查</div>
+    <div>
+      <h2>一页速查</h2>
+      <p class="sec-sub">把这一页抄在笔记本上，本课的骨架就齐了</p>
+    </div>
+  </div>
+
+  <h3>一、八句话速查</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>主题</th><th>要记住的</th></tr></thead>
+      <tbody>
+        <tr><td>本课命题</td><td>交互的难点不在"能不能点"，<strong>在"点不到时怎么办"</strong></td></tr>
+        <tr><td>抓取</td><td><code class="inline">attach()</code> 一行挂上手；规则是<strong>0.45 m 内取最近的一个</strong>，不是一个范围</td></tr>
+        <tr><td>放置判定</td><td><strong>距离阈值 + 吸附槽</strong>：<code class="inline">p.distanceTo(fp) &lt; 1.6</code>，吸到 <code class="inline">slotX = −0.95 + idx×0.95</code></td></tr>
+        <tr><td>3D 键盘</td><td>沉浸模式不渲染 DOM 按钮 → 按键是 canvas 贴图 + <strong>UV 命中</strong>；<code class="inline">labels</code> 与 <code class="inline">kp.keys</code> 共用 384 × 512 坐标系</td></tr>
+        <tr><td>密码</td><td><code class="inline">var CODE = '3719'</code>；<strong>错了只清空、不锁死</strong>；最多 4 位</td></tr>
+        <tr><td>顺序校验</td><td><code class="inline">S.step</code> 是唯一裁判；每个动作入口先问"现在轮到你了没有"</td></tr>
+        <tr><td>失败的设计</td><td><strong>失败有代价但不惩罚</strong>——代价是重来，不惩罚是<strong>不扣时间 · 不锁死 · 不用刷新</strong></td></tr>
+        <tr><td>可访问性边界</td><td><strong>面板可免手柄，场景实体仍需手部输入</strong>；<strong>能替代的替代，不能替代的要说出来</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>二、三个键的真实参数（照抄）</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>键</th><th>参数</th></tr></thead>
+      <tbody>
+        <tr><td><code class="inline">Shift+P</code></td><td>坐姿：<strong>下沉 0.45 m、下倾 0.18 rad</strong>；自有面板要先 <code class="inline">XRCore.ui([面板])</code> 登记</td></tr>
+        <tr><td><code class="inline">Shift+H</code></td><td>循环<strong>双手 → 单手（自动）→ 仅右手 → 仅左手 → 双手</strong>；单手时<strong>只接受主手</strong></td></tr>
+        <tr><td><code class="inline">Shift+G</code></td><td>注视停留 <strong>1.2 s</strong>（<code class="inline">gazeMs = 1200</code>）触发；<strong>移开重置、同一目标不重复触发</strong>；自有面板要 <code class="inline">XRCore.uiHit(fn)</code> 委托</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>三、上机五句话</h3>
+  <ol>
+    <li><strong>先怀疑环境，再怀疑代码</strong>——看不到「进入 VR」按钮时，先看是不是安全上下文；</li>
+    <li>进 VR <strong>必须人手点一次</strong>，这是规范要求，装成应用也一样；</li>
+    <li><strong>先在电脑上改完，再戴头显</strong>——不许一边改一边戴；</li>
+    <li>退出有<strong>三条路</strong>：注视/射线点按钮 / <strong>长按握把 2 秒</strong> / 系统键。<strong>至少试通一条并报出用时</strong>；</li>
+    <li><strong>记录表上的数字必须和页面 HUD 对得上</strong>——编数据比做不出来更严重。</li>
+  </ol>
+
+  <h3>四、课前 10 分钟检查表（教师）</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>#</th><th>要打勾的</th></tr></thead>
+      <tbody>
+        <tr><td>①</td><td><strong>白板五行已写好</strong>：本课命题 / 三件套参数 / 达标五条 / M3 硬门槛 / 三条退出路</td></tr>
+        <tr><td>②</td><td>案例 02 <strong>在头显里跑通了一遍</strong>（含进入与退出）；三件套各按过一次，按键<strong>真的生效</strong></td></tr>
+        <tr><td>③</td><td><strong>课前 5 分钟实测手柄 <code class="inline">squeeze</code></strong>：握持键能否触发抓取、触觉是否有反馈；不通过就准备好"改成扳机抓取"的说法</td></tr>
+        <tr><td>④</td><td>三条通路已选定一条，<strong>课堂上只教走通的那一条</strong></td></tr>
+        <tr><td>⑤</td><td>四个演示已在教师机上预演：<code class="inline">bd</code> · <code class="inline">1.6</code> · <code class="inline">clickStar()</code> 错序复位 · <code class="inline">Shift+G</code> 注视点键盘</td></tr>
+        <tr><td>⑥</td><td>控制台调试入口确认可用：<code class="inline">Dunhuang.keypadPress('OK')</code>、<code class="inline">Dunhuang.clickStar(Dunhuang.stars[2])</code></td></tr>
+        <tr><td>⑦</td><td>M2 收件情况已排序、可投屏（开场点评用；<strong>点名只讲优点</strong>）</td></tr>
+        <tr><td>⑧</td><td>学生任务卡已打印 <strong>40 份</strong>（含表 A / B / C / D）</td></tr>
+        <tr><td>⑨</td><td>头显电量 ≥ 70%、手柄挂绳已装、面罩与镜片已擦、一次性眼罩 ≥ 40 片；<strong>2 名学生管理员已指定并拿到操作卡</strong></td></tr>
+        <tr><td>⑩</td><td><strong>设备数量与场地已确认</strong>（<code class="inline">【待确认】</code> → 确认后写下实际数）：头显型号 ＿＿＿ ｜ 数量 ＿＿ 台 ｜ 上机地点 ＿＿＿；据此选定 <strong>预案 A 一人一台</strong> 或 <strong>预案 B 10 台轮转</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>五、课后两件事（教师）</h3>
+  <ol>
+    <li>填完操作卡第八节的现场记录表，特别是<strong>"环境 / 作品 / 设备三类卡壳各多少人"</strong>——它是<strong>第 10 次课开场的备课依据</strong>；</li>
+    <li>把 M3 交上来的三样东西收齐，并统计<strong>"没过 M3 的人卡在哪一样"</strong>——这是第 10 次课课前一对一补做的名单。</li>
+  </ol>
+</section>
+
+<!-- ===== M3 硬门槛 ===== -->
+<section id="m3">
+  <div class="sec-head">
+    <div class="sec-num">门</div>
+    <div>
+      <h2>M3 主流程可玩：硬门槛</h2>
+      <p class="sec-sub">一句话口径（板书就写这一句）：<strong>路子不通、或退不出去的作品，画面再好看也不算完成。</strong></p>
+    </div>
+  </div>
+
+  <p><strong>M3 是 11-11 第 9 次课的交件，卡住谁不能往下走</strong>——不过此关，作品不算完成。判定<strong>只看三样，不看画质、不看功能数量</strong>。</p>
+
+  <h3>一、判定三项</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>#</th><th>判定项</th><th>过</th><th>不过</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>A</strong></td><td><strong>主流程可玩</strong>（硬门槛）</td>
+          <td>从<strong>入口</strong>到<strong>通关</strong>，能<strong>连走两遍</strong>，两遍结果一致；控制台<strong>无 JS 报错</strong></td>
+          <td>中间有任何一步"只能靠老师帮你跳过"；或第一遍能过、第二遍状态残留导致过不去</td>
+        </tr>
+        <tr>
+          <td><strong>B</strong></td><td><strong>一条免手柄通路</strong></td>
+          <td><strong>至少一条</strong>不用手柄也能推进的通路存在，并且<strong>能说清它覆盖到哪一步、覆盖不到哪一步</strong></td>
+          <td>完全依赖手柄；或声称"支持免手柄"但说不出覆盖边界——<strong>说不清 = 不过</strong></td>
+        </tr>
+        <tr>
+          <td><strong>C</strong></td><td><strong>真机验证记录</strong>（硬门槛）</td>
+          <td><strong>用时 / 卡点 / 退出路</strong>三样齐全，<strong>卡点写了具体在哪一步</strong></td>
+          <td>三项缺一；或卡点栏写"没卡"/"很顺利"——<strong>无信息量 = 不过</strong></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>二、三样之外的加分观察项（不计入是否过）</h3>
+  <ul>
+    <li>抓取 / 放置的<strong>两个阈值自己调过并说出理由</strong>；</li>
+    <li>顺序校验<strong>失败后能恢复</strong>（不锁死）；</li>
+    <li>对"面板能免手柄、场景实体不能"这条边界<strong>有自己的处理或说明了取舍</strong>。</li>
+  </ul>
+
+  <h3>三、没过怎么办（不当场否定，给补做路径）</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>卡在哪</th><th>补做安排</th></tr></thead>
+      <tbody>
+        <tr><td>卡在 <strong>A 主流程</strong></td><td>第 10 次课课前 20 分钟一对一补；<strong>先查环境（三条通路），再查代码</strong></td></tr>
+        <tr><td>卡在 <strong>B 免手柄通路</strong></td><td>允许<strong>降级为"键盘快捷键通路"</strong>（PC 端可完成主流程 + 至少一处 VR 内免手柄），<strong>但必须在 README 写明取舍</strong></td></tr>
+        <tr><td>卡在 <strong>C 真机记录</strong></td><td>课后到实验室补做并补填【表 C】；<strong>不占用第 10 次课的 M4 时间</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="key"><strong>不减的底线</strong>：A 与 C。<strong>免手柄通路允许按上面的方式降级，但"能退得出去"没有降级选项。</strong></div>
+
+  <h3>四、M3 提交要求（课上念一遍）</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>交什么</th><th>形式</th><th>交到哪</th></tr></thead>
+      <tbody>
+        <tr><td>① 主流程可玩</td><td><strong>截图 / 录屏 / 或下次课现场演示</strong>，证明"入口 → 通关"能连走两遍</td><td rowspan="3"><code class="inline">【待确认：学生的提交路径与截止时间以教师当堂通知为准】</code></td></tr>
+        <tr><td>② 免手柄通路说明</td><td>【表 B】填满，<strong>必须写清覆盖到哪一步、覆盖不到哪一步</strong></td></tr>
+        <tr><td>③ 真机验证记录</td><td>【表 C】填满：<strong>用时 / 卡点 / 退出路</strong>（三样缺一不可）</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>五、今天测出来的每一条边界，期末都要写进 README</h3>
+  <p>期末大作业<strong>十条硬门槛</strong>里，第 1 条就是"<strong>能进能退</strong>"（三条退出路至少试通一条），第 9 条是"<strong>可访问性：坐姿 / 单手 / 注视停留至少两条通路可用</strong>并能等价完成主流程，说明取舍"。<strong>M3 只是中途门槛。</strong></p>
+</section>
+
+<!-- ===== 下次课预告 ===== -->
+<section id="next">
+  <div class="sec-head">
+    <div class="sec-num">下</div>
+    <div>
+      <h2>下次课预告 · 2026-11-18（第 10 次课）</h2>
+      <p class="sec-sub"><strong>好看和跑得动是两件事</strong>——帧预算是 <strong>13.9 ms，不是 16.7 ms</strong></p>
+    </div>
+  </div>
+
+  <p>下次课的案例是 <strong>03 节奏竞技 · 编钟之韵</strong>（反馈、判定、程序化音频）。开场要用的，就是今天统计出来的东西。</p>
+
+  <h3>一、下次课开场就用今天的两个统计</h3>
+  <ul>
+    <li><strong>三类卡壳统计</strong>：<strong>环境 / 作品 / 设备</strong>各卡了多少人——这是后面降级的依据；</li>
+    <li><strong>没过 M3 的人卡在哪一样</strong>（A 主流程 / B 免手柄 / C 真机记录）——这是课前一对一补做的名单。</li>
+  </ul>
+
+  <h3>二、下次课讲什么</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>要点</th><th>一句话</th></tr></thead>
+      <tbody>
+        <tr><td><strong>帧预算</strong></td><td><strong>72 Hz ⇒ 13.9 ms</strong>——不是 16.7 ms，因为浏览器合成要占时间</td></tr>
+        <tr><td><strong>先看 DrawCall</strong></td><td><strong>不要先看面数</strong>；手段是实例化 / 合批 / 贴图复用 / 阴影分辨率</td></tr>
+        <tr><td><strong>动态降级</strong></td><td>L1 降像素比 → L2 关阴影，<strong>可逆</strong></td></tr>
+        <tr><td><strong>舒适度</strong></td><td>隧道视野、默认传送 + Snap 45°</td></tr>
+        <tr><td><strong>今天记下的数别丢</strong></td><td>今天抄的 <strong>FPS / DrawCall / 三角面</strong>下次课要用；<strong>读数必须和页面 HUD 对得上</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="note"><strong>今天没走通通路的同学，课后到实验室补齐</strong>——下次课一上来就是 M4 的起点，没有缓冲。没过的也可以先看自己的卡点属于哪一类：<strong>环境、作品，还是设备</strong>。</div>
+
+  <h3>三、期末倒排（回头看一眼自己站在哪）</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>时间</th><th>里程碑</th><th>交付物</th></tr></thead>
+      <tbody>
+        <tr><td>10-21 第 7 次课</td><td>M1 选题定稿</td><td>一页纸（主题 / 为什么必须 VR / 用户 / 核心交互 / 技术点 / 降级方案）</td></tr>
+        <tr><td>10-28 第 8 次课</td><td>M2 设计定稿</td><td>动线图 + 状态机图 + 可玩入口</td></tr>
+        <tr><td><strong>11-11 第 9 次课</strong></td><td><strong>M3 可玩（硬门槛）</strong></td><td><strong>主流程可玩 + 免手柄通路 + 真机记录</strong>——<strong>不过此关，作品不算完成</strong></td></tr>
+        <tr><td>11-18 第 10 次课</td><td>M4 性能达标</td><td>优化前后对照 + 读数与 HUD 一致</td></tr>
+        <tr><td>11-25 第 11 次课</td><td>M5 功能封版</td><td>智能模块 + 降级方案 + 体验数据 JSON</td></tr>
+        <tr><td>12-02 第 12 次课</td><td>M6 路演答辩</td><td>作品目录 + README + cover.jpg + JSON</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="f-main">中华女子学院 · 2026年虚拟现实技术 · 第 9 次课</div>
+  <div>数据科学与信息技术学院 · 授课教师：孙琪翔 · 2026-11-11 · 路要通、退得出、谁都点得到（教学案例 02 密室逃脱 · 敦煌寻宝（二））</div>
+  <div style="margin-top:6px;font-size:12px;opacity:.75;">本页内容依据本次课资料包与教学案例 02 源码整理；案例全部结论来自 headless Chrome + SwiftShader 软件渲染，从未在任何头显上验证过。头显型号、数量、上课地点待教师确认，一律标【待确认】；涉及壁画与洞窟、校史的真实信息一律标【待补充】。</div>
+  <div style="margin-top:12px;font-size:14px;"><a href="vr-2026.html">← 返回课程主页</a></div>
+</footer>
+
+<button id="toTop" title="回到顶部">↑</button>
+
+<script>
+(function(){
+  var navInner = document.getElementById('navInner');
+  var navLinks = {};
+  navInner.querySelectorAll('a[data-sec]').forEach(function(a){
+    navLinks[a.getAttribute('data-sec')] = a;
+  });
+  var sections = ['guide','c1','c2','c3','c4','c5','c6','cases','demo','cast','hw','practice','m3','next'];
+  if ('IntersectionObserver' in window) {
+    var obs = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        if (en.isIntersecting) {
+          document.querySelectorAll('#nav a').forEach(function(a){ a.classList.remove('on'); });
+          var a = navLinks[en.target.id];
+          if (a) a.classList.add('on');
+        }
+      });
+    }, {rootMargin:'-15% 0px -70% 0px'});
+    sections.forEach(function(s){
+      var el = document.getElementById(s);
+      if (el) obs.observe(el);
+    });
+  }
+  var toTop = document.getElementById('toTop');
+  if (toTop) {
+    window.addEventListener('scroll', function(){
+      toTop.classList.toggle('show', window.pageYOffset > 400);
+    }, {passive:true});
+    toTop.addEventListener('click', function(){ window.scrollTo({top:0, behavior:'smooth'}); });
+  }
+})();
+</script>
+
+</body>
+</html>
