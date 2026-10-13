@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>从入口走几步：把"最远几步"算给你看</title>
+<style>
+  html,body{margin:0;background:#0b1016;color:#e8eef6;font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif}
+  .wrap{max-width:1180px;margin:0 auto;padding:22px 20px 60px}
+  h1{font-size:21px;margin:6px 0 4px}
+  .sub{color:#93a6bb;font-size:13px;margin-bottom:14px;line-height:1.85}
+  .bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;background:rgba(15,22,32,.85);
+    border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:12px 16px;margin-bottom:14px}
+  .bar button{font:600 13px/1 "Microsoft YaHei";color:#dbe7f4;background:rgba(255,255,255,.07);
+    border:1px solid rgba(255,255,255,.2);border-radius:999px;padding:9px 14px;cursor:pointer}
+  .bar button.on{background:linear-gradient(135deg,#ffd27a,#e0a33c);border-color:transparent;color:#0b1016}
+  .bar .hint{font-size:12px;color:#8fa3b8}
+  .row{display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start}
+  .left{flex:1 1 620px;min-width:320px}
+  .right{flex:0 1 430px;min-width:300px}
+  .card{background:rgba(15,22,32,.85);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:14px 16px;margin-bottom:14px}
+  .card h3{margin:0 0 10px;font-size:15px}
+  svg{display:block;width:100%;height:auto;border-radius:12px;border:1px solid rgba(255,255,255,.14);background:#05080c}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  td{border-bottom:1px solid rgba(255,255,255,.1);padding:8px 6px}
+  td.k{color:#8fa3b8;width:46%}
+  td.v{font-family:Consolas,"Microsoft YaHei",monospace;color:#ffd27a;font-weight:600}
+  .ok{color:#7ddc9a !important}.bad{color:#ff9d80 !important}.warnv{color:#ffd166 !important}
+  .legend{font-size:12.5px;line-height:1.95;color:#c3d2e3}
+  .legend b{color:#ffd27a}
+  #verdict{margin-top:10px;padding:11px 13px;border-radius:10px;font-size:13.5px;line-height:1.9;
+    background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.14)}
+  .back{margin-top:24px;font-size:13.5px}
+  .back a{color:#ffd27a;text-decoration:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>从入口走几步：把"最远几步"算给你看</h1>
+  <div class="sub">
+    "一张图三问"里的第三问是"<b>最远要走几步</b>"。这个数不是估的，是<b>一层一层数出来的</b>——
+    第 1 步能到谁、第 2 步能到谁、第 3 步还能到谁。<br>
+    点下面的「<b>从入口出发</b>」，看它一层一层点亮；没被点亮的房间，就是<b>不可达</b>。
+  </div>
+
+  <div class="bar" id="presets">
+    <button data-p="cur">当前配置（星形 + 回边）</button>
+    <button data-p="ring">环形（每个都能转回来）</button>
+    <button data-p="dead">故意做个死胡同</button>
+    <button data-p="miss">故意留个进不去的房间</button>
+    <button id="go">▶ 从入口出发，逐层点亮</button>
+    <button id="rst">重置</button>
+  </div>
+
+  <div class="row">
+    <div class="left">
+      <div class="card">
+        <h3>这张图（箭头 = 热点方向；起点是「客厅」）</h3>
+        <svg id="map" viewBox="0 0 620 480" role="img" aria-label="六房间漫游图"></svg>
+        <div class="legend" style="margin-top:8px">
+          <b>绿色</b> = 已走到　<b>橙色描边</b> = 死胡同（进得去出不来）　<b>虚线灰</b> = 从来没走到（不可达）　
+          数字 = <b>从入口出发最少几步</b>
+        </div>
+      </div>
+    </div>
+
+    <div class="right">
+      <div class="card">
+        <h3>体检结果</h3>
+        <table>
+          <tr><td class="k">走到的房间</td><td class="v" id="vReach">—</td></tr>
+          <tr><td class="k"><b>最远几步</b></td><td class="v" id="vDepth">—</td></tr>
+          <tr><td class="k">有没有死胡同</td><td class="v" id="vDead">—</td></tr>
+          <tr><td class="k">有没有走不到的房间</td><td class="v" id="vMiss">—</td></tr>
+        </table>
+        <div id="verdict">点「从入口出发」→</div>
+      </div>
+
+      <div class="card">
+        <h3>"几步"是怎么数出来的</h3>
+        <div class="legend">
+          <b>第 0 层</b>：入口自己（0 步）<br>
+          <b>第 1 层</b>：从入口直接有边的房间<br>
+          <b>第 2 层</b>：从第 1 层再有边的房间<br>
+          <b>第 3 层</b>：以此类推……<br><br>
+          所以<b>最远几步 = 最后一层是第几层</b>。层数超过 3，就是课上的"<b>绕远</b>"。<br><br>
+          <b>为什么不能超过 3 步</b>：观众每跳一次都要重新建立"我在哪儿"的空间感。
+          连跳 3 次以上，他就不知道自己站在哪了——<b>这不是体验问题，是导航失败</b>。
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>两种毛病，一眼认出来</h3>
+        <div class="legend">
+          <b>死胡同</b>：某间房<b>只有进来的箭头、没有出去的箭头</b>。走进去就出不来了。<br>
+          <b>不可达</b>：某间房<b>没有任何箭头指向它</b>，或者指向它的那间房自己就走不到。<br><br>
+          ⚠️ 注意第二种：<b>如果 B 能到 A，但你走不到 B，那 A 一样是不可达的</b>——
+          所以必须"从入口出发一层层数"，不能只看谁有箭头。
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="back"><a href="./index.html">← 回演示中心</a></div>
+</div>
+
+<script>
+var POS = {
+  living : {x:110, y:220, name:'客厅'},
+  dining : {x:310, y:220, name:'餐厅'},
+  kitchen: {x:510, y:120, name:'厨房'},
+  study  : {x:510, y:320, name:'书房'},
+  bedroom: {x:110, y:380, name:'卧室'},
+  bath   : {x:310, y:410, name:'卫生间'}
+};
+var START = 'living';
+var PRESETS = {
+  cur : [['living','dining'],['dining','living'],['dining','kitchen'],['dining','study'],['dining','bedroom'],
+         ['dining','bath'],['kitchen','dining'],['study','dining'],['bedroom','dining'],['bath','dining']],
+  ring: [['living','dining'],['dining','kitchen'],['kitchen','study'],['study','bedroom'],['bedroom','bath'],
+         ['bath','living'],['dining','living'],['kitchen','dining'],['study','kitchen'],['bedroom','study'],
+         ['bath','bedroom'],['living','bath']],
+  dead: [['living','dining'],['dining','living'],['dining','kitchen'],['dining','study'],
+         ['kitchen','dining'],['study','dining'],['bedroom','dining'],['bath','dining']],
+  miss: [['living','dining'],['dining','living'],['dining','kitchen'],['dining','bedroom'],['dining','bath'],
+         ['kitchen','dining'],['bedroom','dining'],['bath','dining'],['study','dining']]
+};
+var edges = PRESETS.cur.slice();
+var order = [], depth = {}, timer = null;
+
+function bfs(){
+  var adj = {}, d = {};
+  Object.keys(POS).forEach(function(k){ adj[k] = []; });
+  edges.forEach(function(e){ adj[e[0]].push(e[1]); });
+  var q = [START], seen = {}; seen[START] = true; d[START] = 0;
+  var out = [START], i = 0;
+  while (i < q.length){
+    var cur = q[i++];
+    adj[cur].forEach(function(nx){
+      if (!seen[nx]){ seen[nx] = true; d[nx] = d[cur] + 1; q.push(nx); out.push(nx); }
+    });
+  }
+  return {rank: out, depth: d, seen: seen, adj: adj};
+}
+
+function draw(state){
+  var svg = document.getElementById('map');
+  var g = '';
+  var colors = ['#3a4a5e', '#5e6f86', '#8fa3b8', '#c3b06a', '#e0a33c', '#ff9d80'];
+
+  /* 边 */
+  edges.forEach(function(e){
+    var a = POS[e[0]], b = POS[e[1]];
+    var dx = b.x - a.x, dy = b.y - a.y, L = Math.sqrt(dx * dx + dy * dy) || 1;
+    var ux = dx / L, uy = dy / L, r = 26;
+    var x1 = a.x + ux * r, y1 = a.y + uy * r, x2 = b.x - ux * r, y2 = b.y - uy * r;
+    var known = state && state.seen[e[0]] && state.seen[e[1]];
+    g += '<line x1="' + x1 + '" y1="' + y1 + '" x2="' + x2 + '" y2="' + y2 +
+         '" stroke="' + (known ? 'rgba(125,220,154,.55)' : 'rgba(255,255,255,.16)') +
+         '" stroke-width="2.2" marker-end="url(#arw)"/>';
+  });
+
+  /* 节点 */
+  Object.keys(POS).forEach(function(k){
+    var p = POS[k];
+    var known = state && state.seen[k];
+    var hasOut = edges.some(function(e){ return e[0] === k; });
+    var hasIn = edges.some(function(e){ return e[1] === k; });
+    var dead = hasIn && !hasOut;                       /* 进得去出不来 */
+    var d = state ? state.depth[k] : null;
+    var fill = '#131c26', stroke = 'rgba(255,255,255,.28)', text = '#8fa3b8';
+    if (known){ fill = '#16311f'; stroke = '#7ddc9a'; text = '#a9e6bd'; }
+    if (dead){ stroke = '#e0a33c'; stroke = dead && known ? '#e0a33c' : '#5a4a2a'; }
+    if (state && !known){ stroke = 'rgba(255,255,255,.18)'; }
+
+    g += '<circle cx="' + p.x + '" cy="' + p.y + '" r="26" fill="' + fill +
+         '" stroke="' + stroke + '" stroke-width="2.4"' + (dead ? ' stroke-dasharray="5 4"' : '') + '/>';
+    g += '<text x="' + p.x + '" y="' + (p.y + 5) + '" text-anchor="middle" fill="' + text +
+         '" font-family="Microsoft YaHei" font-size="14" font-weight="600">' + p.name + '</text>';
+    if (state && known){
+      g += '<text x="' + p.x + '" y="' + (p.y - 34) + '" text-anchor="middle" fill="#7ddc9a" ' +
+           'font-family="Consolas" font-size="15" font-weight="700">' + d + ' 步</text>';
+    }
+    if (dead){
+      g += '<text x="' + p.x + '" y="' + (p.y + 44) + '" text-anchor="middle" fill="#e0a33c" ' +
+           'font-family="Microsoft YaHei" font-size="11.5">死胡同</text>';
+    }
+    if (state && !known){
+      g += '<text x="' + p.x + '" y="' + (p.y + 44) + '" text-anchor="middle" fill="#ff9d80" ' +
+           'font-family="Microsoft YaHei" font-size="11.5">走不到</text>';
+    }
+  });
+
+  svg.innerHTML = '<defs><marker id="arw" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" ' +
+    'markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#7aa0c8"/></marker></defs>' + g;
+}
+
+function report(state){
+  var all = Object.keys(POS);
+  var deads = all.filter(function(k){
+    var hasOut = edges.some(function(e){ return e[0] === k; });
+    var hasIn = edges.some(function(e){ return e[1] === k; });
+    return hasIn && !hasOut;
+  });
+
+  /* 死胡同只跟"边的结构"有关，不用等跑完 —— 先把它报出来 */
+  var deEl = document.getElementById('vDead');
+  deEl.textContent = deads.length ? (deads.map(function(k){ return POS[k].name; }).join('、')) : '没有 ✓';
+  deEl.className = 'v ' + (deads.length ? 'bad' : 'ok');
+
+  /* 还没点「从入口出发」时，可达性一律显示 —，不要先报一个假结论 */
+  if (!state){
+    document.getElementById('vReach').textContent = '—（点「从入口出发」）';
+    document.getElementById('vReach').className = 'v';
+    document.getElementById('vDepth').textContent = '—';
+    document.getElementById('vDepth').className = 'v';
+    document.getElementById('vMiss').textContent = '—';
+    document.getElementById('vMiss').className = 'v';
+    var v0 = document.getElementById('verdict');
+    if (!edges.length){ v0.innerHTML = '这张图一条边都没有——<b>孤岛</b>。'; }
+    else if (deads.length){
+      v0.innerHTML = '<b class="bad" style="color:#ff9d80">✘ 已经有死胡同了</b>（' +
+        deads.map(function(k){ return POS[k].name; }).join('、') + '）——<b>只进来的箭头、没有出去的箭头</b>。' +
+        '点「从入口出发」看可达性。';
+    } else {
+      v0.innerHTML = '边的结构没看出死胡同。<b>点「从入口出发」</b>，看哪几间真的走得到。';
+    }
+    return;
+  }
+
+  var reached = all.filter(function(k){ return state.seen[k]; });
+  var missed = all.filter(function(k){ return !state.seen[k]; });
+  var maxd = 0; reached.forEach(function(k){ if (state.depth[k] > maxd) maxd = state.depth[k]; });
+
+  document.getElementById('vReach').textContent = reached.length + ' / ' + all.length;
+  document.getElementById('vReach').className = 'v ' + (missed.length ? 'bad' : 'ok');
+  var dEl = document.getElementById('vDepth');
+  dEl.textContent = (edges.length ? maxd + ' 步' : '—');
+  dEl.className = 'v ' + (maxd <= 3 ? 'ok' : 'warnv');
+  var miEl = document.getElementById('vMiss');
+  miEl.textContent = missed.length ? (missed.map(function(k){ return POS[k].name; }).join('、')) : '没有 ✓';
+  miEl.className = 'v ' + (missed.length ? 'bad' : 'ok');
+
+  var v = document.getElementById('verdict');
+  var ok = (!deads.length && !missed.length && maxd <= 3);
+  if (!edges.length){ v.innerHTML = '这张图一条边都没有——<b>孤岛</b>。'; return; }
+  if (ok){
+    v.innerHTML = '<b class="ok" style="color:#7ddc9a">✔ 三项全绿。</b>6 间房全部可达，最远 ' + maxd +
+      ' 步，没有死胡同——<b>这才叫"路子通"</b>。';
+  } else {
+    var bad = [];
+    if (missed.length) bad.push('有 <b>' + missed.length + '</b> 间房<b>走不到</b>（' + missed.map(function(k){ return POS[k].name; }).join('、') + '）');
+    if (deads.length) bad.push('有 <b>' + deads.length + '</b> 个<b>死胡同</b>（' + deads.map(function(k){ return POS[k].name; }).join('、') + '）');
+    if (maxd > 3) bad.push('最远要 <b>' + maxd + ' 步</b>，属于绕远');
+    v.innerHTML = '<b class="bad" style="color:#ff9d80">✘ ' + bad.join('；') + '。</b>改好之前先别管画面。';
+  }
+}
+
+function play(){
+  if (timer) clearInterval(timer);
+  var st = bfs();
+  order = st.rank;
+  var shown = {}, i = 0;
+  timer = setInterval(function(){
+    if (i >= order.length){
+      clearInterval(timer); timer = null;
+      report(st); return;
+    }
+    shown[order[i]] = true; i++;
+    draw({seen: shown, depth: st.depth});
+    if (i >= order.length){ report(st); }
+  }, 380);
+}
+
+function setEdges(list){
+  if (timer){ clearInterval(timer); timer = null; }
+  edges = list.slice(); order = []; draw(null);
+  report(null);
+}
+
+document.getElementById('presets').addEventListener('click', function(e){
+  var b = e.target.closest('button'); if (!b) return;
+  if (b.dataset.p){
+    document.querySelectorAll('#presets button').forEach(function(x){ x.classList.remove('on'); });
+    b.classList.add('on'); setEdges(PRESETS[b.dataset.p]);
+  }
+});
+document.getElementById('go').addEventListener('click', play);
+document.getElementById('rst').addEventListener('click', function(){ setEdges(edges); });
+
+document.querySelector('#presets button[data-p="cur"]').classList.add('on');
+setEdges(PRESETS.cur);
+</script>
+</body>
+</html>

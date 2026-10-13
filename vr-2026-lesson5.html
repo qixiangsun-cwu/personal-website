@@ -1011,8 +1011,10 @@ scene.add(makeNamePlate('2023xxxx 张三'));</pre>
     </table>
   </div>
 
-  <h3>三、本节的八个新演示（都是可点的 HTML，离线可用）</h3>
-  <p>前四个回答“<strong>怎么设计</strong>”，后四个回答“<strong>怎么让它不晕、怎么看起来是走过去的</strong>”。课上只放标 ★ 的四个，其余四个留给学生自己做任务时点开。</p>
+  <h3>三、本节的十一个新演示（都是可点的 HTML，离线可用）</h3>
+  <p>前四个回答“<strong>怎么设计</strong>”，中间四个回答“<strong>怎么让它不晕、怎么看起来是走过去的</strong>”，
+    最后三个补上原来没有演示的两块：<strong>“最远几步”到底怎么数出来</strong>（D25）与<strong>工程底线</strong>（D26 / D27）。
+    课上只放标 ★ 的五个，其余留给学生自己做任务时点开。</p>
   <div class="btn-row">
     <a class="btn" href="assets/vr-2026/panorama/pano-route-checker.html" target="_blank" rel="noopener">★ 路线与连通性检查器 →</a>
     <a class="btn ghost" href="assets/vr-2026/panorama/pano-first-look.html" target="_blank" rel="noopener">★ 进门第一眼（朝向对比）→</a>
@@ -1024,6 +1026,11 @@ scene.add(makeNamePlate('2023xxxx 张三'));</pre>
     <a class="btn ghost" href="assets/vr-2026/panorama/pano-turn-comfort.html" target="_blank" rel="noopener">转向范式与舒适度（新）→</a>
     <a class="btn ghost" href="assets/vr-2026/panorama/pano-transition.html" target="_blank" rel="noopener">转场方式对比器（新）→</a>
     <a class="btn ghost" href="assets/vr-2026/panorama/pano-dwell-tuning.html" target="_blank" rel="noopener">注视停留时间调参（新）→</a>
+  </div>
+  <div class="btn-row">
+    <a class="btn ghost" href="assets/vr-2026/panorama/pano-route-steps.html" target="_blank" rel="noopener">从入口走几步（新）→</a>
+    <a class="btn ghost" href="assets/vr-2026/panorama/pano-drawcall-lab.html" target="_blank" rel="noopener">DrawCall 对照实验室（新）→</a>
+    <a class="btn ghost" href="assets/vr-2026/panorama/pano-perf-budget.html" target="_blank" rel="noopener">性能预算计算器（新）→</a>
   </div>
 
   <div class="tbl-wrap">
@@ -1038,11 +1045,37 @@ scene.add(makeNamePlate('2023xxxx 张三'));</pre>
         <tr><td>D22</td><td><strong>转场方式对比器</strong>（自制，新）</td><td>客厅 → 餐厅的三种走法：<strong>直接跳 / 淡出淡入 / 先转向门口再切</strong>。同一个跳转，三种感受；显示各自耗时</td><td><a href="assets/vr-2026/panorama/pano-transition.html" target="_blank" rel="noopener">打开</a></td></tr>
         <tr><td>D23</td><td><strong>注视停留时间调参</strong>（自制，新）</td><td>按住圆环别动，亲自把 0.6 / 1.2 / 2.0 秒试一遍；旁边同时算“扫视掠过会不会误触发”</td><td><a href="assets/vr-2026/panorama/pano-dwell-tuning.html" target="_blank" rel="noopener">打开</a></td></tr>
         <tr><td>D24 ★</td><td><strong>作品验收量规</strong>（自制）</td><td>五维打分，实时出总分，生成可复制的验收记录。硬门槛：连通性 ≥3 且 舒适与退出 ≥3</td><td><a href="assets/vr-2026/panorama/pano-rubric.html" target="_blank" rel="noopener">打开</a></td></tr>
+        <tr><td>D25</td><td><strong>从入口走几步</strong>（自制，新）</td><td>点「从入口出发」<strong>一层一层点亮</strong>：每间房标出从入口最少几步、走不到的自动标红、死胡同自动描橙边。<b>"最远几步"是怎么算出来的，看一遍就懂</b></td><td><a href="assets/vr-2026/panorama/pano-route-steps.html" target="_blank" rel="noopener">打开</a></td></tr>
+        <tr><td>D26 ★</td><td><strong>DrawCall 对照实验室</strong>（自制，新）</td><td>同一个场景两种做法：<strong>100 个方块各交一次 → 101 次 DrawCall；合成一个 InstancedMesh → 2 次</strong>。画面一模一样，右边的数字差两个数量级</td><td><a href="assets/vr-2026/panorama/pano-drawcall-lab.html" target="_blank" rel="noopener">打开</a></td></tr>
+        <tr><td>D27</td><td><strong>移动 VR 性能预算计算器</strong>（自制，新）</td><td>填入 Mesh 数 / 材质数 / 贴图分辨率 / 三角面 → 算出 <strong>DrawCall、纹理显存、面数占预算的比例</strong>三条条，并给出"<strong>先改哪个</strong>"的顺序</td><td><a href="assets/vr-2026/panorama/pano-perf-budget.html" target="_blank" rel="noopener">打开</a></td></tr>
       </tbody>
     </table>
   </div>
 
-  <h3>四、达标线（本节）</h3>
+  <h3>四、本节的配套视频（课上放 3 段，其余课后自查）</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>对应</th><th>视频</th><th>时长</th><th>课上怎么用</th></tr></thead>
+      <tbody>
+        <tr><td><strong>讲"多点漫游"</strong></td><td><a href="https://www.bilibili.com/video/BV1ED4y197Dg" target="_blank" rel="noopener">全景图多点漫游制作基础教程</a>（昵称不许注册）</td><td>18:40</td><td><b>★ 截"把多个全景图连成漫游"那一段</b>；本课最贴题的一条</td></tr>
+        <tr><td><strong>讲第一眼 / FOV</strong></td><td><a href="https://www.bilibili.com/video/BV1Ne4y1R7br" target="_blank" rel="noopener">【VR涨知识】VR 中的 FOV（视场角）到底是个啥？</a>（<b>PICO-VR 官方</b>）</td><td><b>2:03</b></td><td><b>★ 可整段放</b>；官方口径、极短，配《视锥可见性检查器》</td></tr>
+        <tr><td><strong>讲舒适度</strong></td><td><a href="https://www.bilibili.com/video/BV1KL411K7gZ" target="_blank" rel="noopener">玩 VR 就头晕想吐？背后的真相竟然是……</a>（<b>PICO-VR 官方</b>）</td><td>8:07</td><td><b>★ 截 60—90 秒</b>；正好解释"为什么会晕"</td></tr>
+        <tr><td>案例：数字校园漫游</td><td><a href="https://www.bilibili.com/video/BV1CVmhYHE95" target="_blank" rel="noopener">超大面积 3D 空间全景漫游还原一整座教学楼</a>（XR_1605）</td><td>2:58</td><td>课前放一遍——<b>"我们要做的事长什么样"</b></td></tr>
+        <tr><td>工程底线：DrawCall</td><td><a href="https://www.bilibili.com/video/BV12U4y1n7pH" target="_blank" rel="noopener">如何游戏中实现同屏上万只怪！—— DrawCall 优化</a>（游戏谭）</td><td>5:01</td><td>配合《DrawCall 对照实验室》一起放</td></tr>
+        <tr><td>工程底线：批处理</td><td><a href="https://www.bilibili.com/video/BV1L7411c7dy" target="_blank" rel="noopener">详解 DrawCall 性能优化：静态批处理 / 动态批处理 / GPU Instancing</a>（Clay 就这样吧）</td><td>6:44</td><td>想深挖的同学课后看</td></tr>
+        <tr><td>进阶：步进式漫游</td><td><a href="https://www.bilibili.com/video/BV1484y1r7LH" target="_blank" rel="noopener">720 全景图 krpano - depthmap 步进式漫游 教程</a>（XR_1605）</td><td>16:16</td><td>下次课的进阶方向</td></tr>
+        <tr><td>PWA 是什么</td><td><a href="https://www.bilibili.com/video/BV1CW4y1B7Xs" target="_blank" rel="noopener">增进 Web App 体验：充分利用 PWA 及其能力</a>（<b>Google 中国</b>）</td><td>12:10</td><td>课后；对"作品能不能装成应用"感兴趣的同学</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="warn"><strong>有四个知识点这次没有找到合适的中文视频，不要硬凑：</strong>
+    ① <b>VR 舒适度（瞬移 / 平滑 / Snap 转向）</b>——中文视频多数在讲"怎么设置头显串流"，没有讲清两种移动范式为什么舒适度不同；
+    ② <b>移动 VR 的三角面预算</b>——搜到的都是手游 / 端游优化，不是一体机 VR 的量级；
+    ③ <b>注视停留的阈值</b>；
+    ④ <b>WebXR 部署 / 安全上下文</b>——搜到的 https 教程都偏 Nginx、Docker 这类后端运维。
+    <b>这四条用本课自己的演示讲，比视频管用</b>（分别见 D21 / D22、D27、D23，以及《头显验收操作卡》的三条通路）。</div>
+
+  <h3>五、达标线（本节）</h3>
   <ol>
     <li><strong>路子通</strong>：从入口出发六个房间全部可达，<strong>没有死胡同</strong>，最远不超过 3 步；</li>
     <li><strong>第一眼有设计</strong>：每个房间都设过 <code class="inline">yaw</code>，并且说得出为什么这么设；</li>
@@ -1053,7 +1086,7 @@ scene.add(makeNamePlate('2023xxxx 张三'));</pre>
   <div class="warn"><strong>两条硬性条件</strong>（写成量规里的硬门槛）：
     <strong>连通性 ≥ 3 分</strong>、<strong>舒适与退出 ≥ 3 分</strong>——<strong>路子不通或退不出去的作品，画面再好看也不能算完成。</strong></div>
 
-  <h3>五、预习与延伸</h3>
+  <h3>六、预习与延伸</h3>
   <ul>
     <li>把上次课的 <strong>FPS / DrawCall / 三角面</strong>记录带上——本节第 4 个任务要用；</li>
     <li>想先感受“两根点之间走过去”的效果，看<a href="https://www.bilibili.com/video/BV1484y1r7LH" target="_blank" rel="noopener">官方 krpano 步进式漫游教程</a>（见上面「配套视频」一节）或官方的 <a href="https://immersive-web.github.io/webxr-samples/teleportation.html" target="_blank" rel="noopener">Teleportation 样例</a>——后者本站也有一份<a href="assets/vr-2026/panorama/samples/teleportation.html" target="_blank" rel="noopener">本地副本</a>；</li>

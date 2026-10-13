@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>移动 VR 性能预算计算器 · 上机之前先算一遍</title>
+<style>
+  html,body{margin:0;background:#0b1016;color:#e8eef6;font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif}
+  .wrap{max-width:1180px;margin:0 auto;padding:22px 20px 60px}
+  h1{font-size:21px;margin:6px 0 4px}
+  .sub{color:#93a6bb;font-size:13px;margin-bottom:14px;line-height:1.85}
+  .row{display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start}
+  .left{flex:1 1 600px;min-width:320px}
+  .right{flex:0 1 440px;min-width:300px}
+  .card{background:rgba(15,22,32,.85);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:14px 16px;margin-bottom:14px}
+  .card h3{margin:0 0 10px;font-size:15px}
+  .ctl{display:flex;align-items:center;gap:12px;margin:9px 0}
+  .ctl label{flex:0 0 170px;font-size:13.5px;color:#b8c8da}
+  .ctl input[type=range]{flex:1;accent-color:#ffd27a}
+  .ctl .num{flex:0 0 104px;text-align:right;font-family:Consolas,monospace;color:#ffd27a;font-size:14.5px}
+  .presets{display:flex;gap:8px;flex-wrap:wrap;margin:4px 0 10px}
+  .presets button{font:600 12.5px/1 "Microsoft YaHei";color:#dbe7f4;background:rgba(255,255,255,.07);
+    border:1px solid rgba(255,255,255,.2);border-radius:999px;padding:8px 13px;cursor:pointer}
+  table{width:100%;border-collapse:collapse;font-size:13.5px}
+  td{border-bottom:1px solid rgba(255,255,255,.1);padding:9px 6px;vertical-align:top}
+  td.k{color:#8fa3b8;width:44%}
+  td.v{font-family:Consolas,"Microsoft YaHei",monospace;color:#ffd27a;font-weight:600}
+  .ok{color:#7ddc9a !important}.bad{color:#ff9d80 !important}.warnv{color:#ffd166 !important}
+  .gauge{height:11px;border-radius:6px;background:#1a2130;overflow:hidden;margin:4px 0 12px}
+  .gauge i{display:block;height:100%;width:0;background:linear-gradient(90deg,#7ddc9a,#ffd166,#ff9d80);transition:width .2s}
+  .legend{font-size:12.5px;line-height:1.95;color:#c3d2e3}
+  .legend b{color:#ffd27a}
+  #verdict{margin-top:8px;padding:11px 13px;border-radius:10px;font-size:13.5px;line-height:1.9;
+    background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.14)}
+  code{font-family:Consolas,monospace;background:rgba(255,255,255,.09);padding:1px 6px;border-radius:5px}
+  .back{margin-top:24px;font-size:13.5px}
+  .back a{color:#ffd27a;text-decoration:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>移动 VR 性能预算计算器 · 上机之前先算一遍</h1>
+  <div class="sub">
+    课上的口径是"<b>移动头显三角面控制在 10 万以内、优化先看 DrawCall</b>"。但"我现在这份作品到底超没超"，
+    靠感觉答不出来。把下面几个数填进来，<b>先算出预算，再动手改</b>——不然戴上头显才发现掉帧，就来不及了。
+  </div>
+
+  <div class="row">
+    <div class="left">
+      <div class="card">
+        <h3>① 你的作品有几个"东西"</h3>
+        <div class="presets">
+          <button data-ms="六房间全景漫游器">六房间全景漫游器</button>
+          <button data-ms="自建 3D 场景（故宫 / 音乐房）">自建 3D 场景</button>
+          <button data-ms="街机厅（很多独立小物体）">很多独立小物体的场景</button>
+        </div>
+        <div class="ctl">
+          <label>独立网格 Mesh 数</label>
+          <input id="nm" type="range" min="1" max="600" step="1" value="12">
+          <span class="num" id="vnm">12</span>
+        </div>
+        <div class="ctl">
+          <label>独立材质数</label>
+          <input id="mat" type="range" min="1" max="200" step="1" value="8">
+          <span class="num" id="vmat">8</span>
+        </div>
+        <div class="legend" style="font-size:12.5px">
+          <b>怎么数</b>：在控制台跑 <code>__pano.info()</code>（漫游器要先用 <code>?debug</code> 打开），
+          或者看探针面板。DrawCall 的<b>下限就是 Mesh 数</b>——除非你用实例化把它们打包。
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>② 贴图有多大</h3>
+        <div class="presets">
+          <button data-t="3072,1536,4">漫游器现状：3072×1536 × 4 张</button>
+          <button data-t="3072,1536,6">不加限制：3072×1536 × 6 张</button>
+          <button data-t="6000,3000,6">原图直用：6000×3000 × 6 张</button>
+        </div>
+        <div class="ctl">
+          <label>单张贴图宽（像素）</label>
+          <input id="tw" type="range" min="512" max="8192" step="256" value="3072">
+          <span class="num" id="vtw">3072</span>
+        </div>
+        <div class="ctl">
+          <label>单张贴图高（像素）</label>
+          <input id="th" type="range" min="256" max="4096" step="128" value="1536">
+          <span class="num" id="vth">1536</span>
+        </div>
+        <div class="ctl">
+          <label>常驻贴图张数</label>
+          <input id="tn" type="range" min="1" max="24" step="1" value="4">
+          <span class="num" id="vtn">4</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>③ 三角面</h3>
+        <div class="ctl">
+          <label>三角面总数</label>
+          <input id="tri" type="range" min="0" max="600000" step="5000" value="70000">
+          <span class="num" id="vtri">70k</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="right">
+      <div class="card">
+        <h3>预算体检</h3>
+
+        <div style="font-size:13px;color:#b8c8da">DrawCall（估算）</div>
+        <div class="gauge"><i id="g1"></i></div>
+        <table><tr><td class="k">估算值</td><td class="v" id="vCalls">—</td></tr></table>
+
+        <div style="font-size:13px;color:#b8c8da;margin-top:8px">纹理显存</div>
+        <div class="gauge"><i id="g2"></i></div>
+        <table><tr><td class="k">估算值</td><td class="v" id="vMem">—</td></tr></table>
+
+        <div style="font-size:13px;color:#b8c8da;margin-top:8px">三角面</div>
+        <div class="gauge"><i id="g3"></i></div>
+        <table><tr><td class="k">占 10 万预算的比例</td><td class="v" id="vTri">—</td></tr></table>
+
+        <div id="verdict">—</div>
+      </div>
+
+      <div class="card">
+        <h3>这三条线是怎么来的（看清再信）</h3>
+        <div class="legend">
+          <b>DrawCall</b>：移动头显要稳在 72 或 90 帧，<b>每帧只有 11—14 毫秒</b>。
+          一次 DrawCall 的 CPU 侧固定开销按 0.02—0.05 ms 量级估，
+          所以 <b>100 次以内比较稳、100—200 紧张、200 以上危险</b>——这是<b>课堂量级的经验值，不是官方标准</b>。<br>
+          <b>纹理显存</b>：<code>宽 × 高 × 4 字节（RGBA）× 1.33（含 mipmap）</code>。一体机的显存是和系统共用的，
+          <b>几百 MB 就已经很重</b>。<br>
+          <b>三角面</b>：课上的口径是 <b>10 万以内</b>比较保险（本课漫游器实测 5.0k）。<br><br>
+          ⚠️ 三条线都是<b>经验区间</b>，不是绝对红线。真正的判据只有一个：<b>戴上头显，看 FPS 稳不稳。</b>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>超标了先改哪个</h3>
+        <div class="legend" id="advice">—</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="back"><a href="./index.html">← 回演示中心</a></div>
+</div>
+
+<script>
+var el = function(id){ return document.getElementById(id); };
+
+function calc(){
+  var nm = +el('nm').value, mat = +el('mat').value;
+  var tw = +el('tw').value, th = +el('th').value, tn = +el('tn').value;
+  var tri = +el('tri').value;
+
+  el('vnm').textContent = nm; el('vmat').textContent = mat;
+  el('vtw').textContent = tw; el('vth').textContent = th; el('vtn').textContent = tn;
+  el('vtri').textContent = (tri / 1000).toFixed(0) + 'k';
+
+  /* DrawCall 估算：每个 Mesh 至少一次；材质切换再叠加一次（保守取较小者，避免夸大） */
+  var calls = nm + Math.min(mat, nm);
+  var mem = tw * th * 4 * 1.33 * tn / 1048576;            /* MB */
+  var triPct = tri / 100000;
+
+  el('vCalls').textContent = '约 ' + calls + ' 次/帧';
+  el('vCalls').className = 'v ' + (calls > 200 ? 'bad' : (calls > 100 ? 'warnv' : 'ok'));
+  el('g1').style.width = Math.min(100, calls / 300 * 100) + '%';
+
+  el('vMem').textContent = mem.toFixed(0) + ' MB（' + tn + ' 张常驻）';
+  el('vMem').className = 'v ' + (mem > 400 ? 'bad' : (mem > 200 ? 'warnv' : 'ok'));
+  el('g2').style.width = Math.min(100, mem / 600 * 100) + '%';
+
+  el('vTri').textContent = (triPct * 100).toFixed(0) + '%（' + tri.toLocaleString() + ' 面 / 10 万）';
+  el('vTri').className = 'v ' + (triPct > 1.5 ? 'bad' : (triPct > 1 ? 'warnv' : 'ok'));
+  el('g3').style.width = Math.min(100, triPct / 2 * 100) + '%';
+
+  var v = el('verdict'), worst = [], ok = true;
+  if (calls > 200){ ok = false; worst.push('DrawCall'); }
+  if (mem > 400){ ok = false; worst.push('纹理显存'); }
+  if (triPct > 1.5){ ok = false; worst.push('三角面'); }
+  if (ok){
+    v.innerHTML = '<b class="ok" style="color:#7ddc9a">✔ 三项都在预算内。</b>' +
+      '下一步就是戴上头显，把 FPS 记下来——<b>算出来的预算只是"应该能跑"，不是"一定能跑"</b>。';
+  } else {
+    v.innerHTML = '<b class="bad" style="color:#ff9d80">✘ 有 ' + worst.length + ' 项超标：' + worst.join('、') +
+      '。</b>先照右边的顺序改，改完再算一遍。';
+  }
+
+  var a = el('advice'), tips = [];
+  if (calls > 200) tips.push('<b>① DrawCall 先改</b>：把"同一套几何 + 同一个材质"的重复物体合成 <b>InstancedMesh</b>（看《DrawCall 对照实验室》）；把靠得很近、材质相同的小物件<b>合并成一个几何</b>；能见度外的物体别提交。');
+  else if (calls > 100) tips.push('<b>① DrawCall 偏紧</b>：先数一数有没有大量重复物体——有就实例化，通常能一次降一个数量级。');
+  if (mem > 200) tips.push('<b>② 纹理降采样</b>：全景贴图从 6000×3000 降到 3072×1536，显存直接少 70%（本课漫游器就是这么做的），<b>画面几乎看不出差别</b>；再限制"同时常驻几张"，别一次全加载。');
+  if (triPct > 1) tips.push('<b>③ 减面</b>：能用低模就别用高模；远处的细节可以删——<b>头显里看不清的地方，省下来的面就是帧率</b>。');
+  if (!tips.length) tips.push('三项都没超标，不用改。<b>但记住：这三条线是经验值</b>，最终判据是戴上头显看 FPS 稳不稳。');
+  a.innerHTML = tips.join('<br><br>');
+}
+
+['nm','mat','tw','th','tn','tri'].forEach(function(id){ el(id).addEventListener('input', calc); });
+
+document.querySelector('.presets').addEventListener('click', function(e){
+  var b = e.target.closest('button'); if (!b || !b.dataset.ms) return;
+  if (b.dataset.ms.indexOf('漫游') >= 0){ el('nm').value = 12; el('mat').value = 8; el('tri').value = 5000; }
+  else if (b.dataset.ms.indexOf('街机') >= 0){ el('nm').value = 220; el('mat').value = 40; el('tri').value = 120000; }
+  else { el('nm').value = 90; el('mat').value = 25; el('tri').value = 71000; }
+  calc();
+});
+document.querySelectorAll('.presets')[1].addEventListener('click', function(e){
+  var b = e.target.closest('button'); if (!b || !b.dataset.t) return;
+  var p = b.dataset.t.split(',');
+  el('tw').value = p[0]; el('th').value = p[1]; el('tn').value = p[2];
+  calc();
+});
+calc();
+</script>
+</body>
+</html>

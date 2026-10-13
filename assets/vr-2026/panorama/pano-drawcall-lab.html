@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DrawCall 对照实验室 · 100 个物体，凭什么从 101 次变成 2 次</title>
+<style>
+  html,body{margin:0;background:#0b1016;color:#e8eef6;font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif}
+  .wrap{max-width:1180px;margin:0 auto;padding:22px 20px 60px}
+  h1{font-size:21px;margin:6px 0 4px}
+  .sub{color:#93a6bb;font-size:13px;margin-bottom:14px;line-height:1.85}
+  .bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;background:rgba(15,22,32,.85);
+    border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:12px 16px;margin-bottom:14px}
+  .bar button{font:600 13px/1 "Microsoft YaHei";color:#dbe7f4;background:rgba(255,255,255,.07);
+    border:1px solid rgba(255,255,255,.2);border-radius:999px;padding:9px 14px;cursor:pointer}
+  .bar button.on{background:linear-gradient(135deg,#ffd27a,#e0a33c);border-color:transparent;color:#0b1016}
+  .bar .hint{font-size:12px;color:#8fa3b8}
+  .ctl{display:flex;align-items:center;gap:12px;margin:8px 0}
+  .ctl label{flex:0 0 120px;font-size:13.5px;color:#b8c8da}
+  .ctl input[type=range]{flex:1;accent-color:#ffd27a}
+  .ctl .num{flex:0 0 96px;text-align:right;font-family:Consolas,monospace;color:#ffd27a;font-size:14.5px}
+  .row{display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start}
+  .left{flex:1 1 620px;min-width:320px}
+  .right{flex:0 1 420px;min-width:300px}
+  .card{background:rgba(15,22,32,.85);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:14px 16px;margin-bottom:14px}
+  .card h3{margin:0 0 10px;font-size:15px}
+  canvas{display:block;width:100%;border-radius:12px;border:1px solid rgba(255,255,255,.14);background:#05080c}
+  table{width:100%;border-collapse:collapse;font-size:13.5px}
+  td{border-bottom:1px solid rgba(255,255,255,.1);padding:9px 6px}
+  td.k{color:#8fa3b8;width:52%}
+  td.v{font-family:Consolas,"Microsoft YaHei",monospace;color:#ffd27a;font-size:15px;font-weight:600}
+  .big{font-size:26px !important}
+  .ok{color:#7ddc9a !important}.bad{color:#ff9d80 !important}.warnv{color:#ffd166 !important}
+  .legend{font-size:13px;line-height:2;color:#c3d2e3}
+  .legend b{color:#ffd27a}
+  .back{margin-top:24px;font-size:13.5px}
+  .back a{color:#ffd27a;text-decoration:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>DrawCall 对照实验室 · 100 个物体，凭什么从 101 次变成 2 次</h1>
+  <div class="sub">
+    课上的话是"<b>优化先看 DrawCall，不要先看面数</b>"。这句话光靠听记不住，得看见数字跳。
+    下面同一个场景（同样多的小方块、同样多的三角面），<b>只换"怎么提交给 GPU"</b>，右边这两行会差出两个数量级。
+  </div>
+
+  <div class="bar">
+    <button id="m-single" class="on">① 每个方块一个 Mesh</button>
+    <button id="m-inst">② 合成一个 InstancedMesh</button>
+    <span class="hint">两种做法的<b>几何和外观完全一样</b>，区别只在"提交了多少次绘制命令"。</span>
+  </div>
+
+  <div class="row">
+    <div class="left">
+      <div class="card">
+        <h3>场景（鼠标拖动可环视）</h3>
+        <canvas id="cv"></canvas>
+        <div class="ctl">
+          <label>方块数量</label>
+          <input id="n" type="range" min="10" max="400" step="10" value="100">
+          <span class="num" id="vn">100</span>
+        </div>
+        <div class="legend" style="font-size:12.5px">
+          拖一拖这个滑杆：① 模式下 <b>DrawCall 跟着方块数一起涨</b>；② 模式下它<b>一直趴在 2 左右不动</b>。
+        </div>
+      </div>
+    </div>
+
+    <div class="right">
+      <div class="card">
+        <h3>实时读数（来自 renderer.info）</h3>
+        <table>
+          <tr><td class="k">当前做法</td><td class="v" id="vmode" style="font-size:14px">每个一个 Mesh</td></tr>
+          <tr><td class="k"><b>DrawCall</b>（绘制命令次数）</td><td class="v big" id="vcalls">—</td></tr>
+          <tr><td class="k">三角面</td><td class="v" id="vtris">—</td></tr>
+          <tr><td class="k">每帧 CPU 提交耗时（估）</td><td class="v" id="vms">—</td></tr>
+        </table>
+        <div id="verdict" style="margin-top:10px;padding:11px 13px;border-radius:10px;font-size:13.5px;line-height:1.9;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.14)">
+          —
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>为什么差这么多</h3>
+        <div class="legend" style="font-size:12.5px">
+          <b>DrawCall 不是"画了多少"，是"喊了多少次"。</b><br>
+          一次 DrawCall = CPU 把这一批数据整理好、交给 GPU 开始画。这个"交接"本身有固定开销，
+          <b>和你这一批里有几个三角面无关</b>。<br><br>
+          所以：<b>100 个小方块，如果每个都单独交一次，就是 100 次交接；</b>
+          用一个 InstancedMesh 把"同一个几何 + 同一个材质"的 100 个实例打包交一次，就变成 <b>1 次</b>。<br><br>
+          <b>移动头显上这件事尤其要命</b>：PICO / Quest 这类一体机的 CPU 本来就不强，
+          而它们要求<b>稳定 72 或 90 帧</b>——每帧只有 <b>11—14 毫秒</b>。100 次多余的交接，足够把预算吃光。
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>什么时候能用 InstancedMesh</h3>
+        <div class="legend" style="font-size:12.5px">
+          ✅ <b>同一套几何 + 同一个材质，只是位置/旋转/缩放不同</b>——树、椅子、地砖、柱子、人群，全都典型。<br>
+          ❌ 几何各不相同（每个模型都不一样）——那就得靠别的办法：合并几何、图集贴图、或干脆减面。<br>
+          ⚠️ 实例数量很少（比如 3 个）时，改不改差不多，<b>别为了 3 个物体重构代码</b>。
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="back"><a href="./index.html">← 回演示中心</a></div>
+</div>
+
+<script src="./three.min.js"></script>
+<script>
+var cv = document.getElementById('cv');
+var renderer, scene, camera, mode = 'single', N = 100;
+var group = null, raf = 0, lastT = 0, cpuMs = 0;
+
+function resize(){
+  var w = cv.clientWidth || 760, h = Math.round(w * 0.58);
+  cv.width = w; cv.height = h;
+  if (renderer){ camera.aspect = w / h; camera.updateProjectionMatrix(); renderer.setSize(w, h, false); }
+}
+
+function init(){
+  renderer = new THREE.WebGLRenderer({ canvas: cv, antialias: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
+  renderer.setSize(cv.clientWidth, Math.round(cv.clientWidth * 0.58), false);
+  scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x0b1016);
+  scene.fog = new THREE.Fog(0x0b1016, 40, 110);
+  camera = new THREE.PerspectiveCamera(55, cv.width / cv.height, 0.1, 500);
+  camera.position.set(0, 22, 46);
+  camera.lookAt(0, 6, 0);
+
+  scene.add(new THREE.HemisphereLight(0xbfd4ff, 0x202836, 1.1));
+  var d = new THREE.DirectionalLight(0xffffff, 0.9); d.position.set(30, 60, 20); scene.add(d);
+
+  var floor = new THREE.Mesh(
+    new THREE.PlaneGeometry(200, 200),
+    new THREE.MeshStandardMaterial({ color: 0x161d28, roughness: 1 })
+  );
+  floor.rotation.x = -Math.PI / 2; floor.position.y = -0.6; scene.add(floor);
+
+  resize();
+  build();
+  window.addEventListener('resize', resize);
+
+  /* 鼠标拖动环视 */
+  var drag = false, px = 0, py = 0, yaw = 0, pitch = -0.36, dist = 52;
+  cv.addEventListener('pointerdown', function(e){ drag = true; px = e.clientX; py = e.clientY; });
+  window.addEventListener('pointerup', function(){ drag = false; });
+  window.addEventListener('pointermove', function(e){
+    if (!drag) return;
+    yaw -= (e.clientX - px) * 0.005;
+    pitch = Math.max(-1.2, Math.min(0.5, pitch - (e.clientY - py) * 0.004));
+    px = e.clientX; py = e.clientY;
+    place(dist, yaw, pitch);
+  });
+  place(dist, yaw, pitch);
+  animate();
+}
+
+function place(dist, yaw, pitch){
+  camera.position.set(
+    Math.sin(yaw) * Math.cos(pitch) * dist,
+    6 + Math.sin(-pitch) * dist,
+    Math.cos(yaw) * Math.cos(pitch) * dist
+  );
+  camera.lookAt(0, 7, 0);
+}
+
+var geo = null, mat = null;
+function makeShared(){
+  if (!geo) geo = new THREE.BoxGeometry(2.2, 2.2, 2.2);
+  if (!mat) mat = new THREE.MeshStandardMaterial({ color: 0x6ea8ff, roughness: 0.45, metalness: 0.15 });
+}
+
+function slot(i, n){
+  /* 排成一层层方格，位置固定不随机（两种模式位置完全一致，便于对照） */
+  var cols = Math.ceil(Math.sqrt(n));
+  var r = Math.floor(i / cols), c = i % cols;
+  return {
+    x: (c - (cols - 1) / 2) * 4.4,
+    z: (r - (cols - 1) / 2) * 4.4,
+    y: 0.6 + ((i * 37) % 11) * 0.42,
+    ry: ((i * 53) % 360) * Math.PI / 180
+  };
+}
+
+function build(){
+  if (group){ scene.remove(group); group = null; }
+  makeShared();
+  group = new THREE.Group();
+  var m = new THREE.Matrix4(), q = new THREE.Quaternion(), v = new THREE.Vector3(), s = new THREE.Vector3(1, 1, 1);
+  if (mode === 'single'){
+    for (var i = 0; i < N; i++){
+      var o = slot(i, N);
+      var mesh = new THREE.Mesh(geo, mat);            /* 几何与材质都复用，仍然是一次一个 DrawCall */
+      mesh.position.set(o.x, o.y, o.z);
+      mesh.rotation.y = o.ry;
+      group.add(mesh);
+    }
+  } else {
+    var inst = new THREE.InstancedMesh(geo, mat, N);
+    for (var j = 0; j < N; j++){
+      var p = slot(j, N);
+      q.setFromAxisAngle(new THREE.Vector3(0, 1, 0), p.ry);
+      m.compose(v.set(p.x, p.y, p.z), q, s);
+      inst.setMatrixAt(j, m);
+    }
+    inst.instanceMatrix.needsUpdate = true;
+    group.add(inst);
+  }
+  scene.add(group);
+}
+
+function animate(){
+  raf = requestAnimationFrame(animate);
+  var t0 = performance.now();
+  renderer.render(scene, camera);
+  var dt = performance.now() - t0;
+  cpuMs = cpuMs * 0.9 + dt * 0.1;          /* 指数平滑，避免数字乱跳 */
+  if (++frameC % 6 === 0) update();
+}
+var frameC = 0;
+
+function update(){
+  var inf = renderer.info.render;
+  var calls = inf.calls, tris = inf.triangles;
+  document.getElementById('vn').textContent = N;
+  document.getElementById('vmode').textContent = (mode === 'single' ? '每个一个 Mesh' : '一个 InstancedMesh');
+  var cEl = document.getElementById('vcalls');
+  cEl.textContent = calls + ' 次';
+  document.getElementById('vtris').textContent = tris.toLocaleString() + ' 个';
+  var mEl = document.getElementById('vms');
+  mEl.textContent = cpuMs.toFixed(2) + ' ms';
+  mEl.className = 'v ' + (cpuMs > 8 ? 'bad' : (cpuMs > 4 ? 'warnv' : 'ok'));
+  cEl.className = 'v big ' + (calls > 60 ? 'bad' : (calls > 20 ? 'warnv' : 'ok'));
+
+  var v = document.getElementById('verdict');
+  if (mode === 'single'){
+    v.innerHTML = '<b class="bad" style="color:#ff9d80">' + calls + ' 次 DrawCall</b>：' + N +
+      ' 个方块，每个都单独交一次，再加上地面和灯光。<br>' +
+      '<b>三角面只有 ' + tris.toLocaleString() + ' 个</b>——面数一点都不多，但绘制命令太多。<br>' +
+      '点上面的 ② 号按钮，换个做法再看一次。';
+  } else {
+    v.innerHTML = '<b class="ok" style="color:#7ddc9a">' + calls + ' 次 DrawCall</b>：' + N +
+      ' 个方块的几何与材质完全相同，被<b>打包成一次</b>提交。<br>' +
+      '三角面还是 ' + tris.toLocaleString() + ' 个，<b>画面一模一样，绘制命令少了一个数量级</b>。';
+  }
+}
+
+document.getElementById('n').addEventListener('input', function(){
+  N = +this.value; build(); update();
+});
+document.getElementById('m-single').addEventListener('click', function(){
+  mode = 'single'; this.classList.add('on'); document.getElementById('m-inst').classList.remove('on'); build(); update();
+});
+document.getElementById('m-inst').addEventListener('click', function(){
+  mode = 'inst'; this.classList.add('on'); document.getElementById('m-single').classList.remove('on'); build(); update();
+});
+
+init();
+</script>
+</body>
+</html>
