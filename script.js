@@ -363,6 +363,7 @@ function initToolFilter() {
     var resultEl = document.getElementById('toolResult');
     var filterBtns = Array.prototype.slice.call(document.querySelectorAll('.tool-filter'));
     var sections = Array.prototype.slice.call(document.querySelectorAll('.tool-cat'));
+    var zones = Array.prototype.slice.call(document.querySelectorAll('.tool-zone'));
     if (!sections.length) return;
 
     var activeLevel = 'all';
@@ -379,7 +380,9 @@ function initToolFilter() {
 
             cards.forEach(function(card) {
                 var matchLevel = activeLevel === 'all' || card.dataset.level === activeLevel;
-                var matchText = !q || (card.dataset.search || '').indexOf(q) !== -1;
+                // 描述文字也纳入检索：搜「语音转写」「长文本」这类特征词也能命中
+                var haystack = (card.dataset.search || '') + ' ' + card.textContent.toLowerCase();
+                var matchText = !q || haystack.indexOf(q) !== -1;
                 if (matchLevel && matchText) {
                     card.hidden = false;
                     visible++;
@@ -405,6 +408,13 @@ function initToolFilter() {
                     delete sec.dataset.userOpen;
                 }
             }
+        });
+
+        zones.forEach(function(zone) {
+            var hasVisible = Array.prototype.slice.call(zone.querySelectorAll('.tool-cat')).some(function(sec) {
+                return !sec.hidden;
+            });
+            zone.hidden = !hasVisible;
         });
 
         if (resultEl) {

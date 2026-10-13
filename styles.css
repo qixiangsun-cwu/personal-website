@@ -1228,6 +1228,61 @@ body {
   letter-spacing: 0.02em;
 }
 
+/* ---------- 工具分区：国内直连 / 需代理境外 ---------- */
+.tool-zone + .tool-zone { margin-top: var(--space-3xl); }
+
+.tool-zone-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-sm) var(--space-md);
+  margin-bottom: var(--space-xl);
+}
+
+.tool-zone-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.9rem;
+  border-radius: var(--radius-pill);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.zone-badge-direct { background: var(--tone-green-bg); color: var(--tone-green-fg); }
+.zone-badge-proxy  { background: var(--color-accent-soft); color: var(--color-accent); }
+
+.tool-zone-note {
+  flex: 1 1 22rem;
+  font-size: var(--text-sm);
+  color: var(--color-muted);
+  line-height: var(--leading-snug);
+}
+
+.tool-zone[hidden] { display: none; }
+
+/* 分类下的一句话说明（模型聚合 / 排行榜等新分类用） */
+.tool-cat-note {
+  margin: var(--space-lg) 0 0;
+  padding: var(--space-md) var(--space-lg);
+  font-size: var(--text-sm);
+  color: var(--color-ink-2);
+  line-height: var(--leading-relaxed);
+  background: var(--color-surface);
+  border-left: 3px solid var(--color-accent);
+  border-radius: var(--radius-sm);
+}
+
+/* 没有官方图标时的文字标识块 */
+.tool-logo-glyph {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--color-accent);
+}
+
 .resource-nav { padding: var(--space-xl) var(--space-xl) var(--space-2xl); }
 
 .resource-nav h4 {
