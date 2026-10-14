@@ -1,0 +1,1324 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>A-Frame 实践 · 温馨小屋 ↔ 后花园</title>
+
+<!-- ============================================================
+     VR 课程实践作业 · A-Frame 双场景漫游
+     ------------------------------------------------------------
+     技术栈 : A-Frame 1.8.0 (内部 Three.js r184) + WebXR immersive-vr
+     交互   : 注视停留 1.2 秒（自研 gaze-dwell 组件 + 黄色进度弧）｜ 鼠标拖动环视 ｜ 点击标签
+     场景   : 场景 A「温馨小屋」(室内)  ↔  场景 B「后花园」(露天)
+     运行   : 必须通过 http(s) 打开, 例如 python -m http.server 8000
+     ============================================================ -->
+
+<style>
+  html,body{margin:0;height:100%;overflow:hidden;background:#0a0f16;
+    font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif;
+    -webkit-user-select:none;user-select:none;}
+
+  #hud{position:fixed;right:14px;top:14px;z-index:30;min-width:176px;
+    padding:9px 12px;border-radius:11px;text-align:right;
+    background:rgba(8,13,20,.74);border:1px solid rgba(255,255,255,.16);
+    backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+    font:12px/1.8 "Menlo","Consolas",monospace;color:#bcd0e4;}
+  #hud b{display:block;color:#ffd27a;font-size:13px;letter-spacing:.4px;}
+  #hud i{color:#fff;font-style:normal;}
+  #hud .k{color:#7f93a6;}
+
+  #tag{position:fixed;left:14px;top:14px;z-index:30;padding:8px 14px;
+    border-radius:999px;background:rgba(8,13,20,.74);
+    border:1px solid rgba(255,255,255,.16);color:#fff;font-size:14px;font-weight:500;
+    backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);}
+
+  #tip{position:fixed;left:14px;bottom:14px;z-index:30;max-width:56vw;
+    padding:10px 14px;border-radius:11px;background:rgba(8,13,20,.74);
+    border:1px solid rgba(255,255,255,.16);color:#c8d6e6;font-size:12.5px;line-height:1.85;
+    backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);}
+  #tip b{color:#ffd27a;}
+
+  #toast{position:fixed;left:50%;bottom:84px;transform:translateX(-50%) translateY(14px);
+    z-index:40;max-width:640px;padding:11px 18px;border-radius:11px;
+    background:rgba(8,13,20,.93);border:1px solid rgba(255,255,255,.18);
+    color:#eaf0f7;font-size:13.5px;line-height:1.7;text-align:center;white-space:pre-line;
+    opacity:0;transition:opacity .25s,transform .25s;pointer-events:none;}
+  #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+  body.vr #hud,body.vr #tip,body.vr #tag{display:none;}
+
+  /* A-Frame 自带的「进入 VR」按钮调色 */
+  .a-enter-vr{bottom:16px;right:16px;}
+</style>
+
+<script src="./libs/aframe.min.js"></script>
+</head>
+
+<body>
+
+<div id="tag">场景 A · 温馨小屋</div>
+
+<div id="hud">
+  <b>场景读数</b>
+  <span class="k">FPS</span> <i id="hFps">–</i><br>
+  <span class="k">DrawCall</span> <i id="hCalls">–</i><br>
+  <span class="k">三角面</span> <i id="hTris">–</i>
+</div>
+
+<div id="tip">
+  <b>电脑</b>：按住鼠标拖动环视 ｜ W A S D 走路 ｜ 滚轮靠近屏幕<br>
+  <b>跳转</b>：把准星／视线停在<b>白色圆环以内任意位置 1.2 秒</b> —— 白环会被黄色进度弧顺时针填满，走满一圈即刻跳转；也可直接点下方文字标签<br>
+  <b>头显</b>：戴上后点右下角「进入 VR」，视线停在白色圆环（或环内）1.2 秒即跳转；黄弧走满一圈就是跳转信号<br>
+  <span style="color:#ffd27a">调试：按 <b>P</b> 键可把黄色进度弧定格在 0% / 50% / 100% / 关闭，用来肉眼检查外观</span>
+</div>
+
+<div id="toast"></div>
+
+<a-scene id="scene"
+         background="color: #0a0f16"
+         renderer="antialias: true; colorManagement: true; highRefreshRate: true"
+         webxr="referenceSpaceType: local-floor; optionalFeatures: local-floor, bounded-floor"
+         vr-mode-ui="enabled: true">
+
+  <!-- ==================== 场景 A · 温馨小屋 ==================== -->
+  <a-entity id="worldHouse">
+
+    <!-- 地板 8m x 8m -->
+    <a-plane class="tex" data-tex="wood" data-rx="4" data-ry="4"
+             position="0 0 0" rotation="-90 0 0" width="8" height="8"
+             material="color: #8a5f3c; roughness: 0.92; metalness: 0"></a-plane>
+    <!-- 天花板 -->
+    <a-plane class="tex" data-tex="ceiling" data-rx="3" data-ry="3"
+             position="0 3 0" rotation="90 0 0" width="8" height="8"
+             material="color: #efe9e0; roughness: 1"></a-plane>
+
+    <!-- 四面墙 -->
+    <a-plane class="tex" data-tex="wall" data-rx="4" data-ry="1.5"
+             position="0 1.5 -4" rotation="0 0 0" width="8" height="3"
+             material="color: #e8dfd2; roughness: 1; side: double"></a-plane>
+    <a-plane class="tex" data-tex="wall" data-rx="4" data-ry="1.5"
+             position="0 1.5 4" rotation="0 180 0" width="8" height="3"
+             material="color: #e8dfd2; roughness: 1; side: double"></a-plane>
+    <a-plane class="tex" data-tex="wall" data-rx="4" data-ry="1.5"
+             position="-4 1.5 0" rotation="0 90 0" width="8" height="3"
+             material="color: #e8dfd2; roughness: 1; side: double"></a-plane>
+    <a-plane class="tex" data-tex="wall" data-rx="4" data-ry="1.5"
+             position="4 1.5 0" rotation="0 -90 0" width="8" height="3"
+             material="color: #e8dfd2; roughness: 1; side: double"></a-plane>
+
+    <!-- 踢脚线（让空间更有层次） -->
+    <a-box position="0 0.06 -3.97" width="8" height="0.12" depth="0.05" color="#6d4f38"></a-box>
+    <a-box position="0 0.06 3.97" width="8" height="0.12" depth="0.05" color="#6d4f38"></a-box>
+    <a-box position="-3.97 0.06 0" width="0.05" height="0.12" depth="8" color="#6d4f38"></a-box>
+    <a-box position="3.97 0.06 0" width="0.05" height="0.12" depth="8" color="#6d4f38"></a-box>
+
+    <!-- 地毯 -->
+    <a-plane class="tex" data-tex="rug"
+             position="2.2 0.012 -0.45" rotation="-90 0 0" width="3.0" height="2.2"
+             material="color: #9c5a46; roughness: 1"></a-plane>
+
+    <!-- 吊灯 -->
+    <a-entity id="fLamp" position="0 0 0">
+      <a-cylinder position="0 2.82 0" radius="0.012" height="0.36" color="#2b2b2b"></a-cylinder>
+      <a-cone class="ph" id="pLamp" position="0 2.5 0" rotation="180 0 0"
+              radius-bottom="0.02" radius-top="0.30" height="0.28"
+              material="color: #f2c98a; roughness: 0.6; emissive: #6b4a18"></a-cone>
+    </a-entity>
+
+    <!-- 沙发（靠右墙，面向房间内） -->
+    <a-entity id="fSofa" position="3.15 0 -0.6" rotation="0 -90 0">
+      <a-box class="ph" id="pSofa" position="0 0.39 0"
+             width="1.90" height="0.78" depth="0.85"
+             material="color: #8a6a52; roughness: 0.95"></a-box>
+    </a-entity>
+
+    <!-- 茶几 -->
+    <a-entity id="fCoffee" position="1.75 0 -0.6">
+      <a-box class="ph" id="pCoffee" position="0 0.21 0"
+             width="1.00" height="0.42" depth="0.60"
+             material="color: #6f563d; roughness: 0.9"></a-box>
+    </a-entity>
+
+    <!-- 书架（靠左墙） -->
+    <a-entity id="fShelf" position="-3.50 0 1.10" rotation="0 90 0">
+      <a-box class="ph" id="pShelf" position="0 0.95 0"
+             width="0.90" height="1.90" depth="0.45"
+             material="color: #7a5a3c; roughness: 0.95"></a-box>
+    </a-entity>
+
+    <!-- 餐桌 + 两把椅子 -->
+    <a-entity id="fTable" position="-1.60 0 2.50">
+      <a-box class="ph" id="pTable" position="0 0.375 0"
+             width="1.20" height="0.75" depth="1.20"
+             material="color: #8f6a45; roughness: 0.9"></a-box>
+    </a-entity>
+    <a-entity id="fChair1" position="-1.60 0 1.55">
+      <a-box class="ph" id="pChair1" position="0 0.44 0"
+             width="0.46" height="0.88" depth="0.46"
+             material="color: #6a4f35; roughness: 0.9"></a-box>
+    </a-entity>
+    <a-entity id="fChair2" position="-1.60 0 3.45">
+      <a-box class="ph" id="pChair2" position="0 0.44 0"
+             width="0.46" height="0.88" depth="0.46"
+             material="color: #6a4f35; roughness: 0.9"></a-box>
+    </a-entity>
+
+    <!-- 盆栽 -->
+    <a-entity id="fPlant1" position="-3.35 0 -2.95">
+      <a-box class="ph" id="pPlant1" position="0 0.45 0"
+             width="0.60" height="0.90" depth="0.60"
+             material="color: #4f7a42; roughness: 1"></a-box>
+    </a-entity>
+    <a-entity id="fPlant2" position="3.35 0 2.95">
+      <a-box class="ph" id="pPlant2" position="0 0.45 0"
+             width="0.60" height="0.90" depth="0.60"
+             material="color: #4f7a42; roughness: 1"></a-box>
+    </a-entity>
+
+    <!-- 落地灯（沙发旁） -->
+    <a-entity id="fFloorLamp" position="2.55 0 -2.10">
+      <a-box class="ph" id="pFloorLamp" position="0 0.80 0"
+             width="0.40" height="1.60" depth="0.40"
+             material="color: #d8b978; roughness: 0.6; emissive: #4a3a18"></a-box>
+    </a-entity>
+
+    <!-- 边桌 + 吧椅（靠左墙，书架旁） -->
+    <a-entity id="fSide" position="-3.20 0 -0.60">
+      <a-box class="ph" id="pSide" position="0 0.28 0"
+             width="0.55" height="0.55" depth="0.55"
+             material="color: #7d5c3e; roughness: 0.9"></a-box>
+    </a-entity>
+    <a-entity id="fStool" position="-3.20 0 -1.55">
+      <a-box class="ph" id="pStool" position="0 0.38 0"
+             width="0.42" height="0.76" depth="0.42"
+             material="color: #6a4f35; roughness: 0.9"></a-box>
+    </a-entity>
+
+    <!-- 挂钟（后墙） -->
+    <a-entity id="fClock" position="-3.10 2.25 -3.94">
+      <a-box class="ph" id="pClock" position="0 0 0"
+             width="0.44" height="0.44" depth="0.07"
+             material="color: #c9b48c; roughness: 0.6"></a-box>
+    </a-entity>
+
+    <!-- ============ ★ 3D 物体姓名牌（立式门牌，进门正对） ============ -->
+    <a-entity id="namePlate" position="-1.35 0 -3.35" rotation="0 0 0">
+      <!-- 底座 -->
+      <a-box position="0 0.035 0" width="0.62" height="0.07" depth="0.40"
+             material="color: #5c4130; roughness: 0.85"></a-box>
+      <!-- 立柱 -->
+      <a-cylinder position="0 0.62 0" radius="0.028" height="1.10" color="#5c4130"></a-cylinder>
+      <!-- 牌面板（3D 盒子，不是平面贴图） -->
+      <a-box position="0 1.28 0" rotation="-8 0 0"
+             width="1.28" height="0.46" depth="0.055"
+             material="color: #f6f1e7; roughness: 0.7"></a-box>
+      <!-- 牌面文字（canvas 现画，绕开 a-text 不支持中文） -->
+      <a-plane id="nameFace" cn-text="value: 学号 230812022 · 宋语婷; fg: #1b2430; bg: #f6f1e7; bgOpacity: 1; font: 72; h: 0.38"
+               width="1.18" height="0.38" position="0 1.28 0.030" rotation="-8 0 0"
+               material="shader: flat; transparent: true"></a-plane>
+      <!-- 牌头小字 -->
+      <a-plane cn-text="value: VR 课程实践 · A-Frame 场景; fg: #8a7250; bg: #f6f1e7; bgOpacity: 1; font: 40; h: 0.10"
+               width="1.18" height="0.10" position="0 1.505 0.030" rotation="-8 0 0"
+               material="shader: flat; transparent: true"></a-plane>
+    </a-entity>
+
+    <!-- ============ ★ 圆环热点：去后花园 ============ -->
+    <!-- ★ 注视有效范围 = 白环以内整个圆面（半径 0.56 的实心圆盘）
+         白环本体在 0.395~0.485 米之间，圆盘把白环连同它围住的整块区域全包进来，
+         所以"看着圆环"就算命中，不用去精确对准那圈细线。
+         ★ 用实心圆盘会带来一个副作用：跳到对面场景后，圆环正好落在新的出生视线正中，
+           视线被圆盘接住 → 1.2 秒后又被原路弹回来（乒乓跳）。
+           兜底交给 gaze-dwell 的「跳转后必须先移开视线」规则，而不是靠缩小判定区。 -->
+    <a-entity id="ringHouse" position="2.00 1.55 -3.92">
+      <a-circle id="ringHouseHit" class="clickable"
+                hotspot="target: garden; visual: #ringHouseVis; tint: none"
+                data-prog="ringHouseProg" data-ring="ringHouseTorus"
+                radius="0.56"
+                material="color: #ffd27a; shader: flat; opacity: 0.09; transparent: true"></a-circle>
+
+      <a-entity id="ringHouseVis">
+        <!-- 外圈白环（注视目标本体） -->
+        <a-torus id="ringHouseTorus"
+                 radius="0.44" radius-tubular="0.040" segments-radial="10" segments-tubular="40"
+                 material="color: #FFFFFF; shader: flat"></a-torus>
+        <!-- ★ 注视进度弧：停满 1.2 秒期间，白环从 12 点方向起被黄弧顺时针填满
+             用 z = 0.080 把弧推到白环之前 (白环 z=0)，浮点深度更稳 -->
+        <a-entity id="ringHouseProg" position="0 0 0.080"
+                  ring-progress="r: 0.44; tube: 0.115; color: #ffc21f"></a-entity>
+        <!-- 中心箭头 -->
+        <a-cone position="0 0 0.02" rotation="0 0 -90" radius-bottom="0.10" radius-top="0"
+                height="0.20" material="color: #ffd27a; shader: flat"></a-cone>
+      </a-entity>
+    </a-entity>
+
+    <!-- 圆环下方文字标签（同样可点） -->
+    <a-plane id="labelHouse" class="clickable" hotspot="target: garden"
+             cn-text="value: 去后花园 · 注视 1.2 秒; fg: #ffffff; bg: #0b1016; bgOpacity: 0.78; font: 56"
+             width="1.60" height="0.24" position="2.00 0.86 -3.90"
+             material="shader: flat; transparent: true"></a-plane>
+
+  </a-entity>
+
+  <!-- ==================== 场景 B · 后花园 ==================== -->
+  <a-entity id="worldGarden" visible="false">
+
+    <!-- 草地 16m x 16m -->
+    <a-plane class="tex" data-tex="grass" data-rx="10" data-ry="10"
+             position="0 0 0" rotation="-90 0 0" width="16" height="16"
+             material="color: #6f9c4a; roughness: 1"></a-plane>
+
+    <!-- 小径 -->
+    <a-plane class="tex" data-tex="path" data-rx="1" data-ry="4"
+             position="0 0.012 -1.2" rotation="-90 0 0" width="1.5" height="9"
+             material="color: #b8a888; roughness: 1"></a-plane>
+
+    <!-- 树 x4 -->
+    <a-entity id="fTree1" position="-3.60 0 -2.20">
+      <a-box class="ph" id="pTree1" position="0 1.75 0"
+             width="1.20" height="3.50" depth="1.20"
+             material="color: #3f6b34; roughness: 1"></a-box>
+    </a-entity>
+    <a-entity id="fTree2" position="3.90 0 -1.40">
+      <a-box class="ph" id="pTree2" position="0 1.50 0"
+             width="1.10" height="3.00" depth="1.10"
+             material="color: #457438; roughness: 1"></a-box>
+    </a-entity>
+    <a-entity id="fTree3" position="-4.60 0 2.60">
+      <a-box class="ph" id="pTree3" position="0 1.40 0"
+             width="1.05" height="2.80" depth="1.05"
+             material="color: #3c6532; roughness: 1"></a-box>
+    </a-entity>
+    <a-entity id="fTree4" position="2.60 0 4.00">
+      <a-box class="ph" id="pTree4" position="0 1.30 0"
+             width="1.00" height="2.60" depth="1.00"
+             material="color: #487a3b; roughness: 1"></a-box>
+    </a-entity>
+
+    <!-- 灌木 x3 -->
+    <a-entity id="fBush1" position="-1.60 0 -1.20">
+      <a-box class="ph" id="pBush1" position="0 0.30 0"
+             width="0.85" height="0.60" depth="0.85"
+             material="color: #4d7f3f; roughness: 1"></a-box>
+    </a-entity>
+    <a-entity id="fBush2" position="1.80 0 -0.60">
+      <a-box class="ph" id="pBush2" position="0 0.26 0"
+             width="0.75" height="0.52" depth="0.75"
+             material="color: #568a45; roughness: 1"></a-box>
+    </a-entity>
+    <a-entity id="fBush3" position="-2.60 0 1.80">
+      <a-box class="ph" id="pBush3" position="0 0.24 0"
+             width="0.70" height="0.48" depth="0.70"
+             material="color: #47783c; roughness: 1"></a-box>
+    </a-entity>
+
+    <!-- 长椅 -->
+    <a-entity id="fBench" position="-1.40 0 1.40" rotation="0 35 0">
+      <a-box class="ph" id="pBench" position="0 0.45 0"
+             width="1.60" height="0.90" depth="0.55"
+             material="color: #8a6a45; roughness: 0.92"></a-box>
+    </a-entity>
+
+    <!-- 石头 x2 -->
+    <a-entity id="fRock1" position="2.40 0 1.20">
+      <a-box class="ph" id="pRock1" position="0 0.26 0"
+             width="0.80" height="0.52" depth="0.70"
+             material="color: #8e8c86; roughness: 1"></a-box>
+    </a-entity>
+    <a-entity id="fRock2" position="-3.40 0 4.40">
+      <a-box class="ph" id="pRock2" position="0 0.20 0"
+             width="0.62" height="0.40" depth="0.55"
+             material="color: #9a978f; roughness: 1"></a-box>
+    </a-entity>
+
+    <!-- 花箱 x2 -->
+    <a-entity id="fPlanter1" position="4.60 0 0.60">
+      <a-box class="ph" id="pPlanter1" position="0 0.30 0"
+             width="1.20" height="0.60" depth="0.60"
+             material="color: #6d4f38; roughness: 0.95"></a-box>
+    </a-entity>
+    <a-entity id="fPlanter2" position="-4.80 0 0.20">
+      <a-box class="ph" id="pPlanter2" position="0 0.30 0"
+             width="1.20" height="0.60" depth="0.60"
+             material="color: #6d4f38; roughness: 0.95"></a-box>
+    </a-entity>
+
+    <!-- ============ ★ 圆环热点：回小屋（判定区同样是白环以内的实心圆盘） ============ -->
+    <a-entity id="ringGarden" position="0 1.55 -3.80">
+      <a-circle id="ringGardenHit" class="clickable"
+                hotspot="target: house; visual: #ringGardenVis; tint: none"
+                data-prog="ringGardenProg" data-ring="ringGardenTorus"
+                radius="0.56"
+                material="color: #ffd27a; shader: flat; opacity: 0.09; transparent: true"></a-circle>
+
+      <a-entity id="ringGardenVis">
+        <a-torus id="ringGardenTorus"
+                 radius="0.44" radius-tubular="0.040" segments-radial="10" segments-tubular="40"
+                 material="color: #FFFFFF; shader: flat"></a-torus>
+        <a-entity id="ringGardenProg" position="0 0 0.080"
+                  ring-progress="r: 0.44; tube: 0.115; color: #ffc21f"></a-entity>
+        <a-cone position="0 0 0.02" rotation="0 0 -90" radius-bottom="0.10" radius-top="0"
+                height="0.20" material="color: #ffd27a; shader: flat"></a-cone>
+      </a-entity>
+    </a-entity>
+
+    <a-plane id="labelGarden" class="clickable" hotspot="target: house"
+             cn-text="value: 回温馨小屋 · 注视 1.2 秒; fg: #ffffff; bg: #0b1016; bgOpacity: 0.78; font: 56"
+             width="1.75" height="0.24" position="0 0.86 -3.78"
+             material="shader: flat; transparent: true"></a-plane>
+
+  </a-entity>
+
+  <!-- ==================== 天空（两场景共用） ====================
+       radius 必须小于相机 far (200)，否则整个球被远裁剪面切掉 → 天空全黑 -->
+  <a-sky id="sky" radius="180" src="" color="#8fc0e0"></a-sky>
+
+  <!-- ==================== 玩家 rig ==================== -->
+  <a-entity id="rig" position="0 0 2.90" simple-locomotion="speed: 2.4; bounds: 3.55 3.55">
+    <a-entity id="head" camera="fov: 68; near: 0.02; far: 200"
+              position="0 1.62 0" look-controls="pointerLockEnabled: false"
+              gaze-dwell="dur: 1200; far: 30">
+
+      <!-- 视线注视光标（只是"屏幕中心在哪"的提示；真正的 1.2 秒计时由 gaze-dwell 负责） -->
+      <a-entity id="gazeCursor"
+                cursor="fuse: false"
+                raycaster="objects: .clickable; far: 24; interval: 60"
+                geometry="primitive: ring; radiusInner: 0.018; radiusOuter: 0.027; segmentsTheta: 40"
+                material="color: #FFFFFF; shader: flat; opacity: 0.95; side: double"
+                position="0 0 -1.0">
+      </a-entity>
+
+      <!-- PC 鼠标光标（点标签用） -->
+      <a-entity id="mouseCursor"
+                cursor="rayOrigin: mouse"
+                raycaster="objects: .clickable; far: 40"></a-entity>
+
+      <!-- VR 中的读数面板（只在头显里显示） -->
+      <a-plane id="vrStats" visible="false"
+               position="0.40 0.30 -1.0" width="0.42" height="0.13"
+               material="shader: flat; transparent: true; opacity: 0.92"></a-plane>
+
+      <!-- 跳转时的黑场遮罩（PC 与 VR 都有） -->
+      <a-sphere id="fade"
+                radius="0.28" segments-width="8" segments-height="6"
+                material="shader: flat; color: #000000; opacity: 0; transparent: true; side: back; depthTest: false"
+                render-order="99"></a-sphere>
+
+    </a-entity>
+  </a-entity>
+
+</a-scene>
+
+<script>
+/* =====================================================================
+ * A-Frame 双场景漫游 · 脚本部分
+ * ---------------------------------------------------------------------
+ * 目录:
+ *   1. 程序化纹理 (canvas 现画, 零素材下载)
+ *   2. cn-text 组件   —— 用 canvas 画中文再贴到平面上
+ *                        (A-Frame 内置 a-text 只支持 ASCII, 中文必须绕开)
+ *   3. hotspot 组件   —— 让实体可被"注视/点击", 并做悬停高亮
+ *   3.5 ring-progress —— 注视进度弧（几何弧, 12 点起顺时针长满一圈）
+ *   3.6 gaze-dwell    —— 注视停留 1.2 秒计时（自研, 不依赖 cursor 的 fuse）
+ *   4. simple-locomotion —— 电脑 WASD + 头显摇杆移动, 带边界钳制
+ *   5. 外部模型自动挂载 —— 模型文件在就换成 3D 模型, 不在就留几何占位
+ *   6. 跳转逻辑 (注视 1.2 秒 / 点标签), 带黑场过渡
+ *   7. 右上角读数面板 (FPS / DrawCall / 三角面) + VR 内的面板
+ * ===================================================================== */
+
+var T = AFRAME.THREE;
+var sceneEl = document.querySelector('a-scene');
+
+/* ---------------------------------------------------------- 1. 程序化纹理 */
+function cvs(w, h) { var c = document.createElement('canvas'); c.width = w; c.height = h; return c; }
+function toURL(c, q) { return c.toDataURL('image/jpeg', q || 0.86); }
+
+function texWood() {
+  var W = 512, H = 512, c = cvs(W, H), g = c.getContext('2d'), i, k;
+  g.fillStyle = '#6f4f31'; g.fillRect(0, 0, W, H);
+  var rows = 7, rh = H / rows;
+  for (i = 0; i < rows; i++) {
+    var t = 0.84 + Math.random() * 0.34;
+    g.fillStyle = 'rgb(' + Math.round(142 * t) + ',' + Math.round(101 * t) + ',' + Math.round(63 * t) + ')';
+    g.fillRect(0, i * rh, W, rh - 3);
+    for (k = 0; k < 16; k++) {
+      g.strokeStyle = 'rgba(74,48,26,' + (0.05 + Math.random() * 0.13).toFixed(3) + ')';
+      g.lineWidth = 0.5 + Math.random() * 1.4;
+      var y = i * rh + Math.random() * rh;
+      g.beginPath(); g.moveTo(0, y);
+      g.bezierCurveTo(W * 0.33, y + (Math.random() - 0.5) * 7, W * 0.66, y + (Math.random() - 0.5) * 7, W, y + (Math.random() - 0.5) * 4);
+      g.stroke();
+    }
+    g.fillStyle = 'rgba(46,29,15,0.6)';
+    g.fillRect(0, i * rh + rh - 3, W, 3);
+    g.fillRect(Math.random() * W, i * rh, 3, rh);
+  }
+  return c;
+}
+
+function texWall() {
+  var S = 256, c = cvs(S, S), g = c.getContext('2d'), i;
+  g.fillStyle = '#efe7da'; g.fillRect(0, 0, S, S);
+  var img = g.getImageData(0, 0, S, S), d = img.data, n;
+  for (i = 0; i < d.length; i += 4) {
+    n = (Math.random() - 0.5) * 15;
+    d[i] += n; d[i + 1] += n; d[i + 2] += n;
+  }
+  g.putImageData(img, 0, 0);
+  for (i = 0; i < 70; i++) {
+    g.strokeStyle = 'rgba(198,186,170,' + (0.03 + Math.random() * 0.06).toFixed(3) + ')';
+    g.lineWidth = 1 + Math.random() * 3;
+    var x = Math.random() * S;
+    g.beginPath(); g.moveTo(x, 0); g.lineTo(x + (Math.random() - 0.5) * 12, S); g.stroke();
+  }
+  return c;
+}
+
+function texCeil() {
+  var S = 128, c = cvs(S, S), g = c.getContext('2d'), i;
+  g.fillStyle = '#f5f1eb'; g.fillRect(0, 0, S, S);
+  g.strokeStyle = 'rgba(212,206,198,0.9)'; g.lineWidth = 1;
+  for (i = 0; i <= S; i += 32) {
+    g.beginPath(); g.moveTo(i, 0); g.lineTo(i, S); g.stroke();
+    g.beginPath(); g.moveTo(0, i); g.lineTo(S, i); g.stroke();
+  }
+  return c;
+}
+
+function texGrass() {
+  var S = 512, c = cvs(S, S), g = c.getContext('2d'), i;
+  g.fillStyle = '#5c8b3c'; g.fillRect(0, 0, S, S);
+  for (i = 0; i < 3400; i++) {
+    var x = Math.random() * S, y = Math.random() * S;
+    g.strokeStyle = Math.random() < 0.5 ? 'rgba(112,162,74,0.55)' : 'rgba(66,106,44,0.5)';
+    g.lineWidth = 1 + Math.random() * 1.6;
+    g.beginPath(); g.moveTo(x, y); g.lineTo(x + (Math.random() - 0.5) * 4, y - 2 - Math.random() * 5); g.stroke();
+  }
+  return c;
+}
+
+function texPath() {
+  var S = 256, c = cvs(S, S), g = c.getContext('2d'), i;
+  g.fillStyle = '#b5a486'; g.fillRect(0, 0, S, S);
+  for (i = 0; i < 1000; i++) {
+    var v = Math.round(Math.random() * 55);
+    g.fillStyle = 'rgba(' + (152 + v) + ',' + (142 + v) + ',' + (120 + v) + ',0.75)';
+    g.beginPath(); g.arc(Math.random() * S, Math.random() * S, 1 + Math.random() * 3, 0, 6.2832); g.fill();
+  }
+  return c;
+}
+
+function texRug() {
+  var S = 512, c = cvs(S, S), g = c.getContext('2d'), i;
+  g.fillStyle = '#8d4a3c'; g.fillRect(0, 0, S, S);
+  for (i = 0; i < 7; i++) {
+    g.strokeStyle = i % 2 ? '#e8d8bc' : '#6b3529';
+    g.lineWidth = 13;
+    var m = 24 + i * 33;
+    g.strokeRect(m, m, S - 2 * m, S - 2 * m);
+  }
+  g.fillStyle = '#e8d8bc';
+  g.beginPath(); g.moveTo(S / 2, 150); g.lineTo(S - 150, S / 2);
+  g.lineTo(S / 2, S - 150); g.lineTo(150, S / 2); g.closePath(); g.fill();
+  g.fillStyle = '#8d4a3c';
+  g.beginPath(); g.moveTo(S / 2, 195); g.lineTo(S - 195, S / 2);
+  g.lineTo(S / 2, S - 195); g.lineTo(195, S / 2); g.closePath(); g.fill();
+  return c;
+}
+
+function texSky() {
+  var c = cvs(4, 512), g = c.getContext('2d');
+  var gr = g.createLinearGradient(0, 0, 0, 512);
+  gr.addColorStop(0.00, '#2b6ba5');
+  gr.addColorStop(0.40, '#7cb2db');
+  gr.addColorStop(0.60, '#cbe1f1');
+  gr.addColorStop(0.70, '#dee6d8');
+  gr.addColorStop(1.00, '#4e7a35');
+  g.fillStyle = gr; g.fillRect(0, 0, 4, 512);
+  return c;
+}
+
+var TEXGEN = { wood: texWood, wall: texWall, ceiling: texCeil, grass: texGrass, path: texPath, rug: texRug };
+
+function applyTextures() {
+  var list = document.querySelectorAll('[data-tex]'), i;
+  for (i = 0; i < list.length; i++) {
+    var el = list[i], fn = TEXGEN[el.dataset.tex];
+    if (!fn) continue;
+    el.setAttribute('material', 'src', 'url(' + toURL(fn(), 0.85) + ')');
+    el.setAttribute('material', 'repeat', (el.dataset.rx || 1) + ' ' + (el.dataset.ry || 1));
+  }
+  var sky = document.getElementById('sky');
+  if (sky) sky.setAttribute('src', toURL(texSky(), 0.9));
+}
+
+/* ------------------------------------------------- 2. cn-text 中文文字组件 */
+function roundRect(g, x, y, w, h, r) {
+  g.beginPath();
+  g.moveTo(x + r, y);
+  g.lineTo(x + w - r, y); g.quadraticCurveTo(x + w, y, x + w, y + r);
+  g.lineTo(x + w, y + h - r); g.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  g.lineTo(x + r, y + h); g.quadraticCurveTo(x, y + h, x, y + h - r);
+  g.lineTo(x, y + r); g.quadraticCurveTo(x, y, x + r, y);
+  g.closePath();
+}
+
+AFRAME.registerComponent('cn-text', {
+  schema: {
+    value:     { type: 'string', default: '文字' },
+    fg:        { type: 'string', default: '#ffffff' },
+    bg:        { type: 'string', default: '#0b1016' },
+    bgOpacity: { type: 'number', default: 0.78 },
+    font:      { type: 'number', default: 64 },
+    pad:       { type: 'number', default: 26 },
+    h:         { type: 'number', default: 0.24 }
+  },
+  init: function () {
+    this.canvas = cvs(8, 8);
+    this.tex = null;
+  },
+  update: function () {
+    var d = this.data, el = this.el;
+    if (!d.value) return;
+    var face = 'bold ' + d.font + 'px "Microsoft YaHei","PingFang SC",sans-serif';
+
+    var meas = cvs(8, 8).getContext('2d');
+    meas.font = face;
+    var W = Math.ceil(meas.measureText(d.value).width) + d.pad * 2;
+    var H = Math.ceil(d.font * 1.72);
+
+    var c = this.canvas;
+    c.width = W; c.height = H;
+    var g = c.getContext('2d');
+    g.clearRect(0, 0, W, H);
+
+    if (d.bgOpacity > 0) {
+      g.globalAlpha = d.bgOpacity;
+      g.fillStyle = d.bg;
+      roundRect(g, 0, 0, W, H, Math.min(H * 0.28, 22));
+      g.fill();
+      g.globalAlpha = 1;
+    }
+    g.font = face;
+    g.fillStyle = d.fg;
+    g.textAlign = 'center';
+    g.textBaseline = 'middle';
+    g.fillText(d.value, W / 2, H / 2 + d.font * 0.04);
+
+    if (!this.tex) {
+      this.tex = new T.CanvasTexture(c);
+      this.tex.anisotropy = 4;
+      if ('colorSpace' in this.tex && T.SRGBColorSpace) this.tex.colorSpace = T.SRGBColorSpace;
+      this.attach();
+    } else {
+      this.tex.needsUpdate = true;
+    }
+
+    el.setAttribute('geometry', 'height', d.h);
+    el.setAttribute('geometry', 'width', d.h * (W / H));
+  },
+  attach: function () {
+    var self = this;
+    function put() {
+      var mesh = self.el.getObject3D('mesh');
+      if (mesh && mesh.material && !Array.isArray(mesh.material)) {
+        mesh.material.map = self.tex;
+        mesh.material.transparent = true;
+        mesh.material.needsUpdate = true;
+      }
+    }
+    if (this.el.getObject3D('mesh')) put();
+    else this.el.addEventListener('object3dset', put);
+  }
+});
+
+/* ------------------------------------------------------- 3. hotspot 热点组件 */
+/* 让实体可被"注视 / 点击", 并做悬停反馈.
+   visual: 悬停时要"放大"的元素选择器(留空=自己). 圆环用它在视觉组上放大,
+           而不是放大命中盘 —— 放大命中盘会让判定区域越滚越大.
+   tint:   悬停时要"变黄"的元素选择器; 填 none 表示不变色.
+           圆环填 none: 因为"变黄"要留给 1.2 秒注视进度弧去表达, 悬停只放大. */
+AFRAME.registerComponent('hotspot', {
+  schema: {
+    target: { type: 'string', default: '' },
+    visual: { type: 'string', default: '' },
+    tint:   { type: 'string', default: '' }
+  },
+  init: function () {
+    var self = this, el = this.el;
+    el.classList.add('clickable');
+
+    function pick(sel) {
+      var out = [];
+      if (sel && sel !== 'none') {
+        Array.prototype.forEach.call(el.querySelectorAll(sel), function (n) { out.push(n); });
+      }
+      if (!out.length && (!sel || sel !== 'none')) out.push(el);
+      return out;
+    }
+
+    this.scalers = pick(this.data.visual).map(function (n) {
+      var s = n.getAttribute('scale') || { x: 1, y: 1, z: 1 };
+      return { el: n, base: { x: s.x, y: s.y, z: s.z } };
+    });
+    this.tinters = pick(this.data.tint).map(function (n) {
+      var m = n.getAttribute('material') || {};
+      return { el: n, base: (typeof m.color === 'string') ? m.color : '#ffffff' };
+    });
+
+    this.on = false;
+    function glow(v) { return function () { self.glow(v); }; }
+    el.addEventListener('mouseenter', glow(true));
+    el.addEventListener('mouseleave', glow(false));
+    el.addEventListener('click', function () {
+      if (self.data.target && !gazeLocked()) jump(self.data.target);
+    });
+  },
+  glow: function (on) {
+    if (this.on === on) return;
+    this.on = on;
+    var k = on ? 1.10 : 1.0;
+    this.scalers.forEach(function (v) {
+      v.el.setAttribute('scale', (v.base.x * k) + ' ' + (v.base.y * k) + ' ' + (v.base.z * k));
+    });
+    this.tinters.forEach(function (v) {
+      v.el.setAttribute('material', 'color', on ? '#ffd27a' : v.base);
+    });
+  }
+});
+
+/* --------------------------------- 3.5 ring-progress 注视进度弧（几何版） */
+/* 把「注视进度 k∈[0,1]」画成一条从 12 点方向起、顺时针长满一整圈的黄色弧带。
+   由 gaze-dwell 每帧调用 set(k)；k < 0 = 不显示。
+   ------------------------------------------------------------------
+   为什么不用 CanvasTexture 贴图（第一版的写法）：
+   第一版是「canvas 画弧 → CanvasTexture → 贴到 a-plane」，结果弧死活不显示。
+   根因：CanvasTexture 只在构造函数里把 needsUpdate 置一次 true，
+        之后每次重画画布都必须手动 tex.needsUpdate = true，GPU 才会重新上传贴图。
+        漏掉这一行，GPU 上就永远是最初那张空白图 ——
+        表现正是"注视了、也跳转了，但黄色进度弧完全不出现"。
+   这一版改成直接生成环形几何、逐帧改写顶点：
+   不依赖贴图上传，也不依赖着色器对 map 的支持，颜色最纯、边缘最锐利；
+   每帧只改 57 组顶点，CPU 开销可以忽略。
+   ------------------------------------------------------------------ */
+AFRAME.registerComponent('ring-progress', {
+  schema: {
+    r:     { type: 'number', default: 0.44 },    /* 弧中线半径(米)，对齐白环半径 */
+    tube:  { type: 'number', default: 0.105 },   /* 弧带宽度(米)，略大于白环管径 0.09 才能盖住它 */
+    segs:  { type: 'number', default: 56 },      /* 角度细分段数 */
+    color: { type: 'string', default: '#ffc21f' }
+  },
+  init: function () {
+    var d = this.data, n = Math.max(8, Math.round(d.segs));
+    this.segs = n;
+
+    /* 环带几何：沿角度切 n 段，每段 2 个顶点（内圈 / 外圈） */
+    var pos = new Float32Array((n + 1) * 2 * 3);
+    var geo = new T.BufferGeometry();
+    geo.setAttribute('position', new T.BufferAttribute(pos, 3));
+    var idx = [];
+    for (var i = 0; i < n; i++) {
+      var a = i * 2, b = i * 2 + 1, c = i * 2 + 2, e = i * 2 + 3;
+      idx.push(a, b, c, b, e, c);
+    }
+    geo.setIndex(idx);
+
+    this.arc = new T.Mesh(geo, new T.MeshBasicMaterial({
+      color: new T.Color(d.color),
+      side: T.DoubleSide,      /* 双面：从哪边看都是黄的 */
+      transparent: true,
+      opacity: 0.97,
+      depthWrite: false        /* 透明叠层不写深度，免得和后面的白环抢排序 */
+    }));
+    this.arc.frustumCulled = false;
+    this.arc.renderOrder = 5;
+    this.arc.visible = false;
+
+    /* 弧头亮珠：让"正在走"这件事一眼可见 */
+    this.bead = new T.Mesh(
+      new T.CircleGeometry(d.tube * 0.52, 20),
+      new T.MeshBasicMaterial({ color: 0xfffbe8, side: T.DoubleSide, transparent: true, depthWrite: false })
+    );
+    this.bead.frustumCulled = false;
+    this.bead.renderOrder = 6;
+    this.bead.visible = false;
+
+    var g = new T.Group();
+    g.add(this.arc); g.add(this.bead);
+    this.el.setObject3D('arc', g);
+
+    this.k = -1;
+  },
+  /* 由 gaze-dwell 调用：k ∈ [0,1] 画进度；k < 0 隐藏 */
+  set: function (k) {
+    if (k >= 0 && this.k >= 0 && Math.abs(k - this.k) < 0.008) return;
+    this.k = k;
+    this.build(k);
+  },
+  reset: function () { this.k = -1; this.build(-1); },
+  build: function (k) {
+    if (k < 0) { this.arc.visible = false; this.bead.visible = false; return; }
+    this.arc.visible = true;
+
+    var d = this.data, n = this.segs;
+    var r0 = d.r - d.tube / 2, r1 = d.r + d.tube / 2;
+    var total = Math.PI * 2 * Math.max(k, 0.0001);
+    var pos = this.arc.geometry.attributes.position;
+    for (var i = 0; i <= n; i++) {
+      /* 起点 +90°（正上方 12 点方向），角度递减 = 顺时针 */
+      var ang = Math.PI / 2 - total * (i / n);
+      var ca = Math.cos(ang), sa = Math.sin(ang);
+      pos.setXYZ(i * 2,     ca * r0, sa * r0, 0);
+      pos.setXYZ(i * 2 + 1, ca * r1, sa * r1, 0);
+    }
+    pos.needsUpdate = true;
+
+    if (k > 0.002 && k < 0.998) {
+      var ah = Math.PI / 2 - total;
+      this.bead.visible = true;
+      this.bead.position.set(Math.cos(ah) * d.r, Math.sin(ah) * d.r, 0.001);   /* 微凸出再保险 */
+    } else {
+      this.bead.visible = false;
+    }
+  }
+});
+
+/* ------------------------ 3.6 gaze-dwell 注视停留计时（自研，不依赖 cursor 的 fuse） */
+/* 为什么自己写：
+   A-Frame 的 cursor 自带 fuse 计时，但
+     · 它只在"注视目标变化"那一刻派发 fusing，取消 / 完成都跟它内部的 click 绑在一起，
+       想单独实现"跳转后必须先移开视线"很别扭；
+     · 电脑上（rayOrigin: mouse）它根本不派发 fusing。
+   所以这里每帧从相机正中发一条射线，自己算命中、自己算进度 ——
+   逻辑全在明面上，PC 和头显表现一致，也方便用探针直接驱动验证。
+   ------------------------------------------------------------------
+   规则：
+   1. 视线落在任一 .clickable 上 → 开始计时：白环压暗，黄弧从 12 点起顺时针长；
+   2. 视线移开 → 立刻清零（黄弧消失、白环恢复白色）；
+   3. 计时满 dur 毫秒 → 触发跳转（此时黄弧正好走满一整圈）；
+   4. ★ 跳转后必须先「把视线移开所有热点」一次，才允许重新计时 ——
+      否则新场景的圆环正好落在出生视线正中，1.2 秒后会被原路弹回去（乒乓跳）。 */
+AFRAME.registerComponent('gaze-dwell', {
+  schema: {
+    dur: { type: 'number', default: 1200 },
+    far: { type: 'number', default: 30 }
+  },
+  init: function () {
+    var self = this, sc = this.el.sceneEl;
+    this.ray = new T.Raycaster();
+    this.ray.far = this.data.far;
+    this.center = new T.Vector2(0, 0);
+    this.list = [];
+    this.lastScan = -1e9;
+    this.dwellEl = null;
+    this.t0 = 0;
+    this.armed = true;        /* false = 必须先移开视线才能再计时 */
+    this.ready = false;
+
+    function go() { setTimeout(function () { self.ready = true; }, 500); }
+    if (sc.hasLoaded) go(); else sc.addEventListener('loaded', go);
+    /* 任何跳转（注视触发 / 点击标签触发）都重置注视状态 */
+    sc.addEventListener('scene-jump', function () { self.hardReset(); });
+  },
+
+  /* 收集可交互元素；场景是静态的，每 500ms 扫一次足够 */
+  scan: function () {
+    var out = [], nodes = document.querySelectorAll('.clickable');
+    for (var i = 0; i < nodes.length; i++) if (nodes[i].object3D) out.push(nodes[i]);
+    this.list = out;
+  },
+
+  /* 祖先链上只要有一层 visible=false 就不算（另一个场景被整体挪到地下 -300m） */
+  visibleNow: function (el) {
+    var n = el;
+    while (n && n.nodeType === 1) {
+      if (n.getAttribute && n.getAttribute('visible') === false) return false;
+      n = n.parentNode;
+    }
+    return true;
+  },
+
+  cursorEl: function () { return this.el.querySelector('#gazeCursor'); },
+  progOf: function (el) {
+    var id = el && el.dataset ? el.dataset.prog : '';
+    var p = id ? document.getElementById(id) : null;
+    return (p && p.components) ? p.components['ring-progress'] : null;
+  },
+  ringOf: function (el) {
+    var id = el && el.dataset ? el.dataset.ring : '';
+    return id ? document.getElementById(id) : null;
+  },
+
+  tick: function (t) {
+    if (!this.ready) return;
+    var cam = this.el.sceneEl.camera;
+    if (!cam) return;
+    if (t - this.lastScan > 500) { this.lastScan = t; this.scan(); }
+
+    /* 从相机正中发一条射线（头显里就是视线正中），取最近的可交互目标 */
+    var hit = null;
+    if (this.list.length) {
+      this.ray.setFromCamera(this.center, cam);
+      var best = Infinity;
+      for (var i = 0; i < this.list.length; i++) {
+        var el = this.list[i];
+        if (!this.visibleNow(el)) continue;
+        var hs = this.ray.intersectObject(el.object3D, true);
+        if (hs.length && hs[0].distance < best) { best = hs[0].distance; hit = el; }
+      }
+    }
+
+    /* 视线离开过热区 → 解锁，允许重新计时 */
+    if (!hit) this.armed = true;
+
+    if (hit !== this.dwellEl) {
+      this.cancelDwell();
+      if (hit && this.armed && !gazeLocked()) this.startDwell(hit);
+    }
+
+    if (this.dwellEl) {
+      var k = (performance.now() - this.t0) / this.data.dur;
+      if (k >= 1) { this.fire(); return; }
+      this.paint(k);
+    }
+  },
+
+  startDwell: function (el) {
+    this.dwellEl = el;
+    this.t0 = performance.now();
+    var ring = this.ringOf(el);
+    if (ring) ring.setAttribute('material', 'color', '#b9c2cf');  /* 未填满的部分压暗，让黄弧成为主角 */
+    var comp = this.progOf(el);
+    if (comp) comp.set(0);
+    this.paint(0);
+  },
+
+  paint: function (k) {
+    var el = this.dwellEl;
+    if (!el) return;
+    var comp = this.progOf(el);
+    if (comp) comp.set(k);
+    else el.setAttribute('material', 'opacity', (0.35 + 0.65 * k).toFixed(3));  /* 文字标签用透明度当进度 */
+    var cr = this.cursorEl();
+    if (cr) { var s = (1 + 0.5 * k).toFixed(3); cr.setAttribute('scale', s + ' ' + s + ' ' + s); }
+  },
+
+  cancelDwell: function () {
+    var el = this.dwellEl;
+    if (!el) return;
+    this.dwellEl = null;
+    var ring = this.ringOf(el);
+    if (ring) ring.setAttribute('material', 'color', '#FFFFFF');
+    var comp = this.progOf(el);
+    if (comp) comp.reset(); else el.setAttribute('material', 'opacity', 1);
+    var cr = this.cursorEl();
+    if (cr) cr.setAttribute('scale', '1 1 1');
+  },
+
+  hardReset: function () {
+    this.cancelDwell();
+    this.armed = false;      /* 新场景要先把视线移开一次 */
+    this.t0 = 0;
+  },
+
+  fire: function () {
+    var el = this.dwellEl;
+    if (!el) return;
+    var comp = this.progOf(el), ring = this.ringOf(el);
+    if (comp) comp.set(1);   /* 先画满整圈，黑场过渡里也能看到"完成" */
+    var target = (el.components.hotspot && el.components.hotspot.data.target) || '';
+    this.dwellEl = null;
+    this.armed = false;
+    if (ring) ring.setAttribute('material', 'color', '#FFFFFF');
+    var cr = this.cursorEl();
+    if (cr) cr.setAttribute('scale', '1 1 1');
+
+    if (!target) { if (comp) comp.reset(); this.armed = true; return; }
+
+    var before = cur;
+    jump(target);
+    if (cur === before) {
+      /* 没跳成（例如已经在目标场景）→ 复位并允许重来 */
+      this.armed = true;
+      if (comp) comp.reset();
+    } else {
+      /* 等黑场过去再清掉满圈黄弧，让"完成"有一次可见的收尾 */
+      setTimeout(function () { if (comp) comp.reset(); }, 420);
+    }
+  }
+});
+
+/* ------------------------------------------- 4. 移动组件 (电脑 + 头显摇杆) */
+AFRAME.registerComponent('simple-locomotion', {
+  schema: {
+    speed:  { type: 'number', default: 2.4 },
+    bounds: { type: 'string', default: '3.5 3.5' }
+  },
+  init: function () {
+    var self = this;
+    this.keys = {};
+    window.addEventListener('keydown', function (e) { self.keys[e.code] = true; });
+    window.addEventListener('keyup',   function (e) { self.keys[e.code] = false; });
+    this.head = null;
+  },
+  tick: function (t, dt) {
+    if (!this.head) this.head = document.getElementById('head');
+    if (!this.head) return;
+    var d = Math.min(dt, 90) / 1000, k = this.keys;
+    var f = 0, s = 0;
+
+    if (k.KeyW || k.ArrowUp)    f += 1;
+    if (k.KeyS || k.ArrowDown)  f -= 1;
+    if (k.KeyA || k.ArrowLeft)  s -= 1;
+    if (k.KeyD || k.ArrowRight) s += 1;
+
+    var xr = this.el.sceneEl.renderer && this.el.sceneEl.renderer.xr;
+    if (xr && xr.isPresenting) {
+      var sess = xr.getSession ? xr.getSession() : null;
+      var srcs = sess && sess.inputSources;
+      for (var i = 0; srcs && i < srcs.length; i++) {
+        var gp = srcs[i].gamepad;
+        if (!gp || !gp.axes) continue;
+        var ax = gp.axes;
+        var vx = ax.length > 2 ? ax[2] : ax[0];
+        var vy = ax.length > 3 ? ax[3] : ax[1];
+        if (Math.abs(vx) > 0.18) s += vx;
+        if (Math.abs(vy) > 0.18) f -= vy;
+      }
+    }
+
+    if (!f && !s) return;
+    var len = Math.sqrt(f * f + s * s);
+    f /= len; s /= len;
+
+    var q = new T.Quaternion();
+    this.head.object3D.getWorldQuaternion(q);
+    var fwd = new T.Vector3(0, 0, -1).applyQuaternion(q);
+    fwd.y = 0;
+    if (fwd.lengthSq() < 1e-6) return;
+    fwd.normalize();
+    var rx = -fwd.z, rz = fwd.x;
+
+    var pos = this.el.object3D.position;
+    pos.x += (fwd.x * f + rx * s) * this.data.speed * d;
+    pos.z += (fwd.z * f + rz * s) * this.data.speed * d;
+
+    var b = String(this.data.bounds).split(' ');
+    var bx = parseFloat(b[0]) || 3.5;
+    var bz = parseFloat(b[1]) || bx;
+    pos.x = Math.max(-bx, Math.min(bx, pos.x));
+    pos.z = Math.max(-bz, Math.min(bz, pos.z));
+  }
+});
+
+/* ------------------------------------- 5. 外部模型自动挂载 (没有也不报错) */
+var SLOTS = [
+  ['fSofa',     'pSofa',     'sofa.glb',         0.78],
+  ['fCoffee',   'pCoffee',   'coffee-table.glb', 0.42],
+  ['fShelf',    'pShelf',    'bookshelf.glb',    1.90],
+  ['fTable',    'pTable',    'table.glb',        0.75],
+  ['fChair1',   'pChair1',   'chair.glb',        0.90],
+  ['fChair2',   'pChair2',   'chair.glb',        0.90],
+  ['fStool',    'pStool',    'stool.glb',        0.75],
+  ['fFloorLamp','pFloorLamp','lamp.glb',         1.60],
+  ['fPlant1',   'pPlant1',   'plant.glb',        0.90],
+  ['fPlant2',   'pPlant2',   'plant.glb',        0.90],
+  ['fSide',     'pSide',     'side-table.glb',   0.55],
+  ['fTree1',    'pTree1',    'tree.glb',         3.50],
+  ['fTree2',    'pTree2',    'tree.glb',         3.00],
+  ['fTree3',    'pTree3',    'tree.glb',         2.80],
+  ['fTree4',    'pTree4',    'tree.glb',         2.60],
+  ['fBush1',    'pBush1',    'bush.glb',         0.70],
+  ['fBush2',    'pBush2',    'bush.glb',         0.60],
+  ['fBush3',    'pBush3',    'bush.glb',         0.55],
+  ['fBench',    'pBench',    'bench.glb',        0.90],
+  ['fRock1',    'pRock1',    'rock.glb',         0.55],
+  ['fRock2',    'pRock2',    'rock.glb',         0.44],
+  ['fPlanter1', 'pPlanter1', 'planter.glb',      0.70],
+  ['fPlanter2', 'pPlanter2', 'planter.glb',      0.70]
+];
+
+/* 把模型缩放到目标高度, 底部贴 y=0, 水平中心对齐挂载点.
+   ★ 幂等: 以「模型自身初始尺寸」为基准计算, 重复调用结果一致.
+     绝对不能用当前的 Box3 当基准 —— 已经缩放过的模型会被反复放大/缩小
+     (一次 3.5/size 的误叠加就能把树放大 100 倍糊满整个屏幕).
+   ★ 坐标系: 必须量「模型局部」的盒子. 若用 setFromObject(世界坐标),
+     当父级已经带偏移时 (本例: 隐藏的场景被挪到 y=-300),
+     算出来的 minY 会把父级偏移也算进去, 模型就被顶到天上去了. */
+function fitModel(el, targetH) {
+  var obj = el.getObject3D('mesh');
+  if (!obj) return;
+  if (!el.__fitBase) {
+    /* 先把父级的世界变换倒掉, 只留模型自己的局部顶点范围 */
+    var box = new T.Box3();
+    var pw = new T.Matrix4();
+    obj.parent.updateWorldMatrix(true, false);
+    pw.copy(obj.parent.matrixWorld).invert();
+    var v = new T.Vector3();
+    var first = new T.Box3();
+    var started = false;
+    obj.traverse(function (o) {
+      if (!o.isMesh || !o.geometry) return;
+      var pos = o.geometry.attributes && o.geometry.attributes.position;
+      if (!pos) return;
+      o.updateWorldMatrix(true, false);
+      for (var i = 0; i < pos.count; i++) {
+        v.fromBufferAttribute(pos, i).applyMatrix4(o.matrixWorld).applyMatrix4(pw);
+        if (!started) { first.min.copy(v); first.max.copy(v); started = true; }
+        else first.expandByPoint(v);
+      }
+    });
+    if (!started) return;
+    box.copy(first);
+    var size = box.getSize(new T.Vector3());
+    if (size.y < 1e-4) return;
+    var ctr = box.getCenter(new T.Vector3());
+    el.__fitBase = { h: size.y, cx: ctr.x, cz: ctr.z, minY: box.min.y };
+  }
+  var B = el.__fitBase;
+  var k = targetH / B.h;
+  obj.scale.setScalar(k);
+  obj.position.set(-B.cx * k, -B.minY * k, -B.cz * k);
+  obj.updateMatrixWorld(true);
+}
+
+function mountModels() {
+  SLOTS.forEach(function (s) {
+    var holder = document.getElementById(s[0]);
+    var ph = document.getElementById(s[1]);
+    if (!holder) return;
+    var url = './assets/models/' + s[2];
+    fetch(url, { method: 'HEAD' }).then(function (r) {
+      if (!r.ok) throw new Error('404');
+      var g = document.createElement('a-entity');
+      g.setAttribute('gltf-model', url);
+      holder.appendChild(g);
+      g.addEventListener('model-loaded', function () {
+        if (ph) ph.setAttribute('visible', false);
+        fitModel(g, s[3]);
+      });
+      g.addEventListener('model-error', function () {
+        if (g.parentNode) g.parentNode.removeChild(g);
+      });
+    }).catch(function () { /* 文件不存在 → 保留几何占位 */ });
+  });
+}
+
+/* ------------------------------------------------------- 6. 场景跳转逻辑 */
+var WORLD = {
+  house:  { el: 'worldHouse',  tag: '场景 A · 温馨小屋', name: '温馨小屋',
+            spawn: '0 0 2.90', yaw: 0, bounds: '3.55 3.55' },
+  garden: { el: 'worldGarden', tag: '场景 B · 后花园',   name: '后花园',
+            spawn: '0 0 3.40', yaw: 0, bounds: '5.40 5.40' }
+};
+var cur = 'house', busy = false;
+/* ★ 跳转后的「注视冷却」：新场景刚出现的那 1.5 秒不响应该注视点击。
+   原因：A-Frame 的 cursor 在射线一进入目标就起了 1.2 秒计时器；
+   如果目标圆环恰好落在新的出生视线正前方，会被立刻"原路弹回去"。
+   冷却期间视线移开再回来看，就能正常触发。 */
+var gazeLockUntil = 0;
+function gazeLocked() { return performance.now() < gazeLockUntil; }
+
+var fadeEl = document.getElementById('fade');
+var fadeVal = 0;
+function setFade(v) {
+  fadeVal = v;
+  fadeEl.setAttribute('material', 'opacity', v);
+}
+function tweenFade(to, dur, cb) {
+  var from = fadeVal, t0 = performance.now();
+  (function step() {
+    var k2 = Math.min(1, (performance.now() - t0) / dur);
+    setFade(from + (to - from) * k2);
+    if (k2 < 1) requestAnimationFrame(step);
+    else if (cb) cb();
+  })();
+}
+
+function jump(target) {
+  if (busy || !WORLD[target] || target === cur) return;
+  busy = true;
+  tweenFade(1, 190, function () {
+    sceneEl.emit('scene-jump', { target: target });
+    Object.keys(WORLD).forEach(function (kk) {
+      var el = document.getElementById(WORLD[kk].el);
+      var on = (kk === target);
+      el.setAttribute('visible', on);
+      /* 隐藏的场景整体挪到地下 300m —— 和 visible=false 双保险,
+         保证射线一个都打不到 (three.js 的 raycast 不一定会跳过不可见物体) */
+      el.setAttribute('position', on ? '0 0 0' : '0 -300 0');
+    });
+
+    var w = WORLD[target];
+    var rig = document.getElementById('rig');
+    rig.setAttribute('position', w.spawn);
+    if (!sceneEl.is('vr-mode')) rig.setAttribute('rotation', '0 ' + w.yaw + ' 0');
+    rig.setAttribute('simple-locomotion', 'bounds', w.bounds);
+
+    cur = target;
+    document.getElementById('tag').textContent = w.tag;
+    var hL = document.getElementById('lHouse'), lS = document.getElementById('lSun'), lH = document.getElementById('lHemi');
+    if (hL) hL.setAttribute('visible', target === 'house');
+    if (lS) lS.setAttribute('visible', target === 'garden');
+    if (lH) lH.setAttribute('light', 'intensity', target === 'house' ? 0.50 : 0.90);
+
+    tweenFade(0, 300, function () {
+      busy = false;
+      gazeLockUntil = performance.now() + 1500;   /* 见上方 gazeLocked 注释 */
+      toast('已进入「' + w.name + '」　—— 这次跳转由「注视 1.2 秒」或「点击标签」触发');
+    });
+  });
+}
+
+/* ---------------------------------------------------- 7. 灯光 + 读数面板 */
+function addLights() {
+  var defs = [
+    ['lAmb',  'type: ambient; color: #ffffff; intensity: 0.55'],
+    ['lHemi', 'type: hemisphere; color: #cfe4f2; groundColor: #6b8a4a; intensity: 0.50']
+  ];
+  defs.forEach(function (d) {
+    var e = document.createElement('a-entity');
+    e.id = d[0];
+    e.setAttribute('light', d[1]);
+    e.setAttribute('position', '0 4 0');
+    sceneEl.appendChild(e);
+  });
+
+  var hL = document.createElement('a-entity');
+  hL.id = 'lHouse';
+  [[0, 2.55, 0], [2.6, 2.30, -0.8], [-2.6, 2.30, 1.8]].forEach(function (p) {
+    var pl = document.createElement('a-entity');
+    pl.setAttribute('light', 'type: point; color: #ffd9a0; intensity: 0.45; distance: 10; decay: 2');
+    pl.setAttribute('position', p.join(' '));
+    hL.appendChild(pl);
+  });
+  sceneEl.appendChild(hL);
+
+  var sun = document.createElement('a-entity');
+  sun.id = 'lSun';
+  sun.setAttribute('light', 'type: directional; color: #fff3dc; intensity: 0.80');
+  sun.setAttribute('position', '5 9 4');
+  sun.setAttribute('visible', false);
+  sceneEl.appendChild(sun);
+}
+
+var hFps = document.getElementById('hFps');
+var hCalls = document.getElementById('hCalls');
+var hTris = document.getElementById('hTris');
+var lastFps = 0, fpsAcc = 0, fpsN = 0, prevT = performance.now();
+
+function loopStats() {
+  var now = performance.now();
+  fpsAcc += now - prevT; prevT = now; fpsN++;
+  if (fpsAcc >= 500) { lastFps = fpsN * 1000 / fpsAcc; fpsAcc = 0; fpsN = 0; }
+  requestAnimationFrame(loopStats);
+}
+
+var vrCanvas = cvs(512, 160), vrTex = null;
+function drawVRStats(fps, calls, tris) {
+  var g = vrCanvas.getContext('2d');
+  g.clearRect(0, 0, 512, 160);
+  g.fillStyle = 'rgba(8,13,20,0.82)';
+  roundRect(g, 2, 2, 508, 156, 20); g.fill();
+  g.textBaseline = 'middle';
+  g.font = 'bold 26px "Microsoft YaHei",sans-serif';
+  g.fillStyle = '#ffd27a'; g.textAlign = 'left';
+  g.fillText('FPS', 24, 42); g.fillText('DrawCall', 24, 82); g.fillText('三角面', 24, 122);
+  g.font = 'bold 30px Menlo,Consolas,monospace';
+  g.fillStyle = '#ffffff'; g.textAlign = 'right';
+  g.fillText(String(fps), 488, 42);
+  g.fillText(String(calls), 488, 82);
+  g.fillText((tris / 1000).toFixed(1) + 'k', 488, 122);
+
+  if (!vrTex) {
+    vrTex = new T.CanvasTexture(vrCanvas);
+    vrTex.anisotropy = 4;
+    var el = document.getElementById('vrStats');
+    var put = function () {
+      var m = el.getObject3D('mesh');
+      if (m && m.material && !Array.isArray(m.material)) {
+        m.material.map = vrTex; m.material.needsUpdate = true;
+      }
+    };
+    if (el.getObject3D('mesh')) put(); else el.addEventListener('object3dset', put);
+  } else {
+    vrTex.needsUpdate = true;
+  }
+}
+
+function updateHud() {
+  var r = sceneEl.renderer && sceneEl.renderer.info ? sceneEl.renderer.info.render : null;
+  if (!r) return;
+  var fps = lastFps > 0 ? lastFps.toFixed(0) : '–';
+  if (hFps) hFps.textContent = fps;
+  if (hCalls) hCalls.textContent = r.calls;
+  if (hTris) hTris.textContent = (r.triangles / 1000).toFixed(1) + 'k';
+  drawVRStats(fps, r.calls, r.triangles);
+}
+
+var toastEl = document.getElementById('toast'), toastT = null;
+function toast(msg, ms) {
+  if (!toastEl) return;
+  toastEl.textContent = msg;
+  toastEl.classList.add('show');
+  if (toastT) clearTimeout(toastT);
+  toastT = setTimeout(function () { toastEl.classList.remove('show'); }, ms || 2400);
+}
+
+/* --------------------------------------------------------------- 8. 启动 */
+function boot() {
+  applyTextures();
+  addLights();
+  mountModels();
+
+  document.getElementById('worldGarden').setAttribute('position', '0 -300 0');
+  document.getElementById('tag').textContent = WORLD.house.tag;
+
+  /* ── 调试：按 P 键把进度弧定格在 0% → 50% → 100% → 关闭, 用来肉眼检查外观 ── */
+  var _pd = 0, _pkv = [0, 0.5, 1.0, -1];
+  window.addEventListener('keydown', function (e) {
+    if (e.code !== 'KeyP') return;
+    var k = _pkv[_pd % _pkv.length]; _pd++;
+    var ids = ['ringHouseProg', 'ringGardenProg'], tids = ['ringHouseTorus', 'ringGardenTorus'];
+    ids.forEach(function (id, i) {
+      var p = document.getElementById(id);
+      var c = p && p.components && p.components['ring-progress'];
+      if (!c) return;
+      var torus = document.getElementById(tids[i]);
+      if (k < 0) {
+        c.reset();
+        if (torus) torus.setAttribute('material', 'color', '#FFFFFF');
+        toast('进度弧：已关闭（恢复正常注视逻辑）', 1400);
+      } else {
+        if (torus) torus.setAttribute('material', 'color', '#b9c2cf');
+        c.reset(); c.set(k);
+        toast('进度弧定格在 ' + Math.round(k * 100) + '%　（再按 P 切换）', 1400);
+      }
+    });
+  });
+
+  sceneEl.addEventListener('enter-vr', function () {
+    document.body.classList.add('vr');
+    document.getElementById('vrStats').setAttribute('visible', true);
+    toast('已进入 VR。\n视线停在白色圆环上 1.2 秒即可跳转；摇杆可以走动。', 6000);
+  });
+  sceneEl.addEventListener('exit-vr', function () {
+    document.body.classList.remove('vr');
+    document.getElementById('vrStats').setAttribute('visible', false);
+    toast('已退出 VR。', 2500);
+  });
+
+  requestAnimationFrame(loopStats);
+  setInterval(updateHud, 400);
+  setTimeout(updateHud, 300);
+
+  console.log('%c✓ A-Frame 双场景已就绪', 'color:#4CAF50;font-weight:bold');
+  console.log('  当前场景 A「温馨小屋」 → 注视圆环 1.2 秒 或 点击"去后花园"标签');
+  console.log('  读数面板：右上角 FPS / DrawCall / 三角面');
+}
+
+if (sceneEl.hasLoaded) boot();
+else sceneEl.addEventListener('loaded', boot);
+</script>
+</body>
+</html>
