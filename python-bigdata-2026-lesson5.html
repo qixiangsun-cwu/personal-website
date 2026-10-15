@@ -1,0 +1,3569 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第5次课 · 第5章 函数与类 | Python大数据分析基础</title>
+<style>
+/* ===== 基础 ===== */
+:root{
+  --ink:#2b2820; --ink-soft:#5d594c; --ink-faint:#8a8577;
+  --paper:#f6f3ec; --card:#fffdf8; --line:#e4ddcc; --line-soft:#efe9dc;
+  --blue:#306998; --blue-deep:#1f3864; --blue-soft:#eaf1f8;
+  --gold:#b8860b; --amber:#b45309; --amber-soft:#fdf3e3;
+  --green:#2e7d32; --green-soft:#eaf5eb;
+  --red:#b3392f; --red-soft:#fbeceb;
+  --code-bg:#191b24; --code-hd:#232533; --code-txt:#e8e6de;
+  --radius:14px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;scroll-padding-top:86px;}
+body{
+  font-family:"Times New Roman","宋体",SimSun,"Songti SC","SimSun-ExtB",serif;
+  font-size:16px;line-height:1.95;color:var(--ink);background:var(--paper);
+  -webkit-font-smoothing:antialiased;
+}
+/* ===== 顶部 Hero ===== */
+.hero{
+  background:linear-gradient(120deg,#1b3157 0%,#264a7e 55%,#306998 100%);
+  color:#fff;padding:46px 20px 40px;position:relative;overflow:hidden;
+}
+.hero::after{
+  content:"";position:absolute;right:-60px;top:-60px;width:300px;height:300px;
+  border-radius:50%;background:rgba(255,212,59,.08);pointer-events:none;
+}
+.hero-inner{max-width:1060px;margin:0 auto;position:relative;z-index:1;}
+.hero .kicker{
+  display:inline-block;font-size:13px;letter-spacing:2px;color:#ffd43b;
+  border:1px solid rgba(255,212,59,.5);border-radius:999px;padding:3px 14px;margin-bottom:16px;
+}
+.hero h1{font-size:38px;font-weight:700;line-height:1.35;margin-bottom:10px;}
+.hero .sub{font-size:18px;color:#dbe6f5;margin-bottom:18px;}
+.hero .meta{display:flex;flex-wrap:wrap;gap:10px;}
+.hero .meta span{
+  font-size:13px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);
+  border-radius:999px;padding:4px 14px;color:#f2f6fb;
+}
+/* ===== 导航 ===== */
+.nav{
+  position:sticky;top:0;z-index:50;background:rgba(253,251,246,.94);
+  backdrop-filter:blur(8px);border-bottom:1px solid var(--line);
+}
+.nav-inner{max-width:1060px;margin:0 auto;display:flex;align-items:center;gap:6px;overflow-x:auto;padding:10px 16px;}
+.nav-inner::-webkit-scrollbar{height:0;}
+.nav a{
+  flex:0 0 auto;font-size:14px;color:var(--ink-soft);text-decoration:none;
+  padding:6px 14px;border-radius:999px;border:1px solid transparent;white-space:nowrap;
+  transition:all .18s;
+}
+.nav a:hover{color:var(--blue);background:var(--blue-soft);}
+.nav a.on{color:#fff;background:var(--blue);border-color:var(--blue);}
+.nav a.nav-back{color:var(--blue-deep);font-weight:700;border-color:#cfe0f0;background:#fff;margin-right:6px;}
+/* ===== 主区域 ===== */
+main{max-width:1060px;margin:0 auto;padding:30px 16px 60px;}
+section{margin-bottom:34px;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:30px 34px;box-shadow:0 1px 4px rgba(60,50,20,.05);}
+.sec-head{display:flex;align-items:flex-start;gap:14px;margin-bottom:6px;}
+.sec-num{
+  flex:0 0 auto;min-width:46px;height:46px;border-radius:12px;background:var(--blue-deep);color:#fff;
+  display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:700;margin-top:4px;
+}
+.sec-head h2{font-size:26px;font-weight:700;line-height:1.3;}
+.sec-sub{font-size:14px;color:var(--ink-soft);margin:2px 0 18px;}
+h3{font-size:20px;font-weight:700;margin:30px 0 10px;padding-left:12px;border-left:5px solid var(--blue);line-height:1.5;}
+h4{font-size:17px;font-weight:700;margin:18px 0 8px;color:var(--blue-deep);}
+p{margin:8px 0;}
+ul,ol{margin:8px 0 8px 24px;}
+li{margin:5px 0;}
+strong{color:var(--blue-deep);}
+code.inline{
+  font-family:"Times New Roman","宋体",SimSun,serif;font-size:15px;background:var(--blue-soft);
+  color:var(--blue-deep);padding:1px 7px;border-radius:6px;border:1px solid #d5e2f0;white-space:nowrap;
+}
+/* 标签 */
+.tag{display:inline-block;font-size:12px;color:var(--blue);background:var(--blue-soft);border:1px solid #d2e2f2;border-radius:999px;padding:1px 10px;margin:2px 4px 2px 0;}
+.tag.gold{color:var(--amber);background:var(--amber-soft);border-color:#f0dcb8;}
+.tag.green{color:var(--green);background:var(--green-soft);border-color:#cfe6d1;}
+.tag.red{color:var(--red);background:var(--red-soft);border-color:#ecd0cd;}
+/* 提示框 */
+.note,.warn,.danger,.key,.ai{
+  border-radius:10px;padding:12px 16px 12px 44px;margin:14px 0;position:relative;font-size:15px;
+}
+.note{background:var(--blue-soft);border:1px solid #cfe0f0;color:#234a72;}
+.warn{background:var(--amber-soft);border:1px solid #efdcb5;color:#7a4a0a;}
+.danger{background:var(--red-soft);border:1px solid #ecd0cd;color:#8c2f28;}
+.key{background:#f4efe2;border:1px solid #e5dcc0;color:#5d5230;}
+.ai{background:#eef0fa;border:1px solid #d7dbef;color:#333a63;}
+.note::before,.warn::before,.danger::before,.key::before,.ai::before{
+  position:absolute;left:14px;top:12px;width:20px;height:20px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;
+}
+.note::before{content:"i";background:var(--blue);}
+.warn::before{content:"!";background:var(--amber);}
+.danger::before{content:"×";background:var(--red);}
+.key::before{content:"★";background:#9c8a4a;}
+.ai::before{content:"AI";font-size:10px;background:#4c5691;letter-spacing:0;}
+/* 本节小结 */
+.sumline{
+  background:var(--green-soft);border:1px solid #cfe6d1;border-left:5px solid var(--green);
+  border-radius:10px;padding:10px 16px;margin:12px 0 6px;font-size:15px;color:#215c26;
+}
+.sumline b{color:#1b4d1f;}
+.sumline code.inline{background:#fff;border-color:#cfe6d1;color:#215c26;}
+/* 配套视频 */
+.vid{
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:10px 0 4px;
+  background:#f7f4ec;border:1px solid var(--line-soft);border-left:5px solid var(--blue);
+  border-radius:10px;padding:9px 14px;font-size:14px;
+}
+.vid .vtag{font-size:12px;color:#fff;background:var(--blue);border-radius:999px;padding:1px 10px;flex:0 0 auto;}
+.vid a{color:var(--blue-deep);font-weight:700;text-decoration:none;border-bottom:1px solid #cfe0f0;}
+.vid a:hover{border-bottom-color:var(--blue);}
+.vid .vmeta{color:var(--ink-faint);font-size:12.5px;}
+/* ===== 表格 ===== */
+.tbl-wrap{overflow-x:auto;margin:14px 0;border:1px solid var(--line);border-radius:10px;}
+table{width:100%;border-collapse:collapse;font-size:15px;background:#fff;}
+th,td{padding:9px 14px;border-bottom:1px solid var(--line-soft);text-align:left;vertical-align:top;}
+th{background:var(--blue-soft);color:var(--blue-deep);font-weight:700;white-space:nowrap;}
+tbody tr:nth-child(even){background:#faf7f0;}
+tbody tr:last-child td{border-bottom:none;}
+td code.inline,th code.inline{white-space:nowrap;}
+.mini-table td{font-size:14px;}
+/* ===== 演示代码 ===== */
+.demo{border-radius:12px;overflow:hidden;border:1px solid #33364a;margin:16px 0;background:var(--code-bg);}
+.demo-head{
+  display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;
+  background:var(--code-hd);padding:8px 14px;border-bottom:1px solid #2e3142;
+}
+.demo-title{font-size:14px;color:#c8cde0;}
+.demo-actions{display:flex;gap:8px;}
+.btn{
+  font-family:inherit;font-size:13px;cursor:pointer;border-radius:8px;padding:4px 14px;
+  border:1px solid #3d4157;color:#d7dae8;background:#2b2e40;transition:all .15s;
+}
+.btn:hover{background:#383c52;}
+.btn-run{background:#1f6f43;border-color:#2b8a57;color:#fff;}
+.btn-run:hover{background:#26804f;}
+.btn.ok{background:var(--green);border-color:var(--green);color:#fff;}
+pre.code{
+  font-family:"Times New Roman","宋体",SimSun,serif;font-size:15px;line-height:1.75;
+  color:var(--code-txt);padding:14px 18px;overflow-x:auto;tab-size:4;
+}
+.demo-out{display:none;border-top:1px solid #2e3142;background:#12141c;padding:0 0 10px;}
+.demo.shown .demo-out{display:block;}
+.out-label{font-size:12px;color:#6b7288;letter-spacing:1px;padding:8px 18px 4px;border-bottom:1px solid #232634;}
+pre.out{
+  font-family:"Times New Roman","宋体",SimSun,serif;font-size:15px;line-height:1.7;
+  padding:10px 18px;color:#d6d9e4;overflow-x:auto;white-space:pre-wrap;
+}
+.demo.flash .demo-out{background:#16202c;}
+/* ===== 插图 ===== */
+.figure{margin:18px 0;text-align:center;}
+.figure img{max-width:100%;border:1px solid var(--line);border-radius:12px;background:#fff;padding:6px;}
+.figure figcaption{font-size:13px;color:var(--ink-soft);margin-top:8px;line-height:1.7;}
+.figsvg{background:#fbf8f1;border:1px solid var(--line);border-radius:12px;padding:14px 12px;margin:18px 0;}
+.figsvg svg{display:block;max-width:100%;height:auto;margin:0 auto;}
+.figsvg .figcap{font-size:13px;color:var(--ink-soft);text-align:center;margin-top:10px;line-height:1.7;}
+.figsvg svg text{font-family:"Times New Roman","宋体",SimSun,serif;}
+.grid2fig{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:16px 0;}
+@media(max-width:860px){.grid2fig{grid-template-columns:1fr;}}
+/* ===== 网格 ===== */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:16px 0;}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:16px 0;}
+.grid2 .cell,.grid3 .cell{background:#faf7f0;border:1px solid var(--line-soft);border-radius:12px;padding:16px 18px;}
+.cell h4{margin-top:0;}
+.cell ul{margin-left:20px;}
+.cell li{font-size:15px;}
+@media(max-width:860px){.grid2,.grid3{grid-template-columns:1fr;}}
+/* ===== 步骤 ===== */
+.step-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:16px 0;}
+.step-card{background:#faf7f0;border:1px solid var(--line-soft);border-radius:12px;padding:14px 16px;}
+.step-card .sc-no{font-size:12px;color:var(--blue);font-weight:700;letter-spacing:1px;}
+.step-card .sc-title{font-size:16px;font-weight:700;color:var(--blue-deep);margin:4px 0;}
+.step-card .sc-desc{font-size:14px;color:var(--ink-soft);line-height:1.7;}
+@media(max-width:860px){.step-grid{grid-template-columns:1fr 1fr;}}
+@media(max-width:560px){.step-grid{grid-template-columns:1fr;}}
+/* ===== 知识树 ===== */
+.tree{font-size:15px;line-height:1.7;border:1px solid var(--line);border-radius:12px;background:#fbf8f1;padding:16px 14px;}
+.tree .root-node{
+  display:inline-block;background:var(--blue-deep);color:#fff;font-weight:700;
+  border-radius:999px;padding:5px 22px;margin:4px 0 12px;
+}
+.tree .tn{display:flex;align-items:center;gap:6px;padding:4px 10px;border-radius:8px;cursor:pointer;color:var(--ink);transition:background .15s;}
+.tree .tn:hover{background:#f0ecdf;}
+.tree .tn .tw{flex:0 0 auto;width:14px;height:14px;display:inline-flex;align-items:center;justify-content:center;color:#9a937f;font-size:10px;transition:transform .2s;user-select:none;}
+.tree .tn.open .tw{transform:rotate(90deg);}
+.tree .tn.branch{font-weight:700;}
+.tree .tn .golink{color:#7a9cc7;font-size:11px;border:1px solid #c9d8ea;border-radius:999px;padding:0 6px;margin-left:auto;background:#fff;flex:0 0 auto;}
+.tree .tn.leaf{cursor:pointer;color:var(--ink-soft);}
+.tree .kids{border-left:2px solid #e0d9c6;margin-left:16px;padding-left:6px;display:none;}
+.tree .kids.show{display:block;}
+.tree .b-blue .tn.branch{color:var(--blue-deep);}
+.tree .b-amber .tn.branch{color:var(--amber);}
+.tree .b-green .tn.branch{color:var(--green);}
+.tree .b-purple .tn.branch{color:#6d4fa8;}
+.tree .legend{font-size:12px;color:var(--ink-faint);margin-top:10px;padding-top:8px;border-top:1px dashed var(--line);}
+/* ===== 卡片网格 ===== */
+.map-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;margin:16px 0;}
+.map-card{
+  background:#faf7f0;border:1px solid var(--line-soft);border-radius:12px;padding:16px 18px;
+  transition:all .2s;text-decoration:none;color:var(--ink);display:block;
+}
+.map-card:hover{border-color:var(--blue);box-shadow:0 4px 14px rgba(48,105,152,.12);transform:translateY(-2px);}
+.map-card .mc-num{font-size:13px;color:var(--blue);font-weight:700;}
+.map-card .mc-title{font-size:18px;font-weight:700;color:var(--blue-deep);margin:4px 0 6px;}
+.map-card .mc-desc{font-size:14px;color:var(--ink-soft);line-height:1.7;}
+/* ===== 交互演示 ===== */
+.inter{background:#faf7f0;border:1px solid var(--line-soft);border-radius:12px;padding:16px 18px;margin:16px 0;}
+.inter h4{margin-top:0;}
+.inter-row{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;margin:10px 0;}
+.inter-row label{font-size:14px;color:var(--ink-soft);display:flex;align-items:center;gap:6px;}
+.inter-row input{
+  font-family:inherit;font-size:14px;color:var(--ink);background:#fff;border:1px solid var(--line);
+  border-radius:8px;padding:5px 10px;width:150px;
+}
+.inter-row input.wide{width:260px;}
+.inter-row select{
+  font-family:inherit;font-size:14px;color:var(--ink);background:#fff;border:1px solid var(--line);
+  border-radius:8px;padding:5px 8px;
+}
+.inter-row input:focus{outline:none;border-color:var(--blue);}
+.inter-btn{
+  font-family:inherit;font-size:14px;cursor:pointer;border-radius:8px;padding:5px 16px;
+  border:1px solid var(--blue);background:var(--blue);color:#fff;
+}
+.inter-btn:hover{background:var(--blue-deep);border-color:var(--blue-deep);}
+.inter-out{
+  font-family:"Times New Roman","宋体",SimSun,serif;font-size:14.5px;line-height:1.7;
+  background:#12141c;color:#d6d9e4;border-radius:8px;padding:10px 14px;margin-top:10px;
+  white-space:pre-wrap;min-height:44px;
+}
+/* ===== 动态演示图（可播放 / 单步） ===== */
+.anim{border:1px solid var(--line);border-radius:12px;background:#fbf8f1;margin:18px 0;overflow:hidden;}
+.anim-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;background:var(--blue-deep);color:#fff;padding:8px 14px;}
+.anim-title{font-size:14px;font-weight:700;}
+.anim-actions{display:flex;gap:6px;flex-wrap:wrap;}
+.anim-actions .btn{background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.4);color:#fff;padding:3px 12px;}
+.anim-actions .btn:hover{background:rgba(255,255,255,.3);}
+.anim-actions .btn-play{background:#2e7d32;border-color:#2e7d32;font-weight:700;}
+.anim-stage{padding:16px 14px;min-height:150px;display:flex;flex-direction:column;gap:12px;align-items:center;justify-content:center;}
+.anim-status{border-top:1px dashed var(--line);padding:9px 16px;font-size:14px;color:var(--ink-soft);display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:flex-start;}
+.anim-progress{color:var(--ink-faint);font-size:12.5px;white-space:nowrap;}
+.acells{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;align-items:flex-start;}
+.acell{min-width:58px;height:50px;padding:0 6px;border-radius:9px;border:2px solid var(--line);background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:var(--ink);transition:all .3s;}
+.acell small{font-size:11px;font-weight:400;color:var(--ink-faint);margin-top:1px;}
+.acell.hi{background:var(--blue-soft);border-color:var(--blue);color:var(--blue-deep);}
+.acell.ok{background:var(--green-soft);border-color:var(--green);color:#215c26;}
+.acell.no{background:var(--red-soft);border-color:var(--red);color:#8c2f28;}
+.acell.dim{opacity:.4;}
+.acell.nested{font-size:13px;background:#fff7e6;border-color:var(--gold);color:#7a4a0a;}
+.arow{display:flex;gap:12px;align-items:center;justify-content:center;flex-wrap:wrap;}
+.alabel{font-size:13.5px;font-weight:700;color:var(--blue-deep);min-width:70px;text-align:right;}
+.abars{display:flex;gap:12px;align-items:flex-end;justify-content:center;height:158px;}
+.abar{width:48px;border-radius:8px 8px 0 0;background:linear-gradient(180deg,#4a86bd,#306998);color:#fff;font-size:13px;display:flex;align-items:flex-start;justify-content:center;padding-top:5px;transition:height .3s, background .3s;}
+.abar.hi{background:linear-gradient(180deg,#e0a63a,#b8860b);}
+.abar.done{background:linear-gradient(180deg,#57a05c,#2e7d32);}
+.abar.no{background:linear-gradient(180deg,#c96a63,#a8433b);}
+.anote{font-size:13.5px;color:#7a4a0a;background:var(--amber-soft);border:1px solid #efdcb5;border-radius:8px;padding:5px 12px;}
+.aresult{font-size:14px;color:#215c26;background:var(--green-soft);border:1px solid #cfe6d1;border-radius:8px;padding:6px 14px;font-weight:700;}
+@media(max-width:720px){.anim-stage{padding:12px 8px;}.acell{min-width:46px;height:44px;font-size:14px;}.abar{width:36px;}}
+/* ===== 小结 / 作业 ===== */
+.recap{background:#faf7f0;border:1px solid var(--line-soft);border-radius:12px;padding:16px 20px;margin:14px 0;}
+.homework{border:1px dashed var(--blue);border-radius:12px;background:var(--blue-soft);padding:16px 22px;margin:14px 0;}
+.homework h4{color:var(--blue-deep);margin-top:0;}
+.nextcard{
+  display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;
+  background:linear-gradient(120deg,#1b3157,#306998);color:#fff;border-radius:12px;padding:18px 22px;margin:16px 0;
+  text-decoration:none;
+}
+.nextcard .nc-title{font-size:18px;font-weight:700;}
+.nextcard .nc-desc{font-size:14px;color:#dbe6f5;}
+.nextcard .nc-go{font-size:14px;border:1px solid rgba(255,255,255,.5);border-radius:999px;padding:4px 16px;color:#fff;}
+.nextcard:hover .nc-go{background:#fff;color:var(--blue-deep);}
+/* 页脚 */
+footer{background:#1c2b44;color:#b9c6dc;text-align:center;padding:26px 20px;font-size:14px;}
+footer .f-main{color:#fff;font-size:16px;margin-bottom:4px;}
+footer a{color:#dfe7f4;text-decoration:none;}
+footer a:hover{text-decoration:underline;}
+/* 回到顶部 */
+#toTop{
+  position:fixed;right:22px;bottom:26px;width:44px;height:44px;border-radius:50%;border:none;
+  font-family:"Times New Roman","宋体",SimSun,serif;font-weight:700;
+  background:var(--blue-deep);color:#fff;font-size:18px;cursor:pointer;box-shadow:0 4px 14px rgba(31,56,100,.35);
+  opacity:0;pointer-events:none;transition:all .25s;z-index:60;
+}
+#toTop.show{opacity:1;pointer-events:auto;}
+#toTop:hover{background:var(--blue);}
+/* ===== 响应式 ===== */
+@media(max-width:720px){
+  body{font-size:15px;}
+  .hero h1{font-size:27px;}
+  .hero{padding:34px 16px 30px;}
+  section{padding:22px 18px;}
+  .sec-head h2{font-size:21px;}
+  .sec-num{min-width:38px;height:38px;font-size:15px;}
+  pre.code{font-size:14px;padding:12px 14px;}
+  pre.out{font-size:14px;padding:8px 14px;}
+  .demo-head{flex-direction:column;align-items:flex-start;}
+}
+</style>
+<style>
+/* ===== 第 5 次课《函数与类》补充组件 ===== */
+.cmp{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:16px 0;}
+.cmp .cmp-box{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff;}
+.cmp .cmp-h{font-size:13.5px;font-weight:700;padding:6px 12px;background:var(--blue-soft);color:var(--blue-deep);border-bottom:1px solid var(--line);}
+.cmp .cmp-h.bad{background:var(--red-soft);color:#8c2f28;}
+.cmp .cmp-h.good{background:var(--green-soft);color:#215c26;}
+.cmp pre{margin:0;font-family:"Consolas","Courier New",monospace;font-size:13px;line-height:1.7;padding:10px 14px;background:#fdfbf6;color:#2b2820;white-space:pre-wrap;overflow-x:auto;}
+.scope-box{border:2px dashed #c9c2ae;border-radius:12px;padding:12px 16px;margin:14px 0;background:#fdfbf6;}
+.scope-box .sb-title{font-size:13px;font-weight:700;color:var(--blue-deep);letter-spacing:.5px;margin-bottom:6px;}
+.scope-box .sb-inner{border:2px solid var(--blue);border-radius:10px;padding:10px 14px;background:#fff;margin-top:8px;}
+.scope-box .sb-cap{font-size:13px;color:var(--ink-soft);margin-top:8px;}
+.sv{display:inline-block;font-family:Consolas,monospace;background:#fff;border:1px solid var(--line);border-radius:6px;padding:1px 8px;margin:2px 4px 2px 0;font-size:13.5px;}
+.sv.local{background:#fff7e6;border-color:var(--gold);color:#7a4a0a;}
+.sv.global{background:var(--blue-soft);border-color:#cfe0f0;color:#234a72;}
+.chips{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;}
+.chip{font-family:Consolas,monospace;font-size:13.5px;border:1.5px solid var(--line);background:#fff;border-radius:8px;padding:5px 10px;color:var(--ink);}
+.chip.ph{background:#f4efe2;border-color:#e5dcc0;color:#5d5230;}
+.chip.va{background:var(--green-soft);border-color:var(--green);color:#215c26;font-weight:700;}
+.chip.no{background:var(--red-soft);border-color:var(--red);color:#8c2f28;}
+.callstack{display:flex;flex-direction:column;gap:6px;min-width:270px;}
+.cframe{border:1.5px solid var(--line);border-radius:9px;background:#fff;padding:6px 12px;font-size:13.5px;font-family:Consolas,monospace;display:flex;justify-content:space-between;gap:10px;transition:all .25s;}
+.cframe.act{background:var(--blue-soft);border-color:var(--blue);color:var(--blue-deep);font-weight:700;}
+.cframe.ret{background:var(--green-soft);border-color:var(--green);color:#215c26;}
+.objcard{border:1px solid var(--line);border-radius:12px;background:#fbf8f1;padding:12px 16px;text-align:center;}
+.objcard .oc-h{font-size:13px;color:var(--ink-faint);}
+.objcard .oc-b{font-size:15px;font-weight:700;color:var(--blue-deep);font-family:Consolas,monospace;margin-top:4px;}
+.rev{background:#f7f4ec;border:1px solid var(--line);border-radius:12px;padding:14px 18px;margin:16px 0;}
+.rev .rev-title{font-size:15px;font-weight:700;color:var(--blue-deep);margin-bottom:6px;}
+@media(max-width:720px){
+  .cmp{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<!-- ===== 顶部 ===== -->
+<header class="hero">
+  <div class="hero-inner">
+    <span class="kicker">Python 大数据分析基础 · 第 5 次课</span>
+    <h1>第 5 章　函数与类</h1>
+    <p class="sub">函数的定义与调用 · 函数参数 · 变量作用域 · lambda 表达式 · 递归（选学） · 类与对象 · 综合应用（7 个知识模块 + 40 余段可运行演示 + 15 张插图 + 6 个动态演示图）</p>
+    <div class="meta">
+      <span>中华女子学院</span><span>4 学时（讲授 2 + 上机 2）</span><span>授课人：孙琪翔</span><span>第 6—7 周</span>
+    </div>
+  </div>
+</header>
+
+<!-- ===== 目录导航 ===== -->
+<nav class="nav" id="nav">
+  <div class="nav-inner" id="navInner">
+    <a href="python-bigdata-2026.html" class="nav-back">← 课程主页</a>
+    <a href="#guide" data-sec="guide" class="on">本讲导览</a>
+    <a href="#c1" data-sec="c1">一、函数基础</a>
+    <a href="#c2" data-sec="c2">二、函数参数</a>
+    <a href="#c3" data-sec="c3">三、变量作用域</a>
+    <a href="#c4" data-sec="c4">四、lambda</a>
+    <a href="#c5" data-sec="c5">五、递归（选学）</a>
+    <a href="#c6" data-sec="c6">六、类与对象</a>
+    <a href="#c7" data-sec="c7">七、综合应用</a>
+    <a href="#lab" data-sec="lab">八、交互演示</a>
+    <a href="#summary" data-sec="summary">小结 · 作业</a>
+  </div>
+</nav>
+
+<main>
+
+<!-- ===== 导览 ===== -->
+<section id="guide">
+  <div class="sec-head">
+    <div class="sec-num">导</div>
+    <div>
+      <h2>本讲导览</h2>
+      <p class="sec-sub">Lesson Overview · 从"把代码写下来"到"把功能装起来"</p>
+    </div>
+  </div>
+
+  <p>前四章写的程序，都是"从上往下一路执行"。程序一长，就会遇到两个麻烦：<strong>同样的几行代码重复写好几遍</strong>，以及<strong>主程序被细节淹没，看不出在做什么</strong>。函数就是解决这两个麻烦的工具——把一段有特定功能的代码<strong>装起来、起个名字</strong>，需要的时候喊名字就行。这一章还会往前走一步，认识"类"：它是把<strong>数据</strong>和<strong>操作数据的函数</strong>装在一起的容器。</p>
+
+  <div class="step-grid">
+    <div class="step-card">
+      <div class="sc-no">第 1 讲 · 45 分钟</div>
+      <div class="sc-title">函数基础与参数</div>
+      <div class="sc-desc">为什么要函数 · def 定义语法 · 调用与执行过程 · return 的三种情况 · 位置 / 默认值 / 关键字 / 可变长参数</div>
+    </div>
+    <div class="step-card">
+      <div class="sc-no">第 2 讲 · 45 分钟</div>
+      <div class="sc-title">作用域 · lambda · 类</div>
+      <div class="sc-desc">局部变量与全局变量 · global · lambda 表达式 · 类与对象 · __init__ 与 self · 圆的面积与周长</div>
+    </div>
+    <div class="step-card">
+      <div class="sc-no">上机一 · 45 分钟</div>
+      <div class="sc-title">把重复代码改造成函数</div>
+      <div class="sc-desc">成绩平均分 · 分段函数 · 阶梯水费 · 三角形面积 · 默认值与关键字参数改写</div>
+    </div>
+    <div class="step-card">
+      <div class="sc-no">上机二 · 45 分钟</div>
+      <div class="sc-title">类的第一次实践</div>
+      <div class="sc-desc">定义圆类 · 创建对象 · 学生成绩类 · 用 lambda 给结果排序 · 综合应用题</div>
+    </div>
+  </div>
+
+  <div class="note">
+    <strong>学习目标</strong>：① 会写 <code class="inline">def</code> 定义函数并正确调用，说清形参与实参的区别；② 掌握位置参数、默认值参数、关键字参数、可变长参数四种传参方式，知道各自的报错情况；③ 能区分局部变量与全局变量，会用 <code class="inline">global</code> 在函数内修改全局变量；④ 会写 lambda 表达式，能用 <code class="inline">sorted(key=...)</code> 按自定义规则排序；⑤（选学）理解递归的终止条件与调用栈；⑥ 会用 <code class="inline">class</code> 定义类、用 <code class="inline">__init__</code> 初始化属性、创建对象并调用方法；⑦ 能把"重复代码"识别出来并改造成函数。
+  </div>
+
+  <h3>本课地图</h3>
+  <div class="map-grid">
+    <a class="map-card" href="#c1"><div class="mc-num">模块一</div><div class="mc-title">函数基础</div><div class="mc-desc">为什么要函数、def 语法、调用执行过程、return 与 print 的区别</div></a>
+    <a class="map-card" href="#c2"><div class="mc-num">模块二</div><div class="mc-title">函数参数（重点）</div><div class="mc-desc">位置参数 · 默认值参数 · 关键字参数 · *args / **kwargs</div></a>
+    <a class="map-card" href="#c3"><div class="mc-num">模块三</div><div class="mc-title">变量作用域</div><div class="mc-desc">局部变量 · 全局变量 · 同名遮蔽 · global 关键字</div></a>
+    <a class="map-card" href="#c4"><div class="mc-num">模块四</div><div class="mc-title">lambda 表达式</div><div class="mc-desc">匿名函数、一行写完、配合 sorted / max 的 key 使用</div></a>
+    <a class="map-card" href="#c5"><div class="mc-num">模块五</div><div class="mc-title">递归（选学）</div><div class="mc-desc">终止条件、调用栈、阶乘与斐波那契</div></a>
+    <a class="map-card" href="#c6"><div class="mc-num">模块六</div><div class="mc-title">类与对象</div><div class="mc-desc">类 = 模板，对象 = 实例；__init__、self、属性与方法</div></a>
+    <a class="map-card" href="#c7"><div class="mc-num">模块七</div><div class="mc-title">综合应用</div><div class="mc-desc">分段函数、阶梯水费、三角形面积、作业与 AI 渗透</div></a>
+    <a class="map-card" href="#lab"><div class="mc-num">模块八</div><div class="mc-title">交互演示</div><div class="mc-desc">参数绑定模拟器、调用栈、作用域查询、排序器（网页上直接跑）</div></a>
+  </div>
+
+  <h3>本章知识点总览</h3>
+  <p>点击节点可跳转到对应讲解位置，点击三角可展开 / 收起分支。</p>
+  <div class="tree" id="knowledgeTree">
+    <div class="root-node">第 5 章　函数与类</div>
+    <div class="kids show">
+      <div class="b-blue">
+        <div class="tn branch open" data-target="c1"><span class="tw">▶</span>函数的定义与调用<span class="golink">模块一</span></div>
+        <div class="kids show">
+          <div class="tn leaf" data-target="c1-1">为什么需要函数：复用与模块化</div>
+          <div class="tn leaf" data-target="c1-2">定义语法：def / 形参表 / 冒号 / 缩进</div>
+          <div class="tn leaf" data-target="c1-3">返回值：return、多个返回值、没有 return 得 None</div>
+          <div class="tn leaf" data-target="c1-4">调用与执行过程：实参 → 形参 → 函数体 → 返回值</div>
+        </div>
+      </div>
+      <div class="b-amber">
+        <div class="tn branch open" data-target="c2"><span class="tw">▶</span>函数参数<span class="golink">模块二</span></div>
+        <div class="kids show">
+          <div class="tn leaf" data-target="c2-1">位置参数：数量、顺序必须一致</div>
+          <div class="tn leaf" data-target="c2-2">默认值参数：不传就用默认值，且必须写在最后</div>
+          <div class="tn leaf" data-target="c2-3">关键字参数：按名字传，顺序可换</div>
+          <div class="tn leaf" data-target="c2-4">可变长参数：*args 打包成元组、**kwargs 打包成字典</div>
+        </div>
+      </div>
+      <div class="b-green">
+        <div class="tn branch open" data-target="c3"><span class="tw">▶</span>变量作用域<span class="golink">模块三</span></div>
+        <div class="kids show">
+          <div class="tn leaf" data-target="c3-1">局部变量与全局变量</div>
+          <div class="tn leaf" data-target="c3-2">同名时局部优先</div>
+          <div class="tn leaf" data-target="c3-3">global：在函数内修改全局变量</div>
+        </div>
+      </div>
+      <div class="b-purple">
+        <div class="tn branch open" data-target="c4"><span class="tw">▶</span>lambda · 递归 · 类<span class="golink">模块四—六</span></div>
+        <div class="kids show">
+          <div class="tn leaf" data-target="c4-1">lambda 语法：一行写完一个函数</div>
+          <div class="tn leaf" data-target="c4-2">配合 sorted / max 的 key 使用</div>
+          <div class="tn leaf" data-target="c5-1">递归的两个要素：终止条件 + 自己调用自己</div>
+          <div class="tn leaf" data-target="c6-1">类与对象：模板与实例</div>
+          <div class="tn leaf" data-target="c6-2">定义类：class / __init__ / self</div>
+          <div class="tn leaf" data-target="c6-3">创建对象、访问属性与方法</div>
+        </div>
+      </div>
+      <div class="b-blue">
+        <div class="tn branch open" data-target="c7"><span class="tw">▶</span>综合应用与 AI 渗透<span class="golink">模块七</span></div>
+        <div class="kids show">
+          <div class="tn leaf" data-target="c7-1">分段函数</div>
+          <div class="tn leaf" data-target="c7-2">阶梯水费（函数改造版）</div>
+          <div class="tn leaf" data-target="c7-3">三角形面积（海伦公式）</div>
+          <div class="tn leaf" data-target="c7-4">上机任务与课后作业</div>
+          <div class="tn leaf" data-target="c7-5">AI 渗透：函数、参数与类在 AI 里的对应物</div>
+        </div>
+      </div>
+    </div>
+    <div class="legend">说明：本章依据课程课件《5-函数 - 新》《5-函数与类》与《Python 编程与数据分析基础》（陈洁、刘姝，清华大学出版社）第 5 章整理；页面中每段代码都是真实运行后回填的结果，运行结果默认隐藏，点"运行"才显示。</div>
+  </div>
+
+  <div class="warn"><strong>先记住三句话</strong>：① 函数是"给一段代码起名字"，<code class="inline">def</code> 是定义，写函数名加括号是调用；② 参数是"调用时递进去的东西"，按位置递、按名字递、不递就用默认值；③ 变量有"地盘"——函数内部定义的变量出了函数就没了，这就是作用域。</div>
+</section>
+
+<!-- ===== 模块一：函数基础 ===== -->
+<section id="c1">
+  <div class="sec-head">
+    <div class="sec-num">一</div>
+    <div>
+      <h2>函数的定义与调用 <span class="tag red">本章重点</span></h2>
+      <p class="sec-sub">为什么要函数 · def 语法 · 调用与执行过程 · return 与 print 的区别 · 例 5-1 成绩平均分</p>
+    </div>
+  </div>
+
+  <h3 id="c1-1">1.1 为什么需要函数</h3>
+  <p>函数是<strong>实现特定功能的代码段</strong>。Python 里能用的函数有三类：内置函数（<code class="inline">print</code>、<code class="inline">len</code>、<code class="inline">sum</code> 这些，拿了就用）、标准库函数（要先 <code class="inline">import</code>，比如 <code class="inline">math.sqrt</code>）、以及<strong>我们自己写的函数</strong>。本章讲的就是第三类。</p>
+
+  <div class="figsvg">
+    <svg viewBox="0 0 900 236" width="900" height="236" role="img" aria-label="Python 里三类函数：内置函数、标准库函数、自定义函数">
+      <text x="450" y="24" text-anchor="middle" font-size="17" font-weight="700" fill="#1f3864">Python 里能用的三类函数</text>
+      <rect x="16" y="42" width="276" height="152" rx="12" fill="#eaf1f8" stroke="#306998" stroke-width="1.6"/>
+      <text x="154" y="70" text-anchor="middle" font-size="15" font-weight="700" fill="#1f3864">① 内置函数</text>
+      <text x="154" y="98" text-anchor="middle" font-size="13" fill="#2b2820">print()  input()  len()  sum()</text>
+      <text x="154" y="120" text-anchor="middle" font-size="13" fill="#2b2820">max()  min()  round()  sorted()</text>
+      <text x="154" y="150" text-anchor="middle" font-size="13.5" font-weight="700" fill="#215c26">拿了就用，不用导入</text>
+      <text x="154" y="176" text-anchor="middle" font-size="12.5" fill="#5d594c">第 2 章已经用过一大部分</text>
+      <rect x="312" y="42" width="276" height="152" rx="12" fill="#fff7e6" stroke="#b8860b" stroke-width="1.6"/>
+      <text x="450" y="70" text-anchor="middle" font-size="15" font-weight="700" fill="#7a4a0a">② 标准库 / 第三方库函数</text>
+      <text x="450" y="98" text-anchor="middle" font-size="13" fill="#2b2820">import math → math.sqrt()  math.pi</text>
+      <text x="450" y="120" text-anchor="middle" font-size="13" fill="#2b2820">import random → random.randint()</text>
+      <text x="450" y="150" text-anchor="middle" font-size="13.5" font-weight="700" fill="#7a4a0a">先 import，再调用</text>
+      <text x="450" y="176" text-anchor="middle" font-size="12.5" fill="#5d594c">库 = 别人写好的函数集合</text>
+      <rect x="608" y="42" width="276" height="152" rx="12" fill="#eaf7ea" stroke="#2e7d32" stroke-width="1.6"/>
+      <text x="746" y="70" text-anchor="middle" font-size="15" font-weight="700" fill="#215c26">③ 自定义函数</text>
+      <text x="746" y="98" text-anchor="middle" font-size="13" fill="#2b2820">def cal_avg(alist): …</text>
+      <text x="746" y="120" text-anchor="middle" font-size="13" fill="#2b2820">自己的算法，起个名字装起来</text>
+      <text x="746" y="150" text-anchor="middle" font-size="13.5" font-weight="700" fill="#215c26">本章主角</text>
+      <text x="746" y="176" text-anchor="middle" font-size="12.5" fill="#5d594c">复用 + 模块化，都靠它</text>
+      <text x="450" y="222" text-anchor="middle" font-size="13" fill="#5d594c">三类的调用写法完全一样：<tspan font-weight="700" fill="#1f3864">函数名(参数)</tspan></text>
+    </svg>
+    <div class="figcap">图 5-1　函数的三个来源：内置、库、自定义——区别只在"从哪来"，调用方式都一样</div>
+  </div>
+
+  <p>不用函数会怎样？看下面这张对比图：左边是"同一个算法抄三遍"，右边是"写一遍、调三次"。程序一旦变长，左边的写法改一处就会漏改另一处。</p>
+
+  <div class="figsvg">
+    <svg viewBox="0 0 900 280" width="900" height="280" role="img" aria-label="重复代码与函数写法对比">
+      <text x="222" y="24" text-anchor="middle" font-size="16" font-weight="700" fill="#a8433b">不用函数：同一段代码抄三遍</text>
+      <text x="672" y="24" text-anchor="middle" font-size="16" font-weight="700" fill="#215c26">用函数：写一遍，调三次</text>
+      <g font-size="12.5" font-family="Consolas,monospace">
+        <rect x="24" y="40" width="396" height="52" rx="8" fill="#fdfbf6" stroke="#e4ddcc"/>
+        <text x="36" y="60" fill="#2b2820">s1 = [75, 80, 85, 70, 65, 90]</text>
+        <text x="36" y="80" fill="#2b2820">print(round(sum(s1)/len(s1), 1))</text>
+        <rect x="24" y="104" width="396" height="52" rx="8" fill="#fdfbf6" stroke="#e4ddcc"/>
+        <text x="36" y="124" fill="#2b2820">s2 = [88, 92, 79]</text>
+        <text x="36" y="144" fill="#2b2820">print(round(sum(s2)/len(s2), 1))</text>
+        <rect x="24" y="168" width="396" height="52" rx="8" fill="#fdfbf6" stroke="#e4ddcc"/>
+        <text x="36" y="188" fill="#2b2820">s3 = [60, 66, 72, 58]</text>
+        <text x="36" y="208" fill="#2b2820">print(round(sum(s3)/len(s3), 1))</text>
+        <rect x="476" y="40" width="400" height="86" rx="8" fill="#eaf7ea" stroke="#2e7d32" stroke-width="1.4"/>
+        <text x="488" y="60" fill="#215c26" font-weight="700">def cal_avg(alist):</text>
+        <text x="488" y="80" fill="#215c26" font-weight="700">    return round(sum(alist)/len(alist), 1)</text>
+        <text x="488" y="104" fill="#5d594c"># 算法只写一遍</text>
+        <rect x="476" y="140" width="400" height="80" rx="8" fill="#fdfbf6" stroke="#e4ddcc"/>
+        <text x="488" y="162" fill="#2b2820">print(cal_avg([75, 80, 85, 70, 65, 90]))</text>
+        <text x="488" y="184" fill="#2b2820">print(cal_avg([88, 92, 79]))</text>
+        <text x="488" y="206" fill="#2b2820">print(cal_avg([60, 66, 72, 58]))</text>
+      </g>
+      <text x="222" y="246" text-anchor="middle" font-size="13" fill="#8c2f28">改算法要改 3 处，容易漏</text>
+      <text x="672" y="246" text-anchor="middle" font-size="13" fill="#215c26">改算法只改 1 处</text>
+      <text x="450" y="272" text-anchor="middle" font-size="12.5" fill="#5d594c">函数带来的两件事：<tspan font-weight="700">代码复用率</tspan>提高、主程序<tspan font-weight="700">模块化</tspan>（看得清在做什么）</text>
+    </svg>
+    <div class="figcap">图 5-2　同一个"求平均分"的两种写法：右边的 <code class="inline">cal_avg()</code> 可以复用无数次</div>
+  </div>
+
+  <div class="demo" data-demo="k1-builtin">
+    <div class="demo-head">
+      <span class="demo-title">先热身：这些内置函数你已经用过了</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">nums = [75, 80, 85, 70, 65, 90]
+print('长度：', len(nums))
+print('总和：', sum(nums))
+print('最大值 / 最小值：', max(nums), min(nums))
+print('平均分：', round(sum(nums) / len(nums), 1))
+print('排序后（不改原列表）：', sorted(nums))
+print('绝对值与幂：', abs(-3), pow(2, 10))
+print('四舍五入：', round(3.14159, 2), round(2.5), round(3.5))</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+长度： 6
+总和： 465
+最大值 / 最小值： 90 65
+平均分： 77.5
+排序后（不改原列表）： [65, 70, 75, 80, 85, 90]
+绝对值与幂： 3 1024
+四舍五入： 3.14 2 4
+</pre></div>
+  </div>
+
+  <div class="demo" data-demo="k1-repeat">
+    <div class="demo-head">
+      <span class="demo-title">同一个算法：抄三遍 vs 写一遍调三次</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">s1 = [75, 80, 85, 70, 65, 90]
+s2 = [88, 92, 79]
+s3 = [60, 66, 72, 58]
+
+# 写法一：每算一次，就把公式抄一遍
+print('第 1 组平均分：', round(sum(s1) / len(s1), 1))
+print('第 2 组平均分：', round(sum(s2) / len(s2), 1))
+print('第 3 组平均分：', round(sum(s3) / len(s3), 1))
+print('-' * 24)
+
+# 写法二：把公式装进函数，然后调用三次
+def cal_avg(alist):
+    return round(sum(alist) / len(alist), 1)
+
+print('第 1 组平均分：', cal_avg(s1))
+print('第 2 组平均分：', cal_avg(s2))
+print('第 3 组平均分：', cal_avg(s3))</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+第 1 组平均分： 77.5
+第 2 组平均分： 86.3
+第 3 组平均分： 64.0
+------------------------
+第 1 组平均分： 77.5
+第 2 组平均分： 86.3
+第 3 组平均分： 64.0
+</pre></div>
+  </div>
+
+  <div class="sumline">✅ <b>本节小结</b>：函数就是<strong>给一段代码起名字</strong>。好处有两个——<strong>复用</strong>（写一遍调多次）和<strong>模块化</strong>（主程序只看得见"做什么"，看不见"怎么做"）。Python 的函数有三个来源：内置、库、自定义。</div>
+
+  <h3 id="c1-2">1.2 定义函数的语法：五个部分</h3>
+  <p>定义函数用 <code class="inline">def</code> 关键字。下面这张图把一行 <code class="inline">def</code> 语句拆开，每部分都有讲究——尤其注意<strong>冒号</strong>和<strong>缩进</strong>，初学最常见的错误就出在这里。</p>
+
+  <div class="figsvg">
+    <svg viewBox="0 0 900 330" width="900" height="330" role="img" aria-label="def 定义函数的语法结构逐段说明">
+      <text x="450" y="24" text-anchor="middle" font-size="17" font-weight="700" fill="#1f3864">一条 def 语句，拆成五个部分</text>
+      <rect x="60" y="44" width="780" height="132" rx="10" fill="#12141c"/>
+      <g font-family="Consolas,monospace" font-size="17">
+        <text x="84" y="76" fill="#c8cde0"><tspan fill="#7fb3e0" font-weight="700">def</tspan> <tspan fill="#e6c07b" font-weight="700">my_add</tspan>(<tspan fill="#8fd694" font-weight="700">x, y</tspan>):</text>
+        <text x="108" y="104" fill="#9aa3bd">'''add the two arguments'''</text>
+        <text x="108" y="130" fill="#c8cde0">s = x + y</text>
+        <text x="108" y="156" fill="#c8cde0"><tspan fill="#e08b8b" font-weight="700">return</tspan> s</text>
+      </g>
+      <g font-size="13" fill="#2b2820">
+        <line x1="96" y1="86" x2="96" y2="196" stroke="#7fb3e0" stroke-width="1.4"/>
+        <text x="60" y="216" fill="#306998" font-weight="700">def 关键字</text>
+        <text x="60" y="234" font-size="12.5" fill="#5d594c">告诉 Python：</text>
+        <text x="60" y="250" font-size="12.5" fill="#5d594c">下面要定义函数</text>
+        <line x1="176" y1="86" x2="176" y2="272" stroke="#b8860b" stroke-width="1.4"/>
+        <text x="186" y="290" fill="#7a4a0a" font-weight="700">函数名</text>
+        <text x="248" y="290" font-size="12.5" fill="#5d594c">自己起，见名知意，小写字母 + 下划线</text>
+        <line x1="290" y1="86" x2="290" y2="196" stroke="#2e7d32" stroke-width="1.4"/>
+        <text x="300" y="216" fill="#215c26" font-weight="700">形参表（x, y）</text>
+        <text x="300" y="234" font-size="12.5" fill="#5d594c">多个参数用英文逗号分隔，</text>
+        <text x="300" y="250" font-size="12.5" fill="#5d594c">不用写类型</text>
+        <line x1="360" y1="86" x2="360" y2="176" stroke="#4c5691" stroke-width="1.4"/>
+        <text x="370" y="196" fill="#4c5691" font-weight="700">冒号 :</text>
+        <text x="440" y="196" font-size="12.5" fill="#5d594c">后面必须换行 + 缩进</text>
+        <line x1="150" y1="112" x2="150" y2="176" stroke="#8a8577" stroke-width="1.4" stroke-dasharray="3 3"/>
+        <text x="470" y="112" fill="#5d594c" font-weight="700">文档字符串（可选）：写清功能与参数，可用 函数名.__doc__ 查看</text>
+        <line x1="150" y1="136" x2="150" y2="176" stroke="#8a8577" stroke-width="1.4" stroke-dasharray="3 3"/>
+        <text x="470" y="136" fill="#5d594c" font-weight="700">函数体：整体缩进 4 个空格</text>
+        <line x1="150" y1="162" x2="150" y2="176" stroke="#a8433b" stroke-width="1.4"/>
+        <text x="470" y="162" fill="#8c2f28" font-weight="700">return：把结果交回调用处；没有它就返回 None</text>
+      </g>
+      <rect x="60" y="300" width="780" height="24" rx="6" fill="#fff7e6" stroke="#efdcb5"/>
+      <text x="450" y="317" text-anchor="middle" font-size="13" fill="#7a4a0a">记住顺序：<tspan font-weight="700">def → 函数名 → (形参) → : → 缩进的函数体</tspan></text>
+    </svg>
+    <div class="figcap">图 5-3　<code class="inline">def</code> 语句的五个组成部分（颜色与代码块一一对应）</div>
+  </div>
+
+  <div class="demo" data-demo="k1-def">
+    <div class="demo-head">
+      <span class="demo-title">定义 my_add() 并调用：形参、实参与类型自动推断</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">def my_add(x, y):
+    '''把两个参数相加后返回'''
+    s = x + y
+    return s
+
+print(my_add(3, 5))                # 实参是整数 → 做加法
+print(my_add('hello ', 'World'))   # 实参是字符串 → 做拼接
+print(my_add([1, 2], [3, 4]))      # 实参是列表 → 做合并
+
+print('文档字符串：', my_add.__doc__)
+print('函数名：', my_add.__name__)</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+8
+hello World
+[1, 2, 3, 4]
+文档字符串： 把两个参数相加后返回
+函数名： my_add
+</pre></div>
+  </div>
+
+  <div class="demo" data-demo="k1-doc">
+    <div class="demo-head">
+      <span class="demo-title">用 help() 看函数的说明书（和内置函数一样）</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">def my_add(x, y):
+    '''add the two arguments'''
+    s = x + y
+    return s
+
+help(my_add)</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+Help on function my_add in module __main__:
+
+my_add(x, y)
+    add the two arguments
+</pre></div>
+  </div>
+
+  <div class="note"><strong>小知识</strong>：<code class="inline">help(函数名)</code> 能打印出函数的说明书，内容正是定义时写在函数体第一行的<strong>文档字符串</strong>。<code class="inline">print(my_add.__doc__)</code> 直接取出这段文字。<strong>给别人（也给你自己）写一段文档字符串，是专业习惯</strong>——尤其在做数据分析、别人要复用你的清洗函数时。</div>
+
+  <div class="sumline">✅ <b>本节小结</b>：定义函数要写全五个部分——<code class="inline">def</code>、函数名、形参表、冒号、缩进的函数体；<code class="inline">return</code> 负责把结果交回去；<strong>形参不写类型，Python 按实参的类型决定行为</strong>，所以同一个 <code class="inline">my_add()</code> 既能加数字，也能拼字符串、合并列表。</div>
+
+  <h3 id="c1-3">1.3 返回值：return 的三种情况</h3>
+  <p>函数把结果交给调用者，靠的是 <code class="inline">return</code>。这里有三个必须分清的情况——尤其是<strong>第三种</strong>，它是初学者最容易踩的坑。</p>
+
+  <div class="tbl-wrap">
+    <table class="mini-table">
+      <thead><tr><th>写法</th><th>返回什么</th><th>调用处拿到</th></tr></thead>
+      <tbody>
+        <tr><td><code class="inline">return s</code></td><td>一个值</td><td>那个值本身（可以是任意类型）</td></tr>
+        <tr><td><code class="inline">return a, b</code></td><td>多个值</td><td>一个<strong>元组</strong> <code class="inline">(a, b)</code>，可以用解包接收</td></tr>
+        <tr><td>没有 <code class="inline">return</code>（或只写 <code class="inline">return</code>）</td><td><code class="inline">None</code></td><td><code class="inline">None</code>——想去运算就会报错</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="demo" data-demo="k1-return">
+    <div class="demo-head">
+      <span class="demo-title">三种返回值一次看全（含 return 会立刻结束函数）</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">def f1(a, b):
+    print('f1 只打印不返回：', a + b)      # 没有 return
+
+def f2(a, b):
+    return a + b                       # 返回一个值
+
+def f3(a, b):
+    return a + b, a * b, a - b         # 返回多个值 → 元组
+
+def f4(n):
+    if n > 0:
+        return '正数'
+    return '非正数'
+    print('这行永远不会执行')            # return 之后函数就结束了
+
+print('f1(3, 5) →', f1(3, 5))
+print('f2(3, 5) →', f2(3, 5))
+r = f3(6, 4)
+print('f3(6, 4) →', r, type(r))
+x, y, z = f3(6, 4)                     # 元组解包接收多个返回值
+print('解包后：x =', x, ' y =', y, ' z =', z)
+print('f4(10) →', f4(10), ' f4(0) →', f4(0))</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+f1 只打印不返回： 8
+f1(3, 5) → None
+f2(3, 5) → 8
+f3(6, 4) → (10, 24, 2) &lt;class 'tuple'&gt;
+解包后：x = 10  y = 24  z = 2
+f4(10) → 正数  f4(0) → 非正数
+</pre></div>
+  </div>
+
+  <div class="danger"><strong>最容易踩的坑：print ≠ return</strong>。函数里写了 <code class="inline">print(x + y)</code>，屏幕上确实出现了结果，但函数<strong>没有把值交回</strong>——调用处拿到的还是 <code class="inline">None</code>。屏幕上的字是"给人看的"，<code class="inline">return</code> 的值才是"给程序用的"。</div>
+
+  <div class="cmp">
+    <div class="cmp-box">
+      <div class="cmp-h bad">✗ 只打印：拿不回来</div>
+      <pre>def add_wrong(x, y):
+    print(x + y)
+
+print(add_wrong(3, 5))</pre>
+    </div>
+    <div class="cmp-box">
+      <div class="cmp-h good">✓ 用 return：能拿回来</div>
+      <pre>def add_right(x, y):
+    return x + y
+
+print(add_right(3, 5))
+print(add_right(3, 5) * 10)</pre>
+    </div>
+  </div>
+
+  <div class="demo" data-demo="k1-print-trap">
+    <div class="demo-head">
+      <span class="demo-title">坑一：只 print 不 return，调用处拿到 None</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">def add_wrong(x, y):
+    print(x + y)          # 只打印，没有 return
+
+print('函数调用的结果是：', add_wrong(3, 5))
+print('它的类型是：', type(add_wrong(3, 5)))</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+8
+函数调用的结果是： None
+8
+它的类型是： &lt;class 'NoneType'&gt;
+</pre></div>
+  </div>
+
+  <div class="demo" data-demo="k1-print-err" data-expect-error="1">
+    <div class="demo-head">
+      <span class="demo-title">坑二：拿 None 去做运算，直接报错</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">def add_wrong(x, y):
+    print(x + y)
+
+total = add_wrong(3, 5) + 1     # None + 1 → 报错</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+8
+Traceback (most recent call last):
+  File "&lt;pyshell&gt;", line 4, in &lt;module&gt;
+    total = add_wrong(3, 5) + 1     # None + 1 → 报错
+TypeError: unsupported operand type(s) for +: 'NoneType' and 'int'
+</pre></div>
+  </div>
+
+  <div class="sumline">✅ <b>本节小结</b>：<strong>有 <code class="inline">return</code> 才有返回值</strong>；返回多个值得到元组；没有 <code class="inline">return</code> 就是 <code class="inline">None</code>，拿 <code class="inline">None</code> 去加减乘除会报 <code class="inline">TypeError</code>。<code class="inline">return</code> 一旦执行，函数立刻结束。</div>
+
+  <h3 id="c1-4">1.4 调用与执行过程：实参怎么变成返回值</h3>
+  <p>自定义函数和内置函数的调用方法完全一样：<strong>函数名加括号，括号里写实际参数</strong>。下面这张图是调用 <code class="inline">my_add(3, 5)</code> 时，程序内部依次发生的四件事。</p>
+
+  <div class="figsvg">
+    <svg viewBox="0 0 900 250" width="900" height="250" role="img" aria-label="函数调用的四个步骤">
+      <text x="450" y="24" text-anchor="middle" font-size="17" font-weight="700" fill="#1f3864">调用 my_add(3, 5) 的四步</text>
+      <g>
+        <rect x="20" y="50" width="200" height="120" rx="12" fill="#eaf1f8" stroke="#306998" stroke-width="1.6"/>
+        <text x="120" y="76" text-anchor="middle" font-size="14.5" font-weight="700" fill="#1f3864">① 函数定义</text>
+        <text x="120" y="104" text-anchor="middle" font-size="13" font-family="Consolas,monospace" fill="#2b2820">def my_add(x, y):</text>
+        <text x="120" y="128" text-anchor="middle" font-size="13" font-family="Consolas,monospace" fill="#2b2820">    s = x + y</text>
+        <text x="120" y="152" text-anchor="middle" font-size="13" font-family="Consolas,monospace" fill="#2b2820">    return s</text>
+      </g>
+      <g>
+        <rect x="240" y="50" width="200" height="120" rx="12" fill="#fff7e6" stroke="#b8860b" stroke-width="1.6"/>
+        <text x="340" y="76" text-anchor="middle" font-size="14.5" font-weight="700" fill="#7a4a0a">② 函数调用</text>
+        <text x="340" y="108" text-anchor="middle" font-size="15" font-family="Consolas,monospace" fill="#2b2820">my_add(3, 5)</text>
+        <text x="340" y="134" text-anchor="middle" font-size="12.5" fill="#5d594c">括号里的 3、5 是实参</text>
+        <text x="340" y="156" text-anchor="middle" font-size="12.5" fill="#5d594c">表示形参的实际取值</text>
+      </g>
+      <g>
+        <rect x="460" y="50" width="200" height="120" rx="12" fill="#eaf7ea" stroke="#2e7d32" stroke-width="1.6"/>
+        <text x="560" y="76" text-anchor="middle" font-size="14.5" font-weight="700" fill="#215c26">③ 参数绑定</text>
+        <text x="560" y="108" text-anchor="middle" font-size="14" font-family="Consolas,monospace" fill="#215c26">x = 3，y = 5</text>
+        <text x="560" y="134" text-anchor="middle" font-size="12.5" fill="#5d594c">实参按位置赋给形参</text>
+        <text x="560" y="156" text-anchor="middle" font-size="12.5" fill="#5d594c">类型由实参决定</text>
+      </g>
+      <g>
+        <rect x="680" y="50" width="200" height="120" rx="12" fill="#f0eefa" stroke="#4c5691" stroke-width="1.6"/>
+        <text x="780" y="76" text-anchor="middle" font-size="14.5" font-weight="700" fill="#333a63">④ 执行并返回</text>
+        <text x="780" y="108" text-anchor="middle" font-size="14" font-family="Consolas,monospace" fill="#333a63">s = 3 + 5 = 8</text>
+        <text x="780" y="134" text-anchor="middle" font-size="14" font-family="Consolas,monospace" fill="#333a63">return 8</text>
+        <text x="780" y="156" text-anchor="middle" font-size="12.5" fill="#5d594c">结果交回调用处</text>
+      </g>
+      <path d="M214 110 L236 110" stroke="#8a8577" stroke-width="1.6" marker-end="url(#ar5)"/>
+      <path d="M434 110 L456 110" stroke="#8a8577" stroke-width="1.6" marker-end="url(#ar5)"/>
+      <path d="M654 110 L676 110" stroke="#8a8577" stroke-width="1.6" marker-end="url(#ar5)"/>
+      <defs><marker id="ar5" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 z" fill="#8a8577"/></marker></defs>
+      <text x="450" y="204" text-anchor="middle" font-size="13.5" fill="#2b2820">函数执行结束后，函数内部的 x、y、s <tspan font-weight="700" fill="#8c2f28">全部消失</tspan>，只有 return 的值留在调用处</text>
+      <text x="450" y="230" text-anchor="middle" font-size="13" fill="#5d594c">形参（形式参数）是定义时的占位名字，实参（实际参数）是调用时的真实数据</text>
+    </svg>
+    <div class="figcap">图 5-4　从实参到返回值的四步：定义 → 调用 → 绑定 → 执行并返回</div>
+  </div>
+
+  <div class="anim" data-anim="callproc">
+    <div class="anim-head">
+      <span class="anim-title">🎬 动态演示：my_add(3, 5) 到底怎么跑出 8 的</span>
+      <div class="anim-actions">
+        <button class="btn" type="button" data-act="reset">↺ 重置</button>
+        <button class="btn" type="button" data-act="prev">⏮ 上一步</button>
+        <button class="btn btn-play" type="button" data-act="play">▶ 播放</button>
+        <button class="btn" type="button" data-act="next">下一步 ⏭</button>
+      </div>
+    </div>
+    <div class="anim-stage"></div>
+    <div class="anim-status"><span class="anim-text"></span><span class="anim-progress"></span></div>
+  </div>
+
+  <div class="demo" data-demo="k1-call">
+    <div class="demo-head">
+      <span class="demo-title">形参不写类型：Python 按实参自动推断</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">def show(x, y):
+    print('  形参 x =', x, '类型', type(x).__name__, '｜形参 y =', y, '类型', type(y).__name__)
+    return x + y
+
+print('整数：', show(3, 5))
+print('小数：', show(2.5, 0.5))
+print('字符串：', show('Python', ' 真好用'))
+print('列表：', show([1, 2], [3, 4]))
+print('布尔：', show(True, False))</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+  形参 x = 3 类型 int ｜形参 y = 5 类型 int
+整数： 8
+  形参 x = 2.5 类型 float ｜形参 y = 0.5 类型 float
+小数： 3.0
+  形参 x = Python 类型 str ｜形参 y =  真好用 类型 str
+字符串： Python 真好用
+  形参 x = [1, 2] 类型 list ｜形参 y = [3, 4] 类型 list
+列表： [1, 2, 3, 4]
+  形参 x = True 类型 bool ｜形参 y = False 类型 bool
+布尔： 1
+</pre></div>
+  </div>
+
+  <div class="demo" data-demo="k1-order" data-expect-error="1">
+    <div class="demo-head">
+      <span class="demo-title">易错：函数必须先定义、后调用</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">print(my_add(3, 5))     # 此时 Python 还不知道 my_add 是什么
+
+def my_add(x, y):
+    return x + y</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+Traceback (most recent call last):
+  File "&lt;pyshell&gt;", line 1, in &lt;module&gt;
+    print(my_add(3, 5))     # 此时 Python 还不知道 my_add 是什么
+NameError: name 'my_add' is not defined
+</pre></div>
+  </div>
+
+  <div class="demo" data-demo="k1-avg">
+    <div class="demo-head">
+      <span class="demo-title">例 5-1　定义函数计算一组成绩的平均值（课件例题）</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">def cal_avg(alist):                  # 定义函数
+    s = sum(alist)
+    n = len(alist)
+    avg = round(s / n, 1)
+    return avg
+
+# 主程序
+scores = [75, 80, 85, 70, 65, 90]    # 输入
+result = cal_avg(scores)             # 调用函数
+print('平均分：', result)             # 输出
+print('再算一组：', cal_avg([88, 92, 79]))
+print('（函数一次定义，可以多次调用）')</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+平均分： 77.5
+再算一组： 86.3
+（函数一次定义，可以多次调用）
+</pre></div>
+  </div>
+
+  <div class="demo" data-demo="k1-nested">
+    <div class="demo-head">
+      <span class="demo-title">函数的嵌套调用：一个函数的返回值喂给另一个函数</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">def calc_avg(alist):
+    return round(sum(alist) / len(alist), 1)
+
+def judge_level(avg):
+    if avg >= 90:
+        return '优秀'
+    elif avg >= 80:
+        return '良好'
+    elif avg >= 60:
+        return '及格'
+    else:
+        return '不及格'
+
+for name, scores in [('一班', [88, 92, 79, 95, 84]),
+                     ('二班', [70, 65, 72, 68]),
+                     ('三班', [55, 60, 48, 52])]:
+    avg = calc_avg(scores)                    # 第一个函数算平均分
+    print(name, '平均分', avg, '等级', judge_level(avg))   # 结果喂给第二个函数</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+一班 平均分 87.6 等级 良好
+二班 平均分 68.8 等级 及格
+三班 平均分 53.8 等级 不及格
+</pre></div>
+  </div>
+
+  <div class="sumline">✅ <b>本节小结</b>：调用时<strong>实参按位置交给形参</strong>，函数体执行完后把 <code class="inline">return</code> 的值交回调用处，函数内部的变量随之消失。函数可以<strong>互相调用</strong>——前一个函数的返回值，直接当作后一个函数的实参，这就是"模块化"的实际写法。</div>
+
+  <div class="vid">
+    <span class="vtag">配套视频</span>
+    <a href="https://www.bilibili.com/video/BV1qW4y1a7fU/?p=52" target="_blank" rel="noopener">黑马程序员 · 第 52 讲 函数的基础定义语法</a>
+    <span class="vmeta">B站 · 定义与调用，6 分钟讲完</span>
+  </div>
+  <div class="vid">
+    <span class="vtag">配套视频</span>
+    <a href="https://www.bilibili.com/video/BV1qW4y1a7fU/?p=56" target="_blank" rel="noopener">黑马程序员 · 第 56 讲 函数的返回值定义语法</a>
+    <span class="vmeta">B站 · 想知道 return 和 print 的区别，看这一讲</span>
+  </div>
+</section>
+
+<!-- ===== 模块二：函数参数 ===== -->
+<section id="c2">
+  <div class="sec-head">
+    <div class="sec-num">二</div>
+    <div>
+      <h2>函数参数 <span class="tag red">本章重点</span></h2>
+      <p class="sec-sub">位置参数 · 默认值参数 · 关键字参数 · 可变长参数（*args / **kwargs）</p>
+    </div>
+  </div>
+
+  <p>参数是函数与外界交换数据的接口。同样一个函数，用不同的传参方式调用，写法不同、报错也不同。课件里把参数分成四类，这一节一类一类过，并且<strong>每一类都配了"写错的后果"</strong>——看懂报错信息，比背语法有用得多。</p>
+
+  <div class="figsvg">
+    <svg viewBox="0 0 900 190" width="900" height="190" role="img" aria-label="四类函数参数">
+      <text x="450" y="24" text-anchor="middle" font-size="17" font-weight="700" fill="#1f3864">四类参数：什么时候用哪一种</text>
+      <rect x="16" y="44" width="212" height="112" rx="12" fill="#eaf1f8" stroke="#306998" stroke-width="1.6"/>
+      <text x="122" y="70" text-anchor="middle" font-size="14.5" font-weight="700" fill="#1f3864">位置参数</text>
+      <text x="122" y="94" text-anchor="middle" font-size="12.5" font-family="Consolas,monospace" fill="#2b2820">my_add(3, 5)</text>
+      <text x="122" y="118" text-anchor="middle" font-size="12.5" fill="#5d594c">按位置一一对应</text>
+      <text x="122" y="140" text-anchor="middle" font-size="12.5" fill="#8c2f28">数量、顺序都不能错</text>
+      <rect x="240" y="44" width="212" height="112" rx="12" fill="#fff7e6" stroke="#b8860b" stroke-width="1.6"/>
+      <text x="346" y="70" text-anchor="middle" font-size="14.5" font-weight="700" fill="#7a4a0a">默认值参数</text>
+      <text x="346" y="94" text-anchor="middle" font-size="12.5" font-family="Consolas,monospace" fill="#2b2820">def f(x, y=10)</text>
+      <text x="346" y="118" text-anchor="middle" font-size="12.5" fill="#5d594c">不传就用默认值</text>
+      <text x="346" y="140" text-anchor="middle" font-size="12.5" fill="#8c2f28">必须写在形参表最后</text>
+      <rect x="464" y="44" width="212" height="112" rx="12" fill="#eaf7ea" stroke="#2e7d32" stroke-width="1.6"/>
+      <text x="570" y="70" text-anchor="middle" font-size="14.5" font-weight="700" fill="#215c26">关键字参数</text>
+      <text x="570" y="94" text-anchor="middle" font-size="12.5" font-family="Consolas,monospace" fill="#2b2820">my_add(y=5, x=4)</text>
+      <text x="570" y="118" text-anchor="middle" font-size="12.5" fill="#5d594c">按名字配对，顺序可换</text>
+      <text x="570" y="140" text-anchor="middle" font-size="12.5" fill="#8c2f28">位置参数要在关键字之前</text>
+      <rect x="688" y="44" width="196" height="112" rx="12" fill="#f0eefa" stroke="#4c5691" stroke-width="1.6"/>
+      <text x="786" y="70" text-anchor="middle" font-size="14.5" font-weight="700" fill="#333a63">可变长参数</text>
+      <text x="786" y="94" text-anchor="middle" font-size="12.5" font-family="Consolas,monospace" fill="#2b2820">*nums  **kwargs</text>
+      <text x="786" y="118" text-anchor="middle" font-size="12.5" fill="#5d594c">个数不定</text>
+      <text x="786" y="140" text-anchor="middle" font-size="12.5" fill="#5d594c">打包成元组 / 字典</text>
+      <text x="450" y="178" text-anchor="middle" font-size="13" fill="#5d594c">口诀：<tspan font-weight="700">先位置、后关键字；默认值垫底；个数不定用星号</tspan></text>
+    </svg>
+    <div class="figcap">图 5-5　四类参数速查：位置 / 默认值 / 关键字 / 可变长</div>
+  </div>
+
+  <h3 id="c2-1">2.1 位置参数：数量相同、顺序一致</h3>
+  <p>位置参数是最常见的形式。调用时<strong>实参和形参的数量必须相同、位置顺序必须一致</strong>——第一个实参给第一个形参，第二个给第二个，以此类推。</p>
+
+  <div class="figsvg">
+    <svg viewBox="0 0 900 210" width="900" height="210" role="img" aria-label="位置参数按位置一一对应">
+      <text x="450" y="24" text-anchor="middle" font-size="16.5" font-weight="700" fill="#1f3864">位置参数：第 1 个给 x，第 2 个给 y</text>
+      <text x="120" y="76" text-anchor="end" font-size="14.5" font-family="Consolas,monospace" fill="#2b2820">def my_add(x, y)</text>
+      <text x="470" y="76" font-size="14.5" fill="#5d594c">← 定义：两个形参 x、y</text>
+      <text x="120" y="126" text-anchor="end" font-size="14.5" font-family="Consolas,monospace" fill="#2b2820">my_add(3, 5)</text>
+      <text x="470" y="126" font-size="14.5" fill="#5d594c">← 调用：两个实参 3、5</text>
+      <rect x="140" y="84" width="60" height="34" rx="8" fill="#eaf1f8" stroke="#306998" stroke-width="1.5"/>
+      <text x="170" y="107" text-anchor="middle" font-size="14" font-family="Consolas,monospace" fill="#1f3864">3</text>
+      <rect x="216" y="84" width="60" height="34" rx="8" fill="#eaf1f8" stroke="#306998" stroke-width="1.5"/>
+      <text x="246" y="107" text-anchor="middle" font-size="14" font-family="Consolas,monospace" fill="#1f3864">5</text>
+      <path d="M170 120 L170 142" stroke="#b8860b" stroke-width="1.6" marker-end="url(#ar5b)"/>
+      <path d="M246 120 L246 142" stroke="#b8860b" stroke-width="1.6" marker-end="url(#ar5b)"/>
+      <rect x="140" y="146" width="60" height="34" rx="8" fill="#fff7e6" stroke="#b8860b" stroke-width="1.5"/>
+      <text x="170" y="169" text-anchor="middle" font-size="14" font-family="Consolas,monospace" fill="#7a4a0a">x = 3</text>
+      <rect x="216" y="146" width="60" height="34" rx="8" fill="#fff7e6" stroke="#b8860b" stroke-width="1.5"/>
+      <text x="246" y="169" text-anchor="middle" font-size="14" font-family="Consolas,monospace" fill="#7a4a0a">y = 5</text>
+      <defs><marker id="ar5b" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 z" fill="#b8860b"/></marker></defs>
+      <text x="560" y="107" font-size="13.5" fill="#215c26">位置对得上 → 结果 8</text>
+      <text x="560" y="169" font-size="13.5" fill="#8c2f28">少一个、换顺序 → 报错</text>
+    </svg>
+    <div class="figcap">图 5-6　位置参数靠"站位"传递数据，站位错了数据就错</div>
+  </div>
+
+  <div class="demo" data-demo="k2-pos">
+    <div class="demo-head">
+      <span class="demo-title">位置参数：按顺序一一对应（示例来自课件）</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">def my_add(x, y):
+    '''把形参的值打印出来，看看谁接到了谁'''
+    print('x=' + str(x) + ';' + 'y=' + str(y))
+    s = x + y
+    return s
+
+print(my_add(3, 5))        # 实参一一对应传递给形参
+print(my_add(5, 3))        # 换个顺序：x 和 y 的值就交换了
+print(my_add(1.5, 2.5))    # 类型也一样自动推断</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+x=3;y=5
+8
+x=5;y=3
+8
+x=1.5;y=2.5
+4.0
+</pre></div>
+  </div>
+
+  <div class="demo" data-demo="k2-missing1" data-expect-error="1">
+    <div class="demo-head">
+      <span class="demo-title">写错会怎样①：少传一个实参</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">def my_add(x, y):
+    return x + y
+
+print(my_add(3))        # 只传了一个实参，y 没接到值</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+Traceback (most recent call last):
+  File "&lt;pyshell&gt;", line 4, in &lt;module&gt;
+    print(my_add(3))        # 只传了一个实参，y 没接到值
+TypeError: my_add() missing 1 required positional argument: 'y'
+</pre></div>
+  </div>
+
+  <div class="demo" data-demo="k2-missing2" data-expect-error="1">
+    <div class="demo-head">
+      <span class="demo-title">写错会怎样②：一个实参都没传</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">def my_add(x, y):
+    return x + y
+
+print(my_add())         # 两个形参都没有实参</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+Traceback (most recent call last):
+  File "&lt;pyshell&gt;", line 4, in &lt;module&gt;
+    print(my_add())         # 两个形参都没有实参
+TypeError: my_add() missing 2 required positional arguments: 'x' and 'y'
+</pre></div>
+  </div>
+
+  <div class="sumline">✅ <b>本节小结</b>：位置参数<strong>靠站位传值</strong>——第一个实参给第一个形参。数量少了会报 <code class="inline">TypeError: missing … required positional argument</code>，<strong>看到这句话就知道：某个形参没接到值</strong>。</div>
+
+  <h3 id="c2-2">2.2 默认值参数：不传就用默认值</h3>
+  <p>定义函数时可以直接给形参写一个默认值，语法是 <code class="inline">形参名=默认值</code>。调用时<strong>不传</strong>就用默认值，<strong>传了</strong>就用实参替换掉默认值。你其实已经用过很多次了——<code class="inline">range(10)</code> 就是默认值参数的典型例子。</p>
+
+  <div class="figsvg">
+    <svg viewBox="0 0 900 232" width="900" height="232" role="img" aria-label="默认值参数：不传用默认值，传了覆盖默认值">
+      <text x="450" y="24" text-anchor="middle" font-size="16.5" font-weight="700" fill="#1f3864">默认值参数：def my_add(x, y=10)</text>
+      <rect x="50" y="46" width="380" height="152" rx="12" fill="#fdfbf6" stroke="#e4ddcc"/>
+      <text x="240" y="72" text-anchor="middle" font-size="14" font-weight="700" fill="#7a4a0a">调用一：只传 1 个实参</text>
+      <text x="240" y="102" text-anchor="middle" font-size="14.5" font-family="Consolas,monospace" fill="#2b2820">my_add(3)</text>
+      <rect x="80" y="118" width="120" height="40" rx="8" fill="#eaf1f8" stroke="#306998"/>
+      <text x="140" y="144" text-anchor="middle" font-size="14" font-family="Consolas,monospace" fill="#1f3864">x = 3</text>
+      <rect x="212" y="118" width="180" height="40" rx="8" fill="#fff7e6" stroke="#b8860b"/>
+      <text x="302" y="144" text-anchor="middle" font-size="14" font-family="Consolas,monospace" fill="#7a4a0a">y = 10（默认值）</text>
+      <text x="240" y="184" text-anchor="middle" font-size="13.5" font-weight="700" fill="#215c26">结果：3 + 10 = 13</text>
+      <rect x="470" y="46" width="380" height="152" rx="12" fill="#fdfbf6" stroke="#e4ddcc"/>
+      <text x="660" y="72" text-anchor="middle" font-size="14" font-weight="700" fill="#7a4a0a">调用二：传 2 个实参</text>
+      <text x="660" y="102" text-anchor="middle" font-size="14.5" font-family="Consolas,monospace" fill="#2b2820">my_add(3, 5)</text>
+      <rect x="500" y="118" width="120" height="40" rx="8" fill="#eaf1f8" stroke="#306998"/>
+      <text x="560" y="144" text-anchor="middle" font-size="14" font-family="Consolas,monospace" fill="#1f3864">x = 3</text>
+      <rect x="632" y="118" width="180" height="40" rx="8" fill="#eaf7ea" stroke="#2e7d32"/>
+      <text x="722" y="144" text-anchor="middle" font-size="14" font-family="Consolas,monospace" fill="#215c26">y = 5（实参覆盖）</text>
+      <text x="660" y="184" text-anchor="middle" font-size="13.5" font-weight="700" fill="#215c26">结果：3 + 5 = 8</text>
+      <text x="450" y="222" text-anchor="middle" font-size="13" fill="#8c2f28">注意：默认值参数必须写在形参表的最后，否则语法错误</text>
+    </svg>
+    <div class="figcap">图 5-7　默认值参数：传了就覆盖，没传就用默认值</div>
+  </div>
+
+  <div class="demo" data-demo="k2-default">
+    <div class="demo-head">
+      <span class="demo-title">默认值参数：只传一个也合法（课件示例）</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">def my_add(x, y=10):
+    '''第二个参数有默认值 10'''
+    print('x=' + str(x) + ';' + 'y=' + str(y))
+    return x + y
+
+print(my_add(3))          # 只传递第 1 个参数 → 用默认值 10
+print(my_add(3, 5))       # 传递 2 个参数 → 默认值被覆盖
+print(my_add(3, y=100))   # 也可以只指定要改的那一个
+
+print('-' * 26)
+print('内置函数 range() 也有默认值：')
+print('range(5)        →', list(range(5)))          # 默认从 0 开始，步长 1
+print('range(2, 6)     →', list(range(2, 6)))
+print('range(0, 10, 3) →', list(range(0, 10, 3)))</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+x=3;y=10
+13
+x=3;y=5
+8
+x=3;y=100
+103
+--------------------------
+内置函数 range() 也有默认值：
+range(5)        → [0, 1, 2, 3, 4]
+range(2, 6)     → [2, 3, 4, 5]
+range(0, 10, 3) → [0, 3, 6, 9]
+</pre></div>
+  </div>
+
+  <div class="demo" data-demo="k2-def-order" data-expect-error="1">
+    <div class="demo-head">
+      <span class="demo-title">写错会怎样：默认值参数没写在最后 → 语法错误</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">def my_add(x=1, y):     # 有默认值的 x 跑到了没有默认值的 y 前面
+    return x + y</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+Traceback (most recent call last):
+  File "&lt;pyshell&gt;", line 1
+    def my_add(x=1, y):     # 有默认值的 x 跑到了没有默认值的 y 前面
+SyntaxError: parameter without a default follows parameter with a default
+</pre></div>
+  </div>
+
+  <div class="danger"><strong>一个值得知道的坑：默认值只算一次。</strong>如果默认值是<strong>列表、字典</strong>这类可变对象，它在<strong>函数定义时</strong>就创建好了，之后每次调用都共用同一份。于是"本该每次都是新的空列表"变成了"一直往同一个列表里加"。下面这段的结果，第一次看的人几乎都会猜错。</div>
+
+  <div class="demo" data-demo="k2-mutable-default">
+    <div class="demo-head">
+      <span class="demo-title">经典坑：默认值是列表时，函数会"记住"上一次的结果</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">def add_item(item, box=[]):      # 默认值是一个空列表
+    box.append(item)
+    return box
+
+print('第 1 次：', add_item('a'))
+print('第 2 次：', add_item('b'))      # 直觉是 ['b']，实际不是
+print('第 3 次：', add_item('c'))
+
+print('-' * 26)
+# 正确写法：默认值写 None，进函数之后再新建一个列表
+def add_item_safe(item, box=None):
+    if box is None:
+        box = []
+    box.append(item)
+    return box
+
+print('安全版第 1 次：', add_item_safe('a'))
+print('安全版第 2 次：', add_item_safe('b'))
+print('安全版第 3 次：', add_item_safe('c'))</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+第 1 次： ['a']
+第 2 次： ['a', 'b']
+第 3 次： ['a', 'b', 'c']
+--------------------------
+安全版第 1 次： ['a']
+安全版第 2 次： ['b']
+安全版第 3 次： ['c']
+</pre></div>
+  </div>
+
+  <div class="sumline">✅ <b>本节小结</b>：默认值参数让"常见情况"少写实参（<code class="inline">range(10)</code> 就是），<strong>必须写在形参表最后</strong>；不传用默认值、传了就覆盖。<strong>默认值不要用可变的列表 / 字典</strong>，要写成 <code class="inline">None</code> 再在函数里新建。</div>
+
+  <h3 id="c2-3">2.3 关键字参数：按名字传，顺序可以换</h3>
+  <p>调用函数时写成 <code class="inline">形参名=值</code>，就是关键字参数。它<strong>靠名字配对</strong>，所以实参顺序可以和定义时不一致。这在参数很多的时候特别有用——<code class="inline">plt.plot(x, y, color='red', linewidth=2)</code> 就是典型的可读写法。</p>
+
+  <div class="figsvg">
+    <svg viewBox="0 0 900 226" width="900" height="226" role="img" aria-label="关键字参数按名字配对">
+      <text x="450" y="24" text-anchor="middle" font-size="16.5" font-weight="700" fill="#1f3864">关键字参数：按"名字"配对，不看站位</text>
+      <text x="60" y="66" font-size="14" font-family="Consolas,monospace" fill="#2b2820">def my_add(x, y):</text>
+      <text x="60" y="98" font-size="14" font-family="Consolas,monospace" fill="#2b2820">my_add(y=5, x=4)</text>
+      <rect x="110" y="112" width="90" height="36" rx="8" fill="#eaf7ea" stroke="#2e7d32" stroke-width="1.5"/>
+      <text x="155" y="136" text-anchor="middle" font-size="13.5" font-family="Consolas,monospace" fill="#215c26">y = 5</text>
+      <rect x="220" y="112" width="90" height="36" rx="8" fill="#eaf7ea" stroke="#2e7d32" stroke-width="1.5"/>
+      <text x="265" y="136" text-anchor="middle" font-size="13.5" font-family="Consolas,monospace" fill="#215c26">x = 4</text>
+      <path d="M155 112 C155 88, 290 88, 290 112" fill="none" stroke="#2e7d32" stroke-width="1.4" stroke-dasharray="4 3" marker-end="url(#ar5c)"/>
+      <text x="222" y="80" text-anchor="middle" font-size="12.5" fill="#215c26">名字对上了，位置无所谓</text>
+      <defs><marker id="ar5c" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 z" fill="#2e7d32"/></marker></defs>
+      <rect x="470" y="46" width="400" height="150" rx="12" fill="#fdfbf6" stroke="#e4ddcc"/>
+      <text x="670" y="72" text-anchor="middle" font-size="13.5" font-weight="700" fill="#1f3864">两条规矩</text>
+      <text x="492" y="102" font-size="13" fill="#2b2820">① 名字必须是定义里的形参名，写错 → TypeError</text>
+      <text x="492" y="130" font-size="13" fill="#2b2820">② 位置实参必须在关键字实参之前，</text>
+      <text x="510" y="152" font-size="13" fill="#8c2f28">my_add(y=5, 4) → SyntaxError</text>
+      <text x="492" y="180" font-size="13" fill="#215c26">✓ 合法写法：my_add(4, y=5)</text>
+    </svg>
+    <div class="figcap">图 5-8　关键字参数按名字传递：顺序可换，但"位置在前、关键字在后"的规矩不能破</div>
+  </div>
+
+  <div class="demo" data-demo="k2-kw">
+    <div class="demo-head">
+      <span class="demo-title">关键字参数：三种合法写法（课件示例）</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">def my_add(x, y):
+    print('x=' + str(x) + ';' + 'y=' + str(y))
+    return x + y
+
+print(my_add(x=4, y=5))     # 全部用关键字
+print(my_add(y=5, x=4))     # 顺序反过来，结果一样
+print(my_add(4, y=5))       # 位置参数在前，关键字参数在后（推荐写法）</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+x=4;y=5
+9
+x=4;y=5
+9
+x=4;y=5
+9
+</pre></div>
+  </div>
+
+  <div class="demo" data-demo="k2-kw-order-err" data-expect-error="1">
+    <div class="demo-head">
+      <span class="demo-title">写错会怎样①：位置参数跑到关键字参数后面</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">def my_add(x, y):
+    return x + y
+
+print(my_add(y=5, 4))       # 语法错误：位置参数不能跟在关键字参数后面</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+Traceback (most recent call last):
+  File "&lt;pyshell&gt;", line 4
+    print(my_add(y=5, 4))       # 语法错误：位置参数不能跟在关键字参数后面
+SyntaxError: positional argument follows keyword argument
+</pre></div>
+  </div>
+
+  <div class="demo" data-demo="k2-kw-name-err" data-expect-error="1">
+    <div class="demo-head">
+      <span class="demo-title">写错会怎样②：关键字名字写错了</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">def my_add(x, y):
+    return x + y
+
+print(my_add(x=4, z=5))     # 形参表里没有 z</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+Traceback (most recent call last):
+  File "&lt;pyshell&gt;", line 4, in &lt;module&gt;
+    print(my_add(x=4, z=5))     # 形参表里没有 z
+TypeError: my_add() got an unexpected keyword argument 'z'
+</pre></div>
+  </div>
+
+  <div class="sumline">✅ <b>本节小结</b>：关键字参数<strong>用名字指明给谁传值</strong>，顺序随便换；但必须<strong>位置实参在前、关键字实参在后</strong>，而且名字要和形参完全一致。参数多的时候，用关键字参数能让代码"自己解释自己"。</div>
+
+  <h3 id="c2-4">2.4 可变长参数：个数不定也能收（了解）</h3>
+  <p>有时候事先不知道要传几个参数——比如"求任意多个数的累加和"。在形参名前加一个 <code class="inline">*</code>，Python 会把多出来的实参<strong>打包成元组</strong>；加两个 <code class="inline">**</code>，则打包成<strong>字典</strong>。</p>
+
+  <div class="figsvg">
+    <svg viewBox="0 0 900 250" width="900" height="250" role="img" aria-label="可变长参数：星号打包成元组，双星号打包成字典">
+      <text x="450" y="24" text-anchor="middle" font-size="16.5" font-weight="700" fill="#1f3864">星号的作用：把不定个数的实参"打包"</text>
+      <rect x="40" y="46" width="380" height="176" rx="12" fill="#eaf1f8" stroke="#306998" stroke-width="1.6"/>
+      <text x="230" y="72" text-anchor="middle" font-size="14.5" font-weight="700" fill="#1f3864">*nums → 打包成元组</text>
+      <text x="230" y="100" text-anchor="middle" font-size="13.5" font-family="Consolas,monospace" fill="#2b2820">def my_sum(*nums):</text>
+      <text x="230" y="128" text-anchor="middle" font-size="13.5" font-family="Consolas,monospace" fill="#2b2820">my_sum(4, 5, 6, 7)</text>
+      <rect x="120" y="144" width="220" height="40" rx="8" fill="#fff" stroke="#306998"/>
+      <text x="230" y="170" text-anchor="middle" font-size="14" font-family="Consolas,monospace" fill="#1f3864">nums = (4, 5, 6, 7)</text>
+      <text x="230" y="206" text-anchor="middle" font-size="12.5" fill="#5d594c">函数里把 nums 当成元组用：for n in nums</text>
+      <rect x="480" y="46" width="380" height="176" rx="12" fill="#f0eefa" stroke="#4c5691" stroke-width="1.6"/>
+      <text x="670" y="72" text-anchor="middle" font-size="14.5" font-weight="700" fill="#333a63">**kwargs → 打包成字典</text>
+      <text x="670" y="100" text-anchor="middle" font-size="13.5" font-family="Consolas,monospace" fill="#2b2820">def my_sum2(**nums):</text>
+      <text x="670" y="128" text-anchor="middle" font-size="13.5" font-family="Consolas,monospace" fill="#2b2820">my_sum2(a=1, b=2, c=3)</text>
+      <rect x="540" y="144" width="260" height="40" rx="8" fill="#fff" stroke="#4c5691"/>
+      <text x="670" y="170" text-anchor="middle" font-size="14" font-family="Consolas,monospace" fill="#333a63">nums = {'a':1, 'b':2, 'c':3}</text>
+      <text x="670" y="206" text-anchor="middle" font-size="12.5" fill="#5d594c">函数里把 nums 当成字典用：nums[key]</text>
+      <text x="450" y="242" text-anchor="middle" font-size="12.5" fill="#5d594c">名字可以自己起，约定俗成写 *args / **kwargs；<tspan font-weight="700">星号参数要放在形参表的最后面</tspan></text>
+    </svg>
+    <div class="figcap">图 5-9　<code class="inline">*args</code> 收成元组、<code class="inline">**kwargs</code> 收成字典</div>
+  </div>
+
+  <div class="demo" data-demo="k2-args">
+    <div class="demo-head">
+      <span class="demo-title">可变长参数①：接收任意个数，算累加和（课件示例）</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">def my_sum(*nums):
+    print('nums: ', nums, ' 类型：', type(nums).__name__)
+    s = 0
+    for n in nums:
+        s += n
+    return s
+
+print(my_sum(4, 5))
+print(my_sum(4, 5, 6, 7, 8))
+print(my_sum())                  # 一个都不传也合法
+print(my_sum(*[1, 2, 3, 4]))     # 反过来：把列表"拆开"传进去</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+nums:  (4, 5)  类型： tuple
+9
+nums:  (4, 5, 6, 7, 8)  类型： tuple
+30
+nums:  ()  类型： tuple
+0
+nums:  (1, 2, 3, 4)  类型： tuple
+10
+</pre></div>
+  </div>
+
+  <div class="demo" data-demo="k2-kwargs">
+    <div class="demo-head">
+      <span class="demo-title">可变长参数②：接收任意个"名字=值"，打包成字典（课件示例）</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">def my_sum2(**nums):
+    print('nums: ', nums, ' 类型：', type(nums).__name__)
+    s = 0
+    for key in nums:
+        s += nums[key]
+    print('sum =', s)
+
+my_sum2(a=1, b=2, c=3)
+my_sum2(语文=88, 数学=95, 英语=79)</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+nums:  {'a': 1, 'b': 2, 'c': 3}  类型： dict
+sum = 6
+nums:  {'语文': 88, '数学': 95, '英语': 79}  类型： dict
+sum = 262
+</pre></div>
+  </div>
+
+  <div class="demo" data-demo="k2-mixed">
+    <div class="demo-head">
+      <span class="demo-title">四种参数混在一起：顺序有讲究</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">def order(name, count=1, *items, discount=1.0, **info):
+    '''参数顺序：位置 → 默认值 → *可变长 → 关键字（默认值）→ **可变长关键字'''
+    print('客户：', name, '｜数量：', count)
+    print('商品：', items)
+    print('优惠：', discount)
+    print('备注：', info)
+    return count * discount
+
+order('小李')
+print('-' * 26)
+order('小王', 3)
+print('-' * 26)
+order('小张', 2, '铅笔', '橡皮', discount=0.9, 电话='13800000000', 备注='加急')</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+客户： 小李 ｜数量： 1
+商品： ()
+优惠： 1.0
+备注： {}
+--------------------------
+客户： 小王 ｜数量： 3
+商品： ()
+优惠： 1.0
+备注： {}
+--------------------------
+客户： 小张 ｜数量： 2
+商品： ('铅笔', '橡皮')
+优惠： 0.9
+备注： {'电话': '13800000000', '备注': '加急'}
+</pre></div>
+  </div>
+
+  <div class="anim" data-anim="parambind">
+    <div class="anim-head">
+      <span class="anim-title">🎬 动态演示：七种调用方式，参数到底怎么绑定</span>
+      <div class="anim-actions">
+        <button class="btn" type="button" data-act="reset">↺ 重置</button>
+        <button class="btn" type="button" data-act="prev">⏮ 上一步</button>
+        <button class="btn btn-play" type="button" data-act="play">▶ 播放</button>
+        <button class="btn" type="button" data-act="next">下一步 ⏭</button>
+      </div>
+    </div>
+    <div class="anim-stage"></div>
+    <div class="anim-status"><span class="anim-text"></span><span class="anim-progress"></span></div>
+  </div>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>参数类型</th><th>写法</th><th>最容易出的错</th><th>怎么改</th></tr></thead>
+      <tbody>
+        <tr><td>位置参数</td><td><code class="inline">f(3, 5)</code></td><td><code class="inline">missing 1 required positional argument</code></td><td>补齐实参，或给形参加默认值</td></tr>
+        <tr><td>默认值参数</td><td><code class="inline">def f(x, y=10)</code></td><td><code class="inline">non-default argument follows default argument</code></td><td>把有默认值的形参挪到最后</td></tr>
+        <tr><td>关键字参数</td><td><code class="inline">f(y=5, x=4)</code></td><td><code class="inline">positional argument follows keyword argument</code></td><td>位置实参写在关键字实参前面</td></tr>
+        <tr><td>关键字参数</td><td><code class="inline">f(x=4, z=5)</code></td><td><code class="inline">got an unexpected keyword argument</code></td><td>名字要和形参表一致（区分大小写）</td></tr>
+        <tr><td>可变长参数</td><td><code class="inline">def f(*args)</code></td><td>星号参数写到了普通形参前面</td><td>星号参数放形参表最后</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="sumline">✅ <b>本节小结</b>：<code class="inline">*nums</code> 把不定个数的实参<strong>打包成元组</strong>，<code class="inline">**nums</code> 打包成<strong>字典</strong>；两者都是"了解"级别，但看懂它们很重要——后面学 <code class="inline">print(*args)</code>、<code class="inline">plt.plot(**style)</code>、以及读别人的代码，都靠这一节。顺序记住：<strong>位置 → 默认值 → *args → **kwargs</strong>。</div>
+
+  <div class="vid">
+    <span class="vtag">配套视频</span>
+    <a href="https://www.bilibili.com/video/BV1qW4y1a7fU/?p=54" target="_blank" rel="noopener">黑马程序员 · 第 54 讲 函数的传入参数</a>
+    <span class="vmeta">B站 · 位置参数与形参实参对照</span>
+  </div>
+  <div class="vid">
+    <span class="vtag">配套视频</span>
+    <a href="https://www.bilibili.com/video/BV1qW4y1a7fU/?p=82" target="_blank" rel="noopener">黑马程序员 · 第 82 讲 函数的多种参数使用形式</a>
+    <span class="vmeta">B站 · 默认值、关键字、可变长参数一讲看完</span>
+  </div>
+</section>
+
+<!-- ===== 模块三：变量作用域 ===== -->
+<section id="c3">
+  <div class="sec-head">
+    <div class="sec-num">三</div>
+    <div>
+      <h2>变量作用域</h2>
+      <p class="sec-sub">局部变量 · 全局变量 · 同名遮蔽 · global 关键字</p>
+    </div>
+  </div>
+
+  <p><strong>作用域</strong>就是变量"起作用的代码范围"。函数给变量划了边界：函数内部定义的变量<strong>出了函数就消失</strong>。理解这一点，才能解释为什么有的变量"明明赋过值却说不存在"。</p>
+
+  <div class="figsvg">
+    <svg viewBox="0 0 900 300" width="900" height="300" role="img" aria-label="全局区与函数局部区">
+      <text x="450" y="24" text-anchor="middle" font-size="16.5" font-weight="700" fill="#1f3864">两块地盘：全局区与函数局部区</text>
+      <rect x="40" y="42" width="820" height="216" rx="14" fill="#eaf1f8" stroke="#306998" stroke-width="1.6" stroke-dasharray="6 4"/>
+      <text x="60" y="66" font-size="13.5" font-weight="700" fill="#306998">全局区 · 整个程序都能用</text>
+      <text x="120" y="104" font-size="14" font-family="Consolas,monospace" fill="#1f3864">global_num = 5</text>
+      <rect x="106" y="118" width="200" height="1" fill="none"/>
+      <rect x="112" y="148" width="620" height="96" rx="12" fill="#fff" stroke="#2e7d32" stroke-width="1.8"/>
+      <text x="132" y="174" font-size="13.5" font-weight="700" fill="#215c26">函数局部区 · 只在 my_add2() 执行期间存在</text>
+      <text x="152" y="202" font-size="14" font-family="Consolas,monospace" fill="#215c26">local_num = 3</text>
+      <text x="152" y="228" font-size="13" font-family="Consolas,monospace" fill="#5d594c">return global_num + local_num　→ 5 + 3 = 8</text>
+      <text x="770" y="202" font-size="13" fill="#8c2f28">函数一结束</text>
+      <text x="770" y="222" font-size="13" fill="#8c2f28">局部变量消失</text>
+      <text x="450" y="284" text-anchor="middle" font-size="13" fill="#5d594c">全局变量在函数里<tspan font-weight="700" fill="#215c26">可以读</tspan>；要在函数里<tspan font-weight="700" fill="#8c2f28">改</tspan>它，必须先用 <tspan font-family="Consolas,monospace" font-weight="700">global</tspan> 声明</text>
+    </svg>
+    <div class="figcap">图 5-10　全局变量与局部变量：局部变量随函数"生",随函数"灭"</div>
+  </div>
+
+  <h3 id="c3-1">3.1 局部变量与全局变量</h3>
+  <p><strong>局部变量</strong>：在函数内部定义的变量，作用范围只限这个函数，函数执行结束后自动删除。<strong>全局变量</strong>：在函数外部定义，作用范围是整个程序，函数里也可以读。</p>
+
+  <div class="demo" data-demo="k3-local">
+    <div class="demo-head">
+      <span class="demo-title">函数里能用全局变量，函数外拿不到局部变量（课件示例）</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">global_num = 5                       # 全局变量
+
+def my_add2():
+    local_num = 3                    # 局部变量
+    return global_num + local_num    # 局部里读不到 global_num？→ 会去全局区找
+
+print('函数内用全局变量：', my_add2())
+print('函数外读全局变量：', global_num)</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+函数内用全局变量： 8
+函数外读全局变量： 5
+</pre></div>
+  </div>
+
+  <div class="demo" data-demo="k3-local-outside" data-expect-error="1">
+    <div class="demo-head">
+      <span class="demo-title">写错会怎样：在函数外面访问局部变量</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">def my_add2():
+    local_num = 3
+    return local_num
+
+print(my_add2())        # 函数里面用，没问题
+print(local_num)        # 函数外面用 → 局部变量已经消失了</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+3
+Traceback (most recent call last):
+  File "&lt;pyshell&gt;", line 6, in &lt;module&gt;
+    print(local_num)        # 函数外面用 → 局部变量已经消失了
+NameError: name 'local_num' is not defined
+</pre></div>
+  </div>
+
+  <div class="sumline">✅ <b>本节小结</b>：函数里<strong>可以读</strong>全局变量（找不到就"向上找"），但函数内部定义的变量是<strong>局部</strong>的——函数一执行完就销毁，外面访问会报 <code class="inline">NameError: name 'xxx' is not defined</code>。</div>
+
+  <h3 id="c3-2">3.2 同名时，局部优先</h3>
+  <p>如果函数内部和外部定义了<strong>同名</strong>变量，函数体里用的是<strong>局部</strong>那个，外部的被"遮住"（shadow），而且函数内的修改<strong>不会影响</strong>外部那个。</p>
+
+  <div class="demo" data-demo="k3-shadow">
+    <div class="demo-head">
+      <span class="demo-title">同名变量：里外各一份，互不影响（课件示例）</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">x = 5                     # 全局变量
+
+def my_add3():
+    x = 3                 # 局部变量，和全局的 x 同名
+    return x + x          # 用的是局部那个 3
+
+print('函数内的结果：', my_add3())      # 3 + 3 = 6
+print('函数外的 x：', x)                 # 全局那个没被改动，还是 5
+
+def my_add3b():
+    return x + x          # 函数内没有定义 x → 去全局区找到 5
+
+print('函数内没有同名变量时：', my_add3b())   # 5 + 5 = 10</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+函数内的结果： 6
+函数外的 x： 5
+函数内没有同名变量时： 10
+</pre></div>
+  </div>
+
+  <div class="anim" data-anim="scope">
+    <div class="anim-head">
+      <span class="anim-title">🎬 动态演示：函数里的 x 到底用哪一个</span>
+      <div class="anim-actions">
+        <button class="btn" type="button" data-act="reset">↺ 重置</button>
+        <button class="btn" type="button" data-act="prev">⏮ 上一步</button>
+        <button class="btn btn-play" type="button" data-act="play">▶ 播放</button>
+        <button class="btn" type="button" data-act="next">下一步 ⏭</button>
+      </div>
+    </div>
+    <div class="anim-stage"></div>
+    <div class="anim-status"><span class="anim-text"></span><span class="anim-progress"></span></div>
+  </div>
+
+  <div class="sumline">✅ <b>本节小结</b>：Python 找变量的顺序是<strong>先局部、再全局</strong>。同名时"近的赢"——函数里用的是局部变量，全局那个毫发无损。<strong>变量重名看着方便，实际是 bug 的温床</strong>，起名时尽量避开。</div>
+
+  <h3 id="c3-3">3.3 global：在函数里修改全局变量</h3>
+  <p>如果确实要在函数内部<strong>修改</strong>全局变量，必须先用 <code class="inline">global</code> 声明它。不声明就赋值，Python 会把它当成一个新的局部变量——这时如果函数里还想<strong>先读后写</strong>，就会撞上那个著名的 <code class="inline">UnboundLocalError</code>。</p>
+
+  <div class="demo" data-demo="k3-global">
+    <div class="demo-head">
+      <span class="demo-title">用 global 在函数内修改全局变量（课件示例）</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">x = 5
+
+def my_add4():
+    global x                # 声明：下面操作的 x 是全局那个
+    print('函数内读到 x =', x)      # 读到 5
+    x = 3                   # 修改全局变量
+    return x + x
+
+print('返回值：', my_add4())
+print('函数执行后，函数外的 x =', x)     # 被改成了 3
+
+print('-' * 26)
+def my_add5():
+    # 没有 global，这里只是在函数内新建了一个局部变量
+    y = 100
+    return y
+
+my_add5()
+print('全局区并没有 y：', 'y' in dir())     # 验证一下：全局名字里没有 y</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+函数内读到 x = 5
+返回值： 6
+函数执行后，函数外的 x = 3
+--------------------------
+全局区并没有 y： False
+</pre></div>
+  </div>
+
+  <div class="demo" data-demo="k3-unbound" data-expect-error="1">
+    <div class="demo-head">
+      <span class="demo-title">写错会怎样：函数里先读后写全局变量，却没写 global</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">x = 5
+
+def my_add4():
+    print(x)        # 想读全局的 x
+    x = 3           # 这里又给 x 赋值 → Python 认定 x 是局部变量
+    return x + x
+
+print(my_add4())</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+Traceback (most recent call last):
+  File "&lt;pyshell&gt;", line 8, in &lt;module&gt;
+    print(my_add4())
+  File "&lt;pyshell&gt;", line 4, in my_add4
+    print(x)        # 想读全局的 x
+UnboundLocalError: cannot access local variable 'x' where it is not associated with a value
+</pre></div>
+  </div>
+
+  <div class="warn"><strong>怎么理解这个报错</strong>：函数里只要出现了 <code class="inline">x = 3</code>，Python 就把 <code class="inline">x</code> 登记成<strong>局部变量</strong>；于是前面那句 <code class="inline">print(x)</code> 读的是"还没赋值的局部 x"，直接报 <code class="inline">UnboundLocalError</code>。<strong>记住这条</strong>：想在函数里改全局变量，先写 <code class="inline">global 变量名</code>；只是读的话，不用写。</div>
+
+  <div class="sumline">✅ <b>本节小结</b>：<code class="inline">global x</code> 是"声明"，不是"赋值"——它告诉 Python"接下来这个 x 指的是全局那个"。<strong>函数里改全局变量属于需要谨慎的写法</strong>：改的地方多了，程序就很难追踪。更好的做法是<strong>把值作为参数传进去、把结果 return 出来</strong>。</div>
+
+  <div class="vid">
+    <span class="vtag">配套视频</span>
+    <a href="https://www.bilibili.com/video/BV1qW4y1a7fU/?p=60" target="_blank" rel="noopener">黑马程序员 · 第 60 讲 变量在函数中的作用域</a>
+    <span class="vmeta">B站 · 局部变量与全局变量</span>
+  </div>
+</section>
+
+<!-- ===== 模块四：lambda 表达式 ===== -->
+<section id="c4">
+  <div class="sec-head">
+    <div class="sec-num">四</div>
+    <div>
+      <h2>lambda 表达式</h2>
+      <p class="sec-sub">匿名函数 · 一行写完 · 配合 sorted / max / map / filter 的 key 使用</p>
+    </div>
+  </div>
+
+  <p>有些函数小到"只做一次加法"，为它专门写一个 <code class="inline">def</code> 显得啰嗦。<strong>lambda 表达式</strong>就是为这种情况准备的：不用起名字、一行写完、只放一个表达式。它最实用的场合不是"造函数"，而是<strong>当"排序依据"</strong>——告诉 <code class="inline">sorted()</code> 该按什么排。</p>
+
+  <h3 id="c4-1">4.1 语法：lambda 参数 : 表达式</h3>
+
+  <div class="figsvg">
+    <svg viewBox="0 0 900 250" width="900" height="250" role="img" aria-label="lambda 与 def 的对照">
+      <text x="450" y="24" text-anchor="middle" font-size="16.5" font-weight="700" fill="#1f3864">同一个函数，两种写法</text>
+      <rect x="40" y="42" width="400" height="120" rx="12" fill="#eaf1f8" stroke="#306998" stroke-width="1.6"/>
+      <text x="60" y="68" font-size="13.5" font-weight="700" fill="#1f3864">def 写法：有名字，可以多行</text>
+      <text x="60" y="96" font-size="13.5" font-family="Consolas,monospace" fill="#2b2820">def add(x, y):</text>
+      <text x="60" y="120" font-size="13.5" font-family="Consolas,monospace" fill="#2b2820">    return x + y</text>
+      <text x="60" y="148" font-size="13.5" font-family="Consolas,monospace" fill="#215c26">print(add(3, 5))   # 8</text>
+      <rect x="460" y="42" width="400" height="120" rx="12" fill="#fff7e6" stroke="#b8860b" stroke-width="1.6"/>
+      <text x="480" y="68" font-size="13.5" font-weight="700" fill="#7a4a0a">lambda 写法：没有名字，只有一行</text>
+      <text x="480" y="96" font-size="13.5" font-family="Consolas,monospace" fill="#2b2820">add = lambda x, y: x + y</text>
+      <text x="480" y="120" font-size="13" font-family="Consolas,monospace" fill="#5d594c"># lambda 参数 : 表达式</text>
+      <text x="480" y="148" font-size="13.5" font-family="Consolas,monospace" fill="#215c26">print(add(3, 5))   # 8</text>
+      <rect x="40" y="176" width="820" height="60" rx="10" fill="#fdfbf6" stroke="#e4ddcc"/>
+      <text x="60" y="200" font-size="13" fill="#2b2820">lambda 的返回值就是<tspan font-weight="700">那个表达式的结果</tspan>——不用写 return，也<tspan font-weight="700">不能写多条语句</tspan>（不能赋值、不能放 if 语句块）。</text>
+      <text x="60" y="224" font-size="13" fill="#5d594c">所以 lambda 只适合"一行能算完"的功能；复杂逻辑还是老老实实用 def。</text>
+    </svg>
+    <div class="figcap">图 5-11　lambda 与 def 的对照：省掉名字和 <code class="inline">return</code>，只留一行表达式</div>
+  </div>
+
+  <div class="demo" data-demo="k4-basic">
+    <div class="demo-head">
+      <span class="demo-title">lambda 基础：定义、调用、看类型</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">add = lambda x, y: x + y          # 赋给变量，然后像普通函数一样调用
+print('相加：', add(3, 5))
+
+square = lambda n: n * n
+print('平方：', square(7))
+
+print('类型：', type(add).__name__)     # 它也是一个 function
+
+print('立即调用：', (lambda a, b: a * b)(6, 7))     # 不用变量，当场调用
+
+hello = lambda: 'Hello, lambda!'
+print('没有参数：', hello())</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+相加： 8
+平方： 49
+类型： function
+立即调用： 42
+没有参数： Hello, lambda!
+</pre></div>
+  </div>
+
+  <div class="demo" data-demo="k4-err" data-expect-error="1">
+    <div class="demo-head">
+      <span class="demo-title">写错会怎样：lambda 里不能赋值</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">f = lambda x: y = x + 1        # 右边必须是"表达式"，赋值是"语句"
+print(f(3))</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+Traceback (most recent call last):
+  File "&lt;pyshell&gt;", line 1
+    f = lambda x: y = x + 1        # 右边必须是"表达式"，赋值是"语句"
+SyntaxError: cannot assign to lambda
+</pre></div>
+  </div>
+
+  <div class="sumline">✅ <b>本节小结</b>：<code class="inline">lambda 参数: 表达式</code> 就是一个<strong>没有名字的小函数</strong>，结果就是表达式的值。它不能放语句、不能写多行——<strong>一行能算完的才适合用 lambda</strong>。</div>
+
+  <h3 id="c4-2">4.2 真正的用武之地：当"排序依据"</h3>
+  <p><code class="inline">sorted()</code>、<code class="inline">max()</code>、<code class="inline">min()</code> 都有一个 <code class="inline">key</code> 参数，用来指定"按什么排 / 按什么比"。往里传一个 lambda，是最常见的写法。</p>
+
+  <div class="demo" data-demo="k4-sorted">
+    <div class="demo-head">
+      <span class="demo-title">sorted(key=lambda)：按成绩给"姓名+成绩"排序</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">students = [('张', 88), ('李', 95), ('王', 79), ('赵', 95)]
+
+print('原顺序：', students)
+print('直接 sorted()：', sorted(students))                  # 先比姓名，和成绩无关
+print('按成绩升序：', sorted(students, key=lambda s: s[1]))
+print('按成绩降序：', sorted(students, key=lambda s: s[1], reverse=True))
+print('成绩相同再按姓名：', sorted(students, key=lambda s: (s[1], s[0])))
+print('原列表没变：', students)                              # sorted 返回新列表</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+原顺序： [('张', 88), ('李', 95), ('王', 79), ('赵', 95)]
+直接 sorted()： [('张', 88), ('李', 95), ('王', 79), ('赵', 95)]
+按成绩升序： [('王', 79), ('张', 88), ('李', 95), ('赵', 95)]
+按成绩降序： [('李', 95), ('赵', 95), ('张', 88), ('王', 79)]
+成绩相同再按姓名： [('王', 79), ('张', 88), ('李', 95), ('赵', 95)]
+原列表没变： [('张', 88), ('李', 95), ('王', 79), ('赵', 95)]
+</pre></div>
+  </div>
+
+  <div class="demo" data-demo="k4-maxmin">
+    <div class="demo-head">
+      <span class="demo-title">max / min 也能配 key：找"成绩最高的那个人"</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">students = [('张', 88), ('李', 95), ('王', 79)]
+
+print('最高分（返回整个元组）：', max(students, key=lambda s: s[1]))
+print('最低分（返回整个元组）：', min(students, key=lambda s: s[1]))
+
+scores = {'语文': 88, '数学': 95, '英语': 79}
+print('分数最高的科目：', max(scores, key=lambda k: scores[k]))
+print('按分数排的科目：', sorted(scores, key=lambda k: scores[k]))
+print('分数最低的两个科目：', sorted(scores, key=lambda k: scores[k])[:2])</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+最高分（返回整个元组）： ('李', 95)
+最低分（返回整个元组）： ('王', 79)
+分数最高的科目： 数学
+按分数排的科目： ['英语', '语文', '数学']
+分数最低的两个科目： ['英语', '语文']
+</pre></div>
+  </div>
+
+  <div class="demo" data-demo="k4-map-filter">
+    <div class="demo-head">
+      <span class="demo-title">map / filter：对一批数据批量加工、筛选</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">scores = [88, 95, 79, 62, 100, 45]
+
+# map：对每个元素做同一件事
+print('每人加 5 分（封顶 100）：', list(map(lambda x: min(x + 5, 100), scores)))
+print('换算成等级：', list(map(lambda x: '及格' if x >= 60 else '不及格', scores)))
+
+# filter：按条件筛出元素
+print('及格分数：', list(filter(lambda x: x >= 60, scores)))
+print('90 分以上：', list(filter(lambda x: x >= 90, scores)))
+print('等价的列表推导式：', [x for x in scores if x >= 60])</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+每人加 5 分（封顶 100）： [93, 100, 84, 67, 100, 50]
+换算成等级： ['及格', '及格', '及格', '及格', '及格', '不及格']
+及格分数： [88, 95, 79, 62, 100]
+90 分以上： [95, 100]
+等价的列表推导式： [88, 95, 79, 62, 100]
+</pre></div>
+  </div>
+
+  <div class="demo" data-demo="k4-lambda-dict">
+    <div class="demo-head">
+      <span class="demo-title">实战：把词频统计的结果按次数排序（数据分析常用套路）</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">text = 'python 数据分析 与 python 可视化 还有 python 基础'
+words = text.split()
+counts = {}
+for w in words:
+    counts[w] = counts.get(w, 0) + 1
+
+print('词频：', counts)
+# 按次数从多到少排序：items() 里的元素是 (词, 次数)，取下标 1 当依据
+rank = sorted(counts.items(), key=lambda kv: kv[1], reverse=True)
+print('排行榜：', rank)
+for word, n in rank[:2]:
+    print('  ', word, '出现了', n, '次')</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+词频： {'python': 3, '数据分析': 1, '与': 1, '可视化': 1, '还有': 1, '基础': 1}
+排行榜： [('python', 3), ('数据分析', 1), ('与', 1), ('可视化', 1), ('还有', 1), ('基础', 1)]
+   python 出现了 3 次
+   数据分析 出现了 1 次
+</pre></div>
+  </div>
+
+  <div class="anim" data-anim="keyfn">
+    <div class="anim-head">
+      <span class="anim-title">🎬 动态演示：key 到底怎么决定排序结果</span>
+      <div class="anim-actions">
+        <button class="btn" type="button" data-act="reset">↺ 重置</button>
+        <button class="btn" type="button" data-act="prev">⏮ 上一步</button>
+        <button class="btn btn-play" type="button" data-act="play">▶ 播放</button>
+        <button class="btn" type="button" data-act="next">下一步 ⏭</button>
+      </div>
+    </div>
+    <div class="anim-stage"></div>
+    <div class="anim-status"><span class="anim-text"></span><span class="anim-progress"></span></div>
+  </div>
+
+  <div class="sumline">✅ <b>本节小结</b>：lambda 最实用的写法是 <code class="inline">sorted(数据, key=lambda x: 依据)</code>——<strong>key 只决定"按什么排"，不改变元素本身</strong>。按元组第 2 项排就写 <code class="inline">s[1]</code>，按字典的值排就写 <code class="inline">kv[1]</code>，要多级排序就返回一个元组。</div>
+
+  <div class="vid">
+    <span class="vtag">配套视频</span>
+    <a href="https://www.bilibili.com/video/BV1qW4y1a7fU/?p=84" target="_blank" rel="noopener">黑马程序员 · 第 84 讲 lambda 匿名函数</a>
+    <span class="vmeta">B站 · 4 分钟讲清 lambda 语法</span>
+  </div>
+  <div class="vid">
+    <span class="vtag">配套视频</span>
+    <a href="https://www.bilibili.com/video/BV1qW4y1a7fU/?p=83" target="_blank" rel="noopener">黑马程序员 · 第 83 讲 函数作为参数传递</a>
+    <span class="vmeta">B站 · 理解"函数也能当参数"（key 参数的原理）</span>
+  </div>
+</section>
+
+<!-- ===== 模块五：递归函数（选学） ===== -->
+<section id="c5">
+  <div class="sec-head">
+    <div class="sec-num">五</div>
+    <div>
+      <h2>递归函数 <span class="tag gold">选学</span></h2>
+      <p class="sec-sub">自己调用自己 · 终止条件 · 调用栈 · 与循环的取舍</p>
+    </div>
+  </div>
+
+  <div class="note"><strong>说明</strong>：课件目录里列了 5.5 递归函数，但幻灯片没有展开；教学进度表对本章的要求是"函数的定义与调用、函数参数、变量作用域、lambda 表达式、函数综合应用"。这一节按<strong>选学</strong>处理——理解思想即可，考试与上机不涉及。<strong>但它值得看一眼</strong>：递归是"函数调用自己"，里面藏着函数调用栈最直观的样子，而且后面讲"树结构、文件夹遍历"时会再遇到它。</div>
+
+  <h3 id="c5-1">5.1 递归的两个要素</h3>
+  <p>递归函数就是<strong>在函数体里调用自己</strong>。但它必须写清楚两件事，缺一个就会无限调用下去：</p>
+
+  <ol>
+    <li><strong>终止条件（base case）</strong>：什么时候停下来，直接返回一个确定的值，不再调用自己；</li>
+    <li><strong>递归式</strong>：把问题变小一步，再交给自己处理——<strong>每一次调用都要比上一次更接近终止条件</strong>。</li>
+  </ol>
+
+  <div class="figsvg">
+    <svg viewBox="0 0 900 320" width="900" height="320" role="img" aria-label="递归调用阶乘的调用栈示意">
+      <text x="450" y="24" text-anchor="middle" font-size="16.5" font-weight="700" fill="#1f3864">递归计算 4! 的过程：一路往下压栈，再一路往上返回</text>
+      <rect x="50" y="46" width="520" height="34" rx="8" fill="#eaf1f8" stroke="#306998" stroke-width="1.5"/>
+      <text x="70" y="69" font-size="13.5" font-family="Consolas,monospace" fill="#1f3864">factorial(4)</text>
+      <text x="300" y="69" font-size="13.5" font-family="Consolas,monospace" fill="#2b2820">→ 4 * factorial(3)　等着</text>
+      <rect x="105" y="90" width="520" height="34" rx="8" fill="#eaf1f8" stroke="#306998" stroke-width="1.5"/>
+      <text x="125" y="113" font-size="13.5" font-family="Consolas,monospace" fill="#1f3864">factorial(3)</text>
+      <text x="355" y="113" font-size="13.5" font-family="Consolas,monospace" fill="#2b2820">→ 3 * factorial(2)　等着</text>
+      <rect x="160" y="134" width="520" height="34" rx="8" fill="#eaf1f8" stroke="#306998" stroke-width="1.5"/>
+      <text x="180" y="157" font-size="13.5" font-family="Consolas,monospace" fill="#1f3864">factorial(2)</text>
+      <text x="410" y="157" font-size="13.5" font-family="Consolas,monospace" fill="#2b2820">→ 2 * factorial(1)　等着</text>
+      <rect x="215" y="178" width="520" height="34" rx="8" fill="#eaf7ea" stroke="#2e7d32" stroke-width="1.8"/>
+      <text x="235" y="201" font-size="13.5" font-family="Consolas,monospace" fill="#215c26">factorial(1)</text>
+      <text x="465" y="201" font-size="13.5" font-family="Consolas,monospace" fill="#215c26">→ 命中终止条件：return 1</text>
+      <path d="M300 226 L300 244" stroke="#2e7d32" stroke-width="1.6" marker-end="url(#ar5d)"/>
+      <text x="315" y="242" font-size="13" fill="#215c26">开始返回：factorial(1) 返回 1</text>
+      <text x="315" y="266" font-size="13" fill="#215c26">factorial(2) = 2 × 1 = 2　→　factorial(3) = 3 × 2 = 6</text>
+      <text x="315" y="290" font-size="13.5" font-weight="700" fill="#1f3864">factorial(4) = 4 × 6 = 24</text>
+      <defs><marker id="ar5d" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 z" fill="#2e7d32"/></marker></defs>
+      <text x="700" y="69" font-size="13" fill="#8c2f28">① 往下：4 层调用</text>
+      <text x="700" y="93" font-size="13" fill="#8c2f28">层层压入调用栈，</text>
+      <text x="700" y="117" font-size="13" fill="#8c2f28">每层都在"等"下一层</text>
+      <text x="700" y="200" font-size="13" fill="#215c26">② 触底后往上</text>
+      <text x="700" y="224" font-size="13" fill="#215c26">一层层算出结果</text>
+      <text x="700" y="248" font-size="13" fill="#215c26">并释放栈帧</text>
+      <text x="450" y="312" text-anchor="middle" font-size="12.5" fill="#5d594c">"压栈"就是函数还没算完、先记住自己算到哪一步——这也是递归占内存的原因</text>
+    </svg>
+    <div class="figcap">图 5-12　递归的两段路程：<strong>先一路压栈到底</strong>（找终止条件），<strong>再一路返回求和</strong></div>
+  </div>
+
+  <div class="demo" data-demo="k5-factorial">
+    <div class="demo-head">
+      <span class="demo-title">递归①：阶乘 n! = n × (n-1)!，0! = 1 是终止条件</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">def factorial(n):
+    '''计算 n 的阶乘：终止条件写在最前面'''
+    if n <= 1:                 # 终止条件：不再调用自己
+        return 1
+    return n * factorial(n - 1)   # 递归式：规模缩小 1
+
+for n in range(1, 7):
+    print(n, '的阶乘 =', factorial(n))
+
+print('组合数 C(5,2) = 5! / (2! × 3!) =', factorial(5) // (factorial(2) * factorial(3)))</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+1 的阶乘 = 1
+2 的阶乘 = 2
+3 的阶乘 = 6
+4 的阶乘 = 24
+5 的阶乘 = 120
+6 的阶乘 = 720
+组合数 C(5,2) = 5! / (2! × 3!) = 10
+</pre></div>
+  </div>
+
+  <div class="demo" data-demo="k5-fib">
+    <div class="demo-head">
+      <span class="demo-title">递归②：斐波那契数列 1, 1, 2, 3, 5, 8…（前两项是终止条件）</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">def fib(n):
+    '''返回第 n 个斐波那契数（n 从 1 开始）'''
+    if n <= 2:                  # 终止条件：前两个数都是 1
+        return 1
+    return fib(n - 1) + fib(n - 2)
+
+print('前 10 个：', [fib(i) for i in range(1, 11)])</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+前 10 个： [1, 1, 2, 3, 5, 8, 13, 21, 34, 55]
+</pre></div>
+  </div>
+
+  <div class="demo" data-demo="k5-recursive-sum">
+    <div class="demo-head">
+      <span class="demo-title">递归③：用递归求列表元素之和（和循环写法对照）</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">def sum_rec(nums):
+    '''递归求和：空列表返回 0，否则"第一个 + 剩下的"'''
+    if not nums:                      # 终止条件：没有元素了
+        return 0
+    return nums[0] + sum_rec(nums[1:])
+
+def sum_loop(nums):
+    '''循环求和：同一个问题的常规写法'''
+    total = 0
+    for n in nums:
+        total += n
+    return total
+
+data = [1, 2, 3, 4, 5, 6]
+print('递归结果：', sum_rec(data))
+print('循环结果：', sum_loop(data))
+print('内置函数：', sum(data))
+print('三者一致：', sum_rec(data) == sum_loop(data) == sum(data))</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+递归结果： 21
+循环结果： 21
+内置函数： 21
+三者一致： True
+</pre></div>
+  </div>
+
+  <div class="demo" data-demo="k5-err" data-expect-error="1">
+    <div class="demo-head">
+      <span class="demo-title">写错会怎样：忘了终止条件 → RecursionError</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">def boom(n):
+    return n * boom(n - 1)      # 没有终止条件，永远停不下来
+
+print(boom(5))</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+Traceback (most recent call last):
+  File "&lt;pyshell&gt;", line 4, in &lt;module&gt;
+    print(boom(5))
+  File "&lt;pyshell&gt;", line 2, in boom
+    return n * boom(n - 1)      # 没有终止条件，永远停不下来
+  File "&lt;pyshell&gt;", line 2, in boom
+    return n * boom(n - 1)      # 没有终止条件，永远停不下来
+  File "&lt;pyshell&gt;", line 2, in boom
+    return n * boom(n - 1)      # 没有终止条件，永远停不下来
+  [Previous line repeated 995 more times]
+RecursionError: maximum recursion depth exceeded
+</pre></div>
+  </div>
+
+  <div class="anim" data-anim="recstack">
+    <div class="anim-head">
+      <span class="anim-title">🎬 动态演示：递归的"压栈与出栈"（factorial(3)）</span>
+      <div class="anim-actions">
+        <button class="btn" type="button" data-act="reset">↺ 重置</button>
+        <button class="btn" type="button" data-act="prev">⏮ 上一步</button>
+        <button class="btn btn-play" type="button" data-act="play">▶ 播放</button>
+        <button class="btn" type="button" data-act="next">下一步 ⏭</button>
+      </div>
+    </div>
+    <div class="anim-stage"></div>
+    <div class="anim-status"><span class="anim-text"></span><span class="anim-progress"></span></div>
+  </div>
+
+  <h3 id="c5-2">5.2 递归还是循环？</h3>
+  <p>同一个"求和"，循环和递归都能做。<strong>工程上的默认选择是循环</strong>——它更省内存、没有深度限制；递归的优势在"<strong>问题本身就是分层的</strong>"：文件夹里的文件夹、菜单里的子菜单、族谱里的分支，用递归写出来几乎就是问题本身的样子。</p>
+
+  <div class="tbl-wrap">
+    <table class="mini-table">
+      <thead><tr><th>比较项</th><th>循环（for / while）</th><th>递归</th></tr></thead>
+      <tbody>
+        <tr><td>写法复杂度</td><td>直白，一眼看到"从头到尾"</td><td>代码更短，但要想清终止条件</td></tr>
+        <tr><td>内存占用</td><td>几乎不额外占内存</td><td>每一层调用都压一个栈帧，深度越大越占内存</td></tr>
+        <tr><td>深度限制</td><td>没有限制</td><td>Python 默认约 1000 层，超了报 <code class="inline">RecursionError</code></td></tr>
+        <tr><td>适合什么</td><td>一维、顺序处理的数据</td><td>天然分层的结构：树、目录、嵌套列表</td></tr>
+        <tr><td>本章建议</td><td><strong>首选</strong></td><td>看懂即可，别用来处理大批数据</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="demo" data-demo="k5-limit">
+    <div class="demo-head">
+      <span class="demo-title">递归有多"深"才安全：看看 Python 的默认上限</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">import sys
+
+print('Python 默认递归深度上限：', sys.getrecursionlimit())
+
+def depth(n):
+    '''往下数 n 层，返回一共深入了多少层'''
+    if n == 0:
+        return 0
+    return 1 + depth(n - 1)
+
+print('成功递归 500 层：', depth(500))
+print('（注意：斐波那契那种"一次分成两支"的递归，深度不大但调用次数爆炸，')
+print('  算第 35 个数要调用上千万次——这类问题必须改用循环或缓存）')</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+Python 默认递归深度上限： 1000
+成功递归 500 层： 500
+（注意：斐波那契那种"一次分成两支"的递归，深度不大但调用次数爆炸，
+  算第 35 个数要调用上千万次——这类问题必须改用循环或缓存）
+</pre></div>
+  </div>
+
+  <div class="sumline">✅ <b>本节小结</b>：递归 = <strong>终止条件 + 自己调用自己（并且规模要变小）</strong>。它的两段路程是"先压栈到底、再出栈返回"。写不出来就先用循环，<strong>真正适合递归的是天然分层的结构</strong>。</div>
+
+  <div class="vid">
+    <span class="vtag">配套视频</span>
+    <a href="https://www.bilibili.com/video/BV1qW4y1a7fU/?p=164" target="_blank" rel="noopener">黑马程序员 · 第 164 讲 递归</a>
+    <span class="vmeta">B站 · 该系列最后的递归专题，讲完刚好本章收尾</span>
+  </div>
+</section>
+
+<!-- ===== 模块六：类与对象 ===== -->
+<section id="c6">
+  <div class="sec-head">
+    <div class="sec-num">六</div>
+    <div>
+      <h2>类的定义与使用 <span class="tag red">本章重点</span></h2>
+      <p class="sec-sub">类与对象 · class 语法 · __init__ 与 self · 创建对象 · 例 5-11 / 例 5-12 圆类</p>
+    </div>
+  </div>
+
+  <h3 id="c6-1">6.1 类与对象：模板与实例</h3>
+  <p>到这里为止，函数和数据是分开的：列表存数据，函数处理数据。<strong>类（class）把两者装在一起</strong>——它描述"这类东西有什么数据（属性）、能做什么（方法）"。<strong>类</strong>是抽象的模板，<strong>对象</strong>是按模板造出来的具体实例。</p>
+
+  <div class="figsvg">
+    <svg viewBox="0 0 900 260" width="900" height="260" role="img" aria-label="类与对象：模板与实例">
+      <text x="450" y="24" text-anchor="middle" font-size="16.5" font-weight="700" fill="#1f3864">类 = 模板，对象 = 按模板造出来的具体实例</text>
+      <rect x="40" y="52" width="300" height="150" rx="12" fill="#eaf1f8" stroke="#306998" stroke-width="1.8"/>
+      <text x="190" y="78" text-anchor="middle" font-size="15" font-weight="700" fill="#1f3864">类：猫</text>
+      <text x="60" y="106" font-size="13" fill="#2b2820">属性（静态特征）：毛色、公母、大小</text>
+      <text x="60" y="132" font-size="13" fill="#2b2820">方法（动态行为）：抓老鼠、伸懒腰</text>
+      <text x="60" y="166" font-size="13" fill="#5d594c">——这是一张"设计图"，不是某只猫</text>
+      <text x="60" y="190" font-size="13" fill="#5d594c">——它规定了"猫"这类事物有什么</text>
+      <path d="M348 127 L432 127" stroke="#b8860b" stroke-width="1.8" marker-end="url(#ar5e)"/>
+      <text x="390" y="117" text-anchor="middle" font-size="12.5" fill="#7a4a0a">实例化</text>
+      <defs><marker id="ar5e" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 z" fill="#b8860b"/></marker></defs>
+      <rect x="440" y="40" width="420" height="80" rx="12" fill="#eaf7ea" stroke="#2e7d32" stroke-width="1.6"/>
+      <text x="460" y="66" font-size="14" font-weight="700" fill="#215c26">对象一：小猫"咪咪"</text>
+      <text x="460" y="90" font-size="13" fill="#2b2820">毛色=黑白　公母=母　大小=小　→ 抓老鼠()</text>
+      <text x="460" y="110" font-size="12.5" fill="#5d594c">它是一只有具体属性值的"真猫"</text>
+      <rect x="440" y="130" width="420" height="80" rx="12" fill="#eaf7ea" stroke="#2e7d32" stroke-width="1.6"/>
+      <text x="460" y="156" font-size="14" font-weight="700" fill="#215c26">对象二：公猫"豆豆"</text>
+      <text x="460" y="180" font-size="13" fill="#2b2820">毛色=橘色　公母=公　大小=大　→ 伸懒腰()</text>
+      <text x="460" y="200" font-size="12.5" fill="#5d594c">同一个类造出来的，属性值各不相同</text>
+      <text x="450" y="240" text-anchor="middle" font-size="13" fill="#5d594c">面向对象的基本思想：<tspan font-weight="700">"万物皆对象"</tspan>——对象都是某个类的实例</text>
+    </svg>
+    <div class="figcap">图 5-13　类与对象：一个模板可以造出无数个属性值不同的实例</div>
+  </div>
+
+  <div class="tbl-wrap">
+    <table class="mini-table">
+      <thead><tr><th>概念</th><th>是什么</th><th>在圆的例子里</th></tr></thead>
+      <tbody>
+        <tr><td>类（class）</td><td>模板、抽象，描述一类事物的共同特征与行为</td><td><code class="inline">MyCircle</code></td></tr>
+        <tr><td>对象（实例）</td><td>按模板造出来的具体个体</td><td><code class="inline">c1 = MyCircle(2)</code></td></tr>
+        <tr><td>属性</td><td>对象的数据（静态特征）</td><td><code class="inline">self.r</code> 半径</td></tr>
+        <tr><td>方法</td><td>对象的函数（动态行为），第一个参数必须是 <code class="inline">self</code></td><td><code class="inline">area()</code>、<code class="inline">perimeter()</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="sumline">✅ <b>本节小结</b>：<strong>类是模板，对象是实例</strong>。类里规定两件事：属性（有什么数据）和方法（能做什么）。造对象的过程叫"实例化"——同一个类可以造出很多对象，它们的属性值互不相同。</div>
+
+  <h3 id="c6-2">6.2 用 class 定义类：__init__ 与 self</h3>
+  <p>定义类用 <code class="inline">class</code> 语句。类的设计包含三个要素：<strong>类名</strong>（抽象事物的名字）、<strong>属性</strong>（特征）、<strong>方法</strong>（行为）。其中 <code class="inline">__init__</code> 是一个特殊方法——<strong>它不用你调用，创建对象时会自动执行</strong>，用来给对象准备初始数据。</p>
+
+  <div class="figsvg">
+    <svg viewBox="0 0 900 300" width="900" height="300" role="img" aria-label="class 语句的结构">
+      <text x="450" y="24" text-anchor="middle" font-size="16.5" font-weight="700" fill="#1f3864">一个类的最小结构</text>
+      <rect x="50" y="42" width="800" height="180" rx="10" fill="#12141c"/>
+      <g font-family="Consolas,monospace" font-size="15">
+        <text x="74" y="74" fill="#c8cde0"><tspan fill="#7fb3e0" font-weight="700">class</tspan> <tspan fill="#e6c07b" font-weight="700">MyCircle</tspan>:</text>
+        <text x="98" y="102" fill="#9aa3bd">'''一个圆：半径是属性，面积和周长是方法'''</text>
+        <text x="98" y="130" fill="#c8cde0"><tspan fill="#7fb3e0">def</tspan> <tspan fill="#8fd694">__init__</tspan>(<tspan fill="#e08b8b">self</tspan>, r):</text>
+        <text x="122" y="156" fill="#c8cde0"><tspan fill="#e08b8b">self</tspan>.<tspan fill="#e6c07b">r</tspan> = r</text>
+        <text x="98" y="184" fill="#c8cde0"><tspan fill="#7fb3e0">def</tspan> <tspan fill="#8fd694">area</tspan>(<tspan fill="#e08b8b">self</tspan>):</text>
+        <text x="122" y="210" fill="#c8cde0">return round(math.pi * <tspan fill="#e08b8b">self</tspan>.<tspan fill="#e6c07b">r</tspan> ** 2, 2)</text>
+      </g>
+      <g font-size="12.5" fill="#2b2820">
+        <text x="60" y="246" fill="#306998" font-weight="700">① class 类名:　</text>
+        <text x="176" y="246">类名约定首字母大写（MyCircle），区别于函数名</text>
+        <text x="60" y="268" fill="#215c26" font-weight="700">② def __init__(self, 参数):　</text>
+        <text x="290" y="268">创建对象时自动执行，负责把参数存成属性</text>
+        <text x="60" y="290" fill="#8c2f28" font-weight="700">③ self：</text>
+        <text x="132" y="290">代表"对象自己"，方法里访问自己的属性必须写 self.属性名</text>
+      </g>
+    </svg>
+    <div class="figcap">图 5-14　class 语句的组成：类名、<code class="inline">__init__</code> 初始化属性、方法里的 <code class="inline">self</code></div>
+  </div>
+
+  <div class="demo" data-demo="k6-circle-class">
+    <div class="demo-head">
+      <span class="demo-title">例 5-11　设计一个"圆"类：半径 + 面积 + 周长</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">import math
+
+class MyCircle:
+    '''一个圆：半径是属性，计算面积和周长是方法'''
+
+    def __init__(self, r):
+        self.r = r                    # 把参数存成对象的属性
+
+    def area(self):
+        '''面积 = πr²'''
+        return round(math.pi * self.r ** 2, 2)
+
+    def perimeter(self):
+        '''周长 = 2πr'''
+        return round(2 * math.pi * self.r, 2)
+
+print('类定义完成：', MyCircle.__name__)
+print('类的说明文档：', MyCircle.__doc__)
+print('（注意：类只是模板，到这里还没有任何一个圆）')</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+类定义完成： MyCircle
+类的说明文档： 一个圆：半径是属性，计算面积和周长是方法
+（注意：类只是模板，到这里还没有任何一个圆）
+</pre></div>
+  </div>
+
+  <div class="demo" data-demo="k6-self-err" data-expect-error="1">
+    <div class="demo-head">
+      <span class="demo-title">写错会怎样：方法忘了写 self</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">import math
+
+class MyCircle:
+    def __init__(self, r):
+        self.r = r
+
+    def area():                 # 忘了写 self
+        return round(math.pi * self.r ** 2, 2)
+
+c = MyCircle(2)
+print(c.area())</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+Traceback (most recent call last):
+  File "&lt;pyshell&gt;", line 11, in &lt;module&gt;
+    print(c.area())
+TypeError: MyCircle.area() takes 0 positional arguments but 1 was given
+</pre></div>
+  </div>
+
+  <div class="sumline">✅ <b>本节小结</b>：<code class="inline">class 类名:</code> 定义模板；<code class="inline">__init__</code> 在创建对象时<strong>自动执行</strong>，用来存属性；<strong>方法（包括 __init__）的第一个参数必须是 <code class="inline">self</code></strong>，它代表对象自己。方法里用 <code class="inline">self.属性名</code> 访问自己的数据。</div>
+
+  <h3 id="c6-3">6.3 创建对象、访问属性与调用方法</h3>
+  <p>创建对象的写法就是<strong>类名加括号</strong>：<code class="inline">c1 = MyCircle(2)</code>。拿到对象之后，用点号 <code class="inline">.</code> 访问它的属性、调用它的方法。</p>
+
+  <div class="demo" data-demo="k6-objects">
+    <div class="demo-head">
+      <span class="demo-title">例 5-12　创建两个不同半径的圆对象，算面积与周长</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">import math
+
+class MyCircle:
+    def __init__(self, r):
+        self.r = r
+
+    def area(self):
+        return round(math.pi * self.r ** 2, 2)
+
+    def perimeter(self):
+        return round(2 * math.pi * self.r, 2)
+
+# 创建两个对象
+c1 = MyCircle(2)
+c2 = MyCircle(5)
+
+print('c1 的半径：', c1.r)                  # 访问属性
+print('c1 面积：', c1.area(), ' 周长：', c1.perimeter())    # 调用方法
+print('c2 的半径：', c2.r)
+print('c2 面积：', c2.area(), ' 周长：', c2.perimeter())
+
+# 两个对象完全独立
+c2.r = 10
+print('-' * 26)
+print('改了 c2 的半径之后：')
+print('c2 面积：', c2.area())
+print('c1 半径不受影响：', c1.r, ' 面积：', c1.area())
+print('两个对象是不同的实例：', c1 is c2)</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+c1 的半径： 2
+c1 面积： 12.57  周长： 12.57
+c2 的半径： 5
+c2 面积： 78.54  周长： 31.42
+--------------------------
+改了 c2 的半径之后：
+c2 面积： 314.16
+c1 半径不受影响： 2  面积： 12.57
+两个对象是不同的实例： False
+</pre></div>
+  </div>
+
+  <div class="anim" data-anim="objcreate">
+    <div class="anim-head">
+      <span class="anim-title">🎬 动态演示：从"类的模板"到"两个圆对象"</span>
+      <div class="anim-actions">
+        <button class="btn" type="button" data-act="reset">↺ 重置</button>
+        <button class="btn" type="button" data-act="prev">⏮ 上一步</button>
+        <button class="btn btn-play" type="button" data-act="play">▶ 播放</button>
+        <button class="btn" type="button" data-act="next">下一步 ⏭</button>
+      </div>
+    </div>
+    <div class="anim-stage"></div>
+    <div class="anim-status"><span class="anim-text"></span><span class="anim-progress"></span></div>
+  </div>
+
+  <div class="demo" data-demo="k6-student">
+    <div class="demo-head">
+      <span class="demo-title">实战：把"学生成绩"做成一个类（类 + lambda 一起用）</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">class Student:
+    '''一个学生：属性有姓名和三科成绩，方法算总分和平均分'''
+
+    def __init__(self, name, scores):
+        self.name = name
+        self.scores = scores
+
+    def total(self):
+        return sum(self.scores)
+
+    def avg(self):
+        return round(sum(self.scores) / len(self.scores), 1)
+
+    def info(self):
+        return self.name + '｜总分 ' + str(self.total()) + '｜平均 ' + str(self.avg())
+
+students = [
+    Student('张', [88, 92, 79]),
+    Student('李', [95, 88, 90]),
+    Student('王', [70, 65, 72]),
+]
+
+for s in students:
+    print(s.info())
+
+print('-' * 30)
+print('按总分排名：')
+for i, s in enumerate(sorted(students, key=lambda st: st.total(), reverse=True), 1):
+    print('  第', i, '名：', s.name, '总分', s.total())</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+张｜总分 259｜平均 86.3
+李｜总分 273｜平均 91.0
+王｜总分 207｜平均 69.0
+------------------------------
+按总分排名：
+  第 1 名： 李 总分 273
+  第 2 名： 张 总分 259
+  第 3 名： 王 总分 207
+</pre></div>
+  </div>
+
+  <div class="sumline">✅ <b>本节小结</b>：<code class="inline">对象 = 类名(参数)</code>，用 <code class="inline">对象.属性</code> 读数据、<code class="inline">对象.方法()</code> 做事。<strong>同一个类造出的对象互相独立</strong>——改一个不影响另一个。类的好处是"数据 + 处理数据的函数"打包在一起，用起来不会拿错对象。</div>
+
+  <div class="vid">
+    <span class="vtag">配套视频</span>
+    <a href="https://www.bilibili.com/video/BV1qW4y1a7fU/?p=111" target="_blank" rel="noopener">黑马程序员 · 第 111 讲 初识对象</a>
+    <span class="vmeta">B站 · 面向对象第一课</span>
+  </div>
+  <div class="vid">
+    <span class="vtag">配套视频</span>
+    <a href="https://www.bilibili.com/video/BV1qW4y1a7fU/?p=113" target="_blank" rel="noopener">黑马程序员 · 第 113 讲 类和对象</a>
+    <span class="vmeta">B站 · 类与对象的关系，配合本节食用</span>
+  </div>
+</section>
+
+<!-- ===== 模块七：综合应用 ===== -->
+<section id="c7">
+  <div class="sec-head">
+    <div class="sec-num">七</div>
+    <div>
+      <h2>函数与类的综合应用</h2>
+      <p class="sec-sub">分段函数 · 阶梯水费 · 三角形面积 · 上机任务与作业 · AI 渗透</p>
+    </div>
+  </div>
+
+  <p>这一节把本章学的东西用起来。三个例题都来自课件：把原本写在主程序里的判断逻辑<strong>装进函数</strong>，主程序立刻变得清爽。做题时注意一个套路——<strong>先想清楚"这个功能要不要复用"，要复用就写成函数</strong>。</p>
+
+  <h3 id="c7-1">7.1 例：分段函数（课件上机题 1）</h3>
+  <p>分段函数本来就是"按区间分别计算"，是 if-elif-else 最典型的应用。做成分段函数后，主程序只需要 <code class="inline">piecewise(x)</code> 一行。</p>
+
+  <div class="demo" data-demo="k7-piecewise">
+    <div class="demo-head">
+      <span class="demo-title">分段函数：封装成函数，主程序只负责遍历输入</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">def piecewise(x):
+    '''分段函数：
+       x < 0        → y = x²
+       0 ≤ x < 5    → y = 3x - 5
+       x ≥ 5        → y = 0.5x - 2
+    '''
+    if x < 0:
+        y = x ** 2
+    elif x < 5:              # 走到这里已经隐含 x >= 0
+        y = 3 * x - 5
+    else:
+        y = 0.5 * x - 2
+    return y
+
+for x in [-3, -0.5, 0, 2, 4.9, 5, 10]:
+    print('x =', x, '→ y =', piecewise(x))</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+x = -3 → y = 9
+x = -0.5 → y = 0.25
+x = 0 → y = -5
+x = 2 → y = 1
+x = 4.9 → y = 9.700000000000001
+x = 5 → y = 0.5
+x = 10 → y = 3.0
+</pre></div>
+  </div>
+
+  <div class="warn"><strong>写这个函数要注意</strong>：<code class="inline">elif x &lt; 5</code> 里不用再写 <code class="inline">0 &lt;= x</code>——因为能走到 elif，说明前面的 <code class="inline">if x &lt; 0</code> 已经不成立，x 必然 ≥ 0。这是"<strong>条件的顺序本身就在传递信息</strong>"，多写反而容易出错（下一章学 Pandas 的分段赋值时还会遇到同样的思路）。</div>
+
+  <h3 id="c7-2">7.2 例：阶梯水费（课件上机题 2）</h3>
+  <p>阶梯水费是"用得越多，单价越高"的累进制计费。它的分段逻辑比上一题复杂，所以更值得做成函数——<strong>函数把"怎么算"关在里面，主程序只关心输入输出</strong>。</p>
+
+  <div class="figsvg">
+    <svg viewBox="0 0 900 280" width="900" height="280" role="img" aria-label="阶梯水费的三段计价">
+      <text x="450" y="24" text-anchor="middle" font-size="16.5" font-weight="700" fill="#1f3864">阶梯水费：三段累加，不是"整体套一个单价"</text>
+      <line x1="90" y1="220" x2="830" y2="220" stroke="#8a8577" stroke-width="1.6"/>
+      <line x1="90" y1="220" x2="90" y2="60" stroke="#8a8577" stroke-width="1.6"/>
+      <text x="836" y="224" font-size="12.5" fill="#5d594c">吨数</text>
+      <text x="60" y="56" font-size="12.5" fill="#5d594c">单价</text>
+      <rect x="90" y="176" width="230" height="44" fill="#eaf1f8" stroke="#306998" stroke-width="1.5"/>
+      <rect x="320" y="132" width="180" height="88" fill="#fff7e6" stroke="#b8860b" stroke-width="1.5"/>
+      <rect x="500" y="88" width="300" height="132" fill="#f0eefa" stroke="#4c5691" stroke-width="1.5"/>
+      <text x="205" y="204" text-anchor="middle" font-size="13" font-weight="700" fill="#1f3864">5 元 / 吨</text>
+      <text x="410" y="180" text-anchor="middle" font-size="13" font-weight="700" fill="#7a4a0a">7 元 / 吨</text>
+      <text x="650" y="160" text-anchor="middle" font-size="13" font-weight="700" fill="#333a63">9 元 / 吨</text>
+      <text x="205" y="240" text-anchor="middle" font-size="12.5" fill="#5d594c">0 — 180 吨</text>
+      <text x="410" y="240" text-anchor="middle" font-size="12.5" fill="#5d594c">180 — 260 吨</text>
+      <text x="650" y="240" text-anchor="middle" font-size="12.5" fill="#5d594c">260 吨以上</text>
+      <line x1="320" y1="220" x2="320" y2="132" stroke="#8a8577" stroke-width="1.2" stroke-dasharray="4 3"/>
+      <line x1="500" y1="220" x2="500" y2="88" stroke="#8a8577" stroke-width="1.2" stroke-dasharray="4 3"/>
+      <text x="450" y="268" text-anchor="middle" font-size="13" fill="#2b2820">用水 300 吨的费用 = <tspan font-weight="700">180×5</tspan> + <tspan font-weight="700">80×7</tspan> + <tspan font-weight="700">40×9</tspan> = 900 + 560 + 360 = <tspan font-weight="700" fill="#1f3864">1820 元</tspan></text>
+    </svg>
+    <div class="figcap">图 5-15　三段单价累加：前 180 吨按 5 元、180—260 吨部分按 7 元、超出部分按 9 元</div>
+  </div>
+
+  <div class="demo" data-demo="k7-water">
+    <div class="demo-head">
+      <span class="demo-title">阶梯水费：把累进算法关进函数（课件示例 ex_5-2）</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">def cal_rate(x):
+    '''按阶梯水价计算水费：≤180 吨 5 元/吨；180—260 吨部分 7 元/吨；超出 260 吨部分 9 元/吨'''
+    if x <= 180:
+        y = 5 * x
+    elif x <= 260:
+        y = 180 * 5 + (x - 180) * 7
+    else:
+        y = 180 * 5 + (260 - 180) * 7 + (x - 260) * 9
+    return y
+
+for t in [100, 180, 200, 260, 300]:
+    print('用水', t, '吨 → 水费', cal_rate(t), '元')
+
+print('-' * 30)
+print('检查上一页的算式：300 吨 =', 180 * 5 + 80 * 7 + 40 * 9, '元')</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+用水 100 吨 → 水费 500 元
+用水 180 吨 → 水费 900 元
+用水 200 吨 → 水费 1040 元
+用水 260 吨 → 水费 1460 元
+用水 300 吨 → 水费 1820 元
+------------------------------
+检查上一页的算式：300 吨 = 1820 元
+</pre></div>
+  </div>
+
+  <div class="demo" data-demo="k7-water-input" data-stdin="150|-20|275">
+    <div class="demo-head">
+      <span class="demo-title">加上主程序：输入用水量，输出水费（含输入校验）</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">def cal_rate(x):
+    if x <= 180:
+        y = 5 * x
+    elif x <= 260:
+        y = 180 * 5 + (x - 180) * 7
+    else:
+        y = 180 * 5 + (260 - 180) * 7 + (x - 260) * 9
+    return y
+
+# 主程序：课件要求——输入小于零时提示错误
+for _ in range(3):                       # 演示里连续处理 3 次输入
+    x = float(input('请输入用水量（吨）：'))
+    if x < 0:
+        print('输入错误：用水量不能为负数')
+    else:
+        print('应缴水费：', cal_rate(x), '元')</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+请输入用水量（吨）：150
+应缴水费： 750.0 元
+请输入用水量（吨）：-20
+输入错误：用水量不能为负数
+请输入用水量（吨）：275
+应缴水费： 1595.0 元
+</pre></div>
+  </div>
+
+  <h3 id="c7-3">7.3 例：三角形面积（课件上机题 3）</h3>
+  <p>海伦公式本身要写三行，如果再算上"能不能构成三角形"的判断，主程序会变得很长。把两件事都做成函数：<code class="inline">is_triangle()</code> 判断，<code class="inline">cal_area()</code> 计算——<strong>一个函数只做一件事</strong>。</p>
+
+  <div class="demo" data-demo="k7-triangle">
+    <div class="demo-head">
+      <span class="demo-title">三角形：判定 + 海伦公式（课件示例）</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">import math
+
+def is_triangle(a, b, c):
+    '''两边之和大于第三边'''
+    return a + b > c and a + c > b and b + c > a
+
+def cal_area(a, b, c):
+    '''海伦公式：p 是半周长'''
+    p = (a + b + c) / 2
+    return math.sqrt(p * (p - a) * (p - b) * (p - c))
+
+for sides in [(3, 4, 5), (6, 6, 6), (1, 1, 3)]:
+    a, b, c = sides
+    if is_triangle(a, b, c):
+        print(sides, '能构成三角形，面积 =', round(cal_area(a, b, c), 2))
+    else:
+        print(sides, '不能构成三角形（两边之和没有大于第三边）')</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+(3, 4, 5) 能构成三角形，面积 = 6.0
+(6, 6, 6) 能构成三角形，面积 = 15.59
+(1, 1, 3) 不能构成三角形（两边之和没有大于第三边）
+</pre></div>
+  </div>
+
+  <div class="sumline">✅ <b>本节小结</b>：三个例题都是同一种改造——<strong>把主程序里的计算逻辑抽成函数</strong>。判断"要不要抽"的方法很简单：<strong>如果这段逻辑要用第二次，或者它让主程序变得难读，就抽成函数</strong>。</div>
+
+  <h3 id="c7-4">7.4 上机任务与课后作业</h3>
+  <p>下面四道题都要求<strong>写成函数或类</strong>，主程序只负责输入输出——这是本章最核心的训练：<strong>把"做什么"和"怎么做"分开</strong>。</p>
+
+  <div class="homework">
+    <h4>作业 5-1　素数判断函数</h4>
+    <p>定义函数 <code class="inline">is_prime(n)</code>：是素数返回 <code class="inline">True</code>，否则返回 <code class="inline">False</code>，然后输出 2~50 之间的所有素数。</p>
+  </div>
+
+  <div class="demo" data-demo="k7-hw1">
+    <div class="demo-head">
+      <span class="demo-title">作业 5-1 参考写法：判断素数 + 找出 2~50 的素数</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">def is_prime(n):
+    '''判断 n 是否为素数'''
+    if n < 2:                      # 1 和负数都不是素数
+        return False
+    for i in range(2, int(n ** 0.5) + 1):
+        if n % i == 0:             # 找到能整除的因数
+            return False
+    return True
+
+primes = [n for n in range(2, 51) if is_prime(n)]
+print('2~50 之间的素数：')
+print(primes)
+print('一共', len(primes), '个')
+print('顺便验算：97 是素数吗？', is_prime(97), '　91 呢？', is_prime(91))</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+2~50 之间的素数：
+[2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47]
+一共 15 个
+顺便验算：97 是素数吗？ True 　91 呢？ False
+</pre></div>
+  </div>
+
+  <div class="homework">
+    <h4>作业 5-2　成绩统计函数</h4>
+    <p>定义函数 <code class="inline">stat(scores)</code>，返回平均分和及格率；主程序读入人数与成绩，输出统计结果（用两个返回值接收）。</p>
+  </div>
+
+  <div class="demo" data-demo="k7-hw2" data-stdin="5|88|95|59|72|100">
+    <div class="demo-head">
+      <span class="demo-title">作业 5-2 参考写法：输入 5 个成绩，输出平均分与及格率</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">def stat(scores):
+    '''返回 (平均分, 及格率%)，两个值一次交回'''
+    n = len(scores)
+    avg = round(sum(scores) / n, 1)
+    passed = len([s for s in scores if s >= 60])
+    rate = round(passed / n * 100, 1)
+    return avg, rate
+
+n = int(input('请输入学生人数：'))
+scores = []
+for i in range(n):
+    scores.append(float(input('第 ' + str(i + 1) + ' 个成绩：')))
+
+avg, rate = stat(scores)                 # 解包接收两个返回值
+print('成绩单：', scores)
+print('平均分：', avg)
+print('及格率：', str(rate) + '%')
+print('最高分 / 最低分：', max(scores), '/', min(scores))</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+请输入学生人数：5
+第 1 个成绩：88
+第 2 个成绩：95
+第 3 个成绩：59
+第 4 个成绩：72
+第 5 个成绩：100
+成绩单： [88.0, 95.0, 59.0, 72.0, 100.0]
+平均分： 82.8
+及格率： 80.0%
+最高分 / 最低分： 100.0 / 59.0
+</pre></div>
+  </div>
+
+  <div class="homework">
+    <h4>作业 5-3　词频统计函数（用上 lambda）</h4>
+    <p>定义函数 <code class="inline">word_rank(text, top=3)</code>，返回出现次数最多的前 <code class="inline">top</code> 个词及其次数。</p>
+  </div>
+
+  <div class="demo" data-demo="k7-hw3">
+    <div class="demo-head">
+      <span class="demo-title">作业 5-3 参考写法：词频 + 排序 + 取前几名</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">def word_rank(text, top=3):
+    '''返回出现次数最多的前 top 个词：[(词, 次数), ...]'''
+    counts = {}
+    for w in text.split():
+        counts[w] = counts.get(w, 0) + 1
+    rank = sorted(counts.items(), key=lambda kv: kv[1], reverse=True)
+    return rank[:top]
+
+text = 'python 数据分析 数据 可视化 数据 python 建模 数据 python'
+print('词频前 3 名：')
+for i, (w, c) in enumerate(word_rank(text), 1):
+    print('  第', i, '名：', w, '(', c, '次 )')
+
+print('如果只看前 2 名：', word_rank(text, 2))</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+词频前 3 名：
+  第 1 名： python ( 3 次 )
+  第 2 名： 数据 ( 3 次 )
+  第 3 名： 数据分析 ( 1 次 )
+如果只看前 2 名： [('python', 3), ('数据', 3)]
+</pre></div>
+  </div>
+
+  <div class="homework">
+    <h4>作业 5-4　给圆类加两个方法</h4>
+    <p>在例 5-11 的 <code class="inline">MyCircle</code> 类上增加 <code class="inline">set_r(r)</code>（改半径）和 <code class="inline">bigger_than(other)</code>（和另一个圆比面积大小）。</p>
+  </div>
+
+  <div class="demo" data-demo="k7-hw4">
+    <div class="demo-head">
+      <span class="demo-title">作业 5-4 参考写法：方法的参数可以是"另一个同类的对象"</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">import math
+
+class MyCircle:
+    def __init__(self, r):
+        self.r = r
+
+    def area(self):
+        return round(math.pi * self.r ** 2, 2)
+
+    def set_r(self, r):
+        '''修改半径'''
+        self.r = r
+
+    def bigger_than(self, other):
+        '''比较两个圆的面积，other 是另一个 MyCircle 对象'''
+        return self.area() > other.area()
+
+c1 = MyCircle(3)
+c2 = MyCircle(5)
+print('c1 半径', c1.r, '面积', c1.area())
+print('c2 半径', c2.r, '面积', c2.area())
+print('c2 比 c1 大？', c2.bigger_than(c1))
+
+c1.set_r(8)                       # 调用 set_r 改半径
+print('-' * 30)
+print('c1 改半径为 8 后，面积', c1.area())
+print('现在 c1 比 c2 大？', c1.bigger_than(c2))</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+c1 半径 3 面积 28.27
+c2 半径 5 面积 78.54
+c2 比 c1 大？ True
+------------------------------
+c1 改半径为 8 后，面积 201.06
+现在 c1 比 c2 大？ True
+</pre></div>
+  </div>
+
+  <h3 id="c7-5">7.5 AI 渗透：这一章的东西，AI 里全都在用</h3>
+  <p>"函数"听起来是基础语法，但它在 AI 里不是比喻，而是<strong>字面意义上就是 AI 的骨架</strong>：一个神经元是一次函数调用，一层网络是一批函数调用，训练就是反复调整函数里的参数，模型对比就是给候选答案打分排序。下面这张图把本章的概念和 AI 里的对应物摆在一起。</p>
+
+  <div class="figsvg">
+    <svg viewBox="0 0 900 330" width="900" height="330" role="img" aria-label="本章概念与 AI 概念的对应关系">
+      <text x="450" y="24" text-anchor="middle" font-size="16.5" font-weight="700" fill="#1f3864">本章学的 → AI 里对应的东西</text>
+      <rect x="40" y="44" width="330" height="46" rx="10" fill="#eaf1f8" stroke="#306998" stroke-width="1.5"/>
+      <text x="205" y="73" text-anchor="middle" font-size="14" font-weight="700" fill="#1f3864">函数：输入 → 输出</text>
+      <rect x="530" y="44" width="330" height="46" rx="10" fill="#eaf7ea" stroke="#2e7d32" stroke-width="1.5"/>
+      <text x="695" y="73" text-anchor="middle" font-size="14" font-weight="700" fill="#215c26">模型的一次"前向计算"</text>
+      <rect x="40" y="104" width="330" height="46" rx="10" fill="#eaf1f8" stroke="#306998" stroke-width="1.5"/>
+      <text x="205" y="133" text-anchor="middle" font-size="14" font-weight="700" fill="#1f3864">参数：函数里可变的量</text>
+      <rect x="530" y="104" width="330" height="46" rx="10" fill="#eaf7ea" stroke="#2e7d32" stroke-width="1.5"/>
+      <text x="695" y="133" text-anchor="middle" font-size="14" font-weight="700" fill="#215c26">权重与偏置（训练就是在调它们）</text>
+      <rect x="40" y="164" width="330" height="46" rx="10" fill="#eaf1f8" stroke="#306998" stroke-width="1.5"/>
+      <text x="205" y="193" text-anchor="middle" font-size="14" font-weight="700" fill="#1f3864">默认值参数：不传就用默认值</text>
+      <rect x="530" y="164" width="330" height="46" rx="10" fill="#eaf7ea" stroke="#2e7d32" stroke-width="1.5"/>
+      <text x="695" y="193" text-anchor="middle" font-size="14" font-weight="700" fill="#215c26">超参数（学习率、层数——要先定好）</text>
+      <rect x="40" y="224" width="330" height="46" rx="10" fill="#eaf1f8" stroke="#306998" stroke-width="1.5"/>
+      <text x="205" y="253" text-anchor="middle" font-size="14" font-weight="700" fill="#1f3864">类：属性 + 方法打包</text>
+      <rect x="530" y="224" width="330" height="46" rx="10" fill="#eaf7ea" stroke="#2e7d32" stroke-width="1.5"/>
+      <text x="695" y="253" text-anchor="middle" font-size="14" font-weight="700" fill="#215c26">模型对象（参数 + 前向 + 损失）</text>
+      <path d="M376 67 L524 67" stroke="#b8860b" stroke-width="1.5" marker-end="url(#ar5f)"/>
+      <path d="M376 127 L524 127" stroke="#b8860b" stroke-width="1.5" marker-end="url(#ar5f)"/>
+      <path d="M376 187 L524 187" stroke="#b8860b" stroke-width="1.5" marker-end="url(#ar5f)"/>
+      <path d="M376 247 L524 247" stroke="#b8860b" stroke-width="1.5" marker-end="url(#ar5f)"/>
+      <defs><marker id="ar5f" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 z" fill="#b8860b"/></marker></defs>
+      <text x="450" y="296" text-anchor="middle" font-size="13" fill="#2b2820">还有一条：<tspan font-weight="700">lambda</tspan> 常被当成"打分器"——给每个候选答案算一个分数，再按分数排序（这就是大模型"重排"的基本动作）</text>
+      <text x="450" y="320" text-anchor="middle" font-size="12.5" fill="#5d594c">所以在学 NumPy / Pandas / 机器学习之前，先把"函数"练熟——它是所有模型的地基</text>
+    </svg>
+    <div class="figcap">图 5-16　本章概念与 AI 的对应关系：函数、参数、默认值、类、lambda 各有落点</div>
+  </div>
+
+  <div class="demo" data-demo="kai-neuron">
+    <div class="demo-head">
+      <span class="demo-title">AI 渗透①：一个"神经元"就是一个函数</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">import math
+
+def sigmoid(z):
+    '''激活函数：把任意数压到 0~1 之间'''
+    return 1 / (1 + math.exp(-z))
+
+def neuron(inputs, weights, bias):
+    '''一个神经元：先加权求和，再过激活函数'''
+    z = bias + sum(x * w for x, w in zip(inputs, weights))
+    return round(z, 3), round(sigmoid(z), 3)
+
+inputs = [0.8, 0.5, 0.2]        # 输入特征，相当于实参
+weights = [0.7, -0.4, 1.2]      # 权重
+bias = -0.1                     # 偏置
+
+z, a = neuron(inputs, weights, bias)
+print('输入：', inputs)
+print('加权和 z =', z)
+print('激活后 a = sigmoid(z) =', a)
+print('-' * 30)
+print('换一组"训练好"的权重，同一个函数算出的结果就变了：')
+print('新的 a =', neuron(inputs, [1.5, 0.9, -0.3], 0.2))
+print('（训练 = 不断调整 weights 和 bias，让输出越来越接近正确答案）')</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+输入： [0.8, 0.5, 0.2]
+加权和 z = 0.5
+激活后 a = sigmoid(z) = 0.622
+------------------------------
+换一组"训练好"的权重，同一个函数算出的结果就变了：
+新的 a = (1.79, 0.857)
+（训练 = 不断调整 weights 和 bias，让输出越来越接近正确答案）
+</pre></div>
+  </div>
+
+  <div class="demo" data-demo="kai-loss">
+    <div class="demo-head">
+      <span class="demo-title">AI 渗透②：损失函数也是函数——它衡量"错得有多离谱"</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">def mse(preds, truths):
+    '''均方误差：预测值与真实值差多少（越小越好）'''
+    n = len(preds)
+    total = sum((p - t) ** 2 for p, t in zip(preds, truths))
+    return round(total / n, 4)
+
+truths = [1.0, 0.0, 1.0, 0.0]        # 真实答案
+poor = [0.5, 0.5, 0.5, 0.5]          # 预测一：全猜 0.5
+good = [1.0, 0.1, 0.9, 0.2]          # 预测二：比较接近
+
+print('真实值：', truths)
+print('预测一', poor, '→ MSE =', mse(poor, truths))
+print('预测二', good, '→ MSE =', mse(good, truths))
+print('所以"训练"就是：想办法让这个函数的值变小')</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+真实值： [1.0, 0.0, 1.0, 0.0]
+预测一 [0.5, 0.5, 0.5, 0.5] → MSE = 0.25
+预测二 [1.0, 0.1, 0.9, 0.2] → MSE = 0.015
+所以"训练"就是：想办法让这个函数的值变小
+</pre></div>
+  </div>
+
+  <div class="demo" data-demo="kai-model-class">
+    <div class="demo-head">
+      <span class="demo-title">AI 渗透③：用类封装一个"迷你模型"，并让它自己变准</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">class TinyModel:
+    '''把"参数 + 前向计算 + 损失 + 训练"装进一个类：这就是模型对象'''
+
+    def __init__(self, w=0.5, b=0.0):
+        self.w = w
+        self.b = b
+
+    def forward(self, x):
+        '''前向计算：y = wx + b'''
+        return self.w * x + self.b
+
+    def loss(self, xs, ys):
+        '''均方误差'''
+        return round(sum((self.forward(x) - y) ** 2 for x, y in zip(xs, ys)) / len(xs), 4)
+
+    def fit(self, xs, ys, lr=0.02):
+        '''一步梯度下降：往"让损失变小"的方向挪一点点'''
+        n = len(xs)
+        gw = sum(2 * (self.forward(x) - y) * x for x, y in zip(xs, ys)) / n
+        gb = sum(2 * (self.forward(x) - y) for x, y in zip(xs, ys)) / n
+        self.w -= lr * gw
+        self.b -= lr * gb
+
+xs = [1, 2, 3, 4, 5]
+ys = [3, 5, 7, 9, 11]            # 真实规律是 y = 2x + 1
+
+m = TinyModel()
+print('训练前：w =', round(m.w, 3), ' b =', round(m.b, 3), ' 损失 =', m.loss(xs, ys))
+
+for _ in range(300):
+    m.fit(xs, ys)
+
+print('训练后：w =', round(m.w, 3), ' b =', round(m.b, 3), ' 损失 =', m.loss(xs, ys))
+print('拿它预测没见过的 x = 6 →', round(m.forward(6), 2), '（真实答案 13）')
+print('（这就是机器学习最小可运行的骨架：定义模型、算损失、调参数）')</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+训练前：w = 0.5  b = 0.0  损失 = 34.75
+训练后：w = 2.02  b = 0.929  损失 = 0.0009
+拿它预测没见过的 x = 6 → 13.05 （真实答案 13）
+（这就是机器学习最小可运行的骨架：定义模型、算损失、调参数）
+</pre></div>
+  </div>
+
+  <div class="demo" data-demo="kai-rerank">
+    <div class="demo-head">
+      <span class="demo-title">AI 渗透④：用 lambda 当"打分器"，给候选答案排序（重排/Rerank）</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">candidates = [
+    'Python 是一种解释型语言',
+    '今天天气不错，适合出门散步',
+    'Python 支持面向对象，也常用于数据分析',
+    '喵',
+]
+
+def score(text, keyword):
+    '''打分规则（简化的"重排模型"）：命中关键词加分，太长的稍微减分'''
+    s = 10 if keyword in text else 0
+    s += min(len(text), 20) / 5
+    return round(s, 2)
+
+keyword = 'Python'
+
+print('原始候选：')
+for i, t in enumerate(candidates, 1):
+    print(' ', i, t, '｜得分', score(t, keyword))
+
+print('-' * 30)
+print('按得分重排后（lambda 当 key）：')
+for i, t in enumerate(sorted(candidates, key=lambda c: score(c, keyword), reverse=True), 1):
+    print(' ', i, t, '｜得分', score(t, keyword))
+
+print('说明：大模型生成多个答案后，常再用一个打分函数排序——学名叫"重排（Rerank）"')</pre>
+    <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
+原始候选：
+  1 Python 是一种解释型语言 ｜得分 13.0
+  2 今天天气不错，适合出门散步 ｜得分 2.6
+  3 Python 支持面向对象，也常用于数据分析 ｜得分 14.0
+  4 喵 ｜得分 0.2
+------------------------------
+按得分重排后（lambda 当 key）：
+  1 Python 支持面向对象，也常用于数据分析 ｜得分 14.0
+  2 Python 是一种解释型语言 ｜得分 13.0
+  3 今天天气不错，适合出门散步 ｜得分 2.6
+  4 喵 ｜得分 0.2
+说明：大模型生成多个答案后，常再用一个打分函数排序——学名叫"重排（Rerank）"
+</pre></div>
+  </div>
+
+  <div class="sumline">✅ <b>本节小结</b>：这一章的东西在 AI 里全是"零件"——<strong>函数是前向计算，参数是权重与偏置，默认值参数是超参数，类是模型对象，lambda 是打分器</strong>。第 7 章学 NumPy 时会看到"批量运算"，第 8 章 Pandas 里会看到"对整列做同一件事"——本质都是这一节的延伸。</div>
+
+  <div class="vid">
+    <span class="vtag">配套视频</span>
+    <a href="https://www.bilibili.com/video/BV1qW4y1a7fU/?p=61" target="_blank" rel="noopener">黑马程序员 · 第 61 讲 函数综合案例</a>
+    <span class="vmeta">B站 · 把定义、参数、返回值串起来用</span>
+  </div>
+</section>
+
+<!-- ===== 模块八：交互演示 ===== -->
+<section id="lab">
+  <div class="sec-head">
+    <div class="sec-num">八</div>
+    <div>
+      <h2>交互演示区</h2>
+      <p class="sec-sub">改参数、点按钮，立刻看结果 · 浏览器内 JS 模拟（已与 Python 运行结果逐一对齐）</p>
+    </div>
+  </div>
+
+  <div class="inter">
+    <h4>演示一：参数绑定模拟器</h4>
+    <p>函数定义是 <code class="inline">def my_add(x, y=10)</code>。选一种调用方式，看实参怎么落到形参上，以及写错时 Python 报什么错。</p>
+    <div class="inter-row">
+      <label>调用方式：
+        <select id="pb-mode">
+          <option value="pos">my_add(3, 5)　两个位置参数</option>
+          <option value="one">my_add(3)　只传第 1 个（用默认值）</option>
+          <option value="kw">my_add(y=5, x=3)　关键字参数，顺序换过来</option>
+          <option value="mix">my_add(3, y=5)　位置 + 关键字</option>
+          <option value="miss">my_add()　一个都不传</option>
+          <option value="err">my_add(y=5, 3)　位置参数写在关键字后面</option>
+          <option value="name">my_add(3, z=5)　关键字名字写错</option>
+        </select>
+      </label>
+      <button class="inter-btn" id="pb-btn">绑定一次</button>
+    </div>
+    <pre class="inter-out" id="pb-out">点上面的按钮试试</pre>
+  </div>
+
+  <div class="inter">
+    <h4>演示二：递归调用栈（跟着 factorial(n) 走一遍）</h4>
+    <p>对应 5.1 节。点"开始"，看栈帧一层层压进去、再一层层弹出来。</p>
+    <div class="inter-row">
+      <label>n = <input type="number" id="cs-n" value="4" min="1" max="8" style="width:70px"></label>
+      <label>每步间隔（毫秒）<input type="number" id="cs-speed" value="450" min="100" max="2000" step="50" style="width:90px"></label>
+      <button class="inter-btn" id="cs-btn">开始 / 重放</button>
+    </div>
+    <pre class="inter-out" id="cs-out">点上面的按钮试试</pre>
+  </div>
+
+  <div class="inter">
+    <h4>演示三：变量查找顺序（先局部，再全局）</h4>
+    <p>对应 3.2 节。勾选"谁定义了同名变量"，再看函数里读到的到底是哪一个。</p>
+    <div class="inter-row">
+      <label>变量名：<input type="text" id="sc-name" value="x" style="width:80px"></label>
+      <label><input type="checkbox" id="sc-local" checked> 函数内定义了同名局部变量（值 3）</label>
+      <label><input type="checkbox" id="sc-global" checked> 全局区也有同名变量（值 5）</label>
+      <button class="inter-btn" id="sc-btn">在函数里读它</button>
+    </div>
+    <pre class="inter-out" id="sc-out">点上面的按钮试试</pre>
+  </div>
+
+  <div class="inter">
+    <h4>演示四：sorted 的 key 决定排序结果</h4>
+    <p>对应 4.2 节。同一组数据，换个 key 就是完全不同的顺序——key 只负责"按什么排"。</p>
+    <div class="inter-row">
+      <label>数据（逗号分隔）：<input type="text" id="ls-data" class="wide" value="88, -95, 79, -62, 100, 45"></label>
+      <label>key = <select id="ls-key">
+        <option value="id">lambda x: x　按原值</option>
+        <option value="abs">lambda x: abs(x)　按绝对值</option>
+        <option value="neg">lambda x: -x　按相反数（等效降序）</option>
+        <option value="sq">lambda x: x * x　按平方</option>
+        <option value="mod">lambda x: x % 10　按个位数</option>
+      </select></label>
+      <button class="inter-btn" id="ls-btn">排序</button>
+    </div>
+    <pre class="inter-out" id="ls-out">点上面的按钮试试</pre>
+  </div>
+
+  <div class="inter">
+    <h4>演示五：MyCircle 类实例生成器</h4>
+    <p>对应 6.3 节。输入半径，相当于执行 <code class="inline">c = MyCircle(r)</code>，然后调用它的方法。</p>
+    <div class="inter-row">
+      <label>半径 r = <input type="number" id="cir-r" value="2.5" step="0.1" min="0" style="width:90px"></label>
+      <button class="inter-btn" id="cir-btn">创建对象并算面积 / 周长</button>
+    </div>
+    <pre class="inter-out" id="cir-out">点上面的按钮试试</pre>
+  </div>
+
+  <div class="note"><strong>这些面板都是"照抄 Python 的算法"用 JS 重写的</strong>：面积用 <code class="inline">math.pi</code> 的取值 3.14159…，四舍五入保留两位；排序结果和 Python 的 <code class="inline">sorted()</code> 完全一致。想核对的话，把面板里的数据复制到上面任意一段示例代码里跑一遍即可。</div>
+</section>
+
+<!-- ===== 小结 / 作业 ===== -->
+<section id="summary">
+  <div class="sec-head">
+    <div class="sec-num">结</div>
+    <div>
+      <h2>知识点总结卡 · 易错清单 · 作业</h2>
+      <p class="sec-sub">复习用：下面每一条都能自己讲出来，这一章就算过关</p>
+    </div>
+  </div>
+
+  <h3>一、知识点总结卡</h3>
+  <div class="grid2">
+    <div class="cell">
+      <h4>函数基础</h4>
+      <ul>
+        <li>定义：<code class="inline">def 函数名(形参):</code> + 缩进的函数体</li>
+        <li>调用：<code class="inline">函数名(实参)</code>，实参按位置交给形参</li>
+        <li>函数必须先定义、后调用</li>
+        <li>没有 <code class="inline">return</code> → 返回 <code class="inline">None</code></li>
+        <li>返回多个值 → 元组，可用解包接收</li>
+        <li>形参不写类型，由实参决定</li>
+      </ul>
+    </div>
+    <div class="cell">
+      <h4>函数参数</h4>
+      <ul>
+        <li>位置参数：数量相同、顺序一致</li>
+        <li>默认值参数：<code class="inline">def f(x, y=10)</code>，必须写在最后</li>
+        <li>关键字参数：<code class="inline">f(y=5, x=4)</code>，顺序可换</li>
+        <li>混用时：位置在前、关键字在后</li>
+        <li><code class="inline">*args</code> 打包成元组，<code class="inline">**kwargs</code> 打包成字典</li>
+        <li>默认值别用可变对象（写 <code class="inline">None</code> 再新建）</li>
+      </ul>
+    </div>
+    <div class="cell">
+      <h4>变量作用域</h4>
+      <ul>
+        <li>局部变量：函数内定义，函数结束即销毁</li>
+        <li>全局变量：函数外定义，函数内可读</li>
+        <li>同名时局部优先（遮蔽）</li>
+        <li>要在函数内改全局变量 → <code class="inline">global 变量名</code></li>
+        <li>查找顺序：先局部，再全局</li>
+      </ul>
+    </div>
+    <div class="cell">
+      <h4>lambda · 递归</h4>
+      <ul>
+        <li><code class="inline">lambda 参数: 表达式</code>，没有名字、只有一行</li>
+        <li>不能赋值、不能写语句</li>
+        <li>最常用：<code class="inline">sorted(数据, key=lambda x: 依据)</code></li>
+        <li>递归 = 终止条件 + 自己调用自己（规模要变小）</li>
+        <li>递归有深度限制，能用循环就用循环</li>
+      </ul>
+    </div>
+    <div class="cell">
+      <h4>类与对象</h4>
+      <ul>
+        <li>类 = 模板，对象 = 实例</li>
+        <li><code class="inline">class 类名:</code>，类名首字母大写</li>
+        <li><code class="inline">__init__(self, …)</code> 创建对象时自动执行，用来存属性</li>
+        <li>方法的第一个参数必须是 <code class="inline">self</code></li>
+        <li>访问：<code class="inline">对象.属性</code>、<code class="inline">对象.方法()</code></li>
+        <li>同一个类造出的对象互相独立</li>
+      </ul>
+    </div>
+    <div class="cell">
+      <h4>一句话主线</h4>
+      <ul>
+        <li>主程序应该只看见"做什么"，看不见"怎么做"</li>
+        <li>能用名字复用的逻辑 → 写成函数</li>
+        <li>数据和处理数据的方法总是一起出现 → 写成类</li>
+        <li>参数是接口，返回值是结果，作用域是边界</li>
+        <li>AI 里的前向计算、权重、超参数、模型对象，都从这里长出来</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>二、易错清单</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>现象</th><th>原因</th><th>怎么改</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>调用结果打印出来是 <code class="inline">None</code></td>
+          <td>函数里只写了 <code class="inline">print</code>，没有 <code class="inline">return</code></td>
+          <td>要"交回结果给程序用"就写 <code class="inline">return</code></td>
+        </tr>
+        <tr>
+          <td><code class="inline">NameError: name 'xxx' is not defined</code></td>
+          <td>函数定义在调用之后，或在函数外用了局部变量</td>
+          <td>定义放前面；局部变量只在函数内用</td>
+        </tr>
+        <tr>
+          <td><code class="inline">missing 1 required positional argument</code></td>
+          <td>实参个数少于没有默认值的形参个数</td>
+          <td>补齐实参，或给形参加默认值</td>
+        </tr>
+        <tr>
+          <td><code class="inline">non-default argument follows default argument</code></td>
+          <td>有默认值的形参写在了没有默认值的形参前面</td>
+          <td>把带默认值的形参挪到最后</td>
+        </tr>
+        <tr>
+          <td><code class="inline">positional argument follows keyword argument</code></td>
+          <td>位置实参写在了关键字实参后面</td>
+          <td>位置在前、关键字在后</td>
+        </tr>
+        <tr>
+          <td><code class="inline">got an unexpected keyword argument</code></td>
+          <td>关键字名字写错（或大小写不一致）</td>
+          <td>名字与形参表完全一致</td>
+        </tr>
+        <tr>
+          <td><code class="inline">UnboundLocalError: cannot access local variable</code></td>
+          <td>函数内先读后写全局变量，但没写 <code class="inline">global</code></td>
+          <td>加 <code class="inline">global 变量名</code>，或改用参数与返回值</td>
+        </tr>
+        <tr>
+          <td>第二次调用函数，列表里"还留着上次的元素"</td>
+          <td>默认值用了可变对象（<code class="inline">box=[]</code>）</td>
+          <td>默认值写 <code class="inline">None</code>，进函数再 <code class="inline">box = []</code></td>
+        </tr>
+        <tr>
+          <td><code class="inline">TypeError: xxx() takes 1 positional argument but 2 were given</code></td>
+          <td>类的方法忘了写 <code class="inline">self</code></td>
+          <td>所有实例方法的第一个参数都写 <code class="inline">self</code></td>
+        </tr>
+        <tr>
+          <td><code class="inline">RecursionError: maximum recursion depth exceeded</code></td>
+          <td>递归没有终止条件，或数据规模没有缩小</td>
+          <td>补终止条件；大批量数据处理改用循环</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>三、课后作业（四个题，都要"写成函数或类"）</h3>
+  <div class="homework">
+    <h4>本章作业</h4>
+    <ol>
+      <li><strong>素数判断</strong>：写 <code class="inline">is_prime(n)</code>，输出 2~50 的所有素数。</li>
+      <li><strong>成绩统计</strong>：写 <code class="inline">stat(scores)</code> 返回平均分与及格率（两个返回值），主程序读入成绩并输出。</li>
+      <li><strong>词频统计</strong>：写 <code class="inline">word_rank(text, top=3)</code>，用 lambda 排序，输出出现次数最多的前几名。</li>
+      <li><strong>给圆类加方法</strong>：为 <code class="inline">MyCircle</code> 增加 <code class="inline">set_r()</code> 和 <code class="inline">bigger_than()</code>。</li>
+    </ol>
+    <p style="margin-top:8px;"><strong>提交要求</strong>：每题给出代码 + 运行结果截图；函数 / 类要有文档字符串；变量名要能读懂（不要用 a、b、c 一路到底）。</p>
+  </div>
+
+  <h3>四、下讲预告</h3>
+  <a class="nextcard" href="python-bigdata-2026.html">
+    <div>
+      <div class="nc-title">第 6 次课 · 第 6 章 文件与目录操作</div>
+      <div class="nc-desc">文件的读写与追加 · 编码问题 · csv 文件处理 · 目录遍历 · 文件操作综合应用</div>
+    </div>
+    <span class="nc-go">回到课程主页查看课次 →</span>
+  </a>
+
+  <div class="recap">
+    <div class="rev-title">本章自测（不查资料，先自己在纸上写）</div>
+    <ol>
+      <li>写一个函数 <code class="inline">max3(a, b, c)</code> 返回三个数中的最大值，并说出它有几个形参、怎么调用。</li>
+      <li>下面两种调用有什么区别：<code class="inline">f(3, 5)</code> 和 <code class="inline">f(y=5, x=3)</code>？</li>
+      <li>为什么函数里 <code class="inline">print(x)</code> 之后又写 <code class="inline">x = 3</code> 会报 <code class="inline">UnboundLocalError</code>？</li>
+      <li>用一行 lambda 写出"按绝对值排序"：<code class="inline">sorted(data, key=_____)</code>。</li>
+      <li><code class="inline">__init__</code> 什么时候被执行？<code class="inline">self</code> 到底指什么？</li>
+    </ol>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="f-main">中华女子学院 · Python大数据分析基础</div>
+  <div>第 5 次课 · 第 5 章 函数与类 · 4 学时（讲授 2 + 上机 2）· 授课人：孙琪翔</div>
+  <div style="margin-top:6px;font-size:12px;opacity:.7;">本页依据课程课件《5-函数 - 新》《5-函数与类》与《Python 编程与数据分析基础》（陈洁、刘姝，清华大学出版社）第 5 章整理；页面中每段示例代码都实际运行后回填结果，运行结果默认隐藏、点"运行"查看。递归一节为选学内容（课件目录列出、幻灯片未展开）。</div>
+  <div style="margin-top:12px;font-size:14px;">
+    <a href="python-bigdata-2026.html">课程主页</a>
+    <span style="opacity:.45;margin:0 8px;">|</span>
+    <a href="python-bigdata-2026-lesson1.html">第1次课</a>
+    <span style="opacity:.45;margin:0 8px;">|</span>
+    <a href="python-bigdata-2026-lesson2.html">第2次课</a>
+    <span style="opacity:.45;margin:0 8px;">|</span>
+    <a href="python-bigdata-2026-lesson3.html">第3次课</a>
+    <span style="opacity:.45;margin:0 8px;">|</span>
+    <a href="python-bigdata-2026-lesson4.html">第4次课</a>
+    <span style="opacity:.45;margin:0 8px;">|</span>
+    <a href="python-bigdata-2026-lesson5.html">第5次课（本页）</a>
+  </div>
+</footer>
+
+<button id="toTop" title="回到顶部" aria-label="回到顶部">↑</button>
+
+<script>
+/* ===== 复制代码 / 运行（结果默认隐藏，点了才显示） ===== */
+document.addEventListener('DOMContentLoaded', function () {
+  document.querySelectorAll('.btn-copy').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var box = btn.closest('.demo');
+      var pre = box ? box.querySelector('pre.code') : null;
+      if (!pre) return;
+      var text = pre.textContent;
+      var done = function () {
+        var old = btn.textContent;
+        btn.textContent = '已复制 ✓';
+        btn.classList.add('ok');
+        setTimeout(function () { btn.textContent = old; btn.classList.remove('ok'); }, 1500);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done, function () { fallback(text, done); });
+      } else { fallback(text, done); }
+    });
+  });
+  function fallback(text, done) {
+    var ta = document.createElement('textarea');
+    ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); done(); } catch (e) {}
+    document.body.removeChild(ta);
+  }
+  document.querySelectorAll('.btn-run').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var box = btn.closest('.demo');
+      if (!box) return;
+      var out = box.querySelector('pre.out');
+      if (!out) return;
+      var full = out.getAttribute('data-full') || out.textContent;
+      out.setAttribute('data-full', full);
+      box.classList.add('shown');
+      btn.textContent = '▶ 重新运行';
+      var lines = full.replace(/\n$/, '').split('\n');
+      out.textContent = '';
+      box.classList.add('flash');
+      var i = 0;
+      (function step() {
+        if (i >= lines.length) { box.classList.remove('flash'); return; }
+        out.textContent += lines[i++] + '\n';
+        setTimeout(step, 70);
+      })();
+    });
+  });
+});
+
+/* ===== 动态演示图（播放 / 单步 / 重置） ===== */
+var ANIMS = {
+  callproc: {
+    frames: function () {
+      return [
+        { cap: '第 1 步 · 定义：def my_add(x, y) 声明了两个形参 x、y，此时它们还没有值。', s: { step: 1 } },
+        { cap: '第 2 步 · 调用：程序执行到 my_add(3, 5)，把实参 3 和 5 传进去。', s: { step: 2 } },
+        { cap: '第 3 步 · 参数绑定：实参按位置赋给形参 → x = 3，y = 5。', s: { step: 3 } },
+        { cap: '第 4 步 · 执行函数体：s = x + y = 3 + 5 = 8。', s: { step: 4 } },
+        { cap: '第 5 步 · return：把 8 交回调用处。这次执行结束，函数里的 x、y、s 一起消失。', s: { step: 5 } },
+        { cap: '第 6 步 · 拿到返回值：my_add(3, 5) 这个表达式的结果就是 8，可以继续参与运算。', s: { step: 6 } }
+      ];
+    },
+    render: function (s) {
+      function ch(txt, cls) { return '<span class="chip ' + (cls || '') + '">' + txt + '</span>'; }
+      var x = s.step >= 3 ? '3' : '?', y = s.step >= 3 ? '5' : '?', sv = s.step >= 4 ? '8' : '?';
+      var h = '<div class="arow"><span class="alabel">代码</span><div class="chips">' +
+        ch('def my_add(x, y):', 'ph') +
+        ch(s.step >= 6 ? 'my_add(3, 5)  →  8' : 'my_add(3, 5)', s.step >= 6 ? 'va' : '') + '</div></div>';
+      h += '<div class="arow"><span class="alabel">形参</span><div class="chips">' +
+        ch('x = ' + x, s.step >= 3 ? 'va' : 'ph') + ch('y = ' + y, s.step >= 3 ? 'va' : 'ph') + '</div></div>';
+      h += '<div class="arow"><span class="alabel">函数内</span><div class="chips">' +
+        ch('s = x + y = ' + sv, s.step >= 4 ? 'va' : 'ph') + '</div></div>';
+      if (s.step >= 5) h += '<div class="aresult">return 8　→　调用处拿到结果 8</div>';
+      return h;
+    }
+  },
+  parambind: {
+    frames: function () {
+      return [
+        { cap: '① 位置参数：调用 my_add(3, 5)，两个实参按位置分别赋值给 x 和 y。', s: { def: 'def my_add(x, y):', call: 'my_add(3, 5)', bind: [['x', '3'], ['y', '5']], note: '按位置一一对应' } },
+        { cap: '② 默认值参数：调用 my_add(3)，y 没接到实参 → 使用默认值 10。', s: { def: 'def my_add(x, y=10):', call: 'my_add(3)', bind: [['x', '3'], ['y', '10（默认）']], note: '不传就用默认值，注意默认值要写在形参表最后' } },
+        { cap: '③ 关键字参数：调用 my_add(y=5, x=4)，按名字配对，顺序可以和定义不一样。', s: { def: 'def my_add(x, y):', call: 'my_add(y=5, x=4)', bind: [['x', '4'], ['y', '5']], note: '按名字配对，顺序可换' } },
+        { cap: '④ 可变长参数：调用 my_sum(4, 5, 6, 7)，多出来的实参被打包成元组 nums = (4, 5, 6, 7)。', s: { def: 'def my_sum(*nums):', call: 'my_sum(4, 5, 6, 7)', bind: [['nums', '(4, 5, 6, 7)']], note: '* → 打包成元组，函数里按元组用' } },
+        { cap: '⑤ 可变长关键字参数：调用 my_sum2(a=1, b=2)，被打包成字典 nums = {\'a\': 1, \'b\': 2}。', s: { def: 'def my_sum2(**nums):', call: 'my_sum2(a=1, b=2)', bind: [['nums', "{'a': 1, 'b': 2}"]], note: '** → 打包成字典，函数里按键取值' } },
+        { cap: '⑥ 混合调用：my_add(4, y=5) —— 位置参数在前、关键字参数在后，合法。', s: { def: 'def my_add(x, y):', call: 'my_add(4, y=5)', bind: [['x', '4'], ['y', '5']], note: '先位置、后关键字，这是最常用的写法' } },
+        { cap: '⑦ 写错：my_add(y=5, 4) —— 位置参数跑到关键字参数后面 → SyntaxError，程序直接跑不起来。', s: { def: 'def my_add(x, y):', call: 'my_add(y=5, 4)', bind: [['x', '?'], ['y', '5']], note: 'SyntaxError: positional argument follows keyword argument', bad: true } }
+      ];
+    },
+    render: function (s) {
+      var cls = s.bad ? 'no' : 'va';
+      var h = '<div class="arow"><span class="alabel">定义</span><span class="chip ph">' + s.def + '</span></div>';
+      h += '<div class="arow"><span class="alabel">调用</span><span class="chip' + (s.bad ? ' no' : '') + '">' + s.call + '</span></div>';
+      h += '<div class="arow"><span class="alabel">绑定结果</span><div class="chips">';
+      s.bind.forEach(function (kv) { h += '<span class="chip ' + cls + '">' + kv[0] + ' = ' + kv[1] + '</span>'; });
+      h += '</div></div>';
+      h += '<div class="anote">' + s.note + '</div>';
+      return h;
+    }
+  },
+  scope: {
+    frames: function () {
+      return [
+        { cap: '程序运行时有两块"地盘"：全局区（函数外）和函数局部区（函数内）。全局有 x = 5，my_add3() 里又定义了局部 x = 3。', s: { g: [['x', '5']], l: [['x', '3']], at: 'both' } },
+        { cap: '调用 my_add3() 时，Python 从"局部区"开始找 x。', s: { g: [['x', '5']], l: [['x', '3']], at: 'local' } },
+        { cap: '局部区找到 x = 3 → 用的是局部那个，全局的 x = 5 被"遮住"了。', s: { g: [['x', '5']], l: [['x', '3']], at: 'local', shadow: true } },
+        { cap: '所以函数返回 3 + 3 = 6，函数外的 x 一点没变。', s: { g: [['x', '5']], l: [['x', '3']], at: 'local', shadow: true, ret: 6 } },
+        { cap: '函数执行结束，局部区整个销毁——回到全局区，x 还是 5。', s: { g: [['x', '5']], l: [], at: 'global' } },
+        { cap: '如果函数里没有定义 x，就会一路找到全局区——这就是 my_add2() 能直接用 global_num 的原因。', s: { g: [['global_num', '5']], l: [['local_num', '3']], at: 'global', lookup: true } }
+      ];
+    },
+    render: function (s) {
+      function box(title, vars, cls) {
+        var h = '<div class="objcard" style="min-width:250px;"><div class="oc-h">' + title + '</div><div style="margin-top:8px;">';
+        if (!vars.length) h += '<span style="color:#8a8577;font-size:13px;">（空）</span>';
+        vars.forEach(function (kv) { h += '<span class="sv ' + cls + '">' + kv[0] + ' = ' + kv[1] + '</span>'; });
+        return h + '</div></div>';
+      }
+      var h = '<div class="arow" style="gap:14px;">' + box('全局区（函数外）', s.g, 'global') + box('函数局部区 my_add3()', s.l, 'local') + '</div>';
+      if (s.at === 'both') h += '<div class="anote">同名变量，里外各有一份</div>';
+      if (s.at === 'local') h += '<div class="anote">查找顺序：先在局部区找 → 找到就用局部（全局的 x 被遮住）</div>';
+      if (s.shadow) h += '<div class="aresult">函数内 x + x = 3 + 3 = 6</div>';
+      if (s.at === 'global' && !s.lookup) h += '<div class="anote">局部区已经销毁，回到全局区：x = 5</div>';
+      if (s.lookup) h += '<div class="anote">局部区没有要用的名字 → 向上到全局区找（函数里读全局变量不用写 global）</div>';
+      return h;
+    }
+  },
+  keyfn: {
+    frames: function () {
+      var d = [['张', 88], ['李', 95], ['王', 79]];
+      return [
+        { cap: '原始数据：3 个 (姓名, 成绩) 元组，顺序是"张、李、王"。', s: { d: d, mode: 'raw' } },
+        { cap: '不带 key 直接 sorted()：按元组第一个元素（姓名）比较——成绩在这里只当"平手时的第二条件"。', s: { d: d, mode: 'plain' } },
+        { cap: '加上 key=lambda s: s[1]：排序前先给每个元素算一个"排序依据"——取下标 1，也就是成绩。', s: { d: d, mode: 'key' } },
+        { cap: '算出来的依据分别是：张 → 88、李 → 95、王 → 79。', s: { d: d, mode: 'vals' } },
+        { cap: '按依据从小到大排：79 → 88 → 95，也就是王、张、李。', s: { d: d, mode: 'sorted' } },
+        { cap: "结果：[('王', 79), ('张', 88), ('李', 95)]——key 只决定“按什么排”，元素本身一个都没变。", s: { d: d, mode: 'done' } }
+      ];
+    },
+    render: function (s) {
+      var order = (s.mode === 'sorted' || s.mode === 'done') ? [2, 0, 1] : [0, 1, 2];
+      var h = '<div class="acells">';
+      order.forEach(function (i) {
+        var it = s.d[i], cls = 'acell';
+        if (s.mode === 'key' || s.mode === 'vals') cls += ' hi';
+        if (s.mode === 'sorted' || s.mode === 'done') cls += ' ok';
+        h += '<div class="' + cls + '">' + it[0] + '<small>' + it[1] + '</small></div>';
+      });
+      h += '</div>';
+      if (s.mode === 'raw') h += '<div class="anote">每个元素是"姓名 + 成绩"一个整体</div>';
+      if (s.mode === 'plain') h += '<div class="anote">sorted(students) → 按姓名排，和成绩无关</div>';
+      if (s.mode === 'key') h += '<div class="anote">key 函数：s → s[1]（拿成绩当排序依据）</div>';
+      if (s.mode === 'vals') h += '<div class="anote">依据：88、95、79（还没有排序，只是算出来了）</div>';
+      if (s.mode === 'done') h += '<div class="aresult">sorted(students, key=lambda s: s[1]) → 王 79、张 88、李 95</div>';
+      return h;
+    }
+  },
+  recstack: {
+    frames: function () {
+      return [
+        { cap: '调用 factorial(3)：压入第 1 个栈帧，它算出"还要等 3 * factorial(2)"，于是先挂起。', s: { st: [3] } },
+        { cap: '接着调用 factorial(2) → 第 2 个栈帧入栈，同样先挂起。', s: { st: [3, 2] } },
+        { cap: '再调用 factorial(1) → 第 3 个栈帧入栈。', s: { st: [3, 2, 1] } },
+        { cap: 'factorial(1) 命中终止条件 n <= 1，直接返回 1——不再往下调用，开始"出栈"。', s: { st: [3, 2, 1], ret: 1 } },
+        { cap: 'factorial(1) 出栈，factorial(2) 拿到 1，算出 2 × 1 = 2 并返回。', s: { st: [3, 2], ret: 2 } },
+        { cap: 'factorial(3) 拿到 2，算出 3 × 2 = 6 并返回，栈就空了。', s: { st: [3], ret: 6 } },
+        { cap: '结果 factorial(3) = 6。全过程最多同时存在 3 个栈帧——这就是递归占内存的原因。', s: { st: [], ret: 6, done: true } }
+      ];
+    },
+    render: function (s) {
+      var h = '<div class="arow"><span class="alabel">调用栈</span><div class="callstack">';
+      if (!s.st.length) h += '<div class="cframe ret">（栈已清空）</div>';
+      s.st.forEach(function (n, i) {
+        var last = (i === s.st.length - 1);
+        var cls = last ? (s.ret !== undefined ? ' ret' : ' act') : '';
+        var right = (last && s.ret !== undefined) ? ('返回 ' + s.ret) : '等待下一层…';
+        h += '<div class="cframe' + cls + '">factorial(' + n + ')<span>' + right + '</span></div>';
+      });
+      h += '</div></div>';
+      if (s.done) h += '<div class="aresult">factorial(3) = 3 × 2 = 6</div>';
+      else if (s.ret !== undefined) h += '<div class="aresult">当前正在返回：' + s.ret + '</div>';
+      return h;
+    }
+  },
+  objcreate: {
+    frames: function () {
+      return [
+        { cap: '第一步：定义类。class MyCircle 只是"模板"，说明这种对象有什么属性（半径 r）、有什么方法（area、perimeter）。此时内存里还没有任何一个圆。', s: { phase: 'class' } },
+        { cap: '第二步：执行 c1 = MyCircle(2)。Python 先造出一个空对象，然后自动调用 __init__。', s: { phase: 'new', objs: [{ name: 'c1', r: '待赋值', area: '—' }] } },
+        { cap: '第三步：__init__ 里的 self 指向刚造出来的这个对象，于是 self.r = 2 把半径写进了 c1。', s: { phase: 'init', objs: [{ name: 'c1', r: 2, area: '—' }] } },
+        { cap: '第四步：访问属性用点号 —— c1.r 就是 2。', s: { phase: 'attr', objs: [{ name: 'c1', r: 2, area: '—' }] } },
+        { cap: '第五步：调用方法 c1.area()。方法里的 self 就是 c1 自己，self.r 取到 2，算出 3.14 × 2² ≈ 12.57。', s: { phase: 'call', objs: [{ name: 'c1', r: 2, area: 12.57 }] } },
+        { cap: '第六步：再执行 c2 = MyCircle(5)，得到另一个独立对象。改 c2 的半径不会影响 c1——它们是同一个类的两个不同实例。', s: { phase: 'two', objs: [{ name: 'c1', r: 2, area: 12.57 }, { name: 'c2', r: 5, area: 78.54 }] } }
+      ];
+    },
+    render: function (s) {
+      if (s.phase === 'class') {
+        return '<div class="objcard" style="min-width:420px;"><div class="oc-h">类（模板）</div><div class="oc-b">class MyCircle</div>' +
+          '<div style="margin-top:8px;font-size:13px;color:#5d594c;">属性：r（半径）　方法：area()、perimeter()</div></div>' +
+          '<div class="anote">模板本身不是对象，不能直接拿它算面积</div>';
+      }
+      var h = '<div class="arow" style="gap:14px;">';
+      s.objs.forEach(function (o) {
+        h += '<div class="objcard"><div class="oc-h">对象 ' + o.name + '（MyCircle 的实例）</div>' +
+          '<div class="oc-b">r = ' + o.r + '</div>' +
+          '<div style="margin-top:6px;font-size:13px;color:#215c26;">area() → ' + o.area + '</div></div>';
+      });
+      h += '</div>';
+      if (s.phase === 'new') h += '<div class="anote">MyCircle(2) 先造出一个空对象，再自动调用 __init__</div>';
+      if (s.phase === 'init') h += '<div class="anote">__init__(self, r)：self 指向新对象，self.r = 2 把半径写进去</div>';
+      if (s.phase === 'attr') h += '<div class="anote">访问属性：对象名.属性名　→　c1.r</div>';
+      if (s.phase === 'call') h += '<div class="aresult">c1.area() → 3.14 × 2² ≈ 12.57（方法里的 self 就是 c1）</div>';
+      if (s.phase === 'two') h += '<div class="aresult">两个对象各自独立：c1 半径 2、c2 半径 5，互不影响</div>';
+      return h;
+    }
+  }
+};
+
+(function () {
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  document.querySelectorAll('.anim[data-anim]').forEach(function (box) {
+    var def = ANIMS[box.getAttribute('data-anim')];
+    if (!def) return;
+    var frames = def.frames();
+    var stage = box.querySelector('.anim-stage');
+    var text = box.querySelector('.anim-text');
+    var prog = box.querySelector('.anim-progress');
+    var btnPlay = box.querySelector('[data-act="play"]');
+    var idx = 0, timer = null;
+    function draw() {
+      var fr = frames[idx];
+      stage.innerHTML = def.render(fr.s, fr);
+      text.textContent = fr.cap;
+      prog.textContent = (idx + 1) + ' / ' + frames.length;
+    }
+    function stop() {
+      if (timer) { clearInterval(timer); timer = null; btnPlay.textContent = '▶ 播放'; }
+    }
+    box.querySelectorAll('[data-act]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var act = b.getAttribute('data-act');
+        if (act === 'next') { stop(); idx = Math.min(idx + 1, frames.length - 1); draw(); }
+        else if (act === 'prev') { stop(); idx = Math.max(idx - 1, 0); draw(); }
+        else if (act === 'reset') { stop(); idx = 0; draw(); }
+        else if (act === 'play') {
+          if (timer) { stop(); return; }
+          if (idx >= frames.length - 1) idx = 0;
+          btnPlay.textContent = '⏸ 暂停';
+          timer = setInterval(function () {
+            if (idx >= frames.length - 1) { stop(); return; }
+            idx++; draw();
+          }, reduce ? 1700 : 1100);
+          draw();
+        }
+      });
+    });
+    draw();
+  });
+})();
+
+/* ===== 知识树交互 ===== */
+function jumpTarget(id) { var el = document.getElementById(id); if (el) el.scrollIntoView({ behavior: 'smooth' }); }
+document.addEventListener('DOMContentLoaded', function () {
+  document.querySelectorAll('#knowledgeTree .tn.branch').forEach(function (el) {
+    el.addEventListener('click', function (e) {
+      var link = e.target.closest('.golink');
+      if (link) { jumpTarget(link.getAttribute('data-target')); return; }
+      var kids = el.nextElementSibling;
+      if (kids && kids.classList.contains('kids')) { kids.classList.toggle('show'); el.classList.toggle('open'); }
+    });
+  });
+  document.querySelectorAll('#knowledgeTree .tn.leaf').forEach(function (el) {
+    el.addEventListener('click', function () { jumpTarget(el.getAttribute('data-target')); });
+  });
+});
+
+/* ===== 导航滚动高亮 ===== */
+document.addEventListener('DOMContentLoaded', function () {
+  var navLinks = {};
+  document.querySelectorAll('#nav a[data-sec]').forEach(function (a) { navLinks[a.getAttribute('data-sec')] = a; });
+  var sections = ['guide', 'c1', 'c2', 'c3', 'c4', 'c5', 'c6', 'c7', 'lab', 'summary'];
+  if ('IntersectionObserver' in window) {
+    var obs = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        if (en.isIntersecting) {
+          document.querySelectorAll('#nav a').forEach(function (a) { a.classList.remove('on'); });
+          var a = navLinks[en.target.id];
+          if (a) a.classList.add('on');
+        }
+      });
+    }, { rootMargin: '-15% 0px -70% 0px' });
+    sections.forEach(function (s) { var el = document.getElementById(s); if (el) obs.observe(el); });
+  }
+});
+
+/* ===== 回到顶部 ===== */
+document.addEventListener('DOMContentLoaded', function () {
+  var toTop = document.getElementById('toTop');
+  window.addEventListener('scroll', function () {
+    if (window.scrollY > 600) toTop.classList.add('show');
+    else toTop.classList.remove('show');
+  });
+  toTop.addEventListener('click', function () { window.scrollTo({ top: 0, behavior: 'smooth' }); });
+});
+
+/* ===== 交互演示一：参数绑定模拟器 ===== */
+function setOut(id, text) { document.getElementById(id).textContent = text; }
+
+document.getElementById('pb-btn').addEventListener('click', function () {
+  var mode = document.getElementById('pb-mode').value;
+  var table = {
+    pos:  ['my_add(3, 5)',     'x = 3，y = 5',                      '结果：8', false],
+    one:  ['my_add(3)',        'x = 3，y = 10（默认值顶上）',        '结果：13', false],
+    kw:   ['my_add(y=5, x=3)', 'x = 3，y = 5（按名字配对）',          '结果：8', false],
+    mix:  ['my_add(3, y=5)',   'x = 3，y = 5（位置在前、关键字在后）', '结果：8', false],
+    miss: ['my_add()',         'x、y 都没有接到实参', "TypeError: my_add() missing 2 required positional arguments: 'x' and 'y'", true],
+    err:  ['my_add(y=5, 3)',   '位置实参写在了关键字实参后面',        'SyntaxError: positional argument follows keyword argument', true],
+    name: ['my_add(3, z=5)',   '形参表里只有 x 和 y，没有 z',        "TypeError: my_add() got an unexpected keyword argument 'z'", true]
+  }[mode];
+  var L = [];
+  L.push('函数定义：def my_add(x, y=10)');
+  L.push('本次调用：' + table[0]);
+  L.push('参数绑定：' + table[1]);
+  L.push('');
+  L.push((table[3] ? '✗ ' : '✓ ') + table[2]);
+  setOut('pb-out', L.join('\n'));
+});
+
+/* ===== 交互演示二：递归调用栈 ===== */
+var csTimer = null;
+document.getElementById('cs-btn').addEventListener('click', function () {
+  if (csTimer) { clearInterval(csTimer); csTimer = null; }
+  var n = parseInt(document.getElementById('cs-n').value, 10);
+  if (isNaN(n) || n < 1) n = 1;
+  if (n > 8) n = 8;
+  var speed = parseInt(document.getElementById('cs-speed').value, 10);
+  if (isNaN(speed) || speed < 100) speed = 450;
+  if (speed > 2000) speed = 2000;
+  var steps = [], i, j;
+  for (i = n; i >= 1; i--) {
+    steps.push('压栈  factorial(' + i + ')   ' + (i > 1
+      ? ('→ 记下"还要算 ' + i + ' × factorial(' + (i - 1) + ')"，先挂起')
+      : '→ 命中终止条件 n <= 1，直接返回 1'));
+  }
+  var acc = 1;
+  for (j = 2; j <= n; j++) {
+    var prev = acc;
+    acc = j * acc;
+    steps.push('出栈  factorial(' + j + ')   → 拿到 ' + prev + '，算出 ' + j + ' × ' + prev + ' = ' + acc + '，返回');
+  }
+  steps.push('');
+  steps.push('最终结果：factorial(' + n + ') = ' + acc + '　（全程最多同时存在 ' + n + ' 个栈帧）');
+  var out = document.getElementById('cs-out');
+  out.textContent = '';
+  var k = 0;
+  csTimer = setInterval(function () {
+    if (k >= steps.length) { clearInterval(csTimer); csTimer = null; return; }
+    out.textContent += steps[k++] + '\n';
+  }, speed);
+});
+
+/* ===== 交互演示三：变量查找顺序 ===== */
+document.getElementById('sc-btn').addEventListener('click', function () {
+  var name = document.getElementById('sc-name').value.trim() || 'x';
+  var hasLocal = document.getElementById('sc-local').checked;
+  var hasGlobal = document.getElementById('sc-global').checked;
+  var L = [];
+  L.push('全局区：x = 5');
+  L.push('函数 my_add3() 内部：' + (hasLocal ? 'x = 3（局部变量）' : '没有定义 x'));
+  L.push('');
+  L.push('执行 print(' + name + ')，查找顺序：先局部 → 后全局');
+  if (hasLocal) {
+    L.push('  ① 局部区找到 ' + name + ' = 3 → 用它');
+    L.push('');
+    L.push('输出：3');
+    L.push(hasGlobal ? '（全局那个 5 被遮住了；函数外面访问仍然是 5）' : '（函数内先找到局部变量，就不会再往上找了）');
+  } else if (hasGlobal) {
+    L.push('  ① 局部区没有 ' + name);
+    L.push('  ② 继续向上，在全局区找到 x = 5 → 用它');
+    L.push('');
+    L.push('输出：5');
+    L.push('（函数里"读"全局变量不用写 global，要"改"才要写）');
+  } else {
+    L.push('  ① 局部区没有 ' + name);
+    L.push('  ② 全局区也没有 ' + name);
+    L.push('');
+    L.push("NameError: name '" + name + "' is not defined");
+  }
+  setOut('sc-out', L.join('\n'));
+});
+
+/* ===== 交互演示四：sorted 的 key ===== */
+document.getElementById('ls-btn').addEventListener('click', function () {
+  var raw = document.getElementById('ls-data').value.split(',')
+    .map(function (s) { return parseFloat(s.trim()); })
+    .filter(function (v) { return !isNaN(v); });
+  if (!raw.length) { setOut('ls-out', '请先输入至少一个数字（用英文逗号分隔）'); return; }
+  var keyName = document.getElementById('ls-key').value;
+  var keys = {
+    id:  { label: 'lambda x: x',      fn: function (x) { return x; } },
+    abs: { label: 'lambda x: abs(x)', fn: function (x) { return Math.abs(x); } },
+    neg: { label: 'lambda x: -x',     fn: function (x) { return -x; } },
+    sq:  { label: 'lambda x: x * x',  fn: function (x) { return x * x; } },
+    mod: { label: 'lambda x: x % 10', fn: function (x) { return ((x % 10) + 10) % 10; } }
+  };
+  var k = keys[keyName];
+  var sorted = raw.slice().sort(function (a, b) { return k.fn(a) - k.fn(b); });
+  var L = [];
+  L.push('数据：[' + raw.join(', ') + ']');
+  L.push('key = ' + k.label);
+  L.push('');
+  L.push('每个元素算出的排序依据：');
+  L.push('  ' + raw.map(function (x) { return x + ' → ' + k.fn(x); }).join('　｜　'));
+  L.push('');
+  L.push('sorted(data, key=' + k.label + ') →');
+  L.push('[' + sorted.join(', ') + ']');
+  if (keyName === 'mod') L.push('（Python 里 % 对负数取模得到正数：-95 % 10 = 5，这里按同样规则模拟）');
+  setOut('ls-out', L.join('\n'));
+});
+
+/* ===== 交互演示五：MyCircle 实例生成器 ===== */
+document.getElementById('cir-btn').addEventListener('click', function () {
+  var r = parseFloat(document.getElementById('cir-r').value);
+  if (isNaN(r) || r < 0) { setOut('cir-out', '请输入一个非负的半径'); return; }
+  var area = Math.round(Math.PI * r * r * 100) / 100;
+  var per = Math.round(2 * Math.PI * r * 100) / 100;
+  var L = [];
+  L.push('c = MyCircle(' + r + ')     # 创建对象：__init__ 里执行 self.r = ' + r);
+  L.push('c.r            → ' + r);
+  L.push('c.area()       → ' + area.toFixed(2));
+  L.push('c.perimeter()  → ' + per.toFixed(2));
+  L.push('');
+  L.push('算式：面积 = π × ' + r + '² = ' + (Math.PI * r * r).toFixed(4) + '　→ 保留两位 → ' + area.toFixed(2));
+  L.push('      周长 = 2 × π × ' + r + ' = ' + (2 * Math.PI * r).toFixed(4) + '　→ 保留两位 → ' + per.toFixed(2));
+  setOut('cir-out', L.join('\n'));
+});
+</script>
+</body>
+</html>
