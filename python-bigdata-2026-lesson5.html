@@ -809,6 +809,20 @@ TypeError: unsupported operand type(s) for +: 'NoneType' and 'int'
 </pre></div>
   </div>
 
+  <div class="anim" data-anim="retvprint">
+    <div class="anim-head">
+      <span class="anim-title">🎬 动态演示：8 去哪了——print 和 return 的区别</span>
+      <div class="anim-actions">
+        <button class="btn" type="button" data-act="reset">↺ 重置</button>
+        <button class="btn" type="button" data-act="prev">⏮ 上一步</button>
+        <button class="btn btn-play" type="button" data-act="play">▶ 播放</button>
+        <button class="btn" type="button" data-act="next">下一步 ⏭</button>
+      </div>
+    </div>
+    <div class="anim-stage"></div>
+    <div class="anim-status"><span class="anim-text"></span><span class="anim-progress"></span></div>
+  </div>
+
   <div class="sumline">✅ <b>本节小结</b>：<strong>有 <code class="inline">return</code> 才有返回值</strong>；返回多个值得到元组；没有 <code class="inline">return</code> 就是 <code class="inline">None</code>，拿 <code class="inline">None</code> 去加减乘除会报 <code class="inline">TypeError</code>。<code class="inline">return</code> 一旦执行，函数立刻结束。</div>
 
   <h3 id="c1-4">1.4 调用与执行过程：实参怎么变成返回值</h3>
@@ -1220,6 +1234,20 @@ print('安全版第 3 次：', add_item_safe('c'))</pre>
 安全版第 2 次： ['b']
 安全版第 3 次： ['c']
 </pre></div>
+  </div>
+
+  <div class="anim" data-anim="defaultarg">
+    <div class="anim-head">
+      <span class="anim-title">🎬 动态演示：默认值参数，以及"默认值只算一次"的坑</span>
+      <div class="anim-actions">
+        <button class="btn" type="button" data-act="reset">↺ 重置</button>
+        <button class="btn" type="button" data-act="prev">⏮ 上一步</button>
+        <button class="btn btn-play" type="button" data-act="play">▶ 播放</button>
+        <button class="btn" type="button" data-act="next">下一步 ⏭</button>
+      </div>
+    </div>
+    <div class="anim-stage"></div>
+    <div class="anim-status"><span class="anim-text"></span><span class="anim-progress"></span></div>
   </div>
 
   <div class="sumline">✅ <b>本节小结</b>：默认值参数让"常见情况"少写实参（<code class="inline">range(10)</code> 就是），<strong>必须写在形参表最后</strong>；不传用默认值、传了就覆盖。<strong>默认值不要用可变的列表 / 字典</strong>，要写成 <code class="inline">None</code> 再在函数里新建。</div>
@@ -1637,6 +1665,20 @@ UnboundLocalError: cannot access local variable 'x' where it is not associated w
   </div>
 
   <div class="warn"><strong>怎么理解这个报错</strong>：函数里只要出现了 <code class="inline">x = 3</code>，Python 就把 <code class="inline">x</code> 登记成<strong>局部变量</strong>；于是前面那句 <code class="inline">print(x)</code> 读的是"还没赋值的局部 x"，直接报 <code class="inline">UnboundLocalError</code>。<strong>记住这条</strong>：想在函数里改全局变量，先写 <code class="inline">global 变量名</code>；只是读的话，不用写。</div>
+
+  <div class="anim" data-anim="globalflow">
+    <div class="anim-head">
+      <span class="anim-title">🎬 动态演示：加不加 global，x 到底改的是哪一个</span>
+      <div class="anim-actions">
+        <button class="btn" type="button" data-act="reset">↺ 重置</button>
+        <button class="btn" type="button" data-act="prev">⏮ 上一步</button>
+        <button class="btn btn-play" type="button" data-act="play">▶ 播放</button>
+        <button class="btn" type="button" data-act="next">下一步 ⏭</button>
+      </div>
+    </div>
+    <div class="anim-stage"></div>
+    <div class="anim-status"><span class="anim-text"></span><span class="anim-progress"></span></div>
+  </div>
 
   <div class="sumline">✅ <b>本节小结</b>：<code class="inline">global x</code> 是"声明"，不是"赋值"——它告诉 Python"接下来这个 x 指的是全局那个"。<strong>函数里改全局变量属于需要谨慎的写法</strong>：改的地方多了，程序就很难追踪。更好的做法是<strong>把值作为参数传进去、把结果 return 出来</strong>。</div>
 
@@ -2263,6 +2305,20 @@ c1 半径不受影响： 2  面积： 12.57
     <div class="anim-status"><span class="anim-text"></span><span class="anim-progress"></span></div>
   </div>
 
+  <div class="anim" data-anim="selfbind">
+    <div class="anim-head">
+      <span class="anim-title">🎬 动态演示：方法里的 self 到底指向谁</span>
+      <div class="anim-actions">
+        <button class="btn" type="button" data-act="reset">↺ 重置</button>
+        <button class="btn" type="button" data-act="prev">⏮ 上一步</button>
+        <button class="btn btn-play" type="button" data-act="play">▶ 播放</button>
+        <button class="btn" type="button" data-act="next">下一步 ⏭</button>
+      </div>
+    </div>
+    <div class="anim-stage"></div>
+    <div class="anim-status"><span class="anim-text"></span><span class="anim-progress"></span></div>
+  </div>
+
   <div class="demo" data-demo="k6-student">
     <div class="demo-head">
       <span class="demo-title">实战：把"学生成绩"做成一个类（类 + lambda 一起用）</span>
@@ -2396,6 +2452,20 @@ x = 10 → y = 3.0
       <text x="450" y="268" text-anchor="middle" font-size="13" fill="#2b2820">用水 300 吨的费用 = <tspan font-weight="700">180×5</tspan> + <tspan font-weight="700">80×7</tspan> + <tspan font-weight="700">40×9</tspan> = 900 + 560 + 360 = <tspan font-weight="700" fill="#1f3864">1820 元</tspan></text>
     </svg>
     <div class="figcap">图 5-15　三段单价累加：前 180 吨按 5 元、180—260 吨部分按 7 元、超出部分按 9 元</div>
+  </div>
+
+  <div class="anim" data-anim="watersteps">
+    <div class="anim-head">
+      <span class="anim-title">🎬 动态演示：阶梯水费怎么一段一段算出来</span>
+      <div class="anim-actions">
+        <button class="btn" type="button" data-act="reset">↺ 重置</button>
+        <button class="btn" type="button" data-act="prev">⏮ 上一步</button>
+        <button class="btn btn-play" type="button" data-act="play">▶ 播放</button>
+        <button class="btn" type="button" data-act="next">下一步 ⏭</button>
+      </div>
+    </div>
+    <div class="anim-stage"></div>
+    <div class="anim-status"><span class="anim-text"></span><span class="anim-progress"></span></div>
   </div>
 
   <div class="demo" data-demo="k7-water">
@@ -3341,6 +3411,165 @@ var ANIMS = {
       if (s.phase === 'attr') h += '<div class="anote">访问属性：对象名.属性名　→　c1.r</div>';
       if (s.phase === 'call') h += '<div class="aresult">c1.area() → 3.14 × 2² ≈ 12.57（方法里的 self 就是 c1）</div>';
       if (s.phase === 'two') h += '<div class="aresult">两个对象各自独立：c1 半径 2、c2 半径 5，互不影响</div>';
+      return h;
+    }
+  },
+  retvprint: {
+    frames: function () {
+      return [
+        { cap: '先看只有 print 的函数：def add_wrong(x, y): print(x + y)。它算出的 8 只是"发到屏幕上"。', s: { expr: 'add_wrong(3, 5)' } },
+        { cap: '函数体里执行 print(x + y) → 屏幕上出现了 8。', s: { expr: 'add_wrong(3, 5)', screen: ['8'] } },
+        { cap: '但函数里没有 return，所以调用处拿到的是 None —— 拿它去运算就会报错。', s: { expr: 'add_wrong(3, 5)', screen: ['8'], got: 'None', bad: true } },
+        { cap: '换成 def add_right(x, y): return x + y —— 这次 8 被"交回调用处"。', s: { expr: 'add_right(3, 5)', screen: ['8'], got: 'None', bad: true, swap: true } },
+        { cap: '调用处拿到 8，可以继续参与运算：add_right(3, 5) * 10 = 80。', s: { expr: 'add_right(3, 5)', screen: ['8'], got: '8', note: '8 × 10 = 80' } },
+        { cap: '一句话记住：print 是"给人看"，return 是"给程序用"。函数结果要参与后续计算，就必须 return。', s: { expr: 'add_right(3, 5)', screen: ['8'], got: '8', note: '8 × 10 = 80', done: true } }
+      ];
+    },
+    render: function (s) {
+      function box(title, inner) {
+        return '<div class="objcard" style="min-width:250px;"><div class="oc-h">' + title + '</div><div style="margin-top:8px;">' + inner + '</div></div>';
+      }
+      var screen = (s.screen && s.screen.length)
+        ? s.screen.map(function (t) { return '<span class="chip">' + t + '</span>'; }).join('')
+        : '<span style="color:#8a8577;font-size:13px;">（还没有输出）</span>';
+      var got;
+      if (s.swap) got = '<span class="chip ph">换成 return 再看一次…</span>';
+      else if (s.got) got = '<span class="chip ' + (s.bad ? 'no' : 'va') + '">' + s.expr + ' → ' + s.got + '</span>';
+      else got = '<span class="chip ph">' + s.expr + ' → ？</span>';
+      var h = '<div class="arow" style="gap:14px;">' + box('屏幕（给人看）', screen) + box('调用处拿到的值（给程序用）', got) + '</div>';
+      if (s.got === 'None') h += '<div class="anote">没有 return → 函数返回 None，拿它参与运算会报 TypeError</div>';
+      if (s.note) h += '<div class="aresult">' + s.note + '</div>';
+      if (s.done) h += '<div class="aresult">print 给人看　·　return 给程序用</div>';
+      return h;
+    }
+  },
+  defaultarg: {
+    frames: function () {
+      return [
+        { cap: '① 定义时给 y 一个默认值：def my_add(x, y=10)。', s: { mode: 'def' } },
+        { cap: '② 调用 my_add(3)：只传了 x，y 没有实参 → 直接用默认值 10，结果是 13。', s: { mode: 'call', call: 'my_add(3)', x: '3', y: '10', isDef: true, result: '13' } },
+        { cap: '③ 调用 my_add(3, 5)：y 接到了实参 → 默认值被覆盖，结果是 8。', s: { mode: 'call', call: 'my_add(3, 5)', x: '3', y: '5', isDef: false, result: '8' } },
+        { cap: '④ 但如果默认值写成可变对象就不一样了：def add_item(item, box=[])。这个 [] 在函数定义时就创建好，而且只有一份。', s: { mode: 'trap', items: [], call: '（还没调用）' } },
+        { cap: "⑤ 第 1 次 add_item('a')：往那份唯一的列表里加了 'a' → ['a']", s: { mode: 'trap', items: ['a'], call: "add_item('a')" } },
+        { cap: "⑥ 第 2 次 add_item('b')：还是同一份列表！上次的 'a' 还在 → ['a', 'b']（直觉应该是 ['b']）", s: { mode: 'trap', items: ['a', 'b'], call: "add_item('b')", bad: true } },
+        { cap: "⑦ 第 3 次 add_item('c') → ['a', 'b', 'c']，历史数据一直攒着——这就是“默认值只算一次”的后果。", s: { mode: 'trap', items: ['a', 'b', 'c'], call: "add_item('c')", bad: true } },
+        { cap: '⑧ 正确写法：默认值写 None，进函数之后先判断再新建列表 —— 每次调用都拿到一个全新的空列表。', s: { mode: 'fix' } }
+      ];
+    },
+    render: function (s) {
+      function chip(t, c) { return '<span class="chip ' + (c || '') + '">' + t + '</span>'; }
+      if (s.mode === 'def') {
+        return '<div class="arow"><span class="alabel">定义</span>' + chip('def my_add(x, y=10):', 'ph') + '</div>' +
+          '<div class="anote">y 后面的 =10 就是默认值：调用时不给 y 传实参，y 就等于 10</div>';
+      }
+      if (s.mode === 'call') {
+        var h = '<div class="arow"><span class="alabel">调用</span>' + chip(s.call) + '</div>';
+        h += '<div class="arow"><span class="alabel">绑定</span><div class="chips">' + chip('x = ' + s.x, 'va') +
+          chip('y = ' + s.y + (s.isDef ? '（默认值顶上）' : '（实参覆盖）'), s.isDef ? 'ph' : 'va') + '</div></div>';
+        h += '<div class="aresult">结果：' + s.result + '</div>';
+        return h;
+      }
+      if (s.mode === 'trap') {
+        var inner = s.items.length
+          ? s.items.map(function (t) { return chip("'" + t + "'", 'va'); }).join('')
+          : '<span style="color:#8a8577;font-size:13px;">（一个空列表，在定义函数时就创建好了）</span>';
+        var h2 = '<div class="objcard" style="min-width:320px;"><div class="oc-h">box 默认值指向的那一份列表</div><div style="margin-top:8px;">' + inner + '</div></div>';
+        h2 += '<div class="arow"><span class="alabel">本次调用</span>' + chip(s.call) + '</div>';
+        h2 += s.bad
+          ? '<div class="anote">新元素是"加在原来基础上"的，不是从空列表重新开始——三次调用共用同一个列表</div>'
+          : '<div class="anote">默认值只在函数定义时创建一次，之后所有调用共用它</div>';
+        return h2;
+      }
+      return '<div class="cmp"><div class="cmp-box"><div class="cmp-h bad">✗ 默认值用可变对象</div><pre>def add_item(item, box=[]):\n    box.append(item)\n    return box</pre></div>' +
+        '<div class="cmp-box"><div class="cmp-h good">✓ 默认值写 None</div><pre>def add_item(item, box=None):\n    if box is None:\n        box = []\n    box.append(item)\n    return box</pre></div></div>' +
+        '<div class="aresult">每次调用都新建一个列表，结果才符合直觉</div>';
+    }
+  },
+  globalflow: {
+    frames: function () {
+      return [
+        { cap: '程序一开始，全局区有 x = 5。', s: { gx: '5', note: '全局变量：整个程序都能用' } },
+        { cap: '函数 my_add3() 里写了 x = 3，但没有写 global —— Python 认为这是"新建一个局部变量 x"。', s: { gx: '5', lx: '3', note: '没有 global：x = 3 只是新建的局部变量' } },
+        { cap: '所以函数返回 3 + 3 = 6；而全局区那个 x 从头到尾没被碰过，还是 5。', s: { gx: '5', lx: '3', note: '函数内用的是局部 x', ret: 6 } },
+        { cap: '再看一个更迷惑的写法：函数里先 print(x)、后面又写 x = 3 → UnboundLocalError。因为只要函数里出现过 x = 3，x 就被登记成局部变量，而 print 的时候它还没赋值。', s: { gx: '5', lx: '（未赋值）', note: '读取了"还没赋值的局部变量"', err: true } },
+        { cap: '要在函数里"改"全局变量，必须先声明：在函数里写 global x。', s: { gx: '5', lx: '3', note: 'global x —— 告诉 Python：接下来的 x 就是全局那个', useGlobal: true } },
+        { cap: '声明之后再 x = 3，改的就是全局变量：函数返回 6，全局 x 也变成了 3。', s: { gx: '3', lx: '3', note: '全局变量被真正修改', ret: 6, useGlobal: true, done: true } },
+        { cap: '建议：函数里改全局变量要谨慎（改的地方多了很难追踪）。更好的做法是"值用参数传进去，结果用 return 交出来"。', s: { gx: '3', lx: '3', note: '参数进、返回值出 —— 更清晰也更安全', ret: 6, useGlobal: true, done: true, good: true } }
+      ];
+    },
+    render: function (s) {
+      function box(title, inner) {
+        return '<div class="objcard" style="min-width:250px;"><div class="oc-h">' + title + '</div><div style="margin-top:8px;">' + inner + '</div></div>';
+      }
+      var gh = '<span class="sv global">x = ' + s.gx + '</span>' + (s.useGlobal ? '<span class="chip ph">global x 已声明</span>' : '');
+      var lh = (s.lx === undefined)
+        ? '<span style="color:#8a8577;font-size:13px;">（函数还没执行）</span>'
+        : '<span class="sv local">x = ' + s.lx + '</span>';
+      var h = '<div class="arow" style="gap:14px;">' + box('全局区', gh) + box('函数局部区 my_add3()', lh) + '</div>';
+      h += '<div class="anote">' + s.note + '</div>';
+      if (s.err) h += '<div class="aresult" style="background:var(--red-soft);border-color:#ecd0cd;color:#8c2f28;">UnboundLocalError: cannot access local variable \'x\' where it is not associated with a value</div>';
+      if (s.ret !== undefined) h += '<div class="aresult">my_add3() 返回 ' + s.ret + '</div>';
+      if (s.done) h += '<div class="aresult">函数执行后：全局 x = ' + s.gx + '</div>';
+      if (s.good) h += '<div class="anote">推荐写法：def my_add3(参数): … return 结果 —— 不依赖外部变量</div>';
+      return h;
+    }
+  },
+  selfbind: {
+    frames: function () {
+      return [
+        { cap: '类里的方法长这样：def area(self): return round(math.pi * self.r ** 2, 2)。第一个参数 self 不是"多余的东西"，它是"接住对象"的形参。', s: { phase: 'def' } },
+        { cap: '创建两个对象：c1 = MyCircle(2)、c2 = MyCircle(5)，它们的 r 分别是 2 和 5。', s: { phase: 'objs', objs: [[2, null], [5, null]] } },
+        { cap: '执行 c1.area()：Python 自动把 c1 传给 self → 方法里 self 就是 c1，self.r 取到 2。', s: { phase: 'call', objs: [[2, null], [5, null]], self: 'c1', which: 0 } },
+        { cap: '算出来 3.14 × 2² ≈ 12.57。', s: { phase: 'call', objs: [[2, 12.57], [5, null]], self: 'c1', which: 0 } },
+        { cap: '再执行 c2.area()：这次 self 是 c2，self.r 取到 5。', s: { phase: 'call', objs: [[2, 12.57], [5, null]], self: 'c2', which: 1 } },
+        { cap: '算出来 3.14 × 5² ≈ 78.54。同一个方法、同一份代码，结果却不同 —— 因为 self 换人了。', s: { phase: 'call', objs: [[2, 12.57], [5, 78.54]], self: 'c2', which: 1, done: true } }
+      ];
+    },
+    render: function (s) {
+      if (s.phase === 'def') {
+        return '<div class="arow"><span class="alabel">方法定义</span><span class="chip ph">def area(self):</span></div>' +
+          '<div class="arow"><span class="alabel">方法体</span><span class="chip ph">return round(math.pi * self.r ** 2, 2)</span></div>' +
+          '<div class="anote">self 是形参：调用时由 Python 自动把"对象"传进来，你不用自己写</div>';
+      }
+      var h = '<div class="arow" style="gap:14px;">';
+      s.objs.forEach(function (o, i) {
+        var active = (s.which === i);
+        h += '<div class="objcard"' + (active ? ' style="border-color:#306998;box-shadow:0 0 0 3px #eaf1f8;"' : '') + '>' +
+          '<div class="oc-h">对象 c' + (i + 1) + '</div><div class="oc-b">r = ' + o[0] + '</div>' +
+          '<div style="margin-top:6px;font-size:13px;color:#215c26;">area() → ' + (o[1] === null ? '—' : o[1]) + '</div></div>';
+      });
+      h += '</div>';
+      if (s.self) h += '<div class="arow"><span class="alabel">self 指向</span><span class="chip va">self → ' + s.self + '</span></div>';
+      if (s.done) h += '<div class="aresult">同一个 area()，self 不同 → 12.57 与 78.54</div>';
+      return h;
+    }
+  },
+  watersteps: {
+    frames: function () {
+      var segs = [
+        ['第一段　0—180 吨', 180, '5 元/吨', 900],
+        ['第二段　180—260 吨', 40, '7 元/吨', 280],
+        ['第三段　260 吨以上', 0, '9 元/吨', 0]
+      ];
+      return [
+        { cap: '用水 220 吨。阶梯水价是"用得越多单价越高"，所以必须分段算，不能整体套一个单价。', s: { on: 0, segs: segs } },
+        { cap: '第一段：前 180 吨按 5 元计价 → 180 × 5 = 900 元。', s: { on: 1, segs: segs } },
+        { cap: '第二段：超过 180 吨的部分是 220 − 180 = 40 吨，按 7 元计价 → 40 × 7 = 280 元。', s: { on: 2, segs: segs } },
+        { cap: '第三段：220 吨没有超过 260 吨，这一段是 0 吨 → 0 元。', s: { on: 3, segs: segs } },
+        { cap: '合计 900 + 280 + 0 = 1180 元。代码里 else 分支的"三段相加"正是这件事。', s: { on: 3, segs: segs, done: true } }
+      ];
+    },
+    render: function (s) {
+      var total = 0, h = '';
+      s.segs.forEach(function (sg, i) {
+        var done = i < s.on;
+        if (done) total += sg[3];
+        h += '<div class="arow"><span class="alabel">' + sg[0] + '</span><div class="chips">' +
+          '<span class="chip ' + (done ? 'va' : 'ph') + '">' + sg[1] + ' 吨 × ' + sg[2] + '</span>' +
+          '<span class="chip ' + (done ? 'va' : 'ph') + '">' + (done ? sg[3] + ' 元' : '待计算') + '</span></div></div>';
+      });
+      if (s.on > 0) h += '<div class="anote">已累计：' + total + ' 元</div>';
+      if (s.done) h += '<div class="aresult">220 吨的水费 = 900 + 280 + 0 = 1180 元</div>';
       return h;
     }
   }
