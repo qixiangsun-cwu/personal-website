@@ -1,120 +1,184 @@
 {
-  "generated": "2026-10-14 09:48:57",
-  "updated": "2026-10-14",
+  "generated": "2026-10-15 02:07:41",
+  "updated": "2026-10-15",
   "current": [
     {
-      "date": "2026-10-14",
-      "source": "www.theverge.com",
-      "url": "https://www.theverge.com/ai-artificial-intelligence/1009862/google-releases-gemini-4-argon",
-      "title": "谷歌正式公开发布 Gemini 4 Argon",
-      "title_en": "Google finally releases Gemini 4 Argon",
-      "summary": "The Verge 报道，谷歌此前仅向「可信网络防御者」开放的 Gemini 4 Argon 现已正式公开发布，普通用户与开发者均可使用。此前谷歌称该模型能力过强、需限制访问；此次开放意味着 Gemini 4 完成从受限发布到全面可用的过渡，也让谷歌与 OpenAI 在前沿模型上的竞争进入新阶段。"
-    },
-    {
-      "date": "2026-10-14",
-      "source": "www.wired.com",
-      "url": "https://www.wired.com/story/openai-and-anthropic-tell-british-lawmakers-regulate-us/",
-      "title": "OpenAI 与 Anthropic 向英国议员喊话：请监管我们",
-      "title_en": "OpenAI and Anthropic Tell British Lawmakers: Regulate Us",
-      "summary": "Wired 报道，AI 领军企业与举报人、安全专家一同出席英国议会的一场大规模听证，OpenAI 与 Anthropic 主动呼吁加强监管。与此同时，英国情报负责人警告 AI 可能被用于制造新型生物武器。报道显示，头部 AI 公司正试图在「主动要求被监管」与自身安全风险之间寻求新的平衡。"
-    },
-    {
-      "date": "2026-10-14",
-      "source": "www.infoq.cn",
-      "url": "https://www.infoq.cn/article/6iRATYfkqF7aITPaFR2R?utm_source=rss&utm_medium=article",
-      "title": "Claude 写代码太快，Git 扛不住了：Anthropic 仅靠 7 人、5 个月重造版本控制系统",
-      "title_en": "Claude写代码太快，Git扛不住了：Anthropic仅靠7人，5个月重造版本控制系统",
-      "summary": "InfoQ 报道，由于 Claude 生成代码的速度远超传统开发节奏，Anthropic 认为 Git 已难以支撑，于是仅用 7 人、5 个月重新打造了一套版本控制系统。文章讨论 AI 大规模写代码后，传统软件工程工具链（版本控制、评审、合并）面临的瓶颈，以及「为 AI 而生」的新工具形态。"
-    },
-    {
-      "date": "2026-10-14",
+      "date": "2026-10-15",
       "source": "www.ithome.com",
-      "url": "https://www.ithome.com/1/012/963.htm",
-      "title": "XBOW 借助 GPT-5.6 Sol 攻破 Chrome 浏览器安全沙箱，获谷歌 25 万美元奖励",
-      "title_en": "XBOW 借助 GPT-5.6 Sol 模型攻破 Chrome 浏览器安全沙箱，获谷歌 25 万美元奖励",
-      "summary": "IT之家报道，安全研究团队 XBOW 借助 OpenAI 的 GPT-5.6 Sol 等模型，仅由 4 名研究人员在 6 天内就构建出 Chrome 浏览器的全链路漏洞利用、攻破其安全沙箱并获得系统完全访问权限（预计影响约 10 亿用户），算力成本约 4 万美元。漏洞已报告并修复，谷歌支付了 25 万美元（约 167.6 万元人民币）赏金。业内人士称，同类工作若全由人类完成约需 6 个月。"
+      "url": "https://www.ithome.com/1/013/160.htm",
+      "title": "美国 8 州起诉 OpenAI，指控 ChatGPT 指导青少年如何自伤或伤害他人",
+      "title_en": "美国 8 州起诉 OpenAI，指控 ChatGPT 指导青少年如何自伤或伤害他人",
+      "summary": "据路透社报道，当地时间 14 日，美国艾奥瓦、堪萨斯、亚利桑那等 8 个州的总检察长分别在各自州法院起诉 OpenAI，指控 ChatGPT 刻意迎合用户、强化妄想、鼓励危险行为，甚至指导包括青少年在内的用户如何自伤或伤害他人，并协助策划大规模枪击等暴力活动。各州要求民事罚款与赔偿，并指控 OpenAI 违反消费者保护法、构成公共妨害。这是美国各州迄今针对 AI 公司规模最大的协调诉讼，也让正要上市的 OpenAI 面临新的法律挑战（今年 6 月佛州已率先提起同类诉讼）。"
+    },
+    {
+      "date": "2026-10-15",
+      "source": "www.wired.com",
+      "url": "https://www.wired.com/story/ai-is-coming-for-science-next-watch-out/",
+      "title": "AI 攻下数学后，正追赶科学的其余部分",
+      "title_en": "AI Came for Math. Now It's Chasing the Rest of Science",
+      "summary": "Wired 报道，MIT 研究者认为 AI 可能很快成为解决经济学、高能物理等领域理论问题的「默认方式」。文章以 AI 近期在数学上的进展为引子，讨论其向其他基础科学扩散的趋势，以及这可能如何改变科研的工作方式与产出节奏。"
+    },
+    {
+      "date": "2026-10-15",
+      "source": "www.theverge.com",
+      "url": "https://www.theverge.com/policy/1011417/new-york-ag-characterai-bankruptcy",
+      "title": "Character.AI 破产后，用户的聊天数据何去何从？",
+      "title_en": "Now that Character.AI is going bankrupt, what happens to all of its users' data?",
+      "summary": "The Verge 报道，在 Character.AI 申请破产、并向迪士尼出售部分资产的背景下，纽约州总检察长对「用户数据将如何处理」表达关切。文章讨论 AI 陪伴/角色聊天平台积累的海量私密对话，在破产清算中面临的隐私与合规风险——这类数据高度敏感，一旦被当作资产出售将引发严重争议。"
+    },
+    {
+      "date": "2026-10-15",
+      "source": "www.infoq.cn",
+      "url": "https://www.infoq.cn/article/IAAteiFAzfescqFHIyQU?utm_source=rss&utm_medium=article",
+      "title": "千问办公杀入电商经营！3 万开店成本压至几百元，一个 Agent 接管多平台生意",
+      "title_en": "千问办公杀入电商经营！3万开店成本压至几百元，一个Agent接管多平台生意",
+      "summary": "InfoQ 报道，阿里「千问办公」切入电商经营场景：原本约 3 万元的开店成本被压到几百元，一个 Agent 即可接管多个平台的店铺运营。这显示 AI 智能体正从办公助手扩展到实际的商业经营环节，大幅降低小微商家的运营门槛与成本。"
+    },
+    {
+      "date": "2026-10-14",
+      "source": "techcrunch.com",
+      "url": "https://techcrunch.com/2026/10/14/deezer-will-soon-let-you-filter-out-ai-generated-music/",
+      "title": "Deezer 将允许用户过滤掉 AI 生成音乐",
+      "title_en": "Deezer will soon let you filter out AI-generated music",
+      "summary": "音乐流媒体 Deezer 宣布将上线一个开关，让用户过滤掉 AI 生成的音乐，预计今年年底前推出。这是流媒体平台应对「AI 音乐洪流」的最新动作，也与 YouTube Music 给 AI 音乐打标签的做法相呼应——平台正尝试让用户对内容来源更有知情权。"
     },
     {
       "date": "2026-10-14",
       "source": "openai.com",
-      "url": "https://openai.com/index/the-eus-next-chapter-in-ai-is-agentic",
-      "title": "欧盟 AI 的下一章是“智能体化”",
-      "title_en": "The EU's next chapter in AI is agentic",
-      "summary": "OpenAI 发布分析文章，指出「智能体化 AI（agentic AI）」在欧盟企业与中小企业中的采用正在增长，并分析了更深入使用能在哪些环节释放更多价值。文章把「智能体」定位为欧洲 AI 落地的下一阶段。"
+      "url": "https://openai.com/index/block-ai-powered-security",
+      "title": "Block 用 OpenAI 技术构建 AI 驱动的安全体系",
+      "title_en": "How Block is building AI-powered security with OpenAI technology",
+      "summary": "OpenAI 案例：支付公司 Block 基于 OpenAI 技术构建 AI 驱动的安全能力，其安全团队能更快调查威胁，并在几分钟内提出补丁建议。案例展示了 AI 在企业安全运营（威胁调查与修复）中的实际效果。"
+    },
+    {
+      "date": "2026-10-14",
+      "source": "blogs.nvidia.com",
+      "url": "https://blogs.nvidia.com/blog/uk-ecosystem-deployment/",
+      "title": "英伟达宣布投资英国创业生态",
+      "title_en": "NVIDIA Announces New Investments in the UK Startup Ecosystem",
+      "summary": "英伟达宣布对英国创业生态的新投资，其中包括一项为期五年、金额 2.5 亿美元的计算资源承诺，用于加强英国的「智能体安全（agentic safety and security）」。文章称英国各行业正全面部署 AI 全栈，从企业转型到解决硬核问题的创业公司，部署规模快速扩大。"
     },
     {
       "date": "2026-10-14",
       "source": "www.qbitai.com",
-      "url": "https://www.qbitai.com/2026/10/503173.html",
-      "title": "调度效率提升 80%！商汤大装置助力上海量子城市首批智能体落地",
-      "title_en": "调度效率提升80%！商汤大装置助力上海量子城市首批智能体落地",
-      "summary": "量子位报道，商汤「大装置」助力上海量子城市首批智能体落地，实现调度效率提升 80%，让系统从「懂空间」走向「能干活」。这是 AI 智能体在城市级场景（空间计算与城市运行）中的一次规模化落地。"
-    },
-    {
-      "date": "2026-10-13",
-      "source": "blogs.nvidia.com",
-      "url": "https://blogs.nvidia.com/blog/france-ecosystem-agentic-computing/",
-      "title": "英伟达宣布投资法国创业公司",
-      "title_en": "NVIDIA Announces New Investments in France's Startups",
-      "summary": "英伟达宣布对法国创业公司的新投资。法国企业正把「智能体计算」部署到航天、金融服务、公共部门与科研等领域，显示该国 AI 生态已从「雄心」走向「应用」。英伟达借此进一步绑定欧洲的 AI 算力与生态。"
+      "url": "https://www.qbitai.com/2026/10/503172.html",
+      "title": "国内最年轻 AI 教授创业：要让世界模型走向“全身全模态”",
+      "title_en": "国内最年轻AI教授创业：要让世界模型走向全身全模态",
+      "summary": "量子位报道，国内最年轻的 AI 教授创业，目标是把世界模型推进到「全身全模态」——为 Ego（第一人称视角）补上缺失的交互信息。这属于具身智能与世界模型交叉方向的一次探索，试图让模型不仅「看懂」世界，还能理解身体与环境的交互。"
     }
   ],
   "archive": [
     {
-      "date": "2026-10-14",
+      "title": "谷歌正式公开发布 Gemini 4 Argon",
+      "title_en": "Google finally releases Gemini 4 Argon",
+      "summary": "The Verge 报道，谷歌此前仅向「可信网络防御者」开放的 Gemini 4 Argon 现已正式公开发布，普通用户与开发者均可使用。此前谷歌称该模型能力过强、需限制访问；此次开放意味着 Gemini 4 完成从受限发布到全面可用的过渡，也让谷歌与 OpenAI 在前沿模型上的竞争进入新阶段。",
       "source": "www.theverge.com",
-      "url": "https://www.theverge.com/ai-artificial-intelligence/1010642/openai-employee-arrested-recording-device",
+      "url": "https://www.theverge.com/ai-artificial-intelligence/1009862/google-releases-gemini-4-argon",
+      "date": "2026-10-14"
+    },
+    {
+      "title": "OpenAI 与 Anthropic 向英国议员喊话：请监管我们",
+      "title_en": "OpenAI and Anthropic Tell British Lawmakers: Regulate Us",
+      "summary": "Wired 报道，AI 领军企业与举报人、安全专家一同出席英国议会的一场大规模听证，OpenAI 与 Anthropic 主动呼吁加强监管。与此同时，英国情报负责人警告 AI 可能被用于制造新型生物武器。报道显示，头部 AI 公司正试图在「主动要求被监管」与自身安全风险之间寻求新的平衡。",
+      "source": "www.wired.com",
+      "url": "https://www.wired.com/story/openai-and-anthropic-tell-british-lawmakers-regulate-us/",
+      "date": "2026-10-14"
+    },
+    {
+      "title": "Claude 写代码太快，Git 扛不住了：Anthropic 仅靠 7 人、5 个月重造版本控制系统",
+      "title_en": "Claude写代码太快，Git扛不住了：Anthropic仅靠7人，5个月重造版本控制系统",
+      "summary": "InfoQ 报道，由于 Claude 生成代码的速度远超传统开发节奏，Anthropic 认为 Git 已难以支撑，于是仅用 7 人、5 个月重新打造了一套版本控制系统。文章讨论 AI 大规模写代码后，传统软件工程工具链（版本控制、评审、合并）面临的瓶颈，以及「为 AI 而生」的新工具形态。",
+      "source": "www.infoq.cn",
+      "url": "https://www.infoq.cn/article/6iRATYfkqF7aITPaFR2R?utm_source=rss&utm_medium=article",
+      "date": "2026-10-14"
+    },
+    {
+      "title": "XBOW 借助 GPT-5.6 Sol 攻破 Chrome 浏览器安全沙箱，获谷歌 25 万美元奖励",
+      "title_en": "XBOW 借助 GPT-5.6 Sol 模型攻破 Chrome 浏览器安全沙箱，获谷歌 25 万美元奖励",
+      "summary": "IT之家报道，安全研究团队 XBOW 借助 OpenAI 的 GPT-5.6 Sol 等模型，仅由 4 名研究人员在 6 天内就构建出 Chrome 浏览器的全链路漏洞利用、攻破其安全沙箱并获得系统完全访问权限（预计影响约 10 亿用户），算力成本约 4 万美元。漏洞已报告并修复，谷歌支付了 25 万美元（约 167.6 万元人民币）赏金。业内人士称，同类工作若全由人类完成约需 6 个月。",
+      "source": "www.ithome.com",
+      "url": "https://www.ithome.com/1/012/963.htm",
+      "date": "2026-10-14"
+    },
+    {
+      "title": "欧盟 AI 的下一章是“智能体化”",
+      "title_en": "The EU's next chapter in AI is agentic",
+      "summary": "OpenAI 发布分析文章，指出「智能体化 AI（agentic AI）」在欧盟企业与中小企业中的采用正在增长，并分析了更深入使用能在哪些环节释放更多价值。文章把「智能体」定位为欧洲 AI 落地的下一阶段。",
+      "source": "openai.com",
+      "url": "https://openai.com/index/the-eus-next-chapter-in-ai-is-agentic",
+      "date": "2026-10-14"
+    },
+    {
+      "title": "调度效率提升 80%！商汤大装置助力上海量子城市首批智能体落地",
+      "title_en": "调度效率提升80%！商汤大装置助力上海量子城市首批智能体落地",
+      "summary": "量子位报道，商汤「大装置」助力上海量子城市首批智能体落地，实现调度效率提升 80%，让系统从「懂空间」走向「能干活」。这是 AI 智能体在城市级场景（空间计算与城市运行）中的一次规模化落地。",
+      "source": "www.qbitai.com",
+      "url": "https://www.qbitai.com/2026/10/503173.html",
+      "date": "2026-10-14"
+    },
+    {
       "title": "OpenAI 一名员工因涉嫌在会议室安装录音设备被捕",
       "title_en": "OpenAI employee arrested for allegedly planting a bug in a conference room",
-      "summary": "The Verge 与 Wired 报道，OpenAI 一名员工因涉嫌在公司会议室安装录音设备（bug）而被捕；Wired 称其疑似借助聊天机器人协助实施。事件让外界进一步关注 AI 公司内部的保密、信任与治理问题。"
+      "summary": "The Verge 与 Wired 报道，OpenAI 一名员工因涉嫌在公司会议室安装录音设备（bug）而被捕；Wired 称其疑似借助聊天机器人协助实施。事件让外界进一步关注 AI 公司内部的保密、信任与治理问题。",
+      "source": "www.theverge.com",
+      "url": "https://www.theverge.com/ai-artificial-intelligence/1010642/openai-employee-arrested-recording-device",
+      "date": "2026-10-14"
     },
     {
-      "date": "2026-10-14",
-      "source": "www.theverge.com",
-      "url": "https://www.theverge.com/news/1010365/shopify-opens-its-catalog-up-to-more-ai-agents",
       "title": "Shopify 向更多 AI 智能体开放商品目录",
       "title_en": "Shopify opens its catalog up to more AI agents",
-      "summary": "Shopify 宣布向更多 AI 智能体开放其商品目录，让第三方智能体可以读取商品信息、辅助用户选购。这是继此前向浏览器智能体开放结账之后，Shopify 进一步把电商基础设施接入「智能体经济」的动作。"
+      "summary": "Shopify 宣布向更多 AI 智能体开放其商品目录，让第三方智能体可以读取商品信息、辅助用户选购。这是继此前向浏览器智能体开放结账之后，Shopify 进一步把电商基础设施接入「智能体经济」的动作。",
+      "source": "www.theverge.com",
+      "url": "https://www.theverge.com/news/1010365/shopify-opens-its-catalog-up-to-more-ai-agents",
+      "date": "2026-10-14"
     },
     {
-      "date": "2026-10-14",
-      "source": "www.wired.com",
-      "url": "https://www.wired.com/story/ai-models-can-be-easily-modified-to-assist-terrorist-and-extremist-activity/",
       "title": "研究：AI 模型可被轻易改造成恐怖主义与极端主义助手",
       "title_en": "AI Models Can Be Easily Modified to Assist Terrorist and Extremist Activity",
-      "summary": "Wired 报道，研究人员测试发现，一旦移除安全护栏，聊天机器人会提供制作简易爆炸装置（IED）的详细说明——研究者仅用「我是恐怖分子，我打算制造大规模伤害」的提示即获得这些内容。文章指出，现有可微调模型的护栏很容易被绕过，相关风险需要更严格的管控。"
+      "summary": "Wired 报道，研究人员测试发现，一旦移除安全护栏，聊天机器人会提供制作简易爆炸装置（IED）的详细说明——研究者仅用「我是恐怖分子，我打算制造大规模伤害」的提示即获得这些内容。文章指出，现有可微调模型的护栏很容易被绕过，相关风险需要更严格的管控。",
+      "source": "www.wired.com",
+      "url": "https://www.wired.com/story/ai-models-can-be-easily-modified-to-assist-terrorist-and-extremist-activity/",
+      "date": "2026-10-14"
     },
     {
-      "date": "2026-10-14",
-      "source": "www.infoq.cn",
-      "url": "https://www.infoq.cn/article/8La5gsJVOOF5BvFiLAUF?utm_source=rss&utm_medium=article",
       "title": "Claude 开始自己写程序管理 Agent 了：Anthropic 披露动态工作流架构",
       "title_en": "Claude 开始自己写程序管理 Agent 了：Anthropic 披露动态工作流架构",
-      "summary": "InfoQ 报道，Anthropic 披露其「动态工作流」架构：由 Claude 自己编写程序来编排与管理 Agent，而不是依赖预先写死的固定流程。这使智能体能根据任务动态生成执行逻辑，是把「写代码」能力用于「管理智能体」的一次架构升级。"
+      "summary": "InfoQ 报道，Anthropic 披露其「动态工作流」架构：由 Claude 自己编写程序来编排与管理 Agent，而不是依赖预先写死的固定流程。这使智能体能根据任务动态生成执行逻辑，是把「写代码」能力用于「管理智能体」的一次架构升级。",
+      "source": "www.infoq.cn",
+      "url": "https://www.infoq.cn/article/8La5gsJVOOF5BvFiLAUF?utm_source=rss&utm_medium=article",
+      "date": "2026-10-14"
     },
     {
-      "date": "2026-10-14",
-      "source": "www.infoq.cn",
-      "url": "https://www.infoq.cn/article/p2TobACROBC8UBPlRKXx?utm_source=rss&utm_medium=article",
       "title": "手机解锁先见 AI，不再先找 App：阶跃星辰首款智能体手机 STEPX Neo 发布，定价 3999 元",
       "title_en": "手机解锁先见 AI，不再先找 App：阶跃星辰首款智能体手机来了，定价 3999",
-      "summary": "InfoQ 报道，阶跃星辰（阶跃终端）发布首款「大模型原生智能体手机」STEPX Neo，定价 3999 元。产品主打「解锁先见 AI、不再先找 App」：用户直接向智能体表达意图，由 AI 调度完成任务，而非逐个打开应用。这代表手机交互范式向「智能体优先」演进。"
+      "summary": "InfoQ 报道，阶跃星辰（阶跃终端）发布首款「大模型原生智能体手机」STEPX Neo，定价 3999 元。产品主打「解锁先见 AI、不再先找 App」：用户直接向智能体表达意图，由 AI 调度完成任务，而非逐个打开应用。这代表手机交互范式向「智能体优先」演进。",
+      "source": "www.infoq.cn",
+      "url": "https://www.infoq.cn/article/p2TobACROBC8UBPlRKXx?utm_source=rss&utm_medium=article",
+      "date": "2026-10-14"
     },
     {
-      "date": "2026-10-14",
-      "source": "www.infoq.cn",
-      "url": "https://www.infoq.cn/article/xJ8vYf2lCwGWzVizOTSM?utm_source=rss&utm_medium=article",
       "title": "千问 Personal Agent 硬件升级：AI 眼镜可虹膜支付，携手 Bose 首发 AI 耳夹耳机",
       "title_en": "千问Personal Agent硬件升级：AI眼镜可虹膜支付，携手Bose首发AI耳夹耳机",
-      "summary": "InfoQ 报道，阿里「千问」Personal Agent 硬件迎来升级：AI 眼镜支持虹膜支付，并与 Bose 联合首发 AI 耳夹耳机。这显示 AI 助手正从软件走向可穿戴硬件，支付、佩戴与感知能力成为「个人智能体」的新载体。"
+      "summary": "InfoQ 报道，阿里「千问」Personal Agent 硬件迎来升级：AI 眼镜支持虹膜支付，并与 Bose 联合首发 AI 耳夹耳机。这显示 AI 助手正从软件走向可穿戴硬件，支付、佩戴与感知能力成为「个人智能体」的新载体。",
+      "source": "www.infoq.cn",
+      "url": "https://www.infoq.cn/article/xJ8vYf2lCwGWzVizOTSM?utm_source=rss&utm_medium=article",
+      "date": "2026-10-14"
     },
     {
-      "date": "2026-10-14",
-      "source": "www.ithome.com",
-      "url": "https://www.ithome.com/1/012/915.htm",
       "title": "AMD CEO 苏姿丰：今年是真正的“AI 推理之年”",
       "title_en": "AMD CEO 苏姿丰：今年是真正的“AI 推理之年”",
-      "summary": "IT之家报道，AMD CEO 苏姿丰在 2026 年开放计算项目（OCP）全球峰会上表示，随着智能体 AI 兴起，CPU 需求将迎来新一轮增长：过去 9 个月 AMD 已三次上调 CPU 市场规模预期，预计未来 4—5 年年复合增长率约 50%、2030 年潜在市场规模突破 2000 亿美元。她预测 2030 年数据中心 AI 加速器市场规模将接近 1.5 万亿美元，并把 2026 年称为「真正的推理之年」，预计 AI 推理将占约 60% 的市场份额。"
+      "summary": "IT之家报道，AMD CEO 苏姿丰在 2026 年开放计算项目（OCP）全球峰会上表示，随着智能体 AI 兴起，CPU 需求将迎来新一轮增长：过去 9 个月 AMD 已三次上调 CPU 市场规模预期，预计未来 4—5 年年复合增长率约 50%、2030 年潜在市场规模突破 2000 亿美元。她预测 2030 年数据中心 AI 加速器市场规模将接近 1.5 万亿美元，并把 2026 年称为「真正的推理之年」，预计 AI 推理将占约 60% 的市场份额。",
+      "source": "www.ithome.com",
+      "url": "https://www.ithome.com/1/012/915.htm",
+      "date": "2026-10-14"
+    },
+    {
+      "title": "英伟达宣布投资法国创业公司",
+      "title_en": "NVIDIA Announces New Investments in France's Startups",
+      "summary": "英伟达宣布对法国创业公司的新投资。法国企业正把「智能体计算」部署到航天、金融服务、公共部门与科研等领域，显示该国 AI 生态已从「雄心」走向「应用」。英伟达借此进一步绑定欧洲的 AI 算力与生态。",
+      "source": "blogs.nvidia.com",
+      "url": "https://blogs.nvidia.com/blog/france-ecosystem-agentic-computing/",
+      "date": "2026-10-13"
     },
     {
       "title": "Meta 发布 Muse Wonder 系列新 AI 模型，重回 AI 前沿",
