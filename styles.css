@@ -579,11 +579,19 @@ body {
   margin-bottom: var(--space-lg);
 }
 
-.about-info, .about-research {
-  padding: var(--space-xl) var(--space-xl) var(--space-2xl);
+/* ---------- 个人简介与联系（四块整合为单卡） ---------- */
+.profile-card { padding: var(--space-2xl); }
+.profile-card .about-grid { margin-bottom: 0; }
+.profile-card .about-info,
+.profile-card .about-research { padding: 0; }
+
+.profile-block {
+  margin-top: var(--space-xl);
+  padding-top: var(--space-xl);
+  border-top: 1px solid var(--color-rule);
 }
 
-.about-info h3, .about-research h3, .skills-card h3 {
+.about-info h3, .about-research h3, .profile-block h3 {
   font-family: var(--font-display);
   font-size: var(--text-md);
   font-weight: 600;
@@ -662,8 +670,6 @@ body {
   background: var(--color-accent);
   border-radius: 50%;
 }
-
-.skills-card { padding: var(--space-xl) var(--space-xl) var(--space-2xl); }
 
 .skill-cloud {
   display: flex;
@@ -1646,20 +1652,10 @@ body {
 }
 
 /* ---------- 联系 ---------- */
-.section-contact { padding-bottom: var(--space-3xl); }
-
-.contact-card {
-  padding: var(--space-2xl);
-  text-align: center;
-}
 .contact-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: var(--space-lg);
-  margin-top: var(--space-xl);
-  max-width: 680px;
-  margin-left: auto;
-  margin-right: auto;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-md);
 }
 
 .contact-item {
@@ -1831,7 +1827,7 @@ body {
   .tool-grid > * { flex-basis: 100%; }
   .course-grid, .contact-grid { grid-template-columns: 1fr; }
 
-  .contact-card { padding: var(--space-xl) var(--space-lg) var(--space-2xl); }
+  .profile-card { padding: var(--space-xl) var(--space-lg) var(--space-2xl); }
   .timeline { padding-left: var(--space-lg); }
 }
 
@@ -1839,7 +1835,7 @@ body {
 @media (max-width: 640px) {
   .hero { padding-bottom: var(--space-2xl); }
   .section-header { margin-bottom: var(--space-xl); }
-  .about-info, .about-research, .skills-card,
+  .profile-card,
   .news-today-card, .news-more-card, .news-archive-card,
   .module-card, .course-card, .tool-card, .resource-nav,
   .video-placeholder-card, .download-card, .ppt-spec-card,
@@ -2138,8 +2134,7 @@ body {
   border-radius: 2px;
   background: var(--color-rule);
 }
-.section-header--center .section-tag::after,
-.contact-card .section-tag::after {
+.section-header--center .section-tag::after {
   margin-left: auto;
   margin-right: auto;
 }
