@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>期末大作业展示区 · 2026年虚拟现实技术</title>
+<meta name="description" content="中华女子学院《虚拟现实技术》2026 秋季学期期末大作业展示区：40 份个人 WebXR 作品，2026-12-02 集中展示后陆续上线。">
+<style>
+  :root{
+    --ink:#272436; --ink-soft:#5a5670; --ink-faint:#8b879e;
+    --paper:#f6f4fb; --card:#fffdfe; --line:#e3ddf1; --line-soft:#efebf8;
+    --accent:#5a52c8; --accent-deep:#2e2a6f; --accent-soft:#eeeafb;
+    --green:#2e7d32; --green-soft:#eaf5eb;
+    --amber:#b45309; --amber-soft:#fdf3e3;
+    --radius:14px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{
+    font-family:"Times New Roman","宋体",SimSun,"Songti SC",serif;
+    font-size:16px;line-height:1.95;color:var(--ink);background:var(--paper);
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:var(--accent);text-decoration:none;}
+  a:hover{text-decoration:underline;}
+
+  .hero{
+    background:linear-gradient(120deg,#241f52 0%,#3d3585 55%,#5a52c8 100%);
+    color:#fff;padding:52px 20px 44px;
+  }
+  .hero-inner{max-width:1060px;margin:0 auto;}
+  .kicker{font-size:13px;letter-spacing:2px;color:#c9c3ef;}
+  .hero h1{font-size:34px;line-height:1.35;margin:10px 0 12px;font-weight:700;}
+  .hero p.sub{font-size:15.5px;color:#ded9f7;max-width:760px;line-height:1.95;}
+  .meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px;font-size:13px;}
+  .meta span{
+    background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.24);
+    border-radius:999px;padding:4px 13px;color:#eae6ff;
+  }
+
+  .wrap{max-width:1060px;margin:0 auto;padding:0 20px 70px;}
+
+  .stats{
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+    gap:14px;margin:-26px 0 0;
+  }
+  .stat{
+    background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    padding:16px 18px;box-shadow:0 4px 16px rgba(50,45,90,.06);
+  }
+  .stat b{display:block;font-size:26px;line-height:1.2;color:var(--accent-deep);}
+  .stat span{font-size:13px;color:var(--ink-faint);}
+
+  section{margin-top:34px;}
+  h2{font-size:21px;color:var(--accent-deep);margin-bottom:10px;}
+  h2 .n{
+    display:inline-flex;align-items:center;justify-content:center;
+    width:30px;height:30px;border-radius:8px;background:var(--accent-deep);color:#fff;
+    font-size:14px;margin-right:10px;vertical-align:-3px;
+  }
+  p.lead{color:var(--ink-soft);font-size:15px;margin-bottom:14px;}
+
+  /* 空态 */
+  .empty{
+    background:var(--card);border:1px dashed var(--line);border-radius:18px;
+    padding:52px 26px;text-align:center;
+  }
+  .empty .icon{
+    width:64px;height:64px;border-radius:18px;background:var(--accent-soft);
+    display:inline-flex;align-items:center;justify-content:center;
+    font-size:28px;color:var(--accent);margin-bottom:16px;
+  }
+  .empty h3{font-size:19px;color:var(--ink);margin-bottom:8px;}
+  .empty p{color:var(--ink-soft);font-size:15px;max-width:620px;margin:0 auto;line-height:1.95;}
+  .empty .hint{
+    display:inline-block;margin-top:16px;padding:6px 16px;border-radius:999px;
+    background:var(--accent-soft);color:var(--accent-deep);font-size:13.5px;font-weight:700;
+  }
+
+  /* 作品网格 */
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:18px;}
+  .card{
+    display:block;background:var(--card);border:1px solid var(--line);
+    border-radius:var(--radius);overflow:hidden;transition:all .18s;
+  }
+  .card:hover{border-color:var(--accent);box-shadow:0 8px 24px rgba(90,82,200,.14);transform:translateY(-3px);}
+  .cover{position:relative;aspect-ratio:16/9;background:var(--accent-soft);overflow:hidden;}
+  .cover img{width:100%;height:100%;object-fit:cover;display:block;}
+  .cover .no{
+    position:absolute;left:10px;top:10px;background:var(--accent-deep);color:#fff;
+    font-size:12px;font-weight:700;border-radius:999px;padding:3px 10px;
+  }
+  .card .meta2{padding:14px 16px 16px;}
+  .kind{
+    display:inline-block;font-size:12px;color:var(--accent-deep);background:var(--accent-soft);
+    border-radius:6px;padding:2px 8px;margin-bottom:8px;
+  }
+  .who{font-size:17px;font-weight:700;color:var(--ink);}
+  .who span{font-size:13px;font-weight:400;color:var(--ink-faint);margin-left:8px;font-family:Consolas,monospace;}
+  .date{font-size:12.5px;color:var(--ink-faint);font-family:Consolas,monospace;margin-top:2px;}
+  .go{margin-top:10px;font-size:13.5px;font-weight:700;color:var(--accent);}
+
+  /* 时间线 */
+  .steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;}
+  .step{
+    background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    padding:16px 18px;position:relative;
+  }
+  .step.done{border-color:#cfe6d2;background:var(--green-soft);}
+  .step .when{font-size:13px;font-weight:700;color:var(--accent);letter-spacing:.5px;}
+  .step.done .when{color:var(--green);}
+  .step h4{font-size:16px;color:var(--ink);margin:4px 0 6px;}
+  .step p{font-size:14px;color:var(--ink-soft);line-height:1.85;}
+
+  .note{
+    margin-top:18px;border-left:3px solid var(--accent);
+    background:var(--accent-soft);border-radius:0 12px 12px 0;padding:14px 18px;
+    font-size:14px;color:var(--ink-soft);line-height:1.9;
+  }
+  .note b{color:var(--accent-deep);}
+  .warn{
+    margin-top:18px;border-left:3px solid var(--amber);
+    background:var(--amber-soft);border-radius:0 12px 12px 0;padding:14px 18px;
+    font-size:14px;color:#7a4a10;line-height:1.9;
+  }
+
+  .rights{
+    margin-top:40px;border-top:1px solid var(--line);padding-top:16px;
+    font-size:13px;color:var(--ink-faint);line-height:2;
+  }
+  .back{margin-top:22px;font-size:14.5px;}
+  .back a{margin-right:20px;}
+
+  @media (max-width:640px){
+    .hero{padding:38px 18px 36px;}
+    .hero h1{font-size:26px;}
+    .empty{padding:38px 18px;}
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-inner">
+    <div class="kicker">虚拟现实技术 · 2026 秋 · 期末大作业</div>
+    <h1>期末大作业展示区</h1>
+    <p class="sub">
+      这里展示每位同学独立完成的 <b>WebXR 虚拟现实作品</b>：6 次课堂作业的积累、自己设想的方案（≥10 种交互方式 + 模型资产），
+      以及一个功能完备、尽可能美观的成品。
+    </p>
+    <div class="meta">
+      <span>个人作品 · 一人一件</span>
+      <span>提交：2026-11-25 前</span>
+      <span>展示：2026-12-02</span>
+      <span>上线：展示后陆续更新</span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="stats">
+    <div class="stat"><b id="statTotal">0</b><span>已收录作品</span></div>
+    <div class="stat"><b>40</b><span>全班应收件数</span></div>
+    <div class="stat"><b>2026-12-02</b><span>集中展示日</span></div>
+    <div class="stat"><b id="statUpdated">—</b><span>最近更新</span></div>
+  </div>
+
+  <section>
+    <h2><span class="n">作</span>作品列表</h2>
+    <p class="lead" id="listLead">按学号升序排列；点开卡片即可进入作品。</p>
+
+    <!-- 空态：数据为空时显示 -->
+    <div class="empty" id="emptyState">
+      <div class="icon">◇</div>
+      <h3>展示区已就位，作品尚未收录</h3>
+      <p>
+        本期大作业 <b>2026-11-25 前</b>由同学们通过微信交给任课教师，教师统一部署到本站；
+        <b>2026-12-02 集中展示</b>之后，作品会陆续出现在这里。
+      </p>
+      <span class="hint">当前收录 0 份 · 结课后更新</span>
+    </div>
+
+    <!-- 有数据时显示 -->
+    <div class="grid" id="grid" hidden></div>
+  </section>
+
+  <section>
+    <h2><span class="n">程</span>从提交到上线</h2>
+    <div class="steps">
+      <div class="step">
+        <div class="when">方案确认</div>
+        <h4>先确认，再动手</h4>
+        <p>把要做内容（主题 / ≥10 种交互 / 模型资产 / 技术点）微信发给教师确认，方案没确认的作品不计完成度。</p>
+      </div>
+      <div class="step">
+        <div class="when">随课积累</div>
+        <h4>6 次课堂作业</h4>
+        <p>第 4、7、8、10、11 次课各一个案例，写成描述性内容，最终进大作业文档。</p>
+      </div>
+      <div class="step">
+        <div class="when">2026-11-25 前</div>
+        <h4>交作品文件</h4>
+        <p>作品目录压缩成 <b>&lt;学号&gt;-&lt;姓名&gt;.zip</b>，微信发给任课教师（不用 FTP）。</p>
+      </div>
+      <div class="step">
+        <div class="when">2026-12-02 前两节课</div>
+        <h4>交 Word 文档</h4>
+        <p>按下周发布的大作业模板：封面与格式、6 次课堂作业各一段、方案说明、实现与取舍。</p>
+      </div>
+      <div class="step">
+        <div class="when">2026-12-02 后两节课</div>
+        <h4>集中展示</h4>
+        <p>现场演示 VR 作品，讲清做了什么、为什么必须用 VR、技术点在哪。</p>
+      </div>
+      <div class="step">
+        <div class="when">展示之后</div>
+        <h4>上线本页</h4>
+        <p>教师部署作品并补上封面、学号与一句话介绍，作品就成为长期可访问的链接。</p>
+      </div>
+    </div>
+    <div class="note" id="emptyNote">
+      <b>为什么展示区现在是空的</b>：作品要经过「收件 → 部署 → 补封面与说明」三步，不能边交边挂。
+      结课集中展示后统一上线，既保证每份作品都能打开，也避免把未完成版本挂出来。
+    </div>
+    <div class="warn">
+      <b>给同学的话</b>：展示区上线的是<b>完整版作品</b>，所以「能离线跑、无 CDN、控制台无报错、能进能退」这些硬门槛必须真的过——
+      页面挂到公网后，任何依赖丢失都会当场白屏。
+    </div>
+  </section>
+
+  <div class="rights">
+    <b>版权说明</b>：本页所有作品的著作权归各位作者本人所有，<b>仅用于本课程的教学展示与交流</b>，未经作者许可不得转载或另作他用。<br>
+    <b>技术说明</b>：作品以作者提交的原样部署；为使其能在浏览器中打开，教师只做「依赖路径」与「运行环境」所必需的修正，不改动作品内容与设计。
+  </div>
+
+  <div class="back">
+    <a href="/vr-2026">← 返回课程主页</a>
+    <a href="/vr-2026-final-project">← 期末大作业任务书</a>
+    <a href="/assets/vr-2026/cases/index.html">← 课内案例 01—06</a>
+    <a href="/assets/vr-2026/student/works/">← 课堂作业墙（第 5 次课）</a>
+  </div>
+
+</div>
+
+<script>
+(function () {
+  var grid = document.getElementById('grid');
+  var empty = document.getElementById('emptyState');
+  var statTotal = document.getElementById('statTotal');
+  var statUpdated = document.getElementById('statUpdated');
+  var listLead = document.getElementById('listLead');
+  var emptyNote = document.getElementById('emptyNote');
+
+  function esc(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  function card(item, index) {
+    var href = item.href || ('./' + item.id + '/');
+    var cover = item.cover || ('./' + item.id + '/cover.jpg');
+    return '' +
+      '<a class="card" href="' + esc(href) + '">' +
+        '<div class="cover">' +
+          '<span class="no">No.' + (index + 1) + '</span>' +
+          '<img src="' + esc(cover) + '" alt="' + esc((item.name || '') + '的作品封面') + '" loading="lazy">' +
+        '</div>' +
+        '<div class="meta2">' +
+          '<span class="kind">' + esc(item.kind || '期末大作业') + '</span>' +
+          '<div class="who">' + esc(item.name || '') +
+            (item.studentId ? '<span>' + esc(item.studentId) + '</span>' : '') + '</div>' +
+          '<div class="date">' + esc(item.date || '') + '</div>' +
+          '<div class="go">进入作品 →</div>' +
+        '</div>' +
+      '</a>';
+  }
+
+  fetch('works.json', { cache: 'no-store' })
+    .then(function (r) { if (!r.ok) throw new Error('no json'); return r.json(); })
+    .then(function (data) {
+      var items = (data && data.items) || [];
+      statTotal.textContent = items.length;
+      if (data && data.updated) statUpdated.textContent = data.updated;
+
+      if (!items.length) {
+        empty.hidden = false;
+        grid.hidden = true;
+        if (emptyNote) emptyNote.hidden = false;
+        listLead.textContent = '按学号升序排列；作品将在 2026-12-02 集中展示后陆续上线。';
+        return;
+      }
+      empty.hidden = true;
+      grid.hidden = false;
+      if (emptyNote) emptyNote.hidden = true;
+      grid.innerHTML = items.map(card).join('');
+      listLead.textContent = '共 ' + items.length + ' 份作品，按学号升序排列；点开卡片即可进入作品。';
+    })
+    .catch(function () {
+      // 本地 file:// 或 JSON 缺失时保持空态
+      empty.hidden = false;
+      grid.hidden = true;
+    });
+})();
+</script>
+</body>
+</html>

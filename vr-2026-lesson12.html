@@ -72,7 +72,7 @@
         <tr><td style="white-space:nowrap"><strong>1:20—1:30</strong></td><td style="white-space:nowrap">10′</td><td><strong>课间</strong>（头显摘下<strong>放桌上，不放椅子上</strong>）· 同时完成 A→B 换场</td><td>学生管理员</td></tr>
         <tr><td style="white-space:nowrap"><strong>1:30—2:40</strong></td><td style="white-space:nowrap"><strong>70′</strong></td><td><strong>【本轮 B】4 个验收点并行</strong>：<strong>换手</strong>——上一轮的互评员上台路演，上一轮的路演者当互评员</td><td>同本轮 A</td></tr>
         <tr><td style="white-space:nowrap"><strong>2:40—2:55</strong></td><td style="white-space:nowrap">15′</td><td><strong>优秀作品集中复盘（4—5 人）</strong>：每人 3′ 讲 + 教师 1 句点评，回到“<strong>为什么必须 VR</strong>”这一栏</td><td>教师</td></tr>
-        <tr><td style="white-space:nowrap"><strong>2:55—3:00</strong></td><td style="white-space:nowrap">5′</td><td><strong>课程总结</strong>（回到第 1 次课的“空间智能”展望）· <strong>作业墙发布</strong> · <strong>达标名单</strong> · 归档说明</td><td>教师</td></tr>
+        <tr><td style="white-space:nowrap"><strong>2:55—3:00</strong></td><td style="white-space:nowrap">5′</td><td><strong>课程总结</strong>（回到第 1 次课的“空间智能”展望）· <strong>大作业展示区上线</strong> · <strong>达标名单</strong> · 归档说明</td><td>教师</td></tr>
         <tr><td colspan="2"><strong>合计 180′</strong></td><td colspan="2">10 + 70 + 10 + 70 + 15 + 5 = <strong>180</strong></td></tr>
       </tbody>
     </table>
@@ -95,11 +95,11 @@
     </div>
   </div>
 
-  <div class="note"><strong>本课与上一次课的衔接</strong>：上一次课（11-25，第 11 次课）是 <strong>M5 功能封版</strong>——智能模块 + 离线降级 + 体验数据 JSON，封版后<strong>只修错、不加功能</strong>。今天（12-02，第 12 次课）是 <strong>交文档 · 集中展示</strong>：交作品目录 + README + <code class="inline">cover.jpg</code> + <code class="inline">xr-data.json</code>，当场演示 3.5 分钟。结课之后进入成绩合成：<strong>总评 = 平时 30% + 课堂作业 30% + 大作业 40%</strong>，并完成作业墙上线与优秀作品推荐。</div>
+  <div class="note"><strong>本课与上一次课的衔接</strong>：上一次课（11-25，第 11 次课）是 <strong>M5 功能封版</strong>——智能模块 + 离线降级 + 体验数据 JSON，封版后<strong>只修错、不加功能</strong>。今天（12-02，第 12 次课）是 <strong>交文档 · 集中展示</strong>：<strong>前两节课交 Word 文档</strong>，<strong>后两节课集中展示作品</strong>（作品文件已在 11-25 前微信交给教师）。结课之后进入成绩合成：<strong>总评 = 平时 30% + 课堂作业 30% + 大作业 40%</strong>，并完成<strong>大作业展示区</strong>上线与优秀作品推荐。</div>
 
   <div class="btn-row">
-    <a class="btn" href="assets/vr-2026/check/" target="_blank" rel="noopener">VR 作品自检 →</a>
-    <a class="btn ghost" href="assets/vr-2026/student/works/" target="_blank" rel="noopener">学生作业墙 →</a>
+    <a class="btn" href="assets/vr-2026/final-works/" target="_blank" rel="noopener">大作业展示区 →</a>
+    <a class="btn ghost" href="assets/vr-2026/check/" target="_blank" rel="noopener">VR 作品自检 →</a>
     <a class="btn ghost" href="vr-2026.html" target="_blank" rel="noopener">课程主页 →</a>
   </div>
 </section>
@@ -526,7 +526,7 @@
 
   <h3>二、目录结构与命名规范</h3>
   <pre>assets\vr-2026\student\works\
-├─ index.html            ← 作业墙列表页（教师维护，你不用动）
+├─ index.html            ← 大作业展示区列表页（教师维护，你不用动）
 ├─ three.min.js          ← 全班共用一份 three.js（r128 UMD）
 └─ &lt;学号&gt;\                ← ★ 目录名一律 ASCII 学号，例如 2023010101
     ├─ index.html        ← 你的作品（依赖同目录，或内联成单文件）
@@ -546,7 +546,7 @@
       </tbody>
     </table>
   </div>
-  <div class="key"><strong>提交方式（不用 FTP）</strong>：学生把作品目录按上述规范整理好，<strong>压缩成一个 <code class="inline">&lt;学号&gt;-&lt;姓名&gt;.zip</code></strong>，<strong>2026-11-25 前微信发给教师</strong>；<strong>由教师统一上传</strong>到 <code class="inline">assets/vr-2026/student/works/&lt;学号&gt;/</code> 并加入作业墙。<strong>学生不需要自己上传服务器，也不需要 FTP 账号。</strong></div>
+  <div class="key"><strong>提交方式（不用 FTP）</strong>：学生把作品目录按上述规范整理好，<strong>压缩成一个 <code class="inline">&lt;学号&gt;-&lt;姓名&gt;.zip</code></strong>，<strong>2026-11-25 前微信发给教师</strong>；<strong>由教师统一部署</strong>到 <code class="inline">assets/vr-2026/final-works/&lt;学号&gt;/</code>，并加入<strong>大作业展示区</strong>。<strong>学生不需要自己上传服务器，也不需要 FTP 账号。</strong></div>
   <div class="key"><strong>学号目录名为什么必须是 ASCII</strong>：站点是静态托管，中文目录名在不同服务器上会出现 <strong>404 / 乱码</strong>两层问题——<strong>这类问题教师现场也救不回来</strong>。</div>
 
   <h3>三、交作业姿势（历届最高频的事故）</h3>
@@ -554,14 +554,14 @@
     <strong>「网页（完整）」会带出一个 <code class="inline">_files</code> 文件夹</strong>，只发 <code class="inline">.html</code> 给老师 → 单独打开<strong>必然白屏</strong>。这是历届最高频的事故。<br>
     正确的做法是：<strong>把整个作品目录（含 index.html、依赖、assets 模型资产）压缩成 zip</strong>，再发微信。</div>
 
-  <h3>四、发布与作业墙</h3>
+  <h3>四、部署与大作业展示区</h3>
   <ul>
-    <li><strong>学生端</strong>：11-25 前把 zip 微信发给教师；<strong>教师端</strong>解压后放到 <code class="inline">assets/vr-2026/student/works/&lt;学号&gt;/</code>，作业墙列表页加卡片；</li>
-    <li>列表页字段：<strong>姓名 + 学号 + 提交日期 + 封面缩略图 + 「进入作品 →」</strong>；<strong>排序按学号升序</strong>；卡片必须有<strong>作品类型标签</strong>；</li>
+    <li><strong>学生端</strong>：11-25 前把 zip 微信发给教师；<strong>教师端</strong>解压后放到 <code class="inline">assets/vr-2026/final-works/&lt;学号&gt;/</code>，并在 <code class="inline">final-works/works.json</code> 里加一条记录；</li>
+    <li>展示区卡片字段：<strong>姓名 + 学号 + 提交日期 + 封面缩略图 + 「进入作品 →」</strong>；<strong>排序按学号升序</strong>；卡片带<strong>作品类型标签</strong>；</li>
     <li>页尾版权说明：<strong>著作权归作者本人、仅课程展示、未经许可不得转载</strong>；</li>
     <li><strong>本地离线副本</strong>：<code class="inline">学生交付\&lt;学号&gt;\</code>（<strong>教务留痕的正本</strong>——站点可能改版）；待整改者的补交件单独放 <code class="inline">学生交付\_补交\</code>，并在评分表上标补交日期。</li>
   </ul>
-  <div class="note"><strong>作业墙的实际发布路径【待确认】</strong>（<code class="inline">assets/vr-2026/student/works/</code> 以站点现况为准）。</div>
+  <div class="note"><strong>展示区地址</strong>：<a href="assets/vr-2026/final-works/" target="_blank" rel="noopener"><code class="inline">assets/vr-2026/final-works/</code></a>。页面是<strong>数据驱动</strong>的——作品为空时显示空态，收作业后只需在 <code class="inline">works.json</code> 里加条目，不必改 HTML。<strong>当前应为空（0 份）</strong>，2026-12-02 集中展示后陆续上线。</div>
 
   <h3>五、体验数据 <code class="inline">xr-data.json</code> 怎么被读</h3>
   <p>提交的 JSON 不是收上去压箱底的——教师会用它<strong>交叉验证学生自报的读数与完成度</strong>，把“路演那一刻的表现”变成“可复算的过程证据”。</p>
@@ -670,7 +670,7 @@
   <ul>
     <li>作品里涉及<strong>真实人物、校史、文物</strong>：不确定就标 <code class="inline">【待补充】</code>，<strong>不许编造</strong>（硬门槛 11）；</li>
     <li>用到大模型 API：<strong>Key 不能写在前端</strong>（课堂演示级可以，正式产品必须走自家后端代理 + 限流 + 内容审核）。<strong>今天验收也会看这一条（属加分项判定）。</strong></li>
-    <li>作业墙页尾必须有版权说明：<strong>著作权归作者本人、仅课程展示、未经许可不得转载</strong>；优秀作品推荐<strong>须先取得作者授权</strong>。</li>
+    <li>展示区页尾必须有版权说明：<strong>著作权归作者本人、仅课程展示、未经许可不得转载</strong>；优秀作品推荐<strong>须先取得作者授权</strong>。</li>
   </ul>
 </section>
 
@@ -713,7 +713,7 @@
     <div class="step-card">
       <div class="sc-no">STEP 6 · 2:40 之后</div>
       <div class="sc-title">复盘与收束</div>
-      <div class="sc-desc">优秀作品集中复盘 4—5 人（每人 3′ + 点评 1 句）→ 课程总结（回到第 1 次课的“空间智能”展望）→ <strong>作业墙发布 · 达标名单 · 归档说明</strong>。</div>
+      <div class="sc-desc">优秀作品集中复盘 4—5 人（每人 3′ + 点评 1 句）→ 课程总结（回到第 1 次课的“空间智能”展望）→ <strong>大作业展示区上线 · 达标名单 · 归档说明</strong>。</div>
     </div>
   </div>
 
@@ -917,7 +917,7 @@
       <h4>学生交付物（正本）</h4>
       <ul>
         <li>40 份作品目录收齐，目录名一律 ASCII 学号，主文件为 <code class="inline">index.html</code>；</li>
-        <li>每份含齐作品四件套，外加 Word 文档；站点发布 <code class="inline">assets/vr-2026/student/works/&lt;学号&gt;/</code>，作业墙列表页加卡片（<strong>【待确认】</strong>实际发布路径）；</li>
+        <li>每份含齐作品四件套，外加 Word 文档；站点部署 <code class="inline">assets/vr-2026/final-works/&lt;学号&gt;/</code>，并在 <code class="inline">works.json</code> 加一条记录；</li>
         <li>页尾版权说明已加；<strong>本地离线副本</strong> <code class="inline">学生交付\&lt;学号&gt;\</code>（教务留痕的正本——站点可能改版）；</li>
         <li>待整改者的补交件单独放 <code class="inline">学生交付\_补交\</code>，并在评分表上标补交日期。</li>
       </ul>
@@ -949,7 +949,7 @@
 
   <h3>一、可以直接点开的页面</h3>
   <div class="btn-row">
-    <a class="btn" href="assets/vr-2026/student/works/" target="_blank" rel="noopener">学生作业墙 →</a>
+    <a class="btn" href="assets/vr-2026/final-works/" target="_blank" rel="noopener">大作业展示区 →</a>
     <a class="btn ghost" href="assets/vr-2026/check/" target="_blank" rel="noopener">VR 作品自检 →</a>
     <a class="btn ghost" href="assets/vr-2026/student/" target="_blank" rel="noopener">学生作品 · 联网自验工作流 →</a>
     <a class="btn ghost" href="assets/vr-2026/check/vr-probe.js" target="_blank" rel="noopener">vr-probe.js 探针 →</a>
@@ -960,7 +960,7 @@
       <thead><tr><th>页面 / 文件</th><th>它替你回答什么</th></tr></thead>
       <tbody>
         <tr><td><a href="assets/vr-2026/check/" target="_blank" rel="noopener">《VR 作品自检》</a></td><td>四项 WebXR 前提 + WebGL + 输入设备的六项状态；<strong>第 ②③④ 项有 ❌ 就先解决环境，不要去看自己的代码</strong>。点「生成自检报告」可截图或复制那段文字</td></tr>
-        <tr><td><a href="assets/vr-2026/student/works/" target="_blank" rel="noopener">学生作业墙</a>（<strong>发布路径【待确认】</strong>）</td><td>全班作品列表：姓名 + 学号 + 提交日期 + 封面缩略图 + 「进入作品 →」，按学号升序，卡片带作品类型标签。结课后上线</td></tr>
+        <tr><td><a href="assets/vr-2026/final-works/" target="_blank" rel="noopener">大作业展示区</a></td><td>全班期末大作业作品列表：姓名 + 学号 + 提交日期 + 封面缩略图 + 「进入作品 →」，按学号升序，卡片带作品类型标签。<strong>当前为空（0 份）</strong>，2026-12-02 集中展示后陆续上线</td></tr>
         <tr><td><a href="assets/vr-2026/student/" target="_blank" rel="noopener">学生作品 · 联网自验工作流</a></td><td>里面的 <code class="inline">serve.bat</code> / <code class="inline">serve.ps1</code> 是<strong>零依赖本机服务器</strong>（只用 Windows 自带 PowerShell，不需要 Python / Node / 管理员）</td></tr>
         <tr><td><a href="assets/vr-2026/check/vr-probe.js" target="_blank" rel="noopener">vr-probe.js</a></td><td>在自己的页面里加一行 <code class="inline">&lt;script src="vr-probe.js"&gt;&lt;/script&gt;</code>，即可显示 FPS / DrawCall / 三角面 / JS 报错。<strong>限制：DOM 面板在沉浸模式下看不见——低头能看到的那块 3D 面板才是头显里唯一看得见的读数</strong></td></tr>
       </tbody>
@@ -1021,7 +1021,7 @@
       <tbody>
         <tr><td>1</td><td><strong>【待确认】上课地点与 4 个可并行验收场地的房间号</strong></td><td>决定 4 个验收点能不能同时容纳 20 人、能不能出声、能不能投屏；也决定 1→2、3→4 的换场路线</td></tr>
         <tr><td>2</td><td><strong>【待确认】头显型号与数量</strong></td><td>决定走<strong>预案一（头显 ≥40，“一人一台”）</strong>还是<strong>预案二（头显 ≈10，“10 台轮转”）</strong>，进而决定每点的头显摆放与抽查顺序表</td></tr>
-        <tr><td>3</td><td><strong>【待确认】作业墙实际发布路径</strong></td><td><code class="inline">assets/vr-2026/student/works/</code> 以站点现况为准；决定作业墙卡片与「进入作品 →」链接</td></tr>
+        <tr><td>3</td><td><strong>展示区收录节奏</strong></td><td>展示区已建（<code class="inline">assets/vr-2026/final-works/</code>），当前 0 份；由教师在 <code class="inline">works.json</code> 增补条目。作品是否全部公开、是否需作者授权，由教师确认</td></tr>
         <tr><td>4</td><td><strong>【待确认】等级换算阈值</strong></td><td>本页的 90—105 / 80—89 / 70—79 / 60—69 / &lt;60 是<strong>建议换算，不是教务规定</strong>；若教务另有“五级制 / 百分制换算办法”，<strong>以教务为准</strong>；确认后请把阈值写死，避免各验收点松紧不一</td></tr>
         <tr><td>5</td><td><strong>【待确认】抽查戴头显实跑的人数比例</strong>（默认每组每轮 4 人）</td><td>决定《验收点记录卡》上的抽查顺序表怎么填、每轮要预留多少设备占用时间</td></tr>
         <tr><td>6</td><td><strong>【待确认】待整改补交期限</strong>（本课默认 3 个工作日）</td><td>决定“待整改”学生的补交窗口与评分表上的补交日期标注</td></tr>

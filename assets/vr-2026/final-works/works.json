@@ -1,0 +1,6 @@
+{
+  "updated": "2026-10-17",
+  "course": "虚拟现实技术 · 2026 秋",
+  "note": "收作业后，把每份作品加进 items 即可；页面自动渲染卡片与统计。字段：id / name / studentId / title / kind / date / cover / href / note",
+  "items": []
+}
