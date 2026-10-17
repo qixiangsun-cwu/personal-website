@@ -362,7 +362,7 @@ function initToolFilter() {
     var searchInput = document.getElementById('toolSearch');
     var resultEl = document.getElementById('toolResult');
     var filterBtns = Array.prototype.slice.call(document.querySelectorAll('.tool-filter'));
-    var sections = Array.prototype.slice.call(document.querySelectorAll('.tool-cat'));
+    var sections = Array.prototype.slice.call(document.querySelectorAll('.tool-category'));
     var zones = Array.prototype.slice.call(document.querySelectorAll('.tool-zone'));
     if (!sections.length) return;
 
@@ -411,7 +411,7 @@ function initToolFilter() {
         });
 
         zones.forEach(function(zone) {
-            var hasVisible = Array.prototype.slice.call(zone.querySelectorAll('.tool-cat')).some(function(sec) {
+            var hasVisible = Array.prototype.slice.call(zone.querySelectorAll('.tool-category')).some(function(sec) {
                 return !sec.hidden;
             });
             zone.hidden = !hasVisible;

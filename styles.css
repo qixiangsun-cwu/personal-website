@@ -30,6 +30,11 @@
   --color-accent-shade:  oklch(50% 0.18 270 / 0.22);   /* 按钮投影 */
   --color-accent-shade-strong: oklch(50% 0.18 270 / 0.32);
 
+  /* 内嵌面板 — 卡片内部的「下沉」层（如工具分类展开区） */
+  --panel-inset-bg:     oklch(100% 0 0 / 0.55);
+  --panel-inset-border: oklch(20% 0.01 270 / 0.05);
+  --panel-inset-shadow: inset 0 1px 3px oklch(20% 0.01 270 / 0.045);
+
   /* 语义徽章色 — 分类标识（原为硬编码，暗色模式缺失覆盖） */
   --tone-green-fg:  oklch(48% 0.14 160);
   --tone-green-bg:  oklch(55% 0.12 160 / 0.14);
@@ -134,6 +139,10 @@
     --color-accent-well:  oklch(72% 0.15 270 / 0.10);
     --color-accent-shade: oklch(72% 0.15 270 / 0.28);
     --color-accent-shade-strong: oklch(72% 0.15 270 / 0.40);
+
+    --panel-inset-bg:     oklch(100% 0 0 / 0.05);
+    --panel-inset-border: oklch(100% 0 0 / 0.07);
+    --panel-inset-shadow: inset 0 1px 3px oklch(0% 0 0 / 0.25);
 
     --tone-green-fg:  oklch(82% 0.14 160);
     --tone-green-bg:  oklch(82% 0.12 160 / 0.16);
@@ -1071,37 +1080,93 @@ body {
   margin-left: auto;
 }
 
-/* 折叠分类 */
-.tool-cat {
-  border-top: 1px solid var(--color-rule);
+/* 折叠分类：每类一张玻璃卡（Linear / Notion 质感） */
+.tool-category {
+  border-radius: 20px;
+  margin-bottom: 10px;
+  /* 分类卡体积大：悬停不做整卡上浮，只做行内反馈 */
+}
+.tool-category.glass-card:hover {
+  transform: none;
+  background: var(--glass-bg);
+  box-shadow: var(--glass-shadow);
 }
 
-.tool-cat:first-of-type { border-top: none; }
-
-.tool-cat > summary {
+.tool-category > summary.tool-category-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 20px 16px 18px;
+  margin: 0;
+  border-bottom: none;
   cursor: pointer;
   list-style: none;
-  margin: var(--space-lg) 0 0;
-  transition: color var(--dur-fast) var(--ease-out);
+  transition: padding-bottom var(--dur-base) var(--ease-out);
 }
 
-.tool-cat > summary::-webkit-details-marker { display: none; }
-.tool-cat > summary::marker { content: ''; }
+.tool-category[open] > summary.tool-category-header { padding-bottom: 10px; }
 
-.tool-cat > summary:hover h3 { color: var(--color-accent); }
+.tool-category > summary::-webkit-details-marker { display: none; }
+.tool-category > summary::marker { content: ''; }
+
+.tool-cat-icon {
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 11px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-rule);
+  color: var(--color-accent);
+  font-size: 1.05rem;
+  transition: border-color var(--dur-fast) var(--ease-out);
+}
+
+.tool-category > summary:hover .tool-cat-icon { border-color: var(--color-accent-border); }
 
 .tool-cat-caret {
   margin-left: auto;
-  font-size: 1rem;
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1px solid var(--color-rule);
+  font-size: 0.9rem;
   color: var(--color-muted);
-  transition: transform var(--dur-base) var(--ease-out);
+  transition: transform var(--dur-base) var(--ease-out),
+              background var(--dur-fast) var(--ease-out),
+              color var(--dur-fast) var(--ease-out),
+              border-color var(--dur-fast) var(--ease-out);
 }
 
-.tool-cat[open] > summary .tool-cat-caret { transform: rotate(180deg); }
+.tool-category > summary:hover .tool-cat-caret { color: var(--color-ink); }
 
-.tool-cat > .tool-grid { margin-top: var(--space-lg); }
+.tool-category[open] > summary .tool-cat-caret {
+  transform: rotate(180deg);
+  background: var(--color-accent-soft);
+  border-color: var(--color-accent-border);
+  color: var(--color-accent);
+}
 
-.tool-cat[hidden] { display: none; }
+.tool-category > .tool-grid {
+  margin: 0 20px 20px;
+  padding: 16px;
+  border-radius: var(--radius-md);
+  background: var(--panel-inset-bg);
+  border: 1px solid var(--panel-inset-border);
+  box-shadow: var(--panel-inset-shadow);
+}
+
+.tool-category > .tool-cat-note {
+  margin: 0 20px 16px;
+}
+
+.tool-category[hidden] { display: none; }
 
 .tool-card[hidden] { display: none; }
 
@@ -1111,26 +1176,26 @@ body {
   align-items: center;
   gap: var(--space-sm);
   margin: 0;
-  padding-bottom: var(--space-sm);
-  border-bottom: 1px solid var(--color-rule);
+  padding: 0;
+  border-bottom: none;
 }
-
-.tool-category-header:first-of-type { margin-top: 0; }
 
 .tool-category-header h3 {
   font-family: var(--font-display);
   font-size: var(--text-md);
   font-weight: 600;
   color: var(--color-ink);
+  transition: color var(--dur-fast) var(--ease-out);
 }
+
+.tool-category > summary:hover h3 { color: var(--color-accent); }
 
 .tool-category-count {
   font-size: var(--text-xs);
   color: var(--color-muted);
   font-weight: 400;
-  background: var(--color-surface);
-  padding: 2px 10px;
-  border-radius: var(--radius-pill);
+  margin-left: 2px;
+  font-variant-numeric: tabular-nums;
 }
 
 /* flex 换行而非 grid：尾行可水平居中，避免 10/6/8 款分类留下半行空位 */
@@ -1829,6 +1894,12 @@ body {
 
   .profile-card { padding: var(--space-xl) var(--space-lg) var(--space-2xl); }
   .timeline { padding-left: var(--space-lg); }
+
+  /* 工具分类卡：小屏收窄内边距与展开面板 */
+  .tool-category > summary.tool-category-header { padding: 14px 16px 14px 14px; gap: 12px; }
+  .tool-category[open] > summary.tool-category-header { padding-bottom: 8px; }
+  .tool-category > .tool-grid { margin: 0 14px 14px; padding: 12px; }
+  .tool-category > .tool-cat-note { margin: 0 14px 12px; }
 }
 
 /* 手机横向/小屏：卡片内边距进一步收紧 */
@@ -2857,7 +2928,7 @@ body {
     transform: translateY(-3px);
   }
 
-  .tool-cat > summary:hover h3 { color: var(--color-accent); }
+  .tool-category > summary:hover h3 { color: var(--color-accent); }
   .news-more-btn:hover { background: var(--color-accent-soft); transform: translateY(-1px); }
   .tool-filter:hover { border-color: var(--color-accent-border); color: var(--color-ink); }
   .nav-toggle:hover { background: var(--glass-bg-hover); }
