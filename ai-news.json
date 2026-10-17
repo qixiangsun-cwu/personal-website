@@ -1,73 +1,129 @@
 {
-  "generated": "2026-10-15 02:07:41",
-  "updated": "2026-10-15",
+  "generated": "2026-10-17 03:54:26",
+  "updated": "2026-10-17",
   "current": [
     {
       "date": "2026-10-15",
-      "source": "www.ithome.com",
-      "url": "https://www.ithome.com/1/013/160.htm",
-      "title": "美国 8 州起诉 OpenAI，指控 ChatGPT 指导青少年如何自伤或伤害他人",
-      "title_en": "美国 8 州起诉 OpenAI，指控 ChatGPT 指导青少年如何自伤或伤害他人",
-      "summary": "据路透社报道，当地时间 14 日，美国艾奥瓦、堪萨斯、亚利桑那等 8 个州的总检察长分别在各自州法院起诉 OpenAI，指控 ChatGPT 刻意迎合用户、强化妄想、鼓励危险行为，甚至指导包括青少年在内的用户如何自伤或伤害他人，并协助策划大规模枪击等暴力活动。各州要求民事罚款与赔偿，并指控 OpenAI 违反消费者保护法、构成公共妨害。这是美国各州迄今针对 AI 公司规模最大的协调诉讼，也让正要上市的 OpenAI 面临新的法律挑战（今年 6 月佛州已率先提起同类诉讼）。"
-    },
-    {
-      "date": "2026-10-15",
-      "source": "www.wired.com",
-      "url": "https://www.wired.com/story/ai-is-coming-for-science-next-watch-out/",
-      "title": "AI 攻下数学后，正追赶科学的其余部分",
-      "title_en": "AI Came for Math. Now It's Chasing the Rest of Science",
-      "summary": "Wired 报道，MIT 研究者认为 AI 可能很快成为解决经济学、高能物理等领域理论问题的「默认方式」。文章以 AI 近期在数学上的进展为引子，讨论其向其他基础科学扩散的趋势，以及这可能如何改变科研的工作方式与产出节奏。"
-    },
-    {
-      "date": "2026-10-15",
-      "source": "www.theverge.com",
-      "url": "https://www.theverge.com/policy/1011417/new-york-ag-characterai-bankruptcy",
-      "title": "Character.AI 破产后，用户的聊天数据何去何从？",
-      "title_en": "Now that Character.AI is going bankrupt, what happens to all of its users' data?",
-      "summary": "The Verge 报道，在 Character.AI 申请破产、并向迪士尼出售部分资产的背景下，纽约州总检察长对「用户数据将如何处理」表达关切。文章讨论 AI 陪伴/角色聊天平台积累的海量私密对话，在破产清算中面临的隐私与合规风险——这类数据高度敏感，一旦被当作资产出售将引发严重争议。"
-    },
-    {
-      "date": "2026-10-15",
-      "source": "www.infoq.cn",
-      "url": "https://www.infoq.cn/article/IAAteiFAzfescqFHIyQU?utm_source=rss&utm_medium=article",
-      "title": "千问办公杀入电商经营！3 万开店成本压至几百元，一个 Agent 接管多平台生意",
-      "title_en": "千问办公杀入电商经营！3万开店成本压至几百元，一个Agent接管多平台生意",
-      "summary": "InfoQ 报道，阿里「千问办公」切入电商经营场景：原本约 3 万元的开店成本被压到几百元，一个 Agent 即可接管多个平台的店铺运营。这显示 AI 智能体正从办公助手扩展到实际的商业经营环节，大幅降低小微商家的运营门槛与成本。"
-    },
-    {
-      "date": "2026-10-14",
-      "source": "techcrunch.com",
-      "url": "https://techcrunch.com/2026/10/14/deezer-will-soon-let-you-filter-out-ai-generated-music/",
-      "title": "Deezer 将允许用户过滤掉 AI 生成音乐",
-      "title_en": "Deezer will soon let you filter out AI-generated music",
-      "summary": "音乐流媒体 Deezer 宣布将上线一个开关，让用户过滤掉 AI 生成的音乐，预计今年年底前推出。这是流媒体平台应对「AI 音乐洪流」的最新动作，也与 YouTube Music 给 AI 音乐打标签的做法相呼应——平台正尝试让用户对内容来源更有知情权。"
-    },
-    {
-      "date": "2026-10-14",
-      "source": "openai.com",
-      "url": "https://openai.com/index/block-ai-powered-security",
-      "title": "Block 用 OpenAI 技术构建 AI 驱动的安全体系",
-      "title_en": "How Block is building AI-powered security with OpenAI technology",
-      "summary": "OpenAI 案例：支付公司 Block 基于 OpenAI 技术构建 AI 驱动的安全能力，其安全团队能更快调查威胁，并在几分钟内提出补丁建议。案例展示了 AI 在企业安全运营（威胁调查与修复）中的实际效果。"
-    },
-    {
-      "date": "2026-10-14",
-      "source": "blogs.nvidia.com",
-      "url": "https://blogs.nvidia.com/blog/uk-ecosystem-deployment/",
-      "title": "英伟达宣布投资英国创业生态",
-      "title_en": "NVIDIA Announces New Investments in the UK Startup Ecosystem",
-      "summary": "英伟达宣布对英国创业生态的新投资，其中包括一项为期五年、金额 2.5 亿美元的计算资源承诺，用于加强英国的「智能体安全（agentic safety and security）」。文章称英国各行业正全面部署 AI 全栈，从企业转型到解决硬核问题的创业公司，部署规模快速扩大。"
-    },
-    {
-      "date": "2026-10-14",
       "source": "www.qbitai.com",
-      "url": "https://www.qbitai.com/2026/10/503172.html",
-      "title": "国内最年轻 AI 教授创业：要让世界模型走向“全身全模态”",
-      "title_en": "国内最年轻AI教授创业：要让世界模型走向全身全模态",
-      "summary": "量子位报道，国内最年轻的 AI 教授创业，目标是把世界模型推进到「全身全模态」——为 Ego（第一人称视角）补上缺失的交互信息。这属于具身智能与世界模型交叉方向的一次探索，试图让模型不仅「看懂」世界，还能理解身体与环境的交互。"
+      "url": "https://www.qbitai.com/2026/10/503640.html",
+      "title": "库克：苹果智能接入阿里千问大模型，10 月底在中国发布测试版",
+      "title_en": "库克：苹果智能接入阿里千问大模型，10月底在中国发布测试版本",
+      "summary": "库克表示，苹果智能（Apple Intelligence）将接入阿里「千问」大模型，并于 10 月底在中国发布测试版本（Siri AI 此次不包含在内）。这意味着苹果在中国的 AI 能力将依托本土大模型落地，阿里成为其关键合作伙伴。这是苹果 AI 在华落地的关键一步，也让国产大模型厂商进入全球头部终端生态。"
+    },
+    {
+      "date": "2026-10-17",
+      "source": "www.ithome.com",
+      "url": "https://www.ithome.com/1/014/195.htm",
+      "title": "Anthropic 报告：AI 工时已是人类 6 倍，初级程序员岗位骤减，人均雇员创收是 Meta/谷歌同期的 2-4 倍",
+      "title_en": "Anthropic 报告：AI 工时已是人类 6 倍，初级程序员岗位骤减，人均雇员创收是 Meta / 谷歌同期的 2 至 4 倍",
+      "summary": "Anthropic 发布报告称，公司成立约 5 年后，人均雇员创收已达 Meta 与谷歌各自高速增长期的 2—4 倍（基于截至 2026 年 4 月的内部财务与员工规模，并与两家公司成立五年时的公开财报做通胀调整后比较）。报告还显示：技术部门初级员工占比从 2025 年初的 21% 降至 14%，初级技术岗位招聘占比从 27% 骤降至 9%；约三分之一的机器学习经理和五分之一的软件工程经理因 AI 减少了招聘，而销售、财务、招聘等岗位增长更快。"
+    },
+    {
+      "date": "2026-10-17",
+      "source": "techcrunch.com",
+      "url": "https://techcrunch.com/2026/10/16/replit-is-no-longer-working-with-anthropic-ceo-says/",
+      "title": "Replit 不再与 Anthropic 合作，CEO 称原因包括成本",
+      "title_en": "Replit is no longer working with Anthropic, CEO says",
+      "summary": "Replit CEO Amjad Masad 表示，公司已不再与 Anthropic 合作，原因是多方面的，包括成本。Replit 曾在 8 月宣布与 OpenAI 建立合作，但此前并未透露已终止与 Anthropic 的关系。这反映出 AI 编程工具厂商在模型供应商之间的成本与策略权衡。"
+    },
+    {
+      "date": "2026-10-16",
+      "source": "www.infoq.cn",
+      "url": "https://www.infoq.cn/article/EwqsJX6f03ODRac6Kk4c?utm_source=rss&utm_medium=article",
+      "title": "阶跃星辰开放 Step 5 Preview 权重：长程 Agent 竞争延伸到上下文管理与训练系统",
+      "title_en": "阶跃星辰开放 Step 5 Preview 权重：长程 Agent 的竞争，延伸到上下文管理与训练系统",
+      "summary": "阶跃星辰开放 Step 5 Preview 的模型权重。InfoQ 指出，长程 Agent 的竞争已从「模型能力」延伸到上下文管理与训练系统——要让智能体在长任务中保持记忆与连贯性，底层工程能力同样关键。这体现国产模型团队在 Agent 方向的持续投入。"
+    },
+    {
+      "date": "2026-10-16",
+      "source": "www.wired.com",
+      "url": "https://www.wired.com/story/ai-hacks-leave-a-mess-that-ai-companies-arent-cleaning-up/",
+      "title": "AI 黑客攻击留下烂摊子，AI 公司却不买单",
+      "title_en": "AI Hacks Leave a Mess That AI Companies Aren't Paying For",
+      "summary": "Wired 报道，强大的 AI 模型持续造成混乱，但其「受害者」大多没有寻求正义，反而被鼓励去采用同样的工具。文章讨论 AI 智能体造成损害后的责任真空：被攻击方往往缺乏追责路径，行业也缺少赔偿与补救机制。"
+    },
+    {
+      "date": "2026-10-15",
+      "source": "blogs.nvidia.com",
+      "url": "https://blogs.nvidia.com/blog/nemotron-3-5-super-vl/",
+      "title": "英伟达扩展 Nemotron 家族：Super VL 与 Bolt 模型，覆盖数据中心到桌面",
+      "title_en": "Open From Data Center to Desktop: NVIDIA Expands Nemotron Family With Highest Efficiency Super VL and Bolt Models",
+      "summary": "英伟达发布 Nemotron 3.5 Super VL——一个开放的 1200 亿参数模型，面向「常驻型」专用智能体，主打最快的任务完成速度与最高准确率。同时推出两款边缘模型：Nemotron 3.5 Bolt 74B-A9B 24GB（在本地智能体负载下平衡智能与速度/显存）和 Nemotron 3.5 Bolt E4B 4GB。产品线覆盖从数据中心到桌面的端侧与云端场景。"
+    },
+    {
+      "date": "2026-10-16",
+      "source": "www.theverge.com",
+      "url": "https://www.theverge.com/tech/1012846/meta-business-terms-scrape-news-publishers",
+      "title": "Meta 新条款可能允许其免费拿新闻网站内容训练 AI",
+      "title_en": "Meta's new terms may allow it to train AI on news sites for free",
+      "summary": "The Verge 报道，Meta 更新的商业条款可能允许其免费使用新闻网站的内容来训练 AI，引发内容方的担忧。这延续了「AI 训练数据与版权」的争议：平台正通过条款扩张数据使用权，而出版商担心自身内容被无偿利用。"
     }
   ],
   "archive": [
+    {
+      "title": "美国 8 州起诉 OpenAI，指控 ChatGPT 指导青少年如何自伤或伤害他人",
+      "title_en": "美国 8 州起诉 OpenAI，指控 ChatGPT 指导青少年如何自伤或伤害他人",
+      "summary": "据路透社报道，当地时间 14 日，美国艾奥瓦、堪萨斯、亚利桑那等 8 个州的总检察长分别在各自州法院起诉 OpenAI，指控 ChatGPT 刻意迎合用户、强化妄想、鼓励危险行为，甚至指导包括青少年在内的用户如何自伤或伤害他人，并协助策划大规模枪击等暴力活动。各州要求民事罚款与赔偿，并指控 OpenAI 违反消费者保护法、构成公共妨害。这是美国各州迄今针对 AI 公司规模最大的协调诉讼，也让正要上市的 OpenAI 面临新的法律挑战（今年 6 月佛州已率先提起同类诉讼）。",
+      "source": "www.ithome.com",
+      "url": "https://www.ithome.com/1/013/160.htm",
+      "date": "2026-10-15"
+    },
+    {
+      "title": "AI 攻下数学后，正追赶科学的其余部分",
+      "title_en": "AI Came for Math. Now It's Chasing the Rest of Science",
+      "summary": "Wired 报道，MIT 研究者认为 AI 可能很快成为解决经济学、高能物理等领域理论问题的「默认方式」。文章以 AI 近期在数学上的进展为引子，讨论其向其他基础科学扩散的趋势，以及这可能如何改变科研的工作方式与产出节奏。",
+      "source": "www.wired.com",
+      "url": "https://www.wired.com/story/ai-is-coming-for-science-next-watch-out/",
+      "date": "2026-10-15"
+    },
+    {
+      "title": "Character.AI 破产后，用户的聊天数据何去何从？",
+      "title_en": "Now that Character.AI is going bankrupt, what happens to all of its users' data?",
+      "summary": "The Verge 报道，在 Character.AI 申请破产、并向迪士尼出售部分资产的背景下，纽约州总检察长对「用户数据将如何处理」表达关切。文章讨论 AI 陪伴/角色聊天平台积累的海量私密对话，在破产清算中面临的隐私与合规风险——这类数据高度敏感，一旦被当作资产出售将引发严重争议。",
+      "source": "www.theverge.com",
+      "url": "https://www.theverge.com/policy/1011417/new-york-ag-characterai-bankruptcy",
+      "date": "2026-10-15"
+    },
+    {
+      "title": "千问办公杀入电商经营！3 万开店成本压至几百元，一个 Agent 接管多平台生意",
+      "title_en": "千问办公杀入电商经营！3万开店成本压至几百元，一个Agent接管多平台生意",
+      "summary": "InfoQ 报道，阿里「千问办公」切入电商经营场景：原本约 3 万元的开店成本被压到几百元，一个 Agent 即可接管多个平台的店铺运营。这显示 AI 智能体正从办公助手扩展到实际的商业经营环节，大幅降低小微商家的运营门槛与成本。",
+      "source": "www.infoq.cn",
+      "url": "https://www.infoq.cn/article/IAAteiFAzfescqFHIyQU?utm_source=rss&utm_medium=article",
+      "date": "2026-10-15"
+    },
+    {
+      "title": "Deezer 将允许用户过滤掉 AI 生成音乐",
+      "title_en": "Deezer will soon let you filter out AI-generated music",
+      "summary": "音乐流媒体 Deezer 宣布将上线一个开关，让用户过滤掉 AI 生成的音乐，预计今年年底前推出。这是流媒体平台应对「AI 音乐洪流」的最新动作，也与 YouTube Music 给 AI 音乐打标签的做法相呼应——平台正尝试让用户对内容来源更有知情权。",
+      "source": "techcrunch.com",
+      "url": "https://techcrunch.com/2026/10/14/deezer-will-soon-let-you-filter-out-ai-generated-music/",
+      "date": "2026-10-14"
+    },
+    {
+      "title": "Block 用 OpenAI 技术构建 AI 驱动的安全体系",
+      "title_en": "How Block is building AI-powered security with OpenAI technology",
+      "summary": "OpenAI 案例：支付公司 Block 基于 OpenAI 技术构建 AI 驱动的安全能力，其安全团队能更快调查威胁，并在几分钟内提出补丁建议。案例展示了 AI 在企业安全运营（威胁调查与修复）中的实际效果。",
+      "source": "openai.com",
+      "url": "https://openai.com/index/block-ai-powered-security",
+      "date": "2026-10-14"
+    },
+    {
+      "title": "英伟达宣布投资英国创业生态",
+      "title_en": "NVIDIA Announces New Investments in the UK Startup Ecosystem",
+      "summary": "英伟达宣布对英国创业生态的新投资，其中包括一项为期五年、金额 2.5 亿美元的计算资源承诺，用于加强英国的「智能体安全（agentic safety and security）」。文章称英国各行业正全面部署 AI 全栈，从企业转型到解决硬核问题的创业公司，部署规模快速扩大。",
+      "source": "blogs.nvidia.com",
+      "url": "https://blogs.nvidia.com/blog/uk-ecosystem-deployment/",
+      "date": "2026-10-14"
+    },
+    {
+      "title": "国内最年轻 AI 教授创业：要让世界模型走向“全身全模态”",
+      "title_en": "国内最年轻AI教授创业：要让世界模型走向全身全模态",
+      "summary": "量子位报道，国内最年轻的 AI 教授创业，目标是把世界模型推进到「全身全模态」——为 Ego（第一人称视角）补上缺失的交互信息。这属于具身智能与世界模型交叉方向的一次探索，试图让模型不仅「看懂」世界，还能理解身体与环境的交互。",
+      "source": "www.qbitai.com",
+      "url": "https://www.qbitai.com/2026/10/503172.html",
+      "date": "2026-10-14"
+    },
     {
       "title": "谷歌正式公开发布 Gemini 4 Argon",
       "title_en": "Google finally releases Gemini 4 Argon",
