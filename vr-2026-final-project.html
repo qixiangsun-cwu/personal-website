@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>期末大作业任务书 · WebXR 个人作品 | 2026年虚拟现实技术</title>
-<meta name="description" content="《虚拟现实技术》期末大作业任务书（学生用）：一件用 WebXR 做的、能戴进头显里玩的虚拟现实作品 + 一份说明。含十条硬门槛、5 维 100 分评分量规（另加 +5 分）、六个里程碑与时间倒排、8 个选题方向与不建议的方向、三条通路与三条退出路、提交目录规范、可白拿的资产清单、历届踩坑清单、安全与伦理。">
+<meta name="description" content="《虚拟现实技术》期末大作业任务书（学生用）：由三部分组成——6 次课堂作业（描述性内容）、自己设想的方案（不少于 10 种交互方式 + 模型资产）、功能完备且越美观分越高的 WebXR 成品。含十一条硬门槛、7 维 100 分评分量规、关键时间与提交方式（作品 2026-11-25 前微信发给教师并由教师上传网站；12-02 前两节课交 Word 文档、后两节课集中展示）、选题清单、三条通路与三条退出路、可白拿的资产清单、历届踩坑清单、安全与伦理。">
 <link rel="stylesheet" href="assets/vr-2026/course.css">
 </head>
 <body>
@@ -14,9 +14,9 @@
   <div class="hero-inner">
     <span class="kicker">虚拟现实技术 · 期末大作业 · 个人作品</span>
     <h1>期末大作业任务书（学生用）</h1>
-    <p class="sub">WebXR 个人作品 —— 一件能戴进头显里玩的虚拟现实作品，加上一份能讲清「我做了什么、为什么」的说明</p>
+    <p class="sub">三部分：6 次课堂作业（描述性内容）＋ 自己设想的方案（≥10 种交互方式、必须有模型资产）＋ 功能完备、越美观分越高的成品</p>
     <div class="meta">
-      <span>中华女子学院</span><span>课程编号 1050080280 · 2026 秋 · 2023 级数字媒体技术 1 班</span><span>占总评 40% · 没有上机考试</span><span>发布：2026-10-14 课后</span><span>提交：2026-12-02 第 12 次课结课路演现场</span><span>编制：2026-10-13</span>
+      <span>中华女子学院</span><span>课程编号 1050080280 · 2026 秋 · 2023 级数字媒体技术 1 班</span><span>占总评 40% · 没有上机考试</span><span>模板发布：<strong>下周</strong>（含封面与详细格式）</span><span>作品提交：<strong>2026-11-25 前</strong>，微信发给教师并由教师上传网站（不用 FTP）</span><span>文档提交：<strong>2026-12-02 前两节课</strong>（Word）· 作品展示：<strong>后两节课</strong></span><span>编制：2026-10-17</span>
     </div>
   </div>
 </header>
@@ -27,9 +27,9 @@
     <a href="vr-2026.html" class="nav-back">← 课程主页</a>
     <a href="#dao" data-sec="dao" class="on">导 · 交什么</a>
     <a href="#s1" data-sec="s1">一 · 一句话</a>
-    <a href="#s2" data-sec="s2">二 · 十条硬门槛</a>
+    <a href="#s2" data-sec="s2">二 · 十一条硬门槛</a>
     <a href="#s3" data-sec="s3">三 · 评分量规</a>
-    <a href="#s4" data-sec="s4">四 · 六个里程碑</a>
+    <a href="#s4" data-sec="s4">四 · 时间与提交</a>
     <a href="#s5" data-sec="s5">五 · 选题清单</a>
     <a href="#s6" data-sec="s6">六 · 三条通路</a>
     <a href="#s7" data-sec="s7">七 · 怎么交</a>
@@ -48,26 +48,26 @@
     <div class="sec-num">导</div>
     <div>
       <h2>这份任务书怎么用</h2>
-      <p class="sec-sub">十条正文对应十件事：先看清要交什么（一）、什么算合格（二）、怎么打分（三），再按里程碑一步一步做</p>
+      <p class="sec-sub">十一条正文对应十一件事：先看清要交什么（一）、什么算合格（二）、怎么打分（三），再按时间与提交方式（四）一步一步做</p>
     </div>
   </div>
 
   <p>这是期末大作业的<strong>学生用任务书</strong>，一个人一份。它不介绍新知识——新知识都在课页里；它只回答四个问题：<strong>交什么、什么算合格、什么时候交、怎么做才不会白做。</strong></p>
 
-  <div class="key"><strong>本次大作业的基本盘</strong>：个人作品 · 占总评 <strong>40%</strong> · <strong>没有上机考试</strong> · 以 VR 沉浸作品为主（头显浏览器打开、进入 <code class="inline">immersive-vr</code> 会话完成主流程）· 现场演示 <strong>3—5 分钟</strong> · <strong>不得直接提交课内案例 01—06</strong>（可复用其技术，但主题与完成度必须明显不同）。</div>
+  <div class="key"><strong>本次大作业的基本盘</strong>：个人作品 · 占总评 <strong>40%</strong> · <strong>没有上机考试</strong> · 由<strong>三部分组成</strong>：<strong>① 6 次课堂作业</strong>（第 4—8、10—11 次课，写成描述性内容，一个作业一段）＋<strong>② 自己设想的方案</strong>（<strong>不少于 10 种交互方式</strong>、<strong>必须有模型资产</strong>，需提前与教师确认）＋<strong>③ 功能完备、越美观分越高的成品</strong>（WebXR，头显浏览器打开、进入 <code class="inline">immersive-vr</code> 会话完成主流程）。<strong>作品文件 2026-11-25 前交</strong>（微信发给教师，由教师统一上传到网站）；<strong>2026-12-02 前两节课交 Word 文档、后两节课集中展示</strong>。<strong>不得直接提交课内案例 01—06</strong>（可复用其技术，但主题、完成度、交互数量必须明显不同）。</div>
 
-  <h3>一、十条正文一眼看全</h3>
+  <h3>一、十一条正文一眼看全</h3>
   <div class="tbl-wrap">
     <table>
       <thead><tr><th>节</th><th>讲什么</th><th>什么时候一定要看</th></tr></thead>
       <tbody>
-        <tr><td><strong>一</strong></td><td>一句话：你要交什么</td><td>现在（决定这一学期做什么）</td></tr>
-        <tr><td><strong>二</strong></td><td>十条硬门槛（缺一条就不合格）</td><td>现在读一遍，<strong>封版前逐条再对一遍</strong></td></tr>
-        <tr><td><strong>三</strong></td><td>评分量规：5 维 100 分 + 加分 5 分</td><td>选题前（知道分从哪来）与路演前</td></tr>
-        <tr><td><strong>四</strong></td><td>六个里程碑与时间倒排</td><td>每次课交作业之前</td></tr>
-        <tr><td><strong>五</strong></td><td>选题清单 8 个方向 + 不建议的方向</td><td>M1 之前（10-21 前）</td></tr>
+        <tr><td><strong>一</strong></td><td>一句话：你要交什么（三部分）</td><td>现在（决定这一学期做什么）</td></tr>
+        <tr><td><strong>二</strong></td><td>十一条硬门槛（缺一条就不合格）</td><td>现在读一遍，<strong>11-25 提交前逐条再对一遍</strong></td></tr>
+        <tr><td><strong>三</strong></td><td>评分量规：7 维 100 分</td><td>选题前（知道分从哪来）与展示前</td></tr>
+        <tr><td><strong>四</strong></td><td>关键时间与提交方式</td><td>现在就读：11-25 交作品、12-02 交文档</td></tr>
+        <tr><td><strong>五</strong></td><td>选题清单 8 个方向 + 不建议的方向</td><td>方案确认之前（写一页纸发给教师）</td></tr>
         <tr><td><strong>六</strong></td><td>三条通路 + 三条退出路</td><td>第一次上头显之前，以及每次进不去 VR 时</td></tr>
-        <tr><td><strong>七</strong></td><td>怎么交：目录、命名、交作业姿势</td><td>M3 起每次交作业；M6 提交前</td></tr>
+        <tr><td><strong>七</strong></td><td>怎么交：微信发给教师、命名与目录规范</td><td><strong>11-25 交作品之前必看</strong></td></tr>
         <tr><td><strong>八</strong></td><td>可以白拿的资产与性能口径</td><td>动手写代码的第一天（别从零造轮子）</td></tr>
         <tr><td><strong>九</strong></td><td>历届踩过的坑（7 条）</td><td>调试不动的时候，先照这张表自查</td></tr>
         <tr><td><strong>十</strong></td><td>安全与伦理</td><td>戴上头显之前；涉及真实信息、大模型 API 时</td></tr>
@@ -84,7 +84,7 @@
   </div>
   <p style="font-size:14px;color:var(--ink-soft);">案例库用来<strong>读源码、当零件库</strong>；自检页用来在上头显前先确认环境；作业墙用来看看上一届做到什么程度。</p>
 
-  <div class="warn"><strong>任务书当前状态：待授课教师确认后发布。</strong>上面的日期、分值与门槛以发布版为准；发布后如有调整，会在课程主页与课群里同步。</div>
+  <div class="warn"><strong>任务书当前状态：结构与要求已按 2026-10-17 的最新安排更新。</strong>大作业模板（含封面与详细格式）于<strong>下周</strong>发布；模板发布后，文档格式以模板为准，本页只补充内容与评分要求。如有调整，会在课程主页与课群里同步。</div>
 </section>
 
 <!-- ===== 一 ===== -->
@@ -93,11 +93,39 @@
     <div class="sec-num">一</div>
     <div>
       <h2>一句话：你要交什么</h2>
-      <p class="sec-sub">一件能戴进头显里玩的作品 + 一份讲得清来龙去脉的说明</p>
+      <p class="sec-sub">三部分：6 次课堂作业 + 自己设想的方案 + 功能完备且美观的成品</p>
     </div>
   </div>
 
-  <div class="key"><strong>一件用 WebXR 做的、能戴进头显里玩的虚拟现实作品，加上一份能讲清「我做了什么、为什么」的说明。</strong></div>
+  <div class="key"><strong>一份由三部分组成的大作业：① 6 次课堂作业的描述性内容；② 你自己设想的方案（≥10 种交互方式、必须有模型资产）；③ 按这个方案做出来的、功能完备且越美观分越高的 WebXR 成品。</strong></div>
+
+  <div class="grid3">
+    <div class="cell">
+      <h4>① 6 次课堂作业</h4>
+      <ul>
+        <li>对应<strong>第 4、7、8、10、11 次课</strong>产出的 6 个课堂案例（第 7、8 次课是「敦煌密室」的两段，各算一个作业）；</li>
+        <li><strong>写成描述性内容，一个作业写一段</strong>；</li>
+        <li>写进大作业文档，<strong>不单独提交代码</strong>。</li>
+      </ul>
+    </div>
+    <div class="cell">
+      <h4>② 自己设想的方案</h4>
+      <ul>
+        <li><strong>不少于 10 种交互方式</strong>（不是「有交互」，是能逐条列出来、各自说得清用法与提示）；</li>
+        <li><strong>必须有模型资产</strong>：导入的 GLB / GLTF，或程序化建模形成的可复用资产；</li>
+        <li>可与上学期「前端图形学实用技术」的大作业有相似性；</li>
+        <li><strong>必须提前与教师确认</strong>：微信把要做内容发给教师。</li>
+      </ul>
+    </div>
+    <div class="cell">
+      <h4>③ 功能完备且美观</h4>
+      <ul>
+        <li><strong>功能完备</strong>：主流程走得通、交互都能用、断网也能跑；</li>
+        <li><strong>越美观分越高</strong>：界面、场景、动效、视觉统一性都计入评分；</li>
+        <li><strong>功能越强大分数越高</strong>：在完备的基础上做深、做稳，并说清取舍。</li>
+      </ul>
+    </div>
+  </div>
 
   <div class="grid2">
     <div class="cell">
@@ -105,21 +133,21 @@
       <ul>
         <li>用<strong>网页</strong>做（Three.js / WebXR），<strong>不用 Unity</strong>；</li>
         <li><strong>一个人做一件</strong>——不是小组项目；</li>
-        <li>现场演示 <strong>3—5 分钟</strong>；</li>
+        <li>现场展示，讲清做了什么、技术点在哪；</li>
         <li>主题自选，但<strong>不能把课内案例 01—06 交一遍</strong>。</li>
       </ul>
     </div>
     <div class="cell">
       <h4>要满足的三件事</h4>
-      <p>课程的能力目标是「独立完成一个体现<strong>虚实融合 + 智能交互</strong>特点的 VR/AR 小项目」。所以你的作品要满足：<strong>能跑 · 能演示 · 体现「为什么必须用 VR」</strong>。</p>
+      <p>课程的能力目标是「独立完成一个体现<strong>虚实融合 + 智能交互</strong>特点的 VR/AR 小项目」。所以你的作品要满足：<strong>能跑 · 能展示 · 体现「为什么必须用 VR」</strong>。</p>
     </div>
   </div>
 
   <h3>一、交付物长什么样</h3>
   <div class="grid3">
-    <div class="cell"><h4>作品本体</h4><p>一个能在头显浏览器里打开、点「进入 VR」、走完主流程的页面。依赖放同目录或内联，<strong>断网也能跑</strong>。</p></div>
-    <div class="cell"><h4>说明文档</h4><p><code class="inline">README.md</code>：我改了什么 · 为什么这么改 · 怎么运行 · 哪里还没做完（<strong>四行就够</strong>）。</p></div>
-    <div class="cell"><h4>演示与证据</h4><p>封面图 <code class="inline">cover.jpg</code>（1280×720）+ 体验数据 <code class="inline">xr-data.json</code> + 现场 3—5 分钟路演。</p></div>
+    <div class="cell"><h4>作品文件（11-25 前）</h4><p>一个能在头显浏览器里打开、点「进入 VR」、走完主流程的页面。依赖放同目录或内联，<strong>断网也能跑</strong>。<strong>微信发给教师</strong>，由教师统一上传到网站。</p></div>
+    <div class="cell"><h4>文档（12-02 前两节课）</h4><p><strong>Word 文件，用下周发布的大作业模板</strong>（含封面与详细格式）：6 次课堂作业各一段 + 方案说明 + README 段落 + 过程与取舍。</p></div>
+    <div class="cell"><h4>展示（12-02 后两节课）</h4><p>集中展示 VR 作品：封面图 <code class="inline">cover.jpg</code>（1280×720）+ 体验数据 <code class="inline">xr-data.json</code> + 现场讲清做了什么。</p></div>
   </div>
 
   <div class="note"><strong>为什么禁止直接交课内案例</strong>：案例 01—06 是课上一起写过的参考实现，交它们等于交课堂练习。可以<strong>读它们的源码、抄它们的技术</strong>，但主题、完成度、交互数量都必须明显不同——这一条在评分量规里直接对应「VR 学科理解」与「演示与文档」两维。</div>
@@ -130,7 +158,7 @@
   <div class="sec-head">
     <div class="sec-num">二</div>
     <div>
-      <h2>十条硬门槛（缺一条就不合格）</h2>
+      <h2>十一条硬门槛（缺一条就不合格）</h2>
       <p class="sec-sub">不是加分项，是及格线。逐条配了「怎么算过（自查）」——能自己判，就不要等老师判</p>
     </div>
   </div>
@@ -141,68 +169,73 @@
       <tbody>
         <tr>
           <td>1</td>
+          <td><strong>6 次课堂作业</strong></td>
+          <td><strong>第 4、7、8、10、11 次课</strong>的 6 个案例各写一段描述性内容（做了什么 / 用了什么技术 / 遇到什么 / 怎么解决），写进大作业文档</td>
+        </tr>
+        <tr>
+          <td>2</td>
+          <td><strong>方案已确认</strong></td>
+          <td>微信把要做内容发给教师并得到确认；方案里能<strong>逐条列出 10 种以上交互方式</strong>、并说明<strong>用到的模型资产</strong></td>
+        </tr>
+        <tr>
+          <td>3</td>
           <td><strong>能进能退</strong></td>
           <td>在头显里进入 VR，走完主流程，<strong>三条退出路至少试通一条</strong>并报出用时</td>
         </tr>
         <tr>
-          <td>2</td>
+          <td>4</td>
           <td><strong>零外部网络依赖</strong></td>
           <td>拔掉网线 / 关掉 WiFi 也能跑；<strong>不引任何 CDN</strong>，依赖库放同目录或内联进 HTML</td>
         </tr>
         <tr>
-          <td>3</td>
+          <td>5</td>
           <td><strong>无报错</strong></td>
           <td>控制台没有 JS 报错，主流程能连走两遍</td>
         </tr>
         <tr>
-          <td>4</td>
+          <td>6</td>
           <td><strong>为什么必须是 VR</strong></td>
           <td>至少有一处<strong>只有头显才能成立</strong>的体验（绕到背后看、钻进去、真实尺度、双手协同），并在说明里写清</td>
         </tr>
         <tr>
-          <td>5</td>
-          <td><strong>≥3 种交互</strong></td>
-          <td>例如：抓取 / 射线点按 / 传送 / 3D 面板按钮 / 投掷。<strong>PC 和 VR 两端都要能走完主流程</strong></td>
+          <td>7</td>
+          <td><strong>≥10 种交互 + 模型资产</strong></td>
+          <td>能逐条列出 ≥10 种交互（抓取 / 射线点按 / 传送 / 3D 面板 / 投掷 / 双手缩放 …），<strong>各自有提示</strong>；作品里确有模型资产（GLB/GLTF 导入或程序化建模）；<strong>PC 和 VR 两端都要能走完主流程</strong></td>
         </tr>
         <tr>
-          <td>6</td>
+          <td>8</td>
           <td><strong>有目标、有反馈、进度可见</strong></td>
           <td>状态集中在一个对象里，能用 <code class="inline">window.你的名字.S</code> 查到</td>
         </tr>
         <tr>
-          <td>7</td>
+          <td>9</td>
           <td><strong>舒适度</strong></td>
           <td>默认<strong>传送 + Snap 45°</strong>；有隧道视野、眼高显示、一键重置、10 分钟休息提示</td>
         </tr>
         <tr>
-          <td>8</td>
+          <td>10</td>
           <td><strong>性能</strong></td>
           <td>有实时性能面板（FPS / DrawCall / 三角面）；<strong>三角面 ≤ 10 万</strong>；至少做<strong>一处有前后对照的优化</strong></td>
         </tr>
         <tr>
-          <td>9</td>
-          <td><strong>可访问性</strong></td>
-          <td>坐姿 / 单手 / 注视停留<strong>至少两条通路可用</strong>，且能等价走完主流程；说明你的取舍</td>
-        </tr>
-        <tr>
-          <td>10</td>
-          <td><strong>诚实</strong></td>
-          <td>涉及校史、文物、机构等真实信息，<strong>不确定的一律写 <code class="inline">【待补充】</code></strong>，不许编。说明里要写「已知简化」</td>
+          <td>11</td>
+          <td><strong>可访问性与诚实</strong></td>
+          <td>坐姿 / 单手 / 注视停留<strong>至少两条通路可用</strong>并说明取舍；涉及真实信息<strong>不确定的一律写 <code class="inline">【待补充】</code></strong>，不许编</td>
         </tr>
       </tbody>
     </table>
   </div>
 
-  <div class="warn"><strong>「缺一条就不合格」是字面意思。</strong>第 1 条和第 8 条在历届里翻车最多：退不出去的作品在真实课堂上一定会出事；性能是戴进去才知道的，别留到最后一周。</div>
+  <div class="warn"><strong>「缺一条就不合格」是字面意思。</strong>翻车最多的是第 3 条（退不出去）和第 10 条（戴进去才发现掉帧）；第 1、2 条是这次新增的硬要求——<strong>6 次课堂作业没写全、方案没确认，作品做得再好也不完整</strong>。</div>
 
   <h3>一、上机前先用自检页跑一遍</h3>
-  <p>第 2 / 3 / 7 / 8 / 9 条都能在电脑上先自查一轮：打开 <a href="assets/vr-2026/check/" target="_blank" rel="noopener">《VR 作品自检》</a>，看协议 / 安全上下文 / <code class="inline">navigator.xr</code> / <code class="inline">immersive-vr</code> / WebGL / 输入设备六项状态。<strong>环境项有 ❌ 就先解决环境，不要去看自己的代码。</strong></p>
+  <p>第 4 / 5 / 9 / 10 / 11 条都能在电脑上先自查一轮：打开 <a href="assets/vr-2026/check/" target="_blank" rel="noopener">《VR 作品自检》</a>，看协议 / 安全上下文 / <code class="inline">navigator.xr</code> / <code class="inline">immersive-vr</code> / WebGL / 输入设备六项状态。<strong>环境项有 ❌ 就先解决环境，不要去看自己的代码。</strong></p>
 
   <h3>二、怎么用这份清单</h3>
   <ol>
-    <li><strong>M1 之前通读一遍</strong>——避免选一个天然撞门槛的题（比如「纯全景漫游」过不了第 5 条）；</li>
-    <li><strong>M3 硬门槛那天</strong>逐条打勾——第 1、3、5、7、9 条必须是真机验过的，不能是「应该可以」；</li>
-    <li><strong>M5 封版那天</strong>再逐条打勾一遍——封版后只修错、不加功能，但错要修完。</li>
+    <li><strong>方案确认之前通读一遍</strong>——避免选一个天然撞门槛的题（比如「纯全景漫游」过不了第 7 条）；</li>
+    <li><strong>11-25 交作品之前</strong>逐条打勾——第 3、5、7、9、11 条必须是真机验过的，不能是「应该可以」；</li>
+    <li><strong>12-02 交文档之前</strong>再逐条打勾一遍——文档里要能对得上每一条的说明。</li>
   </ol>
 </section>
 
@@ -211,25 +244,28 @@
   <div class="sec-head">
     <div class="sec-num">三</div>
     <div>
-      <h2>怎么评分：100 分 + 5 分加分</h2>
-      <p class="sec-sub">五个必评维度合计 100 分，另设 +5 加分；过程数据不排名，但完成度与得分算证据</p>
+      <h2>怎么评分：7 维合计 100 分</h2>
+      <p class="sec-sub">「功能完备」与「美观度」单独占分——这正是本次要求里「越美观分越高、功能越强大分数越高」的落点</p>
     </div>
   </div>
 
-  <h3>一、必评五维（合计 100 分）</h3>
+  <h3>一、必评七维（合计 100 分）</h3>
   <div class="tbl-wrap">
     <table>
       <thead><tr><th>维度</th><th>分值</th><th>满分长什么样</th></tr></thead>
       <tbody>
-        <tr><td><strong>功能完整</strong></td><td><strong>25</strong></td><td>主流程两遍都通、无报错、自测通过</td></tr>
-        <tr><td><strong>VR 学科理解</strong></td><td><strong>20</strong></td><td>讲得清「沉浸 / 交互 / 构想」、临场感要素、晕动机制，<strong>而且这些理解体现在你的改动里</strong></td></tr>
-        <tr><td><strong>交互与人因</strong></td><td><strong>20</strong></td><td>≥5 种交互且各有提示（高亮 / 悬停），PC 与 VR 等价，可访问性两条通路并说得出取舍</td></tr>
-        <tr><td><strong>性能与工程</strong></td><td><strong>15</strong></td><td>达到 72Hz 帧预算意识、有降级手段与优化对照、状态机清晰、能导出体验数据</td></tr>
-        <tr><td><strong>演示与文档</strong></td><td><strong>20</strong></td><td>3—5 分钟讲清「做了什么、为什么」，说明文档诚实完整</td></tr>
-        <tr><td><strong>加分</strong></td><td><strong>+5</strong></td><td>智能交互（LLM）/ AR 虚实融合 / 思政题材 —— 三者任一生效且有降级方案</td></tr>
+        <tr><td><strong>① 功能完备</strong></td><td><strong>25</strong></td><td>主流程两遍都通、无报错、自测通过；<strong>该有的功能一个不缺</strong>，边角场景也有兜底</td></tr>
+        <tr><td><strong>② 美观度</strong></td><td><strong>20</strong></td><td>界面、场景、动效、字体与色彩<strong>视觉统一</strong>；有明确的设计意图，不是「能跑就行」</td></tr>
+        <tr><td><strong>③ 交互与人因</strong></td><td><strong>15</strong></td><td><strong>≥10 种交互</strong>且各有提示（高亮 / 悬停）；<strong>有模型资产</strong>；PC 与 VR 等价；可访问性两条通路并说得出取舍</td></tr>
+        <tr><td><strong>④ VR 学科理解</strong></td><td><strong>12</strong></td><td>讲得清「沉浸 / 交互 / 构想」、临场感要素、晕动机制，<strong>而且这些理解体现在你的改动里</strong></td></tr>
+        <tr><td><strong>⑤ 性能与工程</strong></td><td><strong>10</strong></td><td>达到 72Hz 帧预算意识、有降级手段与优化对照、状态机清晰、能导出体验数据</td></tr>
+        <tr><td><strong>⑥ 演示与文档</strong></td><td><strong>10</strong></td><td>模板规范、诚实完整；现场讲清「做了什么、为什么」</td></tr>
+        <tr><td><strong>⑦ 6 次课堂作业</strong></td><td><strong>8</strong></td><td>6 段描述性内容齐全，每段都写清做了什么、用了什么技术、遇到什么问题、怎么解决</td></tr>
       </tbody>
     </table>
   </div>
+
+  <div class="key"><strong>「功能完备」与「美观度」为什么要单独占 45 分</strong>：本次大作业的要求就是<strong>「功能完备，越美观分越高，功能越强大分数越高」</strong>。能跑通只是及格线，做得好不好看、做得深不深，是这 45 分要回答的问题。</div>
 
   <div class="key"><strong>过程数据不排名</strong>：晕动暴露高，可能恰恰说明你在认真测试平滑移动，这是好事。<br>
     <strong>但完成度 / 得分数据算证据</strong>：用内核的 <code class="inline">XRCore.goal()</code> 记下的成绩会随数据一起导出，可以证明你真的跑完了。</div>
@@ -240,62 +276,68 @@
       <thead><tr><th>维度</th><th>权重</th><th>优（满分）</th><th>合格（60%）</th><th>不合格</th></tr></thead>
       <tbody>
         <tr>
-          <td>功能完整</td><td><strong>25</strong></td>
-          <td>主流程两遍无阻、无报错、自测通过</td>
-          <td>主流程可用，个别边角失效</td>
-          <td>主流程断裂</td>
+          <td>功能完备</td><td><strong>25</strong></td>
+          <td>主流程两遍无阻、无报错、边角也有兜底</td>
+          <td>主流程可用，个别功能失效</td>
+          <td>主流程断裂或功能明显缺失</td>
         </tr>
         <tr>
-          <td>VR 学科理解</td><td><strong>20</strong></td>
+          <td>美观度</td><td><strong>20</strong></td>
+          <td>视觉统一、有设计意图、动效克制准确</td>
+          <td>看着整齐，但没设计过</td>
+          <td>明显拼凑、风格冲突</td>
+        </tr>
+        <tr>
+          <td>交互与人因</td><td><strong>15</strong></td>
+          <td>≥10 种交互各有 affordance、有模型资产、PC/VR 等价、可访问性两条通路且说明取舍</td>
+          <td>7—9 种，个别两端不等价</td>
+          <td>&lt;7 种或单端</td>
+        </tr>
+        <tr>
+          <td>VR 学科理解</td><td><strong>12</strong></td>
           <td>能讲清 3I、临场感要素、晕动机制，并<strong>落到自己的改动里</strong></td>
           <td>能复述要点</td>
           <td>只是「3D 网页」</td>
         </tr>
         <tr>
-          <td>交互与人因</td><td><strong>20</strong></td>
-          <td>≥5 种交互各有 affordance、PC/VR 等价、可访问性两条通路且说明取舍</td>
-          <td>3—4 种，个别两端不等价</td>
-          <td>&lt;3 种或单端</td>
-        </tr>
-        <tr>
-          <td>性能与工程</td><td><strong>15</strong></td>
+          <td>性能与工程</td><td><strong>10</strong></td>
           <td>达 72Hz 预算、有降级与优化对照、状态机清晰、数据可导出</td>
           <td>知道看面板，未优化</td>
           <td>不看性能</td>
         </tr>
         <tr>
-          <td>演示与文档</td><td><strong>20</strong></td>
-          <td>3—5 分钟讲清「做了什么、为什么」，README 诚实完整</td>
+          <td>演示与文档</td><td><strong>10</strong></td>
+          <td>模板规范、讲清「做了什么、为什么」，诚实完整</td>
           <td>讲得完整但说不出取舍</td>
           <td>讲不清 / 无文档</td>
         </tr>
         <tr>
-          <td><strong>加分</strong>：智能交互 / AR 虚实融合 / 思政题材</td><td><strong>+5</strong></td>
-          <td>三者任一生效且有降级方案</td>
-          <td>尝试过但未跑通</td>
-          <td>——</td>
+          <td>6 次课堂作业</td><td><strong>8</strong></td>
+          <td>6 段齐全，每段有技术细节与问题解决过程</td>
+          <td>写了但偏流水账</td>
+          <td>缺段 / 只列标题</td>
         </tr>
       </tbody>
     </table>
   </div>
 
-  <h3>三、这份量规的三个口径</h3>
+  <h3>三、这一次量规的三个口径</h3>
   <div class="grid3">
     <div class="cell">
       <h4>① 分数从哪来</h4>
-      <p><strong>功能完整 25 + VR 学科理解 20 + 交互与人因 20 + 性能与工程 15 + 演示与文档 20 = 100</strong>，另有 <strong>+5 加分</strong>。</p>
+      <p><strong>功能完备 25 + 美观度 20 + 交互与人因 15 + VR 学科理解 12 + 性能与工程 10 + 演示与文档 10 + 6 次课堂作业 8 = 100</strong>。</p>
     </div>
     <div class="cell">
-      <h4>② 为什么「演示与文档」值 20 分</h4>
-      <p>期末是<strong>大作业路演</strong>：3—5 分钟讲不清「做了什么、为什么」，观众与评分人都无法判断你真的做了什么。所以它独立占分。</p>
+      <h4>② 「美观」怎么判</h4>
+      <p>不是「好不好看」的主观印象，而是四个可对照的点：<strong>视觉是否统一、有没有设计意图、动效是否克制、信息层级是否清楚</strong>。文档里要写你为美观做了什么。</p>
     </div>
     <div class="cell">
-      <h4>③ 可访问性去哪了</h4>
-      <p>课堂作业量规里「可访问性 +5 加分」已<strong>并入「交互与人因 20」</strong>——它已经是硬门槛第 9 条，不再另设加分。</p>
+      <h4>③ 为什么不再设「+5 加分」</h4>
+      <p>原「智能交互 / AR / 思政 +5」已<strong>并入「交互与人因」与「VR 学科理解」</strong>——做出来就是分数，不必靠加分兜底。</p>
     </div>
   </div>
 
-  <div class="note"><strong>注意两个数字的差别</strong>：硬门槛第 5 条是「≥3 种交互」（<strong>及格线</strong>），量规里拿满分要「≥5 种交互」（<strong>满分线</strong>）。先保 3，再冲 5。</div>
+  <div class="note"><strong>先保门槛，再冲高分</strong>：硬门槛第 7 条要求 <strong>≥10 种交互</strong>（<strong>及格线</strong>），而量规里「交互与人因」要拿高分，还需要<strong>每种交互都有提示、PC 与 VR 等价、可访问性说得清取舍</strong>。数量达标只是开始。</div>
 </section>
 
 <!-- ===== 四 ===== -->
@@ -303,100 +345,99 @@
   <div class="sec-head">
     <div class="sec-num">四</div>
     <div>
-      <h2>六个里程碑与时间倒排</h2>
-      <p class="sec-sub">每次课交一个，别攒到最后；<strong>封版后只修错、不加功能</strong></p>
+      <h2>关键时间与提交方式</h2>
+      <p class="sec-sub">作品 <strong>11-25 前</strong>交、文档 <strong>12-02 前两节课</strong>交、<strong>后两节课</strong>集中展示；<strong>不用 FTP</strong></p>
     </div>
   </div>
 
   <div class="tbl-wrap">
     <table>
-      <thead><tr><th>时间</th><th>交什么</th><th>内容</th></tr></thead>
+      <thead><tr><th>时间</th><th>交什么</th><th>怎么交</th></tr></thead>
       <tbody>
         <tr>
-          <td><strong>10-21</strong>（第 7 次课）</td>
-          <td><strong>M1 选题一页纸</strong></td>
-          <td>主题 / <strong>为什么必须用 VR</strong> / 给谁用 / 核心交互 / 技术点 / <strong>跑不动时的降级方案</strong></td>
+          <td><strong>下周</strong></td>
+          <td><strong>大作业模板发布</strong></td>
+          <td>含封面与详细格式；在课程主页与课群同步下载</td>
         </tr>
         <tr>
-          <td><strong>10-28</strong>（第 8 次课）</td>
-          <td><strong>M2 设计两张图</strong></td>
-          <td>空间<strong>动线图</strong>（从入口能不能到每一处、能不能回来）+ <strong>状态机图</strong> + 一个能玩的入口</td>
+          <td><strong>方案确认前</strong></td>
+          <td><strong>一页纸方案</strong></td>
+          <td><strong>微信把要做内容发给教师</strong>：主题 / 为什么必须用 VR / <strong>≥10 种交互方式逐条列出</strong> / <strong>用到的模型资产</strong> / 技术点 / 降级方案</td>
         </tr>
         <tr>
-          <td><strong>11-11</strong>（第 9 次课）</td>
-          <td><strong>M3 主流程可玩（硬门槛）</strong></td>
-          <td>主流程走得通 + 一条「免手柄也能走完」的通路 + 真机验证记录（用时 / 卡点）</td>
+          <td><strong>随课</strong></td>
+          <td><strong>6 次课堂作业</strong></td>
+          <td>第 4、7、8、10、11 次课各一个；课内完成，课下整理成描述性内容写进文档</td>
         </tr>
         <tr>
-          <td><strong>11-18</strong>（第 10 次课）</td>
-          <td><strong>M4 性能报告</strong></td>
-          <td>优化前后的 DrawCall / 三角面 / 帧时间对照 + 你改了什么</td>
+          <td><strong>2026-11-25 前</strong></td>
+          <td><strong>大作业作品文件</strong></td>
+          <td><strong>微信发给教师</strong>，由教师统一上传到网站（<strong>不用 FTP</strong>）；建议打成 zip 并写清文件名规范</td>
         </tr>
         <tr>
-          <td><strong>11-25</strong>（第 11 次课）</td>
-          <td><strong>M5 功能封版</strong></td>
-          <td>智能交互模块（含离线降级兜底）+ 一份体验数据 JSON</td>
+          <td><strong>2026-12-02 前两节课</strong></td>
+          <td><strong>大作业文档（Word）</strong></td>
+          <td>按下周发布的模板与格式：封面 + 6 次课堂作业 + 方案 + README + 过程与取舍</td>
         </tr>
         <tr>
-          <td><strong>12-02</strong>（第 12 次课）</td>
-          <td><strong>M6 路演答辩</strong></td>
-          <td>作品 + 说明文档 + 封面图 + 体验数据</td>
+          <td><strong>2026-12-02 后两节课</strong></td>
+          <td><strong>集中展示 VR 作品</strong></td>
+          <td>现场展示：讲清做了什么、为什么必须用 VR、技术点在哪；作品已由教师上传，可直接用网站演示</td>
         </tr>
       </tbody>
     </table>
   </div>
 
-  <div class="warn"><strong>封版的意思是</strong>：11-25 之后<strong>只修错、不加功能</strong>。加新功能是期末崩盘最常见的原因。</div>
+  <div class="warn"><strong>两个闭合时间要记牢</strong>：<strong>11-25 前</strong>交作品文件（微信发给教师，由教师上传网站）；<strong>12-02 前两节课</strong>交 Word 文档，<strong>后两节课</strong>集中展示。晚交按扣分处理。</div>
 
   <h3>一、倒排：每一关卡住谁</h3>
   <div class="tbl-wrap">
     <table>
-      <thead><tr><th>时间</th><th>里程碑</th><th>卡住谁不能往下走</th></tr></thead>
+      <thead><tr><th>时间</th><th>事项</th><th>卡住谁不能往下走</th></tr></thead>
       <tbody>
-        <tr><td>10-14 课后</td><td>（发布）</td><td>任务书 + 选题清单发到课程主页 / 群，让你有一周思考期</td></tr>
-        <tr><td><strong>10-21</strong></td><td>M1 选题定稿</td><td>没有选题就没有后面五项</td></tr>
-        <tr><td><strong>10-28</strong></td><td>M2 设计定稿</td><td>设计不改，后面全是返工</td></tr>
-        <tr><td><strong>11-11</strong></td><td>M3 可玩（硬门槛）</td><td><strong>不过此关，作品不算完成</strong></td></tr>
-        <tr><td><strong>11-18</strong></td><td>M4 性能达标</td><td>戴进去才发现掉帧就来不及了</td></tr>
-        <tr><td><strong>11-25</strong></td><td>M5 功能封版</td><td>封版后只修错，不加功能</td></tr>
-        <tr><td><strong>12-02</strong></td><td>M6 路演答辩</td><td>——</td></tr>
+        <tr><td><strong>下周</strong></td><td>大作业模板发布</td><td>没有模板就没有统一的文档格式</td></tr>
+        <tr><td><strong>方案确认前</strong></td><td>一页纸方案确认</td><td><strong>方案没确认，作品不算数</strong></td></tr>
+        <tr><td><strong>随课</strong></td><td>6 次课堂作业</td><td>缺段就无法写完整文档</td></tr>
+        <tr><td><strong>11-25 前</strong></td><td>作品文件提交</td><td><strong>过不了这条，等于没交作品</strong></td></tr>
+        <tr><td><strong>12-02 前两节</strong></td><td>Word 文档提交</td><td>文档缺失无法评分</td></tr>
+        <tr><td><strong>12-02 后两节</strong></td><td>集中展示</td><td>展示占「演示与文档」分</td></tr>
       </tbody>
     </table>
   </div>
 
-  <div class="note"><strong>为什么 M1 放在第 7 次课而不是更早</strong>：你此刻才第一次拥有「可交互的零件库」，此时定选题才不会写出自己做不到的方案。</div>
+  <div class="note"><strong>为什么方案要提前确认</strong>：这次要求「不少于 10 种交互方式 + 模型资产」，需要在动手前就逐条列清楚——否则做到一半才发现交互数量不够、或者根本没有模型资产，就要返工。</div>
 
-  <h3>二、三次课之间的自检节奏</h3>
+  <h3>二、从确认方案到提交的自检节奏</h3>
   <div class="step-grid">
     <div class="step-card">
-      <div class="sc-no">M1 → M2</div>
+      <div class="sc-no">确认前</div>
       <div class="sc-title">先把「为什么必须 VR」写死</div>
       <div class="sc-desc">这一句话决定了后面所有交互的设计依据。写不出来，说明这个题用普通网页也能做——换题比硬做省时间。</div>
     </div>
     <div class="step-card">
-      <div class="sc-no">M2 → M3</div>
-      <div class="sc-title">设计图不许再改</div>
-      <div class="sc-desc">动线图与状态机图定下来的那一刻，剩下的时间只用来「把它做出来」。中途改设计，是返工的唯一来源。</div>
+      <div class="sc-no">确认后</div>
+      <div class="sc-title">10 种交互逐条列成表</div>
+      <div class="sc-desc">方案里要能一行一种交互、写清用法与提示方式，并注明用到的模型资产。列不出来，说明交互数量还没达标。</div>
     </div>
     <div class="step-card">
-      <div class="sc-no">M3 → M4</div>
+      <div class="sc-no">随课</div>
       <div class="sc-title">先能玩，再看性能</div>
-      <div class="sc-desc">M3 当天必须走完主流程并记录退出用时；M4 才谈优化——顺序反过来会陷入「一直在调性能，主流程还没通」。</div>
+      <div class="sc-desc">主流程先走通、记录退出用时；性能优化放在后面——顺序反过来会陷入「一直在调性能，主流程还没通」。</div>
     </div>
     <div class="step-card">
-      <div class="sc-no">M4 → M5</div>
+      <div class="sc-no">11-25 前</div>
       <div class="sc-title">优化必须有前后对照</div>
-      <div class="sc-desc">「我优化了」不算证据，「DrawCall 从 101 降到 2」才算。对照数据要能对上页面 HUD（见第九节）。</div>
+      <div class="sc-desc">「我优化了」不算证据，「DrawCall 从 101 降到 2」才算。对照数据要能对上页面 HUD（见第九节），并随作品一起交给教师。</div>
     </div>
     <div class="step-card">
-      <div class="sc-no">M5 → M6</div>
-      <div class="sc-title">只修错，不加功能</div>
-      <div class="sc-desc">封版后的每一天都用来：跑主流程两遍、补 README 的四行、把已知简化写清楚、练一遍 3—5 分钟的路演。</div>
+      <div class="sc-no">12-02 前</div>
+      <div class="sc-title">文档按模板收口</div>
+      <div class="sc-desc">用下周发布的模板：封面、格式、6 次课堂作业各一段、方案说明、README 段落、已知简化，一并写清。</div>
     </div>
     <div class="step-card">
-      <div class="sc-no">M6 当天</div>
-      <div class="sc-title">现场演示 3—5 分钟</div>
-      <div class="sc-desc">一句话说清「我做了什么、为什么」；再说清「我卡在哪一环——环境、作品还是设备」。两份材料：作品目录 + 体验数据。</div>
+      <div class="sc-no">12-02 当天</div>
+      <div class="sc-title">前两节交文档、后两节集中展示</div>
+      <div class="sc-desc">一句话说清「我做了什么、为什么」；再说清「我卡在哪一环——环境、作品还是设备」。展示时作品已由教师上传到网站。</div>
     </div>
   </div>
 </section>
@@ -487,7 +528,7 @@
         <tr><td>云 VR / 串流优化</td><td>依赖实验室网络</td></tr>
         <tr><td>真实医学影像处理</td><td>跨专业代价高</td></tr>
         <tr><td>依赖眼动 / 面部追踪</td><td>头显开放度有限</td></tr>
-        <tr><td><strong>纯全景漫游（无交互）</strong></td><td>课内已经做过，硬门槛第 5 条也过不了</td></tr>
+        <tr><td><strong>纯全景漫游（无交互）</strong></td><td>课内已经做过，硬门槛第 7 条（≥10 种交互）也过不了</td></tr>
       </tbody>
     </table>
   </div>
@@ -578,16 +619,20 @@
     <div class="sec-num">七</div>
     <div>
       <h2>怎么交</h2>
-      <p class="sec-sub">目录名一律 ASCII 学号；交作业姿势错了，作品再好也打不开</p>
+      <p class="sec-sub">作品 <strong>11-25 前微信发给教师</strong>（教师上传网站，不用 FTP）；文档 <strong>12-02 前两节课</strong>交 Word</p>
     </div>
   </div>
 
-  <h3>一、交到哪、交什么</h3>
-<pre>assets/vr-2026/student/works/&lt;学号&gt;/
+  <div class="key"><strong>提交分两条线，不要混</strong>：<strong>① 作品文件</strong>——<strong>2026-11-25 前</strong>打成压缩包发<strong>微信给教师</strong>，由教师统一上传到网站；<strong>② 文档</strong>——<strong>2026-12-02 前两节课</strong>交 <strong>Word</strong> 文件，用<strong>下周发布的大作业模板</strong>（含封面与详细格式）。<strong>两条都不走 FTP。</strong></div>
+
+  <h3>一、作品文件：打包发给教师</h3>
+  <p>把作品目录打成<strong>一个压缩包</strong>，文件名写成 <code class="inline">&lt;学号&gt;-&lt;姓名&gt;.zip</code>，11-25 前通过<strong>微信</strong>发给教师。压缩包内按下面的目录组织：</p>
+<pre>&lt;学号&gt;/
 ├─ index.html       ← 你的作品（依赖库同目录，或内联成单文件）
 ├─ README.md        ← 我改了什么 / 怎么运行 / 已知简化 / 哪些是占位
 ├─ cover.jpg        ← 封面 1280×720
-└─ xr-data.json     ← 体验数据导出</pre>
+├─ xr-data.json     ← 体验数据导出
+└─ assets/          ← 模型资产（GLB / GLTF 等）与贴图、音频</pre>
 
   <div class="tbl-wrap">
     <table>
@@ -597,25 +642,42 @@
         <tr><td><code class="inline">README.md</code></td><td>四行就够：我改了什么 · 为什么这么改 · 怎么运行 · 哪里还没做完（含「已知简化」与事实占位说明）</td></tr>
         <tr><td><code class="inline">cover.jpg</code></td><td>封面图，<strong>1280×720</strong></td></tr>
         <tr><td><code class="inline">xr-data.json</code></td><td>体验数据导出（含 <code class="inline">XRCore.goal()</code> 记录的完成度 / 得分）</td></tr>
+        <tr><td><code class="inline">assets/</code></td><td><strong>模型资产</strong>（GLB / GLTF）与贴图、音频；硬门槛第 7 条要求作品里确有模型资产</td></tr>
       </tbody>
     </table>
   </div>
 
-  <div class="key">目录名<strong>一律用学号（ASCII）</strong>，页面上显示中文姓名；作业墙按学号升序排列，卡片带作品类型标签。<br>
-    作品目录统一放在站点：<a href="assets/vr-2026/student/works/" target="_blank" rel="noopener">学生作业墙 <code class="inline">assets/vr-2026/student/works/</code></a>。</div>
+  <div class="key">目录名<strong>一律用学号（ASCII）</strong>；教师上传后，页面上显示中文姓名，作业墙按学号升序排列。<br>
+    上传后的展示位置：<a href="assets/vr-2026/student/works/" target="_blank" rel="noopener">学生作业墙 <code class="inline">assets/vr-2026/student/works/</code></a>。</div>
 
-  <h3>二、交作业姿势（历届最高频的事故）</h3>
+  <h3>二、文档：12-02 前两节课交 Word</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>部分</th><th>写什么</th></tr></thead>
+      <tbody>
+        <tr><td><strong>封面与格式</strong></td><td>按下周发布的<strong>大作业模板</strong>（封面、字体字号、章节结构、图表规范）</td></tr>
+        <tr><td><strong>一、6 次课堂作业</strong></td><td>第 4、7、8、10、11 次课的 6 个案例，<strong>一个作业一段</strong>：做了什么 / 用了什么技术 / 遇到什么问题 / 怎么解决</td></tr>
+        <tr><td><strong>二、方案说明</strong></td><td>主题、为什么必须用 VR、<strong>≥10 种交互方式逐条列出</strong>、<strong>模型资产清单</strong>、降级方案</td></tr>
+        <tr><td><strong>三、实现与取舍</strong></td><td>关键实现、性能优化前后对照、可访问性取舍、为<strong>美观</strong>做了什么</td></tr>
+        <tr><td><strong>四、已知简化</strong></td><td>没做完的、占位的事实信息、后续可如何完善</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>三、交作业姿势（历届最高频的事故）</h3>
   <div class="warn"><strong>⚠️ 右键 →「网页另存为（完整）」会带出一个 <code class="inline">_files</code> 文件夹。</strong>
     只发 <code class="inline">.html</code> 给老师 → <strong>依赖全丢，单独打开必然白屏</strong>。<br>
-    正确做法：右键 →「另存为 → <strong>网页（仅 HTML）</strong>」，或者<strong>直接下载原件</strong>；如果作品确实带同目录依赖，就<strong>把整个目录打包一起交</strong>。</div>
+    正确做法：右键 →「另存为 → <strong>网页（仅 HTML）</strong>」，或者<strong>直接下载原件</strong>；如果作品确实带同目录依赖（含模型资产），就<strong>把整个目录压缩成一个 zip 再发</strong>。</div>
 
-  <h3>三、提交前对一遍这张表</h3>
+  <h3>四、提交前对一遍这张表</h3>
   <ol>
+    <li><strong>作品压缩包</strong>已在 <strong>11-25 前</strong>微信发给教师，文件名是 <code class="inline">&lt;学号&gt;-&lt;姓名&gt;.zip</code>；</li>
     <li><strong>目录名</strong>是纯 ASCII 学号，没有空格、没有中文；</li>
-    <li><strong>四件齐</strong>：<code class="inline">index.html</code> + <code class="inline">README.md</code> + <code class="inline">cover.jpg</code>（1280×720）+ <code class="inline">xr-data.json</code>；</li>
+    <li><strong>四件齐</strong>：<code class="inline">index.html</code> + <code class="inline">README.md</code> + <code class="inline">cover.jpg</code>（1280×720）+ <code class="inline">xr-data.json</code>，另有 <code class="inline">assets/</code> 模型资产；</li>
     <li><strong>拔网线打开一遍</strong>：能跑、控制台无报错、能点「进入 VR」；</li>
     <li><strong>README 四行齐</strong>：我改了什么 · 为什么这么改 · 怎么运行 · 哪里还没做完；</li>
-    <li><strong>数字对得上</strong>：README 与报告里的读数，和页面 HUD 上的一模一样（见第九节最后一条）。</li>
+    <li><strong>数字对得上</strong>：README 与报告里的读数，和页面 HUD 上的一模一样（见第九节最后一条）；</li>
+    <li><strong>Word 文档</strong>已按下周发布的模板写好，<strong>12-02 前两节课</strong>按规定提交。</li>
   </ol>
 </section>
 
@@ -681,7 +743,7 @@
   <div class="grid2">
     <div class="cell">
       <h4>接内核 <code class="inline">_xr_core.js</code></h4>
-      <p>把库放同目录，用相对路径引入。接上之后，传送 + Snap、隧道视野、眼高显示、休息提示、体验数据导出就都有了——<strong>硬门槛第 7、9 条与量规「性能与工程」直接受益</strong>。</p>
+      <p>把库放同目录，用相对路径引入。接上之后，传送 + Snap、隧道视野、眼高显示、休息提示、体验数据导出就都有了——<strong>硬门槛第 9、10、11 条与量规「性能与工程」直接受益</strong>。</p>
     </div>
     <div class="cell">
       <h4>接探针 <code class="inline">vr-probe.js</code></h4>
@@ -792,7 +854,7 @@
     </div>
     <div class="cell">
       <h4>③ 真实信息不确定就标占位</h4>
-      <p>作品里涉及真实人物、校史、文物：<strong>不确定就标 <code class="inline">【待补充】</code></strong>，不许编造。这一条同时是硬门槛第 10 条。</p>
+      <p>作品里涉及真实人物、校史、文物：<strong>不确定就标 <code class="inline">【待补充】</code></strong>，不许编造。这一条同时是硬门槛第 11 条。</p>
     </div>
     <div class="cell">
       <h4>④ 大模型 Key 不能放前端</h4>
@@ -838,7 +900,7 @@
   </div>
 
   <h3>二、十条正文（回看用）</h3>
-  <p>一 · <a href="#s1">一句话：你要交什么</a>　二 · <a href="#s2">十条硬门槛</a>　三 · <a href="#s3">怎么评分</a>　四 · <a href="#s4">六个里程碑</a>　五 · <a href="#s5">选题清单</a>　六 · <a href="#s6">三条通路与三条退出路</a>　七 · <a href="#s7">怎么交</a>　八 · <a href="#s8">可以白拿的资产</a>　九 · <a href="#s9">历届踩过的坑</a>　十 · <a href="#s10">安全与伦理</a></p>
+  <p>一 · <a href="#s1">一句话：你要交什么</a>　二 · <a href="#s2">十一条硬门槛</a>　三 · <a href="#s3">怎么评分</a>　四 · <a href="#s4">关键时间与提交方式</a>　五 · <a href="#s5">选题清单</a>　六 · <a href="#s6">三条通路与三条退出路</a>　七 · <a href="#s7">怎么交</a>　八 · <a href="#s8">可以白拿的资产</a>　九 · <a href="#s9">历届踩过的坑</a>　十 · <a href="#s10">安全与伦理</a></p>
 
   <div class="btn-row">
     <a class="btn" href="vr-2026.html">← 返回课程主页</a>

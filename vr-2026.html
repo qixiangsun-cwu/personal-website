@@ -6,6 +6,91 @@
 <title>2026年虚拟现实技术 · 课程主页</title>
 <meta name="description" content="中华女子学院《虚拟现实技术》2026秋季学期课程主页：48学时、12次课的课程安排、课件资源与课堂内容网页。">
 <link rel="stylesheet" href="assets/vr-2026/course.css">
+<style>
+/* ===== 教学内容表（#plan）：章号徽标 + 数字列收窄 ===== */
+.plan-table { table-layout: fixed; font-size: 14.5px; }
+.plan-table col.col-ch      { width: 4%; }
+.plan-table col.col-content { width: 21%; }
+.plan-table col.col-num     { width: 5.5%; }
+.plan-table col.col-week    { width: 17%; }
+
+.plan-table th,
+.plan-table td { vertical-align: middle; }
+
+.plan-table td.ch { vertical-align: middle; }
+
+.plan-table th.num,
+.plan-table td.num {
+  text-align: center;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  padding-left: 6px;
+  padding-right: 6px;
+}
+.plan-table td.num.strong,
+.plan-table td.num strong { font-weight: 700; color: var(--accent-deep); }
+
+/* 章：紧凑数字徽标，彻底避免「第/1/章」被拆成三行 */
+.plan-table td.ch { padding: 8px 6px; text-align: center; }
+.plan-table td.ch span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px; height: 28px;
+  border-radius: 8px;
+  background: var(--accent-soft);
+  color: var(--accent-deep);
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 1;
+}
+
+/* 教学内容：主标题 + 一行小注 */
+.plan-table .sub-note {
+  display: block;
+  margin-top: 3px;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--ink-soft);
+}
+
+/* 对应课次：小标签，不再折行 */
+.plan-table .wk-tag {
+  display: inline-block;
+  padding: 2px 9px;
+  margin: 2px 4px 2px 0;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent-deep);
+  font-size: 12.5px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.plan-table .wk-date {
+  display: inline-block;
+  margin-right: 6px;
+  font-size: 12px;
+  color: var(--ink-soft);
+  white-space: nowrap;
+}
+
+.plan-table tfoot td {
+  background: var(--accent-soft);
+  border-top: 1px solid var(--line);
+  border-bottom: none;
+  font-weight: 700;
+  color: var(--accent-deep);
+}
+
+/* 窄屏：保持列比例，给表格一个最小宽度由 .tbl-wrap 横向滚动；
+   这样每行仍是单行可读，不会把数字列挤成竖排 */
+@media (max-width: 720px) {
+  .plan-table { font-size: 14px; min-width: 720px; }
+  .plan-table .sub-note { display: none; }
+  .plan-table th,
+  .plan-table td { padding-left: 8px; padding-right: 8px; }
+}
+</style>
 </head>
 <body>
 
@@ -50,7 +135,7 @@
   <p>《虚拟现实技术》是面向<strong>数字媒体技术专业</strong>开设的专业方向课程，共 <strong>48 学时</strong>（理论 20 + 实验/实践 28），按 <strong>12 次课</strong>编排，每次课 4 学时（180 分钟）。课程以教材知识体系为骨架，采用<strong>教材体系 + AI 前沿 + 案例驱动 + 轻设备双轨</strong>的组织方式，从“看懂 VR”一路走到“做出 VR 作品”。</p>
   <p>本学期固定<strong>每周三 1—2 节 + 3—4 节连排</strong>，上课周次为第 1—5、7—9、11—14 周（<strong>第 6、10 周无课</strong>），<strong>2026-12-02 结课</strong>。</p>
 
-  <div class="key">本学期采用<strong>“12 次课 = 8 个课堂案例”</strong>的模型：<strong>从第 4 次课起每次课产出一个可运行的课堂案例，期末大作业（40%）就是这 8 个案例的合集</strong>，第 12 次课（12-02）整体演示与点评。<strong>自第 3 次课起，课程改为“课内完成”模式，不另布置课后任务</strong>；课堂作业随课布置、课内完成。</div>
+  <div class="key">本学期期末大作业由<strong>三部分组成</strong>：<strong>① 6 次课堂作业</strong>（第 4—8、10—11 次课，一次课一个，写成描述性说明）＋<strong>② 自己设想的 VR 作品方案</strong>（不少于 10 种交互方式、必须有模型资产，需提前与教师确认）＋<strong>③ 功能完备、界面美观的成品</strong>。<strong>作品文件 2026-11-25 前交</strong>（微信发给教师，由教师统一上传到网站）；<strong>2026-12-02（第 12 次课）前两节课交大作业文档（Word），后两节课集中展示 VR 作品</strong>。大作业模板（含封面与详细格式）于<strong>下周发布</strong>。</div>
 
   <h3>课程内容主线</h3>
 
@@ -94,13 +179,13 @@
 
   <div class="note">课程采用 <strong>“PC 浏览器预览为主 + 头显实机验证为辅”</strong> 的双轨组织方式：日常开发在电脑浏览器里直接跑（WebXR 页面零安装、双击即可预览），头显时间留给“只有戴上才能感知”的沉浸感、交互体感与舒适度验证。</div>
 
-  <h3>课堂案例（本学期全新设计，逐步累积成期末大作业）</h3>
+  <h3>课堂案例（第 4—8、10—11 次课，6 个案例即大作业第一部分的写作对象）</h3>
   <div class="grid3">
-    <div class="cell"><h4>案例 · 用 WebXR 生成一座故宫</h4><p>第 4 次课产出：网页端 WebXR 路线，用 Three.js 程序化生成紫禁城中轴建筑，浏览器里直接漫游，<strong>不装 Unity</strong>。</p></div>
-    <div class="cell"><h4>密室逃脱「敦煌寻宝」</h4><p>解谜游戏，约 3 次课：洞窟空间叙事、抓取与放置判定、谜题状态机与 3D 密码键盘，含可访问性对照。</p></div>
-    <div class="cell"><h4>节奏竞技「编钟之韵」</h4><p>节奏游戏，1 次课：判定窗口与连击、WebAudio 程序化钟声（零音频文件）、三档手柄触觉反馈。</p></div>
+    <div class="cell"><h4>案例 1 · 用 WebXR 生成一座故宫</h4><p>第 4 次课产出：网页端 WebXR 路线，用 Three.js 程序化生成紫禁城中轴建筑，浏览器里直接漫游，<strong>不装 Unity</strong>。</p></div>
+    <div class="cell"><h4>案例 2 · 密室逃脱「敦煌寻宝」</h4><p>解谜游戏，约 3 次课：洞窟空间叙事、抓取与放置判定、谜题状态机与 3D 密码键盘，含可访问性对照。</p></div>
+    <div class="cell"><h4>案例 3 · 节奏竞技「编钟之韵」</h4><p>节奏游戏，1 次课：判定窗口与连击、WebAudio 程序化钟声（零音频文件）、三档手柄触觉反馈。</p></div>
   </div>
-  <p>此外还有交互沙盒、数字校园漫游（程序化 360 全景 + LLM 导览打卡）、LLM 智能 NPC、AR 文物复原，共 <strong>6 个 WebXR 课堂案例</strong>，都能在浏览器里直接打开。它们是期末大作业的“零件库”，但<strong>不能直接当大作业提交</strong>。</p>
+  <p>此外还有交互沙盒、数字校园漫游（程序化 360 全景 + LLM 导览打卡）、LLM 智能 NPC、AR 文物复原，共 <strong>6 个 WebXR 课堂案例</strong>，都能在浏览器里直接打开。<strong>这 6 个案例就是大作业第一部分「6 次课堂作业」的写作对象</strong>：一次课一个，每个写成一段描述性内容，说明做了什么、用了什么技术、遇到什么问题、怎么解决。它们是期末作品的“零件库”，但<strong>不能直接当大作业作品提交</strong>。</p>
 </section>
 
 <!-- ===== 课程目标 ===== -->
@@ -157,21 +242,94 @@
   </div>
 
   <div class="tbl-wrap">
-    <table>
+    <table class="plan-table">
+      <colgroup>
+        <col class="col-ch">
+        <col class="col-content">
+        <col class="col-num">
+        <col class="col-num">
+        <col class="col-num">
+        <col class="col-week">
+        <col>
+      </colgroup>
       <thead>
-        <tr><th>章</th><th>教学内容</th><th>理论</th><th>实验</th><th>合计</th><th>对应课次</th><th>贯穿案例 / 实践</th></tr>
+        <tr>
+          <th class="num">章</th>
+          <th>教学内容</th>
+          <th class="num">理论</th>
+          <th class="num">实验</th>
+          <th class="num">合计</th>
+          <th>对应课次</th>
+          <th>贯穿案例 / 实践</th>
+        </tr>
       </thead>
       <tbody>
-        <tr><td>第 1 章</td><td>虚拟现实技术概论</td><td>3</td><td>1</td><td>4</td><td>第 1 次课</td><td>PICO 体验 + 体验记录卡</td></tr>
-        <tr><td>第 2 章</td><td>虚拟现实的关键技术</td><td>3</td><td>1</td><td>4</td><td>第 2 次课</td><td>立体显示原理演示与实操</td></tr>
-        <tr><td>第 3 章</td><td>虚拟现实系统的硬件设备</td><td>2</td><td>2</td><td>4</td><td>第 3 次课（09-16）</td><td>主流 XR 硬件参数对比表</td></tr>
-        <tr><td>第 4 章</td><td>虚拟现实开发常用软件</td><td>2</td><td>2</td><td>4</td><td>第 4 次课（09-23）</td><td><strong>案例 01</strong>：第一个可运行的 VR 场景 / 网页端路线：用 WebXR 生成一座故宫</td></tr>
-        <tr><td>第 5 章</td><td>三维全景技术</td><td>3</td><td>5</td><td>8</td><td>第 5—6 次课</td><td>全景拍摄 → 拼接 → VR 漫游</td></tr>
-        <tr><td>第 6 章</td><td>虚拟现实应用开发（教材为 Unity 路线，本课程改用 <strong>WebXR</strong> 实现同等能力）</td><td>5</td><td>11</td><td>16</td><td>第 7—10 次课</td><td><strong>交互零件库 → 空间动线与状态机 → 交互与可访问性 → 性能工程</strong>；贯穿案例「密室逃脱·敦煌寻宝」</td></tr>
-        <tr><td>第 7 章</td><td>三维声音与网络应用开发（教材为 Unity 路线，本课程改用 <strong>WebXR</strong> 实现）</td><td>1</td><td>3</td><td>4</td><td>第 11 次课</td><td><strong>LLM 智能 NPC</strong> + 导览打卡数据闭环</td></tr>
-        <tr><td>第 8 章</td><td>增强现实开发技术（以 WebXR AR 作对照）</td><td>1</td><td>3</td><td>4</td><td>第 11 次课（对照）+ 第 12 次课</td><td>AR 文物复原对照；<strong>期末大作业路演（个人作品）</strong></td></tr>
-        <tr><td colspan="2"><strong>合计</strong></td><td><strong>20</strong></td><td><strong>28</strong></td><td><strong>48</strong></td><td colspan="2">12 次课 × 4 学时</td></tr>
+        <tr>
+          <td class="ch"><span>1</span></td>
+          <td>虚拟现实技术概论</td>
+          <td class="num">3</td><td class="num">1</td><td class="num strong">4</td>
+          <td><span class="wk-tag">第 1 次课</span></td>
+          <td>PICO 体验 + 体验记录卡</td>
+        </tr>
+        <tr>
+          <td class="ch"><span>2</span></td>
+          <td>虚拟现实的关键技术</td>
+          <td class="num">3</td><td class="num">1</td><td class="num strong">4</td>
+          <td><span class="wk-tag">第 2 次课</span></td>
+          <td>立体显示原理演示与实操</td>
+        </tr>
+        <tr>
+          <td class="ch"><span>3</span></td>
+          <td>虚拟现实系统的硬件设备</td>
+          <td class="num">2</td><td class="num">2</td><td class="num strong">4</td>
+          <td><span class="wk-tag">第 3 次课</span><span class="wk-date">09-16</span></td>
+          <td>主流 XR 硬件参数对比表</td>
+        </tr>
+        <tr>
+          <td class="ch"><span>4</span></td>
+          <td>虚拟现实开发常用软件</td>
+          <td class="num">2</td><td class="num">2</td><td class="num strong">4</td>
+          <td><span class="wk-tag">第 4 次课</span><span class="wk-date">09-23</span></td>
+          <td><strong>案例 01</strong> · 第一个可运行的 VR 场景（网页端 WebXR 路线：生成一座故宫）</td>
+        </tr>
+        <tr>
+          <td class="ch"><span>5</span></td>
+          <td>三维全景技术</td>
+          <td class="num">3</td><td class="num">5</td><td class="num strong">8</td>
+          <td><span class="wk-tag">第 5—6 次课</span></td>
+          <td>全景拍摄 → 拼接 → VR 漫游</td>
+        </tr>
+        <tr>
+          <td class="ch"><span>6</span></td>
+          <td>虚拟现实应用开发<span class="sub-note">教材为 Unity 路线，本课程改用 WebXR 实现同等能力</span></td>
+          <td class="num">5</td><td class="num">11</td><td class="num strong">16</td>
+          <td><span class="wk-tag">第 7—10 次课</span></td>
+          <td>交互零件库 → 空间动线与状态机 → 交互与可访问性 → 性能工程；贯穿案例「密室逃脱 · 敦煌寻宝」</td>
+        </tr>
+        <tr>
+          <td class="ch"><span>7</span></td>
+          <td>三维声音与网络应用开发<span class="sub-note">教材为 Unity 路线，本课程改用 WebXR</span></td>
+          <td class="num">1</td><td class="num">3</td><td class="num strong">4</td>
+          <td><span class="wk-tag">第 11 次课</span></td>
+          <td><strong>LLM 智能 NPC</strong> + 导览打卡数据闭环</td>
+        </tr>
+        <tr>
+          <td class="ch"><span>8</span></td>
+          <td>增强现实开发技术<span class="sub-note">以 WebXR AR 作对照</span></td>
+          <td class="num">1</td><td class="num">3</td><td class="num strong">4</td>
+          <td><span class="wk-tag">第 11 次课</span><span class="wk-date">对照</span><span class="wk-tag">第 12 次课</span></td>
+          <td>AR 文物复原对照；<strong>期末大作业展示</strong>（个人作品）</td>
+        </tr>
       </tbody>
+      <tfoot>
+        <tr>
+          <td colspan="2"><strong>合计</strong></td>
+          <td class="num strong">20</td>
+          <td class="num strong">28</td>
+          <td class="num strong">48</td>
+          <td colspan="2"><strong>12 次课 × 4 学时</strong></td>
+        </tr>
+      </tfoot>
     </table>
   </div>
 
@@ -267,8 +425,8 @@
       </thead>
       <tbody>
         <tr><td>平时成绩</td><td>30%</td><td>考勤 10% + 课堂参与及思考题 10% + AI 拓展任务 10%</td></tr>
-        <tr><td>课堂作业</td><td>30%</td><td>随课布置、<strong>课内完成</strong>；每次课产出一个课堂案例，按完成质量评定</td></tr>
-        <tr><td>期末大作业</td><td>40%</td><td><strong>个人 WebXR 虚拟现实作品</strong>（VR 沉浸为主），含主流程、交互、性能与过程数据；VR 或 AR 项目均可</td></tr>
+        <tr><td>课堂作业</td><td>30%</td><td>随课布置、<strong>课内完成</strong>；共 <strong>6 次</strong>（第 4—8、10—11 次课），按完成质量评定，并写入大作业文档</td></tr>
+        <tr><td>期末大作业</td><td>40%</td><td><strong>三部分</strong>：6 次课堂作业＋自拟方案（≥10 种交互、有模型资产）＋功能完备且美观的 WebXR 作品；VR 或 AR 项目均可</td></tr>
       </tbody>
     </table>
   </div>
@@ -276,27 +434,54 @@
   <div class="warn"><strong>期末是「个人作品」大作业，不安排上机考试。</strong>教务系统里的“考试方式＝闭卷”只是系统分类字段，不代表有闭卷笔试。加分项包括课堂展示、优秀作品与技术博客。</div>
 
   <h3>期末大作业（40%）</h3>
-  <div class="grid2">
+
+  <div class="key"><strong>大作业由三部分组成，缺任何一部分都不完整</strong>：<strong>① 6 次课堂作业</strong>（描述性内容，一次课一段）＋<strong>② 自己设想的大作业方案</strong>（不少于 10 种交互方式、必须有模型资产，需提前与教师确认）＋<strong>③ 功能完备、越美观分越高的成品</strong>。<strong>作品文件 2026-11-25 前交</strong>，<strong>文档 2026-12-02 前两节课交</strong>，<strong>后两节课集中展示作品</strong>。</div>
+
+  <div class="grid3">
     <div class="cell">
-      <h4>基本要求</h4>
+      <h4>① 6 次课堂作业</h4>
       <ul>
-        <li><strong>随课积累</strong>：第 7 次课定选题，之后每次课交一个<strong>里程碑</strong>，第 12 次课整体路演；</li>
-        <li><strong>能跑</strong>：在头显里打开能进 VR、能走完主流程，不只是电脑上点着看；</li>
-        <li><strong>能演示</strong>：现场演示 3—5 分钟，让同学看懂在做什么、技术点在哪；</li>
-        <li><strong>体现“虚实融合 + 智能交互”</strong>：这是课程能力目标的要求；</li>
-        <li><strong>独立完成</strong>：一人一件作品，需留过程记录与说明文档。</li>
+        <li>对应<strong>第 4—8、10—11 次课</strong>产出的 6 个课堂案例，一次课一个；</li>
+        <li><strong>写成描述性内容，一个作业写一段</strong>：做了什么、用了什么技术、遇到什么问题、怎么解决；</li>
+        <li>写入大作业文档，不单独提交代码。</li>
       </ul>
     </div>
     <div class="cell">
-      <h4>说明</h4>
+      <h4>② 自己设想的方案</h4>
       <ul>
-        <li><strong>不安排课后任务</strong>：所有学习与实操在课堂内完成，因此每节课都有“达标线”，需要在课内产出成果；</li>
-        <li>案例主题为课程全新设计，不与往届作品重复；<strong>不得直接提交课内案例</strong>；</li>
-        <li>第 12 次课（2026-12-02）现场路演与验收；</li>
-        <li>作品规范、提交清单与评分量规见 <a href="vr-2026-final-project.html"><strong>《期末大作业任务书》</strong></a>。</li>
+        <li><strong>不少于 10 种交互方式</strong>，且<strong>必须有模型资产</strong>（导入的 GLB/GLTF 或程序化建模均可）；</li>
+        <li>可与上学期「前端图形学实用技术」的大作业有相似性；</li>
+        <li><strong>必须提前与教师确认</strong>：微信把要做内容发给教师，教师整理成大作业要求文件后统一发布。</li>
+      </ul>
+    </div>
+    <div class="cell">
+      <h4>③ 成品要求</h4>
+      <ul>
+        <li><strong>功能完备</strong>：主流程能走通、交互都能用、断网也能跑；</li>
+        <li><strong>越美观分越高</strong>：界面、场景、动效、视觉统一性都计入评分；</li>
+        <li><strong>功能越强大分数越高</strong>：在完备的基础上做深、做稳、做出取舍说明。</li>
       </ul>
     </div>
   </div>
+
+  <h3>关键时间与提交方式</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr><th>时间</th><th>事项</th><th>怎么做</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>下周</strong></td><td>大作业模板发布</td><td>含封面与详细格式；按模板写文档</td></tr>
+        <tr><td><strong>2026-11-25 前</strong></td><td><strong>交大作业作品文件</strong></td><td><strong>微信发给教师</strong>，由教师统一上传到网站（<strong>不用 FTP</strong>）</td></tr>
+        <tr><td><strong>2026-12-02</strong> 前两节课</td><td><strong>交大作业文档（Word）</strong></td><td>按模板与格式要求提交 Word 文件</td></tr>
+        <tr><td><strong>2026-12-02</strong> 后两节课</td><td><strong>集中展示 VR 作品</strong></td><td>现场演示，讲清做了什么、技术点在哪</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="warn"><strong>方案确认不是可选项。</strong>没有提前确认方案的，作品做得再完整也会被要求返工——因为无法判断「是不是你自己设想的、是否满足 10 种交互与模型资产的要求」。</div>
+
+  <div class="note">大作业模板（含封面、字体字号、章节结构、图表规范）<strong>下周发布</strong>；发布后本页会同步更新。作品规范、十一条硬门槛、评分量规与提交清单见 <a href="vr-2026-final-project.html"><strong>《期末大作业任务书》</strong></a>。</div>
 </section>
 
 <!-- ===== 课程列表 ===== -->
@@ -332,7 +517,7 @@
       </div>
     </div>
     <div class="lesson-card">
-      <div class="lc-top"><span class="lc-no">第 3 次课</span><span class="tag gold">课堂作业</span></div>
+      <div class="lc-top"><span class="lc-no">第 3 次课</span><span class="tag gold">随堂实操</span></div>
       <a class="lc-title" href="vr-2026-lesson3.html" style="text-decoration:none;">第 3 章 虚拟现实系统的硬件设备</a>
       <div class="lc-desc">硬件三层架构（生成 / 输入 / 输出）· 生成设备与串流门槛 · 定位方式 Outside-In / Inside-Out / SLAM · 6DoF 与五类输入方式 · HMD 指标与 PPD 计算示例 · Pancake 光学 · 端侧 AI 与 2026 硬件格局 · 头显端 9 项 + PC 端 4 项实操 · <strong>课堂作业：硬件参数实测与设备选型</strong> · <strong>24 条配套视频资料</strong></div>
       <div class="lc-foot lc-foot-stack">
@@ -344,7 +529,7 @@
       </div>
     </div>
     <div class="lesson-card">
-      <div class="lc-top"><span class="lc-no">第 4 次课</span><span class="tag gold">课堂案例</span></div>
+      <div class="lc-top"><span class="lc-no">第 4 次课</span><span class="tag gold">课堂作业 1</span></div>
       <a class="lc-title" href="vr-2026-lesson4.html" style="text-decoration:none;">第 4 章 虚拟现实开发常用软件（网页端路线：用 WebXR 生成一座故宫）</a>
       <div class="lc-desc">网页端 VR 路线：WebXR 标准与安全上下文 · Three.js 最小可运行场景（30 行代码）· <strong>用代码程序化生成紫禁城</strong>（坐标系与比例校核、庑殿 / 歇山 / 攒尖三种中式屋顶的自定义几何、Canvas 程序化贴图、单平行光 + 半球光方案）· 移动头显的<strong>性能预算与量测</strong>（Draw Call 优先、InstancedMesh 合批）· PC 与 VR 两套输入（传送 / 摇杆 / snap turn）· 部署发布与故障速查 · <strong>产出：可在浏览器中漫游的紫禁城场景（3 个随堂实操 + 课堂作业）</strong> · 附：上次课 Unity 路线完整存档</div>
       <div class="lc-foot lc-foot-stack">
@@ -374,7 +559,7 @@
   <div class="lesson-group">后半程 · WebXR 作品篇（不学 Unity，改讲基于 WebXR 制作的虚拟现实作品）</div>
   <div class="lesson-grid">
     <div class="lesson-card">
-      <div class="lc-top"><span class="lc-no">第 7 次课</span><span class="tag gold">课堂案例</span></div>
+      <div class="lc-top"><span class="lc-no">第 7 次课</span><span class="tag gold">课堂作业 2</span></div>
       <a class="lc-title" href="vr-2026-lesson7.html" style="text-decoration:none;">交互零件库：先把“能做的事”做全</a>
       <div class="lc-desc">WebXR 作品的<strong>三层工程结构</strong>（DOM 层 / XR 层 / 状态层）· 案例 01 的 <strong>9 项交互范式</strong>（射线拉取、抓取 attach、投掷物理、3D UI 的 UV 命中、传送与 Snap）· <strong>三条通路</strong>在头显里打开自己的作品（USB / 局域网白名单 / 站点 https）· 产品级可访问性入口（坐姿 / 单手 / 注视停留 1.2 秒）· 工作室：搭个人“交互测试台” · <strong>里程碑 M1：大作业选题一页纸</strong></div>
       <div class="lc-foot lc-foot-stack">
@@ -387,7 +572,7 @@
       </div>
     </div>
     <div class="lesson-card">
-      <div class="lc-top"><span class="lc-no">第 8 次课</span><span class="tag gold">课堂案例</span></div>
+      <div class="lc-top"><span class="lc-no">第 8 次课</span><span class="tag gold">课堂作业 3</span></div>
       <a class="lc-title" href="vr-2026-lesson8.html" style="text-decoration:none;">作品要有目标：空间动线与状态机</a>
       <div class="lc-desc">空间叙事而不是文字说明 · <strong>动线三问</strong>（进得去 / 出得来 / 不超过 3 步）· <strong>状态机集中在一个 S 对象</strong>（S.step 驱动 UI、提示、音效、门）· 提示分层 giveHint()（按 step 给不同粒度）· 拆案例 02「敦煌密室」的洞窟空间划分、程序化贴图与灯位 · 工作室：画自己的动线图 + 状态机图，搭出“入口 → 第一个目标” · <strong>里程碑 M2</strong></div>
       <div class="lc-foot lc-foot-stack">
@@ -411,7 +596,7 @@
       </div>
     </div>
     <div class="lesson-card">
-      <div class="lc-top"><span class="lc-no">第 10 次课</span><span class="tag gold">课堂案例</span></div>
+      <div class="lc-top"><span class="lc-no">第 10 次课</span><span class="tag gold">课堂作业 4</span></div>
       <a class="lc-title" href="vr-2026-lesson10.html" style="text-decoration:none;">好看和跑得动是两件事</a>
       <div class="lc-desc"><strong>72Hz ＝ 13.9 ms 帧预算</strong>（为什么不是 16.7）· <strong>先看 DrawCall，不要先看面数</strong> · 实例化 / 合批 / 贴图复用 / 阴影分辨率 · <strong>动态降级：L1 降像素比 → L2 关阴影，可逆</strong> · 《DrawCall 对照实验室》同一场景 <strong>101 次 → 2 次</strong> · 案例 03「编钟之韵」的判定规则与 WebAudio 程序化音频（零音频文件）· <strong>里程碑 M4：性能报告（优化前后对照）</strong></div>
       <div class="lc-foot lc-foot-stack">
@@ -424,7 +609,7 @@
       </div>
     </div>
     <div class="lesson-card">
-      <div class="lc-top"><span class="lc-no">第 11 次课</span><span class="tag gold">课堂案例</span></div>
+      <div class="lc-top"><span class="lc-no">第 11 次课</span><span class="tag gold">课堂作业 5</span></div>
       <a class="lc-title" href="vr-2026-lesson11.html" style="text-decoration:none;">让作品会说话，并且能被度量</a>
       <div class="lc-desc">一条消息的完整旅程（提示词 → 模型 → SSE 流 → 打字机 → 动作）· <strong>动作协议 + 白名单</strong>（为什么不能让模型直接执行任意动作）· 幻觉治理（事实进提示词/知识库）· <strong>API Key 不能放前端</strong> → 正式架构图 · 案例 04「导览打卡」当成品参照（目标闭环 + 数据导出）· AR 对照 15 分钟 · <strong>里程碑 M5：功能封版</strong></div>
       <div class="lc-foot lc-foot-stack">
@@ -438,8 +623,8 @@
     </div>
     <div class="lesson-card">
       <div class="lc-top"><span class="lc-no">第 12 次课</span><span class="tag green">结课 · 验收</span></div>
-      <a class="lc-title" href="vr-2026-lesson12.html" style="text-decoration:none;">作品路演与验收</a>
-      <div class="lc-desc"><strong>个人大作业现场路演（3—5 分钟/人）</strong>· 分 4 组并行评审 + 优秀作品集中复盘 ·《作品验收量规》五维 100 分 + 5 分加分 · <strong>10 条硬门槛一票否决</strong> · 提交：作品目录 + README + 封面 1280×720 + 体验数据 JSON</div>
+      <a class="lc-title" href="vr-2026-lesson12.html" style="text-decoration:none;">交文档 · 作品展示</a>
+      <div class="lc-desc"><strong>前两节课：交大作业文档（Word，按下周发布的模板与格式）</strong> · <strong>后两节课：集中展示 VR 作品</strong>（现场演示，讲清做了什么、为什么必须用 VR、技术点在哪）· 大作业三部分：6 次课堂作业 + 自拟方案（≥10 种交互、有模型资产）+ 功能完备且美观的成品 · 作品文件已于 <strong>11-25 前</strong>微信发给教师并上传网站</div>
       <div class="lc-foot lc-foot-stack">
         <span>2026-12-02 · 4 学时</span>
         <span class="lc-actions">
