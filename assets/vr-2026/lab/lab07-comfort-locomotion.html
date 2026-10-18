@@ -1,0 +1,1157 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>LAB 模板 · 第 7 次课演示脚手架</title>
+<style>
+  html,body{margin:0;padding:0;overflow:hidden;background:#0e1220;color:#e8eefc;
+    font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif;}
+  #c{position:fixed;inset:0;display:block;}
+  #hud{position:fixed;left:14px;top:14px;z-index:20;width:288px;padding:12px 14px;
+    background:rgba(15,20,34,.9);border:1px solid #2b3854;border-radius:10px;
+    font-size:12px;line-height:1.65;box-shadow:0 8px 26px rgba(0,0,0,.4);}
+  #hud h2{margin:0 0 4px;font-size:15px;color:#7fc4ff;letter-spacing:.5px;}
+  #hud .tagline{color:#93a4c2;font-size:11px;margin-bottom:6px;}
+  #hud .sec{border-top:1px solid #253149;margin-top:8px;padding-top:7px;}
+  #hud b{color:#9fd0ff;font-weight:600;}
+  #hud .k{display:inline-block;background:#1b2540;border:1px solid #31405f;border-radius:4px;
+    padding:0 5px;margin:1px 2px;color:#cfe2ff;font-size:11px;}
+  #hud .warnline{color:#ffc857;}
+  #stats{color:#5fd08a;font-size:11px;white-space:pre-line;}
+  #enterVR{position:fixed;right:18px;top:18px;z-index:20;display:none;cursor:pointer;
+    background:linear-gradient(135deg,#2f7de1,#1b4fa8);color:#fff;border:none;border-radius:24px;
+    padding:11px 22px;font-size:15px;letter-spacing:2px;box-shadow:0 4px 16px rgba(47,125,225,.4);}
+  #enterVR:disabled{background:#4a5468;cursor:not-allowed;box-shadow:none;}
+  #vrhint{position:fixed;right:18px;top:72px;z-index:20;max-width:236px;display:none;
+    background:rgba(15,20,34,.88);border:1px solid #2b3854;border-radius:8px;padding:7px 9px;
+    color:#b9c8e2;font-size:11px;line-height:1.6;text-align:right;}
+  #toast{position:fixed;left:50%;bottom:58px;transform:translateX(-50%);z-index:25;
+    background:rgba(21,28,46,.95);border:1px solid #3a4a6c;border-radius:10px;padding:10px 18px;
+    font-size:14px;color:#d9e6ff;opacity:0;transition:opacity .25s;pointer-events:none;white-space:nowrap;}
+  #toast.show{opacity:1;}
+  #loader{position:fixed;inset:0;z-index:50;background:#0e1220;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;gap:6px;transition:opacity .5s;}
+  #loader h1{font-size:26px;letter-spacing:4px;color:#7fc4ff;margin:0;font-weight:600;}
+  #loader p{font-size:13px;color:#8fa2c2;margin:0;}
+  body.XR #hud,body.XR #enterVR,body.XR #vrhint{display:none!important;}
+  body.XR #toast{bottom:auto;top:24px;}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="hud">
+  <h2 id="hudTitle">LAB</h2>
+  <div class="tagline" id="hudTag"></div>
+  <div class="sec" id="hudPC"></div>
+  <div class="sec" id="hudVR"></div>
+  <div class="sec" id="hudTeach"></div>
+  <div class="sec"><span id="stats">初始化…</span></div>
+</div>
+<div id="toast"></div>
+<button id="enterVR">进入 VR</button>
+<div id="vrhint"></div>
+<div id="loader">
+  <h1 id="loadTitle">LAB</h1>
+  <p id="loadMsg">正在初始化…</p>
+</div>
+
+<script src="./three.min.js"></script>
+<script>
+/* =========================================================================
+ * 第 7 次课 · WebXR 交互零件演示脚手架（模板）
+ * 用法：复制本文件 → 改 CFG → 在 DEMO 区实现 buildWorld / buildUI / update / onPick /
+ *       selfTest / reset。基础设施区（0—4 段）不要改。
+ * 约定（验证工具依赖，务必保留）：
+ *   1. 外部库用「点斜杠」相对路径引入 three.min.js（与页面同目录）
+ *   2. 必须存在行 `  renderer.setAnimationLoop(animate);`
+ *   3. animate() 内必须调用 renderer.render(scene, camera)
+ *   4. renderer.xr.setReferenceSpaceType('local-floor') 在会话创建前调用
+ *   5. 暴露 window.LAB = {S, scene, camera, renderer, player, api}
+ * ========================================================================= */
+(function(){
+'use strict';
+
+var CFG = {
+  id: 'lab07',
+  title: '舒适度：移动范式 × 隧道遮罩',
+  subtitle: '瞬移 / 平滑 / 平滑+遮罩 / 关闭移动 · Snap 45° · 自评记录',
+  part: '组 C · C1（模块 C1/C2）',
+  aimMode: 'mouse',
+  pcKeys: '左键点地面=瞬移 · F 按住=平滑前进 · Q/E=转向 · 1—5=自评舒适度 · R=重置（WASD 在本演示停用，避免与移动范式混淆）',
+  vrKeys: '扳机指地面=瞬移 · 左摇杆前推=平滑移动 · 右摇杆=转向（Snap 45° / 平滑）',
+  teach: '晕动症来自「视觉流 vs 前庭」冲突：移动越连续越晕，屏幕边缘隧道遮罩能缓解。新手默认瞬移 + Snap 45°；绝不要强制旋转相机。',
+  hudLines: function(){
+    var out = [
+      '移动：' + moveLabel() + ' · 转向：' + turnLabel() + ' · 遮罩：' + fmt(S.vignette, 1),
+      '位置 ' + fmt(CORR.z0 - S.pos.z, 1) + ' / 24 m · 视觉流指标 ' + fmt(flowOf(), 0),
+      '自评 ' + S.comfort.length + ' 条 · 瞬移 ' + S.teleports + ' 次 · ' + S.lastAction
+    ];
+    if (S.forceRotate) out.push('⚠ 反例「强制旋转相机」开启中（3 s 自动关）');
+    return out;
+  }
+};
+/* ======================= 1. 基础设施（不要改） ======================= */
+var renderer, scene, camera, player, clock, audioCtx = null;
+var raycaster = new THREE.Raycaster();
+var aimNdc = new THREE.Vector2(0, 0);
+var tmpV = new THREE.Vector3(), tmpV2 = new THREE.Vector3();
+var panel = null, panelCanvas = null, panelCtx = null, panelTex = null;
+var panelBtns = [], hoverId = null, panelDirty = true;
+var uiHits = [], pickables = [];        // pickables: {mesh, id, onPick}
+var hapticLog = [], sfxLog = [];
+var keys = {}, dragging = false, lastMouse = {x:0,y:0}, dragDist = 0;
+var vrCtrls = [], vrRays = [], xrSession = null;
+var elapsed = 0, frames = 0, fps = 60, fpsT = 0;
+
+var S = {
+  move: 'teleport',        // teleport | smooth | smoothMask | none
+  turn: 'snap',            // snap | smooth
+  vignette: 0,             // 隧道遮罩强度 0 / 0.5 / 1（只在平滑类模式下生效）
+  forceRotate: false,      // 反例开关：强制旋转相机
+  forceT: 0,
+  pos: { x: 0, z: -2 },    // 玩家在走廊中的位置（起点 z=-2）
+  yaw: 0,
+  speed: 2.2,              // 平滑移动速度 m/s
+  teleports: 0,
+  turns: 0,
+  comfort: [],             // 自评记录 {config, score, t}
+  flow: 0,
+  lastAction: '—', lastPick: '—', picks: 0
+};
+/* -------- 1.2 小工具 -------- */
+function clamp(v, a, b){ return v < a ? a : (v > b ? b : v); }
+function fmt(v, n){ return (isFinite(v) ? v.toFixed(n == null ? 2 : n) : '—'); }
+function $(id){ return document.getElementById(id); }
+function toast(msg, ms){
+  var t = $('toast');
+  if (!t) return;
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(toast._t);
+  toast._t = setTimeout(function(){ t.classList.remove('show'); }, ms || 1600);
+}
+function initAudio(){
+  if (audioCtx) return audioCtx;
+  try {
+    var AC = window.AudioContext || window.webkitAudioContext;
+    if (AC) audioCtx = new AC();
+  } catch (e) { console.warn('AudioContext 不可用', e); }
+  return audioCtx;
+}
+function resumeAudio(){
+  var c = initAudio();
+  if (c && c.state === 'suspended') c.resume().catch(function(){});
+}
+/* 合成音：freq 频率 Hz，dur 毫秒，type 波形，gain 音量 */
+function beep(freq, dur, type, gain){
+  var c = initAudio();
+  if (!c || S.mute) { sfxLog.push({t: elapsed, freq: freq, skipped: !c}); return; }
+  try {
+    if (c.state === 'suspended') c.resume().catch(function(){});
+    var o = c.createOscillator(), g = c.createGain();
+    o.type = type || 'sine';
+    o.frequency.value = freq;
+    g.gain.value = (gain == null ? 0.05 : gain);
+    o.connect(g); g.connect(c.destination);
+    var now = c.currentTime, d = (dur || 60) / 1000;
+    g.gain.setValueAtTime(g.gain.value, now);
+    g.gain.exponentialRampToValueAtTime(0.0001, now + d);
+    o.start(now); o.stop(now + d + 0.01);
+    sfxLog.push({t: elapsed, freq: freq, dur: dur || 60});
+  } catch (e) { console.warn('beep 失败', e); }
+}
+/* 触觉：inputSource 可为 null（PC 模拟时只记日志） */
+function pulse(src, intensity, ms){
+  hapticLog.push({t: elapsed, intensity: intensity, ms: ms, real: !!(src && src.gamepad &&
+    src.gamepad.hapticActuators && src.gamepad.hapticActuators[0])});
+  try {
+    var acts = src && src.gamepad && src.gamepad.hapticActuators;
+    if (acts && acts[0] && acts[0].pulse) acts[0].pulse(intensity, ms);
+    else if (src && src.gamepad && src.gamepad.hapticActuators && src.gamepad.hapticActuators[0] &&
+             src.gamepad.hapticActuators[0].pulse) src.gamepad.hapticActuators[0].pulse(intensity, ms);
+  } catch (e) { console.warn('触觉不可用', e); }
+}
+
+/* -------- 1.3 3D 面板（CanvasTexture + UV 命中） -------- */
+/* mkPanel(width_m, height_m, pxW, pxH) 返回 mesh；全局 panel 指向它 */
+function mkPanel(wM, hM, pxW, pxH){
+  panelCanvas = document.createElement('canvas');
+  panelCanvas.width = pxW; panelCanvas.height = pxH;
+  panelCtx = panelCanvas.getContext('2d');
+  panelTex = new THREE.CanvasTexture(panelCanvas);
+  panelTex.minFilter = THREE.LinearFilter;
+  var mat = new THREE.MeshBasicMaterial({ map: panelTex, transparent: true });
+  panel = new THREE.Mesh(new THREE.PlaneGeometry(wM, hM), mat);
+  panel.name = 'uiPanel';
+  panelBtns = [];
+  return panel;
+}
+/* 注册按钮：px 坐标以面板 canvas 像素为准（左上角原点） */
+function uiButton(id, label, px, py, pw, ph, enabled){
+  panelBtns.push({ id: id, label: label, x: px, y: py, w: pw, h: ph, enabled: enabled !== false });
+}
+/* 面板绘制：DEMO.drawUI(ctx, W, H) 负责画背景与文字，按钮由 drawButtons 统一画 */
+function drawButtons(ctx, W, H){
+  for (var i = 0; i < panelBtns.length; i++) {
+    var b = panelBtns[i], on = (hoverId === b.id);
+    ctx.fillStyle = !b.enabled ? '#2a3346' : (on ? '#3f8ae0' : '#24314c');
+    ctx.strokeStyle = on ? '#9fd0ff' : '#3a4a6c';
+    ctx.lineWidth = on ? 3 : 2;
+    roundRect(ctx, b.x, b.y, b.w, b.h, 10);
+    ctx.fill(); ctx.stroke();
+    ctx.fillStyle = !b.enabled ? '#6b7688' : (on ? '#ffffff' : '#d5e3f8');
+    ctx.font = 'bold 26px "Microsoft YaHei", sans-serif';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(b.label, b.x + b.w / 2, b.y + b.h / 2);
+  }
+}
+function roundRect(ctx, x, y, w, h, r){
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r);
+  ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r);
+  ctx.arcTo(x, y, x + w, y, r);
+  ctx.closePath();
+}
+function redrawPanel(){
+  if (!panelCtx) return;
+  var W = panelCanvas.width, H = panelCanvas.height;
+  panelCtx.clearRect(0, 0, W, H);
+  DEMO.drawUI(panelCtx, W, H);
+  drawButtons(panelCtx, W, H);
+  panelTex.needsUpdate = true;
+  panelDirty = false;
+}
+/* UV → 按钮 id */
+function uiHitUV(uv){
+  if (!uv) return null;
+  var px = uv.x * panelCanvas.width, py = (1 - uv.y) * panelCanvas.height;
+  for (var i = 0; i < panelBtns.length; i++) {
+    var b = panelBtns[i];
+    if (px >= b.x && px <= b.x + b.w && py >= b.y && py <= b.y + b.h) return b;
+  }
+  return null;
+}
+
+/* -------- 1.4 拾取（PC / VR 共用） -------- */
+/* 返回 {hit, id, point, distance, uv, object} */
+function castFrom(origin, dir, objs){
+  raycaster.set(origin, dir.clone().normalize());
+  raycaster.far = 30;
+  var hits = raycaster.intersectObjects(objs, true);
+  return hits && hits.length ? hits[0] : null;
+}
+function pickPanel(origin, dir, src){
+  var h = castFrom(origin, dir, [panel]);
+  if (!h) return null;
+  var b = uiHitUV(h.uv);
+  return { button: b, point: h.point, distance: h.distance, source: src };
+}
+function pickWorld(origin, dir, src){
+  var list = pickables.map(function(p){ return p.mesh; });
+  var h = castFrom(origin, dir, list);
+  if (!h) return null;
+  var obj = h.object, owner = null;
+  while (obj && !owner) {
+    for (var i = 0; i < pickables.length; i++) if (pickables[i].mesh === obj) owner = pickables[i];
+    obj = obj.parent;
+  }
+  return owner ? { item: owner, point: h.point, distance: h.distance, source: src } : null;
+}
+function registerPick(mesh, id, onPick){
+  pickables.push({ mesh: mesh, id: id, onPick: onPick || function(){} });
+  return mesh;
+}
+
+/* -------- 1.5 PC 输入 -------- */
+function setupPC(){
+  var cvs = renderer.domElement;
+  cvs.addEventListener('pointerdown', function(e){
+    resumeAudio();
+    dragging = true; dragDist = 0; lastMouse.x = e.clientX; lastMouse.y = e.clientY;
+    cvs.setPointerCapture && cvs.setPointerCapture(e.pointerId);
+  });
+  cvs.addEventListener('pointermove', function(e){
+    var dx = e.clientX - lastMouse.x, dy = e.clientY - lastMouse.y;
+    lastMouse.x = e.clientX; lastMouse.y = e.clientY;
+    if (dragging) {
+      dragDist += Math.abs(dx) + Math.abs(dy);
+      player.rotation.y -= dx * 0.0032;
+      camera.rotation.x = clamp(camera.rotation.x - dy * 0.0032, -1.15, 1.0);
+    } else {
+      updateMouseAim(e);
+    }
+  });
+  cvs.addEventListener('pointerup', function(e){
+    if (dragging && dragDist < 6) { resumeAudio(); doClick(e); }
+    dragging = false;
+  });
+  cvs.addEventListener('pointercancel', function(){ dragging = false; });
+  window.addEventListener('keydown', function(e){
+    keys[e.code] = true;
+    if (e.code === 'KeyR') { DEMO.reset(); toast('已重置'); }
+    else if (e.code === 'KeyT' && DEMO.onKey) DEMO.onKey('KeyT');
+    else if (DEMO.onKey) DEMO.onKey(e.code);
+  });
+  window.addEventListener('keyup', function(e){ keys[e.code] = false; });
+  window.addEventListener('resize', onResize);
+}
+function updateMouseAim(e){
+  var r = renderer.domElement.getBoundingClientRect();
+  aimNdc.x = ((e.clientX - r.left) / r.width) * 2 - 1;
+  aimNdc.y = -((e.clientY - r.top) / r.height) * 2 + 1;
+}
+function pcRay(){
+  camera.getWorldPosition(tmpV);
+  var dir = new THREE.Vector3();
+  if (CFG.aimMode === 'center') {
+    camera.getWorldDirection(dir);
+  } else {
+    dir.set(aimNdc.x, aimNdc.y, 0.5).unproject(camera).sub(tmpV).normalize();
+  }
+  return { origin: tmpV.clone(), dir: dir };
+}
+function doClick(e){
+  var r = pcRay();
+  var p = pickPanel(r.origin, r.dir, 'pc');
+  if (p && p.button) { fireButton(p.button.id, 'pc'); return; }
+  var w = pickWorld(r.origin, r.dir, 'pc');
+  if (w) { w.item.onPick(w); return; }
+  DEMO.onEmptyClick && DEMO.onEmptyClick(r);
+}
+function fireButton(id, src){
+  for (var i = 0; i < panelBtns.length; i++) {
+    if (panelBtns[i].id === id) {
+      if (!panelBtns[i].enabled) return false;
+      S.lastPick = id; S.picks++;
+      pulse(null, 0.5, 60); beep(1046, 55, 'square', 0.05);
+      DEMO.onPick(id, src);
+      panelDirty = true;
+      return true;
+    }
+  }
+  return false;
+}
+
+/* -------- 1.6 VR 输入 -------- */
+function setupVR(){
+  for (var i = 0; i < 2; i++) {
+    (function(idx){
+      var ctrl = renderer.xr.getController(idx);
+      ctrl.addEventListener('connected', function(e){ ctrl.userData.inputSource = e.data; });
+      ctrl.addEventListener('selectstart', function(){
+        resumeAudio();
+        var src = ctrl.userData.inputSource;
+        var ray = ctrlRay(ctrl);
+        var p = pickPanel(ray.origin, ray.dir, 'vr');
+        if (p && p.button) { fireButton(p.button.id, 'vr'); return; }
+        var w = pickWorld(ray.origin, ray.dir, 'vr');
+        if (w) { w.item.onPick(w); return; }
+        DEMO.onEmptyClick && DEMO.onEmptyClick(ray, src);
+      });
+      ctrl.addEventListener('squeezestart', function(){
+        var src = ctrl.userData.inputSource;
+        DEMO.onSqueeze && DEMO.onSqueeze(ctrlRay(ctrl), src);
+      });
+      ctrl.addEventListener('squeezeend', function(){
+        var src = ctrl.userData.inputSource;
+        DEMO.onSqueezeEnd && DEMO.onSqueezeEnd(ctrl, src);
+      });
+      var ray = new THREE.Line(
+        new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0,0,0), new THREE.Vector3(0,0,-1)]),
+        new THREE.LineBasicMaterial({ color: 0x66aaff, transparent: true, opacity: 0.75 })
+      );
+      ray.scale.z = 6; ray.name = 'ctrlRay' + idx;
+      ctrl.add(ray);
+      scene.add(ctrl);
+      vrCtrls.push(ctrl); vrRays.push(ray);
+    })(i);
+  }
+  if (navigator.xr && navigator.xr.isSessionSupported) {
+    navigator.xr.isSessionSupported('immersive-vr').then(function(ok){
+      var btn = $('enterVR');
+      btn.style.display = 'block';
+      if (ok) {
+        btn.disabled = false;
+        btn.onclick = enterVR;
+        $('vrhint').style.display = 'block';
+        $('vrhint').innerHTML = '本机支持 immersive-vr。<br>戴上头显后点此进入，或直接用头显浏览器打开本页。';
+      } else {
+        btn.disabled = true; btn.textContent = '本机不支持沉浸式 VR';
+        $('vrhint').style.display = 'block';
+        $('vrhint').innerHTML = 'PC 可用鼠标键盘完成全部演示；<br>头显浏览器打开本页即可进入 VR。';
+      }
+    }).catch(function(e){
+      $('enterVR').style.display = 'block';
+      $('enterVR').disabled = true;
+      $('enterVR').textContent = 'WebXR 检测失败';
+      console.warn('isSessionSupported 失败', e);
+    });
+  } else {
+    $('enterVR').style.display = 'block';
+    $('enterVR').disabled = true;
+    $('enterVR').textContent = '非安全上下文或无 WebXR';
+  }
+}
+function ctrlRay(ctrl){
+  var origin = new THREE.Vector3(), dir = new THREE.Vector3();
+  ctrl.getWorldPosition(origin);
+  dir.set(0, 0, -1).transformDirection(ctrl.matrixWorld);
+  return { origin: origin, dir: dir };
+}
+function enterVR(){
+  resumeAudio();
+  navigator.xr.requestSession('immersive-vr', {
+    optionalFeatures: ['local-floor', 'bounded-floor', 'hand-tracking', 'layers']
+  }).then(function(session){
+    xrSession = session;
+    renderer.xr.setSession(session);
+    document.body.classList.add('XR');
+    session.addEventListener('end', function(){
+      xrSession = null;
+      document.body.classList.remove('XR');
+    });
+  }).catch(function(e){
+    console.warn('进入 VR 失败', e);
+    toast('进入 VR 失败：' + (e && e.message ? e.message : e));
+  });
+}
+
+/* -------- 1.7 主循环 -------- */
+function onResize(){
+  camera.aspect = innerWidth / innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+}
+function animate(){
+  var dt = Math.min(clock.getDelta(), 0.05);
+  elapsed += dt; frames++;
+  fpsT += dt;
+  if (fpsT >= 0.5) { fps = frames / fpsT; frames = 0; fpsT = 0; updateStats(); }
+
+  /* PC 行走 */
+  if (!renderer.xr.isPresenting) {
+    var sp = (keys.ShiftLeft || keys.ShiftRight) ? 3.2 : 1.7;
+    var fwd = new THREE.Vector3(-Math.sin(player.rotation.y), 0, -Math.cos(player.rotation.y));
+    var right = new THREE.Vector3(Math.cos(player.rotation.y), 0, -Math.sin(player.rotation.y));
+    var mv = new THREE.Vector3();
+    if (keys.KeyW || keys.ArrowUp) mv.add(fwd);
+    if (keys.KeyS || keys.ArrowDown) mv.sub(fwd);
+    if (keys.KeyD || keys.ArrowRight) mv.add(right);
+    if (keys.KeyA || keys.ArrowLeft) mv.sub(right);
+    if (mv.lengthSq() > 0) {
+      mv.normalize().multiplyScalar(sp * dt);
+      movePlayer(mv.x, mv.z);
+    }
+  }
+
+  /* VR 摇杆：左右转 45°（防误触冷却） */
+  if (renderer.xr.isPresenting) readVRStick(dt);
+
+  /* 悬停检测 */
+  updateHover();
+
+  DEMO.update(dt);
+  if (panelDirty) redrawPanel();
+
+  renderer.render(scene, camera);
+}
+function movePlayer(dx, dz){
+  player.position.x = clamp(player.position.x + dx, -4.4, 4.4);
+  player.position.z = clamp(player.position.z + dz, -4.4, 4.4);
+}
+var snapCd = 0;
+function readVRStick(dt){
+  snapCd = Math.max(0, snapCd - dt);
+  var src = xrSession && xrSession.inputSources;
+  if (!src) return;
+  for (var i = 0; i < src.length; i++) {
+    var gp = src[i].gamepad;
+    if (!gp || !gp.axes || gp.axes.length < 4) continue;
+    if (Math.abs(gp.axes[2]) > 0.75 && snapCd <= 0) {
+      player.rotation.y -= (gp.axes[2] > 0 ? -1 : 1) * Math.PI / 4;
+      snapCd = 0.38;
+    }
+  }
+}
+function updateHover(){
+  var r;
+  if (renderer.xr.isPresenting) {
+    if (!vrCtrls[0]) return;
+    r = ctrlRay(vrCtrls[0]);
+  } else {
+    r = pcRay();
+  }
+  var p = pickPanel(r.origin, r.dir, 'hover');
+  var id = p && p.button ? p.button.id : null;
+  if (id !== hoverId) {
+    hoverId = id;
+    panelDirty = true;
+    if (id) { pulse(null, 0.2, 30); beep(880, 35, 'sine', 0.035); }
+    DEMO.onHover && DEMO.onHover(id);
+  }
+  DEMO.onAim && DEMO.onAim(r, p);
+}
+function updateStats(){
+  if (!panel) return;
+  var st = 'FPS ' + fps.toFixed(0) + ' · DrawCalls ' + renderer.info.render.calls +
+           ' · Tris ' + renderer.info.render.triangles + '\n';
+  var lines = CFG.hudLines ? CFG.hudLines() : [];
+  for (var i = 0; i < lines.length; i++) st += lines[i] + '\n';
+  $('stats').textContent = st;
+}
+
+/* ======================= 2. 场景基础（可少量改） ======================= */
+function buildBase(){
+  scene.fog = new THREE.Fog(0x0e1220, 12, 42);
+  scene.add(new THREE.HemisphereLight(0xbfd4ff, 0x1a2030, 0.85));
+  var dir = new THREE.DirectionalLight(0xffffff, 1.1);
+  dir.position.set(3.5, 6.5, 2.5);
+  dir.castShadow = true;
+  dir.shadow.mapSize.set(1024, 1024);
+  dir.shadow.camera.left = -8; dir.shadow.camera.right = 8;
+  dir.shadow.camera.top = 8; dir.shadow.camera.bottom = -8;
+  scene.add(dir);
+  scene.add(new THREE.AmbientLight(0x334466, 0.5));
+
+  var floor = new THREE.Mesh(
+    new THREE.PlaneGeometry(16, 16),
+    new THREE.MeshStandardMaterial({ color: 0x2a3346, roughness: 0.95, metalness: 0.05 })
+  );
+  floor.rotation.x = -Math.PI / 2;
+  floor.receiveShadow = true;
+  floor.name = 'floor';
+  scene.add(floor);
+
+  var grid = new THREE.GridHelper(16, 32, 0x3f5273, 0x27324a);
+  grid.position.y = 0.002;
+  grid.material.transparent = true; grid.material.opacity = 0.55;
+  scene.add(grid);
+
+  var back = new THREE.Mesh(
+    new THREE.PlaneGeometry(16, 5),
+    new THREE.MeshStandardMaterial({ color: 0x1b2438, roughness: 1 })
+  );
+  back.position.set(0, 2.5, -26.8);
+  back.receiveShadow = true;
+  scene.add(back);
+}
+
+/* ======================= 3. 演示实现（每个演示改这一段） ======================= */
+/* 走廊：起点 z=-2，终点 z=-26，全长 24 m；两侧条纹墙制造「视觉流」 */
+var CORR = { z0: -2, z1: -26, halfW: 1.75, len: 24 };
+var MOVE_LABEL = { teleport: '瞬移', smooth: '平滑', smoothMask: '平滑+遮罩', none: '关闭移动' };
+var MOVE_ORDER = ['teleport', 'smooth', 'smoothMask', 'none'];
+var VIG_STEPS = [0, 0.5, 1];
+var vignetteMesh = null, tpGroup = null;
+var snapCdC = 0;
+var INIT_PITCH = -0.22;
+
+function moveLabel(){ return MOVE_LABEL[S.move] || S.move; }
+function turnLabel(){ return S.turn === 'snap' ? 'Snap 45°' : '平滑转向'; }
+function configLabel(){
+  return moveLabel() + '·' + (S.turn === 'snap' ? 'Snap' : '平滑转') + '·遮罩' + fmt(S.vignette, 1);
+}
+/* 视觉流指标（自定义教学公式，只用于同场景横向对比，不是实验数据）：
+   VFI = v × (1 − 0.7×遮罩强度) × 40 × (强制旋转 ? 1.6 : 1)
+   v：瞬移折算 0.35 m/s，平滑/平滑+遮罩 2.2 m/s，关闭移动 0 */
+function flowOf(){
+  var v = (S.move === 'none') ? 0 : (S.move === 'teleport' ? 0.35 : S.speed);
+  var f = v * (1 - 0.7 * clamp(S.vignette, 0, 1)) * 40;
+  if (S.forceRotate) f *= 1.6;
+  return f;
+}
+function traveled(){ return CORR.z0 - S.pos.z; }
+
+/* ---------- 贴图/场景小件 ---------- */
+function mkCorridorFloor(){
+  var cv = document.createElement('canvas');
+  cv.width = 512; cv.height = 2048;
+  var c = cv.getContext('2d');
+  c.fillStyle = '#232c3f'; c.fillRect(0, 0, 512, 2048);
+  c.fillStyle = '#3a4a6c'; c.fillRect(0, 0, 16, 2048); c.fillRect(496, 0, 16, 2048);
+  c.fillStyle = '#31405f';
+  for (var y = 0; y < 2048; y += 96) c.fillRect(250, y, 12, 50);
+  var pxPerM = 2048 / 25;              // 地板覆盖 25 m（z=-2 … -27）
+  c.textAlign = 'left'; c.textBaseline = 'middle';
+  for (var m = 0; m <= 24; m += 2){
+    var y2 = 2048 - m * pxPerM;        // m=0 在近端（画布底部）
+    var hot = (m % 8 === 0);
+    c.fillStyle = hot ? '#7fc4ff' : '#4a5f85';
+    c.fillRect(24, y2 - 3, 464, hot ? 7 : 5);
+    c.font = 'bold 40px "Microsoft YaHei", sans-serif';
+    c.fillStyle = hot ? '#9fd0ff' : '#6b83ad';
+    c.fillText(m + ' m', 40, y2 - 34);
+  }
+  c.fillStyle = '#39d98a'; c.fillRect(24, 2048 - 12, 464, 10);
+  c.fillStyle = '#ffb347'; c.fillRect(24, 2, 464, 10);
+  var tex = new THREE.CanvasTexture(cv);
+  tex.minFilter = THREE.LinearFilter;
+  var mesh = new THREE.Mesh(new THREE.PlaneGeometry(4.0, 25),
+    new THREE.MeshStandardMaterial({ map: tex, roughness: 0.92, metalness: 0.04 }));
+  mesh.rotation.x = -Math.PI / 2;
+  mesh.position.set(0, 0.006, -14.5);
+  mesh.receiveShadow = true;
+  return mesh;
+}
+function mkStripeWall(x, rotY){
+  var cv = document.createElement('canvas');
+  cv.width = 128; cv.height = 128;
+  var c = cv.getContext('2d');
+  c.fillStyle = '#1d2639'; c.fillRect(0, 0, 128, 128);
+  c.fillStyle = '#28384f'; c.fillRect(0, 0, 44, 128);
+  c.fillStyle = '#3a5478'; c.fillRect(0, 0, 9, 128);
+  var tex = new THREE.CanvasTexture(cv);
+  tex.wrapS = THREE.RepeatWrapping; tex.wrapT = THREE.RepeatWrapping;
+  tex.repeat.set(13, 1);
+  var mesh = new THREE.Mesh(new THREE.PlaneGeometry(25, 3.2),
+    new THREE.MeshBasicMaterial({ map: tex, side: THREE.DoubleSide }));
+  mesh.position.set(x, 1.6, -14.5);
+  mesh.rotation.y = rotY;
+  return mesh;
+}
+function mkSign(wM, hM, pxW, pxH, title, sub, color){
+  var cv = document.createElement('canvas');
+  cv.width = pxW; cv.height = pxH;
+  var c = cv.getContext('2d');
+  c.fillStyle = 'rgba(18,25,42,0.92)';
+  roundRect(c, 8, 8, pxW - 16, pxH - 16, 24); c.fill();
+  c.strokeStyle = color; c.lineWidth = 7;
+  roundRect(c, 8, 8, pxW - 16, pxH - 16, 24); c.stroke();
+  c.textAlign = 'center'; c.textBaseline = 'middle';
+  c.fillStyle = color;
+  c.font = 'bold 66px "Microsoft YaHei", sans-serif';
+  c.fillText(title, pxW / 2, sub ? pxH / 2 - 30 : pxH / 2);
+  if (sub){
+    c.fillStyle = '#cfe2ff';
+    c.font = '36px "Microsoft YaHei", sans-serif';
+    c.fillText(sub, pxW / 2, pxH / 2 + 46);
+  }
+  var tex = new THREE.CanvasTexture(cv);
+  tex.minFilter = THREE.LinearFilter;
+  var mesh = new THREE.Mesh(new THREE.PlaneGeometry(wM, hM),
+    new THREE.MeshBasicMaterial({ map: tex, transparent: true }));
+  return mesh;
+}
+/* 隧道遮罩：贴在相机前的贴片（PC 与头显里都可见） */
+function mkVignette(){
+  var cv = document.createElement('canvas');
+  cv.width = 512; cv.height = 512;
+  var c = cv.getContext('2d');
+  var g = c.createRadialGradient(256, 256, 30, 256, 256, 300);
+  g.addColorStop(0, 'rgba(0,0,0,0)');
+  g.addColorStop(0.38, 'rgba(0,0,0,0)');
+  g.addColorStop(0.66, 'rgba(0,0,0,0.55)');
+  g.addColorStop(1, 'rgba(0,0,0,0.96)');
+  c.fillStyle = g; c.fillRect(0, 0, 512, 512);
+  var tex = new THREE.CanvasTexture(cv);
+  var mat = new THREE.MeshBasicMaterial({ map: tex, transparent: true, opacity: 0,
+    depthTest: false, depthWrite: false, side: THREE.DoubleSide, fog: false });
+  var mesh = new THREE.Mesh(new THREE.PlaneGeometry(1.6, 0.9), mat);
+  mesh.position.set(0, 0, -0.5);
+  mesh.renderOrder = 999;
+  mesh.name = 'vignette';
+  camera.add(mesh);
+  return mesh;
+}
+function applyVignette(){
+  if (!vignetteMesh) return;
+  var on = (S.move === 'smooth' || S.move === 'smoothMask') && S.vignette > 0;
+  vignetteMesh.visible = on;
+  vignetteMesh.material.opacity = on ? clamp(S.vignette, 0, 1) : 0;
+}
+
+/* ---------- 移动：瞬移 / 平滑 / 关闭 ---------- */
+function setMove(m){
+  S.move = (MOVE_LABEL[m] ? m : 'teleport');
+  if (S.move === 'smooth') S.vignette = 0;
+  else if (S.move === 'smoothMask' && S.vignette <= 0) S.vignette = 0.5;
+  S.lastAction = '移动方式 = ' + moveLabel();
+  if (S.move === 'none') toast('关闭移动：只转不走 —— 对照组，体会「完全不晕但也走不了」');
+  if (S.move === 'smooth') toast('平滑移动：视觉流连续，最容易晕；用面板「平滑+遮罩」对比');
+  applyVignette();
+  panelDirty = true;
+}
+function cycleMove(){
+  var i = MOVE_ORDER.indexOf(S.move);
+  setMove(MOVE_ORDER[(i + 1) % MOVE_ORDER.length]);
+}
+function setTurn(m){
+  S.turn = (m === 'smooth') ? 'smooth' : 'snap';
+  S.lastAction = '转向 = ' + turnLabel();
+  toast('转向：' + turnLabel() + (S.turn === 'snap' ? '（一次 45°，比平滑转舒适）' : '（连续旋转，最晕的一种转法）'));
+  panelDirty = true;
+}
+function snapTurn(dir){
+  var before = player.rotation.y;
+  var delta = dir * Math.PI / 4;
+  if (renderer.xr.isPresenting){
+    S.yaw += delta;
+    player.rotation.y = S.yaw;
+  } else {
+    player.rotation.y += delta;
+    S.yaw = player.rotation.y;
+  }
+  S.turns++;
+  S.lastAction = 'Snap 45°（' + (dir > 0 ? '左' : '右') + '）';
+  beep(560, 50, 'square', 0.045);
+  pulse(null, 0.3, 30);
+  panelDirty = true;
+  return player.rotation.y - before;
+}
+function setVignette(v){
+  var nv = parseFloat(v);
+  if (!isFinite(nv)) return;
+  S.vignette = clamp(nv, 0, 1);
+  S.lastAction = '遮罩强度 = ' + fmt(S.vignette, 1);
+  applyVignette();
+  panelDirty = true;
+}
+function cycleVignette(){
+  var i = 0, best = 1e9;
+  for (var k = 0; k < VIG_STEPS.length; k++){
+    if (Math.abs(VIG_STEPS[k] - S.vignette) < best){ best = Math.abs(VIG_STEPS[k] - S.vignette); i = k; }
+  }
+  setVignette(VIG_STEPS[(i + 1) % VIG_STEPS.length]);
+  toast('隧道遮罩强度 = ' + fmt(S.vignette, 1) + '（0 关 / 0.5 中 / 1 强；只在平滑类模式生效）');
+}
+function setForceRotate(on){
+  S.forceRotate = !!on;
+  S.forceT = S.forceRotate ? 3.0 : 0;
+  if (!S.forceRotate && camera) camera.rotation.y = 0;
+  if (S.forceRotate){
+    beep(180, 220, 'sawtooth', 0.07);
+    pulse(null, 1.0, 200);
+    S.lastAction = '反例：强制旋转相机（3 s 后自动关）';
+    toast('⚠ 反例：强制旋转相机 —— 这就是让人晕得最快的做法，3 秒后自动关闭');
+  } else {
+    S.lastAction = '强制旋转已关闭';
+  }
+  panelDirty = true;
+}
+function advanceSmooth(sec){
+  if (sec <= 0) return 0;
+  if (S.move !== 'smooth' && S.move !== 'smoothMask') return 0;
+  var z0 = S.pos.z;
+  S.pos.z = clamp(S.pos.z - S.speed * sec, CORR.z1, CORR.z0);
+  var moved = Math.abs(S.pos.z - z0);
+  if (moved > 0 && player) player.position.set(S.pos.x, 0, S.pos.z);
+  panelDirty = true;
+  return moved;
+}
+function rateComfort(score){
+  var n = parseInt(score, 10);
+  if (!(n >= 1 && n <= 5)) return null;
+  var rec = { config: configLabel(), score: n, t: Math.round(elapsed * 10) / 10 };
+  S.comfort.push(rec);
+  if (S.comfort.length > 12) S.comfort.shift();
+  S.lastAction = '自评 ' + n + ' 分（' + rec.config + '）';
+  beep(660 + n * 70, 70, 'triangle', 0.05);
+  pulse(null, 0.3, 30);
+  toast('已记录：' + rec.config + ' → ' + n + ' 分（1 很不舒服 / 5 很舒服）');
+  panelDirty = true;
+  return rec;
+}
+/* 射线打到走廊地面 */
+function floorHit(r){
+  if (!r || !r.dir) return null;
+  if (r.dir.y > -0.03) return null;
+  var t = (0.02 - r.origin.y) / r.dir.y;
+  if (t < 0.2 || t > 40) return null;
+  var x = r.origin.x + r.dir.x * t;
+  var z = r.origin.z + r.dir.z * t;
+  if (z > CORR.z0 + 0.4 || z < CORR.z1 - 0.4) return null;
+  return { x: clamp(x, -CORR.halfW, CORR.halfW), z: clamp(z, CORR.z1, CORR.z0) };
+}
+function readStickVR(dt){
+  var session = renderer.xr.getSession ? renderer.xr.getSession() : null;
+  if (!session) return;
+  var src = session.inputSources || [];
+  for (var i = 0; i < src.length; i++){
+    var gp = src[i].gamepad;
+    if (!gp || !gp.axes || gp.axes.length < 4) continue;
+    var ax = gp.axes[2], ay = gp.axes[3];
+    if (Math.abs(ax) > 0.7){
+      if (S.turn === 'snap'){
+        if (snapCdC <= 0){ snapTurn(ax > 0 ? -1 : 1); snapCdC = 0.45; }
+      } else {
+        S.yaw += (ax > 0 ? -1 : 1) * 1.6 * dt;
+        player.rotation.y = S.yaw;
+      }
+    }
+    if (Math.abs(ay) > 0.3 && (S.move === 'smooth' || S.move === 'smoothMask')){
+      advanceSmooth(dt * Math.abs(ay));
+    }
+    break;
+  }
+}
+
+/* ---------- 演示对象 ---------- */
+var DEMO = {
+  buildWorld: function(){
+    scene.add(mkCorridorFloor());
+    scene.add(mkStripeWall(-2.05, Math.PI / 2));
+    scene.add(mkStripeWall(2.05, -Math.PI / 2));
+    var pGeo = new THREE.BoxGeometry(0.24, 3.2, 0.24);
+    var pA = new THREE.MeshStandardMaterial({ color: 0x33415e, roughness: 0.85 });
+    var pB = new THREE.MeshStandardMaterial({ color: 0x2b3752, roughness: 0.85 });
+    for (var i = 0; i < 7; i++){
+      var z = -5 - i * 3;
+      for (var s = -1; s <= 1; s += 2){
+        var p = new THREE.Mesh(pGeo, (i % 2 === 0) ? pA : pB);
+        p.position.set(s * 1.95, 1.6, z);
+        scene.add(p);
+      }
+    }
+    var startSign = mkSign(1.5, 0.75, 512, 256, '起点 0 m', '移动方式看面板', '#39d98a');
+    startSign.position.set(-1.35, 1.55, -3.2);
+    startSign.rotation.y = 0.62;
+    scene.add(startSign);
+    var endSign = mkSign(2.4, 1.2, 640, 320, '终点 24 m', '再往前没有路了', '#ffb347');
+    endSign.position.set(0, 1.7, -26.4);
+    scene.add(endSign);
+    /* 瞬移落点环 */
+    tpGroup = new THREE.Group();
+    var ring = new THREE.Mesh(new THREE.RingGeometry(0.2, 0.28, 32),
+      new THREE.MeshBasicMaterial({ color: 0x39d98a, transparent: true, opacity: 0.9,
+        side: THREE.DoubleSide, depthWrite: false }));
+    ring.rotation.x = -Math.PI / 2;
+    ring.position.y = 0.02;
+    tpGroup.add(ring);
+    var beam = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 1.1, 8),
+      new THREE.MeshBasicMaterial({ color: 0x39d98a, transparent: true, opacity: 0.25, depthWrite: false }));
+    beam.position.y = 0.55;
+    tpGroup.add(beam);
+    tpGroup.visible = false;
+    scene.add(tpGroup);
+    /* 隧道遮罩贴片（挂在相机前，PC 与头显里都可见） */
+    vignetteMesh = mkVignette();
+    vignetteMesh.visible = false;
+    /* 初始视角：略低头，面板与地面刻度都进画面 */
+    camera.rotation.x = INIT_PITCH;
+    player.position.set(S.pos.x, 0, S.pos.z);
+    player.rotation.y = 0;
+  },
+  buildUI: function(){
+    var p = mkPanel(1.55, 0.91, 1024, 600);
+    p.position.set(0, 1.34, -1.5);
+    player.add(p);
+    uiButton('m_tp', '瞬移', 32, 330, 300, 78);
+    uiButton('m_sm', '平滑', 362, 330, 300, 78);
+    uiButton('m_ms', '平滑+遮罩', 692, 330, 300, 78);
+    uiButton('vig', '遮罩：0.0', 32, 424, 300, 78);
+    uiButton('turn', '转向：Snap45°', 362, 424, 300, 78);
+    uiButton('force', '强制旋转(反例)', 692, 424, 300, 78);
+  },
+  drawUI: function(ctx, W, H){
+    ctx.fillStyle = '#141c2e'; ctx.fillRect(0, 0, W, H);
+    ctx.strokeStyle = '#3a4a6c'; ctx.lineWidth = 4; ctx.strokeRect(2, 2, W - 4, H - 4);
+    ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+    ctx.fillStyle = '#9fd0ff';
+    ctx.font = 'bold 34px "Microsoft YaHei", sans-serif';
+    ctx.fillText('舒适度实验 · 移动范式 × 隧道遮罩', 32, 20);
+    ctx.font = '24px "Microsoft YaHei", sans-serif';
+    ctx.fillStyle = '#d5e3f8';
+    ctx.fillText('配置：' + configLabel(), 32, 72);
+    ctx.fillText('位置：' + fmt(traveled(), 1) + ' / 24 m · 视觉流指标 VFI = ' + fmt(flowOf(), 0), 32, 104);
+    ctx.fillStyle = '#8fa2c2';
+    ctx.font = '21px "Microsoft YaHei", sans-serif';
+    ctx.fillText('自定义公式：VFI = v × (1 − 0.7×遮罩) × 40（v=2.2 m/s，瞬移按 0.35 折算，强制旋转 ×1.6）', 32, 138);
+    ctx.fillStyle = '#5fd08a';
+    ctx.font = '22px "Microsoft YaHei", sans-serif';
+    var cc = '自评最近 4 条：';
+    if (!S.comfort.length) cc += '（按 1—5 打分，1 很不舒服 / 5 很舒服）';
+    else cc += S.comfort.slice(-4).map(function(r){ return r.config + '→' + r.score + '分'; }).join('  ');
+    ctx.fillText(cc, 32, 170);
+    if (S.forceRotate){
+      ctx.fillStyle = '#ff5f5f';
+      ctx.font = 'bold 27px "Microsoft YaHei", sans-serif';
+      ctx.fillText('⚠ 反例：强制旋转相机 —— 这就是让人晕得最快的做法（3 秒后自动关）', 32, 210);
+    } else {
+      ctx.fillStyle = '#5b6b86';
+      ctx.font = '21px "Microsoft YaHei", sans-serif';
+      ctx.fillText('转向只作用于身体 player.rotation.y；VR 下绝不每帧写 camera.rotation', 32, 212);
+      ctx.fillText('Snap 45°：一次转动「跳」过一段画面，比连续平滑转更不容易晕', 32, 246);
+    }
+    /* 当前移动方式的绿色外框 + 按钮上的实时数值 */
+    var actId = S.move === 'teleport' ? 'm_tp' : S.move === 'smooth' ? 'm_sm' : S.move === 'smoothMask' ? 'm_ms' : null;
+    for (var i = 0; i < panelBtns.length; i++){
+      var b = panelBtns[i];
+      if (b.id === 'vig') b.label = '遮罩：' + fmt(S.vignette, 1);
+      else if (b.id === 'turn') b.label = '转向：' + (S.turn === 'snap' ? 'Snap45°' : '平滑');
+      else if (b.id === 'force') b.label = S.forceRotate ? '强制旋转：开' : '强制旋转(反例)';
+      if (b.id === actId){
+        ctx.strokeStyle = '#39d98a'; ctx.lineWidth = 5;
+        roundRect(ctx, b.x - 7, b.y - 7, b.w + 14, b.h + 14, 14); ctx.stroke();
+      }
+    }
+    ctx.fillStyle = '#5b6b86';
+    ctx.font = '21px "Microsoft YaHei", sans-serif';
+    ctx.fillText('课堂：同一段走廊，逐个范式走 3 遍 → 按 1—5 给自己打分，再看 VFI 和自评是否对得上。', 32, 520);
+    ctx.fillText('「关闭移动」是只转不走的对照组：完全不动 = 不晕，但你也到不了终点。', 32, 552);
+    ctx.fillText('PC：左键点地面瞬移 · F 按住平滑前进 · Q/E 转向 · R 重置', 32, 576);
+  },
+  onPick: function(id, src){
+    if (id === 'm_tp') setMove('teleport');
+    else if (id === 'm_sm') setMove('smooth');
+    else if (id === 'm_ms') setMove('smoothMask');
+    else if (id === 'vig') cycleVignette();
+    else if (id === 'turn') setTurn(S.turn === 'snap' ? 'smooth' : 'snap');
+    else if (id === 'force') setForceRotate(!S.forceRotate);
+  },
+  onKey: function(code){
+    if (S.turn === 'snap' && code === 'KeyQ') snapTurn(1);
+    else if (S.turn === 'snap' && code === 'KeyE') snapTurn(-1);
+    else if (code === 'KeyM') cycleMove();
+    else if (code.indexOf('Digit') === 0){
+      var n = parseInt(code.slice(5), 10);
+      if (n >= 1 && n <= 5) rateComfort(n);
+    }
+  },
+  /* 点击地面（PC 鼠标 / VR 扳机）→ 瞬移 */
+  onEmptyClick: function(r, src){
+    if (S.move !== 'teleport'){
+      toast('当前是「' + moveLabel() + '」：瞬移已关；先用面板切到「瞬移」再点地面');
+      return;
+    }
+    var p = floorHit(r);
+    if (!p){ S.lastAction = '点空 · 没落到走廊地面上'; return; }
+    DEMO.teleportTo(p.x, p.z);
+  },
+  /* 每帧：瞄准时显示落点环 */
+  onAim: function(r, panelHit){
+    if (!tpGroup) return;
+    if (S.move !== 'teleport' || panelHit){
+      tpGroup.visible = false;
+      return;
+    }
+    var p = floorHit(r);
+    if (p){
+      tpGroup.visible = true;
+      tpGroup.position.set(p.x, 0, p.z);
+      tpGroup.rotation.y = elapsed * 0.8;
+    } else {
+      tpGroup.visible = false;
+    }
+  },
+  teleportTo: function(x, z){
+    var from = { x: S.pos.x, z: S.pos.z };
+    S.pos.x = clamp(x, -CORR.halfW, CORR.halfW);
+    S.pos.z = clamp(z, CORR.z1, CORR.z0);
+    if (player) player.position.set(S.pos.x, 0, S.pos.z);
+    var d = Math.sqrt((S.pos.x - from.x) * (S.pos.x - from.x) + (S.pos.z - from.z) * (S.pos.z - from.z));
+    S.teleports++;
+    S.lastAction = '瞬移 ' + fmt(d, 1) + ' m → ' + fmt(traveled(), 1) + ' m 处';
+    beep(420, 80, 'sine', 0.05);
+    pulse(null, 0.5, 40);
+    panelDirty = true;
+    return { from: from, to: { x: S.pos.x, z: S.pos.z }, dist: d };
+  },
+  stepSim: function(sec){
+    var total = clamp(parseFloat(sec) || 0, 0, 60);
+    var n = Math.max(1, Math.round(total / 0.05));
+    var dt = total / n;
+    for (var i = 0; i < n; i++){
+      if (S.move === 'smooth' || S.move === 'smoothMask') advanceSmooth(dt);
+      if (S.forceRotate){
+        S.forceT -= dt;
+        if (S.forceT <= 0) setForceRotate(false);
+        else if (!renderer.xr.isPresenting) camera.rotation.y += dt * 1.6;
+      }
+    }
+    S.flow = flowOf();
+    panelDirty = true;
+    return { x: S.pos.x, z: S.pos.z, traveled: traveled(), flow: S.flow, forceRotate: S.forceRotate };
+  },
+  update: function(dt){
+    snapCdC = Math.max(0, snapCdC - dt);
+    if (player) player.position.set(S.pos.x, 0, S.pos.z);
+    if (renderer.xr.isPresenting){
+      readStickVR(dt);
+      player.rotation.y = S.yaw;
+    } else {
+      S.yaw = player.rotation.y;
+      if (S.turn === 'smooth'){
+        var td = (keys.KeyQ ? 1 : 0) - (keys.KeyE ? 1 : 0);
+        if (td){ player.rotation.y += td * 1.8 * dt; S.yaw = player.rotation.y; }
+      }
+      if ((S.move === 'smooth' || S.move === 'smoothMask') && keys.KeyF) advanceSmooth(dt);
+    }
+    if (S.forceRotate){
+      S.forceT -= dt;
+      if (S.forceT <= 0) setForceRotate(false);
+      else if (!renderer.xr.isPresenting) camera.rotation.y += dt * 1.6;
+    } else if (!renderer.xr.isPresenting && Math.abs(camera.rotation.y) > 1e-6){
+      camera.rotation.y = 0;
+    }
+    S.flow = flowOf();
+    applyVignette();
+    if (tpGroup && tpGroup.visible) tpGroup.rotation.y = elapsed * 0.8;
+  },
+  reset: function(){
+    S.move = 'teleport'; S.turn = 'snap'; S.vignette = 0;
+    S.forceRotate = false; S.forceT = 0;
+    S.pos.x = 0; S.pos.z = CORR.z0;
+    S.yaw = 0; S.teleports = 0; S.turns = 0; S.flow = 0;
+    S.comfort.length = 0;
+    S.lastAction = '—'; S.lastPick = '—'; S.picks = 0;
+    hapticLog.length = 0; sfxLog.length = 0;
+    if (player){ player.position.set(S.pos.x, 0, S.pos.z); player.rotation.y = 0; }
+    if (camera) camera.rotation.set(INIT_PITCH, 0, 0);
+    if (tpGroup) tpGroup.visible = false;
+    applyVignette();
+    panelDirty = true;
+  },
+  selfTest: function(){
+    var pass = [], fail = [], T = function(ok, name){ (ok ? pass : fail).push(name); };
+    DEMO.reset();
+    /* ① 瞬移把玩家放到落点 */
+    DEMO.teleportTo(0.5, -9);
+    T(Math.abs(player.position.z + 9) < 1e-6 && Math.abs(player.position.x - 0.5) < 1e-6,
+      '瞬移把玩家放到落点 (0.5, -9)');
+    /* ② 瞬移越界被钳制在走廊内 */
+    DEMO.teleportTo(0, -99);
+    T(Math.abs(player.position.z - CORR.z1) < 1e-6, '瞬移落点越界被钳制在终点 z=-26');
+    /* ③ 平滑移动按速度改变位置 */
+    DEMO.reset(); setMove('smooth');
+    var z0 = S.pos.z;
+    DEMO.stepSim(1.0);
+    var moved = Math.abs(S.pos.z - z0);
+    T(Math.abs(moved - S.speed) < 0.12,
+      '平滑移动 1.0 s 前进 ≈ ' + fmt(S.speed, 1) + ' m（实测 ' + fmt(moved, 2) + ' m）');
+    /* ④ Snap 一次转 45°（±1°） */
+    DEMO.reset();
+    var y0 = player.rotation.y;
+    var d = snapTurn(1);
+    var deg = (player.rotation.y - y0) * 180 / Math.PI;
+    T(Math.abs(deg - 45) < 1.0, 'Snap 一次转 45°（实测 ' + fmt(deg, 1) + '°）');
+    /* ⑤ 遮罩透明度按 0 / 0.5 / 1 映射 */
+    setMove('smoothMask');
+    var mapOk = true, seen = [];
+    for (var i = 0; i < VIG_STEPS.length; i++){
+      setVignette(VIG_STEPS[i]);
+      var op = vignetteMesh.material.opacity;
+      seen.push(fmt(op, 2));
+      if (Math.abs(op - VIG_STEPS[i]) > 1e-6) mapOk = false;
+    }
+    setVignette(1.0);
+    T(mapOk && vignetteMesh.visible, '遮罩透明度按 0/0.5/1 映射（实测 ' + seen.join(' / ') + '）');
+    /* ⑥ 关闭移动后位置不变 */
+    setMove('none');
+    var z6 = S.pos.z;
+    DEMO.stepSim(1.5);
+    T(Math.abs(S.pos.z - z6) < 1e-9, '「关闭移动」后位置不变（只转不走）');
+    /* ⑦ 自评记录追加且带配置名 */
+    DEMO.reset();
+    setMove('smoothMask'); setVignette(1.0);
+    var rec = rateComfort(5);
+    T(!!rec && S.comfort.length === 1 && rec.config.indexOf('平滑+遮罩') === 0 && rec.score === 5,
+      '自评记录追加且带配置名（' + (rec ? rec.config : '空') + '）');
+    /* ⑧ 强制旋转默认关 + 3 秒自动关 */
+    DEMO.reset();
+    var defOff = (S.forceRotate === false);
+    setForceRotate(true);
+    var on1 = (S.forceRotate === true);
+    DEMO.stepSim(3.2);
+    T(defOff && on1 && S.forceRotate === false,
+      '「强制旋转相机」默认关、开启 3 s 后自动关闭（实测 ' + (S.forceRotate ? '仍开着' : '已自动关') + '）');
+    /* ⑨ 瞬移模式下不叠加隧道遮罩 */
+    setMove('teleport'); setVignette(1.0);
+    T(vignetteMesh.visible === false, '瞬移模式下不叠加隧道遮罩（遮罩只治平滑移动的晕）');
+    /* ⑩ 转向模式切换 */
+    setTurn('smooth');
+    var t1 = (S.turn === 'smooth');
+    setTurn('snap');
+    T(t1 && S.turn === 'snap', '转向模式可在 Snap 45° / 平滑之间切换');
+    /* ⑪ reset 全复位 */
+    DEMO.reset();
+    T(Math.abs(S.pos.z - CORR.z0) < 1e-9 && S.comfort.length === 0 &&
+      S.forceRotate === false && S.move === 'teleport' && S.vignette === 0,
+      'reset 复位位置 / 自评 / 反例开关 / 移动方式 / 遮罩');
+    return { pass: pass, fail: fail };
+  }
+};
+/* ======================= 4. 启动（不要改） ======================= */
+function boot(){
+  renderer = new THREE.WebGLRenderer({ canvas: $('c'), antialias: true, alpha: false });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  renderer.setSize(innerWidth, innerHeight);
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.xr.enabled = true;
+  renderer.xr.setReferenceSpaceType('local-floor');
+
+  scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x0e1220);
+  camera = new THREE.PerspectiveCamera(70, innerWidth / innerHeight, 0.05, 60);
+  camera.position.set(0, 1.6, 0);
+  player = new THREE.Group();
+  player.add(camera);
+  scene.add(player);
+  clock = new THREE.Clock();
+
+  buildBase();
+  DEMO.buildWorld();
+  DEMO.buildUI();
+  setupVR();
+  setupPC();
+
+  document.title = CFG.id.toUpperCase() + ' · ' + CFG.title;
+  $('hudTitle').textContent = CFG.title;
+  $('hudTag').textContent = CFG.subtitle;
+  $('loadTitle').textContent = CFG.title;
+  $('hudPC').innerHTML = '<b>PC 操作</b><br>' + CFG.pcKeys;
+  $('hudVR').innerHTML = '<b>头显操作</b><br>' + CFG.vrKeys;
+  $('hudTeach').innerHTML = '<b>课堂要点</b><br>' + CFG.teach;
+  redrawPanel();
+
+  window.LAB = {
+    S: S, scene: scene, camera: camera, renderer: renderer, player: player, cfg: CFG,
+    ui: { panel: function(){ return panel; }, buttons: function(){ return panelBtns; },
+          hover: function(){ return hoverId; } },
+    api: {
+      /* —— 本演示追加的 API（规范 §一.6 允许追加，已有接口名不改） —— */
+      stepSim: function(sec){ return DEMO.stepSim(sec); },
+      teleportTo: function(x, z){ return DEMO.teleportTo(x, z); },
+      setMove: function(m){ setMove(m); return S.move; },
+      setVignette: function(v){ setVignette(v); return S.vignette; },
+      setTurn: function(m){ setTurn(m); return S.turn; },
+      snapTurn: function(dir){ return snapTurn(dir); },
+      forceRotate: function(on){ setForceRotate(on); return S.forceRotate; },
+      rateComfort: function(n){ return rateComfort(n); },
+      comfort: function(){ return S.comfort.slice(); },
+      configLabel: function(){ return configLabel(); },
+      flow: function(){ return flowOf(); },
+      fire: fireButton,
+      reset: DEMO.reset,
+      getState: function(){ return JSON.parse(JSON.stringify(S)); },
+      setState: function(k, v){ S[k] = v; panelDirty = true; },
+      haptics: function(){ return hapticLog.slice(); },
+      sfx: function(){ return sfxLog.slice(); },
+      selfTest: function(){
+        var r = DEMO.selfTest();
+        console.log('SELFTEST PASS ' + r.pass.length + ' / FAIL ' + r.fail.length);
+        if (r.fail.length) console.log('SELFTEST FAILED: ' + r.fail.join(' | '));
+        return r;
+      }
+    }
+  };
+
+  var loader = $('loader');
+  $('loadMsg').textContent = '就绪 · ' + CFG.part;
+  setTimeout(function(){ loader.style.opacity = '0'; setTimeout(function(){ loader.remove(); }, 520); }, 180);
+
+  onResize();
+  renderer.setAnimationLoop(animate);
+}
+try { boot(); }
+catch (e) {
+  console.error('启动失败', e);
+  var lm = document.getElementById('loadMsg');
+  if (lm) lm.textContent = '启动失败：' + e.message;
+}
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 320" font-family="'Microsoft YaHei','PingFang SC',sans-serif">
+  <rect width="760" height="320" fill="#faf8fd"/>
+  <text x="380" y="34" text-anchor="middle" font-size="19" font-weight="700" fill="#2e2a6f">一次有效交互 = 三通道至少给两个</text>
+  <text x="380" y="58" text-anchor="middle" font-size="13" fill="#5a5670">案例 01 的悬停反馈：高亮（视）+ 短哔（听）+ pulse(0.2, 30)（触）</text>
+
+  <rect x="26" y="120" width="140" height="72" rx="12" fill="#5a52c8"/>
+  <text x="96" y="152" text-anchor="middle" font-size="15" font-weight="700" fill="#fff">用户动作</text>
+  <text x="96" y="174" text-anchor="middle" font-size="12" fill="#ded9ff">靠近 / 指向 / 按下</text>
+
+  <path d="M166 156 H236" stroke="#8b879e" stroke-width="2" marker-end="url(#a)"/>
+  <defs><marker id="a" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0 0 L9 4.5 L0 9 z" fill="#8b879e"/></marker></defs>
+
+  <rect x="244" y="84" width="188" height="52" rx="10" fill="#fff" stroke="#5a52c8" stroke-width="1.6"/>
+  <text x="338" y="106" text-anchor="middle" font-size="14" font-weight="700" fill="#2e2a6f">视觉 · 高亮 / 描边</text>
+  <text x="338" y="124" text-anchor="middle" font-size="11.5" fill="#5a5670">颜色 / 尺寸 / 脉冲动画</text>
+
+  <rect x="244" y="146" width="188" height="52" rx="10" fill="#fff" stroke="#b45309" stroke-width="1.6"/>
+  <text x="338" y="168" text-anchor="middle" font-size="14" font-weight="700" fill="#b45309">听觉 · 短音</text>
+  <text x="338" y="186" text-anchor="middle" font-size="11.5" fill="#5a5670">880Hz 35ms（交互音）</text>
+
+  <rect x="244" y="208" width="188" height="52" rx="10" fill="#fff" stroke="#2e7d32" stroke-width="1.6"/>
+  <text x="338" y="230" text-anchor="middle" font-size="14" font-weight="700" fill="#2e7d32">触觉 · pulse(强度, 毫秒)</text>
+  <text x="338" y="248" text-anchor="middle" font-size="11.5" fill="#5a5670">悬停 0.2 · 抓取 0.5 · 命中 0.8</text>
+
+  <path d="M432 110 H500 M432 172 H500 M432 234 H500" stroke="#8b879e" stroke-width="2" fill="none"/>
+  <path d="M500 110 V234 M500 172 H528" stroke="#8b879e" stroke-width="2" fill="none"/>
+  <path d="M528 172 H556" stroke="#8b879e" stroke-width="2" marker-end="url(#a)"/>
+  <text x="508" y="96" font-size="12" fill="#5a5670">至少 2 / 3</text>
+
+  <rect x="564" y="120" width="170" height="72" rx="12" fill="#2e7d32"/>
+  <text x="649" y="150" text-anchor="middle" font-size="15" font-weight="700" fill="#fff">用户"确认到了"</text>
+  <text x="649" y="172" text-anchor="middle" font-size="12" fill="#dff0e0">不用怀疑自己按没按</text>
+
+  <rect x="26" y="276" width="708" height="30" rx="8" fill="#fdf3e3" stroke="#efdcb5"/>
+  <text x="380" y="296" text-anchor="middle" font-size="12.5" fill="#7a4a0a">反例：只让按钮变个颜色（单通道）——戴着头显的用户经常根本注意不到；"没有反馈的交互等于没有交互"。</text>
+</svg>

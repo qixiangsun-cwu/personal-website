@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>LAB 模板 · 第 7 次课演示脚手架</title>
+<style>
+  html,body{margin:0;padding:0;overflow:hidden;background:#0e1220;color:#e8eefc;
+    font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif;}
+  #c{position:fixed;inset:0;display:block;}
+  #hud{position:fixed;left:14px;top:14px;z-index:20;width:288px;padding:12px 14px;
+    background:rgba(15,20,34,.9);border:1px solid #2b3854;border-radius:10px;
+    font-size:12px;line-height:1.65;box-shadow:0 8px 26px rgba(0,0,0,.4);}
+  #hud h2{margin:0 0 4px;font-size:15px;color:#7fc4ff;letter-spacing:.5px;}
+  #hud .tagline{color:#93a4c2;font-size:11px;margin-bottom:6px;}
+  #hud .sec{border-top:1px solid #253149;margin-top:8px;padding-top:7px;}
+  #hud b{color:#9fd0ff;font-weight:600;}
+  #hud .k{display:inline-block;background:#1b2540;border:1px solid #31405f;border-radius:4px;
+    padding:0 5px;margin:1px 2px;color:#cfe2ff;font-size:11px;}
+  #hud .warnline{color:#ffc857;}
+  #stats{color:#5fd08a;font-size:11px;white-space:pre-line;}
+  #enterVR{position:fixed;right:18px;top:18px;z-index:20;display:none;cursor:pointer;
+    background:linear-gradient(135deg,#2f7de1,#1b4fa8);color:#fff;border:none;border-radius:24px;
+    padding:11px 22px;font-size:15px;letter-spacing:2px;box-shadow:0 4px 16px rgba(47,125,225,.4);}
+  #enterVR:disabled{background:#4a5468;cursor:not-allowed;box-shadow:none;}
+  #vrhint{position:fixed;right:18px;top:72px;z-index:20;max-width:236px;display:none;
+    background:rgba(15,20,34,.88);border:1px solid #2b3854;border-radius:8px;padding:7px 9px;
+    color:#b9c8e2;font-size:11px;line-height:1.6;text-align:right;}
+  #toast{position:fixed;left:50%;bottom:58px;transform:translateX(-50%);z-index:25;
+    background:rgba(21,28,46,.95);border:1px solid #3a4a6c;border-radius:10px;padding:10px 18px;
+    font-size:14px;color:#d9e6ff;opacity:0;transition:opacity .25s;pointer-events:none;white-space:nowrap;}
+  #toast.show{opacity:1;}
+  #loader{position:fixed;inset:0;z-index:50;background:#0e1220;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;gap:6px;transition:opacity .5s;}
+  #loader h1{font-size:26px;letter-spacing:4px;color:#7fc4ff;margin:0;font-weight:600;}
+  #loader p{font-size:13px;color:#8fa2c2;margin:0;}
+  body.XR #hud,body.XR #enterVR,body.XR #vrhint{display:none!important;}
+  body.XR #toast{bottom:auto;top:24px;}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="hud">
+  <h2 id="hudTitle">LAB</h2>
+  <div class="tagline" id="hudTag"></div>
+  <div class="sec" id="hudPC"></div>
+  <div class="sec" id="hudVR"></div>
+  <div class="sec" id="hudTeach"></div>
+  <div class="sec"><span id="stats">初始化…</span></div>
+</div>
+<div id="toast"></div>
+<button id="enterVR">进入 VR</button>
+<div id="vrhint"></div>
+<div id="loader">
+  <h1 id="loadTitle">LAB</h1>
+  <p id="loadMsg">正在初始化…</p>
+</div>
+
+<script src="./three.min.js"></script>
+<script>
+/* =========================================================================
+ * 第 7 次课 · WebXR 交互零件演示脚手架（模板）
+ * 用法：复制本文件 → 改 CFG → 在 DEMO 区实现 buildWorld / buildUI / update / onPick /
+ *       selfTest / reset。基础设施区（0—4 段）不要改。
+ * 约定（验证工具依赖，务必保留）：
+ *   1. 外部库用「点斜杠」相对路径引入 three.min.js（与页面同目录）
+ *   2. 必须存在行 `  renderer.setAnimationLoop(animate);`
+ *   3. animate() 内必须调用 renderer.render(scene, camera)
+ *   4. renderer.xr.setReferenceSpaceType('local-floor') 在会话创建前调用
+ *   5. 暴露 window.LAB = {S, scene, camera, renderer, player, api}
+ * ========================================================================= */
+(function(){
+'use strict';
+
+var CFG = {
+  id: 'lab09',
+  title: '触觉语义分级 × 手部追踪 pinch',
+  subtitle: 'UI 0.2 / 抓取 0.5 / 命中 0.8 / 错误 1.0（长）· pinch = 确认',
+  part: '组 C · C3（模块 D1/D2）',
+  aimMode: 'mouse',
+  pcKeys: '左键点面板按钮=触发对应强度 · 1—4=四种语义 · P=模拟 pinch（两级） · R=重置',
+  vrKeys: '扳机射线点按钮=触发触觉（手柄支持时才有震动）· 手部追踪可用时捏合=确认',
+  teach: '触觉要按语义分级：UI 0.2 / 抓取 0.5 / 命中 0.8 / 错误 1.0（长）——一个强度用到底就是噪音。手部追踪的 pinch = 确认，是免手柄通路。',
+  hudLines: function(){
+    var out = [
+      'pinch：' + pinchStageLabel() + ' · 确认 ' + S.pinchCount + ' 次 · 模拟 ' + (S.pinchSim ? '是' : '否'),
+      '手部追踪：' + handSupportLabel(),
+      '最近 pulse：' + (S.pulses.length ? (S.pulses[S.pulses.length - 1].name + ' ' +
+        fmt(S.pulses[S.pulses.length - 1].intensity, 1) + ' · ' + S.pulses[S.pulses.length - 1].ms + ' ms · 真机:' +
+        (S.pulses[S.pulses.length - 1].real ? '是' : '否')) : '—'),
+      'hapticActuators / 手部追踪未在真机验证，课前需实测 5 分钟'
+    ];
+    return out;
+  }
+};
+/* ======================= 1. 基础设施（不要改） ======================= */
+var renderer, scene, camera, player, clock, audioCtx = null;
+var raycaster = new THREE.Raycaster();
+var aimNdc = new THREE.Vector2(0, 0);
+var tmpV = new THREE.Vector3(), tmpV2 = new THREE.Vector3();
+var panel = null, panelCanvas = null, panelCtx = null, panelTex = null;
+var panelBtns = [], hoverId = null, panelDirty = true;
+var uiHits = [], pickables = [];        // pickables: {mesh, id, onPick}
+var hapticLog = [], sfxLog = [];
+var keys = {}, dragging = false, lastMouse = {x:0,y:0}, dragDist = 0;
+var vrCtrls = [], vrRays = [], xrSession = null;
+var elapsed = 0, frames = 0, fps = 60, fpsT = 0;
+
+var S = {
+  pulses: [],           // 语义触觉记录 {name, intensity, ms, real, sim, t}
+  pinchStage: 'idle',   // idle | near | confirm
+  pinchCount: 0,
+  pinchEvents: [],      // pinch 时间线 {t, stage, sim}
+  pinchSim: false,      // 本次 pinch 是否为 P 键模拟
+  pinchHold: 0,
+  lastAction: '—', lastPick: '—', picks: 0
+};
+/* -------- 1.2 小工具 -------- */
+function clamp(v, a, b){ return v < a ? a : (v > b ? b : v); }
+function fmt(v, n){ return (isFinite(v) ? v.toFixed(n == null ? 2 : n) : '—'); }
+function $(id){ return document.getElementById(id); }
+function toast(msg, ms){
+  var t = $('toast');
+  if (!t) return;
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(toast._t);
+  toast._t = setTimeout(function(){ t.classList.remove('show'); }, ms || 1600);
+}
+function initAudio(){
+  if (audioCtx) return audioCtx;
+  try {
+    var AC = window.AudioContext || window.webkitAudioContext;
+    if (AC) audioCtx = new AC();
+  } catch (e) { console.warn('AudioContext 不可用', e); }
+  return audioCtx;
+}
+function resumeAudio(){
+  var c = initAudio();
+  if (c && c.state === 'suspended') c.resume().catch(function(){});
+}
+/* 合成音：freq 频率 Hz，dur 毫秒，type 波形，gain 音量 */
+function beep(freq, dur, type, gain){
+  var c = initAudio();
+  if (!c || S.mute) { sfxLog.push({t: elapsed, freq: freq, skipped: !c}); return; }
+  try {
+    if (c.state === 'suspended') c.resume().catch(function(){});
+    var o = c.createOscillator(), g = c.createGain();
+    o.type = type || 'sine';
+    o.frequency.value = freq;
+    g.gain.value = (gain == null ? 0.05 : gain);
+    o.connect(g); g.connect(c.destination);
+    var now = c.currentTime, d = (dur || 60) / 1000;
+    g.gain.setValueAtTime(g.gain.value, now);
+    g.gain.exponentialRampToValueAtTime(0.0001, now + d);
+    o.start(now); o.stop(now + d + 0.01);
+    sfxLog.push({t: elapsed, freq: freq, dur: dur || 60});
+  } catch (e) { console.warn('beep 失败', e); }
+}
+/* 触觉：inputSource 可为 null（PC 模拟时只记日志） */
+function pulse(src, intensity, ms){
+  hapticLog.push({t: elapsed, intensity: intensity, ms: ms, real: !!(src && src.gamepad &&
+    src.gamepad.hapticActuators && src.gamepad.hapticActuators[0])});
+  try {
+    var acts = src && src.gamepad && src.gamepad.hapticActuators;
+    if (acts && acts[0] && acts[0].pulse) acts[0].pulse(intensity, ms);
+    else if (src && src.gamepad && src.gamepad.hapticActuators && src.gamepad.hapticActuators[0] &&
+             src.gamepad.hapticActuators[0].pulse) src.gamepad.hapticActuators[0].pulse(intensity, ms);
+  } catch (e) { console.warn('触觉不可用', e); }
+}
+
+/* -------- 1.3 3D 面板（CanvasTexture + UV 命中） -------- */
+/* mkPanel(width_m, height_m, pxW, pxH) 返回 mesh；全局 panel 指向它 */
+function mkPanel(wM, hM, pxW, pxH){
+  panelCanvas = document.createElement('canvas');
+  panelCanvas.width = pxW; panelCanvas.height = pxH;
+  panelCtx = panelCanvas.getContext('2d');
+  panelTex = new THREE.CanvasTexture(panelCanvas);
+  panelTex.minFilter = THREE.LinearFilter;
+  var mat = new THREE.MeshBasicMaterial({ map: panelTex, transparent: true });
+  panel = new THREE.Mesh(new THREE.PlaneGeometry(wM, hM), mat);
+  panel.name = 'uiPanel';
+  panelBtns = [];
+  return panel;
+}
+/* 注册按钮：px 坐标以面板 canvas 像素为准（左上角原点） */
+function uiButton(id, label, px, py, pw, ph, enabled){
+  panelBtns.push({ id: id, label: label, x: px, y: py, w: pw, h: ph, enabled: enabled !== false });
+}
+/* 面板绘制：DEMO.drawUI(ctx, W, H) 负责画背景与文字，按钮由 drawButtons 统一画 */
+function drawButtons(ctx, W, H){
+  for (var i = 0; i < panelBtns.length; i++) {
+    var b = panelBtns[i], on = (hoverId === b.id);
+    ctx.fillStyle = !b.enabled ? '#2a3346' : (on ? '#3f8ae0' : '#24314c');
+    ctx.strokeStyle = on ? '#9fd0ff' : '#3a4a6c';
+    ctx.lineWidth = on ? 3 : 2;
+    roundRect(ctx, b.x, b.y, b.w, b.h, 10);
+    ctx.fill(); ctx.stroke();
+    ctx.fillStyle = !b.enabled ? '#6b7688' : (on ? '#ffffff' : '#d5e3f8');
+    ctx.font = 'bold 26px "Microsoft YaHei", sans-serif';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(b.label, b.x + b.w / 2, b.y + b.h / 2);
+  }
+}
+function roundRect(ctx, x, y, w, h, r){
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r);
+  ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r);
+  ctx.arcTo(x, y, x + w, y, r);
+  ctx.closePath();
+}
+function redrawPanel(){
+  if (!panelCtx) return;
+  var W = panelCanvas.width, H = panelCanvas.height;
+  panelCtx.clearRect(0, 0, W, H);
+  DEMO.drawUI(panelCtx, W, H);
+  drawButtons(panelCtx, W, H);
+  panelTex.needsUpdate = true;
+  panelDirty = false;
+}
+/* UV → 按钮 id */
+function uiHitUV(uv){
+  if (!uv) return null;
+  var px = uv.x * panelCanvas.width, py = (1 - uv.y) * panelCanvas.height;
+  for (var i = 0; i < panelBtns.length; i++) {
+    var b = panelBtns[i];
+    if (px >= b.x && px <= b.x + b.w && py >= b.y && py <= b.y + b.h) return b;
+  }
+  return null;
+}
+
+/* -------- 1.4 拾取（PC / VR 共用） -------- */
+/* 返回 {hit, id, point, distance, uv, object} */
+function castFrom(origin, dir, objs){
+  raycaster.set(origin, dir.clone().normalize());
+  raycaster.far = 30;
+  var hits = raycaster.intersectObjects(objs, true);
+  return hits && hits.length ? hits[0] : null;
+}
+function pickPanel(origin, dir, src){
+  var h = castFrom(origin, dir, [panel]);
+  if (!h) return null;
+  var b = uiHitUV(h.uv);
+  return { button: b, point: h.point, distance: h.distance, source: src };
+}
+function pickWorld(origin, dir, src){
+  var list = pickables.map(function(p){ return p.mesh; });
+  var h = castFrom(origin, dir, list);
+  if (!h) return null;
+  var obj = h.object, owner = null;
+  while (obj && !owner) {
+    for (var i = 0; i < pickables.length; i++) if (pickables[i].mesh === obj) owner = pickables[i];
+    obj = obj.parent;
+  }
+  return owner ? { item: owner, point: h.point, distance: h.distance, source: src } : null;
+}
+function registerPick(mesh, id, onPick){
+  pickables.push({ mesh: mesh, id: id, onPick: onPick || function(){} });
+  return mesh;
+}
+
+/* -------- 1.5 PC 输入 -------- */
+function setupPC(){
+  var cvs = renderer.domElement;
+  cvs.addEventListener('pointerdown', function(e){
+    resumeAudio();
+    dragging = true; dragDist = 0; lastMouse.x = e.clientX; lastMouse.y = e.clientY;
+    cvs.setPointerCapture && cvs.setPointerCapture(e.pointerId);
+  });
+  cvs.addEventListener('pointermove', function(e){
+    var dx = e.clientX - lastMouse.x, dy = e.clientY - lastMouse.y;
+    lastMouse.x = e.clientX; lastMouse.y = e.clientY;
+    if (dragging) {
+      dragDist += Math.abs(dx) + Math.abs(dy);
+      player.rotation.y -= dx * 0.0032;
+      camera.rotation.x = clamp(camera.rotation.x - dy * 0.0032, -1.15, 1.0);
+    } else {
+      updateMouseAim(e);
+    }
+  });
+  cvs.addEventListener('pointerup', function(e){
+    if (dragging && dragDist < 6) { resumeAudio(); doClick(e); }
+    dragging = false;
+  });
+  cvs.addEventListener('pointercancel', function(){ dragging = false; });
+  window.addEventListener('keydown', function(e){
+    keys[e.code] = true;
+    if (e.code === 'KeyR') { DEMO.reset(); toast('已重置'); }
+    else if (e.code === 'KeyT' && DEMO.onKey) DEMO.onKey('KeyT');
+    else if (DEMO.onKey) DEMO.onKey(e.code);
+  });
+  window.addEventListener('keyup', function(e){ keys[e.code] = false; });
+  window.addEventListener('resize', onResize);
+}
+function updateMouseAim(e){
+  var r = renderer.domElement.getBoundingClientRect();
+  aimNdc.x = ((e.clientX - r.left) / r.width) * 2 - 1;
+  aimNdc.y = -((e.clientY - r.top) / r.height) * 2 + 1;
+}
+function pcRay(){
+  camera.getWorldPosition(tmpV);
+  var dir = new THREE.Vector3();
+  if (CFG.aimMode === 'center') {
+    camera.getWorldDirection(dir);
+  } else {
+    dir.set(aimNdc.x, aimNdc.y, 0.5).unproject(camera).sub(tmpV).normalize();
+  }
+  return { origin: tmpV.clone(), dir: dir };
+}
+function doClick(e){
+  var r = pcRay();
+  var p = pickPanel(r.origin, r.dir, 'pc');
+  if (p && p.button) { fireButton(p.button.id, 'pc'); return; }
+  var w = pickWorld(r.origin, r.dir, 'pc');
+  if (w) { w.item.onPick(w); return; }
+  DEMO.onEmptyClick && DEMO.onEmptyClick(r);
+}
+function fireButton(id, src){
+  for (var i = 0; i < panelBtns.length; i++) {
+    if (panelBtns[i].id === id) {
+      if (!panelBtns[i].enabled) return false;
+      S.lastPick = id; S.picks++;
+      pulse(null, 0.5, 60); beep(1046, 55, 'square', 0.05);
+      DEMO.onPick(id, src);
+      panelDirty = true;
+      return true;
+    }
+  }
+  return false;
+}
+
+/* -------- 1.6 VR 输入 -------- */
+function setupVR(){
+  for (var i = 0; i < 2; i++) {
+    (function(idx){
+      var ctrl = renderer.xr.getController(idx);
+      ctrl.addEventListener('connected', function(e){ ctrl.userData.inputSource = e.data; });
+      ctrl.addEventListener('selectstart', function(){
+        resumeAudio();
+        var src = ctrl.userData.inputSource;
+        var ray = ctrlRay(ctrl);
+        var p = pickPanel(ray.origin, ray.dir, 'vr');
+        if (p && p.button) { fireButton(p.button.id, 'vr'); return; }
+        var w = pickWorld(ray.origin, ray.dir, 'vr');
+        if (w) { w.item.onPick(w); return; }
+        DEMO.onEmptyClick && DEMO.onEmptyClick(ray, src);
+      });
+      ctrl.addEventListener('squeezestart', function(){
+        var src = ctrl.userData.inputSource;
+        DEMO.onSqueeze && DEMO.onSqueeze(ctrlRay(ctrl), src);
+      });
+      ctrl.addEventListener('squeezeend', function(){
+        var src = ctrl.userData.inputSource;
+        DEMO.onSqueezeEnd && DEMO.onSqueezeEnd(ctrl, src);
+      });
+      var ray = new THREE.Line(
+        new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0,0,0), new THREE.Vector3(0,0,-1)]),
+        new THREE.LineBasicMaterial({ color: 0x66aaff, transparent: true, opacity: 0.75 })
+      );
+      ray.scale.z = 6; ray.name = 'ctrlRay' + idx;
+      ctrl.add(ray);
+      scene.add(ctrl);
+      vrCtrls.push(ctrl); vrRays.push(ray);
+    })(i);
+  }
+  if (navigator.xr && navigator.xr.isSessionSupported) {
+    navigator.xr.isSessionSupported('immersive-vr').then(function(ok){
+      var btn = $('enterVR');
+      btn.style.display = 'block';
+      if (ok) {
+        btn.disabled = false;
+        btn.onclick = enterVR;
+        $('vrhint').style.display = 'block';
+        $('vrhint').innerHTML = '本机支持 immersive-vr。<br>戴上头显后点此进入，或直接用头显浏览器打开本页。';
+      } else {
+        btn.disabled = true; btn.textContent = '本机不支持沉浸式 VR';
+        $('vrhint').style.display = 'block';
+        $('vrhint').innerHTML = 'PC 可用鼠标键盘完成全部演示；<br>头显浏览器打开本页即可进入 VR。';
+      }
+    }).catch(function(e){
+      $('enterVR').style.display = 'block';
+      $('enterVR').disabled = true;
+      $('enterVR').textContent = 'WebXR 检测失败';
+      console.warn('isSessionSupported 失败', e);
+    });
+  } else {
+    $('enterVR').style.display = 'block';
+    $('enterVR').disabled = true;
+    $('enterVR').textContent = '非安全上下文或无 WebXR';
+  }
+}
+function ctrlRay(ctrl){
+  var origin = new THREE.Vector3(), dir = new THREE.Vector3();
+  ctrl.getWorldPosition(origin);
+  dir.set(0, 0, -1).transformDirection(ctrl.matrixWorld);
+  return { origin: origin, dir: dir };
+}
+function enterVR(){
+  resumeAudio();
+  navigator.xr.requestSession('immersive-vr', {
+    optionalFeatures: ['local-floor', 'bounded-floor', 'hand-tracking', 'layers']
+  }).then(function(session){
+    xrSession = session;
+    renderer.xr.setSession(session);
+    document.body.classList.add('XR');
+    session.addEventListener('end', function(){
+      xrSession = null;
+      document.body.classList.remove('XR');
+    });
+  }).catch(function(e){
+    console.warn('进入 VR 失败', e);
+    toast('进入 VR 失败：' + (e && e.message ? e.message : e));
+  });
+}
+
+/* -------- 1.7 主循环 -------- */
+function onResize(){
+  camera.aspect = innerWidth / innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+}
+function animate(){
+  var dt = Math.min(clock.getDelta(), 0.05);
+  elapsed += dt; frames++;
+  fpsT += dt;
+  if (fpsT >= 0.5) { fps = frames / fpsT; frames = 0; fpsT = 0; updateStats(); }
+
+  /* PC 行走 */
+  if (!renderer.xr.isPresenting) {
+    var sp = (keys.ShiftLeft || keys.ShiftRight) ? 3.2 : 1.7;
+    var fwd = new THREE.Vector3(-Math.sin(player.rotation.y), 0, -Math.cos(player.rotation.y));
+    var right = new THREE.Vector3(Math.cos(player.rotation.y), 0, -Math.sin(player.rotation.y));
+    var mv = new THREE.Vector3();
+    if (keys.KeyW || keys.ArrowUp) mv.add(fwd);
+    if (keys.KeyS || keys.ArrowDown) mv.sub(fwd);
+    if (keys.KeyD || keys.ArrowRight) mv.add(right);
+    if (keys.KeyA || keys.ArrowLeft) mv.sub(right);
+    if (mv.lengthSq() > 0) {
+      mv.normalize().multiplyScalar(sp * dt);
+      movePlayer(mv.x, mv.z);
+    }
+  }
+
+  /* VR 摇杆：左右转 45°（防误触冷却） */
+  if (renderer.xr.isPresenting) readVRStick(dt);
+
+  /* 悬停检测 */
+  updateHover();
+
+  DEMO.update(dt);
+  if (panelDirty) redrawPanel();
+
+  renderer.render(scene, camera);
+}
+function movePlayer(dx, dz){
+  player.position.x = clamp(player.position.x + dx, -4.4, 4.4);
+  player.position.z = clamp(player.position.z + dz, -4.4, 4.4);
+}
+var snapCd = 0;
+function readVRStick(dt){
+  snapCd = Math.max(0, snapCd - dt);
+  var src = xrSession && xrSession.inputSources;
+  if (!src) return;
+  for (var i = 0; i < src.length; i++) {
+    var gp = src[i].gamepad;
+    if (!gp || !gp.axes || gp.axes.length < 4) continue;
+    if (Math.abs(gp.axes[2]) > 0.75 && snapCd <= 0) {
+      player.rotation.y -= (gp.axes[2] > 0 ? -1 : 1) * Math.PI / 4;
+      snapCd = 0.38;
+    }
+  }
+}
+function updateHover(){
+  var r;
+  if (renderer.xr.isPresenting) {
+    if (!vrCtrls[0]) return;
+    r = ctrlRay(vrCtrls[0]);
+  } else {
+    r = pcRay();
+  }
+  var p = pickPanel(r.origin, r.dir, 'hover');
+  var id = p && p.button ? p.button.id : null;
+  if (id !== hoverId) {
+    hoverId = id;
+    panelDirty = true;
+    if (id) { pulse(null, 0.2, 30); beep(880, 35, 'sine', 0.035); }
+    DEMO.onHover && DEMO.onHover(id);
+  }
+  DEMO.onAim && DEMO.onAim(r, p);
+}
+function updateStats(){
+  if (!panel) return;
+  var st = 'FPS ' + fps.toFixed(0) + ' · DrawCalls ' + renderer.info.render.calls +
+           ' · Tris ' + renderer.info.render.triangles + '\n';
+  var lines = CFG.hudLines ? CFG.hudLines() : [];
+  for (var i = 0; i < lines.length; i++) st += lines[i] + '\n';
+  $('stats').textContent = st;
+}
+
+/* ======================= 2. 场景基础（可少量改） ======================= */
+function buildBase(){
+  scene.fog = new THREE.Fog(0x0e1220, 9, 26);
+  scene.add(new THREE.HemisphereLight(0xbfd4ff, 0x1a2030, 0.85));
+  var dir = new THREE.DirectionalLight(0xffffff, 1.1);
+  dir.position.set(3.5, 6.5, 2.5);
+  dir.castShadow = true;
+  dir.shadow.mapSize.set(1024, 1024);
+  dir.shadow.camera.left = -8; dir.shadow.camera.right = 8;
+  dir.shadow.camera.top = 8; dir.shadow.camera.bottom = -8;
+  scene.add(dir);
+  scene.add(new THREE.AmbientLight(0x334466, 0.5));
+
+  var floor = new THREE.Mesh(
+    new THREE.PlaneGeometry(16, 16),
+    new THREE.MeshStandardMaterial({ color: 0x2a3346, roughness: 0.95, metalness: 0.05 })
+  );
+  floor.rotation.x = -Math.PI / 2;
+  floor.receiveShadow = true;
+  floor.name = 'floor';
+  scene.add(floor);
+
+  var grid = new THREE.GridHelper(16, 32, 0x3f5273, 0x27324a);
+  grid.position.y = 0.002;
+  grid.material.transparent = true; grid.material.opacity = 0.55;
+  scene.add(grid);
+
+  var back = new THREE.Mesh(
+    new THREE.PlaneGeometry(16, 5),
+    new THREE.MeshStandardMaterial({ color: 0x1b2438, roughness: 1 })
+  );
+  back.position.set(0, 2.5, -5.2);
+  back.receiveShadow = true;
+  scene.add(back);
+}
+
+/* ======================= 3. 演示实现（每个演示改这一段） ======================= */
+/* 触觉语义四级（强度 / 时长 / 音高 / 波形）：同一强度用到底 = 噪音 */
+var LEVELS = {
+  ui:    { name: '悬停', intensity: 0.2, ms: 30,  freq: 880,  wave: 'sine' },
+  grab:  { name: '抓取', intensity: 0.5, ms: 60,  freq: 660,  wave: 'triangle' },
+  hit:   { name: '命中', intensity: 0.8, ms: 90,  freq: 1046, wave: 'square' },
+  err:   { name: '错误', intensity: 1.0, ms: 200, freq: 180,  wave: 'sawtooth' }
+};
+var TIMELINE_SPAN = 10;      // pinch 时间线窗口（秒）
+var handL = null, handR = null, pinchOrb = null;
+
+function pinchStageLabel(){
+  if (S.pinchStage === 'near') return '已靠近（0.2）';
+  if (S.pinchStage === 'confirm') return '已确认（0.5）';
+  return '待捏合';
+}
+function handSupport(){
+  var api = !!(renderer.xr && renderer.xr.getHand);
+  var session = null;
+  try { session = renderer.xr.getSession ? renderer.xr.getSession() : null; } catch (e) { session = null; }
+  var joints = 0;
+  try {
+    var h = renderer.xr.getHand ? renderer.xr.getHand(0) : null;
+    if (h && h.joints) joints = Object.keys(h.joints).length;
+  } catch (e) { joints = 0; }
+  return { api: api, session: !!session, joints: joints, verified: false };
+}
+function handSupportLabel(){
+  var hs = handSupport();
+  if (!hs.api) return 'getHand API 不存在（本浏览器/无头环境）→ 用 P 模拟 pinch';
+  if (!hs.session) return 'getHand API 存在，未进 VR 会话 → 用 P 模拟 pinch（未在真机验证）';
+  if (!hs.joints) return '会话中但读不到关节 → 可能不支持手部追踪（未在真机验证）';
+  return '读到 ' + hs.joints + ' 个关节（未在真机验证，课前需实测）';
+}
+
+/* ---------- 语义触觉 ---------- */
+function realHapticSrc(){
+  try {
+    if (renderer.xr.isPresenting && vrCtrls[0]) return vrCtrls[0].userData.inputSource || null;
+  } catch (e) { /* 无 VR 会话时正常走这里 */ }
+  return null;
+}
+function semanticPulse(id){
+  var def = LEVELS[id];
+  if (!def) return null;
+  var src = realHapticSrc();
+  pulse(src, def.intensity, def.ms);
+  var real = !!(src && src.gamepad && src.gamepad.hapticActuators && src.gamepad.hapticActuators[0]);
+  var rec = {
+    name: def.name, intensity: def.intensity, ms: def.ms,
+    real: real, sim: !real, t: Math.round(elapsed * 100) / 100
+  };
+  S.pulses.push(rec);
+  if (S.pulses.length > 12) S.pulses.shift();
+  beep(def.freq, def.ms, def.wave, def.id === 'err' ? 0.07 : 0.05);
+  S.lastAction = 'pulse：' + def.name + ' 强度 ' + fmt(def.intensity, 1) + ' / ' + def.ms + ' ms';
+  if (pinchOrb) pinchOrb.material.color.set((id === 'err') ? 0xff6b6b : (id === 'hit') ? 0x7fe0a0 : 0x66d9ff);
+  toast('触觉：' + def.name + ' → 强度 ' + fmt(def.intensity, 1) + '，时长 ' + def.ms + ' ms' +
+    (real ? '（真机震动）' : '（PC 只记日志，真机才有震动）'));
+  panelDirty = true;
+  hudRefresh();
+  return rec;
+}
+/* 状态变化后立刻刷新 HUD 状态行（无头/虚拟时间下 fps 计时可能不推进） */
+function hudRefresh(){
+  try { updateStats(); } catch (e) { /* 启动早期可能还没有 panel */ }
+}
+
+/* ---------- pinch 两级状态机（0.2 靠近 → 0.5 确认） ---------- */
+function pinchNear(src){
+  if (S.pinchStage === 'confirm') return false;
+  S.pinchStage = 'near';
+  S.pinchSim = (src === 'sim');
+  S.pinchEvents.push({ t: Math.round(elapsed * 100) / 100, stage: 'near', sim: S.pinchSim });
+  if (S.pinchEvents.length > 40) S.pinchEvents.shift();
+  pulse(realHapticSrc(), LEVELS.ui.intensity, LEVELS.ui.ms);
+  beep(880, 40, 'sine', 0.04);
+  setHandColor(HAND_COLORS.near);
+  if (pinchOrb) pinchOrb.material.color.set(0xffd166);
+  S.lastAction = 'pinch 第一级：手指靠近（0.2 轻震）' + (S.pinchSim ? ' · 模拟' : '');
+  toast('pinch 靠近：0.2 轻震（还没确认，可以退出）');
+  panelDirty = true;
+  hudRefresh();
+  return true;
+}
+function pinchConfirm(src){
+  if (S.pinchStage !== 'near'){
+    S.lastAction = 'pinch 确认被拒绝（没靠近就确认 = 误触）';
+    toast('没有靠近就想确认？被拒绝 —— 这就是防误触');
+    beep(220, 90, 'sawtooth', 0.05);
+    panelDirty = true;
+    return false;
+  }
+  S.pinchStage = 'confirm';
+  S.pinchSim = (src === 'sim');
+  S.pinchCount++;
+  S.pinchHold = 0.7;
+  S.pinchEvents.push({ t: Math.round(elapsed * 100) / 100, stage: 'confirm', sim: S.pinchSim });
+  if (S.pinchEvents.length > 40) S.pinchEvents.shift();
+  pulse(realHapticSrc(), LEVELS.grab.intensity, LEVELS.grab.ms);
+  beep(1046, 80, 'sine', 0.06);
+  setHandColor(HAND_COLORS.confirm);
+  if (pinchOrb) pinchOrb.material.color.set(0x39d98a);
+  S.lastAction = 'pinch 确认（0.5 震）' + (S.pinchSim ? ' · P 键模拟 sim' : '');
+  toast('pinch = 确认（0.5 震）' + (S.pinchSim ? ' · 模拟数据 sim:true' : ''));
+  panelDirty = true;
+  hudRefresh();
+  return true;
+}
+function resetPinch(){
+  S.pinchStage = 'idle';
+  S.pinchSim = false;
+  S.pinchHold = 0;
+  setHandColor(HAND_COLORS.idle);
+  if (pinchOrb) pinchOrb.material.color.set(0x66d9ff);
+  panelDirty = true;
+  hudRefresh();
+}
+
+/* ---------- 两只虚拟手 + 捏合球 ---------- */
+var HAND_COLORS = { idle: 0x7fb0ff, near: 0xffd166, confirm: 0x39d98a };
+function mkHandMesh(){
+  var g = new THREE.Group();
+  var mat = new THREE.MeshBasicMaterial({ color: HAND_COLORS.idle });
+  var palm = new THREE.Mesh(new THREE.BoxGeometry(0.11, 0.045, 0.15), mat);
+  palm.position.x = -0.03;
+  g.add(palm);
+  var idx = new THREE.Mesh(new THREE.BoxGeometry(0.10, 0.032, 0.032), mat);
+  idx.position.set(0.075, 0.010, -0.045);
+  g.add(idx);
+  var thumb = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.032, 0.032), mat);
+  thumb.position.set(0.060, 0.010, 0.055);
+  g.add(thumb);
+  var tip = new THREE.Mesh(new THREE.BoxGeometry(0.028, 0.04, 0.04), mat);
+  tip.position.set(0.135, 0.010, -0.045);
+  g.add(tip);
+  g.userData.mat = mat;
+  return g;
+}
+function setHandColor(hex){
+  if (handL && handL.userData.mat) handL.userData.mat.color.set(hex);
+  if (handR && handR.userData.mat) handR.userData.mat.color.set(hex);
+}
+function buildHands(){
+  handL = mkHandMesh();
+  handL.position.set(-0.19, 0.90, -1.05);
+  scene.add(handL);
+  handR = mkHandMesh();
+  handR.position.set(0.19, 0.90, -1.05);
+  handR.rotation.y = Math.PI;          // 右手手指朝 -x
+  scene.add(handR);
+  pinchOrb = new THREE.Mesh(new THREE.SphereGeometry(0.05, 16, 12),
+    new THREE.MeshBasicMaterial({ color: 0x66d9ff }));
+  pinchOrb.position.set(0, 0.955, -1.05);
+  scene.add(pinchOrb);
+}
+function updateHands(dt){
+  if (!handL || !handR) return;
+  var stage = S.pinchStage;
+  var gap = stage === 'confirm' ? 0.17 : (stage === 'near' ? 0.24 : 0.30);
+  handL.position.x = -gap;
+  handR.position.x = gap;
+  if (pinchOrb){
+    var s = stage === 'confirm' ? 1.35 : (stage === 'near' ? 1.15 : 1.0);
+    pinchOrb.scale.setScalar(s + Math.sin(elapsed * 3) * 0.03);
+    pinchOrb.rotation.y += dt * 0.8;
+  }
+  /* pinch 状态保持到再按一次 P（不自动复位，方便课堂上回看状态） */
+  S.pinchHold = 0;
+}
+
+/* ---------- 演示对象 ---------- */
+var DEMO = {
+  buildWorld: function(){
+    buildHands();
+    camera.rotation.x = -0.16;
+  },
+  buildUI: function(){
+    var p = mkPanel(1.35, 1.0, 1024, 760);
+    p.position.set(0, 1.36, -1.5);
+    scene.add(p);
+    uiButton('ui', '悬停 0.2', 24, 414, 232, 74);
+    uiButton('grab', '抓取 0.5', 272, 414, 232, 74);
+    uiButton('hit', '命中 0.8', 520, 414, 232, 74);
+    uiButton('err', '错误 1.0（长）', 768, 414, 232, 74);
+    uiButton('pinch', '模拟 Pinch (P)', 24, 500, 300, 74);
+    uiButton('clear', '清空日志 (C)', 340, 500, 300, 74);
+  },
+  drawUI: function(ctx, W, H){
+    ctx.fillStyle = '#141c2e'; ctx.fillRect(0, 0, W, H);
+    ctx.strokeStyle = '#3a4a6c'; ctx.lineWidth = 4; ctx.strokeRect(2, 2, W - 4, H - 4);
+    ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+    ctx.fillStyle = '#9fd0ff';
+    ctx.font = 'bold 36px "Microsoft YaHei", sans-serif';
+    ctx.fillText('触觉语义分级 × 手部追踪 pinch', 24, 14);
+    ctx.font = '23px "Microsoft YaHei", sans-serif';
+    ctx.fillStyle = '#d5e3f8';
+    ctx.fillText('UI 0.2 / 抓取 0.5 / 命中 0.8 / 错误 1.0（长）—— 同一强度用到底就变成噪音', 24, 58);
+    /* 最近 5 次 pulse */
+    ctx.fillStyle = '#9fd0ff';
+    ctx.font = '22px "Microsoft YaHei", sans-serif';
+    ctx.fillText('最近 5 次 pulse（强度 / 时长 / 真机是否支持）', 24, 100);
+    var last = S.pulses.slice(-5);
+    ctx.font = '22px "Microsoft YaHei", sans-serif';
+    if (!last.length){
+      ctx.fillStyle = '#5b6b86';
+      ctx.fillText('（还没有记录 —— 点上面的按钮，或按键盘 1—4）', 24, 132);
+    }
+    for (var i = 0; i < last.length; i++){
+      var r = last[i];
+      ctx.fillStyle = (r.intensity >= 1.0) ? '#ff8a8a' : (r.intensity >= 0.8 ? '#ffd166' : (r.intensity >= 0.5 ? '#9fd0ff' : '#7fe0a0'));
+      ctx.fillText((i + 1) + '. ' + r.name + ' · 强度 ' + fmt(r.intensity, 1) + ' · ' + r.ms +
+        ' ms · 真机:' + (r.real ? '是' : '否（PC 只记日志）'), 40, 132 + i * 30);
+    }
+    /* pinch 时间线（单独一行） */
+    ctx.fillStyle = '#9fd0ff';
+    ctx.font = '22px "Microsoft YaHei", sans-serif';
+    ctx.fillText('pinch 时间线（最近 10 s：蓝=靠近 0.2 / 绿=确认 0.5）', 24, 296);
+    var tx = 40, ty = 328, tw = W - 80, th = 28;
+    ctx.fillStyle = '#0f1728'; ctx.fillRect(tx, ty, tw, th);
+    ctx.strokeStyle = '#2b3854'; ctx.lineWidth = 2; ctx.strokeRect(tx, ty, tw, th);
+    var t0 = Math.max(0, elapsed - TIMELINE_SPAN);
+    for (var k = 0; k < S.pinchEvents.length; k++){
+      var ev = S.pinchEvents[k];
+      if (ev.t < t0 || ev.t > elapsed) continue;
+      var ex = tx + ((ev.t - t0) / TIMELINE_SPAN) * tw;
+      ctx.fillStyle = (ev.stage === 'confirm') ? '#39d98a' : '#7fc4ff';
+      ctx.fillRect(ex - 2, ty + 3, 5, th - 6);
+    }
+    ctx.fillStyle = '#8fa2c2';
+    ctx.font = '17px "Microsoft YaHei", sans-serif';
+    ctx.fillText('-10 s', tx + 6, ty + 6);
+    ctx.textAlign = 'right';
+    ctx.fillText('now', tx + tw - 8, ty + 6);
+    ctx.textAlign = 'left';
+    /* pinch 状态（单独一行，与时间线隔开） */
+    ctx.fillStyle = (S.pinchStage === 'confirm') ? '#39d98a' : (S.pinchStage === 'near' ? '#ffd166' : '#8fa2c2');
+    ctx.font = 'bold 25px "Microsoft YaHei", sans-serif';
+    ctx.fillText('pinch 状态：' + pinchStageLabel() + ' · 已确认 ' + S.pinchCount + ' 次' +
+      (S.pinchSim ? ' · 本次为模拟（sim:true）' : ''), 24, 372);
+    /* 底部说明：三行，互不重叠 */
+    ctx.fillStyle = '#8fa2c2';
+    ctx.font = '21px "Microsoft YaHei", sans-serif';
+    ctx.fillText('手部追踪：' + handSupportLabel(), 24, 596);
+    ctx.fillStyle = '#ffc857';
+    ctx.font = '21px "Microsoft YaHei", sans-serif';
+    ctx.fillText('诚实标注：hapticActuators 与手部追踪【未在真机验证，课前需实测 5 分钟】。', 24, 626);
+    ctx.fillStyle = '#5b6b86';
+    ctx.font = '20px "Microsoft YaHei", sans-serif';
+    ctx.fillText('PC 只能记日志（没有手柄就没有震动）；pinch 用 P 键分两级模拟。R 重置 · 1—4 · P · C', 24, 656);
+  },
+  onPick: function(id, src){
+    if (id === 'ui' || id === 'grab' || id === 'hit' || id === 'err') semanticPulse(id);
+    else if (id === 'pinch'){
+      if (S.pinchStage === 'confirm') resetPinch();
+      else if (S.pinchStage === 'near') pinchConfirm('sim');
+      else pinchNear('sim');
+    } else if (id === 'clear'){
+      S.pulses.length = 0;
+      S.pinchEvents.length = 0;
+      S.lastAction = '日志已清空';
+      panelDirty = true;
+    }
+  },
+  onKey: function(code){
+    if (code === 'Digit1') semanticPulse('ui');
+    else if (code === 'Digit2') semanticPulse('grab');
+    else if (code === 'Digit3') semanticPulse('hit');
+    else if (code === 'Digit4') semanticPulse('err');
+    else if (code === 'KeyP'){
+      if (S.pinchStage === 'confirm') resetPinch();
+      else if (S.pinchStage === 'near') pinchConfirm('sim');
+      else pinchNear('sim');
+    } else if (code === 'KeyC'){
+      S.pulses.length = 0;
+      S.pinchEvents.length = 0;
+      S.lastAction = '日志已清空';
+      panelDirty = true;
+    }
+  },
+  update: function(dt){
+    S._frames = (S._frames || 0) + 1;
+    if (S._frames === 4) updateStats();
+    /* 手部追踪真机通路：读到关节才用，读不到就完全不影响 P 键模拟 */
+    if (renderer.xr.isPresenting){
+      try {
+        var hs = handSupport();
+        if (hs.joints > 0){
+          var hand = renderer.xr.getHand(0);
+          var tTip = hand.joints['thumb-tip'], iTip = hand.joints['index-finger-tip'];
+          if (tTip && iTip){
+            var d = tTip.position.distanceTo(iTip.position);
+            if (d < 0.022 && S.pinchStage === 'near') pinchConfirm('real');
+            else if (d < 0.045 && S.pinchStage === 'idle') pinchNear('real');
+            else if (d > 0.08 && S.pinchStage !== 'idle') resetPinch();
+          }
+        }
+      } catch (e) { /* 真机前无法验证：读不到关节就静默走 P 模拟 */ }
+    }
+    updateHands(dt);
+  },
+  reset: function(){
+    S.pulses.length = 0;
+    S.pinchEvents.length = 0;
+    S.pinchStage = 'idle';
+    S.pinchCount = 0;
+    S.pinchSim = false;
+    S.pinchHold = 0;
+    S.lastAction = '—'; S.lastPick = '—'; S.picks = 0;
+    hapticLog.length = 0; sfxLog.length = 0;
+    if (handL) setHandColor(HAND_COLORS.idle);
+    if (pinchOrb) pinchOrb.material.color.set(0x66d9ff);
+    if (camera) camera.rotation.set(-0.16, 0, 0);
+    panelDirty = true;
+  },
+  selfTest: function(){
+    var pass = [], fail = [], T = function(ok, name){ (ok ? pass : fail).push(name); };
+    DEMO.reset();
+    /* ①②③④ 四档语义强度与时长 */
+    var a = semanticPulse('ui'), b = semanticPulse('grab');
+    var c = semanticPulse('hit'), d = semanticPulse('err');
+    T(!!a && Math.abs(a.intensity - 0.2) < 1e-9 && a.ms === 30,
+      '「悬停」= 0.2 强度 / 30 ms');
+    T(!!b && Math.abs(b.intensity - 0.5) < 1e-9 && b.ms === 60,
+      '「抓取」= 0.5 强度 / 60 ms');
+    T(!!c && Math.abs(c.intensity - 0.8) < 1e-9 && c.ms === 90,
+      '「命中」= 0.8 强度 / 90 ms');
+    T(!!d && Math.abs(d.intensity - 1.0) < 1e-9 && d.ms === 200,
+      '「错误」= 1.0 强度 / 200 ms（长）');
+    /* ⑤ 四档互不相同（分级的意义） */
+    var set = [a.intensity, b.intensity, c.intensity, d.intensity].join(',');
+    T(set === '0.2,0.5,0.8,1', '四档强度彼此不同（' + set + '），不是「一个强度用到底」');
+    /* ⑥ hapticLog 里确实有对应强度（PC 无真机 → real=false） */
+    var has = {};
+    for (var i = 0; i < hapticLog.length; i++) has[fmt(hapticLog[i].intensity, 1)] = true;
+    T(has['0.2'] && has['0.5'] && has['0.8'] && has['1.0'],
+      'pulse 真的写进触觉日志（0.2 / 0.5 / 0.8 / 1.0 都在）');
+    /* ⑦ 未靠近时 pinch 确认被拒绝（防误触） */
+    DEMO.reset();
+    var rej = pinchConfirm('sim');
+    T(rej === false && S.pinchCount === 0 && S.pinchStage === 'idle',
+      '未靠近时 pinch 确认被拒绝（防误触），确认计数仍为 0');
+    /* ⑧ P 模拟 pinch 两级：靠近 0.2 → 确认 0.5 */
+    var nearOk = pinchNear('sim');
+    var stageNear = (S.pinchStage === 'near');
+    var confOk = pinchConfirm('sim');
+    T(nearOk && stageNear && confOk && S.pinchStage === 'confirm' && S.pinchCount === 1,
+      'P 模拟 pinch 两级状态机：idle → near(0.2) → confirm(0.5)，计数 +1');
+    /* ⑨ pinch 记录带 sim:true（没真机时不冒充实测） */
+    var lastEv = S.pinchEvents[S.pinchEvents.length - 1];
+    T(!!lastEv && lastEv.stage === 'confirm' && lastEv.sim === true && S.pinchSim === true,
+      'pinch 记录带 sim:true（无真机时不冒充实测数据）');
+    /* ⑩ 时间线追加 */
+    T(S.pinchEvents.length >= 2, 'pinch 时间线追加了靠近 + 确认两条（' + S.pinchEvents.length + ' 条）');
+    /* ⑪ 手部追踪只「检测 API」，如实标未验证 */
+    var hs = handSupport();
+    T(hs && typeof hs.api === 'boolean' && typeof hs.joints === 'number' && hs.verified === false,
+      'handSupport() 只报告 getHand API 与关节数，verified=false（未在真机验证）');
+    /* ⑫ reset 清日志/事件/计数 */
+    DEMO.reset();
+    T(S.pulses.length === 0 && S.pinchEvents.length === 0 && S.pinchCount === 0 &&
+      S.pinchStage === 'idle' && hapticLog.length === 0,
+      'reset 清空 pulse 日志 / pinch 时间线 / 计数 / 状态');
+    return { pass: pass, fail: fail };
+  }
+};
+/* ======================= 4. 启动（不要改） ======================= */
+function boot(){
+  renderer = new THREE.WebGLRenderer({ canvas: $('c'), antialias: true, alpha: false });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  renderer.setSize(innerWidth, innerHeight);
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.xr.enabled = true;
+  renderer.xr.setReferenceSpaceType('local-floor');
+
+  scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x0e1220);
+  camera = new THREE.PerspectiveCamera(70, innerWidth / innerHeight, 0.05, 60);
+  camera.position.set(0, 1.6, 0);
+  player = new THREE.Group();
+  player.add(camera);
+  scene.add(player);
+  clock = new THREE.Clock();
+
+  buildBase();
+  DEMO.buildWorld();
+  DEMO.buildUI();
+  setupVR();
+  setupPC();
+
+  document.title = CFG.id.toUpperCase() + ' · ' + CFG.title;
+  $('hudTitle').textContent = CFG.title;
+  $('hudTag').textContent = CFG.subtitle;
+  $('loadTitle').textContent = CFG.title;
+  $('hudPC').innerHTML = '<b>PC 操作</b><br>' + CFG.pcKeys;
+  $('hudVR').innerHTML = '<b>头显操作</b><br>' + CFG.vrKeys;
+  $('hudTeach').innerHTML = '<b>课堂要点</b><br>' + CFG.teach;
+  redrawPanel();
+
+  window.LAB = {
+    S: S, scene: scene, camera: camera, renderer: renderer, player: player, cfg: CFG,
+    ui: { panel: function(){ return panel; }, buttons: function(){ return panelBtns; },
+          hover: function(){ return hoverId; } },
+    api: {
+      /* —— 本演示追加的 API（规范 §一.6 允许追加，已有接口名不改） —— */
+      pulse: function(id){ return semanticPulse(id); },
+      pinchNear: function(sim){ return pinchNear(sim === false ? 'real' : 'sim'); },
+      pinchConfirm: function(sim){ return pinchConfirm(sim === false ? 'real' : 'sim'); },
+      pinchReset: function(){ resetPinch(); return S.pinchStage; },
+      pinchState: function(){ return { stage: S.pinchStage, count: S.pinchCount, sim: S.pinchSim }; },
+      pulses: function(){ return S.pulses.slice(); },
+      timeline: function(){ return S.pinchEvents.slice(); },
+      handSupport: function(){ return handSupport(); },
+      levels: function(){ return LEVELS; },
+      fire: fireButton,
+      reset: DEMO.reset,
+      getState: function(){ return JSON.parse(JSON.stringify(S)); },
+      setState: function(k, v){ S[k] = v; panelDirty = true; },
+      haptics: function(){ return hapticLog.slice(); },
+      sfx: function(){ return sfxLog.slice(); },
+      selfTest: function(){
+        var r = DEMO.selfTest();
+        console.log('SELFTEST PASS ' + r.pass.length + ' / FAIL ' + r.fail.length);
+        if (r.fail.length) console.log('SELFTEST FAILED: ' + r.fail.join(' | '));
+        return r;
+      }
+    }
+  };
+
+  var loader = $('loader');
+  $('loadMsg').textContent = '就绪 · ' + CFG.part;
+  setTimeout(function(){ loader.style.opacity = '0'; setTimeout(function(){ loader.remove(); }, 520); }, 180);
+
+  onResize();
+  renderer.setAnimationLoop(animate);
+}
+try { boot(); }
+catch (e) {
+  console.error('启动失败', e);
+  var lm = document.getElementById('loadMsg');
+  if (lm) lm.textContent = '启动失败：' + e.message;
+}
+})();
+</script>
+</body>
+</html>

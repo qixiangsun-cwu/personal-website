@@ -1,0 +1,1258 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>LAB05 · 远距离拉取：重力手套三段式</title>
+<style>
+  html,body{margin:0;padding:0;overflow:hidden;background:#0e1220;color:#e8eefc;
+    font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif;}
+  #c{position:fixed;inset:0;display:block;}
+  #hud{position:fixed;left:14px;top:14px;z-index:20;width:288px;padding:12px 14px;
+    background:rgba(15,20,34,.9);border:1px solid #2b3854;border-radius:10px;
+    font-size:12px;line-height:1.65;box-shadow:0 8px 26px rgba(0,0,0,.4);}
+  #hud h2{margin:0 0 4px;font-size:15px;color:#7fc4ff;letter-spacing:.5px;}
+  #hud .tagline{color:#93a4c2;font-size:11px;margin-bottom:6px;}
+  #hud .sec{border-top:1px solid #253149;margin-top:8px;padding-top:7px;}
+  #hud b{color:#9fd0ff;font-weight:600;}
+  #hud .k{display:inline-block;background:#1b2540;border:1px solid #31405f;border-radius:4px;
+    padding:0 5px;margin:1px 2px;color:#cfe2ff;font-size:11px;}
+  #hud .warnline{color:#ffc857;}
+  #stats{color:#5fd08a;font-size:11px;white-space:pre-line;}
+  #enterVR{position:fixed;right:18px;top:18px;z-index:20;display:none;cursor:pointer;
+    background:linear-gradient(135deg,#2f7de1,#1b4fa8);color:#fff;border:none;border-radius:24px;
+    padding:11px 22px;font-size:15px;letter-spacing:2px;box-shadow:0 4px 16px rgba(47,125,225,.4);}
+  #enterVR:disabled{background:#4a5468;cursor:not-allowed;box-shadow:none;}
+  #vrhint{position:fixed;right:18px;top:72px;z-index:20;max-width:236px;display:none;
+    background:rgba(15,20,34,.88);border:1px solid #2b3854;border-radius:8px;padding:7px 9px;
+    color:#b9c8e2;font-size:11px;line-height:1.6;text-align:right;}
+  #toast{position:fixed;left:50%;bottom:58px;transform:translateX(-50%);z-index:25;
+    background:rgba(21,28,46,.95);border:1px solid #3a4a6c;border-radius:10px;padding:10px 18px;
+    font-size:14px;color:#d9e6ff;opacity:0;transition:opacity .25s;pointer-events:none;white-space:nowrap;}
+  #toast.show{opacity:1;}
+  #loader{position:fixed;inset:0;z-index:50;background:#0e1220;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;gap:6px;transition:opacity .5s;}
+  #loader h1{font-size:26px;letter-spacing:4px;color:#7fc4ff;margin:0;font-weight:600;}
+  #loader p{font-size:13px;color:#8fa2c2;margin:0;}
+  body.XR #hud,body.XR #enterVR,body.XR #vrhint{display:none!important;}
+  body.XR #toast{bottom:auto;top:24px;}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="hud">
+  <h2 id="hudTitle">LAB</h2>
+  <div class="tagline" id="hudTag"></div>
+  <div class="sec" id="hudPC"></div>
+  <div class="sec" id="hudVR"></div>
+  <div class="sec" id="hudTeach"></div>
+  <div class="sec"><span id="stats">初始化…</span></div>
+</div>
+<div id="toast"></div>
+<button id="enterVR">进入 VR</button>
+<div id="vrhint"></div>
+<div id="loader">
+  <h1 id="loadTitle">LAB</h1>
+  <p id="loadMsg">正在初始化…</p>
+</div>
+
+<script src="./three.min.js"></script>
+<script>
+/* =========================================================================
+ * 第 7 次课 · WebXR 交互零件演示脚手架（模板）
+ * 用法：复制本文件 → 改 CFG → 在 DEMO 区实现 buildWorld / buildUI / update / onPick /
+ *       selfTest / reset。基础设施区（0—4 段）不要改。
+ * 约定（验证工具依赖，务必保留）：
+ *   1. 外部库用「点斜杠」相对路径引入 three.min.js（与页面同目录）
+ *   2. 必须存在行 `  renderer.setAnimationLoop(animate);`
+ *   3. animate() 内必须调用 renderer.render(scene, camera)
+ *   4. renderer.xr.setReferenceSpaceType('local-floor') 在会话创建前调用
+ *   5. 暴露 window.LAB = {S, scene, camera, renderer, player, api}
+ * ========================================================================= */
+(function(){
+'use strict';
+
+/* ======================= 0. 演示配置（每个演示改这一段） ======================= */
+var CFG = {
+  id: 'lab05',
+  title: '远距离拉取：重力手套三段式',
+  subtitle: '模块 B1 · 选中 → 确认 → 弧线 → ±0.25s 甩腕',
+  part: '组 B2 · 远距离交互',
+  aimMode: 'mouse',
+  pcKeys: '拖拽=环视 · 左键=点物体/面板 · 空格=甩腕 · 1—5=选中物体 · 回车=确认 · M=切模式 · R=重置',
+  vrKeys: '扳机=射线选中/再按确认 · 快速甩动手柄（>1.2 m/s）后按握持键=甩腕 · 摇杆左右=转 45°',
+  teach: 'Alyx 的重力手套是三段式：选中 → 确认 → 沿弧线飞行 → 在到达前 ±0.25 s 内甩腕才算接住。「方便的功能」和「好玩的技巧」就差这一个时机窗口；简化版直接用直线吸附，省掉手感也省掉了风险。',
+  hudLines: function(){
+    var lines = [
+      '模式：' + (S.mode === 'three' ? '三段版' : '简化版') + ' · 阶段：' + stageName(),
+      '窗口：' + winText() + ' · 弧线中点偏移 ' + fmt(midOffset(), 2) + ' m',
+      '接住 ' + S.caught + ' · 错过 ' + S.missed + ' · 自动吸附 ' + S.autoAttach
+    ];
+    return lines;
+  }
+};
+
+/* ======================= 1. 基础设施（不要改） ======================= */
+var renderer, scene, camera, player, clock, audioCtx = null;
+var raycaster = new THREE.Raycaster();
+var aimNdc = new THREE.Vector2(0, 0);
+var tmpV = new THREE.Vector3(), tmpV2 = new THREE.Vector3();
+var panel = null, panelCanvas = null, panelCtx = null, panelTex = null;
+var panelBtns = [], hoverId = null, panelDirty = true;
+var uiHits = [], pickables = [];        // pickables: {mesh, id, onPick}
+var hapticLog = [], sfxLog = [];
+var keys = {}, dragging = false, lastMouse = {x:0,y:0}, dragDist = 0;
+var vrCtrls = [], vrRays = [], xrSession = null;
+var elapsed = 0, frames = 0, fps = 60, fpsT = 0;
+
+/* -------- 1.1 状态：演示自己的状态全部挂在这里 -------- */
+var S = {
+  /* 模板保留字段 */
+  a: 0, b: 0,
+  lastAction: '—', lastPick: '—', picks: 0,
+  /* 本演示状态 */
+  mode: 'three',        // 'three' 三段版 | 'simple' 简化版
+  stage: 'idle',        // idle | selected | flying | caught | missed
+  sel: -1,
+  flyT: 0, flight: null, acc: 0, auto: false, freeze: false,
+  lastMid: 0,
+  caught: 0, missed: 0, autoAttach: 0,
+  lastFeedback: '—'
+};
+
+/* -------- 1.2 小工具 -------- */
+function clamp(v, a, b){ return v < a ? a : (v > b ? b : v); }
+function fmt(v, n){ return (isFinite(v) ? v.toFixed(n == null ? 2 : n) : '—'); }
+function $(id){ return document.getElementById(id); }
+function toast(msg, ms){
+  var t = $('toast');
+  if (!t) return;
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(toast._t);
+  toast._t = setTimeout(function(){ t.classList.remove('show'); }, ms || 1600);
+}
+function initAudio(){
+  if (audioCtx) return audioCtx;
+  try {
+    var AC = window.AudioContext || window.webkitAudioContext;
+    if (AC) audioCtx = new AC();
+  } catch (e) { console.warn('AudioContext 不可用', e); }
+  return audioCtx;
+}
+function resumeAudio(){
+  var c = initAudio();
+  if (c && c.state === 'suspended') c.resume().catch(function(){});
+}
+/* 合成音：freq 频率 Hz，dur 毫秒，type 波形，gain 音量 */
+function beep(freq, dur, type, gain){
+  var c = initAudio();
+  if (!c || S.mute) { sfxLog.push({t: elapsed, freq: freq, skipped: !c}); return; }
+  try {
+    if (c.state === 'suspended') c.resume().catch(function(){});
+    var o = c.createOscillator(), g = c.createGain();
+    o.type = type || 'sine';
+    o.frequency.value = freq;
+    g.gain.value = (gain == null ? 0.05 : gain);
+    o.connect(g); g.connect(c.destination);
+    var now = c.currentTime, d = (dur || 60) / 1000;
+    g.gain.setValueAtTime(g.gain.value, now);
+    g.gain.exponentialRampToValueAtTime(0.0001, now + d);
+    o.start(now); o.stop(now + d + 0.01);
+    sfxLog.push({t: elapsed, freq: freq, dur: dur || 60});
+  } catch (e) { console.warn('beep 失败', e); }
+}
+/* 触觉：inputSource 可为 null（PC 模拟时只记日志） */
+function pulse(src, intensity, ms){
+  hapticLog.push({t: elapsed, intensity: intensity, ms: ms, real: !!(src && src.gamepad &&
+    src.gamepad.hapticActuators && src.gamepad.hapticActuators[0])});
+  try {
+    var acts = src && src.gamepad && src.gamepad.hapticActuators;
+    if (acts && acts[0] && acts[0].pulse) acts[0].pulse(intensity, ms);
+    else if (src && src.gamepad && src.gamepad.hapticActuators && src.gamepad.hapticActuators[0] &&
+             src.gamepad.hapticActuators[0].pulse) src.gamepad.hapticActuators[0].pulse(intensity, ms);
+  } catch (e) { console.warn('触觉不可用', e); }
+}
+
+/* -------- 1.3 3D 面板（CanvasTexture + UV 命中） -------- */
+/* mkPanel(width_m, height_m, pxW, pxH) 返回 mesh；全局 panel 指向它 */
+function mkPanel(wM, hM, pxW, pxH){
+  panelCanvas = document.createElement('canvas');
+  panelCanvas.width = pxW; panelCanvas.height = pxH;
+  panelCtx = panelCanvas.getContext('2d');
+  panelTex = new THREE.CanvasTexture(panelCanvas);
+  panelTex.minFilter = THREE.LinearFilter;
+  var mat = new THREE.MeshBasicMaterial({ map: panelTex, transparent: true });
+  panel = new THREE.Mesh(new THREE.PlaneGeometry(wM, hM), mat);
+  panel.name = 'uiPanel';
+  panelBtns = [];
+  return panel;
+}
+/* 注册按钮：px 坐标以面板 canvas 像素为准（左上角原点） */
+function uiButton(id, label, px, py, pw, ph, enabled){
+  panelBtns.push({ id: id, label: label, x: px, y: py, w: pw, h: ph, enabled: enabled !== false });
+}
+/* 面板绘制：DEMO.drawUI(ctx, W, H) 负责画背景与文字，按钮由 drawButtons 统一画 */
+function drawButtons(ctx, W, H){
+  for (var i = 0; i < panelBtns.length; i++) {
+    var b = panelBtns[i], on = (hoverId === b.id);
+    ctx.fillStyle = !b.enabled ? '#2a3346' : (on ? '#3f8ae0' : '#24314c');
+    ctx.strokeStyle = on ? '#9fd0ff' : '#3a4a6c';
+    ctx.lineWidth = on ? 3 : 2;
+    roundRect(ctx, b.x, b.y, b.w, b.h, 10);
+    ctx.fill(); ctx.stroke();
+    ctx.fillStyle = !b.enabled ? '#6b7688' : (on ? '#ffffff' : '#d5e3f8');
+    ctx.font = 'bold 26px "Microsoft YaHei", sans-serif';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(b.label, b.x + b.w / 2, b.y + b.h / 2);
+  }
+}
+function roundRect(ctx, x, y, w, h, r){
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r);
+  ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r);
+  ctx.arcTo(x, y, x + w, y, r);
+  ctx.closePath();
+}
+function redrawPanel(){
+  if (!panelCtx) return;
+  var W = panelCanvas.width, H = panelCanvas.height;
+  panelCtx.clearRect(0, 0, W, H);
+  DEMO.drawUI(panelCtx, W, H);
+  drawButtons(panelCtx, W, H);
+  panelTex.needsUpdate = true;
+  panelDirty = false;
+}
+/* UV → 按钮 id */
+function uiHitUV(uv){
+  if (!uv) return null;
+  var px = uv.x * panelCanvas.width, py = (1 - uv.y) * panelCanvas.height;
+  for (var i = 0; i < panelBtns.length; i++) {
+    var b = panelBtns[i];
+    if (px >= b.x && px <= b.x + b.w && py >= b.y && py <= b.y + b.h) return b;
+  }
+  return null;
+}
+
+/* -------- 1.4 拾取（PC / VR 共用） -------- */
+/* 返回 {hit, id, point, distance, uv, object} */
+function castFrom(origin, dir, objs){
+  raycaster.set(origin, dir.clone().normalize());
+  raycaster.far = 30;
+  var hits = raycaster.intersectObjects(objs, true);
+  return hits && hits.length ? hits[0] : null;
+}
+function pickPanel(origin, dir, src){
+  var h = castFrom(origin, dir, [panel]);
+  if (!h) return null;
+  var b = uiHitUV(h.uv);
+  return { button: b, point: h.point, distance: h.distance, source: src };
+}
+function pickWorld(origin, dir, src){
+  var list = pickables.map(function(p){ return p.mesh; });
+  var h = castFrom(origin, dir, list);
+  if (!h) return null;
+  var obj = h.object, owner = null;
+  while (obj && !owner) {
+    for (var i = 0; i < pickables.length; i++) if (pickables[i].mesh === obj) owner = pickables[i];
+    obj = obj.parent;
+  }
+  return owner ? { item: owner, point: h.point, distance: h.distance, source: src } : null;
+}
+function registerPick(mesh, id, onPick){
+  pickables.push({ mesh: mesh, id: id, onPick: onPick || function(){} });
+  return mesh;
+}
+
+/* -------- 1.5 PC 输入 -------- */
+function setupPC(){
+  var cvs = renderer.domElement;
+  cvs.addEventListener('pointerdown', function(e){
+    resumeAudio();
+    dragging = true; dragDist = 0; lastMouse.x = e.clientX; lastMouse.y = e.clientY;
+    cvs.setPointerCapture && cvs.setPointerCapture(e.pointerId);
+  });
+  cvs.addEventListener('pointermove', function(e){
+    var dx = e.clientX - lastMouse.x, dy = e.clientY - lastMouse.y;
+    lastMouse.x = e.clientX; lastMouse.y = e.clientY;
+    if (dragging) {
+      dragDist += Math.abs(dx) + Math.abs(dy);
+      player.rotation.y -= dx * 0.0032;
+      camera.rotation.x = clamp(camera.rotation.x - dy * 0.0032, -1.15, 1.0);
+    } else {
+      updateMouseAim(e);
+    }
+  });
+  cvs.addEventListener('pointerup', function(e){
+    if (dragging && dragDist < 6) { resumeAudio(); doClick(e); }
+    dragging = false;
+  });
+  cvs.addEventListener('pointercancel', function(){ dragging = false; });
+  window.addEventListener('keydown', function(e){
+    keys[e.code] = true;
+    if (e.code === 'KeyR') { DEMO.reset(); toast('已重置'); }
+    else if (e.code === 'KeyT' && DEMO.onKey) DEMO.onKey('KeyT');
+    else if (DEMO.onKey) DEMO.onKey(e.code);
+  });
+  window.addEventListener('keyup', function(e){ keys[e.code] = false; });
+  window.addEventListener('resize', onResize);
+}
+function updateMouseAim(e){
+  var r = renderer.domElement.getBoundingClientRect();
+  aimNdc.x = ((e.clientX - r.left) / r.width) * 2 - 1;
+  aimNdc.y = -((e.clientY - r.top) / r.height) * 2 + 1;
+}
+function pcRay(){
+  camera.getWorldPosition(tmpV);
+  var dir = new THREE.Vector3();
+  if (CFG.aimMode === 'center') {
+    camera.getWorldDirection(dir);
+  } else {
+    dir.set(aimNdc.x, aimNdc.y, 0.5).unproject(camera).sub(tmpV).normalize();
+  }
+  return { origin: tmpV.clone(), dir: dir };
+}
+function doClick(e){
+  var r = pcRay();
+  var p = pickPanel(r.origin, r.dir, 'pc');
+  if (p && p.button) { fireButton(p.button.id, 'pc'); return; }
+  var w = pickWorld(r.origin, r.dir, 'pc');
+  if (w) { w.item.onPick(w); return; }
+  DEMO.onEmptyClick && DEMO.onEmptyClick(r);
+}
+function fireButton(id, src){
+  for (var i = 0; i < panelBtns.length; i++) {
+    if (panelBtns[i].id === id) {
+      if (!panelBtns[i].enabled) return false;
+      S.lastPick = id; S.picks++;
+      pulse(null, 0.5, 60); beep(1046, 55, 'square', 0.05);
+      DEMO.onPick(id, src);
+      panelDirty = true;
+      return true;
+    }
+  }
+  return false;
+}
+
+/* -------- 1.6 VR 输入 -------- */
+function setupVR(){
+  for (var i = 0; i < 2; i++) {
+    (function(idx){
+      var ctrl = renderer.xr.getController(idx);
+      ctrl.addEventListener('connected', function(e){ ctrl.userData.inputSource = e.data; });
+      ctrl.addEventListener('selectstart', function(){
+        resumeAudio();
+        var src = ctrl.userData.inputSource;
+        var ray = ctrlRay(ctrl);
+        var p = pickPanel(ray.origin, ray.dir, 'vr');
+        if (p && p.button) { fireButton(p.button.id, 'vr'); return; }
+        var w = pickWorld(ray.origin, ray.dir, 'vr');
+        if (w) { w.item.onPick(w); return; }
+        DEMO.onEmptyClick && DEMO.onEmptyClick(ray, src);
+      });
+      ctrl.addEventListener('squeezestart', function(){
+        var src = ctrl.userData.inputSource;
+        DEMO.onSqueeze && DEMO.onSqueeze(ctrlRay(ctrl), src);
+      });
+      ctrl.addEventListener('squeezeend', function(){
+        var src = ctrl.userData.inputSource;
+        DEMO.onSqueezeEnd && DEMO.onSqueezeEnd(ctrl, src);
+      });
+      var ray = new THREE.Line(
+        new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0,0,0), new THREE.Vector3(0,0,-1)]),
+        new THREE.LineBasicMaterial({ color: 0x66aaff, transparent: true, opacity: 0.75 })
+      );
+      ray.scale.z = 6; ray.name = 'ctrlRay' + idx;
+      ctrl.add(ray);
+      scene.add(ctrl);
+      vrCtrls.push(ctrl); vrRays.push(ray);
+    })(i);
+  }
+  if (navigator.xr && navigator.xr.isSessionSupported) {
+    navigator.xr.isSessionSupported('immersive-vr').then(function(ok){
+      var btn = $('enterVR');
+      btn.style.display = 'block';
+      if (ok) {
+        btn.disabled = false;
+        btn.onclick = enterVR;
+        $('vrhint').style.display = 'block';
+        $('vrhint').innerHTML = '本机支持 immersive-vr。<br>戴上头显后点此进入，或直接用头显浏览器打开本页。';
+      } else {
+        btn.disabled = true; btn.textContent = '本机不支持沉浸式 VR';
+        $('vrhint').style.display = 'block';
+        $('vrhint').innerHTML = 'PC 可用鼠标键盘完成全部演示；<br>头显浏览器打开本页即可进入 VR。';
+      }
+    }).catch(function(e){
+      $('enterVR').style.display = 'block';
+      $('enterVR').disabled = true;
+      $('enterVR').textContent = 'WebXR 检测失败';
+      console.warn('isSessionSupported 失败', e);
+    });
+  } else {
+    $('enterVR').style.display = 'block';
+    $('enterVR').disabled = true;
+    $('enterVR').textContent = '非安全上下文或无 WebXR';
+  }
+}
+function ctrlRay(ctrl){
+  var origin = new THREE.Vector3(), dir = new THREE.Vector3();
+  ctrl.getWorldPosition(origin);
+  dir.set(0, 0, -1).transformDirection(ctrl.matrixWorld);
+  return { origin: origin, dir: dir };
+}
+function enterVR(){
+  resumeAudio();
+  navigator.xr.requestSession('immersive-vr', {
+    optionalFeatures: ['local-floor', 'bounded-floor', 'hand-tracking', 'layers']
+  }).then(function(session){
+    xrSession = session;
+    renderer.xr.setSession(session);
+    document.body.classList.add('XR');
+    session.addEventListener('end', function(){
+      xrSession = null;
+      document.body.classList.remove('XR');
+    });
+  }).catch(function(e){
+    console.warn('进入 VR 失败', e);
+    toast('进入 VR 失败：' + (e && e.message ? e.message : e));
+  });
+}
+
+/* -------- 1.7 主循环 -------- */
+function onResize(){
+  camera.aspect = innerWidth / innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+}
+function animate(){
+  var dt = Math.min(clock.getDelta(), 0.05);
+  elapsed += dt; frames++;
+  fpsT += dt;
+  if (fpsT >= 0.5) { fps = frames / fpsT; frames = 0; fpsT = 0; updateStats(); }
+
+  /* PC 行走 */
+  if (!renderer.xr.isPresenting) {
+    var sp = (keys.ShiftLeft || keys.ShiftRight) ? 3.2 : 1.7;
+    var fwd = new THREE.Vector3(-Math.sin(player.rotation.y), 0, -Math.cos(player.rotation.y));
+    var right = new THREE.Vector3(Math.cos(player.rotation.y), 0, -Math.sin(player.rotation.y));
+    var mv = new THREE.Vector3();
+    if (keys.KeyW || keys.ArrowUp) mv.add(fwd);
+    if (keys.KeyS || keys.ArrowDown) mv.sub(fwd);
+    if (keys.KeyD || keys.ArrowRight) mv.add(right);
+    if (keys.KeyA || keys.ArrowLeft) mv.sub(right);
+    if (mv.lengthSq() > 0) {
+      mv.normalize().multiplyScalar(sp * dt);
+      movePlayer(mv.x, mv.z);
+    }
+  }
+
+  /* VR 摇杆：左右转 45°（防误触冷却） */
+  if (renderer.xr.isPresenting) readVRStick(dt);
+
+  /* 悬停检测 */
+  updateHover();
+
+  DEMO.update(dt);
+  if (panelDirty) redrawPanel();
+
+  renderer.render(scene, camera);
+}
+function movePlayer(dx, dz){
+  player.position.x = clamp(player.position.x + dx, -4.4, 4.4);
+  player.position.z = clamp(player.position.z + dz, -4.4, 4.4);
+}
+var snapCd = 0;
+function readVRStick(dt){
+  snapCd = Math.max(0, snapCd - dt);
+  var src = xrSession && xrSession.inputSources;
+  if (!src) return;
+  for (var i = 0; i < src.length; i++) {
+    var gp = src[i].gamepad;
+    if (!gp || !gp.axes || gp.axes.length < 4) continue;
+    if (Math.abs(gp.axes[2]) > 0.75 && snapCd <= 0) {
+      player.rotation.y -= (gp.axes[2] > 0 ? -1 : 1) * Math.PI / 4;
+      snapCd = 0.38;
+    }
+  }
+}
+function updateHover(){
+  var r;
+  if (renderer.xr.isPresenting) {
+    if (!vrCtrls[0]) return;
+    r = ctrlRay(vrCtrls[0]);
+  } else {
+    r = pcRay();
+  }
+  var p = pickPanel(r.origin, r.dir, 'hover');
+  var id = p && p.button ? p.button.id : null;
+  if (id !== hoverId) {
+    hoverId = id;
+    panelDirty = true;
+    if (id) { pulse(null, 0.2, 30); beep(880, 35, 'sine', 0.035); }
+    DEMO.onHover && DEMO.onHover(id);
+  }
+  DEMO.onAim && DEMO.onAim(r, p);
+}
+function updateStats(){
+  if (!panel) return;
+  var st = 'FPS ' + fps.toFixed(0) + ' · DrawCalls ' + renderer.info.render.calls +
+           ' · Tris ' + renderer.info.render.triangles + '\n';
+  var lines = CFG.hudLines ? CFG.hudLines() : [];
+  for (var i = 0; i < lines.length; i++) st += lines[i] + '\n';
+  $('stats').textContent = st;
+}
+
+/* ======================= 2. 场景基础（可少量改） ======================= */
+function buildBase(){
+  scene.fog = new THREE.Fog(0x0e1220, 9, 26);
+  scene.add(new THREE.HemisphereLight(0xbfd4ff, 0x1a2030, 0.85));
+  var dir = new THREE.DirectionalLight(0xffffff, 1.1);
+  dir.position.set(3.5, 6.5, 2.5);
+  dir.castShadow = true;
+  dir.shadow.mapSize.set(1024, 1024);
+  dir.shadow.camera.left = -8; dir.shadow.camera.right = 8;
+  dir.shadow.camera.top = 8; dir.shadow.camera.bottom = -8;
+  scene.add(dir);
+  scene.add(new THREE.AmbientLight(0x334466, 0.5));
+
+  var floor = new THREE.Mesh(
+    new THREE.PlaneGeometry(16, 16),
+    new THREE.MeshStandardMaterial({ color: 0x2a3346, roughness: 0.95, metalness: 0.05 })
+  );
+  floor.rotation.x = -Math.PI / 2;
+  floor.receiveShadow = true;
+  floor.name = 'floor';
+  scene.add(floor);
+
+  var grid = new THREE.GridHelper(16, 32, 0x3f5273, 0x27324a);
+  grid.position.y = 0.002;
+  grid.material.transparent = true; grid.material.opacity = 0.55;
+  scene.add(grid);
+
+  var back = new THREE.Mesh(
+    new THREE.PlaneGeometry(16, 5),
+    new THREE.MeshStandardMaterial({ color: 0x1b2438, roughness: 1 })
+  );
+  back.position.set(0, 2.5, -5.2);
+  back.receiveShadow = true;
+  scene.add(back);
+}
+
+/* =========================================================================
+ * 组 B2 · 远距离拉取（重力手套三段式）
+ * 关键：把“飞行 + 甩腕窗口”写成定步长确定性函数，自测不依赖真实帧率。
+ * ========================================================================= */
+var STEP = 1 / 120;                 // 逻辑固定步长
+var CATCH = { x: 0, y: 1.3, z: -1.25 };  // 接取区（手前 1.25 m）
+var WINDOW = 0.25;                  // ±0.25s 甩腕窗口
+var FLICK_SPEED = 1.2;              // 判定“甩腕”的手柄线速度门限（m/s）
+var ATTACH_DIST = 0.42;             // 简化版自动吸附距离（m）
+
+var objs = [];                      // {mesh, home, r, attached, falling, vy, highlight}
+var outline = null, catchRing = null, catchBall = null, catchFlash = 0;
+var hoverIdx = -1, vrSpeed = 0, vrLast = new THREE.Vector3(), vrHasPos = false;
+var arcLine = null, lineRef = null;
+var ARC_PTS = 48;
+
+/* 画“计划弧线”（青）与“直线参照”（暗灰）：让“弧线不是直线”一眼可见 */
+function buildArcLines(f){
+  if (!f) return;
+  /* 计划弧线：用管状几何体画，投屏上也看得清（WebGL 线宽固定 1px） */
+  var curve = (f.kind === 'arc')
+    ? new THREE.QuadraticBezierCurve3(f.p0.clone(), f.ctrl.clone(), f.p2.clone())
+    : new THREE.LineCurve3(f.p0.clone(), f.p2.clone());
+  if (arcLine){
+    scene.remove(arcLine);
+    if (arcLine.geometry) arcLine.geometry.dispose();
+    if (arcLine.material) arcLine.material.dispose();
+    arcLine = null;
+  }
+  arcLine = new THREE.Mesh(
+    new THREE.TubeGeometry(curve, 40, 0.025, 6, false),
+    new THREE.MeshBasicMaterial({ color: 0x6fe3ff, transparent: true, opacity: 0.92 })
+  );
+  arcLine.frustumCulled = false;
+  scene.add(arcLine);
+  /* 直线参照（细线）：对比用 */
+  var pr = lineRef.geometry.attributes.position.array;
+  pr[0] = f.p0.x; pr[1] = f.p0.y; pr[2] = f.p0.z;
+  pr[3] = f.p2.x; pr[4] = f.p2.y; pr[5] = f.p2.z;
+  lineRef.geometry.attributes.position.needsUpdate = true;
+  lineRef.geometry.setDrawRange(0, 2);
+  lineRef.visible = true;
+}
+
+/* ---------- 5 个物体：不同颜色 / 不同大小 / 4.2—6.0 m ---------- */
+var OBJ_DEF = [
+  { c: 0xff6b6b, r: 0.16, x: -1.70, z: -3.6, y: 1.95 },
+  { c: 0x4fc3f7, r: 0.18, x: -0.95, z: -4.0, y: 2.05 },
+  { c: 0xffd54f, r: 0.20, x: -0.20, z: -4.4, y: 1.90 },
+  { c: 0x81c784, r: 0.22, x: 0.55,  z: -4.8, y: 2.10 },
+  { c: 0xba68c8, r: 0.24, x: 1.30,  z: -5.2, y: 1.98 }
+];
+var STAGE_CN = { idle: '待选', selected: '已选', flying: '飞行中', caught: '接住', missed: '掉落' };
+
+function mkBoard(wM, hM, pxW, pxH, drawFn){
+  var cv = document.createElement('canvas');
+  cv.width = pxW; cv.height = pxH;
+  var cx = cv.getContext('2d');
+  var tex = new THREE.CanvasTexture(cv);
+  tex.minFilter = THREE.LinearFilter;
+  var mesh = new THREE.Mesh(
+    new THREE.PlaneGeometry(wM, hM),
+    new THREE.MeshBasicMaterial({ map: tex, transparent: true })
+  );
+  mesh.userData.redraw = function(){
+    cx.clearRect(0, 0, pxW, pxH);
+    drawFn(cx, pxW, pxH);
+    tex.needsUpdate = true;
+  };
+  mesh.userData.redraw();
+  return mesh;
+}
+
+/* =========================================================================
+ * 1. 弧线 / 飞行计划（纯函数，可自测）
+ * ========================================================================= */
+function bezierPoint(p0, c, p2, u){
+  var iu = 1 - u;
+  return new THREE.Vector3(
+    iu * iu * p0.x + 2 * iu * u * c.x + u * u * p2.x,
+    iu * iu * p0.y + 2 * iu * u * c.y + u * u * p2.y,
+    iu * iu * p0.z + 2 * iu * u * c.z + u * u * p2.z
+  );
+}
+/* kind='arc' 贝塞尔弧线；kind='line' 直线（简化版） */
+function planFlight(idx, kind){
+  var o = objs[idx];
+  var p0 = o.mesh.position.clone();
+  var p2 = new THREE.Vector3(CATCH.x, CATCH.y, CATCH.z);
+  var d = p0.distanceTo(p2);
+  var dur = clamp(0.38 + d * 0.075, 0.45, 1.05);
+  var ctrl = p0.clone().add(p2).multiplyScalar(0.5);
+  var midOffset = 0;
+  if (kind === 'arc'){
+    var off = new THREE.Vector3(0.10, 0.78, 0.10);   // 主要向上抬起（弧线）
+    ctrl.add(off);
+    midOffset = 0.5 * off.length();                  // 二次贝塞尔 t=0.5 相对直线的偏移
+  }
+  return { p0: p0, ctrl: ctrl, p2: p2, dur: dur, dist: d, midOffset: midOffset, kind: kind };
+}
+
+/* =========================================================================
+ * 2. 状态机：选中 / 确认 / 飞行 / 接住 / 掉落
+ * ========================================================================= */
+function setMode(m){
+  S.mode = (m === 'simple' ? 'simple' : 'three');
+  S.lastAction = '模式=' + (S.mode === 'three' ? '三段版' : '简化版');
+  panelDirty = true;
+  toast(S.mode === 'three' ? '三段版：选中 → 确认 → 弧线 → 窗口内甩腕' :
+    '简化版：对准就飞，距离 <0.42 m 自动吸附');
+}
+function stageName(){ return STAGE_CN[S.stage] || S.stage; }
+function midOffset(){
+  if (S.flight) return S.flight.midOffset;
+  return S.lastMid;
+}
+function winText(){
+  if (S.stage !== 'flying' || !S.flight || S.mode === 'simple') return '—';
+  var rem = S.flight.dur - S.flyT;
+  if (rem > WINDOW) return (rem - WINDOW).toFixed(2) + 's 后开启';
+  if (rem >= -WINDOW) return '开：剩 ' + (rem + WINDOW).toFixed(2) + 's';
+  return '已关闭';
+}
+function applyOutline(){
+  var idx = -1;
+  if (S.stage === 'flying' || S.stage === 'selected') idx = S.sel;
+  else if (S.stage === 'idle') idx = hoverIdx;
+  for (var i = 0; i < objs.length; i++) objs[i].highlight = false;
+  if (idx >= 0 && objs[idx] && !objs[idx].attached && !objs[idx].falling){
+    var o = objs[idx];
+    objs[idx].highlight = true;
+    if (outline){
+      outline.visible = true;
+      outline.position.copy(o.mesh.position);
+      outline.scale.setScalar(o.r * 1.3);
+    }
+  } else if (outline){
+    outline.visible = false;
+  }
+}
+function selectObj(i){
+  S.sel = i; S.stage = 'selected'; S.flight = null; S.flyT = 0;
+  S.lastAction = '选中 #' + (i + 1);
+  beep(700, 50, 'sine', 0.04);
+  applyOutline(); panelDirty = true;
+}
+function confirmPull(){
+  if (S.stage !== 'selected' || S.sel < 0) return false;
+  S.flight = planFlight(S.sel, 'arc');
+  S.flyT = 0; S.stage = 'flying';
+  S.lastMid = S.flight.midOffset;
+  S.lastAction = '确认拉取 #' + (S.sel + 1) + '（弧线 中点偏移 ' + fmt(S.flight.midOffset, 2) + 'm）';
+  buildArcLines(S.flight);
+  beep(520, 60, 'triangle', 0.05);
+  pulse(null, 0.4, 50);
+  panelDirty = true;
+  return true;
+}
+function pickObj(i, src){
+  if (i == null || i < 0 || i >= objs.length) return false;
+  var o = objs[i];
+  if (o.attached || o.falling) return false;
+  if (S.stage === 'flying') return false;
+  if (S.mode === 'simple'){
+    S.sel = i; S.flight = planFlight(i, 'line'); S.flyT = 0; S.stage = 'flying';
+    S.lastMid = 0; S.lastAction = '简化版拉取 #' + (i + 1);
+    buildArcLines(S.flight);
+    applyOutline(); panelDirty = true;
+    return true;
+  }
+  if (S.stage === 'selected' && S.sel === i){ confirmPull(); return true; }
+  selectObj(i);
+  return true;
+}
+function doCatch(kind){
+  var o = objs[S.sel];
+  if (!o) return;
+  o.attached = true; o.falling = false;
+  var n = S.caught % 3;
+  o.mesh.position.set(CATCH.x + (n - 1) * 0.13, CATCH.y - 0.02, CATCH.z - n * 0.06);
+  S.stage = 'caught'; S.caught++;
+  if (kind === 'auto') S.autoAttach++;
+  S.lastFeedback = kind === 'auto' ? '自动吸附（简化版）' : '窗口内甩腕接住';
+  S.lastAction = S.lastFeedback;
+  catchFlash = 1;
+  if (arcLine) arcLine.material.color.set(0x7fe0a8);
+  beep(1046, 110, 'sine', 0.06);
+  pulse(null, 0.7, 70);
+  applyOutline(); panelDirty = true;
+  toast(kind === 'auto' ? '简化版：距离 <0.42 m 自动吸附' : '接住！窗口内甩腕成功');
+}
+function doMiss(reason){
+  var o = objs[S.sel];
+  if (o){ o.falling = true; o.vy = 0; }
+  S.stage = 'missed'; S.missed++;
+  S.lastFeedback = '掉落：' + reason;
+  S.lastAction = S.lastFeedback;
+  if (arcLine) arcLine.material.color.set(0xff8fa3);
+  beep(170, 190, 'sawtooth', 0.05);
+  applyOutline(); panelDirty = true;
+  toast('没接住（' + reason + '）—— 差的就是这 ±0.25 s');
+}
+/* 甩腕：speed 为手柄线速度（PC 用固定 1.6 模拟） */
+function flick(speed){
+  if (S.stage !== 'flying' || !S.flight) return 'ignored';
+  if (S.mode === 'simple') return 'ignored';
+  var rem = S.flight.dur - S.flyT;
+  var inWin = (rem <= WINDOW && rem >= -WINDOW);
+  if (inWin && speed > FLICK_SPEED){ doCatch('flick'); return 'caught'; }
+  doMiss(inWin ? '甩腕太轻 ' + fmt(speed, 2) + 'm/s' : '时机不对（窗口外）');
+  return 'missed';
+}
+
+/* ---------- 定步长推进（动画与自测共用） ---------- */
+function flightStep(dt){
+  if (S.stage !== 'flying' || !S.flight) return;
+  var o = objs[S.sel]; if (!o) return;
+  S.flyT += dt;
+  var u = clamp(S.flyT / S.flight.dur, 0, 1);
+  var p = (S.flight.kind === 'arc')
+    ? bezierPoint(S.flight.p0, S.flight.ctrl, S.flight.p2, u)
+    : S.flight.p0.clone().lerp(S.flight.p2, u);
+  o.mesh.position.copy(p);
+  if (S.mode === 'simple'){
+    if (p.distanceTo(S.flight.p2) < ATTACH_DIST) doCatch('auto');
+    else if (u >= 1) doCatch('auto');
+  } else if (u >= 1){
+    doMiss('到终点仍未甩腕');
+  }
+}
+function stepFalling(dt){
+  for (var i = 0; i < objs.length; i++){
+    var o = objs[i];
+    if (!o.falling) continue;
+    o.vy -= 9.8 * dt;
+    o.mesh.position.y += o.vy * dt;
+    if (o.mesh.position.y <= o.r){
+      o.mesh.position.y = o.r; o.vy = 0; o.falling = false;
+    }
+  }
+}
+function advance(dt){
+  if (S.freeze) return;
+  S.acc += dt;
+  var guard = 0;
+  while (S.acc >= STEP && guard++ < 600){
+    S.acc -= STEP;
+    flightStep(STEP);
+    stepFalling(STEP);
+    if (S.auto && S.stage === 'flying' && S.flight && S.mode === 'three'){
+      if (S.flight.dur - S.flyT <= 0.10) flick(1.6);
+    }
+  }
+}
+/* 供自测：无帧率依赖地推进任意时长 */
+function advanceFlight(total){
+  var left = total, guard = 0;
+  while (left > 1e-6 && guard++ < 100000){
+    var dt = Math.min(STEP, left);
+    flightStep(dt); stepFalling(dt); left -= dt;
+  }
+  return S.stage;
+}
+
+/* =========================================================================
+ * 3. 场景
+ * ========================================================================= */
+function drawNearFar(cx, W, H, txt, col){
+  cx.globalAlpha = 0.22; cx.fillStyle = col; cx.fillRect(0, 0, W, H); cx.globalAlpha = 1;
+  cx.fillStyle = '#0d1524'; cx.fillRect(6, 6, W - 12, H - 12);
+  cx.strokeStyle = col; cx.lineWidth = 8; cx.strokeRect(4, 4, W - 8, H - 8);
+  cx.fillStyle = col;
+  cx.font = 'bold 52px "Microsoft YaHei", sans-serif';
+  cx.textAlign = 'center'; cx.textBaseline = 'middle';
+  cx.fillText(txt, W / 2, H / 2 + 2);
+}
+
+function buildPullWorld(){
+  camera.rotation.x = -0.04;
+  /* 5 个物体 */
+  for (var i = 0; i < OBJ_DEF.length; i++){
+    (function(idx){
+      var d = OBJ_DEF[idx];
+      var mesh = new THREE.Mesh(
+        new THREE.SphereGeometry(d.r, 22, 16),
+        new THREE.MeshStandardMaterial({
+          color: d.c, roughness: 0.35, metalness: 0.25,
+          emissive: new THREE.Color(d.c).multiplyScalar(0.28)
+        })
+      );
+      mesh.position.set(d.x, d.y, d.z);
+      mesh.castShadow = true;
+      mesh.name = 'pullObj' + idx;
+      mesh.userData.idx = idx;
+      scene.add(mesh);
+      objs.push({
+        mesh: mesh, home: new THREE.Vector3(d.x, d.y, d.z), r: d.r,
+        attached: false, falling: false, vy: 0, highlight: false,
+        baseColor: d.c, spin: Math.random() * 3
+      });
+      registerPick(mesh, 'pullObj' + idx, function(){ pickObj(idx, 'pc'); });
+    })(i);
+  }
+
+  /* 选中描边（全场只有这一个，所以高亮必然只作用于一个物体） */
+  outline = new THREE.Mesh(
+    new THREE.SphereGeometry(1, 12, 8),
+    new THREE.MeshBasicMaterial({ color: 0x9fd0ff, wireframe: true, transparent: true, opacity: 0.45 })
+  );
+  outline.visible = false;
+  scene.add(outline);
+
+  /* 计划弧线（管状，青）在 buildArcLines 里按当前飞行计划重建 */
+
+
+  var rg = new THREE.BufferGeometry();
+  rg.setAttribute('position', new THREE.BufferAttribute(new Float32Array(6), 3));
+  rg.setDrawRange(0, 0);
+  lineRef = new THREE.Line(rg, new THREE.LineBasicMaterial({
+    color: 0x4d5f80, transparent: true, opacity: 0.8
+  }));
+  lineRef.frustumCulled = false;
+  lineRef.visible = false;
+  scene.add(lineRef);
+
+  /* 接取区（手边） */
+  catchRing = new THREE.Mesh(
+    new THREE.TorusGeometry(0.12, 0.010, 8, 36),
+    new THREE.MeshBasicMaterial({ color: 0x6fe3b0 })
+  );
+  catchRing.position.set(CATCH.x, CATCH.y, CATCH.z);
+  scene.add(catchRing);
+  catchBall = new THREE.Mesh(
+    new THREE.SphereGeometry(0.042, 14, 10),
+    new THREE.MeshStandardMaterial({ color: 0x6fe3b0, emissive: 0x1f7a55, roughness: 0.4 })
+  );
+  catchBall.position.set(CATCH.x, CATCH.y, CATCH.z);
+  scene.add(catchBall);
+  var cLabel = mkBoard(0.3, 0.082, 256, 72, function(cx, W, H){
+    cx.fillStyle = '#0f1a26'; cx.fillRect(0, 0, W, H);
+    cx.strokeStyle = '#37e0a0'; cx.lineWidth = 3; cx.strokeRect(1, 1, W - 2, H - 2);
+    cx.fillStyle = '#8ff0c8'; cx.font = 'bold 32px "Microsoft YaHei", sans-serif';
+    cx.textAlign = 'center'; cx.textBaseline = 'middle';
+    cx.fillText('接取区', W / 2, H / 2);
+  });
+  cLabel.position.set(CATCH.x, CATCH.y - 0.24, CATCH.z);
+  scene.add(cLabel);
+
+  /* 两侧「近 / 远」标牌 */
+  var nearB = mkBoard(0.95, 0.24, 380, 96, function(cx, W, H){ drawNearFar(cx, W, H, '近端 3.6 m', '#7fe0a8'); });
+  nearB.position.set(-1.58, 2.72, -3.6);
+  scene.add(nearB);
+  var farB = mkBoard(0.95, 0.24, 380, 96, function(cx, W, H){ drawNearFar(cx, W, H, '远端 5.2 m', '#ffc857'); });
+  farB.position.set(1.18, 2.72, -5.2);
+  scene.add(farB);
+
+}
+
+/* =========================================================================
+ * 4. DEMO
+ * ========================================================================= */
+var DEMO = {
+  buildWorld: function(){ buildPullWorld(); },
+
+  buildUI: function(){
+    this._panel = mkPanel(1.3, 0.65, 1024, 512);
+    this._panel.position.set(1.32, 0.98, -2.2);
+    this._panel.rotation.y = -0.42;
+    this._panel.rotation.x = -0.20;
+    scene.add(this._panel);
+    uiButton('mode', '模式：三段版', 32, 336, 310, 76);
+    uiButton('next', '选中下一个', 350, 336, 310, 76);
+    uiButton('confirm', '确认拉取', 668, 336, 310, 76);
+    uiButton('flick', '甩腕（空格）', 32, 424, 310, 76);
+    uiButton('demo', '一键演示', 350, 424, 310, 76);
+    uiButton('reset', '重置', 668, 424, 310, 76);
+    setInterval(function(){ updateStats(); }, 400);
+  },
+
+  drawUI: function(ctx, W, H){
+    ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+    var gd = ctx.createLinearGradient(0, 0, W, H);
+    gd.addColorStop(0, '#141d31'); gd.addColorStop(1, '#0f1626');
+    ctx.fillStyle = gd; ctx.fillRect(0, 0, W, H);
+    ctx.strokeStyle = '#3a4a6c'; ctx.lineWidth = 4; ctx.strokeRect(2, 2, W - 4, H - 4);
+
+    ctx.fillStyle = '#9fd0ff';
+    ctx.font = 'bold 38px "Microsoft YaHei", sans-serif';
+    ctx.fillText('远距离拉取 · 重力手套', 32, 20);
+    ctx.fillStyle = '#8fa2c2';
+    ctx.font = '20px "Microsoft YaHei", sans-serif';
+    ctx.fillText('选中 → 确认 → 弧线飞行 → 到达前 ±0.25 s 甩腕才算接住', 32, 66);
+
+    ctx.fillStyle = '#0b1120'; ctx.strokeStyle = '#26344f'; ctx.lineWidth = 3;
+    roundRect(ctx, 26, 102, 972, 208, 14); ctx.fill(); ctx.stroke();
+
+    ctx.fillStyle = S.mode === 'three' ? '#7fe0a8' : '#ffc857';
+    ctx.font = 'bold 30px "Microsoft YaHei", sans-serif';
+    ctx.fillText(S.mode === 'three' ? '三段版' : '简化版', 50, 116);
+    ctx.fillStyle = '#e8eefc';
+    ctx.fillText('阶段：' + stageName(), 260, 116);
+    ctx.fillStyle = '#8fa2c2';
+    ctx.font = '24px "Microsoft YaHei", sans-serif';
+    ctx.fillText('窗口：' + winText(), 620, 120);
+
+    ctx.fillStyle = '#c3d2ea';
+    ctx.font = '26px "Microsoft YaHei", sans-serif';
+    ctx.fillText('弧线中点偏移 ' + fmt(midOffset(), 2) + ' m（>0.15 才算弧线）', 50, 178);
+    ctx.fillStyle = '#8fa2c2';
+    ctx.font = '24px "Microsoft YaHei", sans-serif';
+    ctx.fillText('接住 ' + S.caught + ' · 错过 ' + S.missed + ' · 自动吸附 ' + S.autoAttach, 50, 224);
+    ctx.fillStyle = '#6f83a6';
+    ctx.font = '22px "Microsoft YaHei", sans-serif';
+    ctx.fillText('最近：' + S.lastFeedback, 50, 268);
+
+    for (var i = 0; i < panelBtns.length; i++){
+      var b = panelBtns[i];
+      if (b.id === 'mode') b.label = '模式：' + (S.mode === 'three' ? '三段版' : '简化版');
+      else if (b.id === 'next') b.label = '选中 #' + (S.sel >= 0 ? (S.sel + 1) : '—');
+      else if (b.id === 'confirm') b.enabled = (S.stage === 'selected');
+    }
+  },
+
+  onPick: function(id, src){
+    if (id === 'mode'){ setMode(S.mode === 'three' ? 'simple' : 'three'); DEMO.reset(false); }
+    else if (id === 'next'){
+      if (S.stage === 'flying') { toast('飞行中，等它落地或接住'); return; }
+      var n = (S.sel + 1) % objs.length;
+      var guard = 0;
+      while (objs[n].attached && guard++ < objs.length) n = (n + 1) % objs.length;
+      selectObj(n);
+    }
+    else if (id === 'confirm'){ confirmPull(); }
+    else if (id === 'flick'){
+      var r = flick(1.6);
+      if (r === 'ignored') toast('先选中并确认，等物体飞起来再甩腕');
+    }
+    else if (id === 'demo'){
+      DEMO.reset(false); setMode('three');
+      selectObj(1); confirmPull(); S.auto = true;
+      toast('自动演示：飞到窗口内会替你甩腕');
+    }
+    else if (id === 'reset'){ DEMO.reset(); }
+  },
+
+  onKey: function(code){
+    if (code === 'Space'){ var r = flick(1.6); if (r === 'ignored') toast('现在没有飞行中的物体'); }
+    else if (code === 'Enter'){ confirmPull(); }
+    else if (code === 'KeyM'){ setMode(S.mode === 'three' ? 'simple' : 'three'); DEMO.reset(false); }
+    else if (code === 'Digit1') pickObj(0, 'pc');
+    else if (code === 'Digit2') pickObj(1, 'pc');
+    else if (code === 'Digit3') pickObj(2, 'pc');
+    else if (code === 'Digit4') pickObj(3, 'pc');
+    else if (code === 'Digit5') pickObj(4, 'pc');
+  },
+
+  onSqueeze: function(ray, src){
+    var r = flick(vrSpeed);
+    if (r === 'ignored') toast('握持键=甩腕：要等物体飞起来');
+    else pulse(src, 0.6, 50);
+  },
+
+  onAim: function(ray, p){
+    if (p && p.button){ hoverIdx = -1; applyOutline(); return; }
+    if (S.stage === 'flying' || S.stage === 'selected') return;
+    var w = pickWorld(ray.origin, ray.dir, 'aim');
+    var idx = w && w.item && w.item.mesh ? w.item.mesh.userData.idx : -1;
+    if (idx !== hoverIdx){
+      hoverIdx = idx;
+      applyOutline();
+      if (idx >= 0) beep(880, 30, 'sine', 0.03);
+      panelDirty = true;
+    }
+  },
+
+  update: function(dt){
+    /* VR 手柄线速度（甩腕判定用；EMA 平滑） */
+    if (renderer.xr.isPresenting && vrCtrls[0]){
+      var p = new THREE.Vector3();
+      vrCtrls[0].getWorldPosition(p);
+      if (vrHasPos && dt > 1e-6){
+        vrSpeed = vrSpeed * 0.6 + (p.distanceTo(vrLast) / dt) * 0.4;
+      }
+      vrLast.copy(p); vrHasPos = true;
+    } else { vrSpeed = 0; vrHasPos = false; }
+
+    advance(dt);
+    applyOutline();
+
+    /* 物体轻微自转 / 接住后落位、接取区闪光 */
+    for (var i = 0; i < objs.length; i++){
+      var o = objs[i];
+      if (!o.attached){
+        o.mesh.rotation.y += dt * 0.6;
+        o.mesh.rotation.x = Math.sin(elapsed * 0.8 + i) * 0.2;
+      }
+      var hl = o.highlight ? 1.0 : 0.28;
+      o.mesh.material.emissive.setRGB(
+        ((o.baseColor >> 16) & 255) / 255 * hl,
+        ((o.baseColor >> 8) & 255) / 255 * hl,
+        (o.baseColor & 255) / 255 * hl);
+    }
+    if (catchFlash > 0 && catchRing){
+      catchFlash = Math.max(0, catchFlash - dt * 2.4);
+      catchRing.material.color.setRGB(0.44 + 0.56 * catchFlash, 1, 0.78);
+      var sc = 1 + catchFlash * 0.16;
+      catchRing.scale.set(sc, sc, sc);
+    }
+    if (catchBall) catchBall.position.set(CATCH.x, CATCH.y, CATCH.z);
+  },
+
+  reset: function(keepMode){
+    S.stage = 'idle'; S.sel = -1; S.flyT = 0; S.flight = null; S.acc = 0;
+    S.caught = 0; S.missed = 0; S.autoAttach = 0; S.auto = false;
+    S.lastMid = 0; S.lastFeedback = '—'; S.lastAction = '—';
+    S.lastPick = '—'; S.picks = 0;
+    hapticLog.length = 0; sfxLog.length = 0;
+    if (keepMode === false) { /* 保留当前模式 */ }
+    for (var i = 0; i < objs.length; i++){
+      var o = objs[i];
+      o.attached = false; o.falling = false; o.vy = 0; o.highlight = false;
+      o.mesh.position.copy(o.home);
+      o.mesh.rotation.set(0, 0, 0);
+    }
+    hoverIdx = -1;
+    if (outline) outline.visible = false;
+    catchFlash = 0; S.freeze = false;
+    if (arcLine){ arcLine.visible = false; if (arcLine.material) arcLine.material.color.set(0x6fe3ff); }
+    if (lineRef) lineRef.visible = false;
+    if (catchRing){ catchRing.material.color.set(0x6fe3b0); catchRing.scale.set(1, 1, 1); }
+    if (camera) camera.rotation.x = -0.04;
+    if (player) player.position.set(0, 0, 0);
+    panelDirty = true;
+  },
+
+  /* ------------------- 自测：12 条真实机制断言 ------------------- */
+  selfTest: function(){
+    var pass = [], fail = [];
+    var T = function(ok, name){ (ok ? pass : fail).push(name); };
+    DEMO.reset();
+    setMode('simple');
+
+    /* ① 简化版：物体飞向手，距离 <0.42 m 自动吸附 */
+    S.mode = 'simple';
+    pickObj(0, 'test');
+    var st1 = advanceFlight(2.0);
+    T(st1 === 'caught' && objs[0].attached && S.autoAttach === 1,
+      '简化版：直线飞向手，距离 <0.42 m 自动吸附（autoAttach=' + S.autoAttach + '）');
+
+    /* ② 简化版没有弧线（中点偏移 0），证明两版机制不同 */
+    DEMO.reset(); S.mode = 'simple'; pickObj(1, 'test');
+    T(S.flight && S.flight.midOffset === 0, '简化版走直线：arc 中点偏移 = 0');
+
+    /* ③ 三段版第一步：选中 */
+    DEMO.reset(); setMode('three');
+    pickObj(2, 'test');
+    T(S.stage === 'selected' && S.sel === 2, '三段版①：选中 #3，阶段 = selected（高亮 + 描边）');
+
+    /* ④ 三段版第二步：确认进入飞行 + 弧线中点偏移 > 0.15 m */
+    pickObj(2, 'test');
+    var arcOk = (S.stage === 'flying' && S.flight.midOffset > 0.15);
+    T(arcOk, '三段版②：再按一次确认进入 flying，弧线中点偏离直线 ' +
+      (S.flight ? S.flight.midOffset.toFixed(2) : '?') + ' m > 0.15 m');
+
+    /* ⑤ 窗口剩余时间随飞行递减 */
+    var w0 = S.flight.dur - S.flyT;
+    advanceFlight(0.3);
+    var w1 = S.flight.dur - S.flyT;
+    T(S.stage === 'flying' && Math.abs((w0 - w1) - 0.30) < 0.02,
+      '窗口计时随飞行递减（0.30s 推进 → 剩余减少 ' + (w0 - w1).toFixed(2) + 's）');
+
+    /* ⑥ 窗口内甩腕 → 接住 */
+    advanceFlight(S.flight.dur - S.flyT - 0.18);   // 停在窗口内（剩 0.18s）
+    var r1 = flick(1.6);
+    T(r1 === 'caught' && S.stage === 'caught' && S.caught === 1 && objs[2].attached,
+      '窗口内甩腕（剩 0.18s，1.6 m/s）→ caught，物体吸附到手边');
+
+    /* ⑦ 窗口外甩腕 → 掉落 + 错过计数 +1 */
+    DEMO.reset(); setMode('three');
+    pickObj(3, 'test'); pickObj(3, 'test');          // 立即进入飞行
+    var r2 = flick(1.6);                              // 刚起飞，窗口还没开
+    T(r2 === 'missed' && S.stage === 'missed' && S.missed === 1 && objs[3].falling,
+      '窗口外甩腕 → missed，错过计数 +1，物体进入坠落');
+
+    /* ⑧ 甩腕速度不够也接不住（速度门限是机制的一部分） */
+    DEMO.reset(); setMode('three');
+    pickObj(4, 'test'); pickObj(4, 'test');
+    advanceFlight(S.flight.dur - 0.10);
+    var r3 = flick(0.6);
+    T(r3 === 'missed', '窗口内但甩腕只有 0.6 m/s（<1.2）→ 仍然接不住');
+
+    /* ⑨ 高亮只作用于一个物体 */
+    DEMO.reset(); setMode('three');
+    pickObj(1, 'test'); pickObj(3, 'test');
+    var hl = 0;
+    for (var i = 0; i < objs.length; i++) if (objs[i].highlight) hl++;
+    T(hl === 1 && objs[3].highlight === true && objs[1].highlight === false,
+      '选中高亮只作用于一个物体（当前 #4，高亮数 = ' + hl + '）');
+
+    /* ⑩ 掉落物体最终停在地面，不穿透 */
+    DEMO.reset(); setMode('three');
+    pickObj(0, 'test'); pickObj(0, 'test'); flick(1.6);
+    advanceFlight(2.5);
+    T(Math.abs(objs[0].mesh.position.y - objs[0].r) < 1e-6 && !objs[0].falling,
+      '掉落物体落到 y=半径 ' + objs[0].r + ' m 停住，不穿透地面');
+
+    /* ⑪ reset 复位全部物体与计数 */
+    DEMO.reset();
+    var back = true;
+    for (var j = 0; j < objs.length; j++){
+      if (objs[j].attached || objs[j].falling || objs[j].highlight) back = false;
+      if (objs[j].mesh.position.distanceTo(objs[j].home) > 1e-9) back = false;
+    }
+    T(S.stage === 'idle' && S.caught === 0 && S.missed === 0 && S.autoAttach === 0 && back,
+      'reset 复位：阶段 idle / 计数归零 / 5 个物体回到原位');
+
+    /* ⑫ 面板 6 个按钮且含模式/确认/甩腕 */
+    var ids = panelBtns.map(function(b){ return b.id; });
+    T(panelBtns.length === 6 && ids.indexOf('mode') >= 0 && ids.indexOf('confirm') >= 0 &&
+      ids.indexOf('flick') >= 0, '面板 6 个按钮含 模式 / 确认 / 甩腕 / 重置');
+    DEMO.reset();
+    return { pass: pass, fail: fail };
+  }
+};
+
+/* ---------- 追加 api（boot 之后合并） ---------- */
+window.__LAB_EXTRAS = {
+  select: function(i){ if (S.mode === 'three'){ selectObj(i); return S.stage; } return pickObj(i, 'api'); },
+  confirm: function(){ return confirmPull(); },
+  flick: function(speed){ return flick(speed == null ? 1.6 : speed); },
+  step: function(sec){ S.freeze = true; return advanceFlight(sec == null ? 0.2 : sec); },
+  resume: function(){ S.freeze = false; return S.stage; },
+  mode: function(m){ if (m) setMode(m); return S.mode; },
+  stage: function(){ return S.stage; },
+  arcMidOffset: function(){ return midOffset(); },
+  objs: function(){ return objs.map(function(o){ return { pos: o.mesh.position.toArray(), attached: o.attached, highlight: o.highlight, falling: o.falling }; }); },
+  auto: function(on){ S.auto = !!on; return S.auto; }
+};
+setTimeout(function(){
+  if (!window.LAB || !window.LAB.api) return;
+  var ex = window.__LAB_EXTRAS || {};
+  for (var k in ex){
+    if (Object.prototype.hasOwnProperty.call(ex, k)) window.LAB.api[k] = ex[k];
+  }
+}, 0);
+
+/* ======================= 4. 启动（不要改） ======================= */
+function boot(){
+  renderer = new THREE.WebGLRenderer({ canvas: $('c'), antialias: true, alpha: false });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  renderer.setSize(innerWidth, innerHeight);
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.xr.enabled = true;
+  renderer.xr.setReferenceSpaceType('local-floor');
+
+  scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x0e1220);
+  camera = new THREE.PerspectiveCamera(70, innerWidth / innerHeight, 0.05, 60);
+  camera.position.set(0, 1.6, 0);
+  player = new THREE.Group();
+  player.add(camera);
+  scene.add(player);
+  clock = new THREE.Clock();
+
+  buildBase();
+  DEMO.buildWorld();
+  DEMO.buildUI();
+  setupVR();
+  setupPC();
+
+  document.title = CFG.id.toUpperCase() + ' · ' + CFG.title;
+  $('hudTitle').textContent = CFG.title;
+  $('hudTag').textContent = CFG.subtitle;
+  $('loadTitle').textContent = CFG.title;
+  $('hudPC').innerHTML = '<b>PC 操作</b><br>' + CFG.pcKeys;
+  $('hudVR').innerHTML = '<b>头显操作</b><br>' + CFG.vrKeys;
+  $('hudTeach').innerHTML = '<b>课堂要点</b><br>' + CFG.teach;
+  redrawPanel();
+
+  window.LAB = {
+    S: S, scene: scene, camera: camera, renderer: renderer, player: player, cfg: CFG,
+    ui: { panel: function(){ return panel; }, buttons: function(){ return panelBtns; },
+          hover: function(){ return hoverId; } },
+    api: {
+      fire: fireButton,
+      reset: DEMO.reset,
+      getState: function(){ return JSON.parse(JSON.stringify(S)); },
+      setState: function(k, v){ S[k] = v; panelDirty = true; },
+      haptics: function(){ return hapticLog.slice(); },
+      sfx: function(){ return sfxLog.slice(); },
+      selfTest: function(){
+        var r = DEMO.selfTest();
+        console.log('SELFTEST PASS ' + r.pass.length + ' / FAIL ' + r.fail.length);
+        if (r.fail.length) console.log('SELFTEST FAILED: ' + r.fail.join(' | '));
+        return r;
+      }
+    }
+  };
+
+  var loader = $('loader');
+  $('loadMsg').textContent = '就绪 · ' + CFG.part;
+  setTimeout(function(){ loader.style.opacity = '0'; setTimeout(function(){ loader.remove(); }, 520); }, 180);
+
+  onResize();
+  renderer.setAnimationLoop(animate);
+}
+try { boot(); }
+catch (e) {
+  console.error('启动失败', e);
+  var lm = document.getElementById('loadMsg');
+  if (lm) lm.textContent = '启动失败：' + e.message;
+}
+})();
+</script>
+</body>
+</html>

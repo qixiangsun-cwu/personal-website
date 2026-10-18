@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 7 次课 · 交互零件演示中心 | 2026年虚拟现实技术</title>
+<style>
+  :root{--bg:#0f1420;--card:#182135;--line:#2b3854;--txt:#e8eefc;--sub:#9fb0c8;--acc:#7fc4ff;--gold:#ffc857;--green:#5fd08a;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--txt);font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif;line-height:1.65;padding:28px 20px 60px;}
+  .wrap{max-width:1180px;margin:0 auto;}
+  h1{font-size:27px;margin-bottom:6px;color:#eaf3ff;}
+  .lead{color:var(--sub);max-width:960px;margin-bottom:8px;font-size:14.5px;}
+  .lead b{color:var(--acc);}
+  .back{font-size:13.5px;margin-bottom:22px;}
+  .back a{color:var(--acc);text-decoration:none;}
+  .back a:hover{text-decoration:underline;}
+  h2{font-size:18px;margin:26px 0 12px;padding-left:10px;border-left:4px solid var(--acc);color:#dce9fb;}
+  h2 span{font-size:12.5px;color:var(--sub);font-weight:400;margin-left:8px;}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px;}
+  a.card{display:block;background:var(--card);border:1px solid var(--line);border-radius:12px;
+    padding:12px;color:var(--txt);text-decoration:none;transition:.16s;}
+  a.card:hover{border-color:var(--acc);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.35);}
+  .shot{width:100%;aspect-ratio:16/10;object-fit:cover;border-radius:8px;display:block;background:#0b0f18;border:1px solid #22304a;}
+  .no{display:inline-block;font-size:11.5px;font-weight:700;color:#07101f;background:var(--acc);border-radius:5px;padding:1px 8px;margin:10px 0 4px;}
+  .title{font-size:16.5px;font-weight:700;color:#eaf3ff;margin:2px 0 4px;}
+  .desc{font-size:13px;color:var(--sub);line-height:1.7;}
+  .meta{font-size:12px;color:#7f90ab;margin-top:8px;}
+  .meta b{color:var(--gold);font-weight:600;}
+  .tags{margin-top:8px;font-size:11.5px;color:#9fb0c8;}
+  .tags span{display:inline-block;border:1px solid #31405f;border-radius:999px;padding:0 8px;margin:2px 4px 0 0;}
+  .note{margin-top:28px;border-left:3px solid var(--gold);background:#151b28;border-radius:0 10px 10px 0;
+    padding:14px 16px;color:var(--sub);font-size:13.5px;line-height:1.85;}
+  .note b{color:var(--gold);}
+  code{font-family:Consolas,monospace;background:#1b2540;border:1px solid #31405f;border-radius:4px;padding:0 5px;color:#cfe2ff;font-size:12.5px;}
+  footer{margin-top:34px;color:#6d7b93;font-size:12.5px;text-align:center;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>第 7 次课 · 交互零件演示中心</h1>
+  <p class="lead">9 个零件演示 + 2 个示范案例，<b>全部是单文件 WebXR</b>：PC 上点开就能用鼠标键盘玩；头显浏览器打开就能进 VR（必须 https 或 127.0.0.1，<code>file://</code> 不是安全上下文）。</p>
+  <p class="lead">每个演示的左上角 HUD 都写着 <b>PC 操作 / 头显操作 / 课堂要点</b>；控制台输入 <code>LAB.api.selfTest()</code> 可跑内置自测。<b>点开哪个，就按顺序从 01 开始。</b></p>
+  <p class="back"><a href="../../vr-2026-lesson7.html">← 返回第 7 次课页面（讲授内容 / 作业 / 示范案例 / 视频）</a>　·　<a href="../cases/index.html">六个课堂案例总览</a></p>
+
+  <h2>A · 讲授段演示 <span>按课堂顺序：射线 → 抓取 → 投掷 → 状态层 → 大作用例 → UI → 舒适度 → 距离 → 触觉</span></h2>
+  <div class="grid">
+    <a class="card" href="lab01-ray-hover.html">
+      <img class="shot" src="lab01-ray-hover.jpg" alt="lab01 截图">
+      <span class="no">LAB 01</span>
+      <div class="title">射线 · 悬停 · 三通道反馈</div>
+      <div class="desc">单级（Midas，一碰就触发、误触计数狂跳）vs 两级（悬停只高亮 + 0.2 轻震，确认才 0.5）。看“视觉/听觉/触觉”三个灯。</div>
+      <div class="meta"><b>什么时候放</b>：讲授 B 第 1—2 项；模块 A1/A4</div>
+      <div class="tags"><span>PC + VR</span><span>对应练习 E1</span></div>
+    </a>
+    <a class="card" href="lab02-grab-attach.html">
+      <img class="shot" src="lab02-grab-attach.jpg" alt="lab02 截图">
+      <span class="no">LAB 02</span>
+      <div class="title">attach 与 add：抓取校准</div>
+      <div class="desc">同一物体：attach 抓起来位姿正确，add 会“跳”；屏幕直接给跳变距离（毫米）。抓取距离可切 0.20 / 0.35 / 0.80 m。</div>
+      <div class="meta"><b>什么时候放</b>：讲授 B 第 3 项；模块 A2</div>
+      <div class="tags"><span>PC + VR</span><span>对应练习 E3</span></div>
+    </a>
+    <a class="card" href="lab03-throw-physics.html">
+      <img class="shot" src="lab03-throw-physics.jpg" alt="lab03 截图">
+      <span class="no">LAB 03</span>
+      <div class="title">投掷：力度 × 平滑 × 重力</div>
+      <div class="desc">力度 0.6/1.15/2.0、EMA 0.05/0.35、重力 9.8/3/25，每次投掷进“命中记录表”——手感是可复现的三个数字。</div>
+      <div class="meta"><b>什么时候放</b>：讲授 B 第 9 项；对应练习 E4</div>
+      <div class="tags"><span>PC + VR</span><span>对应练习 E4</span></div>
+    </a>
+    <a class="card" href="lab04-gravity-lab.html">
+      <img class="shot" src="lab04-gravity-lab.jpg" alt="lab04 截图">
+      <span class="no">LAB 04</span>
+      <div class="title">重力实验室：同一颗球，三种世界</div>
+      <div class="desc">地球/月球/木星三档 + 弹性切换；实测落地时间、弹起高度、弹跳次数，与理论比值 √(g₁/g₂) 对照。</div>
+      <div class="meta"><b>什么时候放</b>：讲授 A 第 3 层“一个 S”；对应练习 E2</div>
+      <div class="tags"><span>PC + VR</span><span>对应练习 E2</span></div>
+    </a>
+    <a class="card" href="lab05-force-pull.html">
+      <img class="shot" src="lab05-force-pull.jpg" alt="lab05 截图">
+      <span class="no">LAB 05</span>
+      <div class="title">重力手套：简化版 vs 三段式</div>
+      <div class="desc">简化版“飞向手 + 自动吸附” vs Alyx 式“选中 → 确认 → 弧线飞行 → ±0.25 s 甩腕接住”。功能 vs 体验。</div>
+      <div class="meta"><b>什么时候放</b>：模块 B1 · 大作拆解</div>
+      <div class="tags"><span>PC + VR</span><span>高阶交互</span></div>
+    </a>
+    <a class="card" href="lab06-diegetic-ui.html">
+      <img class="shot" src="lab06-diegetic-ui.jpg" alt="lab06 截图">
+      <span class="no">LAB 06</span>
+      <div class="title">Diegetic UI 四分类</div>
+      <div class="desc">同一组信息四种放法：世界内腕表 / 空间面板 / 跟随头部 / 网页浮层。按 4 切到浮层再进 VR，当场看它消失。</div>
+      <div class="meta"><b>什么时候放</b>：模块 B3 · 衔接第 8 次课状态提示</div>
+      <div class="tags"><span>PC + VR</span><span>对应 H5 加分</span></div>
+    </a>
+    <a class="card" href="lab07-comfort-locomotion.html">
+      <img class="shot" src="lab07-comfort-locomotion.jpg" alt="lab07 截图">
+      <span class="no">LAB 07</span>
+      <div class="title">舒适度：瞬移 / 平滑 / 隧道遮罩</div>
+      <div class="desc">四种移动 + Snap 45° + 遮罩强度 0/0.5/1，还有一个“强制转相机”的反例开关；自己走 30 秒、自己打 1—5 分。</div>
+      <div class="meta"><b>什么时候放</b>：模块 C1/C2 · 工作室 CP2 前</div>
+      <div class="tags"><span>PC + VR</span><span>舒适度</span></div>
+    </a>
+    <a class="card" href="lab08-fitts-goldilocks.html">
+      <img class="shot" src="lab08-fitts-goldilocks.jpg" alt="lab08 截图">
+      <span class="no">LAB 08</span>
+      <div class="title">Fitts 定律 × Goldilocks 舒适区</div>
+      <div class="desc">目标按距离/大小出现并计时，ID=log₂(A/W+1) 与 MT 画散点；面板高度 1.0/1.3/1.7/2.0 m 判定弯腰/舒适/抬手。</div>
+      <div class="meta"><b>什么时候放</b>：模块 A3 · 讲“面板放多高”</div>
+      <div class="tags"><span>PC + VR</span><span>交互距离</span></div>
+    </a>
+    <a class="card" href="lab09-haptics-hand.html">
+      <img class="shot" src="lab09-haptics-hand.jpg" alt="lab09 截图">
+      <span class="no">LAB 09</span>
+      <div class="title">触觉语义分级 × pinch 确认</div>
+      <div class="desc">悬停 0.2 / 抓取 0.5 / 命中 0.8 / 错误 1.0 四档强度与时长；手部追踪可用读 pinch，不可用按 P 模拟。</div>
+      <div class="meta"><b>什么时候放</b>：模块 D1/D2 · 第 9 次课免手柄通路</div>
+      <div class="tags"><span>PC + VR</span><span>未真机验证项已标注</span></div>
+    </a>
+  </div>
+
+  <h2>B · 示范案例 <span>学生作业与 E5 擂台的标准答案：先玩、再拆、再改</span></h2>
+  <div class="grid">
+    <a class="card" href="demo01-basketball.html">
+      <img class="shot" src="demo01-basketball.jpg" alt="demo01 投篮擂台截图">
+      <span class="no" style="background:var(--gold)">DEMO 01 · 示范作品</span>
+      <div class="title">投篮擂台：一个能评分的小玩法</div>
+      <div class="desc">罚球线抓球投篮；计分板在 3D 里；命中三通道反馈；60 秒限时；最高分持久化；<b>ready / playing / over</b> 三阶段状态机（第 8 次课的开刀对象）。</div>
+      <div class="meta"><b>怎么用</b>：走完一局 → 找四个东西（计分变量 / 命中判定 / 三通道反馈 / 重置）→ 换主题换规则</div>
+      <div class="tags"><span>PC + VR</span><span>E5 标准答案</span></div>
+    </a>
+    <a class="card" href="demo02-homework-sample.html">
+      <img class="shot" src="demo02-homework-sample.jpg" alt="demo02 作业样板截图">
+      <span class="no" style="background:var(--green)">DEMO 02 · 作业样板</span>
+      <div class="title">三项交互 + 自动《交互清单》</div>
+      <div class="desc">面板改灯光 / 抓台灯归位 / 投球入篮计数；PC 端侧栏自动生成《交互清单》与三条达标线自检；按 <code>A</code> 看 ①②③ 注释。</div>
+      <div class="meta"><b>怎么用</b>：照抄“交付结构”——一个能跑的文件 + 一张清单 + 三条自检</div>
+      <div class="tags"><span>PC + VR</span><span>H2/H5 交付参照</span></div>
+    </a>
+  </div>
+
+  <div class="note">
+    <b>使用边界（课上要一起说）</b>：这 11 个页面都通过了无头 Chrome 自动检查（无 JS 报错 + 内置自测全过 + 渲染调用数 &gt; 0），但那只证明<b>代码逻辑自洽</b>。
+    手柄握持键、触觉马达、手部追踪三项<b>未在真机验证</b>，PICO 固件存在版本差异 —— 课前用一台头显实测 5 分钟；握持键无响应就改用扳机抓取。<br>
+    <b>改代码前先备份</b>：每个演示都是单文件，复制一份再改；改坏了重新下载原文件即可。所有演示共用同目录的 <code>three.min.js</code>，不要删。
+  </div>
+
+  <footer>
+    中华女子学院 · 2026 年虚拟现实技术 · 第 7 次课（2026-10-21）· 演示库 v1<br>
+    单文件 Three.js r128 + WebXR，零外部网络依赖；截图与演示一一对应
+  </footer>
+</div>
+</body>
+</html>

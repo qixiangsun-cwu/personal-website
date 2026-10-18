@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 360" font-family="'Microsoft YaHei','PingFang SC',sans-serif">
+  <rect width="760" height="360" fill="#faf8fd"/>
+  <text x="380" y="32" text-anchor="middle" font-size="19" font-weight="700" fill="#2e2a6f">Fitts 定律：目标越远越小，命中越慢</text>
+  <text x="380" y="56" text-anchor="middle" font-size="13" fill="#5a5670">MT = a + b · log₂(A / W + 1)　A = 距离，W = 目标宽度，ID = log₂(A/W+1)</text>
+
+  <!-- 坐标轴 -->
+  <path d="M92 300 V92 M92 300 H700" stroke="#8b879e" stroke-width="1.6" fill="none"/>
+  <text x="58" y="86" font-size="12" fill="#5a5670">MT</text>
+  <text x="58" y="102" font-size="11" fill="#8b879e">(ms)</text>
+  <text x="660" y="324" font-size="12" fill="#5a5670">ID (bits)</text>
+
+  <!-- 网格 -->
+  <g stroke="#e3ddf1" stroke-width="1">
+    <path d="M92 240 H700 M92 180 H700 M92 120 H700"/>
+    <path d="M210 92 V300 M330 92 V300 M450 92 V300 M570 92 V300 M690 92 V300"/>
+  </g>
+  <text x="82" y="244" text-anchor="end" font-size="10.5" fill="#8b879e">600</text>
+  <text x="82" y="184" text-anchor="end" font-size="10.5" fill="#8b879e">900</text>
+  <text x="82" y="124" text-anchor="end" font-size="10.5" fill="#8b879e">1200</text>
+  <text x="210" y="318" text-anchor="middle" font-size="10.5" fill="#8b879e">1.5</text>
+  <text x="330" y="318" text-anchor="middle" font-size="10.5" fill="#8b879e">2.5</text>
+  <text x="450" y="318" text-anchor="middle" font-size="10.5" fill="#8b879e">3.5</text>
+  <text x="570" y="318" text-anchor="middle" font-size="10.5" fill="#8b879e">4.5</text>
+  <text x="690" y="318" text-anchor="middle" font-size="10.5" fill="#8b879e">5.5</text>
+
+  <!-- 拟合线 -->
+  <path d="M150 268 L650 108" stroke="#b45309" stroke-width="3" stroke-dasharray="7 5" fill="none"/>
+  <text x="676" y="88" text-anchor="end" font-size="12" font-weight="700" fill="#b45309">拟合：MT ≈ 520 + 130·ID</text>
+
+  <!-- 数据点 -->
+  <g>
+    <circle cx="184" cy="256" r="7" fill="#5a52c8"/><text x="198" y="252" font-size="11" fill="#2e2a6f">近·大</text>
+    <circle cx="330" cy="204" r="7" fill="#5a52c8"/><text x="344" y="200" font-size="11" fill="#2e2a6f">近·小</text>
+    <circle cx="470" cy="160" r="7" fill="#5a52c8"/><text x="484" y="156" font-size="11" fill="#2e2a6f">远·大</text>
+    <circle cx="610" cy="118" r="7" fill="#5a52c8"/><text x="624" y="114" font-size="11" fill="#2e2a6f">远·小</text>
+  </g>
+
+  <!-- 结论框 -->
+  <rect x="150" y="112" width="252" height="54" rx="9" fill="#fff" stroke="#5a52c8" stroke-width="1.4"/>
+  <text x="162" y="133" font-size="12.5" font-weight="700" fill="#2e2a6f">结论 1：远距离别用“伸手抓”</text>
+  <text x="162" y="152" font-size="11.5" fill="#5a5670">把 A 换成角度——射线不随距离变难</text>
+
+  <rect x="470" y="196" width="258" height="84" rx="10" fill="#fff" stroke="#2e7d32" stroke-width="1.4"/>
+  <text x="482" y="218" font-size="12.5" font-weight="700" fill="#2e7d32">结论 2：交互元素有舒适区</text>
+  <text x="482" y="236" font-size="11.5" fill="#5a5670">面板放胸口—眼高之间（1.2—1.8 m）</text>
+  <text x="482" y="254" font-size="11.5" fill="#5a5670">太高要抬手、太低要弯腰，都会疲劳</text>
+  <text x="482" y="272" font-size="11" fill="#8b879e">案例 01 坐姿模式面板下沉 0.45 m 即为此</text>
+</svg>

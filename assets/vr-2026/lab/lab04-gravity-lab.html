@@ -1,0 +1,1215 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>LAB04 · 重力实验室：同一颗球，三种世界</title>
+<style>
+  html,body{margin:0;padding:0;overflow:hidden;background:#0e1220;color:#e8eefc;
+    font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif;}
+  #c{position:fixed;inset:0;display:block;}
+  #hud{position:fixed;left:14px;top:14px;z-index:20;width:288px;padding:12px 14px;
+    background:rgba(15,20,34,.9);border:1px solid #2b3854;border-radius:10px;
+    font-size:12px;line-height:1.65;box-shadow:0 8px 26px rgba(0,0,0,.4);}
+  #hud h2{margin:0 0 4px;font-size:15px;color:#7fc4ff;letter-spacing:.5px;}
+  #hud .tagline{color:#93a4c2;font-size:11px;margin-bottom:6px;}
+  #hud .sec{border-top:1px solid #253149;margin-top:8px;padding-top:7px;}
+  #hud b{color:#9fd0ff;font-weight:600;}
+  #hud .k{display:inline-block;background:#1b2540;border:1px solid #31405f;border-radius:4px;
+    padding:0 5px;margin:1px 2px;color:#cfe2ff;font-size:11px;}
+  #hud .warnline{color:#ffc857;}
+  #stats{color:#5fd08a;font-size:11px;white-space:pre-line;}
+  #enterVR{position:fixed;right:18px;top:18px;z-index:20;display:none;cursor:pointer;
+    background:linear-gradient(135deg,#2f7de1,#1b4fa8);color:#fff;border:none;border-radius:24px;
+    padding:11px 22px;font-size:15px;letter-spacing:2px;box-shadow:0 4px 16px rgba(47,125,225,.4);}
+  #enterVR:disabled{background:#4a5468;cursor:not-allowed;box-shadow:none;}
+  #vrhint{position:fixed;right:18px;top:72px;z-index:20;max-width:236px;display:none;
+    background:rgba(15,20,34,.88);border:1px solid #2b3854;border-radius:8px;padding:7px 9px;
+    color:#b9c8e2;font-size:11px;line-height:1.6;text-align:right;}
+  #toast{position:fixed;left:50%;bottom:58px;transform:translateX(-50%);z-index:25;
+    background:rgba(21,28,46,.95);border:1px solid #3a4a6c;border-radius:10px;padding:10px 18px;
+    font-size:14px;color:#d9e6ff;opacity:0;transition:opacity .25s;pointer-events:none;white-space:nowrap;}
+  #toast.show{opacity:1;}
+  #loader{position:fixed;inset:0;z-index:50;background:#0e1220;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;gap:6px;transition:opacity .5s;}
+  #loader h1{font-size:26px;letter-spacing:4px;color:#7fc4ff;margin:0;font-weight:600;}
+  #loader p{font-size:13px;color:#8fa2c2;margin:0;}
+  body.XR #hud,body.XR #enterVR,body.XR #vrhint{display:none!important;}
+  body.XR #toast{bottom:auto;top:24px;}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="hud">
+  <h2 id="hudTitle">LAB</h2>
+  <div class="tagline" id="hudTag"></div>
+  <div class="sec" id="hudPC"></div>
+  <div class="sec" id="hudVR"></div>
+  <div class="sec" id="hudTeach"></div>
+  <div class="sec"><span id="stats">初始化…</span></div>
+</div>
+<div id="toast"></div>
+<button id="enterVR">进入 VR</button>
+<div id="vrhint"></div>
+<div id="loader">
+  <h1 id="loadTitle">LAB</h1>
+  <p id="loadMsg">正在初始化…</p>
+</div>
+
+<script src="./three.min.js"></script>
+<script>
+/* =========================================================================
+ * 第 7 次课 · WebXR 交互零件演示脚手架（模板）
+ * 用法：复制本文件 → 改 CFG → 在 DEMO 区实现 buildWorld / buildUI / update / onPick /
+ *       selfTest / reset。基础设施区（0—4 段）不要改。
+ * 约定（验证工具依赖，务必保留）：
+ *   1. 外部库用「点斜杠」相对路径引入 three.min.js（与页面同目录）
+ *   2. 必须存在行 `  renderer.setAnimationLoop(animate);`
+ *   3. animate() 内必须调用 renderer.render(scene, camera)
+ *   4. renderer.xr.setReferenceSpaceType('local-floor') 在会话创建前调用
+ *   5. 暴露 window.LAB = {S, scene, camera, renderer, player, api}
+ * ========================================================================= */
+(function(){
+'use strict';
+
+/* ======================= 0. 演示配置（每个演示改这一段） ======================= */
+var CFG = {
+  id: 'lab04',
+  title: '重力实验室：同一颗球，三种世界',
+  subtitle: '模块 E2 · 状态层只有一个 S',
+  part: '组 B1 · 重力与弹性',
+  aimMode: 'mouse',
+  pcKeys: '拖拽=环视 · 左键=点面板按钮 · 空格=落下 · 1/2/3=地球/月球/木星 · E=弹性 · R=重置',
+  vrKeys: '扳机=射线点面板 · 握持键=落下 · 右手摇杆左右=转 45° · 触觉未在真机验证',
+  teach: '状态层只有一个 S：改 S.gravity 一处，落体时间、面板读数、落地音高同时变。t=√(2h/g)，月球约为地球的 1.81 倍；弹性 e 决定弹跳次数，不决定下落快慢。',
+  hudLines: function(){
+    var last = S.last;
+    var th = Math.sqrt(9.8 / S.gravity);
+    var tE = S.byG['9.8'], tM = S.byG['3'];
+    var ratio = (tE && tM) ? (tM / tE) : NaN;
+    var lines = [
+      'g=' + fmt(S.gravity, 1) + ' m/s² · e=' + fmt(S.e, 2) + ' · ' +
+        (S.phase === 'falling' ? '下落中 ' + fmt(S.playT, 2) + 's' : (S.phase === 'done' ? '已落定' : '待落下')),
+      '实测 t=' + (last ? fmt(last.t, 3) : '—') + 's · 弹起 ' +
+        (last ? fmt(last.firstBounceH * 100, 0) : '—') + 'cm · 弹跳 ' +
+        (last ? last.bounces : '—') + ' 次',
+      '理论比值 √(9.8/g) = ' + fmt(th, 3),
+      '实测 月球/地球 = ' + (isFinite(ratio) ? fmt(ratio, 3) : '—')
+    ];
+    return lines;
+  }
+};
+
+/* ======================= 1. 基础设施（不要改） ======================= */
+var renderer, scene, camera, player, clock, audioCtx = null;
+var raycaster = new THREE.Raycaster();
+var aimNdc = new THREE.Vector2(0, 0);
+var tmpV = new THREE.Vector3(), tmpV2 = new THREE.Vector3();
+var panel = null, panelCanvas = null, panelCtx = null, panelTex = null;
+var panelBtns = [], hoverId = null, panelDirty = true;
+var uiHits = [], pickables = [];        // pickables: {mesh, id, onPick}
+var hapticLog = [], sfxLog = [];
+var keys = {}, dragging = false, lastMouse = {x:0,y:0}, dragDist = 0;
+var vrCtrls = [], vrRays = [], xrSession = null;
+var elapsed = 0, frames = 0, fps = 60, fpsT = 0;
+
+/* -------- 1.1 状态：演示自己的状态全部挂在这里 -------- */
+var S = {
+  /* 模板保留字段 */
+  a: 0, b: 0,
+  lastAction: '—', lastPick: '—', picks: 0,
+  /* 本演示状态：整个演示只有这一个 S */
+  gravity: 9.8,          // 9.8 地球 / 3 月球 / 25 木星
+  e: 0.45,               // 弹性系数
+  dropH: 2.4,            // 球心起始高度（m）
+  phase: 'idle',         // idle | falling | done
+  playT: 0, playDur: 0, freeze: false,
+  last: null,            // 最近一次测量结果
+  byG: {},               // g -> 落地时间，供比值对照
+  records: []            // 测量记录
+};
+
+/* -------- 1.2 小工具 -------- */
+function clamp(v, a, b){ return v < a ? a : (v > b ? b : v); }
+function fmt(v, n){ return (isFinite(v) ? v.toFixed(n == null ? 2 : n) : '—'); }
+function $(id){ return document.getElementById(id); }
+function toast(msg, ms){
+  var t = $('toast');
+  if (!t) return;
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(toast._t);
+  toast._t = setTimeout(function(){ t.classList.remove('show'); }, ms || 1600);
+}
+function initAudio(){
+  if (audioCtx) return audioCtx;
+  try {
+    var AC = window.AudioContext || window.webkitAudioContext;
+    if (AC) audioCtx = new AC();
+  } catch (e) { console.warn('AudioContext 不可用', e); }
+  return audioCtx;
+}
+function resumeAudio(){
+  var c = initAudio();
+  if (c && c.state === 'suspended') c.resume().catch(function(){});
+}
+/* 合成音：freq 频率 Hz，dur 毫秒，type 波形，gain 音量 */
+function beep(freq, dur, type, gain){
+  var c = initAudio();
+  if (!c || S.mute) { sfxLog.push({t: elapsed, freq: freq, skipped: !c}); return; }
+  try {
+    if (c.state === 'suspended') c.resume().catch(function(){});
+    var o = c.createOscillator(), g = c.createGain();
+    o.type = type || 'sine';
+    o.frequency.value = freq;
+    g.gain.value = (gain == null ? 0.05 : gain);
+    o.connect(g); g.connect(c.destination);
+    var now = c.currentTime, d = (dur || 60) / 1000;
+    g.gain.setValueAtTime(g.gain.value, now);
+    g.gain.exponentialRampToValueAtTime(0.0001, now + d);
+    o.start(now); o.stop(now + d + 0.01);
+    sfxLog.push({t: elapsed, freq: freq, dur: dur || 60});
+  } catch (e) { console.warn('beep 失败', e); }
+}
+/* 触觉：inputSource 可为 null（PC 模拟时只记日志） */
+function pulse(src, intensity, ms){
+  hapticLog.push({t: elapsed, intensity: intensity, ms: ms, real: !!(src && src.gamepad &&
+    src.gamepad.hapticActuators && src.gamepad.hapticActuators[0])});
+  try {
+    var acts = src && src.gamepad && src.gamepad.hapticActuators;
+    if (acts && acts[0] && acts[0].pulse) acts[0].pulse(intensity, ms);
+    else if (src && src.gamepad && src.gamepad.hapticActuators && src.gamepad.hapticActuators[0] &&
+             src.gamepad.hapticActuators[0].pulse) src.gamepad.hapticActuators[0].pulse(intensity, ms);
+  } catch (e) { console.warn('触觉不可用', e); }
+}
+
+/* -------- 1.3 3D 面板（CanvasTexture + UV 命中） -------- */
+/* mkPanel(width_m, height_m, pxW, pxH) 返回 mesh；全局 panel 指向它 */
+function mkPanel(wM, hM, pxW, pxH){
+  panelCanvas = document.createElement('canvas');
+  panelCanvas.width = pxW; panelCanvas.height = pxH;
+  panelCtx = panelCanvas.getContext('2d');
+  panelTex = new THREE.CanvasTexture(panelCanvas);
+  panelTex.minFilter = THREE.LinearFilter;
+  var mat = new THREE.MeshBasicMaterial({ map: panelTex, transparent: true });
+  panel = new THREE.Mesh(new THREE.PlaneGeometry(wM, hM), mat);
+  panel.name = 'uiPanel';
+  panelBtns = [];
+  return panel;
+}
+/* 注册按钮：px 坐标以面板 canvas 像素为准（左上角原点） */
+function uiButton(id, label, px, py, pw, ph, enabled){
+  panelBtns.push({ id: id, label: label, x: px, y: py, w: pw, h: ph, enabled: enabled !== false });
+}
+/* 面板绘制：DEMO.drawUI(ctx, W, H) 负责画背景与文字，按钮由 drawButtons 统一画 */
+function drawButtons(ctx, W, H){
+  for (var i = 0; i < panelBtns.length; i++) {
+    var b = panelBtns[i], on = (hoverId === b.id);
+    ctx.fillStyle = !b.enabled ? '#2a3346' : (on ? '#3f8ae0' : '#24314c');
+    ctx.strokeStyle = on ? '#9fd0ff' : '#3a4a6c';
+    ctx.lineWidth = on ? 3 : 2;
+    roundRect(ctx, b.x, b.y, b.w, b.h, 10);
+    ctx.fill(); ctx.stroke();
+    ctx.fillStyle = !b.enabled ? '#6b7688' : (on ? '#ffffff' : '#d5e3f8');
+    ctx.font = 'bold 26px "Microsoft YaHei", sans-serif';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(b.label, b.x + b.w / 2, b.y + b.h / 2);
+  }
+}
+function roundRect(ctx, x, y, w, h, r){
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r);
+  ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r);
+  ctx.arcTo(x, y, x + w, y, r);
+  ctx.closePath();
+}
+function redrawPanel(){
+  if (!panelCtx) return;
+  var W = panelCanvas.width, H = panelCanvas.height;
+  panelCtx.clearRect(0, 0, W, H);
+  DEMO.drawUI(panelCtx, W, H);
+  drawButtons(panelCtx, W, H);
+  panelTex.needsUpdate = true;
+  panelDirty = false;
+}
+/* UV → 按钮 id */
+function uiHitUV(uv){
+  if (!uv) return null;
+  var px = uv.x * panelCanvas.width, py = (1 - uv.y) * panelCanvas.height;
+  for (var i = 0; i < panelBtns.length; i++) {
+    var b = panelBtns[i];
+    if (px >= b.x && px <= b.x + b.w && py >= b.y && py <= b.y + b.h) return b;
+  }
+  return null;
+}
+
+/* -------- 1.4 拾取（PC / VR 共用） -------- */
+/* 返回 {hit, id, point, distance, uv, object} */
+function castFrom(origin, dir, objs){
+  raycaster.set(origin, dir.clone().normalize());
+  raycaster.far = 30;
+  var hits = raycaster.intersectObjects(objs, true);
+  return hits && hits.length ? hits[0] : null;
+}
+function pickPanel(origin, dir, src){
+  var h = castFrom(origin, dir, [panel]);
+  if (!h) return null;
+  var b = uiHitUV(h.uv);
+  return { button: b, point: h.point, distance: h.distance, source: src };
+}
+function pickWorld(origin, dir, src){
+  var list = pickables.map(function(p){ return p.mesh; });
+  var h = castFrom(origin, dir, list);
+  if (!h) return null;
+  var obj = h.object, owner = null;
+  while (obj && !owner) {
+    for (var i = 0; i < pickables.length; i++) if (pickables[i].mesh === obj) owner = pickables[i];
+    obj = obj.parent;
+  }
+  return owner ? { item: owner, point: h.point, distance: h.distance, source: src } : null;
+}
+function registerPick(mesh, id, onPick){
+  pickables.push({ mesh: mesh, id: id, onPick: onPick || function(){} });
+  return mesh;
+}
+
+/* -------- 1.5 PC 输入 -------- */
+function setupPC(){
+  var cvs = renderer.domElement;
+  cvs.addEventListener('pointerdown', function(e){
+    resumeAudio();
+    dragging = true; dragDist = 0; lastMouse.x = e.clientX; lastMouse.y = e.clientY;
+    cvs.setPointerCapture && cvs.setPointerCapture(e.pointerId);
+  });
+  cvs.addEventListener('pointermove', function(e){
+    var dx = e.clientX - lastMouse.x, dy = e.clientY - lastMouse.y;
+    lastMouse.x = e.clientX; lastMouse.y = e.clientY;
+    if (dragging) {
+      dragDist += Math.abs(dx) + Math.abs(dy);
+      player.rotation.y -= dx * 0.0032;
+      camera.rotation.x = clamp(camera.rotation.x - dy * 0.0032, -1.15, 1.0);
+    } else {
+      updateMouseAim(e);
+    }
+  });
+  cvs.addEventListener('pointerup', function(e){
+    if (dragging && dragDist < 6) { resumeAudio(); doClick(e); }
+    dragging = false;
+  });
+  cvs.addEventListener('pointercancel', function(){ dragging = false; });
+  window.addEventListener('keydown', function(e){
+    keys[e.code] = true;
+    if (e.code === 'KeyR') { DEMO.reset(); toast('已重置'); }
+    else if (e.code === 'KeyT' && DEMO.onKey) DEMO.onKey('KeyT');
+    else if (DEMO.onKey) DEMO.onKey(e.code);
+  });
+  window.addEventListener('keyup', function(e){ keys[e.code] = false; });
+  window.addEventListener('resize', onResize);
+}
+function updateMouseAim(e){
+  var r = renderer.domElement.getBoundingClientRect();
+  aimNdc.x = ((e.clientX - r.left) / r.width) * 2 - 1;
+  aimNdc.y = -((e.clientY - r.top) / r.height) * 2 + 1;
+}
+function pcRay(){
+  camera.getWorldPosition(tmpV);
+  var dir = new THREE.Vector3();
+  if (CFG.aimMode === 'center') {
+    camera.getWorldDirection(dir);
+  } else {
+    dir.set(aimNdc.x, aimNdc.y, 0.5).unproject(camera).sub(tmpV).normalize();
+  }
+  return { origin: tmpV.clone(), dir: dir };
+}
+function doClick(e){
+  var r = pcRay();
+  var p = pickPanel(r.origin, r.dir, 'pc');
+  if (p && p.button) { fireButton(p.button.id, 'pc'); return; }
+  var w = pickWorld(r.origin, r.dir, 'pc');
+  if (w) { w.item.onPick(w); return; }
+  DEMO.onEmptyClick && DEMO.onEmptyClick(r);
+}
+function fireButton(id, src){
+  for (var i = 0; i < panelBtns.length; i++) {
+    if (panelBtns[i].id === id) {
+      if (!panelBtns[i].enabled) return false;
+      S.lastPick = id; S.picks++;
+      pulse(null, 0.5, 60); beep(1046, 55, 'square', 0.05);
+      DEMO.onPick(id, src);
+      panelDirty = true;
+      return true;
+    }
+  }
+  return false;
+}
+
+/* -------- 1.6 VR 输入 -------- */
+function setupVR(){
+  for (var i = 0; i < 2; i++) {
+    (function(idx){
+      var ctrl = renderer.xr.getController(idx);
+      ctrl.addEventListener('connected', function(e){ ctrl.userData.inputSource = e.data; });
+      ctrl.addEventListener('selectstart', function(){
+        resumeAudio();
+        var src = ctrl.userData.inputSource;
+        var ray = ctrlRay(ctrl);
+        var p = pickPanel(ray.origin, ray.dir, 'vr');
+        if (p && p.button) { fireButton(p.button.id, 'vr'); return; }
+        var w = pickWorld(ray.origin, ray.dir, 'vr');
+        if (w) { w.item.onPick(w); return; }
+        DEMO.onEmptyClick && DEMO.onEmptyClick(ray, src);
+      });
+      ctrl.addEventListener('squeezestart', function(){
+        var src = ctrl.userData.inputSource;
+        DEMO.onSqueeze && DEMO.onSqueeze(ctrlRay(ctrl), src);
+      });
+      ctrl.addEventListener('squeezeend', function(){
+        var src = ctrl.userData.inputSource;
+        DEMO.onSqueezeEnd && DEMO.onSqueezeEnd(ctrl, src);
+      });
+      var ray = new THREE.Line(
+        new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0,0,0), new THREE.Vector3(0,0,-1)]),
+        new THREE.LineBasicMaterial({ color: 0x66aaff, transparent: true, opacity: 0.75 })
+      );
+      ray.scale.z = 6; ray.name = 'ctrlRay' + idx;
+      ctrl.add(ray);
+      scene.add(ctrl);
+      vrCtrls.push(ctrl); vrRays.push(ray);
+    })(i);
+  }
+  if (navigator.xr && navigator.xr.isSessionSupported) {
+    navigator.xr.isSessionSupported('immersive-vr').then(function(ok){
+      var btn = $('enterVR');
+      btn.style.display = 'block';
+      if (ok) {
+        btn.disabled = false;
+        btn.onclick = enterVR;
+        $('vrhint').style.display = 'block';
+        $('vrhint').innerHTML = '本机支持 immersive-vr。<br>戴上头显后点此进入，或直接用头显浏览器打开本页。';
+      } else {
+        btn.disabled = true; btn.textContent = '本机不支持沉浸式 VR';
+        $('vrhint').style.display = 'block';
+        $('vrhint').innerHTML = 'PC 可用鼠标键盘完成全部演示；<br>头显浏览器打开本页即可进入 VR。';
+      }
+    }).catch(function(e){
+      $('enterVR').style.display = 'block';
+      $('enterVR').disabled = true;
+      $('enterVR').textContent = 'WebXR 检测失败';
+      console.warn('isSessionSupported 失败', e);
+    });
+  } else {
+    $('enterVR').style.display = 'block';
+    $('enterVR').disabled = true;
+    $('enterVR').textContent = '非安全上下文或无 WebXR';
+  }
+}
+function ctrlRay(ctrl){
+  var origin = new THREE.Vector3(), dir = new THREE.Vector3();
+  ctrl.getWorldPosition(origin);
+  dir.set(0, 0, -1).transformDirection(ctrl.matrixWorld);
+  return { origin: origin, dir: dir };
+}
+function enterVR(){
+  resumeAudio();
+  navigator.xr.requestSession('immersive-vr', {
+    optionalFeatures: ['local-floor', 'bounded-floor', 'hand-tracking', 'layers']
+  }).then(function(session){
+    xrSession = session;
+    renderer.xr.setSession(session);
+    document.body.classList.add('XR');
+    session.addEventListener('end', function(){
+      xrSession = null;
+      document.body.classList.remove('XR');
+    });
+  }).catch(function(e){
+    console.warn('进入 VR 失败', e);
+    toast('进入 VR 失败：' + (e && e.message ? e.message : e));
+  });
+}
+
+/* -------- 1.7 主循环 -------- */
+function onResize(){
+  camera.aspect = innerWidth / innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+}
+function animate(){
+  var dt = Math.min(clock.getDelta(), 0.05);
+  elapsed += dt; frames++;
+  fpsT += dt;
+  if (fpsT >= 0.5) { fps = frames / fpsT; frames = 0; fpsT = 0; updateStats(); }
+
+  /* PC 行走 */
+  if (!renderer.xr.isPresenting) {
+    var sp = (keys.ShiftLeft || keys.ShiftRight) ? 3.2 : 1.7;
+    var fwd = new THREE.Vector3(-Math.sin(player.rotation.y), 0, -Math.cos(player.rotation.y));
+    var right = new THREE.Vector3(Math.cos(player.rotation.y), 0, -Math.sin(player.rotation.y));
+    var mv = new THREE.Vector3();
+    if (keys.KeyW || keys.ArrowUp) mv.add(fwd);
+    if (keys.KeyS || keys.ArrowDown) mv.sub(fwd);
+    if (keys.KeyD || keys.ArrowRight) mv.add(right);
+    if (keys.KeyA || keys.ArrowLeft) mv.sub(right);
+    if (mv.lengthSq() > 0) {
+      mv.normalize().multiplyScalar(sp * dt);
+      movePlayer(mv.x, mv.z);
+    }
+  }
+
+  /* VR 摇杆：左右转 45°（防误触冷却） */
+  if (renderer.xr.isPresenting) readVRStick(dt);
+
+  /* 悬停检测 */
+  updateHover();
+
+  DEMO.update(dt);
+  if (panelDirty) redrawPanel();
+
+  renderer.render(scene, camera);
+}
+function movePlayer(dx, dz){
+  player.position.x = clamp(player.position.x + dx, -4.4, 4.4);
+  player.position.z = clamp(player.position.z + dz, -4.4, 4.4);
+}
+var snapCd = 0;
+function readVRStick(dt){
+  snapCd = Math.max(0, snapCd - dt);
+  var src = xrSession && xrSession.inputSources;
+  if (!src) return;
+  for (var i = 0; i < src.length; i++) {
+    var gp = src[i].gamepad;
+    if (!gp || !gp.axes || gp.axes.length < 4) continue;
+    if (Math.abs(gp.axes[2]) > 0.75 && snapCd <= 0) {
+      player.rotation.y -= (gp.axes[2] > 0 ? -1 : 1) * Math.PI / 4;
+      snapCd = 0.38;
+    }
+  }
+}
+function updateHover(){
+  var r;
+  if (renderer.xr.isPresenting) {
+    if (!vrCtrls[0]) return;
+    r = ctrlRay(vrCtrls[0]);
+  } else {
+    r = pcRay();
+  }
+  var p = pickPanel(r.origin, r.dir, 'hover');
+  var id = p && p.button ? p.button.id : null;
+  if (id !== hoverId) {
+    hoverId = id;
+    panelDirty = true;
+    if (id) { pulse(null, 0.2, 30); beep(880, 35, 'sine', 0.035); }
+    DEMO.onHover && DEMO.onHover(id);
+  }
+  DEMO.onAim && DEMO.onAim(r, p);
+}
+function updateStats(){
+  if (!panel) return;
+  var st = 'FPS ' + fps.toFixed(0) + ' · DrawCalls ' + renderer.info.render.calls +
+           ' · Tris ' + renderer.info.render.triangles + '\n';
+  var lines = CFG.hudLines ? CFG.hudLines() : [];
+  for (var i = 0; i < lines.length; i++) st += lines[i] + '\n';
+  $('stats').textContent = st;
+}
+
+/* ======================= 2. 场景基础（可少量改） ======================= */
+function buildBase(){
+  scene.fog = new THREE.Fog(0x0e1220, 9, 26);
+  scene.add(new THREE.HemisphereLight(0xbfd4ff, 0x1a2030, 0.85));
+  var dir = new THREE.DirectionalLight(0xffffff, 1.1);
+  dir.position.set(3.5, 6.5, 2.5);
+  dir.castShadow = true;
+  dir.shadow.mapSize.set(1024, 1024);
+  dir.shadow.camera.left = -8; dir.shadow.camera.right = 8;
+  dir.shadow.camera.top = 8; dir.shadow.camera.bottom = -8;
+  scene.add(dir);
+  scene.add(new THREE.AmbientLight(0x334466, 0.5));
+
+  var floor = new THREE.Mesh(
+    new THREE.PlaneGeometry(16, 16),
+    new THREE.MeshStandardMaterial({ color: 0x2a3346, roughness: 0.95, metalness: 0.05 })
+  );
+  floor.rotation.x = -Math.PI / 2;
+  floor.receiveShadow = true;
+  floor.name = 'floor';
+  scene.add(floor);
+
+  var grid = new THREE.GridHelper(16, 32, 0x3f5273, 0x27324a);
+  grid.position.y = 0.002;
+  grid.material.transparent = true; grid.material.opacity = 0.55;
+  scene.add(grid);
+
+  var back = new THREE.Mesh(
+    new THREE.PlaneGeometry(16, 5),
+    new THREE.MeshStandardMaterial({ color: 0x1b2438, roughness: 1 })
+  );
+  back.position.set(0, 2.5, -5.2);
+  back.receiveShadow = true;
+  scene.add(back);
+}
+
+/* =========================================================================
+ * 组 B1 · 重力实验室
+ * 核心：一个 S + 一个确定性定步长落体模拟（simDrop）
+ *      —— 自测、动画、读数全部共用同一个物理函数，不依赖真实帧率。
+ * ========================================================================= */
+
+/* ---------- 常量 ---------- */
+var FIXED = 1 / 240;          // 物理固定步长（s）
+var BALL_R = 0.09;            // 球半径（m）
+var REST_V = 0.8;             // 落地速度低于此值视为静止（m/s）
+var MAX_BOUNCES = 10;         // 弹跳次数上限（防止 e 很大时无限弹）
+var TIME_CAP = 14;            // 模拟时长上限（s）
+var GRAVS = [
+  { g: 9.8, name: '地球', color: '#4f9dff' },
+  { g: 3,   name: '月球', color: '#b28cff' },
+  { g: 25,  name: '木星', color: '#ff9a3c' }
+];
+var RACK_X = -0.35, RACK_Z = -2.3;   // 落球架位置（左中，避开左侧 HUD）
+var G_INIT = 9.8, E_INIT = 0.45, PITCH0 = -0.14;
+
+/* ---------- 3D 场景对象 ---------- */
+var ball = null, trayRing = null, peakMarker = null, trailLine = null, trailGeo = null;
+var cmpBoard = null, rulerBoard = null;
+var cmpCacheG = -1, trayFlash = 0;
+
+/* ---------- 独立 CanvasTexture 板（不占用模板的 panel 全局） ---------- */
+function mkBoard(wM, hM, pxW, pxH, drawFn){
+  var cv = document.createElement('canvas');
+  cv.width = pxW; cv.height = pxH;
+  var cx = cv.getContext('2d');
+  var tex = new THREE.CanvasTexture(cv);
+  tex.minFilter = THREE.LinearFilter;
+  var mesh = new THREE.Mesh(
+    new THREE.PlaneGeometry(wM, hM),
+    new THREE.MeshBasicMaterial({ map: tex, transparent: true })
+  );
+  mesh.userData.redraw = function(){
+    cx.clearRect(0, 0, pxW, pxH);
+    drawFn(cx, pxW, pxH);
+    tex.needsUpdate = true;
+  };
+  mesh.userData.redraw();
+  return mesh;
+}
+
+/* =========================================================================
+ * 1. 确定性落体模拟（固定步长；自测与动画共用）
+ *    返回落地时间 t、首次弹起高度、弹跳次数、每次触地时间、完整轨迹 path
+ * ========================================================================= */
+function simDrop(g, e, h){
+  var y = h, vy = 0, t = 0;
+  var landed = false, landT = -1, impactV = 0;
+  var bounces = 0, firstPeak = 0, capped = false, timedOut = false;
+  var path = [y], bounceTimes = [], rest = false, guard = 0;
+  while (!rest && guard++ < Math.ceil(TIME_CAP / FIXED)){
+    t += FIXED;
+    vy -= g * FIXED;
+    y += vy * FIXED;
+    if (y <= BALL_R){
+      y = BALL_R;
+      if (!landed){ landed = true; landT = t; impactV = -vy; }
+      bounces++;
+      bounceTimes.push(t);
+      vy = -vy * e;
+      if (bounces === 1 && y > firstPeak) firstPeak = y;
+      if (bounces >= MAX_BOUNCES || Math.abs(vy) < REST_V){
+        if (bounces >= MAX_BOUNCES) capped = true;
+        vy = 0; rest = true;
+      }
+    } else if (bounces === 1 && y > firstPeak){
+      firstPeak = y;
+    }
+    path.push(y);
+  }
+  if (!rest) timedOut = true;
+  return {
+    g: g, e: e, h: h,
+    t: landT, tEnd: t, bounces: bounces,
+    firstBounceH: Math.max(0, firstPeak - BALL_R),
+    impactV: impactV, finalY: y, rest: rest, capped: capped, timedOut: timedOut,
+    path: path, bounceTimes: bounceTimes
+  };
+}
+
+/* ---------- 音高随重力变（这就是“同一个 S”的第三个表现） ---------- */
+function pitchFor(g){ return 160 + g * 24; }
+function landingBeep(g){ beep(pitchFor(g), 130, 'sine', 0.07); }
+
+/* ---------- 尾迹（当前轨迹线 + 轨迹点，按播放进度显示） ---------- */
+var trailPts = [], trailStride = 1, trailVisible = 0;
+var trailDots = null, trailDotTotal = 0, dotStride = 1;
+
+function buildTrail(path){
+  trailStride = Math.max(1, Math.ceil(path.length / 2000));
+  trailPts.length = 0;
+  var arr = trailGeo.attributes.position.array;
+  var n = 0;
+  for (var i = 0; i < path.length && n < 2000; i += trailStride, n++){
+    trailPts.push(i);
+    arr[n * 3] = RACK_X;
+    arr[n * 3 + 1] = path[i];
+    arr[n * 3 + 2] = RACK_Z;
+  }
+  trailGeo.attributes.position.needsUpdate = true;
+  trailGeo.setDrawRange(0, 0);
+  trailVisible = n;
+
+  /* 轨迹点：让 1px 线在投屏上也能看清 */
+  dotStride = Math.max(1, trailStride * 6);
+  var darr = trailDots.geometry.attributes.position.array;
+  var dn = 0;
+  for (var j = 0; j < path.length && dn < 800; j += dotStride, dn++){
+    darr[dn * 3] = RACK_X;
+    darr[dn * 3 + 1] = path[j];
+    darr[dn * 3 + 2] = RACK_Z;
+  }
+  trailDots.geometry.attributes.position.needsUpdate = true;
+  trailDots.geometry.setDrawRange(0, 0);
+  trailDotTotal = dn;
+}
+
+/* ---------- 一次完整测量：同步算完 + 记一行 + 起播 ---------- */
+function measure(g, e){
+  var r = simDrop(g, e, S.dropH);
+  S.byG[String(g)] = r.t;
+  S.last = r;
+  S.records.push(r);
+  if (S.records.length > 12) S.records.shift();
+  return r;
+}
+
+function doDrop(){
+  var r = measure(S.gravity, S.e);
+  S.playT = 0; S.playDur = r.tEnd; S.phase = 'falling'; S.freeze = false;
+  S.landFired = false;
+  S.lastAction = '落下：g=' + fmt(S.gravity, 1) + ' e=' + fmt(S.e, 2);
+  buildTrail(r.path);
+  if (trailLine){
+    trailLine.material.color.set(GRAVS[gravIdx()].color);
+    trailLine.material.opacity = 0.9;
+  }
+  if (trailDots) trailDots.material.color.set(GRAVS[gravIdx()].color);
+  if (peakMarker){
+    peakMarker.visible = true;
+    peakMarker.position.y = BALL_R + r.firstBounceH;
+    peakMarker.material.color.set(0xff5a6e);
+  }
+  applyPlayback();
+  panelDirty = true;
+  return r;
+}
+
+/* ---------- 播放（视觉）：定步长轨迹回放，逻辑与物理解耦 ---------- */
+function applyPlayback(){
+  var r = S.last;
+  if (!r || !ball) return;
+  var p = r.path;
+  var fi = S.playT / FIXED;
+  var i0 = clamp(Math.floor(fi), 0, p.length - 1);
+  var i1 = clamp(i0 + 1, 0, p.length - 1);
+  var frac = clamp(fi - i0, 0, 1);
+  ball.position.set(RACK_X, p[i0] + (p[i1] - p[i0]) * frac, RACK_Z);
+  var shown = Math.min(trailPts.length, Math.floor(S.playT / (FIXED * trailStride)) + 1);
+  trailGeo.setDrawRange(0, Math.max(0, shown));
+  var dshown = Math.min(trailDotTotal, Math.floor(S.playT / (FIXED * dotStride)) + 1);
+  if (trailDots) trailDots.geometry.setDrawRange(0, Math.max(0, dshown));
+}
+function stepPlayback(dt){
+  if (S.phase !== 'falling' || S.freeze) return;
+  var r = S.last;
+  if (!r){ S.phase = 'done'; return; }
+  S.playT += dt;
+  if (!S.landFired && r.t >= 0 && S.playT >= r.t){
+    S.landFired = true;
+    landingBeep(r.g);
+    trayFlash = 1;
+  }
+  if (S.playT >= S.playDur){
+    S.playT = S.playDur;
+    S.phase = 'done';
+    S.lastAction = '落定：t=' + fmt(r.t, 3) + 's · 弹跳 ' + r.bounces + ' 次' +
+      (r.capped ? '（达上限）' : '') + (r.timedOut ? '（超时截断）' : '');
+    panelDirty = true;
+  }
+  applyPlayback();
+}
+
+/* ---------- 三档重力标尺（3D 世界内比较板） ---------- */
+function gravIdx(){
+  for (var i = 0; i < GRAVS.length; i++) if (Math.abs(GRAVS[i].g - S.gravity) < 0.001) return i;
+  return 0;
+}
+function drawCmpBoard(cx, W, H){
+  var act = gravIdx();
+  cx.fillStyle = '#101828'; cx.fillRect(0, 0, W, H);
+  cx.strokeStyle = '#3a4a6c'; cx.lineWidth = 4; cx.strokeRect(3, 3, W - 6, H - 6);
+  cx.textAlign = 'left'; cx.textBaseline = 'top';
+  cx.fillStyle = '#9fd0ff';
+  cx.font = 'bold 34px "Microsoft YaHei", sans-serif';
+  cx.fillText('三档重力 · 落体时间标尺', 26, 22);
+  cx.fillStyle = '#8fa2c2';
+  cx.font = '22px "Microsoft YaHei", sans-serif';
+  cx.fillText('同一高度 ' + fmt(S.dropH - BALL_R, 2) + ' m，t = √(2h/g)', 26, 70);
+  var hh = S.dropH - BALL_R;
+  var tMax = Math.sqrt(2 * hh / 3);           // 月球最慢，作为满格
+  for (var i = 0; i < GRAVS.length; i++){
+    var G = GRAVS[i], y = 128 + i * 118, on = (i === act);
+    var t = Math.sqrt(2 * hh / G.g);
+    cx.fillStyle = on ? '#ffffff' : '#c3d2ea';
+    cx.font = (on ? 'bold ' : '') + '26px "Microsoft YaHei", sans-serif';
+    cx.fillText(G.name + ' ' + G.g + ' m/s²', 26, y + 6);
+    cx.fillStyle = '#1c2740';
+    cx.fillRect(250, y + 4, 400, 34);
+    cx.fillStyle = G.color;
+    cx.globalAlpha = on ? 1 : 0.5;
+    cx.fillRect(250, y + 4, 400 * (t / tMax), 34);
+    cx.globalAlpha = 1;
+    if (on){ cx.strokeStyle = '#ffffff'; cx.lineWidth = 3; cx.strokeRect(250, y + 4, 400 * (t / tMax), 34); }
+    cx.fillStyle = on ? '#ffffff' : '#8fa2c2';
+    cx.font = '24px "Microsoft YaHei", sans-serif';
+    cx.fillText('t=' + fmt(t, 2) + ' s', 664, y + 8);
+  }
+}
+
+/* ---------- 接球盘刻度标尺（竖直，0—240 cm） ---------- */
+function drawRuler(cx, W, H){
+  cx.fillStyle = '#182338'; cx.fillRect(0, 0, W, H);
+  cx.strokeStyle = '#46597f'; cx.lineWidth = 3; cx.strokeRect(1, 1, W - 2, H - 2);
+  var span = 2.45;                     // 对应世界高度 2.45 m
+  for (var cm = 0; cm <= 240; cm += 10){
+    var py = (1 - (cm / 100) / span) * H;
+    var major = (cm % 50 === 0);
+    cx.strokeStyle = major ? '#9fd0ff' : '#5a6f96';
+    cx.lineWidth = major ? 3 : 2;
+    cx.beginPath();
+    cx.moveTo(W - (major ? 40 : 20), py);
+    cx.lineTo(W - 5, py);
+    cx.stroke();
+    if (major){
+      cx.fillStyle = '#9fd0ff';
+      cx.font = 'bold 24px "Microsoft YaHei", sans-serif';
+      cx.textAlign = 'left'; cx.textBaseline = 'middle';
+      cx.fillText(String(cm), 8, py);
+    }
+  }
+  cx.fillStyle = '#6f83a6';
+  cx.font = '22px "Microsoft YaHei", sans-serif';
+  cx.textAlign = 'left'; cx.textBaseline = 'top';
+  cx.fillText('cm', 8, 10);
+}
+
+/* ---------- 场景搭建 ---------- */
+function buildGravityWorld(){
+  camera.rotation.x = PITCH0;          // 初始俯角（VR 会话中相机会被接管，不每帧写）
+
+  var postMat = new THREE.MeshStandardMaterial({ color: 0x3a4760, roughness: 0.6, metalness: 0.3 });
+  var postGeo = new THREE.BoxGeometry(0.07, 2.6, 0.07);
+  var pL = new THREE.Mesh(postGeo, postMat); pL.position.set(RACK_X - 0.42, 1.3, RACK_Z);
+  var pR = new THREE.Mesh(postGeo, postMat); pR.position.set(RACK_X + 0.42, 1.3, RACK_Z);
+  pL.castShadow = pR.castShadow = true;
+  scene.add(pL); scene.add(pR);
+  var topBar = new THREE.Mesh(new THREE.BoxGeometry(1.0, 0.06, 0.1), postMat);
+  topBar.position.set(RACK_X, 2.6, RACK_Z); scene.add(topBar);
+  var foot = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.05, 0.55), postMat);
+  foot.position.set(RACK_X, 0.025, RACK_Z); scene.add(foot);
+
+  /* 接球盘 */
+  var tray = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.46, 0.4, 0.05, 28),
+    new THREE.MeshStandardMaterial({ color: 0x2b3a52, roughness: 0.8, emissive: 0x000000 })
+  );
+  tray.position.set(RACK_X, 0.06, RACK_Z);
+  tray.receiveShadow = true;
+  scene.add(tray);
+  trayRing = new THREE.Mesh(
+    new THREE.TorusGeometry(0.44, 0.014, 8, 36),
+    new THREE.MeshBasicMaterial({ color: 0x6fb0ff })
+  );
+  trayRing.rotation.x = -Math.PI / 2;
+  trayRing.position.set(RACK_X, 0.09, RACK_Z);
+  scene.add(trayRing);
+
+  /* 球 */
+  ball = new THREE.Mesh(
+    new THREE.SphereGeometry(BALL_R, 24, 18),
+    new THREE.MeshStandardMaterial({ color: 0xffcf3d, roughness: 0.35, metalness: 0.35 })
+  );
+  ball.position.set(RACK_X, S.dropH, RACK_Z);
+  ball.castShadow = true;
+  ball.name = 'labBall';
+  scene.add(ball);
+  registerPick(ball, 'ball', function(){
+    toast('这颗球就是演示主角：点面板「落下」或用空格');
+  });
+
+  /* 尾迹线 + 轨迹点 */
+  trailGeo = new THREE.BufferGeometry();
+  trailGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(2000 * 3), 3));
+  trailLine = new THREE.Line(trailGeo, new THREE.LineBasicMaterial({
+    color: 0xffcf3d, transparent: true, opacity: 0.9
+  }));
+  trailLine.frustumCulled = false;
+  scene.add(trailLine);
+
+  var dotGeo = new THREE.BufferGeometry();
+  dotGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(800 * 3), 3));
+  trailDots = new THREE.Points(dotGeo, new THREE.PointsMaterial({
+    color: 0xffcf3d, size: 0.05, sizeAttenuation: true, transparent: true, opacity: 0.75
+  }));
+  trailDots.frustumCulled = false;
+  scene.add(trailDots);
+
+  /* 刻度标尺（竖直，贴在落球架左侧） */
+  rulerBoard = mkBoard(0.18, 2.45, 120, 1560, drawRuler);
+  rulerBoard.position.set(RACK_X - 0.66, 1.225, RACK_Z + 0.02);
+  scene.add(rulerBoard);
+
+  /* 首次弹起高度标记 */
+  peakMarker = new THREE.Mesh(
+    new THREE.BoxGeometry(0.22, 0.014, 0.02),
+    new THREE.MeshBasicMaterial({ color: 0xff5a6e })
+  );
+  peakMarker.position.set(RACK_X - 0.66, BALL_R, RACK_Z + 0.04);
+  peakMarker.visible = false;
+  scene.add(peakMarker);
+
+  /* 三档重力比较板（后墙高处，不挡面板） */
+  cmpBoard = mkBoard(1.3, 0.78, 800, 480, drawCmpBoard);
+  cmpBoard.position.set(0.75, 2.3, -3.2);
+  cmpBoard.rotation.y = -0.22;
+  scene.add(cmpBoard);
+}
+
+/* ---------- 组 B1 的 DEMO ---------- */
+var DEMO = {
+  buildWorld: function(){ buildGravityWorld(); },
+
+  buildUI: function(){
+    this._panel = mkPanel(1.45, 0.73, 1024, 512);
+    this._panel.position.set(1.05, 1.35, -1.85);
+    scene.add(this._panel);
+    /* 两排三列，共 6 个按钮 */
+    uiButton('g-earth', '地球 9.8', 32, 312, 300, 82);
+    uiButton('g-moon', '月球 3.0', 350, 312, 300, 82);
+    uiButton('g-jup', '木星 25', 668, 312, 300, 82);
+    uiButton('elastic', '弹性 0.45', 32, 414, 300, 82);
+    uiButton('drop', '落下（空格）', 350, 414, 300, 82);
+    uiButton('reset', '重置', 668, 414, 300, 82);
+    setInterval(function(){ updateStats(); }, 400);
+  },
+
+  drawUI: function(ctx, W, H){
+    var act = gravIdx();
+    ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+    var gd = ctx.createLinearGradient(0, 0, W, H);
+    gd.addColorStop(0, '#131c2f'); gd.addColorStop(1, '#0f1626');
+    ctx.fillStyle = gd; ctx.fillRect(0, 0, W, H);
+    ctx.strokeStyle = '#3a4a6c'; ctx.lineWidth = 4; ctx.strokeRect(2, 2, W - 4, H - 4);
+
+    ctx.fillStyle = '#9fd0ff';
+    ctx.font = 'bold 40px "Microsoft YaHei", sans-serif';
+    ctx.fillText('重力实验室', 34, 22);
+
+    ctx.fillStyle = '#8fa2c2';
+    ctx.font = '21px "Microsoft YaHei", sans-serif';
+    ctx.fillText('状态层只有一个 S：改 S.gravity，落体 / 读数 / 落音同时变', 34, 72);
+
+    /* 读数区 */
+    ctx.fillStyle = '#0b1120';
+    ctx.strokeStyle = '#26344f'; ctx.lineWidth = 3;
+    roundRect(ctx, 28, 108, 968, 172, 14); ctx.fill(); ctx.stroke();
+
+    ctx.fillStyle = GRAVS[act].color;
+    ctx.font = 'bold 30px "Microsoft YaHei", sans-serif';
+    ctx.fillText('g = ' + fmt(S.gravity, 1) + ' m/s²', 54, 126);
+    ctx.fillStyle = '#c3d2ea';
+    ctx.fillText('e = ' + fmt(S.e, 2), 360, 126);
+    ctx.fillStyle = '#7f92b4';
+    ctx.font = '24px "Microsoft YaHei", sans-serif';
+    ctx.fillText(S.phase === 'falling' ? '下落中 ' + fmt(S.playT, 2) + ' s' :
+      (S.phase === 'done' ? '已落定' : '待落下'), 560, 131);
+
+    var L = S.last;
+    ctx.fillStyle = '#e8eefc';
+    ctx.font = '28px "Microsoft YaHei", sans-serif';
+    ctx.fillText('落地 t = ' + (L ? fmt(L.t, 3) : '—') + ' s', 54, 176);
+    ctx.fillText('首次弹起 ' + (L ? fmt(L.firstBounceH * 100, 0) : '—') + ' cm', 380, 176);
+    ctx.fillText('弹跳 ' + (L ? L.bounces : '—') + ' 次', 720, 176);
+
+    var th = Math.sqrt(9.8 / S.gravity);
+    var tE = S.byG['9.8'], tM = S.byG['3'];
+    var ratio = (tE && tM) ? tM / tE : NaN;
+    ctx.fillStyle = '#8fa2c2';
+    ctx.font = '24px "Microsoft YaHei", sans-serif';
+    ctx.fillText('理论 √(9.8/g) = ' + fmt(th, 3) + '    实测 月球/地球 = ' +
+      (isFinite(ratio) ? fmt(ratio, 3) : '（两档各落一次后出现）'), 54, 226);
+
+    /* 按钮标签随状态变（active / 弹性） */
+    for (var i = 0; i < panelBtns.length; i++){
+      var b = panelBtns[i];
+      if (b.id === 'g-earth') b.label = (Math.abs(S.gravity - 9.8) < 0.01 ? '● ' : '') + '地球 9.8';
+      else if (b.id === 'g-moon') b.label = (Math.abs(S.gravity - 3) < 0.01 ? '● ' : '') + '月球 3.0';
+      else if (b.id === 'g-jup') b.label = (Math.abs(S.gravity - 25) < 0.01 ? '● ' : '') + '木星 25';
+      else if (b.id === 'elastic') b.label = '弹性 ' + fmt(S.e, 2);
+    }
+  },
+
+  onPick: function(id, src){
+    if (id === 'g-earth' || id === 'g-moon' || id === 'g-jup'){
+      var g = id === 'g-earth' ? 9.8 : (id === 'g-moon' ? 3 : 25);
+      S.gravity = g; S.lastAction = '切换重力 g=' + fmt(g, 1);
+      beep(pitchFor(g), 70, 'triangle', 0.05);
+      pulse(src === 'vr' ? vrCtrls[0].userData.inputSource : null, 0.4, 50);
+      toast('g=' + fmt(g, 1) + ' m/s² · 面板读数与落地音高会一起变');
+      panelDirty = true;
+    } else if (id === 'elastic'){
+      S.e = (Math.abs(S.e - 0.45) < 0.01) ? 0.9 : 0.45;
+      S.lastAction = '弹性 e=' + fmt(S.e, 2);
+      beep(520, 60, 'square', 0.04);
+      toast('弹性 e=' + fmt(S.e, 2) + '（只影响弹跳次数，不影响下落快慢）');
+      panelDirty = true;
+    } else if (id === 'drop'){
+      doDrop();
+      beep(330, 50, 'triangle', 0.04);
+    } else if (id === 'reset'){
+      DEMO.reset();
+    }
+  },
+
+  onKey: function(code){
+    if (code === 'Space'){ doDrop(); }
+    else if (code === 'Digit1'){ DEMO.onPick('g-earth', 'pc'); }
+    else if (code === 'Digit2'){ DEMO.onPick('g-moon', 'pc'); }
+    else if (code === 'Digit3'){ DEMO.onPick('g-jup', 'pc'); }
+    else if (code === 'KeyE'){ DEMO.onPick('elastic', 'pc'); }
+  },
+
+  onSqueeze: function(ray, src){
+    doDrop();
+    pulse(src, 0.5, 60);
+    toast('握持键 = 落下（VR 侧同一套 S）');
+  },
+
+  onAim: function(r, p){ /* 保留钩子 */ },
+
+  update: function(dt){
+    stepPlayback(dt);
+    if (cmpCacheG !== S.gravity){          // S 变了 → 标尺板重画（一个 S 驱动三处）
+      cmpCacheG = S.gravity;
+      if (cmpBoard) cmpBoard.userData.redraw();
+      if (ball) ball.material.color.set(GRAVS[gravIdx()].color);
+      if (trailLine) trailLine.material.color.set(GRAVS[gravIdx()].color);
+      if (trailDots) trailDots.material.color.set(GRAVS[gravIdx()].color);
+    }
+    if (trayFlash > 0 && trayRing){
+      trayFlash = Math.max(0, trayFlash - dt * 2.2);
+      trayRing.material.color.setRGB(0.44 + 0.56 * trayFlash, 0.69, 1.0);
+      var sc = 1 + trayFlash * 0.08;
+      trayRing.scale.set(sc, sc, 1);
+    }
+  },
+
+  reset: function(){
+    S.gravity = G_INIT; S.e = E_INIT;
+    S.phase = 'idle'; S.playT = 0; S.playDur = 0; S.freeze = false;
+    S.last = null; S.byG = {}; S.records.length = 0;
+    S.landFired = false;
+    S.lastAction = '—'; S.lastPick = '—'; S.picks = 0;
+    hapticLog.length = 0; sfxLog.length = 0;
+    if (ball){ ball.position.set(RACK_X, S.dropH, RACK_Z); ball.material.color.set(GRAVS[0].color); }
+    if (trailGeo) trailGeo.setDrawRange(0, 0);
+    if (trailDots) trailDots.geometry.setDrawRange(0, 0);
+    if (peakMarker) peakMarker.visible = false;
+    trayFlash = 0;
+    if (trayRing){ trayRing.material.color.set(0x6fb0ff); trayRing.scale.set(1, 1, 1); }
+    if (camera) camera.rotation.x = PITCH0;
+    if (player) player.position.set(0, 0, 0);
+    cmpCacheG = -1;
+    panelDirty = true;
+  },
+
+  /* ---------------- 自测：14 条真实机制断言 ---------------- */
+  selfTest: function(){
+    var pass = [], fail = [];
+    var T = function(ok, name){ (ok ? pass : fail).push(name); };
+    DEMO.reset();
+
+    /* ① 同一高度，月球/地球 落地时间比值 ≈ √(9.8/3)（±8%） */
+    var rE = simDrop(9.8, 0.45, S.dropH);
+    var rM = simDrop(3, 0.45, S.dropH);
+    var ratio = rM.t / rE.t, th = Math.sqrt(9.8 / 3);
+    T(Math.abs(ratio - th) / th < 0.08,
+      '月球/地球 落地时间实测比值 ' + ratio.toFixed(3) + ' ≈ 理论 √(9.8/3)=' + th.toFixed(3) + '（±8%）');
+
+    /* ② 木星比地球快 */
+    var rJ = simDrop(25, 0.45, S.dropH);
+    T(rJ.t < rE.t, '木星 g=25 落地 ' + rJ.t.toFixed(3) + 's 快于地球 ' + rE.t.toFixed(3) + 's');
+
+    /* ③ 弹性 0.9 的弹跳次数 > 0.45 */
+    var b45 = simDrop(9.8, 0.45, S.dropH).bounces;
+    var b90 = simDrop(9.8, 0.9, S.dropH).bounces;
+    T(b90 > b45, '弹性 0.9 弹跳 ' + b90 + ' 次 > 弹性 0.45 的 ' + b45 + ' 次（e 只改弹跳不改落速）');
+
+    /* ④ 面板读数与 S 同步：改 S.gravity 后 HUD 文本变 */
+    var before = CFG.hudLines().join('|');
+    S.gravity = 3;
+    var after = CFG.hudLines().join('|');
+    T(after !== before && after.indexOf('g=3.0') >= 0, '改 S.gravity 一处后 HUD 读数同步变成 g=3.0');
+    S.gravity = 9.8;
+
+    /* ⑤ 一次测量追加一条记录 */
+    var n0 = S.records.length;
+    var r1 = measure(9.8, 0.45);
+    T(S.records.length === n0 + 1 && S.records[S.records.length - 1].t === r1.t,
+      '一次测量追加一条记录（records=' + S.records.length + '，t=' + r1.t.toFixed(3) + 's）');
+
+    /* ⑥ byG 因子表按重力存时间，供比值对照 */
+    var rM2 = measure(3, 0.45);
+    T(S.byG['9.8'] === r1.t && S.byG['3'] === rM2.t,
+      'byG 按 g 存落地时间（9.8→' + S.byG['9.8'].toFixed(3) + 's, 3→' + S.byG['3'].toFixed(3) + 's）');
+
+    /* ⑦ 球最终停在地面，不穿透 */
+    T(r1.rest === true && Math.abs(r1.finalY - BALL_R) < 1e-9,
+      '球最终停在地面 y=半径 ' + BALL_R + ' m，不穿透地面');
+
+    /* ⑧ 落点速度符合 √(2gh) */
+    var vTh = Math.sqrt(2 * 9.8 * (S.dropH - BALL_R));
+    T(Math.abs(r1.impactV - vTh) / vTh < 0.02,
+      '落点速度 ' + r1.impactV.toFixed(2) + ' m/s ≈ √(2gh)=' + vTh.toFixed(2) + '（±2%）');
+
+    /* ⑨ 固定步长 → 两次模拟逐位一致（自测不依赖帧率） */
+    var d1 = simDrop(3, 0.45, S.dropH), d2 = simDrop(3, 0.45, S.dropH);
+    T(d1.t === d2.t && d1.bounces === d2.bounces && d1.path.length === d2.path.length,
+      '固定步长 1/240 → 两次模拟结果完全一致（可确定性自测）');
+
+    /* ⑩ 落地音高随重力变（同一个 S 的第三处表现） */
+    landingBeep(25); landingBeep(3);
+    var f1 = sfxLog[sfxLog.length - 2].freq, f2 = sfxLog[sfxLog.length - 1].freq;
+    T(f1 > f2 && Math.abs(f1 - pitchFor(25)) < 1 && Math.abs(f2 - pitchFor(3)) < 1,
+      '落地音高随重力变：木星 ' + f1 + 'Hz > 月球 ' + f2 + 'Hz');
+
+    /* ⑪ 首次弹起高度 ≈ e²·h */
+    var hTh = 0.45 * 0.45 * (S.dropH - BALL_R);
+    T(Math.abs(r1.firstBounceH - hTh) / hTh < 0.12,
+      '首次弹起 ' + (r1.firstBounceH * 100).toFixed(1) + 'cm ≈ e^2*h=' + (hTh * 100).toFixed(1) + 'cm（±12%）');
+
+    /* ⑫ 面板 6 个按钮且含三档重力 */
+    var ids = panelBtns.map(function(b){ return b.id; });
+    T(panelBtns.length >= 6 && ids.indexOf('g-moon') >= 0 && ids.indexOf('g-jup') >= 0 && ids.indexOf('drop') >= 0,
+      '面板 6 个按钮含地球/月球/木星/弹性/落下/重置');
+
+    /* ⑬ 「落下」进入播放并拿到总时长 */
+    DEMO.onPick('g-moon', 'test');
+    doDrop();
+    T(S.phase === 'falling' && S.playDur > 0 && S.last && Math.abs(S.last.g - 3) < 0.01,
+      '按「落下」进入下落播放，播放时长 ' + S.playDur.toFixed(2) + 's（用当前 g=3）');
+
+    /* ⑭ reset 恢复默认并清记录 */
+    DEMO.reset();
+    T(Math.abs(S.gravity - 9.8) < 1e-9 && Math.abs(S.e - 0.45) < 1e-9 &&
+      S.records.length === 0 && S.phase === 'idle',
+      'reset 恢复 g=9.8 / e=0.45 / 清测量记录 / 回到待落下');
+
+    return { pass: pass, fail: fail };
+  }
+};
+
+/* ---------- 给 LAB.api 追加本演示的方法（模板 boot 里会合并） ---------- */
+window.__LAB_EXTRAS = {
+  drop: function(){ return doDrop(); },
+  measure: function(g, e){ return measure(g == null ? S.gravity : g, e == null ? S.e : e); },
+  simDrop: function(g, e, h){ return simDrop(g == null ? 9.8 : g, e == null ? 0.45 : e, h == null ? S.dropH : h); },
+  records: function(){ return S.records.slice(); },
+  seek: function(t){
+    if (!S.last) return null;
+    S.playT = clamp(t, 0, S.playDur); S.freeze = true; S.phase = 'falling';
+    applyPlayback(); panelDirty = true;
+    toast('已暂停在 t=' + fmt(S.playT, 2) + 's（冻结播放，看尾迹）');
+    return S.playT;
+  },
+  play: function(){ S.freeze = false; S.phase = 'falling'; return S.playT; },
+  phase: function(){ return S.phase; }
+};
+
+/* boot() 在本段之后同步执行，因此 setTimeout(0) 时 window.LAB 已存在：
+   把本演示的 api 合并进去（模板约定保留 fire/reset/getState/setState/haptics/sfx/selfTest） */
+setTimeout(function(){
+  if (!window.LAB || !window.LAB.api) return;
+  var ex = window.__LAB_EXTRAS || {};
+  for (var k in ex){
+    if (Object.prototype.hasOwnProperty.call(ex, k)) window.LAB.api[k] = ex[k];
+  }
+}, 0);
+
+/* ======================= 4. 启动（不要改） ======================= */
+function boot(){
+  renderer = new THREE.WebGLRenderer({ canvas: $('c'), antialias: true, alpha: false });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  renderer.setSize(innerWidth, innerHeight);
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.xr.enabled = true;
+  renderer.xr.setReferenceSpaceType('local-floor');
+
+  scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x0e1220);
+  camera = new THREE.PerspectiveCamera(70, innerWidth / innerHeight, 0.05, 60);
+  camera.position.set(0, 1.6, 0);
+  player = new THREE.Group();
+  player.add(camera);
+  scene.add(player);
+  clock = new THREE.Clock();
+
+  buildBase();
+  DEMO.buildWorld();
+  DEMO.buildUI();
+  setupVR();
+  setupPC();
+
+  document.title = CFG.id.toUpperCase() + ' · ' + CFG.title;
+  $('hudTitle').textContent = CFG.title;
+  $('hudTag').textContent = CFG.subtitle;
+  $('loadTitle').textContent = CFG.title;
+  $('hudPC').innerHTML = '<b>PC 操作</b><br>' + CFG.pcKeys;
+  $('hudVR').innerHTML = '<b>头显操作</b><br>' + CFG.vrKeys;
+  $('hudTeach').innerHTML = '<b>课堂要点</b><br>' + CFG.teach;
+  redrawPanel();
+
+  window.LAB = {
+    S: S, scene: scene, camera: camera, renderer: renderer, player: player, cfg: CFG,
+    ui: { panel: function(){ return panel; }, buttons: function(){ return panelBtns; },
+          hover: function(){ return hoverId; } },
+    api: {
+      fire: fireButton,
+      reset: DEMO.reset,
+      getState: function(){ return JSON.parse(JSON.stringify(S)); },
+      setState: function(k, v){ S[k] = v; panelDirty = true; },
+      haptics: function(){ return hapticLog.slice(); },
+      sfx: function(){ return sfxLog.slice(); },
+      selfTest: function(){
+        var r = DEMO.selfTest();
+        console.log('SELFTEST PASS ' + r.pass.length + ' / FAIL ' + r.fail.length);
+        if (r.fail.length) console.log('SELFTEST FAILED: ' + r.fail.join(' | '));
+        return r;
+      }
+    }
+  };
+
+  var loader = $('loader');
+  $('loadMsg').textContent = '就绪 · ' + CFG.part;
+  setTimeout(function(){ loader.style.opacity = '0'; setTimeout(function(){ loader.remove(); }, 520); }, 180);
+
+  onResize();
+  renderer.setAnimationLoop(animate);
+}
+try { boot(); }
+catch (e) {
+  console.error('启动失败', e);
+  var lm = document.getElementById('loadMsg');
+  if (lm) lm.textContent = '启动失败：' + e.message;
+}
+})();
+</script>
+</body>
+</html>

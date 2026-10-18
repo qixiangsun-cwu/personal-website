@@ -1,0 +1,1363 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>A3 投掷校准 · 力度 × 平滑 × 重力</title>
+<style>
+  html,body{margin:0;padding:0;overflow:hidden;background:#0e1220;color:#e8eefc;
+    font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif;}
+  #c{position:fixed;inset:0;display:block;}
+  #hud{position:fixed;left:14px;top:14px;z-index:20;width:288px;padding:12px 14px;
+    background:rgba(15,20,34,.9);border:1px solid #2b3854;border-radius:10px;
+    font-size:12px;line-height:1.65;box-shadow:0 8px 26px rgba(0,0,0,.4);}
+  #hud h2{margin:0 0 4px;font-size:15px;color:#7fc4ff;letter-spacing:.5px;}
+  #hud .tagline{color:#93a4c2;font-size:11px;margin-bottom:6px;}
+  #hud .sec{border-top:1px solid #253149;margin-top:8px;padding-top:7px;}
+  #hud b{color:#9fd0ff;font-weight:600;}
+  #hud .k{display:inline-block;background:#1b2540;border:1px solid #31405f;border-radius:4px;
+    padding:0 5px;margin:1px 2px;color:#cfe2ff;font-size:11px;}
+  #hud .warnline{color:#ffc857;}
+  #stats{color:#5fd08a;font-size:11px;white-space:pre-line;}
+  #enterVR{position:fixed;right:18px;top:18px;z-index:20;display:none;cursor:pointer;
+    background:linear-gradient(135deg,#2f7de1,#1b4fa8);color:#fff;border:none;border-radius:24px;
+    padding:11px 22px;font-size:15px;letter-spacing:2px;box-shadow:0 4px 16px rgba(47,125,225,.4);}
+  #enterVR:disabled{background:#4a5468;cursor:not-allowed;box-shadow:none;}
+  #vrhint{position:fixed;right:18px;top:72px;z-index:20;max-width:236px;display:none;
+    background:rgba(15,20,34,.88);border:1px solid #2b3854;border-radius:8px;padding:7px 9px;
+    color:#b9c8e2;font-size:11px;line-height:1.6;text-align:right;}
+  #toast{position:fixed;left:50%;bottom:58px;transform:translateX(-50%);z-index:25;
+    background:rgba(21,28,46,.95);border:1px solid #3a4a6c;border-radius:10px;padding:10px 18px;
+    font-size:14px;color:#d9e6ff;opacity:0;transition:opacity .25s;pointer-events:none;white-space:nowrap;}
+  #toast.show{opacity:1;}
+  #loader{position:fixed;inset:0;z-index:50;background:#0e1220;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;gap:6px;transition:opacity .5s;}
+  #loader h1{font-size:26px;letter-spacing:4px;color:#7fc4ff;margin:0;font-weight:600;}
+  #loader p{font-size:13px;color:#8fa2c2;margin:0;}
+  body.XR #hud,body.XR #enterVR,body.XR #vrhint{display:none!important;}
+  body.XR #toast{bottom:auto;top:24px;}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="hud">
+  <h2 id="hudTitle">LAB</h2>
+  <div class="tagline" id="hudTag"></div>
+  <div class="sec" id="hudPC"></div>
+  <div class="sec" id="hudVR"></div>
+  <div class="sec" id="hudTeach"></div>
+  <div class="sec"><span id="stats">初始化…</span></div>
+</div>
+<div id="toast"></div>
+<button id="enterVR">进入 VR</button>
+<div id="vrhint"></div>
+<div id="loader">
+  <h1 id="loadTitle">LAB</h1>
+  <p id="loadMsg">正在初始化…</p>
+</div>
+
+<script src="./three.min.js"></script>
+<script>
+/* =========================================================================
+ * 第 7 次课 · WebXR 交互零件演示脚手架（模板）
+ * 用法：复制本文件 → 改 CFG → 在 DEMO 区实现 buildWorld / buildUI / update / onPick /
+ *       selfTest / reset。基础设施区（0—4 段）不要改。
+ * 约定（验证工具依赖，务必保留）：
+ *   1. 外部库用「点斜杠」相对路径引入 three.min.js（与页面同目录）
+ *   2. 必须存在行 `  renderer.setAnimationLoop(animate);`
+ *   3. animate() 内必须调用 renderer.render(scene, camera)
+ *   4. renderer.xr.setReferenceSpaceType('local-floor') 在会话创建前调用
+ *   5. 暴露 window.LAB = {S, scene, camera, renderer, player, api}
+ * ========================================================================= */
+(function(){
+'use strict';
+
+/* ======================= 0. 演示配置（每个演示改这一段） ======================= */
+var CFG = {
+  id: 'lab03',
+  title: 'A3 投掷校准 · 力度 × 平滑 × 重力',
+  subtitle: '手感不是玄学 · 对应模块 E4',
+  part: '组 A / 交互零件 E4',
+  aimMode: 'mouse',
+  pcKeys: '左键按住球 → 向后拉再向前甩 → 松手投出 · 1/2/3=力度 · Q=平滑 · E=重力 · F=模拟投一次 · C=清空记录 · R=重置',
+  vrKeys: '握持键抓球 → 挥动手柄 → 松开=投出（控制器速度做 EMA 平滑）· 扳机=面板按钮 · 摇杆左右=转 45°（VR 投掷手感未在真机验证）',
+  teach: '投掷 = 速度采样（EMA 平滑）+ 力度系数 + 重力。"手感"就是三个可以调的数字：平滑小=跟手但抖，平滑大=稳但滞后；重力和力度决定落点。',
+  hudLines: function(){
+    var lines = [
+      '力度 ' + fmt(S.power, 2) + ' · 平滑 ' + fmt(S.smooth, 2) + ' · 重力 ' + fmt(S.gravity, 1) + ' m/s²',
+      '原始速度 ' + fmt(S.rawSpeed, 2) + ' → EMA ' + fmt(S.emaSpeed, 2) + ' m/s',
+      '命中 ' + S.hitCount + ' / 投掷 ' + S.throwCount,
+      '最近 5 次（力/平/重 → 命中 · 距离）：'
+    ];
+    var rows = S.rows.slice(-5);
+    for (var i = 0; i < rows.length; i++) lines.push(rowText(rows[i]));
+    if (!rows.length) lines.push('· 还没有投掷记录');
+    return lines;
+  }
+};
+
+/* ======================= 1. 基础设施（不要改） ======================= */
+var renderer, scene, camera, player, clock, audioCtx = null;
+var raycaster = new THREE.Raycaster();
+var aimNdc = new THREE.Vector2(0, 0);
+var tmpV = new THREE.Vector3(), tmpV2 = new THREE.Vector3();
+var panel = null, panelCanvas = null, panelCtx = null, panelTex = null;
+var panelBtns = [], hoverId = null, panelDirty = true;
+var uiHits = [], pickables = [];        // pickables: {mesh, id, onPick}
+var hapticLog = [], sfxLog = [];
+var keys = {}, dragging = false, lastMouse = {x:0,y:0}, dragDist = 0;
+var vrCtrls = [], vrRays = [], xrSession = null;
+var elapsed = 0, frames = 0, fps = 60, fpsT = 0;
+
+/* -------- 1.1 状态：演示自己的状态全部挂在这里 -------- */
+var BAL_R = 0.09;                       /* 球半径 m */
+var TARGET_Z = -8.50;                   /* 靶盘平面 z（距投掷线约 8 m） */
+var BOARD_Y = 1.70;                     /* 靶心高度 */
+var BOARD_R = 1.20;                     /* 靶盘半径 */
+var THROW_ORIGIN = { x: 0, y: 1.45, z: -0.45 };   /* 出手点 */
+var POWERS = [0.6, 1.15, 2.0];          /* 力度档 */
+var SMOOTHS = [0.05, 0.35];             /* 平滑系数（保留权重：越大越稳、越滞后） */
+var GRAVS = [9.8, 3, 25];               /* 重力档 */
+
+var S = {
+  power: 1.15,
+  smooth: 0.35,
+  gravity: 9.8,
+  rawSpeed: 0,            /* 原始速度 m/s（未平滑） */
+  emaSpeed: 0,            /* EMA 平滑后速度 m/s */
+  hitCount: 0,
+  throwCount: 0,
+  rows: [],               /* 记录表：{power,smooth,gravity,aim,hit,ring,dist,speed} */
+  lastHit: false,
+  lastDist: 0,
+  lastRing: 0,
+  lastSpeed: 0,
+  hitFlash: 0,            /* 命中视觉脉冲 0—1 */
+  held: -1,               /* 手里握着第几个球，-1 = 空手 */
+  drag: null,             /* 投掷手势 {x0,y0,x,y,t,pull,now} */
+  vrLast: null,           /* 上一帧手柄位置（VR 速度采样） */
+  lastAction: '—',
+  lastPick: '—',
+  picks: 0
+};
+
+var balls = [];           /* {mesh, home:THREE.Vector3, state, vel, returnT} */
+var board = null;         /* 记录表 3D 板 */
+var targetMesh = null;    /* 靶盘 */
+var targetRim = null;     /* 命中时发亮的靶圈 */
+var _keyCd = {}, _uiT = 0, boardDirty = true;
+
+/* -------- 1.2 小工具 -------- */
+function clamp(v, a, b){ return v < a ? a : (v > b ? b : v); }
+function fmt(v, n){ return (isFinite(v) ? v.toFixed(n == null ? 2 : n) : '—'); }
+function $(id){ return document.getElementById(id); }
+function toast(msg, ms){
+  var t = $('toast');
+  if (!t) return;
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(toast._t);
+  toast._t = setTimeout(function(){ t.classList.remove('show'); }, ms || 1600);
+}
+function initAudio(){
+  if (audioCtx) return audioCtx;
+  try {
+    var AC = window.AudioContext || window.webkitAudioContext;
+    if (AC) audioCtx = new AC();
+  } catch (e) { console.warn('AudioContext 不可用', e); }
+  return audioCtx;
+}
+function resumeAudio(){
+  var c = initAudio();
+  if (c && c.state === 'suspended') c.resume().catch(function(){});
+}
+/* 合成音：freq 频率 Hz，dur 毫秒，type 波形，gain 音量 */
+function beep(freq, dur, type, gain){
+  var c = initAudio();
+  if (!c || S.mute) { sfxLog.push({t: elapsed, freq: freq, skipped: !c}); return; }
+  try {
+    if (c.state === 'suspended') c.resume().catch(function(){});
+    var o = c.createOscillator(), g = c.createGain();
+    o.type = type || 'sine';
+    o.frequency.value = freq;
+    g.gain.value = (gain == null ? 0.05 : gain);
+    o.connect(g); g.connect(c.destination);
+    var now = c.currentTime, d = (dur || 60) / 1000;
+    g.gain.setValueAtTime(g.gain.value, now);
+    g.gain.exponentialRampToValueAtTime(0.0001, now + d);
+    o.start(now); o.stop(now + d + 0.01);
+    sfxLog.push({t: elapsed, freq: freq, dur: dur || 60});
+  } catch (e) { console.warn('beep 失败', e); }
+}
+/* 触觉：inputSource 可为 null（PC 模拟时只记日志） */
+function pulse(src, intensity, ms){
+  hapticLog.push({t: elapsed, intensity: intensity, ms: ms, real: !!(src && src.gamepad &&
+    src.gamepad.hapticActuators && src.gamepad.hapticActuators[0])});
+  try {
+    var acts = src && src.gamepad && src.gamepad.hapticActuators;
+    if (acts && acts[0] && acts[0].pulse) acts[0].pulse(intensity, ms);
+    else if (src && src.gamepad && src.gamepad.hapticActuators && src.gamepad.hapticActuators[0] &&
+             src.gamepad.hapticActuators[0].pulse) src.gamepad.hapticActuators[0].pulse(intensity, ms);
+  } catch (e) { console.warn('触觉不可用', e); }
+}
+
+/* -------- 1.3 3D 面板（CanvasTexture + UV 命中） -------- */
+/* mkPanel(width_m, height_m, pxW, pxH) 返回 mesh；全局 panel 指向它 */
+function mkPanel(wM, hM, pxW, pxH){
+  panelCanvas = document.createElement('canvas');
+  panelCanvas.width = pxW; panelCanvas.height = pxH;
+  panelCtx = panelCanvas.getContext('2d');
+  panelTex = new THREE.CanvasTexture(panelCanvas);
+  panelTex.minFilter = THREE.LinearFilter;
+  var mat = new THREE.MeshBasicMaterial({ map: panelTex, transparent: true });
+  panel = new THREE.Mesh(new THREE.PlaneGeometry(wM, hM), mat);
+  panel.name = 'uiPanel';
+  panelBtns = [];
+  return panel;
+}
+/* 注册按钮：px 坐标以面板 canvas 像素为准（左上角原点） */
+function uiButton(id, label, px, py, pw, ph, enabled){
+  panelBtns.push({ id: id, label: label, x: px, y: py, w: pw, h: ph, enabled: enabled !== false });
+}
+/* 面板绘制：DEMO.drawUI(ctx, W, H) 负责画背景与文字，按钮由 drawButtons 统一画 */
+function drawButtons(ctx, W, H){
+  for (var i = 0; i < panelBtns.length; i++) {
+    var b = panelBtns[i], on = (hoverId === b.id);
+    ctx.fillStyle = !b.enabled ? '#2a3346' : (on ? '#3f8ae0' : '#24314c');
+    ctx.strokeStyle = on ? '#9fd0ff' : '#3a4a6c';
+    ctx.lineWidth = on ? 3 : 2;
+    roundRect(ctx, b.x, b.y, b.w, b.h, 10);
+    ctx.fill(); ctx.stroke();
+    ctx.fillStyle = !b.enabled ? '#6b7688' : (on ? '#ffffff' : '#d5e3f8');
+    ctx.font = 'bold 26px "Microsoft YaHei", sans-serif';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(b.label, b.x + b.w / 2, b.y + b.h / 2);
+  }
+}
+function roundRect(ctx, x, y, w, h, r){
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r);
+  ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r);
+  ctx.arcTo(x, y, x + w, y, r);
+  ctx.closePath();
+}
+function redrawPanel(){
+  if (!panelCtx) return;
+  var W = panelCanvas.width, H = panelCanvas.height;
+  panelCtx.clearRect(0, 0, W, H);
+  DEMO.drawUI(panelCtx, W, H);
+  drawButtons(panelCtx, W, H);
+  panelTex.needsUpdate = true;
+  panelDirty = false;
+}
+/* UV → 按钮 id */
+function uiHitUV(uv){
+  if (!uv) return null;
+  var px = uv.x * panelCanvas.width, py = (1 - uv.y) * panelCanvas.height;
+  for (var i = 0; i < panelBtns.length; i++) {
+    var b = panelBtns[i];
+    if (px >= b.x && px <= b.x + b.w && py >= b.y && py <= b.y + b.h) return b;
+  }
+  return null;
+}
+
+/* -------- 1.4 拾取（PC / VR 共用） -------- */
+/* 返回 {hit, id, point, distance, uv, object} */
+function castFrom(origin, dir, objs){
+  raycaster.set(origin, dir.clone().normalize());
+  raycaster.far = 30;
+  var hits = raycaster.intersectObjects(objs, true);
+  return hits && hits.length ? hits[0] : null;
+}
+function pickPanel(origin, dir, src){
+  var h = castFrom(origin, dir, [panel]);
+  if (!h) return null;
+  var b = uiHitUV(h.uv);
+  return { button: b, point: h.point, distance: h.distance, source: src };
+}
+function pickWorld(origin, dir, src){
+  var list = pickables.map(function(p){ return p.mesh; });
+  var h = castFrom(origin, dir, list);
+  if (!h) return null;
+  var obj = h.object, owner = null;
+  while (obj && !owner) {
+    for (var i = 0; i < pickables.length; i++) if (pickables[i].mesh === obj) owner = pickables[i];
+    obj = obj.parent;
+  }
+  return owner ? { item: owner, point: h.point, distance: h.distance, source: src } : null;
+}
+function registerPick(mesh, id, onPick){
+  pickables.push({ mesh: mesh, id: id, onPick: onPick || function(){} });
+  return mesh;
+}
+
+/* -------- 1.5 PC 输入 -------- */
+function setupPC(){
+  var cvs = renderer.domElement;
+  cvs.addEventListener('pointerdown', function(e){
+    resumeAudio();
+    dragging = true; dragDist = 0; lastMouse.x = e.clientX; lastMouse.y = e.clientY;
+    cvs.setPointerCapture && cvs.setPointerCapture(e.pointerId);
+  });
+  cvs.addEventListener('pointermove', function(e){
+    var dx = e.clientX - lastMouse.x, dy = e.clientY - lastMouse.y;
+    lastMouse.x = e.clientX; lastMouse.y = e.clientY;
+    if (dragging) {
+      dragDist += Math.abs(dx) + Math.abs(dy);
+      player.rotation.y -= dx * 0.0032;
+      camera.rotation.x = clamp(camera.rotation.x - dy * 0.0032, -1.15, 1.0);
+    } else {
+      updateMouseAim(e);
+    }
+  });
+  cvs.addEventListener('pointerup', function(e){
+    if (dragging && dragDist < 6) { resumeAudio(); doClick(e); }
+    dragging = false;
+  });
+  cvs.addEventListener('pointercancel', function(){ dragging = false; });
+  window.addEventListener('keydown', function(e){
+    keys[e.code] = true;
+    if (e.code === 'KeyR') { DEMO.reset(); toast('已重置'); }
+    else if (e.code === 'KeyT' && DEMO.onKey) DEMO.onKey('KeyT');
+    else if (DEMO.onKey) DEMO.onKey(e.code);
+  });
+  window.addEventListener('keyup', function(e){ keys[e.code] = false; });
+  window.addEventListener('resize', onResize);
+}
+function updateMouseAim(e){
+  var r = renderer.domElement.getBoundingClientRect();
+  aimNdc.x = ((e.clientX - r.left) / r.width) * 2 - 1;
+  aimNdc.y = -((e.clientY - r.top) / r.height) * 2 + 1;
+}
+function pcRay(){
+  camera.getWorldPosition(tmpV);
+  var dir = new THREE.Vector3();
+  if (CFG.aimMode === 'center') {
+    camera.getWorldDirection(dir);
+  } else {
+    dir.set(aimNdc.x, aimNdc.y, 0.5).unproject(camera).sub(tmpV).normalize();
+  }
+  return { origin: tmpV.clone(), dir: dir };
+}
+function doClick(e){
+  var r = pcRay();
+  var p = pickPanel(r.origin, r.dir, 'pc');
+  if (p && p.button) { fireButton(p.button.id, 'pc'); return; }
+  var w = pickWorld(r.origin, r.dir, 'pc');
+  if (w) { w.item.onPick(w); return; }
+  DEMO.onEmptyClick && DEMO.onEmptyClick(r);
+}
+function fireButton(id, src){
+  for (var i = 0; i < panelBtns.length; i++) {
+    if (panelBtns[i].id === id) {
+      if (!panelBtns[i].enabled) return false;
+      S.lastPick = id; S.picks++;
+      pulse(null, 0.5, 60); beep(1046, 55, 'square', 0.05);
+      DEMO.onPick(id, src);
+      panelDirty = true;
+      return true;
+    }
+  }
+  return false;
+}
+
+/* -------- 1.6 VR 输入 -------- */
+function setupVR(){
+  for (var i = 0; i < 2; i++) {
+    (function(idx){
+      var ctrl = renderer.xr.getController(idx);
+      ctrl.addEventListener('connected', function(e){ ctrl.userData.inputSource = e.data; });
+      ctrl.addEventListener('selectstart', function(){
+        resumeAudio();
+        var src = ctrl.userData.inputSource;
+        var ray = ctrlRay(ctrl);
+        var p = pickPanel(ray.origin, ray.dir, 'vr');
+        if (p && p.button) { fireButton(p.button.id, 'vr'); return; }
+        var w = pickWorld(ray.origin, ray.dir, 'vr');
+        if (w) { w.item.onPick(w); return; }
+        DEMO.onEmptyClick && DEMO.onEmptyClick(ray, src);
+      });
+      ctrl.addEventListener('squeezestart', function(){
+        var src = ctrl.userData.inputSource;
+        DEMO.onSqueeze && DEMO.onSqueeze(ctrlRay(ctrl), src);
+      });
+      ctrl.addEventListener('squeezeend', function(){
+        var src = ctrl.userData.inputSource;
+        DEMO.onSqueezeEnd && DEMO.onSqueezeEnd(ctrl, src);
+      });
+      var ray = new THREE.Line(
+        new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0,0,0), new THREE.Vector3(0,0,-1)]),
+        new THREE.LineBasicMaterial({ color: 0x66aaff, transparent: true, opacity: 0.75 })
+      );
+      ray.scale.z = 6; ray.name = 'ctrlRay' + idx;
+      ctrl.add(ray);
+      scene.add(ctrl);
+      vrCtrls.push(ctrl); vrRays.push(ray);
+    })(i);
+  }
+  if (navigator.xr && navigator.xr.isSessionSupported) {
+    navigator.xr.isSessionSupported('immersive-vr').then(function(ok){
+      var btn = $('enterVR');
+      btn.style.display = 'block';
+      if (ok) {
+        btn.disabled = false;
+        btn.onclick = enterVR;
+        $('vrhint').style.display = 'block';
+        $('vrhint').innerHTML = '本机支持 immersive-vr。<br>戴上头显后点此进入，或直接用头显浏览器打开本页。';
+      } else {
+        btn.disabled = true; btn.textContent = '本机不支持沉浸式 VR';
+        $('vrhint').style.display = 'block';
+        $('vrhint').innerHTML = 'PC 可用鼠标键盘完成全部演示；<br>头显浏览器打开本页即可进入 VR。';
+      }
+    }).catch(function(e){
+      $('enterVR').style.display = 'block';
+      $('enterVR').disabled = true;
+      $('enterVR').textContent = 'WebXR 检测失败';
+      console.warn('isSessionSupported 失败', e);
+    });
+  } else {
+    $('enterVR').style.display = 'block';
+    $('enterVR').disabled = true;
+    $('enterVR').textContent = '非安全上下文或无 WebXR';
+  }
+}
+function ctrlRay(ctrl){
+  var origin = new THREE.Vector3(), dir = new THREE.Vector3();
+  ctrl.getWorldPosition(origin);
+  dir.set(0, 0, -1).transformDirection(ctrl.matrixWorld);
+  return { origin: origin, dir: dir };
+}
+function enterVR(){
+  resumeAudio();
+  navigator.xr.requestSession('immersive-vr', {
+    optionalFeatures: ['local-floor', 'bounded-floor', 'hand-tracking', 'layers']
+  }).then(function(session){
+    xrSession = session;
+    renderer.xr.setSession(session);
+    document.body.classList.add('XR');
+    session.addEventListener('end', function(){
+      xrSession = null;
+      document.body.classList.remove('XR');
+    });
+  }).catch(function(e){
+    console.warn('进入 VR 失败', e);
+    toast('进入 VR 失败：' + (e && e.message ? e.message : e));
+  });
+}
+
+/* -------- 1.7 主循环 -------- */
+function onResize(){
+  camera.aspect = innerWidth / innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+}
+function animate(){
+  var dt = Math.min(clock.getDelta(), 0.05);
+  elapsed += dt; frames++;
+  fpsT += dt;
+  if (fpsT >= 0.5) { fps = frames / fpsT; frames = 0; fpsT = 0; updateStats(); }
+
+  /* PC 行走 */
+  if (!renderer.xr.isPresenting) {
+    var sp = (keys.ShiftLeft || keys.ShiftRight) ? 3.2 : 1.7;
+    var fwd = new THREE.Vector3(-Math.sin(player.rotation.y), 0, -Math.cos(player.rotation.y));
+    var right = new THREE.Vector3(Math.cos(player.rotation.y), 0, -Math.sin(player.rotation.y));
+    var mv = new THREE.Vector3();
+    if (keys.KeyW || keys.ArrowUp) mv.add(fwd);
+    if (keys.KeyS || keys.ArrowDown) mv.sub(fwd);
+    if (keys.KeyD || keys.ArrowRight) mv.add(right);
+    if (keys.KeyA || keys.ArrowLeft) mv.sub(right);
+    if (mv.lengthSq() > 0) {
+      mv.normalize().multiplyScalar(sp * dt);
+      movePlayer(mv.x, mv.z);
+    }
+  }
+
+  /* VR 摇杆：左右转 45°（防误触冷却） */
+  if (renderer.xr.isPresenting) readVRStick(dt);
+
+  /* 悬停检测 */
+  updateHover();
+
+  DEMO.update(dt);
+  if (panelDirty) redrawPanel();
+
+  renderer.render(scene, camera);
+}
+function movePlayer(dx, dz){
+  player.position.x = clamp(player.position.x + dx, -4.4, 4.4);
+  player.position.z = clamp(player.position.z + dz, -4.4, 4.4);
+}
+var snapCd = 0;
+function readVRStick(dt){
+  snapCd = Math.max(0, snapCd - dt);
+  var src = xrSession && xrSession.inputSources;
+  if (!src) return;
+  for (var i = 0; i < src.length; i++) {
+    var gp = src[i].gamepad;
+    if (!gp || !gp.axes || gp.axes.length < 4) continue;
+    if (Math.abs(gp.axes[2]) > 0.75 && snapCd <= 0) {
+      player.rotation.y -= (gp.axes[2] > 0 ? -1 : 1) * Math.PI / 4;
+      snapCd = 0.38;
+    }
+  }
+}
+function updateHover(){
+  var r;
+  if (renderer.xr.isPresenting) {
+    if (!vrCtrls[0]) return;
+    r = ctrlRay(vrCtrls[0]);
+  } else {
+    r = pcRay();
+  }
+  var p = pickPanel(r.origin, r.dir, 'hover');
+  var id = p && p.button ? p.button.id : null;
+  if (id !== hoverId) {
+    hoverId = id;
+    panelDirty = true;
+    if (id) { pulse(null, 0.2, 30); beep(880, 35, 'sine', 0.035); }
+    DEMO.onHover && DEMO.onHover(id);
+  }
+  DEMO.onAim && DEMO.onAim(r, p);
+}
+function updateStats(){
+  if (!panel) return;
+  var st = 'FPS ' + fps.toFixed(0) + ' · DrawCalls ' + renderer.info.render.calls +
+           ' · Tris ' + renderer.info.render.triangles + '\n';
+  var lines = CFG.hudLines ? CFG.hudLines() : [];
+  for (var i = 0; i < lines.length; i++) st += lines[i] + '\n';
+  $('stats').textContent = st;
+}
+
+/* ======================= 2. 场景基础（可少量改） ======================= */
+/* 投掷需要 8.5 m 的纵深：地面放大到 20×20，后墙移到 z=-8.60，雾推远 */
+function buildBase(){
+  scene.fog = new THREE.Fog(0x0e1220, 14, 36);
+  scene.add(new THREE.HemisphereLight(0xbfd4ff, 0x1a2030, 0.85));
+  var dir = new THREE.DirectionalLight(0xffffff, 1.1);
+  dir.position.set(3.5, 6.5, 2.5);
+  dir.castShadow = true;
+  dir.shadow.mapSize.set(1024, 1024);
+  dir.shadow.camera.left = -10; dir.shadow.camera.right = 10;
+  dir.shadow.camera.top = 10; dir.shadow.camera.bottom = -10;
+  scene.add(dir);
+  scene.add(new THREE.AmbientLight(0x334466, 0.5));
+
+  var floor = new THREE.Mesh(
+    new THREE.PlaneGeometry(20, 20),
+    new THREE.MeshStandardMaterial({ color: 0x2a3346, roughness: 0.95, metalness: 0.05 })
+  );
+  floor.rotation.x = -Math.PI / 2;
+  floor.receiveShadow = true;
+  floor.name = 'floor';
+  scene.add(floor);
+
+  var grid = new THREE.GridHelper(20, 40, 0x3f5273, 0x27324a);
+  grid.position.y = 0.002;
+  grid.material.transparent = true; grid.material.opacity = 0.5;
+  scene.add(grid);
+
+  var back = new THREE.Mesh(
+    new THREE.PlaneGeometry(20, 6),
+    new THREE.MeshStandardMaterial({ color: 0x1b2438, roughness: 1 })
+  );
+  back.position.set(0, 3, -8.60);
+  back.receiveShadow = true;
+  scene.add(back);
+
+  var sideMat = new THREE.MeshStandardMaterial({ color: 0x18202f, roughness: 1 });
+  var left = new THREE.Mesh(new THREE.PlaneGeometry(18, 4), sideMat);
+  left.position.set(-6.0, 2.0, -4.4); left.rotation.y = Math.PI / 2;
+  scene.add(left);
+  var right = new THREE.Mesh(new THREE.PlaneGeometry(18, 4), sideMat);
+  right.position.set(6.0, 2.0, -4.4); right.rotation.y = -Math.PI / 2;
+  scene.add(right);
+}
+
+/* ======================= 3. 演示实现（每个演示改这一段） ======================= */
+/* A3 投掷校准：力度 × EMA 平滑 × 重力
+ * 投掷 = 速度采样（EMA 平滑）+ 力度系数 + 重力。三个数字都在面板上可调，
+ * 每次投掷往记录表追加一行（力度/平滑/重力/命中/落点距离）。
+ * simThrow() 用固定步长物理同步跑完一次投掷，供自测与课堂演示。
+ */
+var DEMO = {
+
+  /* ---------- 世界 ---------- */
+  buildWorld: function(){
+    var i;
+
+    /* 三颗球 + 球架（球架在左前，避开右侧面板与记录表） */
+    var homeX = [-0.55, -0.15, 0.25];
+    for (i = 0; i < 3; i++) {
+      var cup = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.11, 0.09, 0.07, 16),
+        new THREE.MeshStandardMaterial({ color: 0x2f3a4f, roughness: 0.85 })
+      );
+      cup.position.set(homeX[i], 0.94, -1.45);
+      cup.receiveShadow = true;
+      scene.add(cup);
+
+      var col = [0xff6b6b, 0xffb347, 0x62d9ff][i];
+      var mesh = new THREE.Mesh(
+        new THREE.SphereGeometry(BAL_R, 20, 16),
+        new THREE.MeshStandardMaterial({ color: col, roughness: 0.4, metalness: 0.1,
+          emissive: col, emissiveIntensity: 0.18 })
+      );
+      mesh.position.set(homeX[i], 0.98, -1.45);
+      mesh.castShadow = true;
+      mesh.name = 'ball' + i;
+      scene.add(mesh);
+      balls.push({
+        mesh: mesh,
+        home: new THREE.Vector3(homeX[i], 0.98, -1.45),
+        state: 'idle',
+        vel: new THREE.Vector3(),
+        returnT: 0
+      });
+      registerPick(mesh, 'ball' + i, (function(idx){
+        return function(h){ DEMO.grabBall(idx, null); };
+      })(i));
+    }
+
+    /* 投掷线 + 地面距离刻度（每米一条） */
+    var line = new THREE.Mesh(
+      new THREE.BoxGeometry(3.0, 0.008, 0.06),
+      new THREE.MeshBasicMaterial({ color: 0xffb347 })
+    );
+    line.position.set(0, 0.008, -0.50);
+    scene.add(line);
+    for (i = 1; i <= 8; i++) {
+      var mk = new THREE.Mesh(
+        new THREE.BoxGeometry(2.4, 0.006, 0.03),
+        new THREE.MeshBasicMaterial({ color: i === 8 ? 0x5fd08a : 0x2f4a72 })
+      );
+      mk.position.set(0, 0.006, -i - 0.45);
+      scene.add(mk);
+    }
+
+    /* 靶盘（后墙）+ 命中发亮圈 */
+    targetMesh = new THREE.Mesh(
+      new THREE.CircleGeometry(BOARD_R, 64),
+      new THREE.MeshBasicMaterial({ map: makeTargetTex(), transparent: true })
+    );
+    targetMesh.position.set(0, BOARD_Y, TARGET_Z);
+    scene.add(targetMesh);
+
+    targetRim = new THREE.Mesh(
+      new THREE.TorusGeometry(BOARD_R, 0.035, 8, 64),
+      new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0 })
+    );
+    targetRim.position.set(0, BOARD_Y, TARGET_Z + 0.02);
+    scene.add(targetRim);
+
+    if (camera) camera.rotation.x = -0.06;
+
+    /* 记录表（右侧，避开左上角 DOM HUD）*/
+    board = mkBoard(2.2, 1.0, 900, 410, 1.95, 2.55, -3.85, -0.47);
+    boardDirty = true;
+
+    installPointer();
+  },
+
+  /* ---------- 面板 ---------- */
+  buildUI: function(){
+    var p = mkPanel(1.6, 0.8, 1024, 512);
+    p.position.set(1.30, 1.25, -2.35);
+    p.rotation.y = -0.50;
+    scene.add(p);
+    uiButton('power',  '力度 1.15',  20, 404, 154, 78);
+    uiButton('smooth', '平滑 0.35', 182, 404, 154, 78);
+    uiButton('grav',   '重力 9.8',  344, 404, 154, 78);
+    uiButton('sim',    '投一次',    506, 404, 154, 78);
+    uiButton('clear',  '清空记录',  668, 404, 154, 78);
+    uiButton('reset',  '重置',      830, 404, 154, 78);
+  },
+
+  drawUI: function(ctx, W, H){
+    ctx.fillStyle = '#101a2c'; ctx.fillRect(0, 0, W, H);
+    ctx.strokeStyle = '#3a4a6c'; ctx.lineWidth = 4; ctx.strokeRect(3, 3, W - 6, H - 6);
+    ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+
+    ctx.fillStyle = '#9fd0ff';
+    ctx.font = 'bold 38px "Microsoft YaHei", sans-serif';
+    ctx.fillText('A3 投掷校准 · 手感参数', 30, 60);
+    ctx.fillStyle = '#7f90ad';
+    ctx.font = '23px "Microsoft YaHei", sans-serif';
+    ctx.fillText('力度 × EMA 平滑 × 重力 · 对应 E4', 30, 96);
+
+    ctx.fillStyle = '#cfe2ff';
+    ctx.font = '27px "Microsoft YaHei", sans-serif';
+    ctx.fillText('力度 ' + fmt(S.power, 2) + '   平滑 ' + fmt(S.smooth, 2) + '   重力 ' + fmt(S.gravity, 1) + ' m/s²', 30, 150);
+
+    ctx.fillStyle = '#9fb0cc';
+    ctx.font = '25px "Microsoft YaHei", sans-serif';
+    ctx.fillText('原始速度 ' + fmt(S.rawSpeed, 2) + ' m/s', 30, 194);
+    ctx.fillStyle = '#8ff0b6';
+    ctx.fillText('EMA 平滑后 ' + fmt(S.emaSpeed, 2) + ' m/s', 420, 194);
+
+    /* 最近一次结果 */
+    var lr = S.rows.length ? S.rows[S.rows.length - 1] : null;
+    ctx.fillStyle = !lr ? '#7f90ad' : (lr.hit ? '#8ff0b6' : '#ff8a8a');
+    ctx.font = 'bold 32px "Microsoft YaHei", sans-serif';
+    ctx.fillText(lr ? (lr.hit ? '上次：命中 ' + lr.ring + ' 环 · ' + fmt(lr.dist, 2) + ' m'
+                             : '上次：未中 · ' + fmt(lr.dist, 2) + ' m')
+                    : '上次：还没有投掷', 30, 246);
+
+    ctx.fillStyle = '#dbe7ff';
+    ctx.font = '26px "Microsoft YaHei", sans-serif';
+    ctx.fillText('命中 ' + S.hitCount + ' / 投掷 ' + S.throwCount + ' 次', 30, 292);
+
+    ctx.fillStyle = '#7f90ad';
+    ctx.font = '22px "Microsoft YaHei", sans-serif';
+    ctx.fillText('PC：按住球向后拉再向前甩 → 松手；视线方向 = 投掷方向', 30, 336);
+    ctx.fillText('VR：握持键抓球 → 挥动手柄 → 松开手（控制器速度做 EMA）', 30, 368);
+  },
+
+  /* ---------- 交互 ---------- */
+  onPick: function(id, src){
+    if (id === 'power') {
+      var i = POWERS.indexOf(S.power);
+      S.power = POWERS[(i + 1) % POWERS.length];
+      setBtnLabel('power', '力度 ' + fmt(S.power, 2));
+      S.lastAction = '力度 = ' + fmt(S.power, 2);
+    } else if (id === 'smooth') {
+      var j = SMOOTHS.indexOf(S.smooth);
+      S.smooth = SMOOTHS[(j + 1) % SMOOTHS.length];
+      setBtnLabel('smooth', '平滑 ' + fmt(S.smooth, 2));
+      S.lastAction = '平滑系数 = ' + fmt(S.smooth, 2) + '（越大越稳、越滞后）';
+    } else if (id === 'grav') {
+      var k = GRAVS.indexOf(S.gravity);
+      S.gravity = GRAVS[(k + 1) % GRAVS.length];
+      setBtnLabel('grav', '重力 ' + fmt(S.gravity, 1));
+      S.lastAction = '重力 = ' + fmt(S.gravity, 1) + ' m/s²';
+    } else if (id === 'sim') {
+      var r = DEMO.simThrow({ aim: 'center' });
+      toast(r.hit ? ('模拟投掷：命中 ' + r.ring + ' 环，速度 ' + fmt(r.speed, 2) + ' m/s')
+                  : ('模拟投掷：未中，落点 ' + fmt(r.dist, 2) + ' m'));
+    } else if (id === 'clear') {
+      S.rows.length = 0;
+      S.hitCount = 0; S.throwCount = 0;
+      S.lastAction = '记录表已清空';
+      toast('记录表已清空');
+    } else if (id === 'reset') {
+      DEMO.reset();
+      toast('已重置');
+    }
+    panelDirty = true; boardDirty = true;
+  },
+
+  onKey: function(code){
+    if (!DEMO.keyGate(code)) return;
+    if (code === 'Digit1') { S.power = 0.6;  setBtnLabel('power', '力度 0.60'); panelDirty = true; }
+    else if (code === 'Digit2') { S.power = 1.15; setBtnLabel('power', '力度 1.15'); panelDirty = true; }
+    else if (code === 'Digit3') { S.power = 2.0;  setBtnLabel('power', '力度 2.00'); panelDirty = true; }
+    else if (code === 'KeyQ') fireButton('smooth', 'pc');
+    else if (code === 'KeyE') fireButton('grav', 'pc');
+    else if (code === 'KeyF') fireButton('sim', 'pc');
+    else if (code === 'KeyC') fireButton('clear', 'pc');
+  },
+  keyGate: function(code){
+    var now = Date.now();
+    if (_keyCd[code] && now - _keyCd[code] < 260) return false;
+    _keyCd[code] = now;
+    return true;
+  },
+
+  /* ---------- 抓球 / 投掷手势 ---------- */
+  grabBall: function(idx, e){
+    var b = balls[idx];
+    if (!b || b.state !== 'idle') return false;
+    S.held = idx;
+    b.state = 'held';
+    b.mesh.position.set(THROW_ORIGIN.x, THROW_ORIGIN.y - 0.12, THROW_ORIGIN.z);
+    S.rawSpeed = 0; S.emaSpeed = 0;
+    if (e && e.clientX != null) {
+      S.drag = { x0: e.clientX, y0: e.clientY, x: e.clientX, y: e.clientY,
+                 t: performance.now(), pull: 0, now: 0 };
+    } else {
+      S.drag = { x0: null, y0: null, x: 0, y: 0, t: performance.now(), pull: 0, now: 0 };
+    }
+    S.lastAction = '抓住球 ' + (idx + 1) + '：向后拉再向前甩';
+    pulse(hapticSrc(), 0.3, 40);
+    beep(660, 45, 'sine', 0.04);
+    panelDirty = true;
+    return true;
+  },
+
+  updateDrag: function(e){
+    if (!S.drag || S.drag.x0 == null) return;
+    var now = performance.now();
+    var dx = e.clientX - S.drag.x, dy = e.clientY - S.drag.y;
+    var dt = Math.max(8, now - S.drag.t) / 1000;
+    S.drag.x = e.clientX; S.drag.y = e.clientY; S.drag.t = now;
+
+    /* 鼠标位移 → 手速：px/s 换算成 m/s（经验系数，页面内可调） */
+    var px = Math.sqrt(dx * dx + dy * dy) / dt;
+    S.rawSpeed = px * 0.0075;
+    S.emaSpeed = S.emaSpeed * S.smooth + S.rawSpeed * (1 - S.smooth);
+
+    var pulled = Math.max(0, e.clientY - S.drag.y0) * 0.0025;
+    S.drag.pull = Math.max(S.drag.pull, pulled);      /* 后拉量取历史最大值 */
+    S.drag.now = pulled;                              /* 当前后拉量（视觉用） */
+
+    var b = balls[S.held];
+    if (b) {
+      var fwd = new THREE.Vector3();
+      camera.getWorldDirection(fwd);
+      fwd.y = 0; fwd.normalize();
+      b.mesh.position.set(
+        THROW_ORIGIN.x - fwd.x * pulled,
+        THROW_ORIGIN.y - 0.12,
+        THROW_ORIGIN.z - fwd.z * pulled
+      );
+    }
+    panelDirty = true;
+  },
+
+  releaseThrow: function(){
+    if (S.held < 0) return null;
+    var idx = S.held, b = balls[idx];
+    var speed = S.emaSpeed * S.power;
+    var pulled = (S.drag ? S.drag.pull : 0);
+    var res = null;
+
+    if (speed >= 1.2 && pulled >= 0.02) {          /* 有效投掷 */
+      var dir = new THREE.Vector3();
+      camera.getWorldDirection(dir);
+      dir.y += 0.14;                               /* 略微抬高，避免出手就砸地 */
+      dir.normalize();
+      b.mesh.position.set(THROW_ORIGIN.x, THROW_ORIGIN.y, THROW_ORIGIN.z);
+      b.vel.copy(dir).multiplyScalar(speed);
+      b.state = 'flying';
+      S.lastAction = '出手：' + fmt(speed, 2) + ' m/s（力度 ' + fmt(S.power, 2) + '）';
+      beep(300, 70, 'triangle', 0.04);
+      pulse(hapticSrc(), 0.2, 40);
+      res = { speed: speed };
+    } else {                                        /* 只是松手，不投 */
+      DEMO.resetBall(idx);
+      S.lastAction = '松手未投：速度 ' + fmt(speed, 2) + ' m/s 太小或没有后拉';
+    }
+    S.held = -1; S.drag = null;
+    panelDirty = true;
+    return res;
+  },
+
+  resetBall: function(idx){
+    var b = balls[idx];
+    if (!b) return;
+    b.state = 'idle';
+    b.vel.set(0, 0, 0);
+    b.returnT = 0;
+    b.mesh.position.copy(b.home);
+  },
+
+  /* ---------- 记录 ---------- */
+  recordThrow: function(o){
+    var rec = {
+      power: o.power, smooth: o.smooth, gravity: o.gravity, aim: o.aim || 'center',
+      hit: !!o.hit, ring: o.ring || 0, dist: o.dist, speed: o.speed
+    };
+    S.rows.push(rec);
+    if (S.rows.length > 12) S.rows.shift();
+    S.throwCount++;
+    if (rec.hit) S.hitCount++;
+    S.lastHit = rec.hit; S.lastDist = rec.dist; S.lastRing = rec.ring; S.lastSpeed = rec.speed;
+
+    if (rec.hit) {                                  /* 命中三通道 */
+      S.hitFlash = 1;
+      pulse(hapticSrc(), 0.8, 90);
+      beep(1318, 80, 'square', 0.055);
+      S.lastAction = '命中 ' + rec.ring + ' 环！';
+    } else {
+      pulse(hapticSrc(), 0.15, 30);
+      beep(180, 90, 'sawtooth', 0.04);
+      S.lastAction = '未中 · 落点 ' + fmt(rec.dist, 2) + ' m';
+    }
+    panelDirty = true; boardDirty = true;
+    return rec;
+  },
+
+  /* ---------- 同步固定步长投掷（自测 / 演示用） ---------- */
+  simThrow: function(opt){
+    opt = opt || {};
+    var power = (opt.power != null) ? opt.power : S.power;
+    var smooth = (opt.smooth != null) ? opt.smooth : S.smooth;
+    var grav = (opt.gravity != null) ? opt.gravity : S.gravity;
+    var aim = opt.aim || 'center';
+
+    /* 两次速度采样 6.0 → 9.0 m/s，按平滑系数做 EMA（保留权重 smooth） */
+    var ema = emaRun(smooth, [6.0, 9.0]);
+    var speed = power * ema.final;
+
+    var yaw = 0, elev = Math.PI / 4;
+    if (aim === 'wide') yaw = 0.21;                  /* 偏 12° → 必脱靶 */
+    else if (aim === 'high') elev = 1.08;            /* 62° 高抛 */
+    else if (aim === 'low') elev = 0.52;             /* 30° 平抛 */
+
+    var pos = new THREE.Vector3(THROW_ORIGIN.x, THROW_ORIGIN.y, THROW_ORIGIN.z);
+    var vel = new THREE.Vector3(
+      Math.sin(yaw) * Math.cos(elev),
+      Math.sin(elev),
+      -Math.cos(yaw) * Math.cos(elev)
+    ).multiplyScalar(speed);
+
+    var dt = 1 / 120, t = 0, hit = false, ring = 0, dist = 0;
+    var prev = pos.clone();
+    while (t < 8) {
+      prev.copy(pos);
+      pos.addScaledVector(vel, dt);
+      vel.y -= grav * dt;
+      t += dt;
+
+      if (pos.z <= TARGET_Z && prev.z > TARGET_Z) {     /* 过靶盘平面 */
+        var f = (prev.z - TARGET_Z) / (prev.z - pos.z);
+        var cx = prev.x + (pos.x - prev.x) * f;
+        var cy = prev.y + (pos.y - prev.y) * f;
+        var dx = cx, dy = cy - BOARD_Y;
+        var dd = Math.sqrt(dx * dx + dy * dy);
+        hit = dd <= (BOARD_R - BAL_R);
+        ring = hit ? (dd <= BOARD_R * 0.35 ? 10 : (dd <= BOARD_R * 0.72 ? 7 : 4)) : 0;
+        dist = Math.abs(TARGET_Z);
+        break;
+      }
+      if (pos.y <= BAL_R) {                             /* 落地 */
+        dist = Math.abs(pos.z);
+        break;
+      }
+    }
+
+    var rec = DEMO.recordThrow({ power: power, smooth: smooth, gravity: grav, aim: aim,
+      hit: hit, ring: ring, dist: dist, speed: speed });
+    return { hit: hit, dist: rec.dist, speed: speed, ring: ring };
+  },
+
+  /* ---------- 每帧 ---------- */
+  update: function(dt){
+    ensureApi();
+    var i, b;
+
+    /* 球：飞行 / 落地 / 归位 */
+    for (i = 0; i < balls.length; i++) {
+      b = balls[i];
+      if (b.state === 'flying') {
+        var prev = b.mesh.position.clone();
+        b.vel.y -= S.gravity * dt;
+        b.mesh.position.addScaledVector(b.vel, dt);
+
+        if (b.mesh.position.z <= TARGET_Z && prev.z > TARGET_Z) {
+          var f = (prev.z - TARGET_Z) / (prev.z - b.mesh.position.z);
+          var cx = prev.x + (b.mesh.position.x - prev.x) * f;
+          var cy = prev.y + (b.mesh.position.y - prev.y) * f;
+          var dd = Math.sqrt(cx * cx + (cy - BOARD_Y) * (cy - BOARD_Y));
+          var hit = dd <= (BOARD_R - BAL_R);
+          var ring = hit ? (dd <= BOARD_R * 0.35 ? 10 : (dd <= BOARD_R * 0.72 ? 7 : 4)) : 0;
+          DEMO.recordThrow({ power: S.power, smooth: S.smooth, gravity: S.gravity,
+            aim: 'camera', hit: hit, ring: ring, dist: Math.abs(TARGET_Z),
+            speed: b.vel.length() });
+          b.state = 'landed'; b.returnT = 1.1;
+          b.mesh.position.z = Math.max(b.mesh.position.z, TARGET_Z + 0.03);
+        } else if (b.mesh.position.y <= BAL_R) {
+          DEMO.recordThrow({ power: S.power, smooth: S.smooth, gravity: S.gravity,
+            aim: 'camera', hit: false, ring: 0, dist: Math.abs(b.mesh.position.z),
+            speed: b.vel.length() });
+          b.mesh.position.y = BAL_R;
+          b.state = 'landed'; b.returnT = 1.1;
+        }
+      } else if (b.state === 'landed') {
+        b.returnT -= dt;
+        if (b.returnT <= 0) DEMO.resetBall(i);
+      }
+    }
+
+    /* 命中视觉脉冲 */
+    S.hitFlash = Math.max(0, S.hitFlash - dt * 1.8);
+    if (targetRim) {
+      targetRim.material.opacity = S.hitFlash * 0.95;
+      targetRim.scale.setScalar(1 + S.hitFlash * 0.08);
+    }
+    if (targetMesh) targetMesh.scale.setScalar(1 + S.hitFlash * 0.04);
+
+    /* VR：手柄速度采样（EMA），松开握持键时用 */
+    if (renderer.xr.isPresenting && vrCtrls[0]) {
+      var p = new THREE.Vector3();
+      vrCtrls[0].getWorldPosition(p);
+      if (S.vrLast) {
+        var raw = p.distanceTo(S.vrLast) / Math.max(dt, 0.008);
+        S.rawSpeed = raw;
+        S.emaSpeed = S.emaSpeed * S.smooth + raw * (1 - S.smooth);
+      } else {
+        S.vrLast = p.clone();
+      }
+      S.vrLast.copy(p);
+    } else if (S.vrLast) {
+      S.vrLast = null;
+    }
+
+    if (boardDirty) { drawBoard(); boardDirty = false; }
+    _uiT += dt;
+    if (_uiT >= 0.2) { _uiT = 0; panelDirty = true; boardDirty = true; }
+
+    /* HUD 实时状态：首帧 + 每 0.15 s 刷新一次 */
+    S._hudT = (S._hudT || 0) + dt;
+    if (!S._hudInit || S._hudT >= 0.15) { S._hudInit = true; S._hudT = 0; updateStats(); }
+  },
+
+  onSqueeze: function(ray, src){
+    if (S.held >= 0) return;
+    var best = -1, bestD = 0.6;
+    for (var i = 0; i < balls.length; i++) {
+      if (balls[i].state !== 'idle') continue;
+      var d = balls[i].mesh.position.distanceTo(ray.origin);
+      if (d < bestD) { bestD = d; best = i; }
+    }
+    if (best >= 0) DEMO.grabBall(best, null);
+    else toast('握持键：附近没有可抓的球');
+  },
+  onSqueezeEnd: function(ctrl, src){
+    DEMO.releaseThrow();
+  },
+
+  /* ---------- 重置 ---------- */
+  reset: function(){
+    for (var i = 0; i < balls.length; i++) DEMO.resetBall(i);
+    S.held = -1; S.drag = null; S.vrLast = null;
+    S.power = 1.15; S.smooth = 0.35; S.gravity = 9.8;
+    S.rawSpeed = 0; S.emaSpeed = 0;
+    S.hitCount = 0; S.throwCount = 0; S.rows.length = 0;
+    S.lastHit = false; S.lastDist = 0; S.lastRing = 0; S.lastSpeed = 0; S.hitFlash = 0;
+    S.lastAction = '—'; S.lastPick = '—'; S.picks = 0;
+    hapticLog.length = 0; sfxLog.length = 0; _keyCd = {};
+    if (targetRim) targetRim.material.opacity = 0;
+    if (camera) camera.rotation.x = -0.06;
+    if (player) { player.position.set(0, 0, 0); player.rotation.y = 0; }
+    setBtnLabel('power', '力度 1.15');
+    setBtnLabel('smooth', '平滑 0.35');
+    setBtnLabel('grav', '重力 9.8');
+    panelDirty = true; boardDirty = true;
+    drawBoard();
+  },
+
+  /* ---------- 自测（≥8 条真实机制断言） ---------- */
+  selfTest: function(){
+    ensureApi();
+    var pass = [], fail = [], T = function(ok, name){ (ok ? pass : fail).push(name); };
+    DEMO.reset();
+
+    T(!!panel, '面板已创建（CanvasTexture）');
+    T(panelBtns.length === 6, '面板按钮 6 个：力度/平滑/重力/投一次/清空/重置');
+    T(balls.length === 3 && !!targetMesh && !!board, '三颗球、靶盘、记录表都已创建');
+    T(hapticLog.length === 0 && sfxLog.length === 0, 'reset 清空触觉与音效日志');
+
+    /* ① 力度越大落点越远 */
+    var r06 = DEMO.simThrow({ power: 0.6, smooth: 0.35, gravity: 9.8, aim: 'center' });
+    var r20 = DEMO.simThrow({ power: 2.0, smooth: 0.35, gravity: 9.8, aim: 'center' });
+    T(r20.dist > r06.dist + 0.5,
+      '① 力度 2.0 的落点 ' + fmt(r20.dist, 2) + ' m 远于力度 0.6 的 ' + fmt(r06.dist, 2) + ' m');
+
+    /* ② 平滑系数 0.05 的速度抖动大于 0.35（用两次采样差度量） */
+    var e05 = emaRun(0.05, [8, 2, 8]);
+    var e35 = emaRun(0.35, [8, 2, 8]);
+    T(e05.fluct > e35.fluct && e05.fluct > 0.35,
+      '② 平滑 0.05 的速度抖动 ' + fmt(e05.fluct, 2) + ' > 0.35 时的 ' + fmt(e35.fluct, 2) +
+      '，且 > 0.35 m/s（0.05 几乎不平滑）');
+
+    /* ③ 重力越大落点越近 */
+    var g98 = DEMO.simThrow({ power: 1.15, smooth: 0.35, gravity: 9.8, aim: 'center' });
+    var g25 = DEMO.simThrow({ power: 1.15, smooth: 0.35, gravity: 25, aim: 'center' });
+    T(g25.dist < g98.dist - 0.5,
+      '③ 重力 25 的落点 ' + fmt(g25.dist, 2) + ' m 近于重力 9.8 的 ' + fmt(g98.dist, 2) + ' m');
+
+    /* ④ 命中判定只在靶盘内为 true */
+    var c = DEMO.simThrow({ power: 1.15, smooth: 0.35, gravity: 9.8, aim: 'center' });
+    var w = DEMO.simThrow({ power: 1.15, smooth: 0.35, gravity: 9.8, aim: 'wide' });
+    T(c.hit === true && c.ring >= 4, '④ 瞄准靶心 → 命中（' + c.ring + ' 环）');
+    T(w.hit === false && w.ring === 0, '④ 偏 12° 脱靶 → 命中判定为 false');
+
+    /* ⑤ 记录表每次投掷追加一行 */
+    var n0 = S.rows.length, t0 = S.throwCount;
+    DEMO.simThrow({ power: 1.15, smooth: 0.35, gravity: 9.8, aim: 'center' });
+    T(S.rows.length === n0 + 1 && S.throwCount === t0 + 1, '⑤ 每次投掷往记录表追加一行');
+
+    /* ⑥ 命中反馈三通道：音效 + 触觉 + 视觉状态 */
+    var sfx0 = sfxLog.length, hap0 = hapticLog.length;
+    var h = DEMO.simThrow({ power: 1.15, smooth: 0.35, gravity: 9.8, aim: 'center' });
+    T(h.hit && sfxLog.length > sfx0, '⑥ 命中触发音效（sfxLog 增加）');
+    T(h.hit && hapticLog.length > hap0, '⑥ 命中触发触觉（hapticLog 增加）');
+    T(S.hitFlash > 0.5, '⑥ 命中触发视觉脉冲（hitFlash=' + fmt(S.hitFlash, 2) + '）');
+
+    /* ⑦ 记录表行内容完整（5 个口径都在） */
+    var last = S.rows[S.rows.length - 1];
+    T(last && typeof last.power === 'number' && typeof last.smooth === 'number' &&
+      typeof last.gravity === 'number' && typeof last.dist === 'number' &&
+      typeof last.hit === 'boolean',
+      '⑦ 记录行含 力度/平滑/重力/命中/落点距离 五列');
+
+    /* ⑧ 模拟投掷不改动球的位置（纯计算，不污染场景） */
+    var px = balls[0].mesh.position.x, pz = balls[0].mesh.position.z;
+    DEMO.simThrow({ power: 2.0, smooth: 0.05, gravity: 3, aim: 'center' });
+    T(balls[0].mesh.position.x === px && balls[0].mesh.position.z === pz,
+      '⑧ simThrow 只跑物理计算，不挪动场景里的球');
+
+    /* ⑨ reset 清表 */
+    DEMO.reset();
+    T(S.rows.length === 0 && S.throwCount === 0 && S.hitCount === 0 &&
+      S.power === 1.15 && S.smooth === 0.35 && S.gravity === 9.8 &&
+      hapticLog.length === 0 && sfxLog.length === 0,
+      '⑨ reset 清空记录表、计数与参数');
+
+    /* ⑩ 渲染确实在跑 */
+    T(renderer.info.render.calls > 0, '⑩ animate 正在渲染（CALLS>0）');
+
+    DEMO.reset();
+    return { pass: pass, fail: fail };
+  }
+};
+
+/* ---------- 小工具 ---------- */
+/* VR 下把手柄 inputSource 传给 pulse()，PC 下返回 null（只记日志） */
+function hapticSrc(){
+  if (renderer && renderer.xr && renderer.xr.isPresenting && vrCtrls[0]) {
+    return vrCtrls[0].userData.inputSource || null;
+  }
+  return null;
+}
+/* EMA：ret = 保留权重（平滑系数），越大越稳、越滞后；返回末值与该次采样差（抖动） */
+function emaRun(ret, raws){
+  var out = raws[0], prev = out, fluct = 0;
+  for (var i = 1; i < raws.length; i++) {
+    prev = out;
+    out = out * ret + raws[i] * (1 - ret);
+    fluct = Math.abs(out - prev);
+  }
+  return { final: out, fluct: fluct };
+}
+
+function rowText(r){
+  return '· 力' + fmt(r.power, 2) + ' 平' + fmt(r.smooth, 2) + ' 重' + fmt(r.gravity, 1) +
+         ' → ' + (r.hit ? ('命中' + r.ring + '环') : '未中') + ' ' + fmt(r.dist, 2) + ' m';
+}
+
+function setBtnLabel(id, label){
+  for (var i = 0; i < panelBtns.length; i++) {
+    if (panelBtns[i].id === id) { panelBtns[i].label = label; break; }
+  }
+  panelDirty = true;
+}
+
+/* 靶盘贴图：外/中/内三圈 + 环数 */
+function makeTargetTex(){
+  var cv = document.createElement('canvas');
+  cv.width = 512; cv.height = 512;
+  var c = cv.getContext('2d');
+  var cx = 256, cy = 256, R = 248;
+  c.clearRect(0, 0, 512, 512);
+
+  c.beginPath(); c.arc(cx, cy, R, 0, Math.PI * 2);
+  c.fillStyle = '#1f4f86'; c.fill();
+  c.lineWidth = 7; c.strokeStyle = '#cfe2ff'; c.stroke();
+
+  c.beginPath(); c.arc(cx, cy, R * 0.72, 0, Math.PI * 2);
+  c.fillStyle = '#f0a63c'; c.fill();
+  c.lineWidth = 6; c.strokeStyle = '#2a1a00'; c.stroke();
+
+  c.beginPath(); c.arc(cx, cy, R * 0.35, 0, Math.PI * 2);
+  c.fillStyle = '#f2f6ff'; c.fill();
+  c.lineWidth = 6; c.strokeStyle = '#9a2b2b'; c.stroke();
+
+  c.textAlign = 'center'; c.textBaseline = 'middle';
+  c.fillStyle = '#dbe7ff'; c.font = 'bold 46px "Microsoft YaHei", sans-serif';
+  c.fillText('4', cx, cy - R * 0.86); c.fillText('4', cx, cy + R * 0.86);
+  c.fillStyle = '#2a1a00'; c.font = 'bold 42px "Microsoft YaHei", sans-serif';
+  c.fillText('7', cx, cy - R * 0.53); c.fillText('7', cx, cy + R * 0.53);
+  c.fillStyle = '#9a2b2b'; c.font = 'bold 48px "Microsoft YaHei", sans-serif';
+  c.fillText('10', cx, cy);
+
+  var tex = new THREE.CanvasTexture(cv);
+  tex.minFilter = THREE.LinearFilter;
+  return tex;
+}
+
+/* 自建 CanvasTexture 板（模板只有一个全局 panel） */
+function mkBoard(wM, hM, pxW, pxH, x, y, z, ry){
+  var cv = document.createElement('canvas');
+  cv.width = pxW; cv.height = pxH;
+  var ctx = cv.getContext('2d');
+  var tex = new THREE.CanvasTexture(cv);
+  tex.minFilter = THREE.LinearFilter;
+  var mesh = new THREE.Mesh(new THREE.PlaneGeometry(wM, hM),
+    new THREE.MeshBasicMaterial({ map: tex, transparent: true }));
+  mesh.position.set(x, y, z);
+  if (ry) mesh.rotation.y = ry;
+  scene.add(mesh);
+  return { cv: cv, ctx: ctx, tex: tex, mesh: mesh };
+}
+
+/* 记录表：最近 5 行 */
+function drawBoard(){
+  if (!board) return;
+  var c = board.ctx, W = board.cv.width, H = board.cv.height;
+  c.clearRect(0, 0, W, H);
+  c.fillStyle = '#0d1524'; c.fillRect(0, 0, W, H);
+  c.strokeStyle = '#3a4a6c'; c.lineWidth = 5; c.strokeRect(3, 3, W - 6, H - 6);
+  c.textAlign = 'left'; c.textBaseline = 'alphabetic';
+
+  c.fillStyle = '#9fd0ff';
+  c.font = 'bold 36px "Microsoft YaHei", sans-serif';
+  c.fillText('投掷记录表 · 最近 5 次', 28, 48);
+  c.fillStyle = '#7f90ad';
+  c.font = '22px "Microsoft YaHei", sans-serif';
+  c.fillText('命中 ' + S.hitCount + ' / 投掷 ' + S.throwCount + '（力度 1.15 · 平滑 0.35 · 重力 9.8 为基准）', 28, 82);
+
+  /* 表头 */
+  c.fillStyle = '#8fa2c2';
+  c.font = 'bold 22px "Microsoft YaHei", sans-serif';
+  c.fillText('力度', 30, 122);
+  c.fillText('平滑', 150, 122);
+  c.fillText('重力', 270, 122);
+  c.fillText('命中', 390, 122);
+  c.fillText('落点距离', 560, 122);
+
+  var rows = S.rows.slice(-5);
+  var y = 164;
+  if (!rows.length) {
+    c.fillStyle = '#5d6c85';
+    c.font = '24px "Microsoft YaHei", sans-serif';
+    c.fillText('还没有投掷记录 —— 按 F 或点“投一次”', 30, y + 20);
+  }
+  for (var i = 0; i < rows.length; i++) {
+    var r = rows[i];
+    c.fillStyle = r.hit ? '#8ff0b6' : '#ffa3a3';
+    c.font = 'bold 25px "Microsoft YaHei", sans-serif';
+    c.fillText(fmt(r.power, 2), 30, y);
+    c.fillStyle = '#cfe2ff';
+    c.fillText(fmt(r.smooth, 2), 150, y);
+    c.fillText(fmt(r.gravity, 1), 270, y);
+    c.fillStyle = r.hit ? '#8ff0b6' : '#ffc857';
+    c.fillText(r.hit ? (r.ring + ' 环') : '未中', 390, y);
+    c.fillStyle = '#dbe7ff';
+    c.fillText(fmt(r.dist, 2) + ' m', 560, y);
+    y += 44;
+  }
+
+  c.fillStyle = '#5d6c85';
+  c.font = '20px "Microsoft YaHei", sans-serif';
+  c.fillText('落点距离 = 落点/靶盘到投掷线的水平距离（m）', 28, H - 18);
+  board.tex.needsUpdate = true;
+}
+
+/* 在基础设施创建的 window.LAB.api 上补齐本演示的调试/截图接口 */
+function installPointer(){
+  var cvs = renderer.domElement;
+  var onDown = function(e){
+    if (S.held >= 0) return;
+    var r = pcRay();
+    var h = pickWorld(r.origin, r.dir, 'pc');
+    if (!h || !h.item || h.item.id.indexOf('ball') !== 0) return;   /* 只接管球 */
+    var idx = parseInt(h.item.id.slice(4), 10);
+    if (DEMO.grabBall(idx, e)) {
+      cvs.setPointerCapture && cvs.setPointerCapture(e.pointerId);
+      e.stopImmediatePropagation();
+      e.preventDefault();
+    }
+  };
+  var onMove = function(e){
+    if (S.held < 0 || !S.drag) return;
+    DEMO.updateDrag(e);
+    e.stopImmediatePropagation();
+  };
+  var onUp = function(e){
+    if (S.held < 0 || !S.drag) return;
+    DEMO.releaseThrow();
+    e.stopImmediatePropagation();
+    e.preventDefault();
+  };
+  cvs.addEventListener('pointerdown', onDown, true);
+  cvs.addEventListener('pointermove', onMove, true);
+  cvs.addEventListener('pointerup', onUp, true);
+}
+
+function ensureApi(){
+  if (!window.LAB || !window.LAB.api || window.LAB.api.__lab03) return;
+  var A = window.LAB.api;
+  A.__lab03 = true;
+  A.simThrow = function(o){ return DEMO.simThrow(o || {}); };
+  A.setPower = function(p){ S.power = p; setBtnLabel('power', '力度 ' + fmt(p, 2)); panelDirty = true; return S.power; };
+  A.setSmooth = function(s){ S.smooth = s; setBtnLabel('smooth', '平滑 ' + fmt(s, 2)); panelDirty = true; return S.smooth; };
+  A.setGravity = function(g){ S.gravity = g; setBtnLabel('grav', '重力 ' + fmt(g, 1)); panelDirty = true; return S.gravity; };
+  A.rows = function(){ return S.rows.slice(); };
+  A.emaTest = function(smooth){ return emaRun(smooth, [8, 2, 8]); };
+  A.clearRows = function(){ S.rows.length = 0; S.throwCount = 0; S.hitCount = 0; panelDirty = true; boardDirty = true; };
+}
+
+/* ======================= 4. 启动（不要改） ======================= */
+function boot(){
+  renderer = new THREE.WebGLRenderer({ canvas: $('c'), antialias: true, alpha: false });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  renderer.setSize(innerWidth, innerHeight);
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.xr.enabled = true;
+  renderer.xr.setReferenceSpaceType('local-floor');
+
+  scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x0e1220);
+  camera = new THREE.PerspectiveCamera(70, innerWidth / innerHeight, 0.05, 60);
+  camera.position.set(0, 1.6, 0);
+  player = new THREE.Group();
+  player.add(camera);
+  scene.add(player);
+  clock = new THREE.Clock();
+
+  buildBase();
+  DEMO.buildWorld();
+  DEMO.buildUI();
+  setupVR();
+  setupPC();
+
+  document.title = CFG.id.toUpperCase() + ' · ' + CFG.title;
+  $('hudTitle').textContent = CFG.title;
+  $('hudTag').textContent = CFG.subtitle;
+  $('loadTitle').textContent = CFG.title;
+  $('hudPC').innerHTML = '<b>PC 操作</b><br>' + CFG.pcKeys;
+  $('hudVR').innerHTML = '<b>头显操作</b><br>' + CFG.vrKeys;
+  $('hudTeach').innerHTML = '<b>课堂要点</b><br>' + CFG.teach;
+  redrawPanel();
+
+  window.LAB = {
+    S: S, scene: scene, camera: camera, renderer: renderer, player: player, cfg: CFG,
+    ui: { panel: function(){ return panel; }, buttons: function(){ return panelBtns; },
+          hover: function(){ return hoverId; } },
+    api: {
+      fire: fireButton,
+      reset: DEMO.reset,
+      getState: function(){ return JSON.parse(JSON.stringify(S)); },
+      setState: function(k, v){ S[k] = v; panelDirty = true; },
+      haptics: function(){ return hapticLog.slice(); },
+      sfx: function(){ return sfxLog.slice(); },
+      selfTest: function(){
+        var r = DEMO.selfTest();
+        console.log('SELFTEST PASS ' + r.pass.length + ' / FAIL ' + r.fail.length);
+        if (r.fail.length) console.log('SELFTEST FAILED: ' + r.fail.join(' | '));
+        return r;
+      }
+    }
+  };
+
+  var loader = $('loader');
+  $('loadMsg').textContent = '就绪 · ' + CFG.part;
+  setTimeout(function(){ loader.style.opacity = '0'; setTimeout(function(){ loader.remove(); }, 520); }, 180);
+
+  onResize();
+  renderer.setAnimationLoop(animate);
+}
+try { boot(); }
+catch (e) {
+  console.error('启动失败', e);
+  var lm = document.getElementById('loadMsg');
+  if (lm) lm.textContent = '启动失败：' + e.message;
+}
+})();
+</script>
+</body>
+</html>

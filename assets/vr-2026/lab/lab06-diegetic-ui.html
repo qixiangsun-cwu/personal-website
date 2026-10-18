@@ -1,0 +1,1140 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>LAB06 · Diegetic UI 四分类对照</title>
+<style>
+  html,body{margin:0;padding:0;overflow:hidden;background:#0e1220;color:#e8eefc;
+    font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif;}
+  #c{position:fixed;inset:0;display:block;}
+  #hud{position:fixed;left:14px;top:14px;z-index:20;width:288px;padding:12px 14px;
+    background:rgba(15,20,34,.9);border:1px solid #2b3854;border-radius:10px;
+    font-size:12px;line-height:1.65;box-shadow:0 8px 26px rgba(0,0,0,.4);}
+  #hud h2{margin:0 0 4px;font-size:15px;color:#7fc4ff;letter-spacing:.5px;}
+  #hud .tagline{color:#93a4c2;font-size:11px;margin-bottom:6px;}
+  #hud .sec{border-top:1px solid #253149;margin-top:8px;padding-top:7px;}
+  #hud b{color:#9fd0ff;font-weight:600;}
+  #hud .k{display:inline-block;background:#1b2540;border:1px solid #31405f;border-radius:4px;
+    padding:0 5px;margin:1px 2px;color:#cfe2ff;font-size:11px;}
+  #hud .warnline{color:#ffc857;}
+  #stats{color:#5fd08a;font-size:11px;white-space:pre-line;}
+  #enterVR{position:fixed;right:18px;top:18px;z-index:20;display:none;cursor:pointer;
+    background:linear-gradient(135deg,#2f7de1,#1b4fa8);color:#fff;border:none;border-radius:24px;
+    padding:11px 22px;font-size:15px;letter-spacing:2px;box-shadow:0 4px 16px rgba(47,125,225,.4);}
+  #enterVR:disabled{background:#4a5468;cursor:not-allowed;box-shadow:none;}
+  #vrhint{position:fixed;right:18px;top:72px;z-index:20;max-width:236px;display:none;
+    background:rgba(15,20,34,.88);border:1px solid #2b3854;border-radius:8px;padding:7px 9px;
+    color:#b9c8e2;font-size:11px;line-height:1.6;text-align:right;}
+  #toast{position:fixed;left:50%;bottom:58px;transform:translateX(-50%);z-index:25;
+    background:rgba(21,28,46,.95);border:1px solid #3a4a6c;border-radius:10px;padding:10px 18px;
+    font-size:14px;color:#d9e6ff;opacity:0;transition:opacity .25s;pointer-events:none;white-space:nowrap;}
+  #toast.show{opacity:1;}
+  #loader{position:fixed;inset:0;z-index:50;background:#0e1220;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;gap:6px;transition:opacity .5s;}
+  #loader h1{font-size:26px;letter-spacing:4px;color:#7fc4ff;margin:0;font-weight:600;}
+  #loader p{font-size:13px;color:#8fa2c2;margin:0;}
+  body.XR #hud,body.XR #enterVR,body.XR #vrhint{display:none!important;}
+  body.XR #toast{bottom:auto;top:24px;}
+  #ndui{position:fixed;right:18px;bottom:18px;z-index:22;width:252px;padding:10px 13px;
+    background:rgba(15,20,34,.93);border:1px solid #3a4a6c;border-radius:10px;
+    font-size:12px;line-height:1.65;color:#dbe7fb;}
+  #ndui .t{font-size:11px;color:#ffc857;margin-bottom:6px;letter-spacing:.4px;}
+  #ndui .row{display:flex;justify-content:space-between;color:#93a4c2;}
+  #ndui .row b{color:#fff;font-size:17px;}
+  #ndui .hint{margin-top:6px;color:#9fd0ff;}
+  #ndui .why{margin-top:7px;color:#ff8fa3;font-size:11px;line-height:1.5;}
+  body.XR #ndui{display:none!important;}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="hud">
+  <h2 id="hudTitle">LAB</h2>
+  <div class="tagline" id="hudTag"></div>
+  <div class="sec" id="hudPC"></div>
+  <div class="sec" id="hudVR"></div>
+  <div class="sec" id="hudTeach"></div>
+  <div class="sec"><span id="stats">初始化…</span></div>
+</div>
+<div id="toast"></div>
+<button id="enterVR">进入 VR</button>
+<div id="vrhint"></div>
+<div id="loader">
+  <h1 id="loadTitle">LAB</h1>
+  <p id="loadMsg">正在初始化…</p>
+</div>
+
+<script src="./three.min.js"></script>
+<script>
+/* =========================================================================
+ * 第 7 次课 · WebXR 交互零件演示脚手架（模板）
+ * 用法：复制本文件 → 改 CFG → 在 DEMO 区实现 buildWorld / buildUI / update / onPick /
+ *       selfTest / reset。基础设施区（0—4 段）不要改。
+ * 约定（验证工具依赖，务必保留）：
+ *   1. 外部库用「点斜杠」相对路径引入 three.min.js（与页面同目录）
+ *   2. 必须存在行 `  renderer.setAnimationLoop(animate);`
+ *   3. animate() 内必须调用 renderer.render(scene, camera)
+ *   4. renderer.xr.setReferenceSpaceType('local-floor') 在会话创建前调用
+ *   5. 暴露 window.LAB = {S, scene, camera, renderer, player, api}
+ * ========================================================================= */
+(function(){
+'use strict';
+
+/* ======================= 0. 演示配置（每个演示改这一段） ======================= */
+var CFG = {
+  id: 'lab06',
+  title: 'Diegetic UI 四分类对照',
+  subtitle: '模块 B3 · 同一份 S，四种存在方式',
+  part: '组 B3 · 界面与沉浸',
+  aimMode: 'mouse',
+  pcKeys: '拖拽=环视 · 左键=点面板按钮 · 1—4=切呈现 · + / - =改分数与生命 · 按住 C=四种叠起来看 · R=重置',
+  vrKeys: '扳机=射线点面板 · 摇杆左右=转 45° · 进 VR 后网页浮层会消失（这就是 non-diegetic）',
+  teach: '同一份信息四种存在方式：diegetic（世界内：腕表 / 胸口血条）、spatial（空间面板：挂在 3 m 外的墙上）、meta（跟随头部：一直在视野里）、non-diegetic（网页浮层：一进 VR 就消失）。diegetic 最沉浸，但需要你主动低头去看。',
+  hudLines: function(){
+    var n = (S.vis.diegetic ? 1 : 0) + (S.vis.spatial ? 1 : 0) + (S.vis.meta ? 1 : 0) + (S.vis.dom ? 1 : 0);
+    return [
+      '呈现：' + CFG.modeName() + (S.compare ? ' · 对比模式' : '') + ' · 可见 ' + n + ' 处',
+      '分数 ' + S.score + ' · 生命 ' + S.lives + ' / 3',
+      '提示：' + S.hint
+    ];
+  },
+  /* 放在 CFG 上方便 hudLines 取用 */
+  modeName: function(){
+    return { diegetic: '世界内（腕表/胸条）', spatial: '空间面板（墙上）',
+             meta: '跟随头部', dom: '网页浮层' }[S.mode] || S.mode;
+  }
+};
+
+/* ======================= 1. 基础设施（不要改） ======================= */
+var renderer, scene, camera, player, clock, audioCtx = null;
+var raycaster = new THREE.Raycaster();
+var aimNdc = new THREE.Vector2(0, 0);
+var tmpV = new THREE.Vector3(), tmpV2 = new THREE.Vector3();
+var panel = null, panelCanvas = null, panelCtx = null, panelTex = null;
+var panelBtns = [], hoverId = null, panelDirty = true;
+var uiHits = [], pickables = [];        // pickables: {mesh, id, onPick}
+var hapticLog = [], sfxLog = [];
+var keys = {}, dragging = false, lastMouse = {x:0,y:0}, dragDist = 0;
+var vrCtrls = [], vrRays = [], xrSession = null;
+var elapsed = 0, frames = 0, fps = 60, fpsT = 0;
+
+/* -------- 1.1 状态：演示自己的状态全部挂在这里 -------- */
+var S = {
+  /* 模板保留字段 */
+  a: 0, b: 0,
+  lastAction: '—', lastPick: '—', picks: 0,
+  /* 本演示状态：一份 S，四处呈现 */
+  mode: 'spatial',            // diegetic | spatial | meta | dom
+  compare: false,
+  score: 42, lives: 3,
+  hint: '同一份信息，四种存在方式',
+  shown: {},                  // 每处呈现最后一次画出的分数（核对同一 S）
+  vis: { diegetic: false, spatial: true, meta: false, dom: false }
+};
+
+/* -------- 1.2 小工具 -------- */
+function clamp(v, a, b){ return v < a ? a : (v > b ? b : v); }
+function fmt(v, n){ return (isFinite(v) ? v.toFixed(n == null ? 2 : n) : '—'); }
+function $(id){ return document.getElementById(id); }
+function toast(msg, ms){
+  var t = $('toast');
+  if (!t) return;
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(toast._t);
+  toast._t = setTimeout(function(){ t.classList.remove('show'); }, ms || 1600);
+}
+function initAudio(){
+  if (audioCtx) return audioCtx;
+  try {
+    var AC = window.AudioContext || window.webkitAudioContext;
+    if (AC) audioCtx = new AC();
+  } catch (e) { console.warn('AudioContext 不可用', e); }
+  return audioCtx;
+}
+function resumeAudio(){
+  var c = initAudio();
+  if (c && c.state === 'suspended') c.resume().catch(function(){});
+}
+/* 合成音：freq 频率 Hz，dur 毫秒，type 波形，gain 音量 */
+function beep(freq, dur, type, gain){
+  var c = initAudio();
+  if (!c || S.mute) { sfxLog.push({t: elapsed, freq: freq, skipped: !c}); return; }
+  try {
+    if (c.state === 'suspended') c.resume().catch(function(){});
+    var o = c.createOscillator(), g = c.createGain();
+    o.type = type || 'sine';
+    o.frequency.value = freq;
+    g.gain.value = (gain == null ? 0.05 : gain);
+    o.connect(g); g.connect(c.destination);
+    var now = c.currentTime, d = (dur || 60) / 1000;
+    g.gain.setValueAtTime(g.gain.value, now);
+    g.gain.exponentialRampToValueAtTime(0.0001, now + d);
+    o.start(now); o.stop(now + d + 0.01);
+    sfxLog.push({t: elapsed, freq: freq, dur: dur || 60});
+  } catch (e) { console.warn('beep 失败', e); }
+}
+/* 触觉：inputSource 可为 null（PC 模拟时只记日志） */
+function pulse(src, intensity, ms){
+  hapticLog.push({t: elapsed, intensity: intensity, ms: ms, real: !!(src && src.gamepad &&
+    src.gamepad.hapticActuators && src.gamepad.hapticActuators[0])});
+  try {
+    var acts = src && src.gamepad && src.gamepad.hapticActuators;
+    if (acts && acts[0] && acts[0].pulse) acts[0].pulse(intensity, ms);
+    else if (src && src.gamepad && src.gamepad.hapticActuators && src.gamepad.hapticActuators[0] &&
+             src.gamepad.hapticActuators[0].pulse) src.gamepad.hapticActuators[0].pulse(intensity, ms);
+  } catch (e) { console.warn('触觉不可用', e); }
+}
+
+/* -------- 1.3 3D 面板（CanvasTexture + UV 命中） -------- */
+/* mkPanel(width_m, height_m, pxW, pxH) 返回 mesh；全局 panel 指向它 */
+function mkPanel(wM, hM, pxW, pxH){
+  panelCanvas = document.createElement('canvas');
+  panelCanvas.width = pxW; panelCanvas.height = pxH;
+  panelCtx = panelCanvas.getContext('2d');
+  panelTex = new THREE.CanvasTexture(panelCanvas);
+  panelTex.minFilter = THREE.LinearFilter;
+  var mat = new THREE.MeshBasicMaterial({ map: panelTex, transparent: true });
+  panel = new THREE.Mesh(new THREE.PlaneGeometry(wM, hM), mat);
+  panel.name = 'uiPanel';
+  panelBtns = [];
+  return panel;
+}
+/* 注册按钮：px 坐标以面板 canvas 像素为准（左上角原点） */
+function uiButton(id, label, px, py, pw, ph, enabled){
+  panelBtns.push({ id: id, label: label, x: px, y: py, w: pw, h: ph, enabled: enabled !== false });
+}
+/* 面板绘制：DEMO.drawUI(ctx, W, H) 负责画背景与文字，按钮由 drawButtons 统一画 */
+function drawButtons(ctx, W, H){
+  for (var i = 0; i < panelBtns.length; i++) {
+    var b = panelBtns[i], on = (hoverId === b.id);
+    ctx.fillStyle = !b.enabled ? '#2a3346' : (on ? '#3f8ae0' : '#24314c');
+    ctx.strokeStyle = on ? '#9fd0ff' : '#3a4a6c';
+    ctx.lineWidth = on ? 3 : 2;
+    roundRect(ctx, b.x, b.y, b.w, b.h, 10);
+    ctx.fill(); ctx.stroke();
+    ctx.fillStyle = !b.enabled ? '#6b7688' : (on ? '#ffffff' : '#d5e3f8');
+    ctx.font = 'bold 26px "Microsoft YaHei", sans-serif';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(b.label, b.x + b.w / 2, b.y + b.h / 2);
+  }
+}
+function roundRect(ctx, x, y, w, h, r){
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r);
+  ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r);
+  ctx.arcTo(x, y, x + w, y, r);
+  ctx.closePath();
+}
+function redrawPanel(){
+  if (!panelCtx) return;
+  var W = panelCanvas.width, H = panelCanvas.height;
+  panelCtx.clearRect(0, 0, W, H);
+  DEMO.drawUI(panelCtx, W, H);
+  drawButtons(panelCtx, W, H);
+  panelTex.needsUpdate = true;
+  panelDirty = false;
+}
+/* UV → 按钮 id */
+function uiHitUV(uv){
+  if (!uv) return null;
+  var px = uv.x * panelCanvas.width, py = (1 - uv.y) * panelCanvas.height;
+  for (var i = 0; i < panelBtns.length; i++) {
+    var b = panelBtns[i];
+    if (px >= b.x && px <= b.x + b.w && py >= b.y && py <= b.y + b.h) return b;
+  }
+  return null;
+}
+
+/* -------- 1.4 拾取（PC / VR 共用） -------- */
+/* 返回 {hit, id, point, distance, uv, object} */
+function castFrom(origin, dir, objs){
+  raycaster.set(origin, dir.clone().normalize());
+  raycaster.far = 30;
+  var hits = raycaster.intersectObjects(objs, true);
+  return hits && hits.length ? hits[0] : null;
+}
+function pickPanel(origin, dir, src){
+  var h = castFrom(origin, dir, [panel]);
+  if (!h) return null;
+  var b = uiHitUV(h.uv);
+  return { button: b, point: h.point, distance: h.distance, source: src };
+}
+function pickWorld(origin, dir, src){
+  var list = pickables.map(function(p){ return p.mesh; });
+  var h = castFrom(origin, dir, list);
+  if (!h) return null;
+  var obj = h.object, owner = null;
+  while (obj && !owner) {
+    for (var i = 0; i < pickables.length; i++) if (pickables[i].mesh === obj) owner = pickables[i];
+    obj = obj.parent;
+  }
+  return owner ? { item: owner, point: h.point, distance: h.distance, source: src } : null;
+}
+function registerPick(mesh, id, onPick){
+  pickables.push({ mesh: mesh, id: id, onPick: onPick || function(){} });
+  return mesh;
+}
+
+/* -------- 1.5 PC 输入 -------- */
+function setupPC(){
+  var cvs = renderer.domElement;
+  cvs.addEventListener('pointerdown', function(e){
+    resumeAudio();
+    dragging = true; dragDist = 0; lastMouse.x = e.clientX; lastMouse.y = e.clientY;
+    cvs.setPointerCapture && cvs.setPointerCapture(e.pointerId);
+  });
+  cvs.addEventListener('pointermove', function(e){
+    var dx = e.clientX - lastMouse.x, dy = e.clientY - lastMouse.y;
+    lastMouse.x = e.clientX; lastMouse.y = e.clientY;
+    if (dragging) {
+      dragDist += Math.abs(dx) + Math.abs(dy);
+      player.rotation.y -= dx * 0.0032;
+      camera.rotation.x = clamp(camera.rotation.x - dy * 0.0032, -1.15, 1.0);
+    } else {
+      updateMouseAim(e);
+    }
+  });
+  cvs.addEventListener('pointerup', function(e){
+    if (dragging && dragDist < 6) { resumeAudio(); doClick(e); }
+    dragging = false;
+  });
+  cvs.addEventListener('pointercancel', function(){ dragging = false; });
+  window.addEventListener('keydown', function(e){
+    keys[e.code] = true;
+    if (e.code === 'KeyR') { DEMO.reset(); toast('已重置'); }
+    else if (e.code === 'KeyT' && DEMO.onKey) DEMO.onKey('KeyT');
+    else if (DEMO.onKey) DEMO.onKey(e.code);
+  });
+  window.addEventListener('keyup', function(e){ keys[e.code] = false; });
+  window.addEventListener('resize', onResize);
+}
+function updateMouseAim(e){
+  var r = renderer.domElement.getBoundingClientRect();
+  aimNdc.x = ((e.clientX - r.left) / r.width) * 2 - 1;
+  aimNdc.y = -((e.clientY - r.top) / r.height) * 2 + 1;
+}
+function pcRay(){
+  camera.getWorldPosition(tmpV);
+  var dir = new THREE.Vector3();
+  if (CFG.aimMode === 'center') {
+    camera.getWorldDirection(dir);
+  } else {
+    dir.set(aimNdc.x, aimNdc.y, 0.5).unproject(camera).sub(tmpV).normalize();
+  }
+  return { origin: tmpV.clone(), dir: dir };
+}
+function doClick(e){
+  var r = pcRay();
+  var p = pickPanel(r.origin, r.dir, 'pc');
+  if (p && p.button) { fireButton(p.button.id, 'pc'); return; }
+  var w = pickWorld(r.origin, r.dir, 'pc');
+  if (w) { w.item.onPick(w); return; }
+  DEMO.onEmptyClick && DEMO.onEmptyClick(r);
+}
+function fireButton(id, src){
+  for (var i = 0; i < panelBtns.length; i++) {
+    if (panelBtns[i].id === id) {
+      if (!panelBtns[i].enabled) return false;
+      S.lastPick = id; S.picks++;
+      pulse(null, 0.5, 60); beep(1046, 55, 'square', 0.05);
+      DEMO.onPick(id, src);
+      panelDirty = true;
+      return true;
+    }
+  }
+  return false;
+}
+
+/* -------- 1.6 VR 输入 -------- */
+function setupVR(){
+  for (var i = 0; i < 2; i++) {
+    (function(idx){
+      var ctrl = renderer.xr.getController(idx);
+      ctrl.addEventListener('connected', function(e){ ctrl.userData.inputSource = e.data; });
+      ctrl.addEventListener('selectstart', function(){
+        resumeAudio();
+        var src = ctrl.userData.inputSource;
+        var ray = ctrlRay(ctrl);
+        var p = pickPanel(ray.origin, ray.dir, 'vr');
+        if (p && p.button) { fireButton(p.button.id, 'vr'); return; }
+        var w = pickWorld(ray.origin, ray.dir, 'vr');
+        if (w) { w.item.onPick(w); return; }
+        DEMO.onEmptyClick && DEMO.onEmptyClick(ray, src);
+      });
+      ctrl.addEventListener('squeezestart', function(){
+        var src = ctrl.userData.inputSource;
+        DEMO.onSqueeze && DEMO.onSqueeze(ctrlRay(ctrl), src);
+      });
+      ctrl.addEventListener('squeezeend', function(){
+        var src = ctrl.userData.inputSource;
+        DEMO.onSqueezeEnd && DEMO.onSqueezeEnd(ctrl, src);
+      });
+      var ray = new THREE.Line(
+        new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0,0,0), new THREE.Vector3(0,0,-1)]),
+        new THREE.LineBasicMaterial({ color: 0x66aaff, transparent: true, opacity: 0.75 })
+      );
+      ray.scale.z = 6; ray.name = 'ctrlRay' + idx;
+      ctrl.add(ray);
+      scene.add(ctrl);
+      vrCtrls.push(ctrl); vrRays.push(ray);
+    })(i);
+  }
+  if (navigator.xr && navigator.xr.isSessionSupported) {
+    navigator.xr.isSessionSupported('immersive-vr').then(function(ok){
+      var btn = $('enterVR');
+      btn.style.display = 'block';
+      if (ok) {
+        btn.disabled = false;
+        btn.onclick = enterVR;
+        $('vrhint').style.display = 'block';
+        $('vrhint').innerHTML = '本机支持 immersive-vr。<br>戴上头显后点此进入，或直接用头显浏览器打开本页。';
+      } else {
+        btn.disabled = true; btn.textContent = '本机不支持沉浸式 VR';
+        $('vrhint').style.display = 'block';
+        $('vrhint').innerHTML = 'PC 可用鼠标键盘完成全部演示；<br>头显浏览器打开本页即可进入 VR。';
+      }
+    }).catch(function(e){
+      $('enterVR').style.display = 'block';
+      $('enterVR').disabled = true;
+      $('enterVR').textContent = 'WebXR 检测失败';
+      console.warn('isSessionSupported 失败', e);
+    });
+  } else {
+    $('enterVR').style.display = 'block';
+    $('enterVR').disabled = true;
+    $('enterVR').textContent = '非安全上下文或无 WebXR';
+  }
+}
+function ctrlRay(ctrl){
+  var origin = new THREE.Vector3(), dir = new THREE.Vector3();
+  ctrl.getWorldPosition(origin);
+  dir.set(0, 0, -1).transformDirection(ctrl.matrixWorld);
+  return { origin: origin, dir: dir };
+}
+function enterVR(){
+  resumeAudio();
+  navigator.xr.requestSession('immersive-vr', {
+    optionalFeatures: ['local-floor', 'bounded-floor', 'hand-tracking', 'layers']
+  }).then(function(session){
+    xrSession = session;
+    renderer.xr.setSession(session);
+    document.body.classList.add('XR');
+    session.addEventListener('end', function(){
+      xrSession = null;
+      document.body.classList.remove('XR');
+    });
+  }).catch(function(e){
+    console.warn('进入 VR 失败', e);
+    toast('进入 VR 失败：' + (e && e.message ? e.message : e));
+  });
+}
+
+/* -------- 1.7 主循环 -------- */
+function onResize(){
+  camera.aspect = innerWidth / innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+}
+function animate(){
+  var dt = Math.min(clock.getDelta(), 0.05);
+  elapsed += dt; frames++;
+  fpsT += dt;
+  if (fpsT >= 0.5) { fps = frames / fpsT; frames = 0; fpsT = 0; updateStats(); }
+
+  /* PC 行走 */
+  if (!renderer.xr.isPresenting) {
+    var sp = (keys.ShiftLeft || keys.ShiftRight) ? 3.2 : 1.7;
+    var fwd = new THREE.Vector3(-Math.sin(player.rotation.y), 0, -Math.cos(player.rotation.y));
+    var right = new THREE.Vector3(Math.cos(player.rotation.y), 0, -Math.sin(player.rotation.y));
+    var mv = new THREE.Vector3();
+    if (keys.KeyW || keys.ArrowUp) mv.add(fwd);
+    if (keys.KeyS || keys.ArrowDown) mv.sub(fwd);
+    if (keys.KeyD || keys.ArrowRight) mv.add(right);
+    if (keys.KeyA || keys.ArrowLeft) mv.sub(right);
+    if (mv.lengthSq() > 0) {
+      mv.normalize().multiplyScalar(sp * dt);
+      movePlayer(mv.x, mv.z);
+    }
+  }
+
+  /* VR 摇杆：左右转 45°（防误触冷却） */
+  if (renderer.xr.isPresenting) readVRStick(dt);
+
+  /* 悬停检测 */
+  updateHover();
+
+  DEMO.update(dt);
+  if (panelDirty) redrawPanel();
+
+  renderer.render(scene, camera);
+}
+function movePlayer(dx, dz){
+  player.position.x = clamp(player.position.x + dx, -4.4, 4.4);
+  player.position.z = clamp(player.position.z + dz, -4.4, 4.4);
+}
+var snapCd = 0;
+function readVRStick(dt){
+  snapCd = Math.max(0, snapCd - dt);
+  var src = xrSession && xrSession.inputSources;
+  if (!src) return;
+  for (var i = 0; i < src.length; i++) {
+    var gp = src[i].gamepad;
+    if (!gp || !gp.axes || gp.axes.length < 4) continue;
+    if (Math.abs(gp.axes[2]) > 0.75 && snapCd <= 0) {
+      player.rotation.y -= (gp.axes[2] > 0 ? -1 : 1) * Math.PI / 4;
+      snapCd = 0.38;
+    }
+  }
+}
+function updateHover(){
+  var r;
+  if (renderer.xr.isPresenting) {
+    if (!vrCtrls[0]) return;
+    r = ctrlRay(vrCtrls[0]);
+  } else {
+    r = pcRay();
+  }
+  var p = pickPanel(r.origin, r.dir, 'hover');
+  var id = p && p.button ? p.button.id : null;
+  if (id !== hoverId) {
+    hoverId = id;
+    panelDirty = true;
+    if (id) { pulse(null, 0.2, 30); beep(880, 35, 'sine', 0.035); }
+    DEMO.onHover && DEMO.onHover(id);
+  }
+  DEMO.onAim && DEMO.onAim(r, p);
+}
+function updateStats(){
+  if (!panel) return;
+  var st = 'FPS ' + fps.toFixed(0) + ' · DrawCalls ' + renderer.info.render.calls +
+           ' · Tris ' + renderer.info.render.triangles + '\n';
+  var lines = CFG.hudLines ? CFG.hudLines() : [];
+  for (var i = 0; i < lines.length; i++) st += lines[i] + '\n';
+  $('stats').textContent = st;
+}
+
+/* ======================= 2. 场景基础（可少量改） ======================= */
+function buildBase(){
+  scene.fog = new THREE.Fog(0x0e1220, 9, 26);
+  scene.add(new THREE.HemisphereLight(0xbfd4ff, 0x1a2030, 0.85));
+  var dir = new THREE.DirectionalLight(0xffffff, 1.1);
+  dir.position.set(3.5, 6.5, 2.5);
+  dir.castShadow = true;
+  dir.shadow.mapSize.set(1024, 1024);
+  dir.shadow.camera.left = -8; dir.shadow.camera.right = 8;
+  dir.shadow.camera.top = 8; dir.shadow.camera.bottom = -8;
+  scene.add(dir);
+  scene.add(new THREE.AmbientLight(0x334466, 0.5));
+
+  var floor = new THREE.Mesh(
+    new THREE.PlaneGeometry(16, 16),
+    new THREE.MeshStandardMaterial({ color: 0x2a3346, roughness: 0.95, metalness: 0.05 })
+  );
+  floor.rotation.x = -Math.PI / 2;
+  floor.receiveShadow = true;
+  floor.name = 'floor';
+  scene.add(floor);
+
+  var grid = new THREE.GridHelper(16, 32, 0x3f5273, 0x27324a);
+  grid.position.y = 0.002;
+  grid.material.transparent = true; grid.material.opacity = 0.55;
+  scene.add(grid);
+
+  var back = new THREE.Mesh(
+    new THREE.PlaneGeometry(16, 5),
+    new THREE.MeshStandardMaterial({ color: 0x1b2438, roughness: 1 })
+  );
+  back.position.set(0, 2.5, -5.2);
+  back.receiveShadow = true;
+  scene.add(back);
+}
+
+/* =========================================================================
+ * 组 B3 · Diegetic UI 四分类对照
+ * 一个 S（score / lives / hint）→ 四处呈现：
+ *   ① diegetic  腕表 + 胸口血条（挂在 camera 下，但位置每帧反算成“身体固定”，
+ *                                  所以必须低头才看得见）
+ *   ② spatial   世界里的固定面板（父级 = scene，3 m 外墙上）
+ *   ③ meta      跟随头部的相机子物体（父级 = camera，位置固定，永远在视野里）
+ *   ④ dom       网页浮层（DOM），body.XR 时被 CSS 隐藏
+ * ========================================================================= */
+var MODE_CN = {
+  diegetic: '世界内（腕表 / 胸口血条）',
+  spatial: '空间面板（3 m 外墙面）',
+  meta: '跟随头部（meta）',
+  dom: '网页浮层（non-diegetic）'
+};
+/* 身体坐标系里（相对头）的位置：低头才进视野 */
+var WATCH_BODY = new THREE.Vector3(-0.22, -0.34, -0.42);
+var CHEST_BODY = new THREE.Vector3(0.075, -0.45, -0.50);
+
+var watchGroup = null, chestGroup = null, chestPips = [];
+var spatialPanel = null, spatialFrame = null, metaPanel = null, ndui = null;
+var camQ = new THREE.Quaternion(), bodyTmp = new THREE.Vector3();
+
+function mkBoard(wM, hM, pxW, pxH, drawFn){
+  var cv = document.createElement('canvas');
+  cv.width = pxW; cv.height = pxH;
+  var cx = cv.getContext('2d');
+  var tex = new THREE.CanvasTexture(cv);
+  tex.minFilter = THREE.LinearFilter;
+  var mesh = new THREE.Mesh(
+    new THREE.PlaneGeometry(wM, hM),
+    new THREE.MeshBasicMaterial({ map: tex, transparent: true })
+  );
+  mesh.userData.redraw = function(){
+    cx.clearRect(0, 0, pxW, pxH);
+    drawFn(cx, pxW, pxH);
+    tex.needsUpdate = true;
+  };
+  mesh.userData.redraw();
+  return mesh;
+}
+function livesStr(){
+  var s = '';
+  for (var i = 0; i < 3; i++) s += (i < S.lives ? '●' : '○');
+  return s;
+}
+function pips(cx, x, y, gap, r){
+  for (var i = 0; i < 3; i++){
+    cx.beginPath();
+    cx.arc(x + i * gap, y, r, 0, Math.PI * 2);
+    cx.fillStyle = i < S.lives ? '#ff4d6d' : '#2a3346';
+    cx.fill();
+    if (i >= S.lives){ cx.strokeStyle = '#46597f'; cx.lineWidth = 2; cx.stroke(); }
+  }
+}
+
+/* ---------------- ① 腕表表盘（CanvasTexture） ---------------- */
+function drawWatch(cx, W, H){
+  cx.fillStyle = '#0a1120'; cx.fillRect(0, 0, W, H);
+  cx.strokeStyle = '#5b7ba8'; cx.lineWidth = 6; cx.strokeRect(3, 3, W - 6, H - 6);
+  cx.textAlign = 'left'; cx.textBaseline = 'top';
+  cx.fillStyle = '#9fd0ff';
+  cx.font = 'bold 26px "Microsoft YaHei", sans-serif';
+  cx.fillText('腕表 · DIEGETIC', 16, 10);
+  cx.fillStyle = '#ffffff';
+  cx.font = 'bold 104px "Microsoft YaHei", sans-serif';
+  cx.fillText(String(S.score), 16, 44);
+  pips(cx, 30, H - 38, 40, 14);
+  cx.fillStyle = '#8fa2c2';
+  cx.font = '20px "Microsoft YaHei", sans-serif';
+  cx.fillText('生命', 30 + 3 * 40 + 4, H - 48);
+  S.shown.diegetic = S.score;
+}
+
+/* ---------------- ② 空间面板（scene 下的世界坐标） ---------------- */
+function drawSpatial(cx, W, H){
+  cx.fillStyle = '#101a2c'; cx.fillRect(0, 0, W, H);
+  cx.strokeStyle = '#4a6a96'; cx.lineWidth = 5; cx.strokeRect(3, 3, W - 6, H - 6);
+  cx.textAlign = 'left'; cx.textBaseline = 'top';
+  cx.fillStyle = '#9fd0ff';
+  cx.font = 'bold 28px "Microsoft YaHei", sans-serif';
+  cx.fillText('SPATIAL · 3 m 外的墙面板', 26, 20);
+  cx.fillStyle = '#8fa2c2';
+  cx.font = '22px "Microsoft YaHei", sans-serif';
+  cx.fillText('世界坐标固定：转头离开就看不见，回头还在原处', 26, 62);
+  cx.fillStyle = '#ffffff';
+  cx.font = 'bold 120px "Microsoft YaHei", sans-serif';
+  cx.fillText(String(S.score), 26, 100);
+  cx.fillStyle = '#9fd0ff';
+  cx.font = 'bold 26px "Microsoft YaHei", sans-serif';
+  cx.fillText('分', 230, 168);
+  pips(cx, 60, H - 60, 64, 22);
+  cx.fillStyle = '#c3d2ea';
+  cx.font = '24px "Microsoft YaHei", sans-serif';
+  cx.fillText(S.hint, 300, H - 92);
+  S.shown.spatial = S.score;
+}
+
+/* ---------------- ③ 跟随头部的 meta 面板 ---------------- */
+function drawMeta(cx, W, H){
+  cx.fillStyle = 'rgba(10,18,32,.92)'; cx.fillRect(0, 0, W, H);
+  cx.strokeStyle = '#7f5bff'; cx.lineWidth = 5; cx.strokeRect(2, 2, W - 4, H - 4);
+  cx.textAlign = 'left'; cx.textBaseline = 'middle';
+  cx.fillStyle = '#b8a6ff';
+  cx.font = 'bold 24px "Microsoft YaHei", sans-serif';
+  cx.fillText('META · 跟随头部', 16, 26);
+  cx.fillStyle = '#ffffff';
+  cx.font = 'bold 62px "Microsoft YaHei", sans-serif';
+  cx.fillText(String(S.score), 16, 84);
+  cx.fillStyle = '#8fa2c2';
+  cx.font = '20px "Microsoft YaHei", sans-serif';
+  cx.fillText('分', 118, 96);
+  pips(cx, 330, 84, 52, 20);
+  cx.fillStyle = '#8fa2c2';
+  cx.font = '20px "Microsoft YaHei", sans-serif';
+  cx.fillText('生命', 330, 30);
+  S.shown.meta = S.score;
+}
+
+/* ---------------- ④ 网页浮层（DOM / non-diegetic） ---------------- */
+function buildDOMUI(){
+  ndui = document.createElement('div');
+  ndui.id = 'ndui';
+  ndui.innerHTML =
+    '<div class="t">NON-DIEGETIC · 网页浮层（DOM）</div>' +
+    '<div class="row"><span>分数</span><b id="ndScore">42</b></div>' +
+    '<div class="row"><span>生命</span><span id="ndLives">●●●</span></div>' +
+    '<div class="hint" id="ndHint">同一份信息，四种存在方式</div>' +
+    '<div class="why">这块浮层在 body.XR（进 VR）时会被 CSS 隐藏 —— non-diegetic 在 VR 里根本不存在。</div>';
+  document.body.appendChild(ndui);
+}
+function updateDOM(){
+  if (!ndui) return;
+  var a = ndui.querySelector('#ndScore'), b = ndui.querySelector('#ndLives'), c = ndui.querySelector('#ndHint');
+  if (a) a.textContent = String(S.score);
+  if (b) b.textContent = livesStr();
+  if (c) c.textContent = S.hint;
+  S.shown.dom = S.score;
+}
+
+/* ---------------- 可见性 / 同步 ---------------- */
+function applyMode(){
+  var m = S.mode, cmp = S.compare;
+  S.vis.diegetic = (m === 'diegetic' || cmp);
+  S.vis.spatial = (m === 'spatial' || cmp);
+  S.vis.meta = (m === 'meta' || cmp);
+  S.vis.dom = (m === 'dom' || cmp);
+  if (watchGroup) watchGroup.visible = S.vis.diegetic;
+  if (chestGroup) chestGroup.visible = S.vis.diegetic;
+  if (spatialPanel) spatialPanel.visible = S.vis.spatial;
+  if (spatialFrame) spatialFrame.visible = S.vis.spatial;
+  if (metaPanel) metaPanel.visible = S.vis.meta;
+  if (ndui) ndui.style.display = S.vis.dom ? 'block' : 'none';
+  panelDirty = true;
+}
+function redrawAll(){
+  if (watchGroup) watchGroup.userData.face.userData.redraw();
+  if (spatialPanel) spatialPanel.userData.redraw();
+  if (metaPanel) metaPanel.userData.redraw();
+  updateDOM();
+  panelDirty = true;
+}
+function setMode(m){
+  if (!MODE_CN[m]) return false;
+  S.mode = m;
+  S.lastAction = '呈现=' + MODE_CN[m];
+  applyMode(); redrawAll();
+  toast('呈现方式：' + MODE_CN[m]);
+  return true;
+}
+function bump(dScore, dLife){
+  S.score = clamp(S.score + dScore, 0, 99);
+  S.lives = clamp(S.lives + dLife, 0, 3);
+  S.lastAction = '分数=' + S.score + ' 生命=' + S.lives;
+  redrawAll();
+  return { score: S.score, lives: S.lives };
+}
+/* 身体固定：把“相对头”的身体坐标反算到 camera 局部坐标（父级仍是 camera） */
+function placeBodyFixed(obj, bodyPos){
+  camera.updateMatrixWorld(true);
+  camera.getWorldQuaternion(camQ);
+  camQ.invert();
+  bodyTmp.copy(bodyPos).applyQuaternion(camQ);
+  obj.position.copy(bodyTmp);
+}
+
+/* ---------------- 场景 ---------------- */
+function buildDiegeticWorld(){
+  camera.rotation.x = 0;
+
+  /* ① 腕表：父级 = camera */
+  watchGroup = new THREE.Group();
+  watchGroup.name = 'watchGroup';
+  watchGroup.rotation.set(0.10, -0.12, 0.05);
+  camera.add(watchGroup);
+  var caseMat = new THREE.MeshStandardMaterial({ color: 0x263142, roughness: 0.45, metalness: 0.7 });
+  var body = new THREE.Mesh(new THREE.BoxGeometry(0.175, 0.175, 0.038), caseMat);
+  watchGroup.add(body);
+  var strapMat = new THREE.MeshStandardMaterial({ color: 0x1b2333, roughness: 0.95 });
+  var st1 = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.17, 0.022), strapMat);
+  st1.position.set(-0.125, 0, -0.005); watchGroup.add(st1);
+  var st2 = st1.clone(); st2.position.set(0.125, 0, -0.005); watchGroup.add(st2);
+  var face = mkBoard(0.15, 0.15, 256, 256, drawWatch);
+  face.position.set(0, 0, 0.026);
+  watchGroup.add(face);
+  watchGroup.userData.face = face;
+
+  placeBodyFixed(watchGroup, WATCH_BODY);
+
+  /* ① 胸口三格血条：也是 camera 子物体 + 身体固定反算 */
+  chestGroup = new THREE.Group();
+  chestGroup.name = 'chestGroup';
+  camera.add(chestGroup);
+  var plate = new THREE.Mesh(
+    new THREE.BoxGeometry(0.26, 0.10, 0.02),
+    new THREE.MeshStandardMaterial({ color: 0x2a3550, roughness: 0.85 })
+  );
+  chestGroup.add(plate);
+  for (var i = 0; i < 3; i++){
+    var pip = new THREE.Mesh(
+      new THREE.BoxGeometry(0.05, 0.05, 0.022),
+      new THREE.MeshStandardMaterial({ color: 0xff4d6d, emissive: 0x5a0a18, roughness: 0.5 })
+    );
+    pip.position.set((i - 1) * 0.072, 0, 0.017);
+    chestGroup.add(pip);
+    chestPips.push(pip);
+  }
+
+  /* 3D 标签：说清这是什么 */
+  var chestLabel = mkBoard(0.235, 0.058, 376, 92, function(cx, W, H){
+    cx.fillStyle = 'rgba(10,18,32,.9)'; cx.fillRect(0, 0, W, H);
+    cx.strokeStyle = '#ff4d6d'; cx.lineWidth = 3; cx.strokeRect(1, 1, W - 2, H - 2);
+    cx.fillStyle = '#ffb3c1'; cx.font = 'bold 36px "Microsoft YaHei", sans-serif';
+    cx.textAlign = 'center'; cx.textBaseline = 'middle';
+    cx.fillText('胸口血条 · diegetic', W / 2, H / 2);
+  });
+  chestLabel.position.set(0, -0.085, 0.02);
+  chestGroup.add(chestLabel);
+  placeBodyFixed(chestGroup, CHEST_BODY);
+
+  /* ② 空间面板：父级 = scene（世界坐标） */
+  spatialPanel = mkBoard(1.15, 0.55, 700, 336, drawSpatial);
+  spatialPanel.position.set(0, 1.66, -3.0);
+  spatialPanel.name = 'spatialPanel';
+  scene.add(spatialPanel);
+  spatialFrame = new THREE.Mesh(
+    new THREE.BoxGeometry(1.22, 0.62, 0.04),
+    new THREE.MeshStandardMaterial({ color: 0x22304a, roughness: 0.8 })
+  );
+  spatialFrame.position.set(0, 1.66, -3.03);
+  scene.add(spatialFrame);
+
+  /* ③ meta 面板：父级 = camera，位置固定（不反算）→ 永远在视野里 */
+  metaPanel = mkBoard(0.52, 0.13, 512, 128, drawMeta);
+  metaPanel.position.set(0.0, 0.21, -0.85);
+  metaPanel.name = 'metaPanel';
+  camera.add(metaPanel);
+
+  /* ④ DOM 浮层 */
+  buildDOMUI();
+}
+
+/* ---------------- 控制面板 ---------------- */
+var DEMO = {
+  buildWorld: function(){ buildDiegeticWorld(); },
+
+  buildUI: function(){
+    this._panel = mkPanel(1.25, 0.62, 1024, 512);
+    this._panel.position.set(0, 1.04, -1.85);
+    this._panel.rotation.x = -0.28;
+    scene.add(this._panel);
+    uiButton('m-diegetic', '① 腕表', 32, 316, 230, 76);
+    uiButton('m-spatial', '② 空间', 272, 316, 230, 76);
+    uiButton('m-meta', '③ 跟随', 512, 316, 230, 76);
+    uiButton('m-dom', '④ 网页', 752, 316, 230, 76);
+    uiButton('bump-up', '分数+5·生命+1', 32, 412, 310, 76);
+    uiButton('bump-down', '分数-5·生命-1', 350, 412, 310, 76);
+    uiButton('reset', '重置', 668, 412, 310, 76);
+    setInterval(function(){ updateStats(); }, 400);
+    applyMode();
+    redrawAll();
+    /* 按住 C 叠加对比（keyup 需要单独监听） */
+    window.addEventListener('keyup', function(e){
+      if (e.code === 'KeyC' && S.compare){ S.compare = false; applyMode(); redrawAll(); }
+    });
+  },
+
+  drawUI: function(ctx, W, H){
+    ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+    var gd = ctx.createLinearGradient(0, 0, W, H);
+    gd.addColorStop(0, '#141d31'); gd.addColorStop(1, '#0f1626');
+    ctx.fillStyle = gd; ctx.fillRect(0, 0, W, H);
+    ctx.strokeStyle = '#3a4a6c'; ctx.lineWidth = 4; ctx.strokeRect(2, 2, W - 4, H - 4);
+
+    ctx.fillStyle = '#9fd0ff';
+    ctx.font = 'bold 38px "Microsoft YaHei", sans-serif';
+    ctx.fillText('Diegetic UI 四分类对照', 32, 20);
+    ctx.fillStyle = '#8fa2c2';
+    ctx.font = '20px "Microsoft YaHei", sans-serif';
+    ctx.fillText('同一份 S（分数 / 生命 / 提示）→ 四处呈现，按住 C 可叠加对比', 32, 66);
+
+    ctx.fillStyle = '#0b1120'; ctx.strokeStyle = '#26344f'; ctx.lineWidth = 3;
+    roundRect(ctx, 26, 100, 972, 196, 14); ctx.fill(); ctx.stroke();
+
+    ctx.fillStyle = '#e8eefc';
+    ctx.font = 'bold 30px "Microsoft YaHei", sans-serif';
+    ctx.fillText('当前：' + CFG.modeName(), 50, 114);
+    ctx.fillStyle = S.compare ? '#ffc857' : '#6f83a6';
+    ctx.font = '24px "Microsoft YaHei", sans-serif';
+    ctx.fillText(S.compare ? '对比模式（四处同时显示）' : '同时只显示一种', 50, 164);
+
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 46px "Microsoft YaHei", sans-serif';
+    ctx.fillText('分数 ' + S.score, 50, 202);
+    pips(ctx, 370, 230, 34, 13);
+    ctx.fillStyle = '#8fa2c2';
+    ctx.font = '24px "Microsoft YaHei", sans-serif';
+    ctx.fillText('生命 ' + S.lives + ' / 3', 480, 214);
+    ctx.fillStyle = '#7f92b4';
+    ctx.font = '21px "Microsoft YaHei", sans-serif';
+    ctx.fillText(S.hint, 370, 254);
+
+    for (var i = 0; i < panelBtns.length; i++){
+      var b = panelBtns[i];
+      if (b.id === 'm-diegetic') b.enabled = true;
+    }
+  },
+
+  onPick: function(id, src){
+    if (id === 'm-diegetic') setMode('diegetic');
+    else if (id === 'm-spatial') setMode('spatial');
+    else if (id === 'm-meta') setMode('meta');
+    else if (id === 'm-dom') setMode('dom');
+    else if (id === 'bump-up') bump(5, 1);
+    else if (id === 'bump-down') bump(-5, -1);
+    else if (id === 'reset') DEMO.reset();
+  },
+
+  onKey: function(code){
+    if (code === 'Digit1') setMode('diegetic');
+    else if (code === 'Digit2') setMode('spatial');
+    else if (code === 'Digit3') setMode('meta');
+    else if (code === 'Digit4') setMode('dom');
+    else if (code === 'Equal' || code === 'NumpadAdd') bump(5, 1);
+    else if (code === 'Minus' || code === 'NumpadSubtract') bump(-5, -1);
+    else if (code === 'KeyC'){
+      S.compare = true; applyMode(); redrawAll();
+      toast('对比模式：四处呈现同时显示（松开 C 还原）');
+    }
+  },
+
+  onSqueeze: function(ray, src){
+    var m = ['diegetic', 'spatial', 'meta', 'dom'];
+    var i = (m.indexOf(S.mode) + 1) % 4;
+    setMode(m[i]);
+    pulse(src, 0.4, 45);
+  },
+
+  update: function(dt){
+    /* 腕表 / 胸条：每帧把“身体坐标”反算到 camera 局部 —— 父级仍是 camera，
+       但效果等价于“固定在身上”，所以不低头就看不见。 */
+    if (!renderer.xr.isPresenting){
+      placeBodyFixed(watchGroup, WATCH_BODY);
+      placeBodyFixed(chestGroup, CHEST_BODY);
+    } else {
+      /* VR 里 head 姿态由 XR 接管，同样反算 */
+      placeBodyFixed(watchGroup, WATCH_BODY);
+      placeBodyFixed(chestGroup, CHEST_BODY);
+    }
+    /* 胸口血条颜色随 S.lives 变 */
+    for (var i = 0; i < chestPips.length; i++){
+      var on = i < S.lives;
+      chestPips[i].material.color.set(on ? 0xff4d6d : 0x2a3346);
+      chestPips[i].material.emissive.set(on ? 0x5a0a18 : 0x000000);
+    }
+  },
+
+  reset: function(){
+    S.mode = 'spatial'; S.compare = false;
+    S.score = 42; S.lives = 3;
+    S.hint = '同一份信息，四种存在方式';
+    S.lastAction = '—'; S.lastPick = '—'; S.picks = 0;
+    hapticLog.length = 0; sfxLog.length = 0;
+    if (camera) camera.rotation.x = 0;
+    if (player) player.position.set(0, 0, 0);
+    applyMode(); redrawAll();
+  },
+
+  /* ------------------- 自测：11 条真实机制断言 ------------------- */
+  selfTest: function(){
+    var pass = [], fail = [];
+    var T = function(ok, name){ (ok ? pass : fail).push(name); };
+    DEMO.reset();
+
+    /* ① 四模式切换：可见性标志 + 真实对象 + 同时只一种 */
+    var mods = ['diegetic', 'spatial', 'meta', 'dom'];
+    var okVis = true, bad = '';
+    for (var i = 0; i < mods.length; i++){
+      setMode(mods[i]);
+      var v = S.vis;
+      var cnt = (v.diegetic ? 1 : 0) + (v.spatial ? 1 : 0) + (v.meta ? 1 : 0) + (v.dom ? 1 : 0);
+      var objOk = (watchGroup.visible === v.diegetic) && (chestGroup.visible === v.diegetic) &&
+                  (spatialPanel.visible === v.spatial) && (metaPanel.visible === v.meta) &&
+                  ((ndui.style.display === 'block') === v.dom);
+      if (!(v[mods[i]] === true && cnt === 1 && objOk)){ okVis = false; bad += mods[i] + ' '; }
+    }
+    T(okVis, '四种模式切换后可见性标志与 3D/DOM 对象一致，且同时只显示一种' + (bad ? '（异常：' + bad + '）' : ''));
+
+    /* ② 腕表父级是 camera */
+    T(watchGroup.parent === camera && chestGroup.parent === camera,
+      '腕表 / 胸口血条挂在 camera 下（父级 = camera）');
+
+    /* ③ 空间面板是世界坐标 */
+    T(spatialPanel.parent === scene && Math.abs(spatialPanel.position.z + 3.0) < 0.01,
+      '空间面板挂在 scene 下（世界坐标 z=-3.0 m 墙面）');
+
+    /* ④ 改 S.score 后四处读数同步 */
+    setMode('spatial');
+    S.score = 77; S.lives = 2;
+    redrawAll();
+    T(S.shown.diegetic === 77 && S.shown.spatial === 77 && S.shown.meta === 77 && S.shown.dom === 77,
+      '改 S.score=77 后四处呈现（腕表/空间/跟随/网页）读数全部同步为 77');
+
+    /* ⑤ 加 body.XR 后 DOM 浮层被 CSS 隐藏 */
+    setMode('dom');
+    var d0 = getComputedStyle(ndui).display;
+    document.body.classList.add('XR');
+    var d1 = getComputedStyle(ndui).display;
+    T(d0 !== 'none' && d1 === 'none',
+      '加 body.XR（进 VR）后网页浮层 display ' + d0 + ' → ' + d1 + '：non-diegetic 直接消失');
+
+    /* ⑥ body.XR 下 meta / diegetic 仍可见 */
+    S.compare = true; applyMode(); redrawAll();
+    T(document.body.classList.contains('XR') && watchGroup.visible === true &&
+      chestGroup.visible === true && metaPanel.visible === true,
+      'body.XR 下 meta 面板与腕表/血条仍然可见（CSS 只作用于 DOM，不动 3D）');
+    document.body.classList.remove('XR');
+    S.compare = false; applyMode();
+
+    /* ⑦ 低头才看得见腕表（身体坐标 → camera 局部反算，是真机制不是贴图） */
+    setMode('diegetic');
+    camera.rotation.x = 0;
+    DEMO.update(0.016);
+    var p0 = watchGroup.position.clone();
+    var a0 = Math.abs(Math.atan2(-p0.y, -p0.z));
+    camera.rotation.x = -0.9;
+    DEMO.update(0.016);
+    var p1 = watchGroup.position.clone();
+    var a1 = Math.abs(Math.atan2(-p1.y, -p1.z));
+    T(a0 > 0.6 && a1 < 0.4,
+      '腕表位置随俯仰反算：平视偏离视线 ' + (a0 * 57.3).toFixed(0) + '°（视野外）→ 低头 ' +
+      (a1 * 57.3).toFixed(0) + '°（进视野），必须低头才看得见');
+    camera.rotation.x = 0;
+    DEMO.update(0.016);
+
+    /* ⑧ +/- 改分数与生命（上下限夹紧） */
+    DEMO.reset();
+    bump(5, 1);
+    T(S.score === 47 && S.lives === 3, '「+」：分数 42→' + S.score + '，生命封顶在 3');
+    S.score = 98; S.lives = 1; bump(5, 1);
+    T(S.score === 99 && S.lives === 2, '分数上限 99（98+5 → ' + S.score + '）');
+    S.score = 2; S.lives = 0; bump(-5, -1);
+    T(S.score === 0 && S.lives === 0, '分数 / 生命下限 0（不会变负）');
+
+    /* ⑨ reset 恢复 spatial */
+    setMode('meta'); DEMO.reset();
+    T(S.mode === 'spatial' && S.vis.spatial === true && spatialPanel.visible === true &&
+      S.score === 42 && S.lives === 3,
+      'reset 恢复默认呈现 spatial、分数 42、生命 3');
+
+    /* ⑩ 对比模式：四处同时可见 */
+    S.compare = true; applyMode(); redrawAll();
+    var four = S.vis.diegetic && S.vis.spatial && S.vis.meta && S.vis.dom;
+    T(four && watchGroup.visible && spatialPanel.visible && metaPanel.visible &&
+      ndui.style.display === 'block',
+      '按住 C 的对比模式：四处呈现同时可见（1 份 S → 4 个渲染目标）');
+    S.compare = false; applyMode(); redrawAll();
+
+    /* ⑪ 面板 7 个按钮（4 模式 + 加减 + 重置） */
+    var ids = panelBtns.map(function(b){ return b.id; });
+    T(panelBtns.length === 7 && ids.indexOf('m-diegetic') >= 0 && ids.indexOf('m-dom') >= 0 &&
+      ids.indexOf('bump-up') >= 0 && ids.indexOf('reset') >= 0,
+      '面板 7 个按钮：四种呈现 + 数值加减 + 重置');
+
+    DEMO.reset();
+    return { pass: pass, fail: fail };
+  }
+};
+
+/* ---------- 追加 api（boot 之后合并） ---------- */
+window.__LAB_EXTRAS = {
+  mode: function(m){ if (m) setMode(m); return S.mode; },
+  compare: function(on){ S.compare = !!on; applyMode(); redrawAll(); return S.compare; },
+  bump: function(ds, dl){ return bump(ds == null ? 5 : ds, dl == null ? 1 : dl); },
+  setView: function(v){
+    if (v === 'watch'){ camera.rotation.x = -0.45; }
+    else if (v === 'level'){ camera.rotation.x = 0; }
+    else if (v === 'spatial'){ camera.rotation.x = 0; }
+    player.rotation.y = 0;
+    DEMO.update(0.016);
+    return camera.rotation.x;
+  },
+  shown: function(){ return JSON.parse(JSON.stringify(S.shown)); },
+  vis: function(){ return JSON.parse(JSON.stringify(S.vis)); },
+  xr: function(on){ if (on) document.body.classList.add('XR'); else document.body.classList.remove('XR'); return document.body.className; },
+  domHidden: function(){ return getComputedStyle(ndui).display === 'none'; }
+};
+setTimeout(function(){
+  if (!window.LAB || !window.LAB.api) return;
+  var ex = window.__LAB_EXTRAS || {};
+  for (var k in ex){
+    if (Object.prototype.hasOwnProperty.call(ex, k)) window.LAB.api[k] = ex[k];
+  }
+}, 0);
+
+/* ======================= 4. 启动（不要改） ======================= */
+function boot(){
+  renderer = new THREE.WebGLRenderer({ canvas: $('c'), antialias: true, alpha: false });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  renderer.setSize(innerWidth, innerHeight);
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.xr.enabled = true;
+  renderer.xr.setReferenceSpaceType('local-floor');
+
+  scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x0e1220);
+  camera = new THREE.PerspectiveCamera(70, innerWidth / innerHeight, 0.05, 60);
+  camera.position.set(0, 1.6, 0);
+  player = new THREE.Group();
+  player.add(camera);
+  scene.add(player);
+  clock = new THREE.Clock();
+
+  buildBase();
+  DEMO.buildWorld();
+  DEMO.buildUI();
+  setupVR();
+  setupPC();
+
+  document.title = CFG.id.toUpperCase() + ' · ' + CFG.title;
+  $('hudTitle').textContent = CFG.title;
+  $('hudTag').textContent = CFG.subtitle;
+  $('loadTitle').textContent = CFG.title;
+  $('hudPC').innerHTML = '<b>PC 操作</b><br>' + CFG.pcKeys;
+  $('hudVR').innerHTML = '<b>头显操作</b><br>' + CFG.vrKeys;
+  $('hudTeach').innerHTML = '<b>课堂要点</b><br>' + CFG.teach;
+  redrawPanel();
+
+  window.LAB = {
+    S: S, scene: scene, camera: camera, renderer: renderer, player: player, cfg: CFG,
+    ui: { panel: function(){ return panel; }, buttons: function(){ return panelBtns; },
+          hover: function(){ return hoverId; } },
+    api: {
+      fire: fireButton,
+      reset: DEMO.reset,
+      getState: function(){ return JSON.parse(JSON.stringify(S)); },
+      setState: function(k, v){ S[k] = v; panelDirty = true; },
+      haptics: function(){ return hapticLog.slice(); },
+      sfx: function(){ return sfxLog.slice(); },
+      selfTest: function(){
+        var r = DEMO.selfTest();
+        console.log('SELFTEST PASS ' + r.pass.length + ' / FAIL ' + r.fail.length);
+        if (r.fail.length) console.log('SELFTEST FAILED: ' + r.fail.join(' | '));
+        return r;
+      }
+    }
+  };
+
+  var loader = $('loader');
+  $('loadMsg').textContent = '就绪 · ' + CFG.part;
+  setTimeout(function(){ loader.style.opacity = '0'; setTimeout(function(){ loader.remove(); }, 520); }, 180);
+
+  onResize();
+  renderer.setAnimationLoop(animate);
+}
+try { boot(); }
+catch (e) {
+  console.error('启动失败', e);
+  var lm = document.getElementById('loadMsg');
+  if (lm) lm.textContent = '启动失败：' + e.message;
+}
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 380" font-family="'Microsoft YaHei','PingFang SC',sans-serif">
+  <rect width="760" height="380" fill="#faf8fd"/>
+  <text x="380" y="32" text-anchor="middle" font-size="19" font-weight="700" fill="#2e2a6f">同一组信息，四种放法：Diegetic UI 四分类</text>
+  <text x="380" y="56" text-anchor="middle" font-size="13" fill="#5a5670">VR 最推荐 diegetic（信息长在世界里），但复杂数据常配 spatial；网页浮层进沉浸模式就没了</text>
+
+  <!-- ① diegetic -->
+  <rect x="26" y="76" width="348" height="136" rx="12" fill="#f6fbf6" stroke="#cfe6d1"/>
+  <text x="44" y="100" font-size="14" font-weight="700" fill="#2e7d32">① Diegetic · 世界内</text>
+  <text x="44" y="122" font-size="12" fill="#5a5670">Alyx 手腕表、Dead Space 脊柱血条</text>
+  <text x="44" y="142" font-size="12" fill="#5a5670">✓ 最沉浸、不打断　✗ 要主动查看</text>
+  <text x="44" y="162" font-size="12" fill="#2e2a6f">加分：计分板做成靶上刻度、开关做成拉杆</text>
+  <text x="44" y="184" font-size="11.5" fill="#8b879e">对应演示：lab06 的腕表 + 胸口血条</text>
+
+  <!-- ② spatial -->
+  <rect x="386" y="76" width="348" height="136" rx="12" fill="#fff" stroke="#e3ddf1"/>
+  <text x="404" y="100" font-size="14" font-weight="700" fill="#2e2a6f">② Spatial · 空间面板</text>
+  <text x="404" y="122" font-size="12" fill="#5a5670">信息贴在世界的某个平面上</text>
+  <text x="404" y="142" font-size="12" fill="#5a5670">✓ 稳定好读　✗ 需要转头去找</text>
+  <text x="404" y="162" font-size="12" fill="#2e2a6f">你现在的 3D 面板就属这一类</text>
+  <text x="404" y="184" font-size="11.5" fill="#8b879e">对应演示：lab06 的墙上固定面板</text>
+
+  <!-- ③ meta -->
+  <rect x="26" y="224" width="348" height="136" rx="12" fill="#fff" stroke="#e3ddf1"/>
+  <text x="44" y="248" font-size="14" font-weight="700" fill="#2e2a6f">③ Meta · 跟随头部</text>
+  <text x="44" y="270" font-size="12" fill="#5a5670">面板挂在相机前固定距离，永远在眼前</text>
+  <text x="44" y="290" font-size="12" fill="#5a5670">✓ 永远可见　✗ 挡视线、易疲劳</text>
+  <text x="44" y="310" font-size="12" fill="#2e2a6f">适合：血量、准星、临时提示</text>
+  <text x="44" y="334" font-size="11.5" fill="#8b879e">对应演示：lab06 的头部 HUD 面板</text>
+
+  <!-- ④ non-diegetic -->
+  <rect x="386" y="224" width="348" height="136" rx="12" fill="#fdf3e3" stroke="#efdcb5"/>
+  <text x="404" y="248" font-size="14" font-weight="700" fill="#b45309">④ Non-diegetic · 网页浮层</text>
+  <text x="404" y="270" font-size="12" fill="#7a4a0a">DOM 元素（div / 按钮）</text>
+  <text x="404" y="290" font-size="12" fill="#7a4a0a">✗ 进 immersive-vr 就不渲染</text>
+  <text x="404" y="310" font-size="12" fill="#2e2a6f">只能用于 PC 预览与控制台</text>
+  <text x="404" y="334" font-size="11.5" fill="#8b879e">对应演示：lab06 切到浮层，进 VR 看它消失</text>
+
+  <text x="380" y="374" text-anchor="middle" font-size="11.5" fill="#8b879e">实战常用混合方案：氛围用 diegetic，复杂数据用 spatial，临时提示用 meta</text>
+</svg>

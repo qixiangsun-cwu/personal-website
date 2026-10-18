@@ -1,0 +1,1652 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>D1 · 投篮擂台 · WebXR 示范作品</title>
+<style>
+  html,body{margin:0;padding:0;overflow:hidden;background:#0e1220;color:#e8eefc;
+    font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif;}
+  #c{position:fixed;inset:0;display:block;}
+  #hud{position:fixed;left:14px;top:14px;z-index:20;width:288px;padding:12px 14px;
+    background:rgba(15,20,34,.9);border:1px solid #2b3854;border-radius:10px;
+    font-size:12px;line-height:1.65;box-shadow:0 8px 26px rgba(0,0,0,.4);}
+  #hud h2{margin:0 0 4px;font-size:15px;color:#7fc4ff;letter-spacing:.5px;}
+  #hud .tagline{color:#93a4c2;font-size:11px;margin-bottom:6px;}
+  #hud .sec{border-top:1px solid #253149;margin-top:8px;padding-top:7px;}
+  #hud b{color:#9fd0ff;font-weight:600;}
+  #hud .k{display:inline-block;background:#1b2540;border:1px solid #31405f;border-radius:4px;
+    padding:0 5px;margin:1px 2px;color:#cfe2ff;font-size:11px;}
+  #hud .warnline{color:#ffc857;}
+  #stats{color:#5fd08a;font-size:11px;white-space:pre-line;}
+  #enterVR{position:fixed;right:18px;top:18px;z-index:20;display:none;cursor:pointer;
+    background:linear-gradient(135deg,#2f7de1,#1b4fa8);color:#fff;border:none;border-radius:24px;
+    padding:11px 22px;font-size:15px;letter-spacing:2px;box-shadow:0 4px 16px rgba(47,125,225,.4);}
+  #enterVR:disabled{background:#4a5468;cursor:not-allowed;box-shadow:none;}
+  #vrhint{position:fixed;right:18px;top:72px;z-index:20;max-width:236px;display:none;
+    background:rgba(15,20,34,.88);border:1px solid #2b3854;border-radius:8px;padding:7px 9px;
+    color:#b9c8e2;font-size:11px;line-height:1.6;text-align:right;}
+  #toast{position:fixed;left:50%;bottom:58px;transform:translateX(-50%);z-index:25;
+    background:rgba(21,28,46,.95);border:1px solid #3a4a6c;border-radius:10px;padding:10px 18px;
+    font-size:14px;color:#d9e6ff;opacity:0;transition:opacity .25s;pointer-events:none;white-space:nowrap;}
+  #toast.show{opacity:1;}
+  #loader{position:fixed;inset:0;z-index:50;background:#0e1220;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;gap:6px;transition:opacity .5s;}
+  #loader h1{font-size:26px;letter-spacing:4px;color:#7fc4ff;margin:0;font-weight:600;}
+  #loader p{font-size:13px;color:#8fa2c2;margin:0;}
+  body.XR #hud,body.XR #enterVR,body.XR #vrhint{display:none!important;}
+  body.XR #toast{bottom:auto;top:24px;}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="hud">
+  <h2 id="hudTitle">LAB</h2>
+  <div class="tagline" id="hudTag"></div>
+  <div class="sec" id="hudPC"></div>
+  <div class="sec" id="hudVR"></div>
+  <div class="sec" id="hudTeach"></div>
+  <div class="sec"><span id="stats">初始化…</span></div>
+</div>
+<div id="toast"></div>
+<button id="enterVR">进入 VR</button>
+<div id="vrhint"></div>
+<div id="loader">
+  <h1 id="loadTitle">LAB</h1>
+  <p id="loadMsg">正在初始化…</p>
+</div>
+
+<script src="./three.min.js"></script>
+<script>
+/* =========================================================================
+ * 组 D1 · 投篮擂台（示范作品）
+ * 第 7 次课「交互零件库」示范：把 抓取 → 投掷 → 3D UI → 计分 → 状态机 攒成
+ * 一个可反复玩、可自测、可评估的小玩法；也是第 8 次课「状态机」的开刀对象。
+ *
+ * 硬性约定（验证工具依赖，不要删）：
+ *   1. <script src="./three.min.js">（带点斜杠）
+ *   2. 存在行  renderer.setAnimationLoop(animate);
+ *   3. animate() 内调用 renderer.render(scene, camera)
+ *   4. renderer.xr.setReferenceSpaceType('local-floor') 在会话创建前调用
+ *   5. 暴露 window.LAB（含 api.start / api.shoot / api.tick / api.selfTest）
+ *
+ * 阶段状态机（本演示的核心教学点）：
+ *   ready  —— 不计分、可以试投、面板显示「开始投篮」
+ *   playing—— 60 秒倒计时，进球 +2 / 碰筐不进 +1 / miss 不计
+ *   over   —— 锁输入（不能抓球、不能计分），显示「重开一局」
+ * ========================================================================= */
+(function(){
+'use strict';
+
+/* ======================= 0. 演示配置 ======================= */
+var CFG = {
+  id: 'demo01',
+  title: '投篮擂台 · 示范作品',
+  subtitle: '第 7 次课 · 一个零件攒成的可评估小玩法（E5 标准答案）',
+  part: '示范作品 D1',
+  aimMode: 'mouse',
+  pcKeys: '拖拽=环视 · W/A/S/D=行走 · 左键点球=抓起 · 按住甩鼠标松手=投出 · ' +
+          '<span class="k">空格</span>=标准投篮 · <span class="k">1/2/3</span>=取球 · ' +
+          '<span class="k">T</span>=开始 · <span class="k">R</span>=重置',
+  vrKeys: '扳机=射线点面板/抓球（持球时再扣=投出）· 握持键=抓球 · ' +
+          '松开握持键=按挥动速度投出 · 右摇杆左右=转 45°',
+  teach: '① 状态机 ready→playing→over：ready 不计分、over 锁输入，UI 与提示音跟着阶段变。' +
+         '② 一次命中给三通道：筐圈闪光 + 合成音 + 震动。' +
+         '③ 最高分存 localStorage —— 跨会话的状态也是状态。',
+  hudLines: function(){
+    return [
+      '阶段：' + phaseName() + ' ｜ 得分 ' + S.score + ' ｜ 剩余 ' + Math.ceil(S.timeLeft) + 's',
+      '最高分 ' + S.best + ' ｜ 投 ' + S.shots + ' 次 · 进 ' + S.swish + ' · 碰筐 ' + S.rimIn,
+      '手中：' + (S.heldBall ? '持球（空格/甩鼠标投出）' : '空手（点球抓起）')
+    ];
+  }
+};
+
+/* ======================= 1. 基础设施 ======================= */
+var renderer, scene, camera, player, clock, audioCtx = null;
+var raycaster = new THREE.Raycaster();
+var aimNdc = new THREE.Vector2(0, 0);
+var tmpV = new THREE.Vector3(), tmpV2 = new THREE.Vector3();
+var panel = null, panelCanvas = null, panelCtx = null, panelTex = null;
+var panelBtns = [], hoverId = null, panelDirty = true;
+var uiHits = [], pickables = [];
+var hapticLog = [], sfxLog = [];
+var keys = {}, dragging = false, lastMouse = {x:0,y:0}, dragDist = 0;
+var vrCtrls = [], vrRays = [], xrSession = null;
+var elapsed = 0, frames = 0, fps = 60, fpsT = 0;
+
+/* -------- 1.1 状态：本演示的全部状态都挂在这里 -------- */
+var S = {
+  phase: 'ready',           // 'ready' | 'playing' | 'over'
+  score: 0, best: 0, timeLeft: 60,
+  shots: 0, swish: 0, rimIn: 0, miss: 0,
+  heldBall: null, held: false,
+  mute: false,
+  lastAction: '—', lastPick: '—', picks: 0
+};
+
+/* 演示私有常量与对象（放在状态区，便于阅读时对照） */
+var G = 9.8;                      // 重力（m/s^2）
+var BALL_R = 0.11;                // 球半径（m）
+var RIM = { x: 0, y: 3.05, z: -4.25, r: 0.30 };   // 筐圈中心与半径（3.05m 为示意值）
+var BOARD = { z: -4.585, x0: -0.90, x1: 0.90, y0: 2.93, y1: 3.95 };
+var BEST_KEY = 'lab_d_demo01_best_v1';
+var SWISH_TOL = 0.22;             // 进筐判定：球心水平偏差容差（m）
+var RIM_TOL = 0.14;               // 进筐判定：竖直容差（m）
+var ELEV_BIAS = 0.454;            // 投掷方向固定上抬 26°（教学简化，见报告）
+var BASE_SPEED = 8.4;             // 标准投篮出手速度（m/s）
+var GAME_SECONDS = 60;
+
+var balls = [], ballHomes = [];
+var rimMesh = null, netMesh = null, backboard = null, pole = null;
+var boardCanvas = null, boardCtx = null, boardTex = null, boardMesh = null;
+var boardDirty = true, boardText = '';
+var rimFlash = 0, popups = [], heldAnchor = null, previewLine = null, previewPos = null;
+var DEMO_READY = false;
+
+/* -------- 1.2 小工具 -------- */
+function clamp(v, a, b){ return v < a ? a : (v > b ? b : v); }
+function fmt(v, n){ return (isFinite(v) ? v.toFixed(n == null ? 2 : n) : '—'); }
+function $(id){ return document.getElementById(id); }
+function toast(msg, ms){
+  var t = $('toast');
+  if (!t) return;
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(toast._t);
+  toast._t = setTimeout(function(){ t.classList.remove('show'); }, ms || 1600);
+}
+function initAudio(){
+  if (audioCtx) return audioCtx;
+  try {
+    var AC = window.AudioContext || window.webkitAudioContext;
+    if (AC) audioCtx = new AC();
+  } catch (e) { console.warn('AudioContext 不可用', e); }
+  return audioCtx;
+}
+function resumeAudio(){
+  var c = initAudio();
+  if (c && c.state === 'suspended') c.resume().catch(function(){});
+}
+function beep(freq, dur, type, gain){
+  var c = initAudio();
+  if (!c || S.mute) { sfxLog.push({t: elapsed, freq: freq, skipped: !c}); return; }
+  try {
+    if (c.state === 'suspended') c.resume().catch(function(){});
+    var o = c.createOscillator(), g = c.createGain();
+    o.type = type || 'sine';
+    o.frequency.value = freq;
+    g.gain.value = (gain == null ? 0.05 : gain);
+    o.connect(g); g.connect(c.destination);
+    var now = c.currentTime, d = (dur || 60) / 1000;
+    g.gain.setValueAtTime(g.gain.value, now);
+    g.gain.exponentialRampToValueAtTime(0.0001, now + d);
+    o.start(now); o.stop(now + d + 0.01);
+    sfxLog.push({t: elapsed, freq: freq, dur: dur || 60});
+  } catch (e) { console.warn('beep 失败', e); }
+}
+function pulse(src, intensity, ms){
+  hapticLog.push({t: elapsed, intensity: intensity, ms: ms, real: !!(src && src.gamepad &&
+    src.gamepad.hapticActuators && src.gamepad.hapticActuators[0])});
+  try {
+    var acts = src && src.gamepad && src.gamepad.hapticActuators;
+    if (acts && acts[0] && acts[0].pulse) acts[0].pulse(intensity, ms);
+  } catch (e) { console.warn('触觉不可用', e); }
+}
+
+/* -------- 1.3 3D 面板（CanvasTexture + UV 命中） -------- */
+function mkPanel(wM, hM, pxW, pxH){
+  panelCanvas = document.createElement('canvas');
+  panelCanvas.width = pxW; panelCanvas.height = pxH;
+  panelCtx = panelCanvas.getContext('2d');
+  panelTex = new THREE.CanvasTexture(panelCanvas);
+  panelTex.minFilter = THREE.LinearFilter;
+  var mat = new THREE.MeshBasicMaterial({ map: panelTex, transparent: true });
+  panel = new THREE.Mesh(new THREE.PlaneGeometry(wM, hM), mat);
+  panel.name = 'uiPanel';
+  panelBtns = [];
+  return panel;
+}
+function uiButton(id, label, px, py, pw, ph, enabled){
+  panelBtns.push({ id: id, label: label, x: px, y: py, w: pw, h: ph, enabled: enabled !== false });
+}
+function drawButtons(ctx, W, H){
+  for (var i = 0; i < panelBtns.length; i++) {
+    var b = panelBtns[i], on = (hoverId === b.id);
+    ctx.fillStyle = !b.enabled ? '#2a3346' : (on ? '#3f8ae0' : '#24314c');
+    ctx.strokeStyle = on ? '#9fd0ff' : '#3a4a6c';
+    ctx.lineWidth = on ? 3 : 2;
+    roundRect(ctx, b.x, b.y, b.w, b.h, 10);
+    ctx.fill(); ctx.stroke();
+    ctx.fillStyle = !b.enabled ? '#6b7688' : (on ? '#ffffff' : '#d5e3f8');
+    ctx.font = 'bold 26px "Microsoft YaHei", sans-serif';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(b.label, b.x + b.w / 2, b.y + b.h / 2);
+  }
+}
+function roundRect(ctx, x, y, w, h, r){
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r);
+  ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r);
+  ctx.arcTo(x, y, x + w, y, r);
+  ctx.closePath();
+}
+function redrawPanel(){
+  if (!panelCtx) return;
+  var W = panelCanvas.width, H = panelCanvas.height;
+  panelCtx.clearRect(0, 0, W, H);
+  DEMO.drawUI(panelCtx, W, H);
+  drawButtons(panelCtx, W, H);
+  panelTex.needsUpdate = true;
+  panelDirty = false;
+}
+function uiHitUV(uv){
+  if (!uv) return null;
+  var px = uv.x * panelCanvas.width, py = (1 - uv.y) * panelCanvas.height;
+  for (var i = 0; i < panelBtns.length; i++) {
+    var b = panelBtns[i];
+    if (px >= b.x && px <= b.x + b.w && py >= b.y && py <= b.y + b.h) return b;
+  }
+  return null;
+}
+
+/* -------- 1.4 拾取（PC / VR 共用） -------- */
+function castFrom(origin, dir, objs){
+  raycaster.set(origin, dir.clone().normalize());
+  raycaster.far = 30;
+  var hits = raycaster.intersectObjects(objs, true);
+  return hits && hits.length ? hits[0] : null;
+}
+function pickPanel(origin, dir, src){
+  var h = castFrom(origin, dir, [panel]);
+  if (!h) return null;
+  var b = uiHitUV(h.uv);
+  return { button: b, point: h.point, distance: h.distance, source: src };
+}
+function pickWorld(origin, dir, src){
+  var list = pickables.map(function(p){ return p.mesh; });
+  var h = castFrom(origin, dir, list);
+  if (!h) return null;
+  var obj = h.object, owner = null;
+  while (obj && !owner) {
+    for (var i = 0; i < pickables.length; i++) if (pickables[i].mesh === obj) owner = pickables[i];
+    obj = obj.parent;
+  }
+  return owner ? { item: owner, point: h.point, distance: h.distance, source: src } : null;
+}
+function registerPick(mesh, id, onPick){
+  pickables.push({ mesh: mesh, id: id, onPick: onPick || function(){} });
+  return mesh;
+}
+
+/* -------- 1.5 PC 输入 -------- */
+function setupPC(){
+  var cvs = renderer.domElement;
+  cvs.addEventListener('pointerdown', function(e){
+    resumeAudio();
+    dragging = true; dragDist = 0; lastMouse.x = e.clientX; lastMouse.y = e.clientY;
+    cvs.setPointerCapture && cvs.setPointerCapture(e.pointerId);
+  });
+  cvs.addEventListener('pointermove', function(e){
+    var dx = e.clientX - lastMouse.x, dy = e.clientY - lastMouse.y;
+    lastMouse.x = e.clientX; lastMouse.y = e.clientY;
+    if (dragging) {
+      dragDist += Math.abs(dx) + Math.abs(dy);
+      player.rotation.y -= dx * 0.0032;
+      camera.rotation.x = clamp(camera.rotation.x - dy * 0.0032, -1.15, 1.0);
+    } else {
+      updateMouseAim(e);
+    }
+  });
+  cvs.addEventListener('pointerup', function(e){
+    if (dragging && dragDist < 6) { resumeAudio(); doClick(e); }
+    dragging = false;
+  });
+  cvs.addEventListener('pointercancel', function(){ dragging = false; });
+  window.addEventListener('keydown', function(e){
+    keys[e.code] = true;
+    if (e.code === 'KeyR') { DEMO.reset(); toast('已重置 · 回到 ready'); }
+    else if (e.code === 'KeyT' && DEMO.onKey) DEMO.onKey('KeyT');
+    else if (DEMO.onKey) DEMO.onKey(e.code);
+  });
+  window.addEventListener('keyup', function(e){ keys[e.code] = false; });
+  window.addEventListener('resize', onResize);
+}
+function updateMouseAim(e){
+  var r = renderer.domElement.getBoundingClientRect();
+  aimNdc.x = ((e.clientX - r.left) / r.width) * 2 - 1;
+  aimNdc.y = -((e.clientY - r.top) / r.height) * 2 + 1;
+}
+function pcRay(){
+  camera.getWorldPosition(tmpV);
+  var dir = new THREE.Vector3();
+  if (CFG.aimMode === 'center') {
+    camera.getWorldDirection(dir);
+  } else {
+    dir.set(aimNdc.x, aimNdc.y, 0.5).unproject(camera).sub(tmpV).normalize();
+  }
+  return { origin: tmpV.clone(), dir: dir };
+}
+function doClick(e){
+  var r = pcRay();
+  var p = pickPanel(r.origin, r.dir, 'pc');
+  if (p && p.button) { fireButton(p.button.id, 'pc'); return; }
+  var w = pickWorld(r.origin, r.dir, 'pc');
+  if (w) { w.item.onPick(w); return; }
+  DEMO.onEmptyClick && DEMO.onEmptyClick(r);
+}
+function fireButton(id, src){
+  for (var i = 0; i < panelBtns.length; i++) {
+    if (panelBtns[i].id === id) {
+      if (!panelBtns[i].enabled) return false;
+      S.lastPick = id; S.picks++;
+      pulse(null, 0.5, 60); beep(1046, 55, 'square', 0.05);
+      DEMO.onPick(id, src);
+      panelDirty = true;
+      return true;
+    }
+  }
+  return false;
+}
+
+/* -------- 1.6 VR 输入 -------- */
+function setupVR(){
+  for (var i = 0; i < 2; i++) {
+    (function(idx){
+      var ctrl = renderer.xr.getController(idx);
+      ctrl.addEventListener('connected', function(e){ ctrl.userData.inputSource = e.data; });
+      ctrl.addEventListener('selectstart', function(){
+        resumeAudio();
+        var src = ctrl.userData.inputSource;
+        var ray = ctrlRay(ctrl);
+        var p = pickPanel(ray.origin, ray.dir, 'vr');
+        if (p && p.button) { fireButton(p.button.id, 'vr'); return; }
+        var w = pickWorld(ray.origin, ray.dir, 'vr');
+        if (w) { w.item.onPick(w); return; }
+        DEMO.onEmptyClick && DEMO.onEmptyClick(ray, src);
+      });
+      ctrl.addEventListener('squeezestart', function(){
+        var src = ctrl.userData.inputSource;
+        DEMO.onSqueeze && DEMO.onSqueeze(ctrlRay(ctrl), src, ctrl);
+      });
+      ctrl.addEventListener('squeezeend', function(){
+        var src = ctrl.userData.inputSource;
+        DEMO.onSqueezeEnd && DEMO.onSqueezeEnd(ctrl, src);
+      });
+      var ray = new THREE.Line(
+        new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0,0,0), new THREE.Vector3(0,0,-1)]),
+        new THREE.LineBasicMaterial({ color: 0x66aaff, transparent: true, opacity: 0.75 })
+      );
+      ray.scale.z = 6; ray.name = 'ctrlRay' + idx;
+      ctrl.add(ray);
+      scene.add(ctrl);
+      vrCtrls.push(ctrl); vrRays.push(ray);
+    })(i);
+  }
+  if (navigator.xr && navigator.xr.isSessionSupported) {
+    navigator.xr.isSessionSupported('immersive-vr').then(function(ok){
+      var btn = $('enterVR');
+      btn.style.display = 'block';
+      if (ok) {
+        btn.disabled = false;
+        btn.onclick = enterVR;
+        $('vrhint').style.display = 'block';
+        $('vrhint').innerHTML = '本机支持 immersive-vr。<br>戴上头显后点此进入，或直接用头显浏览器打开本页。';
+      } else {
+        btn.disabled = true; btn.textContent = '本机不支持沉浸式 VR';
+        $('vrhint').style.display = 'block';
+        $('vrhint').innerHTML = 'PC 可用鼠标键盘完成全部演示；<br>头显浏览器打开本页即可进入 VR。';
+      }
+    }).catch(function(e){
+      $('enterVR').style.display = 'block';
+      $('enterVR').disabled = true;
+      $('enterVR').textContent = 'WebXR 检测失败';
+      console.warn('isSessionSupported 失败', e);
+    });
+  } else {
+    $('enterVR').style.display = 'block';
+    $('enterVR').disabled = true;
+    $('enterVR').textContent = '非安全上下文或无 WebXR';
+  }
+}
+function ctrlRay(ctrl){
+  var origin = new THREE.Vector3(), dir = new THREE.Vector3();
+  ctrl.getWorldPosition(origin);
+  dir.set(0, 0, -1).transformDirection(ctrl.matrixWorld);
+  return { origin: origin, dir: dir };
+}
+function enterVR(){
+  resumeAudio();
+  navigator.xr.requestSession('immersive-vr', {
+    optionalFeatures: ['local-floor', 'bounded-floor', 'hand-tracking', 'layers']
+  }).then(function(session){
+    xrSession = session;
+    renderer.xr.setSession(session);
+    document.body.classList.add('XR');
+    session.addEventListener('end', function(){
+      xrSession = null;
+      document.body.classList.remove('XR');
+    });
+  }).catch(function(e){
+    console.warn('进入 VR 失败', e);
+    toast('进入 VR 失败：' + (e && e.message ? e.message : e));
+  });
+}
+
+/* -------- 1.7 主循环 -------- */
+function onResize(){
+  camera.aspect = innerWidth / innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+}
+function animate(){
+  var dt = Math.min(clock.getDelta(), 0.05);
+  elapsed += dt; frames++;
+  fpsT += dt;
+  if (fpsT >= 0.5) { fps = frames / fpsT; frames = 0; fpsT = 0; updateStats(); }
+
+  if (!renderer.xr.isPresenting) {
+    var sp = (keys.ShiftLeft || keys.ShiftRight) ? 3.2 : 1.7;
+    var fwd = new THREE.Vector3(-Math.sin(player.rotation.y), 0, -Math.cos(player.rotation.y));
+    var right = new THREE.Vector3(Math.cos(player.rotation.y), 0, -Math.sin(player.rotation.y));
+    var mv = new THREE.Vector3();
+    if (keys.KeyW || keys.ArrowUp) mv.add(fwd);
+    if (keys.KeyS || keys.ArrowDown) mv.sub(fwd);
+    if (keys.KeyD || keys.ArrowRight) mv.add(right);
+    if (keys.KeyA || keys.ArrowLeft) mv.sub(right);
+    if (mv.lengthSq() > 0) {
+      mv.normalize().multiplyScalar(sp * dt);
+      movePlayer(mv.x, mv.z);
+    }
+  }
+
+  if (renderer.xr.isPresenting) readVRStick(dt);
+
+  updateHover();
+
+  DEMO.update(dt);
+  if (panelDirty) redrawPanel();
+
+  renderer.render(scene, camera);
+  if (frames === 1 || frames % 10 === 0) updateStats();   // 首帧/每 10 帧写一次 HUD，无头截图只跑几帧也能看到
+}
+function movePlayer(dx, dz){
+  player.position.x = clamp(player.position.x + dx, -4.4, 4.4);
+  player.position.z = clamp(player.position.z + dz, -4.4, 4.4);
+}
+var snapCd = 0;
+function readVRStick(dt){
+  snapCd = Math.max(0, snapCd - dt);
+  var src = xrSession && xrSession.inputSources;
+  if (!src) return;
+  for (var i = 0; i < src.length; i++) {
+    var gp = src[i].gamepad;
+    if (!gp || !gp.axes || gp.axes.length < 4) continue;
+    if (Math.abs(gp.axes[2]) > 0.75 && snapCd <= 0) {
+      player.rotation.y -= (gp.axes[2] > 0 ? -1 : 1) * Math.PI / 4;
+      snapCd = 0.38;
+    }
+  }
+}
+function updateHover(){
+  var r;
+  if (renderer.xr.isPresenting) {
+    if (!vrCtrls[0]) return;
+    r = ctrlRay(vrCtrls[0]);
+  } else {
+    r = pcRay();
+  }
+  var p = pickPanel(r.origin, r.dir, 'hover');
+  var id = p && p.button ? p.button.id : null;
+  if (id !== hoverId) {
+    hoverId = id;
+    panelDirty = true;
+    if (id) { pulse(null, 0.2, 30); beep(880, 35, 'sine', 0.035); }
+    DEMO.onHover && DEMO.onHover(id);
+  }
+  DEMO.onAim && DEMO.onAim(r, p);
+}
+function updateStats(){
+  if (!panel) return;
+  var st = 'FPS ' + fps.toFixed(0) + ' · DrawCalls ' + renderer.info.render.calls +
+           ' · Tris ' + renderer.info.render.triangles + '\n';
+  var lines = CFG.hudLines ? CFG.hudLines() : [];
+  for (var i = 0; i < lines.length; i++) st += lines[i] + '\n';
+  $('stats').textContent = st;
+}
+
+/* ======================= 2. 场景基础（球场） ======================= */
+function texBanner(text, sub){
+  var c = document.createElement('canvas'); c.width = 1200; c.height = 200;
+  var g = c.getContext('2d');
+  var gr = g.createLinearGradient(0, 0, 1200, 0);
+  gr.addColorStop(0, '#0f1b2e'); gr.addColorStop(0.5, '#1b2f4a'); gr.addColorStop(1, '#0f1b2e');
+  g.fillStyle = gr; g.fillRect(0, 0, 1200, 200);
+  g.strokeStyle = '#3f7fd0'; g.lineWidth = 6; g.strokeRect(6, 6, 1188, 188);
+  g.fillStyle = '#9fd8ff';
+  g.font = 'bold 118px "KaiTi","楷体","Microsoft YaHei",sans-serif';
+  g.textAlign = 'center'; g.textBaseline = 'middle';
+  g.fillText(text, 600, 82);
+  g.fillStyle = '#9fb3d1'; g.font = '30px "Microsoft YaHei",sans-serif';
+  g.fillText(sub, 600, 162);
+  var t = new THREE.CanvasTexture(c);
+  t.minFilter = THREE.LinearFilter;
+  return t;
+}
+function buildBase(){
+  scene.fog = new THREE.Fog(0x0e1220, 12, 30);
+  scene.add(new THREE.HemisphereLight(0xbfd4ff, 0x1a2030, 0.9));
+  var dir = new THREE.DirectionalLight(0xffffff, 1.05);
+  dir.position.set(3.5, 7.5, 3.0);
+  dir.castShadow = true;
+  dir.shadow.mapSize.set(1024, 1024);
+  dir.shadow.camera.left = -8; dir.shadow.camera.right = 8;
+  dir.shadow.camera.top = 8; dir.shadow.camera.bottom = -8;
+  dir.shadow.camera.far = 24;
+  scene.add(dir);
+  scene.add(new THREE.AmbientLight(0x334466, 0.55));
+
+  /* 球场地面 */
+  var floor = new THREE.Mesh(
+    new THREE.PlaneGeometry(18, 18),
+    new THREE.MeshStandardMaterial({ color: 0x24384a, roughness: 0.95, metalness: 0.05 })
+  );
+  floor.rotation.x = -Math.PI / 2;
+  floor.receiveShadow = true;
+  floor.name = 'floor';
+  scene.add(floor);
+
+  var grid = new THREE.GridHelper(18, 36, 0x3f6f95, 0x2b4258);
+  grid.position.y = 0.002;
+  grid.material.transparent = true; grid.material.opacity = 0.35;
+  scene.add(grid);
+
+  /* 后墙 + 横幅 */
+  var back = new THREE.Mesh(
+    new THREE.PlaneGeometry(18, 6),
+    new THREE.MeshStandardMaterial({ color: 0x162334, roughness: 1 })
+  );
+  back.position.set(0, 3, -5.4);
+  back.receiveShadow = true;
+  scene.add(back);
+
+  var banner = new THREE.Mesh(
+    new THREE.PlaneGeometry(6.0, 1.0),
+    new THREE.MeshBasicMaterial({ map: texBanner('投篮擂台 · DEMO 01', '第 7 次课示范作品 · 状态机 / 三通道反馈 / 最高分持久化') })
+  );
+  banner.position.set(0, 4.85, -5.36);
+  scene.add(banner);
+}
+
+/* ======================= 3. 演示实现 ======================= */
+function phaseName(){
+  return S.phase === 'ready' ? '准备中' : (S.phase === 'playing' ? '进行中' : '已结束');
+}
+function phaseColor(){
+  return S.phase === 'playing' ? '#4fe08a' : (S.phase === 'over' ? '#ff7a6b' : '#7fc4ff');
+}
+function statusLine(){
+  if (S.phase === 'ready') return '按「开始投篮」或 T 键开始 · 60 秒限时 · 每次命中 +2';
+  if (S.phase === 'over') return '时间到！按「重开一局」或 T 键再玩一次 · 最高分 ' + S.best;
+  return '投进 +2 ｜ 碰筐不进 +1 ｜ miss 不计分 ｜ 剩余时间在走';
+}
+
+/* ---------- 3.1 篮架 ---------- */
+function buildHoop(){
+  var grp = new THREE.Group();
+  grp.name = 'hoop';
+  scene.add(grp);
+
+  var metal = new THREE.MeshStandardMaterial({ color: 0x8d97a5, roughness: 0.45, metalness: 0.55 });
+
+  /* 立柱 + 底座 + 悬臂 */
+  pole = new THREE.Mesh(new THREE.CylinderGeometry(0.075, 0.085, 3.9, 14), metal);
+  pole.position.set(0, 1.95, -5.05);
+  pole.castShadow = true; grp.add(pole);
+
+  var base = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.18, 1.0), new THREE.MeshStandardMaterial({ color: 0x2c3a4c, roughness: 0.7 }));
+  base.position.set(0, 0.09, -5.05);
+  base.castShadow = true; base.receiveShadow = true; grp.add(base);
+
+  var arm = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.12, 1.0), metal);
+  arm.position.set(0, 3.62, -4.65);
+  arm.castShadow = true; grp.add(arm);
+
+  /* 篮板（半透明 + 边框 + 内框） */
+  backboard = new THREE.Mesh(
+    new THREE.BoxGeometry(1.8, 1.05, 0.05),
+    new THREE.MeshStandardMaterial({ color: 0xdce9ff, roughness: 0.35, transparent: true, opacity: 0.72 })
+  );
+  backboard.position.set(0, 3.45, -4.62);
+  backboard.castShadow = true; grp.add(backboard);
+
+  var frameMat = new THREE.MeshStandardMaterial({ color: 0xf2f6ff, roughness: 0.5 });
+  var fr = [
+    [1.84, 0.05, 0.06, 0, 3.975], [1.84, 0.05, 0.06, 0, 2.925],
+    [0.05, 1.05, 0.06, -0.895, 3.45], [0.05, 1.05, 0.06, 0.895, 3.45]
+  ];
+  for (var i = 0; i < fr.length; i++) {
+    var m = new THREE.Mesh(new THREE.BoxGeometry(fr[i][0], fr[i][1], fr[i][2]), frameMat);
+    m.position.set(fr[i][3], fr[i][4], -4.585);
+    grp.add(m);
+  }
+  /* 篮板内框（篮筐上方的方框） */
+  var inMat = new THREE.MeshStandardMaterial({ color: 0xff8b3d, roughness: 0.6, emissive: 0x4a1f00, emissiveIntensity: 0.5 });
+  var inb = [
+    [0.59, 0.035, 0.02, 0, 3.505], [0.59, 0.035, 0.02, 0, 3.06],
+    [0.035, 0.48, 0.02, -0.295, 3.28], [0.035, 0.48, 0.02, 0.295, 3.28]
+  ];
+  for (var k = 0; k < inb.length; k++) {
+    var q = new THREE.Mesh(new THREE.BoxGeometry(inb[k][0], inb[k][1], inb[k][2]), inMat);
+    q.position.set(inb[k][3], inb[k][4], -4.592);
+    grp.add(q);
+  }
+
+  /* 筐圈（Torus）+ 连接臂 */
+  rimMesh = new THREE.Mesh(
+    new THREE.TorusGeometry(RIM.r, 0.022, 10, 32),
+    new THREE.MeshStandardMaterial({ color: 0xff7a1a, roughness: 0.4, metalness: 0.3,
+      emissive: 0x8a3200, emissiveIntensity: 0.6 })
+  );
+  rimMesh.rotation.x = -Math.PI / 2;
+  rimMesh.position.set(RIM.x, RIM.y, RIM.z);
+  rimMesh.castShadow = true;
+  rimMesh.name = 'rim';
+  grp.add(rimMesh);
+
+  var neck = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.05, 0.3), metal);
+  neck.position.set(RIM.x, RIM.y - 0.01, RIM.z - 0.22);
+  grp.add(neck);
+
+  /* 球网：12 条线 */
+  var pts = [];
+  var N = 12, topR = RIM.r * 0.94, botR = 0.15, botY = RIM.y - 0.42;
+  for (var a = 0; a < N; a++) {
+    var a1 = (a / N) * Math.PI * 2, a2 = ((a + 1) / N) * Math.PI * 2;
+    pts.push(new THREE.Vector3(RIM.x + Math.cos(a1) * topR, RIM.y, RIM.z + Math.sin(a1) * topR));
+    pts.push(new THREE.Vector3(RIM.x + Math.cos(a1) * botR, botY, RIM.z + Math.sin(a1) * botR));
+    pts.push(new THREE.Vector3(RIM.x + Math.cos(a1) * botR, botY, RIM.z + Math.sin(a1) * botR));
+    pts.push(new THREE.Vector3(RIM.x + Math.cos(a2) * botR, botY, RIM.z + Math.sin(a2) * botR));
+  }
+  netMesh = new THREE.LineSegments(
+    new THREE.BufferGeometry().setFromPoints(pts),
+    new THREE.LineBasicMaterial({ color: 0xe8f2ff, transparent: true, opacity: 0.55 })
+  );
+  netMesh.name = 'net';
+  grp.add(netMesh);
+}
+
+/* ---------- 3.2 地面标线（罚球区 / 罚球线） ---------- */
+function buildPaint(){
+  var mat = new THREE.MeshStandardMaterial({ color: 0xdbe7ff, roughness: 0.85,
+    emissive: 0x1a2c44, emissiveIntensity: 0.35 });
+  var t = 0.035, y = 0.006;
+  function line(w, d, x, z){
+    var m = new THREE.Mesh(new THREE.BoxGeometry(w, 0.006, d), mat);
+    m.position.set(x, y, z);
+    scene.add(m);
+  }
+  /* 罚球区（梯形示意：两条边线 + 罚球线） */
+  line(t, 2.9, -1.8, -3.05);
+  line(t, 2.9, 1.8, -3.05);
+  line(3.6, t, 0, -1.6);
+  /* 罚球圈（半圆用 32 段细条） */
+  var R = 1.2, seg = 26;
+  for (var i = 0; i < seg; i++) {
+    var a0 = Math.PI * (i / seg), a1 = Math.PI * ((i + 1) / seg);
+    var x0 = Math.cos(a0) * R, z0 = -1.6 + Math.sin(a0) * R;
+    var x1 = Math.cos(a1) * R, z1 = -1.6 + Math.sin(a1) * R;
+    var len = Math.hypot(x1 - x0, z1 - z0);
+    var m = new THREE.Mesh(new THREE.BoxGeometry(t, 0.006, len), mat);
+    m.position.set((x0 + x1) / 2, y, (z0 + z1) / 2);
+    m.rotation.y = Math.atan2(x1 - x0, z1 - z0);
+    scene.add(m);
+  }
+  /* 三分线弧（示意） */
+  var R3 = 3.6;
+  for (var j = 0; j < 34; j++) {
+    var b0 = -Math.PI * 0.42 + Math.PI * 0.84 * (j / 34);
+    var b1 = -Math.PI * 0.42 + Math.PI * 0.84 * ((j + 1) / 34);
+    var X0 = Math.cos(b0) * R3, Z0 = -4.2 + Math.sin(b0) * R3;
+    var X1 = Math.cos(b1) * R3, Z1 = -4.2 + Math.sin(b1) * R3;
+    var L = Math.hypot(X1 - X0, Z1 - Z0);
+    var mm = new THREE.Mesh(new THREE.BoxGeometry(t, 0.006, L), mat);
+    mm.position.set((X0 + X1) / 2, y, (Z0 + Z1) / 2);
+    mm.rotation.y = Math.atan2(X1 - X0, Z1 - Z0);
+    scene.add(mm);
+  }
+}
+
+/* ---------- 3.3 球与球架 ---------- */
+function texBall(){
+  var c = document.createElement('canvas'); c.width = 256; c.height = 128;
+  var g = c.getContext('2d');
+  g.fillStyle = '#c8561a'; g.fillRect(0, 0, 256, 128);
+  g.strokeStyle = '#2b1608'; g.lineWidth = 4;
+  for (var i = 0; i < 6; i++) {
+    g.beginPath();
+    g.moveTo(0, i * 24 + 6);
+    g.bezierCurveTo(64, i * 24 - 6, 192, i * 24 + 18, 256, i * 24 + 6);
+    g.stroke();
+  }
+  g.strokeStyle = '#2b1608'; g.lineWidth = 6;
+  g.beginPath(); g.moveTo(128, 0); g.lineTo(128, 128); g.stroke();
+  g.beginPath(); g.moveTo(0, 64); g.lineTo(256, 64); g.stroke();
+  return new THREE.CanvasTexture(c);
+}
+function buildRack(){
+  var mat = new THREE.MeshStandardMaterial({ color: 0x3a4a63, roughness: 0.7, metalness: 0.2 });
+  var top = new THREE.Mesh(new THREE.BoxGeometry(1.0, 0.07, 0.5), mat);
+  top.position.set(1.3, 0.85, -1.9); top.castShadow = true; top.receiveShadow = true; scene.add(top);
+  for (var sx = -1; sx <= 1; sx += 2) {
+    for (var sz = -1; sz <= 1; sz += 2) {
+      var leg = new THREE.Mesh(new THREE.CylinderGeometry(0.028, 0.028, 0.85, 8), mat);
+      leg.position.set(1.3 + sx * 0.4, 0.42, -1.9 + sz * 0.18);
+      leg.castShadow = true; scene.add(leg);
+    }
+  }
+  /* 球 */
+  var ballTex = texBall();
+  var bmat = new THREE.MeshStandardMaterial({ map: ballTex, roughness: 0.65, metalness: 0.05 });
+  ballHomes = [
+    new THREE.Vector3(1.06, 0.96, -1.9),
+    new THREE.Vector3(1.30, 0.96, -1.84),
+    new THREE.Vector3(1.54, 0.96, -1.9)
+  ];
+  for (var i = 0; i < 3; i++) {
+    var m = new THREE.Mesh(new THREE.SphereGeometry(BALL_R, 22, 16), bmat.clone());
+    m.position.copy(ballHomes[i]);
+    m.castShadow = true; m.receiveShadow = true;
+    m.name = 'ball' + i;
+    scene.add(m);
+    var b = {
+      idx: i, mesh: m, vel: new THREE.Vector3(), prev: new THREE.Vector3(),
+      home: ballHomes[i].clone(), held: false, holder: null,
+      rest: 0, done: true, shot: null, swished: false
+    };
+    m.userData.ball = b;
+    balls.push(b);
+    (function(bb){
+      registerPick(bb.mesh, 'ball' + bb.idx, function(h){
+        if (h.source === 'vr') grabBallVR(bb, null);
+        else grabBall(bb, 'pc');
+      });
+    })(b);
+  }
+}
+
+/* ---------- 3.4 计分板（独立 CanvasTexture） ---------- */
+function buildBoard(){
+  var wM = 1.75, hM = 0.88;
+  boardCanvas = document.createElement('canvas');
+  boardCanvas.width = 512; boardCanvas.height = 256;
+  boardCtx = boardCanvas.getContext('2d');
+  boardTex = new THREE.CanvasTexture(boardCanvas);
+  boardTex.minFilter = THREE.LinearFilter;
+  var mat = new THREE.MeshBasicMaterial({ map: boardTex, transparent: true });
+  boardMesh = new THREE.Mesh(new THREE.PlaneGeometry(wM, hM), mat);
+  boardMesh.name = 'scoreboard';
+  boardMesh.position.set(-0.62, 1.30, -2.55);
+  boardMesh.rotation.y = 0.28;
+  scene.add(boardMesh);
+
+  var metal = new THREE.MeshStandardMaterial({ color: 0x46566f, roughness: 0.6, metalness: 0.3 });
+  var stand = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.055, 0.88, 10), metal);
+  stand.position.set(-0.62, 0.44, -2.55); stand.castShadow = true; scene.add(stand);
+  var foot = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.06, 0.5), metal);
+  foot.position.set(-0.62, 0.03, -2.55); foot.receiveShadow = true; scene.add(foot);
+  drawBoard();
+}
+
+function drawBoard(){
+  if (!boardCtx) return;
+  var c = boardCtx, W = boardCanvas.width, H = boardCanvas.height;
+  c.clearRect(0, 0, W, H);
+  var g = c.createLinearGradient(0, 0, 0, H);
+  g.addColorStop(0, '#0c1a2c'); g.addColorStop(1, '#08101d');
+  c.fillStyle = g; c.fillRect(0, 0, W, H);
+  var ac = phaseColor();
+  c.strokeStyle = ac; c.lineWidth = 4;
+  roundRect(c, 4, 4, W - 8, H - 8, 12); c.stroke();
+
+  /* 标题 + 阶段徽章 */
+  c.fillStyle = '#9fd0ff';
+  c.font = 'bold 23px "Microsoft YaHei",sans-serif';
+  c.textAlign = 'left'; c.textBaseline = 'middle';
+  c.fillText('投篮擂台 · 计分板', 20, 30);
+
+  var pw = 108, ph = 34, px = W - pw - 18, py = 13;
+  c.globalAlpha = 0.18; c.fillStyle = ac; roundRect(c, px, py, pw, ph, 8); c.fill();
+  c.globalAlpha = 1; c.strokeStyle = ac; c.lineWidth = 2; roundRect(c, px, py, pw, ph, 8); c.stroke();
+  c.fillStyle = ac; c.font = 'bold 21px "Microsoft YaHei",sans-serif'; c.textAlign = 'center';
+  c.fillText(phaseName(), px + pw / 2, py + ph / 2 + 1);
+
+  /* 分数（大字） */
+  c.textAlign = 'left';
+  c.fillStyle = '#7f93b5'; c.font = '19px "Microsoft YaHei",sans-serif';
+  c.fillText('得分', 22, 74);
+  c.fillStyle = '#ffffff'; c.font = 'bold 86px "Microsoft YaHei",sans-serif';
+  var scTxt = (S.score < 10 ? '0' : '') + S.score;
+  c.fillText(scTxt, 20, 128);
+  var scW = c.measureText(scTxt).width;
+  c.fillStyle = '#7f93b5'; c.font = '22px "Microsoft YaHei",sans-serif';
+  c.fillText('分', 20 + scW + 10, 140);
+
+  /* 剩余时间 */
+  c.textAlign = 'right';
+  c.fillStyle = '#7f93b5'; c.font = '19px "Microsoft YaHei",sans-serif';
+  c.fillText('剩余（秒）', W - 22, 74);
+  c.fillStyle = S.timeLeft <= 10 ? '#ff7a6b' : '#ffd166';
+  c.font = 'bold 62px "Microsoft YaHei",sans-serif';
+  c.fillText(Math.ceil(S.timeLeft), W - 22, 126);
+
+  /* 分隔线 + 统计行 */
+  c.strokeStyle = '#243149'; c.lineWidth = 2;
+  c.beginPath(); c.moveTo(20, 176); c.lineTo(W - 20, 176); c.stroke();
+  c.textAlign = 'left';
+  c.fillStyle = '#9fb3d1'; c.font = '20px "Microsoft YaHei",sans-serif';
+  c.fillText('最高分 ' + S.best, 22, 198);
+  c.fillText('命中 ' + S.swish + ' / 投 ' + S.shots, 178, 198);
+  c.fillText('碰筐 ' + S.rimIn, 386, 198);
+
+  c.fillStyle = '#6f86a8'; c.font = '18px "Microsoft YaHei",sans-serif';
+  c.fillText(statusLine(), 22, 228);
+
+  boardText = '阶段' + phaseName() + ' 得分' + S.score + ' 剩余' + Math.ceil(S.timeLeft) +
+              ' 最高' + S.best + ' 命中' + S.swish + ' 投' + S.shots + ' 碰筐' + S.rimIn + ' ' + statusLine();
+  boardTex.needsUpdate = true;
+  boardDirty = false;
+}
+
+/* ---------- 3.5 操作面板（CanvasTexture + 4 按钮） ---------- */
+function buildPanelUI(){
+  var p = mkPanel(1.7, 0.85, 512, 256);
+  p.position.set(1.25, 1.5, -2.6);
+  p.rotation.y = -0.38;
+  scene.add(p);
+  uiButton('start', '开始投篮', 20, 68, 228, 60);
+  uiButton('reset', '重置', 264, 68, 228, 60);
+  uiButton('sound', '音效：开', 20, 138, 228, 60);
+  uiButton('recall', '收球', 264, 138, 228, 60);
+}
+
+/* ---------- 3.6 投掷预览线 / +分数飘字 ---------- */
+function buildPreview(){
+  var n = 46;
+  previewPos = new Float32Array(n * 3);
+  var geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.BufferAttribute(previewPos, 3));
+  previewLine = new THREE.Line(geo, new THREE.LineBasicMaterial({
+    color: 0x7ef7c1, transparent: true, opacity: 0.9
+  }));
+  previewLine.frustumCulled = false;
+  previewLine.visible = false;
+  previewLine.name = 'aimPreview';
+  scene.add(previewLine);
+}
+function mkPopText(text, color, pos){
+  var c = document.createElement('canvas'); c.width = 256; c.height = 128;
+  var g = c.getContext('2d');
+  g.clearRect(0, 0, 256, 128);
+  g.fillStyle = color;
+  g.font = 'bold 88px "Microsoft YaHei",sans-serif';
+  g.textAlign = 'center'; g.textBaseline = 'middle';
+  g.strokeStyle = 'rgba(0,0,0,.6)'; g.lineWidth = 8;
+  g.strokeText(text, 128, 64);
+  g.fillText(text, 128, 64);
+  var tex = new THREE.CanvasTexture(c);
+  tex.minFilter = THREE.LinearFilter;
+  var sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, depthTest: false }));
+  sp.position.copy(pos);
+  sp.scale.set(0.7, 0.35, 1);
+  scene.add(sp);
+  popups.push({ sp: sp, t: 0, life: 0.95 });
+}
+
+/* ---------- 3.7 三通道反馈 ---------- */
+function feedback(kind){
+  if (kind === 'swish') {
+    rimFlash = 1.0;                     // 视觉：筐圈闪光
+    mkPopText('+2', '#5fe08a', new THREE.Vector3(RIM.x, RIM.y + 0.16, RIM.z));
+    beep(1046, 90, 'sine', 0.07);       // 听觉：合成音
+    setTimeout(function(){ beep(1568, 120, 'sine', 0.05); }, 90);
+    pulse(null, 0.85, 90);              // 触觉：震动日志（PC 只记日志）
+  } else if (kind === 'rim') {
+    rimFlash = Math.max(rimFlash, 0.6);
+    mkPopText('+1', '#ffd166', new THREE.Vector3(RIM.x, RIM.y + 0.16, RIM.z));
+    beep(392, 110, 'triangle', 0.06);
+    pulse(null, 0.5, 60);
+  } else {
+    beep(196, 120, 'sawtooth', 0.035);
+  }
+}
+
+/* ---------- 3.8 计分 / 计时 / 状态机 ---------- */
+function award(result){
+  if (S.phase !== 'playing') return false;          // ready / over 不计分
+  if (result === 'swish') {
+    S.score += 2; S.swish++;
+    feedback('swish');
+  } else if (result === 'rim') {
+    S.score += 1; S.rimIn++;
+    feedback('rim');
+  } else {
+    S.miss++;
+    return true;
+  }
+  if (S.score > S.best) { S.best = S.score; saveBest(); }   // 最高分实时更新并持久化
+  panelDirty = true; boardDirty = true;
+  return true;
+}
+function readBest(){
+  try {
+    var v = parseInt(localStorage.getItem(BEST_KEY), 10);
+    return isFinite(v) && v > 0 ? v : 0;
+  } catch (e) { console.warn('读取最高分失败', e); return 0; }
+}
+function saveBest(){
+  try { localStorage.setItem(BEST_KEY, String(S.best)); }
+  catch (e) { console.warn('写入最高分失败', e); }
+}
+function startGame(){
+  if (S.phase === 'playing') return false;
+  S.score = 0; S.swish = 0; S.rimIn = 0; S.miss = 0; S.shots = 0;
+  S.timeLeft = GAME_SECONDS;
+  resetBalls();
+  releaseHeld();
+  S.phase = 'playing';
+  beep(880, 130, 'sine', 0.06);
+  setTimeout(function(){ beep(1174, 120, 'sine', 0.05); }, 130);
+  pulse(null, 0.4, 60);
+  toast('开始！60 秒 · 投进 +2，碰筐 +1');
+  panelDirty = true; boardDirty = true;
+  return true;
+}
+function endGame(){
+  S.phase = 'over';
+  releaseHeld();
+  if (S.score > S.best) { S.best = S.score; }
+  saveBest();                                        // 结束时再落盘一次
+  beep(330, 200, 'sawtooth', 0.06);
+  setTimeout(function(){ beep(196, 320, 'sawtooth', 0.05); }, 220);
+  pulse(null, 1.0, 160);
+  toast('时间到！得分 ' + S.score + ' · 最高分 ' + S.best);
+  panelDirty = true; boardDirty = true;
+}
+function tickTimer(sec){
+  if (S.phase !== 'playing') return S.timeLeft;
+  var was = Math.ceil(S.timeLeft);
+  S.timeLeft = Math.max(0, S.timeLeft - sec);
+  if (Math.ceil(S.timeLeft) !== was) boardDirty = true;   // 整秒变化才重画计分板
+  if (S.timeLeft <= 0) endGame();
+  return S.timeLeft;
+}
+function resetGame(){
+  S.phase = 'ready';
+  S.score = 0; S.swish = 0; S.rimIn = 0; S.miss = 0; S.shots = 0;
+  S.timeLeft = GAME_SECONDS;
+  S.lastAction = '—'; S.lastPick = '—'; S.picks = 0;
+  S.best = readBest();
+  releaseHeld();
+  resetBalls();
+  hapticLog.length = 0; sfxLog.length = 0;
+  rimFlash = 0;
+  if (camera) camera.rotation.x = 0;
+  if (player) { player.position.set(0, 0, 0); player.rotation.y = 0; }
+  panelDirty = true; boardDirty = true;
+}
+function resetBalls(){
+  for (var i = 0; i < balls.length; i++) returnHome(balls[i]);
+}
+function returnHome(b){
+  b.mesh.position.copy(b.home);
+  b.vel.set(0, 0, 0);
+  b.held = false; b.holder = null;
+  b.done = true; b.shot = null; b.swished = false; b.rest = 0;
+  if (S.heldBall === b) { S.heldBall = null; S.held = false; }
+}
+function releaseHeld(){
+  if (S.heldBall) {
+    S.heldBall.held = false; S.heldBall.holder = null;
+    S.heldBall.mesh.position.copy(S.heldBall.home);
+    S.heldBall.vel.set(0, 0, 0);
+  }
+  S.heldBall = null; S.held = false;
+  if (previewLine) previewLine.visible = false;
+}
+
+/* ---------- 3.9 抓取 / 投掷 ---------- */
+function ctrlOfSource(src){
+  for (var i = 0; i < vrCtrls.length; i++) {
+    if (vrCtrls[i].userData.inputSource === src) return vrCtrls[i];
+  }
+  return vrCtrls[1] || vrCtrls[0] || null;
+}
+function grabBall(b, src){
+  if (S.phase === 'over') { toast('本局已结束 · 先按「重开一局」'); return false; }
+  if (S.heldBall) return false;
+  finalizeShot(b);
+  b.held = true; b.vel.set(0, 0, 0); b.rest = 0; b.done = true;
+  b.holder = { obj: heldAnchor, off: new THREE.Vector3(0, 0, 0), vr: false };
+  S.heldBall = b; S.held = true;
+  S.lastAction = '抓起球 ' + (b.idx + 1);
+  beep(520, 60, 'triangle', 0.05);
+  pulse(null, 0.4, 40);
+  panelDirty = true;
+  return true;
+}
+function grabNearestBall(){
+  var best = null, bd = 99;
+  for (var i = 0; i < balls.length; i++) {
+    var b = balls[i];
+    if (b.held) continue;
+    var d = b.mesh.position.distanceTo(new THREE.Vector3(0, 1.2, 0));
+    if (d < bd) { bd = d; best = b; }
+  }
+  return best;
+}
+/* 当前瞄准对应的出手向量（PC 用相机朝向，VR 用手柄朝向；上抬 26°） */
+function currentLaunch(powerScale){
+  var b = S.heldBall;
+  if (!b) return null;
+  var from = b.mesh.position.clone();
+  var fwd = new THREE.Vector3();
+  if (b.holder && b.holder.vr && b.holder.obj) fwd.set(0, 0, -1).transformDirection(b.holder.obj.matrixWorld);
+  else camera.getWorldDirection(fwd);
+  var elev = clamp(Math.asin(clamp(fwd.y, -1, 1)) + ELEV_BIAS, 0.32, 1.15);
+  var dirH = new THREE.Vector3(fwd.x, 0, fwd.z);
+  if (dirH.lengthSq() < 1e-6) dirH.set(0, 0, -1);
+  dirH.normalize();
+  var speed = clamp(BASE_SPEED * (powerScale == null ? 1 : powerScale), 5.2, 11.5);
+  var vel = new THREE.Vector3(
+    dirH.x * Math.cos(elev) * speed,
+    Math.sin(elev) * speed,
+    dirH.z * Math.cos(elev) * speed
+  );
+  return { from: from, vel: vel, elev: elev, speed: speed, dirH: dirH };
+}
+function throwHeld(powerScale){
+  var b = S.heldBall;
+  if (!b) return false;
+  if (S.phase === 'over') { toast('本局已结束 · 先按「重开一局」'); return false; }
+  var L = currentLaunch(powerScale);
+  if (!L) return false;
+  b.held = false; b.holder = null;
+  b.mesh.position.copy(L.from);
+  b.vel.copy(L.vel);
+  b.done = false; b.swished = false; b.rest = 0;
+  b.shot = { rim: false };
+  S.heldBall = null; S.held = false;
+  if (previewLine) previewLine.visible = false;
+  if (S.phase === 'playing') S.shots++;
+  S.lastAction = '投出（' + L.speed.toFixed(1) + ' m/s）';
+  beep(660, 55, 'triangle', 0.045);
+  pulse(null, 0.3, 30);
+  panelDirty = true; boardDirty = true;
+  return true;
+}
+/* 标准投篮：自动解算弹道直指筐心（教学/无障碍用，保证能进） */
+function standardShot(){
+  if (S.phase === 'over') return false;
+  if (S.phase === 'ready') startGame();
+  var b = S.heldBall || grabNearestBall();
+  if (!b) return false;
+  if (!S.heldBall) { grabBall(b, 'pc'); }
+  if (!S.heldBall) return false;
+  var from = S.heldBall.mesh.position.clone();
+  var dx = RIM.x - from.x, dz = RIM.z - from.z;
+  var d = Math.hypot(dx, dz), h = RIM.y - from.y;
+  var v = BASE_SPEED, v2 = v * v, g = G;
+  var disc = v2 * v2 - g * (g * d * d + 2 * h * v2);
+  var elev;
+  if (disc < 0) {
+    elev = Math.PI / 4;
+  } else {
+    var tn = (v2 - Math.sqrt(disc)) / (g * d);
+    elev = Math.atan(tn);
+  }
+  var dirH = new THREE.Vector3(dx, 0, dz).normalize();
+  var bb = S.heldBall;
+  bb.held = false; bb.holder = null;
+  bb.vel.set(dirH.x * Math.cos(elev) * v, Math.sin(elev) * v, dirH.z * Math.cos(elev) * v);
+  bb.mesh.position.copy(from);
+  bb.done = false; bb.swished = false; bb.rest = 0; bb.shot = { rim: false };
+  S.heldBall = null; S.held = false;
+  if (previewLine) previewLine.visible = false;
+  if (S.phase === 'playing') S.shots++;
+  S.lastAction = '标准投篮（解算 ' + (elev * 180 / Math.PI).toFixed(0) + '°）';
+  beep(700, 60, 'sine', 0.05);
+  panelDirty = true; boardDirty = true;
+  return true;
+}
+function finalizeShot(b){
+  if (!b || b.done) return;
+  if (b.shot && b.shot.rim && !b.swished) award('rim');   // 碰筐不进 +1
+  b.done = true;
+}
+
+/* ---------- 3.10 球物理（简化刚体 + 框圈判定） ---------- */
+function stepBallPhysics(dt){
+  var n = Math.max(1, Math.min(8, Math.ceil(dt / 0.016)));
+  var h = dt / n;
+  for (var s = 0; s < n; s++) {
+    for (var i = 0; i < balls.length; i++) {
+      var b = balls[i];
+      if (b.held) continue;
+      var p = b.mesh.position;
+      if (b.done && p.distanceTo(b.home) < 0.002 && b.vel.lengthSq() < 1e-6) continue;
+      b.prev.copy(p);
+      b.vel.y -= G * h;
+      p.addScaledVector(b.vel, h);
+
+      if (!b.done) {
+        var hd = Math.hypot(p.x - RIM.x, p.z - RIM.z);
+        /* 进筐：球心进入筐圈内部且正在下落 */
+        if (b.vel.y < 0 && hd < SWISH_TOL && Math.abs(p.y - RIM.y) < RIM_TOL) {
+          b.done = true; b.swished = true;
+          p.set(RIM.x, RIM.y - 0.05, RIM.z);
+          b.vel.set(0, -2.8, 0);
+          award('swish');
+          continue;
+        }
+        /* 碰筐：落在筐圈环带上 */
+        if (!b.swished && Math.abs(p.y - RIM.y) < 0.10 &&
+            hd >= SWISH_TOL && hd < RIM.r + BALL_R + 0.05) {
+          if (b.shot && !b.shot.rim) {
+            b.shot.rim = true;
+            rimFlash = Math.max(rimFlash, 0.5);
+            beep(392, 70, 'triangle', 0.045);
+            pulse(null, 0.3, 35);
+          }
+          var nx = (p.x - RIM.x) / (hd || 1), nz = (p.z - RIM.z) / (hd || 1);
+          b.vel.x = nx * Math.max(1.4, Math.abs(b.vel.x) * 0.7);
+          b.vel.z = nz * Math.max(1.4, Math.abs(b.vel.z) * 0.7);
+          b.vel.y = Math.abs(b.vel.y) * 0.32 + 0.7;
+          p.y = RIM.y - 0.11;
+        }
+        /* 篮板反弹 */
+        if (!b.swished && b.vel.z < 0 && p.z < BOARD.z + 0.02 && b.prev.z > BOARD.z + 0.02 &&
+            p.x > BOARD.x0 && p.x < BOARD.x1 && p.y > BOARD.y0 && p.y < BOARD.y1) {
+          p.z = BOARD.z + 0.02;
+          b.vel.z = -b.vel.z * 0.42; b.vel.x *= 0.7; b.vel.y *= 0.75;
+          beep(240, 60, 'square', 0.04);
+        }
+      }
+
+      /* 地面 */
+      if (p.y < BALL_R) {
+        p.y = BALL_R;
+        if (Math.abs(b.vel.y) > 0.55) {
+          b.vel.y = -b.vel.y * 0.55; b.vel.x *= 0.82; b.vel.z *= 0.82;
+        } else {
+          b.vel.y = 0; b.vel.x *= 0.86; b.vel.z *= 0.86;
+        }
+        if (Math.abs(b.vel.x) + Math.abs(b.vel.z) < 0.14) { b.vel.x = 0; b.vel.z = 0; }
+      }
+      /* 场地边界 */
+      if (p.x < -3.6) { p.x = -3.6; b.vel.x = Math.abs(b.vel.x) * 0.35; }
+      if (p.x > 3.6) { p.x = 3.6; b.vel.x = -Math.abs(b.vel.x) * 0.35; }
+      if (p.z > 2.4) { p.z = 2.4; b.vel.z = -Math.abs(b.vel.z) * 0.35; }
+      if (p.z < -4.35 && p.y < 2.9) { p.z = -4.35; b.vel.z = Math.abs(b.vel.z) * 0.35; }
+
+      /* 静止 → 结算并自动回收（球落地可捡回，也会自动回架） */
+      if (p.y <= BALL_R + 0.02 && b.vel.lengthSq() < 0.03) {
+        b.rest += h;
+        if (b.rest > 1.8) { finalizeShot(b); returnHome(b); }
+      } else {
+        b.rest = 0;
+      }
+    }
+  }
+}
+
+/* ---------- 3.11 预览弧线 ---------- */
+function updatePreview(){
+  if (!previewLine) return;
+  if (!S.heldBall || S.phase === 'over') { previewLine.visible = false; return; }
+  var L = currentLaunch(1.0);
+  if (!L) { previewLine.visible = false; return; }
+  var p = L.from.clone(), v = L.vel.clone();
+  var n = previewPos.length / 3, dt = 0.035;
+  for (var i = 0; i < n; i++) {
+    previewPos[i * 3] = p.x; previewPos[i * 3 + 1] = p.y; previewPos[i * 3 + 2] = p.z;
+    v.y -= G * dt;
+    p.addScaledVector(v, dt);
+    if (p.y < 0.06) {
+      for (var k = i + 1; k < n; k++) {
+        previewPos[k * 3] = p.x; previewPos[k * 3 + 1] = 0.06; previewPos[k * 3 + 2] = p.z;
+      }
+      break;
+    }
+  }
+  previewLine.geometry.attributes.position.needsUpdate = true;
+  previewLine.visible = true;
+}
+
+/* ---------- 3.12 DEMO ---------- */
+var DEMO = {
+  buildWorld: function(){
+    S.best = readBest();
+    buildHoop();
+    buildPaint();
+    buildRack();
+
+    heldAnchor = new THREE.Object3D();
+    heldAnchor.position.set(0, -0.30, -0.72);
+    camera.add(heldAnchor);
+    buildPreview();
+  },
+  buildUI: function(){
+    buildBoard();
+    buildPanelUI();
+    setupPCThrow();
+    DEMO_READY = true;
+  },
+  drawUI: function(ctx, W, H){
+    ctx.fillStyle = '#0f1a2b'; ctx.fillRect(0, 0, W, H);
+    ctx.strokeStyle = '#2c4266'; ctx.lineWidth = 4; ctx.strokeRect(2, 2, W - 4, H - 4);
+    ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+    ctx.fillStyle = '#9fd0ff'; ctx.font = 'bold 25px "Microsoft YaHei",sans-serif';
+    ctx.fillText('操作台 · 投篮擂台', 20, 28);
+    ctx.fillStyle = phaseColor(); ctx.font = '18px "Microsoft YaHei",sans-serif';
+    ctx.fillText(phaseName() + ' ｜ ' + S.score + ' 分 ｜ ' + Math.ceil(S.timeLeft) + ' 秒', 20, 52);
+    ctx.fillStyle = '#7f93b5'; ctx.font = '17px "Microsoft YaHei",sans-serif';
+    ctx.fillText('点球抓起 → 甩鼠标投出 ｜ 空格 = 标准投篮', 20, 230);
+    syncLabels();
+  },
+  onPick: function(id, src){
+    if (id === 'start') {
+      if (S.phase === 'over') resetBalls();
+      startGame();
+      toast('开始！60 秒倒计时');
+    } else if (id === 'reset') {
+      resetGame(); toast('已重置 · 回到 ready');
+    } else if (id === 'sound') {
+      S.mute = !S.mute;
+      toast('音效：' + (S.mute ? '关' : '开'));
+    } else if (id === 'recall') {
+      resetBalls(); toast('三个球已收回球架');
+    }
+  },
+  onKey: function(code){
+    if (code === 'Space' || code === 'Enter') {
+      if (S.phase === 'over') { resetBalls(); startGame(); }
+      else if (S.phase === 'ready') { startGame(); }
+      else if (S.heldBall) standardShot();
+      else standardShot();
+      return;
+    }
+    if (code === 'Digit1' || code === 'Digit2' || code === 'Digit3') {
+      var i = parseInt(code.charAt(5), 10) - 1;
+      if (balls[i] && !S.heldBall) grabBall(balls[i], 'pc');
+      return;
+    }
+    if (code === 'KeyT') {
+      if (S.phase === 'over') { resetBalls(); startGame(); }
+      else if (S.phase === 'ready') startGame();
+      else { resetGame(); }
+      return;
+    }
+  },
+  onEmptyClick: function(){
+    if (S.heldBall) throwHeld(1.0);
+  },
+  onSqueeze: function(ray, src, ctrl){
+    if (S.heldBall) return;
+    var w = pickWorld(ray.origin, ray.dir, 'vr');
+    if (w && w.item.mesh && w.item.mesh.userData.ball) {
+      grabBallVR(w.item.mesh.userData.ball, ctrl);
+      return;
+    }
+    var best = null, bd = 0.55;
+    ctrl.getWorldPosition(tmpV);
+    for (var i = 0; i < balls.length; i++) {
+      balls[i].mesh.getWorldPosition(tmpV2);
+      var d = tmpV.distanceTo(tmpV2);
+      if (d < bd) { bd = d; best = balls[i]; }
+    }
+    if (best) grabBallVR(best, ctrl);
+  },
+  onSqueezeEnd: function(ctrl, src){
+    if (!S.heldBall) return;
+    var v = ctrl.userData.vel;
+    var speed = v ? v.length() : 0;
+    if (speed > 2.0) {
+      var dir = v.clone().normalize();
+      dir.y += 0.55;
+      dir.normalize();
+      throwWithDir(dir, clamp(speed * 1.35, 5.0, 11.0));
+    } else {
+      throwHeld(1.0);
+    }
+  },
+  update: function(dt){
+    if (!DEMO_READY) return;
+    if (S.phase === 'playing') tickTimer(dt);
+
+    /* 玩家别走进篮架 / 球场边界 */
+    if (player) {
+      player.position.x = clamp(player.position.x, -3.2, 3.2);
+      player.position.z = clamp(player.position.z, -2.2, 2.2);
+    }
+    /* VR 手柄速度（EMA）用于挥动投掷 */
+    for (var i = 0; i < vrCtrls.length; i++) {
+      var c = vrCtrls[i];
+      c.getWorldPosition(tmpV2);
+      if (c.userData.lastPos) {
+        var dv = tmpV2.clone().sub(c.userData.lastPos).divideScalar(Math.max(dt, 0.008));
+        if (!c.userData.vel) c.userData.vel = new THREE.Vector3();
+        c.userData.vel.lerp(dv, 0.4);
+      } else {
+        c.userData.vel = new THREE.Vector3();
+      }
+      c.userData.lastPos = tmpV2.clone();
+    }
+    /* 持球跟随手/头 */
+    if (S.heldBall && S.heldBall.holder) {
+      var ho = S.heldBall.holder;
+      ho.obj.updateMatrixWorld();
+      tmpV.copy(ho.off).applyMatrix4(ho.obj.matrixWorld);
+      S.heldBall.mesh.position.copy(tmpV);
+    }
+    stepBallPhysics(dt);
+    updatePreview();
+
+    /* 筐圈闪光衰减 */
+    if (rimFlash > 0) {
+      rimFlash = Math.max(0, rimFlash - dt * 2.2);
+      if (rimMesh) {
+        rimMesh.material.emissiveIntensity = 0.6 + rimFlash * 6.0;
+        rimMesh.material.color.setHex(rimFlash > 0.05 ? 0xffa64d : 0xff7a1a);
+      }
+      if (netMesh) netMesh.material.opacity = 0.55 + rimFlash * 0.45;
+    }
+    /* 飘字 */
+    for (var j = popups.length - 1; j >= 0; j--) {
+      var pp = popups[j];
+      pp.t += dt;
+      pp.sp.position.y += dt * 0.6;
+      pp.sp.material.opacity = Math.max(0, 1 - pp.t / pp.life);
+      if (pp.t > pp.life) {
+        scene.remove(pp.sp);
+        pp.sp.material.map.dispose();
+        pp.sp.material.dispose();
+        popups.splice(j, 1);
+      }
+    }
+    /* 计分板每 0.25 s 刷新一次（剩余时间在变） */
+    if (S.phase === 'playing') {
+      DEMO._boardT = (DEMO._boardT || 0) + dt;
+      if (DEMO._boardT > 0.25) { DEMO._boardT = 0; boardDirty = true; }
+    }
+    if (boardDirty) drawBoard();
+  },
+  onHover: function(id){},
+  onAim: function(){},
+  reset: function(){ resetGame(); },
+  _shoot: function(result){ return award(result); },
+  selfTest: function(){
+    var pass = [], fail = [], T = function(ok, name){ (ok ? pass : fail).push(name); };
+    resetGame();
+
+    /* ① 基础设施 */
+    T(!!panel, '3D 操作面板已创建（CanvasTexture）');
+    T(panelBtns.length >= 3, '面板按钮 ≥3（开始/重置/音效/收球）');
+    T(renderer.info.render.calls > 0, 'animate 已渲染（CALLS>0）');
+    T(balls.length === 3, '场上有 3 个球');
+
+    /* ② 状态机：ready 不计分 */
+    T(S.phase === 'ready', '初始阶段 = ready');
+    var r0 = DEMO._shoot('swish');
+    T(r0 === false && S.score === 0, 'ready 阶段 shoot(swish) 不计分且返回 false');
+
+    /* ③ start → playing / 60 秒 */
+    startGame();
+    T(S.phase === 'playing', 'start() 后阶段 = playing');
+    T(S.timeLeft === 60, 'start() 后剩余时间 = 60 秒');
+
+    /* ④ 计分规则：swish +2 / rim +1 / miss 不计 */
+    S.score = 0; S.swish = 0; S.rimIn = 0; S.miss = 0;
+    DEMO._shoot('swish');
+    T(S.score === 2, 'swish 计 +2 分');
+    DEMO._shoot('rim');
+    T(S.score === 3, '碰筐 rim 计 +1 分');
+    var s1 = S.score, m1 = S.miss;
+    DEMO._shoot('miss');
+    T(S.score === s1 && S.miss === m1 + 1, 'miss 不计分且 miss 计数 +1');
+
+    /* ⑤ 计时推进 → over */
+    tickTimer(18);
+    T(Math.abs(S.timeLeft - 42) < 0.001, 'tick(18) 后剩余 42 秒');
+    drawBoard();
+    T(boardText.indexOf('剩余42') >= 0, '计分板文本与剩余时间同步（显示 42）');
+    tickTimer(60);
+    T(S.timeLeft === 0, 'tick 推进后剩余时间归零');
+    T(S.phase === 'over', '时间归零后进入 over 阶段');
+
+    /* ⑥ over 锁输入 */
+    var so = S.score;
+    var rOver = DEMO._shoot('swish');
+    T(rOver === false && S.score === so, 'over 阶段 shoot 无效（锁输入）');
+    T(S.phase === 'over' && statusLine().indexOf('时间到') === 0, 'over 阶段提示文案切换');
+
+    /* ⑦ reset 回 ready */
+    resetGame();
+    T(S.phase === 'ready' && S.score === 0 && S.timeLeft === 60, 'reset 回到 ready 且分数/时间复位');
+
+    /* ⑧ 最高分持久化 */
+    startGame();
+    S.score = 0;
+    DEMO._shoot('swish'); DEMO._shoot('swish');
+    var stored = -1;
+    try { stored = parseInt(localStorage.getItem(BEST_KEY), 10); } catch (e) { stored = -2; }
+    T(S.best >= 4, '最高分随得分更新（best ≥ 4）');
+    T(stored === S.best, '最高分写入 localStorage 且与 best 一致');
+
+    /* ⑨ 三通道反馈日志 */
+    var hz = hapticLog.length, sx = sfxLog.length;
+    rimFlash = 0;
+    DEMO._shoot('swish');
+    T(hapticLog.length > hz, '命中触发触觉日志（震动通道）');
+    T(sfxLog.length > sx, '命中触发音效日志（声音通道）');
+    T(rimFlash > 0, '命中触发筐圈闪光（视觉通道）');
+
+    /* ⑩ 物理投篮 → 计分（真实碰撞链路） */
+    startGame();
+    resetBalls();
+    S.score = 0;
+    var b0 = balls[0];
+    b0.mesh.position.set(RIM.x, RIM.y + 0.42, RIM.z);
+    b0.vel.set(0, -1.4, 0);
+    b0.held = false; b0.done = false; b0.swished = false; b0.shot = { rim: false };
+    for (var i = 0; i < 45; i++) stepBallPhysics(0.016);
+    T(S.score >= 2, '物理进球判定：球从筐上方落下 → 计 +2 分');
+
+    /* ⑪ 标准投篮链路（抓球 → 解算投出） */
+    resetBalls();
+    var okGrab = grabBall(balls[1], 'pc');
+    T(okGrab && S.heldBall === balls[1], '点击/按键可以抓起球（持球状态）');
+    var okShot = standardShot();
+    T(okShot && S.heldBall === null, '标准投篮把球投出（离手）');
+
+    /* ⑫ 预览线 / UI 命中函数 */
+    var bn = panelBtns[0];
+    var uv0 = { x: (bn.x + bn.w / 2) / panelCanvas.width, y: 1 - (bn.y + bn.h / 2) / panelCanvas.height };
+    T(uiHitUV(uv0) === bn, 'UV 命中函数可用（面板按钮可点）');
+    T(uiHitUV({ x: 0.001, y: 0.001 }) === null, 'UV 空白处不误命中');
+
+    resetGame();
+    return { pass: pass, fail: fail };
+  }
+};
+
+/* 面板按钮文字随阶段变化 */
+function syncLabels(){
+  for (var i = 0; i < panelBtns.length; i++) {
+    var b = panelBtns[i];
+    if (b.id === 'start') b.label = S.phase === 'ready' ? '开始投篮' : (S.phase === 'over' ? '重开一局' : '重新开始');
+    else if (b.id === 'sound') b.label = '音效：' + (S.mute ? '关' : '开');
+    else if (b.id === 'recall') b.label = '收球';
+  }
+}
+/* VR：按指定方向投出 */
+function throwWithDir(dir, speed){
+  var b = S.heldBall;
+  if (!b) return false;
+  if (S.phase === 'over') return false;
+  b.held = false; b.holder = null;
+  b.mesh.position.copy(b.mesh.position);
+  b.vel.copy(dir).multiplyScalar(speed);
+  b.done = false; b.swished = false; b.rest = 0; b.shot = { rim: false };
+  S.heldBall = null; S.held = false;
+  if (previewLine) previewLine.visible = false;
+  if (S.phase === 'playing') S.shots++;
+  S.lastAction = 'VR 挥动投出（' + speed.toFixed(1) + ' m/s）';
+  beep(660, 55, 'triangle', 0.045);
+  panelDirty = true; boardDirty = true;
+  return true;
+}
+/* VR 抓球：绑定到具体手柄 */
+function grabBallVR(b, ctrl){
+  if (S.heldBall) return false;
+  if (S.phase === 'over') { toast('本局已结束 · 先按「重开一局」'); return false; }
+  finalizeShot(b);
+  b.held = true; b.vel.set(0, 0, 0); b.rest = 0; b.done = true;
+  b.holder = { obj: ctrl || vrCtrls[1] || camera, off: new THREE.Vector3(0, -0.05, -0.12), vr: true };
+  S.heldBall = b; S.held = true;
+  beep(520, 60, 'triangle', 0.05);
+  pulse(ctrl ? ctrl.userData.inputSource : null, 0.6, 45);
+  panelDirty = true;
+  return true;
+}
+/* PC 甩鼠标投掷：自己补一套指针速度采样（模板的拖拽逻辑不动） */
+function setupPCThrow(){
+  var sw = { down: false, dist: 0, speed: 0, lx: 0, ly: 0, last: 0, wasHeld: false };
+  window.addEventListener('pointerdown', function(e){
+    sw.down = true; sw.dist = 0; sw.speed = 0;
+    sw.lx = e.clientX; sw.ly = e.clientY; sw.last = performance.now();
+    sw.wasHeld = !!S.heldBall;
+  });
+  window.addEventListener('pointermove', function(e){
+    if (!sw.down) return;
+    var now = performance.now();
+    var ddt = Math.max(0.008, (now - sw.last) / 1000);
+    var d = Math.hypot(e.clientX - sw.lx, e.clientY - sw.ly);
+    sw.speed = sw.speed * 0.62 + (d / ddt) * 0.38;
+    sw.dist += d;
+    sw.lx = e.clientX; sw.ly = e.clientY; sw.last = now;
+  });
+  window.addEventListener('pointerup', function(){
+    var wasHeld = sw.wasHeld, dist = sw.dist, sp = sw.speed;
+    sw.down = false; sw.wasHeld = false;
+    if (!wasHeld || !S.heldBall) return;
+    if (S.phase === 'over') return;
+    var r = pcRay();
+    var p = pickPanel(r.origin, r.dir, 'pc');
+    if (p && p.button) return;              // 点面板按钮时不投球
+    var power = dist > 16 ? clamp(sp / 1250, 0.72, 1.3) : 1.0;
+    throwHeld(power);
+    if (dist > 16) toast('投出 · 力度 ×' + power.toFixed(2));
+  });
+}
+
+/* ======================= 4. 启动 ======================= */
+function boot(){
+  renderer = new THREE.WebGLRenderer({ canvas: $('c'), antialias: true, alpha: false });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  renderer.setSize(innerWidth, innerHeight);
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.xr.enabled = true;
+  renderer.xr.setReferenceSpaceType('local-floor');
+
+  scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x0e1220);
+  camera = new THREE.PerspectiveCamera(70, innerWidth / innerHeight, 0.05, 60);
+  camera.position.set(0, 1.6, 0);
+  player = new THREE.Group();
+  player.add(camera);
+  scene.add(player);
+  clock = new THREE.Clock();
+
+  buildBase();
+  DEMO.buildWorld();
+  DEMO.buildUI();
+  setupVR();
+  setupPC();
+
+  document.title = CFG.id.toUpperCase() + ' · ' + CFG.title;
+  $('hudTitle').textContent = CFG.title;
+  $('hudTag').textContent = CFG.subtitle;
+  $('loadTitle').textContent = CFG.title;
+  $('hudPC').innerHTML = '<b>PC 操作</b><br>' + CFG.pcKeys;
+  $('hudVR').innerHTML = '<b>头显操作</b><br>' + CFG.vrKeys;
+  $('hudTeach').innerHTML = '<b>课堂要点</b><br>' + CFG.teach;
+  redrawPanel();
+  drawBoard();
+
+  window.LAB = {
+    S: S, scene: scene, camera: camera, renderer: renderer, player: player, cfg: CFG,
+    balls: balls,
+    ui: { panel: function(){ return panel; }, buttons: function(){ return panelBtns; },
+          hover: function(){ return hoverId; },
+          board: function(){ return boardMesh; } },
+    api: {
+      start: function(){ var r = startGame(); updateStats(); return r; },
+      shoot: function(result){
+        if (result !== 'swish' && result !== 'rim' && result !== 'miss') return false;
+        if (S.phase === 'playing') S.shots++;   // 每次 shoot 视为一次出手
+        var ok = award(result);
+        updateStats();
+        return ok;
+      },
+      tick: function(sec){ var r = tickTimer(sec); updateStats(); return r; },
+      reset: function(){ resetGame(); updateStats(); },
+      hold: function(i){ return grabBall(balls[i || 0], 'pc'); },
+      throwNow: function(power){ return S.heldBall ? throwHeld(power) : standardShot(); },
+      standardShot: standardShot,
+      getState: function(){ return JSON.parse(JSON.stringify({
+        phase: S.phase, score: S.score, best: S.best, timeLeft: S.timeLeft,
+        shots: S.shots, swish: S.swish, rimIn: S.rimIn, miss: S.miss, held: !!S.heldBall
+      })); },
+      setState: function(k, v){ S[k] = v; panelDirty = true; boardDirty = true; },
+      boardText: function(){ return boardText; },
+      bestKey: function(){ return BEST_KEY; },
+      clearFx: function(){
+        for (var i = popups.length - 1; i >= 0; i--) {
+          scene.remove(popups[i].sp);
+          popups[i].sp.material.map.dispose();
+          popups[i].sp.material.dispose();
+        }
+        popups.length = 0; rimFlash = 0;
+        if (previewLine) previewLine.visible = false;
+      },
+      haptics: function(){ return hapticLog.slice(); },
+      sfx: function(){ return sfxLog.slice(); },
+      selfTest: function(){
+        var r = DEMO.selfTest();
+        console.log('SELFTEST PASS ' + r.pass.length + ' / FAIL ' + r.fail.length);
+        if (r.fail.length) console.log('SELFTEST FAILED: ' + r.fail.join(' | '));
+        return r;
+      }
+    }
+  };
+
+  var loader = $('loader');
+  $('loadMsg').textContent = '就绪 · ' + CFG.part;
+  setTimeout(function(){ loader.style.opacity = '0'; setTimeout(function(){ loader.remove(); }, 520); }, 180);
+
+  onResize();
+  renderer.setAnimationLoop(animate);
+}
+try { boot(); }
+catch (e) {
+  console.error('启动失败', e);
+  var lm = document.getElementById('loadMsg');
+  if (lm) lm.textContent = '启动失败：' + e.message;
+}
+})();
+</script>
+</body>
+</html>

@@ -181,6 +181,36 @@ footer a:hover{text-decoration:underline;}
 }
 #toTop.show{opacity:1;pointer-events:auto;}
 #toTop:hover{background:var(--accent);}
+/* ===== 演示截图卡片（第 7 次课新增） ===== */
+.demo-card .dc-shot{
+  display:block;width:100%;aspect-ratio:16/10;object-fit:cover;
+  border-radius:8px;border:1px solid var(--line-soft);background:#0f1420;
+  margin-bottom:10px;
+}
+.demo-card .dc-meta{font-size:12px;color:var(--ink-faint);margin-top:8px;line-height:1.7;}
+.demo-card .dc-links{font-size:13px;margin-top:8px;display:flex;gap:12px;flex-wrap:wrap;}
+.demo-card .dc-links a{font-weight:700;}
+/* 演示库分组小标题 */
+.lab-group{display:flex;align-items:center;gap:10px;margin:22px 0 4px;font-size:15px;font-weight:700;color:var(--accent-deep);}
+.lab-group span{font-size:12px;font-weight:400;color:var(--ink-faint);}
+/* ===== 配图（figure） ===== */
+.figure-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin:16px 0;}
+figure.fig{margin:0;background:#faf8fd;border:1px solid var(--line-soft);border-radius:12px;padding:10px;}
+figure.fig img{width:100%;display:block;border-radius:8px;border:1px solid var(--line-soft);background:#fff;}
+figure.fig figcaption{font-size:13px;color:var(--ink-soft);line-height:1.7;margin-top:8px;}
+/* ===== 视频/资源表里的链接列 ===== */
+.tbl-wrap td a{word-break:break-word;}
+.res-sub{font-size:12.5px;color:var(--ink-faint);display:block;margin-top:2px;}
+/* ===== 作业卡片 ===== */
+.hw-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;margin:16px 0;}
+.hw-card{background:#faf8fd;border:1px solid var(--line-soft);border-radius:12px;padding:16px 18px;}
+.hw-card .hw-top{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;}
+.hw-card .hw-id{font-size:12px;font-weight:700;color:var(--accent);letter-spacing:1px;}
+.hw-card .hw-title{font-size:16px;font-weight:700;color:var(--accent-deep);margin:4px 0 6px;}
+.hw-card .hw-body{font-size:14px;color:var(--ink-soft);line-height:1.8;}
+.hw-card .hw-foot{margin-top:10px;font-size:12.5px;color:var(--ink-faint);border-top:1px dashed var(--line);padding-top:8px;}
+.hw-card.core{border-color:#cfe6d1;background:#f6fbf6;}
+.hw-card.bonus{border-style:dashed;}
 /* ===== 响应式 ===== */
 @media(max-width:860px){
   .grid2,.grid3{grid-template-columns:1fr;}
