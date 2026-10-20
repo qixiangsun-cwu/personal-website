@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>第7次课 · 交互零件库（练旧 + PICO 演示） | 2026年虚拟现实技术</title>
-<meta name="description" content="《虚拟现实技术》第 7 次课（2026-10-21 · 4 学时）两段式课堂：前两节学生自主复现第 5、6 次课（全景漫游器 / 多点漫游，各 6 项检查表），后两节 PICO 演示（每人一台；教师演 5 个零件并投屏 + 全班同时走自己作品 + 4 人上台 60 秒）；含 9 个零件演示与 2 个示范案例、PICO 轮转矩阵与投屏降级、课堂练习 A/B 检查表、当堂达标与课后 H1—H8 作业、里程碑 M1，以及配套视频与图示。">
+<meta name="description" content="《虚拟现实技术》第 7 次课（2026-10-21 · 4 学时）两段式课堂：课前加餐 12′（DeepSeek V4.1-Flash-1017 更新 / DeepSeek Harness 介绍 / 新版 3D 故宫 v2 演示与 v1/v2 同机位对比）；前两节学生自主复现第 5、6 次课（全景漫游器 / 多点漫游，各 6 项检查表），后两节 PICO 演示（每人一台；教师演 5 个零件并投屏 + 全班同时走自己作品 + 4 人上台 60 秒）；含 9 个零件演示与 2 个示范案例、PICO 轮转矩阵与投屏降级、课堂练习 A/B 检查表、当堂达标与课后 H1—H8 作业、里程碑 M1，以及配套视频与图示。">
 <link rel="stylesheet" href="assets/vr-2026/course.css">
 <style>#practice table td:first-child,#pico table td:first-child,#guide table td:nth-child(2){white-space:nowrap}</style>
 
@@ -16,9 +16,9 @@
   <div class="hero-inner">
     <span class="kicker">虚拟现实技术 · 第 7 次课 · 后半程第一课</span>
     <h1>交互零件库：先练旧作品，再上 PICO 演一遍</h1>
-    <p class="sub">第 7 次课 · 2026-10-21 · 4 学时 —— <strong>前两节</strong>把自己的旧作品练到“能演示”（复现第 5、6 次课），<strong>后两节</strong>把 PICO 交到学生手里：老师先演 5 个零件，每人再戴一次走自己的作品，最后上台 60 秒</p>
+    <p class="sub">第 7 次课 · 2026-10-21 · 4 学时 —— <strong>前两节</strong>把自己的旧作品练到“能演示”（复现第 5、6 次课），<strong>后两节</strong>把 PICO 交到学生手里：老师先演 5 个零件，每人再戴一次走自己的作品，最后上台 60 秒；<strong>0:00 前还有 12 分钟课前加餐</strong>：DeepSeek 1017 更新 / Harness 介绍 / 新版 3D 故宫 v2 演示</p>
     <div class="meta">
-      <span>中华女子学院</span><span>第 7 次课 · 2026-10-21（周三）· 4 学时</span><span>前两节 90′ 自主练习 + 后两节 90′ PICO 演示（每人一台，含课间 10′）</span><span>授课人：孙琪翔</span><span>数字媒体技术实验室</span>
+      <span>中华女子学院</span><span>第 7 次课 · 2026-10-21（周三）· 4 学时</span><span>前两节 90′ 自主练习 + 后两节 90′ PICO 演示（每人一台，含课间 10′）</span><span>课前加餐 12′：DeepSeek 1017 / Harness / 故宫 v2（0:00 前，不计入 180′）</span><span>授课人：孙琪翔</span><span>数字媒体技术实验室</span>
     </div>
   </div>
 </header>
@@ -27,6 +27,7 @@
 <nav class="nav" id="nav">
   <div class="nav-inner" id="navInner">
     <a href="vr-2026.html" class="nav-back">← 课程主页</a>
+    <a href="#preclass" data-sec="preclass">课、课前加餐</a>
     <a href="#c1" data-sec="c1">一、三层结构</a>
     <a href="#c2" data-sec="c2">二、9 项范式</a>
     <a href="#lab" data-sec="lab">演、演示库</a>
@@ -42,6 +43,132 @@
 </nav>
 
 <main>
+
+<!-- ===== 课前加餐 ===== -->
+<section id="preclass">
+  <div class="sec-head">
+    <div class="sec-num">课</div>
+    <div>
+      <h2>课前加餐（12 分钟）：新模型能做什么 × 我们自己的故宫 v2</h2>
+      <p class="sec-sub">0:00 之前投屏播放，<strong>不计入 180′</strong>：① DeepSeek V4.1-Flash-1017 更新了什么 ② DeepSeek Harness 是什么 ③ 新版 3D 故宫 v2 现场演示 + 同机位对比</p>
+    </div>
+  </div>
+
+  <p><strong>为什么加这一段：</strong>这次 DeepSeek 更新（<strong>V4.1-Flash-1017</strong>）的官方示例 1 就是<strong>「故宫 3D 建模展示效果」</strong>——而我们在第 4 次课正好用 WebXR 造过一座故宫。所以老师把故宫<strong>重做了一版 v2</strong>（<strong>原版 v1 一个字没动</strong>），用 12 分钟让你们先看两件事：<strong>AI 现在能"从零做完整项目"到什么程度</strong>，以及<strong>哪些地方还得人来判断</strong>。</p>
+
+  <div class="step-grid">
+    <div class="step-card">
+      <div class="sc-no">PART A · 4′</div>
+      <div class="sc-title">1017 更新了什么</div>
+      <div class="sc-desc">版本同步 · 更快更省 · <strong>从零做完整项目</strong>（游戏 / 3D 建模）· 官方示例 1 = 故宫 3D 建模 · Search / Fetch 开放 + 权重开源。</div>
+    </div>
+    <div class="step-card">
+      <div class="sc-no">PART B · 3′</div>
+      <div class="sc-title">DeepSeek Harness 是什么</div>
+      <div class="sc-desc">不是聊天窗口，是<strong>给模型装"手和眼睛"的运行框架</strong>：读工程、改代码、跑命令、开无头浏览器验证、多轮迭代到"跑通"。</div>
+    </div>
+    <div class="step-card">
+      <div class="sc-no">PART C · 5′</div>
+      <div class="sc-title">看成品：故宫 v2</div>
+      <div class="sc-desc">浏览器里<strong>实时渲染</strong>的紫禁城：完整中轴 + <strong>7 机位 + 76 秒航拍巡游</strong>，PC 能走、头显能进 VR；再和原版 v1 <strong>同机位对比</strong>，也看清它差在哪。</div>
+    </div>
+  </div>
+
+  <h3>一、DeepSeek V4.1-Flash-1017 更新（官方说法）</h3>
+  <ul>
+    <li><strong>版本同步</strong>：官方网页端 / APP / API 已同步更新到 V4.1-Flash-1017。</li>
+    <li><strong>更快更省</strong>：官方称在多个基准上提升，同时缩短任务运行时间与输出长度，达到新的"性能—费用帕累托最优"；并针对 <strong>DeepSeek Harness</strong>、CodeBuddy、WorkBuddy 等框架做了优化。</li>
+    <li><strong>从零做完整项目</strong>：通过基于自反馈的强化学习（RL）训练，提升游戏开发、3D 建模等方面"从零构建完整项目"的能力，支持更多"许愿式"编程任务。</li>
+    <li><strong>官方示例 1 就是故宫 3D 建模展示</strong>（另有网页赛车、《传送门 2》复刻、Valley of Ages 等）。</li>
+    <li><strong>配套变化</strong>：Search / Fetch 接口开放（官方价 5 元 / 千次；在 Harness / Claude Code / Codex 内暂不计费，北京时间 2026-11-01 00:00 起按次计费）；模型权重在 HuggingFace / ModelScope 开源。</li>
+  </ul>
+  <div class="note"><strong>口径</strong>：以上是 DeepSeek 官方发布文的说法（<a href="https://mp.weixin.qq.com/s/X-5kbBkedQ5Oct9byUunag" target="_blank" rel="noopener">发布文链接</a>），课堂只说"官方称"，不要求背数字，也不替官方背书。</div>
+
+  <h3>二、DeepSeek Harness：模型和真实工程之间的那一层</h3>
+  <p>网页对话框里，你贴一段代码它回一段代码——<strong>它看不见你的文件，也跑不了你的程序</strong>。Harness 是给模型装上<strong>"手和眼睛"</strong>的运行框架：<strong>模型还是那个模型</strong>，Harness 负责给它<strong>文件、命令、工具、验证回路</strong>。</p>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>能力</th><th>网页版对话</th><th>DeepSeek Harness</th></tr></thead>
+      <tbody>
+        <tr><td>读整个工程 / 直接改文件</td><td>❌ 要手动粘贴</td><td><strong>✅ 直接读、直接写</strong></td></tr>
+        <tr><td>跑命令、开浏览器验证</td><td>❌</td><td><strong>✅ 终端 + 无头 Chrome</strong></td></tr>
+        <tr><td>多轮迭代到"跑通"</td><td>弱</td><td><strong>✅ 自动重试、逐步收敛</strong></td></tr>
+        <tr><td>交付物</td><td>一段文字 / 代码</td><td><strong>能跑的工程 + 验证报告</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>这次的故宫 v2 就是这么来的：<strong>先做原版 v1 → 查现成资源 → 一版一版改 → 每改一次都用无头浏览器截图 + 实测指标验收</strong>，最后 17 个机位、<strong>0 个 JS 错误</strong>。官方对版本有要求：<strong>DeepSeek Harness 0.2.1-rc.1 及以上</strong>才能吃到这次 1017 的优化。</p>
+  <div class="key"><strong>用 AI 改作品的三条纪律：</strong><br>
+    ① 只做<strong>能验证</strong>的改动——跑起来、控制台无红色报错、数字能复现；<br>
+    ② <strong>小步走 + 留原版</strong>——这次 v2 就没动 v1，你们改自己作品也一样：先备份再改；<br>
+    ③ 交的东西要<strong>自己能讲清</strong>——用了 AI 不丢人，讲不清才丢人。</div>
+
+  <h3>三、看成品：新版 3D 故宫 v2（点开就能走，头显能进 VR）</h3>
+  <p>这不是视频，是<strong>浏览器里实时渲染</strong>的 3D：完整中轴（午门—三大殿—后三宫—御花园—神武门），加 <strong>角楼 / 城墙 / 筒子河 / 景山 / 城外</strong>；屋顶是<strong>曲面举折 + 檐角起翘</strong>，贴图是 <strong>MIT 许可的故宫实拍 PBR 贴图</strong>（内嵌在单个 HTML 里，<strong>断网也能跑</strong>）。</p>
+  <div class="btn-row">
+    <a class="btn" href="assets/vr-2026/webxr/gugong_webxr_v2.html" target="_blank" rel="noopener">打开新版 v2（含「进入 VR」按钮）→</a>
+    <a class="btn ghost" href="assets/vr-2026/webxr/gugong_webxr.html" target="_blank" rel="noopener">打开原版 v1（第 4 次课基线）→</a>
+  </div>
+  <p class="res-sub">PC：鼠标拖拽环视、WASD 行走、<strong>空格</strong>开始 / 退出航拍巡游、Esc 退出；HUD 可切 7 个机位与时辰。头显：在 PICO 浏览器里打开上面链接，点「进入 VR」。</p>
+
+  <div class="figure-row">
+    <figure class="fig">
+      <a href="assets/vr-2026/webxr/gugong_webxr_v2.html" target="_blank" rel="noopener"><img src="assets/vr-2026/img/gugong-v2/01-tour.jpg" alt="新版 3D 故宫 v2 航拍巡游截图" loading="lazy"></a>
+      <figcaption><strong>航拍巡游</strong>：黑边 + 左上角地名卡 + 底部进度点，12 个关键帧、约 76 秒一轮——镜头语言对齐参考视频的"展示模式"。</figcaption>
+    </figure>
+    <figure class="fig">
+      <a href="assets/vr-2026/webxr/gugong_webxr_v2.html" target="_blank" rel="noopener"><img src="assets/vr-2026/img/gugong-v2/02-taimen.jpg" alt="新版 3D 故宫 v2 太和门与内金水桥截图" loading="lazy"></a>
+      <figcaption><strong>太和门 + 内金水河五桥</strong>：曲面屋顶、檐下斗拱 / 彩画 / 椽子、汉白玉栏杆与实拍红墙贴图。</figcaption>
+    </figure>
+    <figure class="fig">
+      <a href="assets/vr-2026/webxr/gugong_webxr_v2.html" target="_blank" rel="noopener"><img src="assets/vr-2026/img/gugong-v2/03-shenwumen.jpg" alt="新版 3D 故宫 v2 神武门贴水面截图" loading="lazy"></a>
+      <figcaption><strong>神武门 · 贴水面</strong>：城台三券门（内凹有进深）+ 重檐庑殿正楼 + 筒子河水面，对应参考 GIF 末段镜头。</figcaption>
+    </figure>
+  </div>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>指标</th><th>原版 v1（第 4 次课）</th><th>新版 v2（本次）</th></tr></thead>
+      <tbody>
+        <tr><td>建筑范围</td><td>午门—太和门—三大殿</td><td><strong>午门—三大殿—后三宫—御花园—神武门</strong> + 角楼 / 城墙 / 筒子河 / 景山 / 城外</td></tr>
+        <tr><td>屋顶</td><td>直坡四坡 / 两坡</td><td><strong>曲面举折 + 檐角起翘</strong>（庑殿 / 歇山 / 攒尖 / 重檐 / 裙檐）</td></tr>
+        <tr><td>贴图</td><td>全程序化 Canvas</td><td><strong>15 张 MIT 实拍 PBR 贴图</strong>（内嵌，离线可跑）</td></tr>
+        <tr><td>机位 / 演示</td><td>4 个机位</td><td><strong>7 个机位 + 76 秒航拍巡游</strong></td></tr>
+        <tr><td>DrawCall</td><td>41—127</td><td><strong>42—49</strong>（17 次实测）</td></tr>
+        <tr><td>三角面</td><td>3.7—3.8 万</td><td><strong>27.95—28.43 万</strong>（内容扩展 7.4×）</td></tr>
+        <tr><td>JS 错误</td><td>0</td><td><strong>0</strong>（17/17 次加载）</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>四、同机位对比：一眼看差别</h3>
+  <div class="figure-row">
+    <figure class="fig">
+      <img src="assets/vr-2026/img/gugong-v2/04-compare-court.jpg" alt="广场远眺：v1 原版（左）与 v2 新版（右）同机位对比" loading="lazy">
+      <figcaption><strong>广场远眺 · 同机位</strong>：左 v1 原版 → 右 v2 新版。屋顶曲面、金砖地、台基层次、两侧廊庑与围合都能直接对比。</figcaption>
+    </figure>
+    <figure class="fig">
+      <img src="assets/vr-2026/img/gugong-v2/05-compare-aerial.jpg" alt="全景俯瞰：v1 原版（左）与 v2 新版（右）同机位对比" loading="lazy">
+      <figcaption><strong>全景俯瞰 · 同机位</strong>：左 v1 只做到三大殿 → 右 v2 补齐后三宫、神武门、角楼、城墙、筒子河与城外城市。</figcaption>
+    </figure>
+  </div>
+
+  <h3>五、也要看清差距（诚实清单）</h3>
+  <ul>
+    <li><strong>不是照片级</strong>：几何与贴图是"程序化 + 实拍贴图"的组合，细部（脊兽逐一、瓦当、彩画题材）是概括的；</li>
+    <li><strong>云层偏糊</strong>：天空云层是贴图采样，正西方向还可能有轻微接缝；</li>
+    <li><strong>城外是体块</strong>：城外北京城是"贴图屋海 + 760 个体块"，不是真实城市模型；近景檐底偏黑、午门门洞纯黑；</li>
+    <li><strong>真机未测</strong>：PICO Neo 3 上的 72 Hz 还没实测——这是下一步验证项，不是已完成的结论。</li>
+  </ul>
+  <div class="note"><strong>所以它证明的不是"AI 什么都能做"，而是："AI 能把你带到哪一步，剩下哪一步要人来做。"</strong>——选题、验收口径、差距判断、许可合规，仍然是人决定的。</div>
+
+  <h3>六、看完写三行（随 H0 交，不计分）</h3>
+  <ol>
+    <li>这次 1017 更新的<strong>三个关键词</strong>（各一个词）：＿＿＿＿ / ＿＿＿＿ / ＿＿＿＿</li>
+    <li><strong>Harness 和"网页版对话"最大的区别</strong>（≤20 字）：＿＿＿＿＿＿＿＿＿＿＿＿</li>
+    <li><strong>故宫 v2 里，哪一处最能说明"AI 生成 + 人验收"？</strong>（写一个具体镜头 / 数据 / 差距）：＿＿＿＿＿＿＿＿＿＿＿＿</li>
+  </ol>
+</section>
 
 <!-- ===== 导览 ===== -->
 <section id="guide">
