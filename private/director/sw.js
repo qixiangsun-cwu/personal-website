@@ -22,9 +22,11 @@ const SHELL = [
   './assets/js/workstation.js',
   './assets/js/flow-data.js',
   './data/flow.json',
-  './assets/poster/01-intro-strategic-craft.jpg',
-  './assets/poster/02-scene1-pandemic.jpg',
-  './assets/poster/03-scene2-climate.jpg'
+  /* 封面图实际文件名是 01.jpg / 02.jpg / 03.jpg（不是视频名同名的 jpg）。
+     写错路径不会报错，只会被 .catch(()=>{}) 静默吞掉 —— 改这里时务必对一下 assets/poster/ 实际文件。 */
+  './assets/poster/01.jpg',
+  './assets/poster/02.jpg',
+  './assets/poster/03.jpg'
 ];
 
 const MEDIA_RE = /\.(mp4|webm|jpg|jpeg|png|webp|gif|ico)(\?.*)?$/i;
