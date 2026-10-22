@@ -666,7 +666,7 @@ table.grid tbody tr.on{background:var(--blue-100);}
 .ps-meta .d{font-size:var(--fs-2xs);color:var(--ink-3);margin-top:1px;}
 .ps-matrix{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 8px;flex:1;min-width:250px;align-items:center;}
 .ps-rl{font-size:var(--fs-2xs);color:var(--ink-3);white-space:nowrap;}
-.ps-cells{display:grid;grid-template-columns:repeat(9,minmax(30px,56px));gap:5px;}
+.ps-cells{display:grid;grid-template-columns:repeat(10,minmax(30px,56px));gap:5px;}
 .ps-hd span{
   display:block;text-align:center;font-family:var(--mono);font-size:9px;
   color:var(--ink-4);letter-spacing:-.3px;overflow:hidden;
@@ -903,7 +903,7 @@ body.director .ruler{margin-top:var(--sp-2);}
   .ph-title{font-size:20px;}
   .card-h{flex-wrap:wrap;gap:7px;}
   .card-h .tag{order:3;flex:1 1 100%;}
-  .ps-cells{grid-template-columns:repeat(9,minmax(18px,1fr));gap:3px;}
+  .ps-cells{grid-template-columns:repeat(10,minmax(18px,1fr));gap:3px;}
   .ps-cell{height:22px;}
   .col-act{width:150px;}
   .clockbox b{font-size:15px;}

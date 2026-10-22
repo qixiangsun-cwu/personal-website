@@ -56,6 +56,22 @@ function loadState(){
   let saved = null;
   try{ saved = JSON.parse(localStorage.getItem(STORE_KEY) || 'null'); }catch(e){}
   S = Object.assign(base, saved||{});
+
+  /* 十方改造 · 智能迁移
+     旧版本默认发言顺序不含 s1（当时 B市妇联部门按「主办方不参演」处理），共 9 条。
+     上面的 Object.assign 会让 saved 覆盖 base —— 存档里那 9 条会把新默认的 10 条顶掉，
+     表现为「数据已改成十方，页面刷新却仍是九方」。
+     只在「存档顺序恰好等于旧默认」时才升级为新默认；用户手动调过的一律尊重、不动。 */
+  const defOrder = Array.isArray(D.initialState.speakerOrder) ? D.initialState.speakerOrder : [];
+  if(!Array.isArray(S.speakerOrder) || !S.speakerOrder.length){
+    S.speakerOrder = defOrder.slice();
+  }else{
+    const legacy = defOrder.filter(id => id !== 's1');           // 旧的 9 方默认
+    const upgraded = defOrder.length !== legacy.length;          // 新默认确实多出 s1
+    const isLegacy = upgraded && S.speakerOrder.length === legacy.length
+      && legacy.every((id,i) => S.speakerOrder[i] === id);
+    if(isLegacy) S.speakerOrder = defOrder.slice();
+  }
   S.deadlines   = Object.assign({}, D.initialState.deadlines, (saved&&saved.deadlines)||{});
   S.submissions = Object.assign({}, JSON.parse(JSON.stringify(D.initialState.submissions||{})), (saved&&saved.submissions)||{});
   S.voiceOn     = (saved && typeof saved.voiceOn==='boolean') ? saved.voiceOn : true;
@@ -144,7 +160,7 @@ function renderStageBar(){
   }).join('') + `
     <div class="sb-meta">
       <div class="k">当前阶段 · ${esc(st.name)}（${stageMinutes(st)} 分钟）</div>
-      <div class="v">${esc(st.id==='prep'?'等待导演组统一开幕':st.id==='act1'?'各组撰写场景一处置方案':st.id==='act2'?'播放场景二 · 各组配合研判':'九方依次发言、质询与总结')}</div>
+      <div class="v">${esc(st.id==='prep'?'等待导演组统一开幕':st.id==='act1'?'各组撰写场景一处置方案':st.id==='act2'?'播放场景二 · 各组配合研判':'十方依次发言、质询与总结')}</div>
       <div class="v" style="font-size:11.5px;font-weight:400;color:var(--ink-3);">${esc(st.from)} — ${esc(st.to)}</div>
     </div>`;
 
@@ -227,11 +243,11 @@ function actMark(a, boxed){
 function renderProgress(){
   const host = $('#progressStrip');
   if(!host) return;
-  const seats = speakerSessions();                 // 9 方参演
+  const seats = speakerSessions();                 // 10 方参演
   if(!seats.length){ host.innerHTML=''; return; }
 
   let done = 0;
-  const total = seats.length * 2;                  // 9 × 2 幕 = 18
+  const total = seats.length * 2;                  // 10 × 2 幕 = 20
 
   const cellsOf = act => seats.map(s=>{
     const r = subOf(s.id, act);
@@ -244,6 +260,11 @@ function renderProgress(){
       title="${esc(s.code)} ${esc(s.name)} · 第${act===1?'一':'二'}幕 · ${st}${when?'（'+esc(when)+'）':''}"
       aria-label="${esc(s.name)} 第${act===1?'一':'二'}幕，${st}">${gl}</button>`;
   }).join('');
+
+  /* ⚠ 必须先生成两行格子再算汇总：cellsOf() 会顺带累加 done，
+     而下面的环形图百分比、stroke-dashoffset 和「x / total」计数都要读 done。
+     顺序颠倒会让格子标对了、汇总却永远停在 0（旧 bug，已修）。 */
+  const row1 = cellsOf(1), row2 = cellsOf(2);
 
   const pct = total ? Math.round(done/total*100) : 0;
   const C = 163.36;                                 // 2π × r(26)
@@ -265,9 +286,9 @@ function renderProgress(){
       <div class="ps-rl"></div>
       <div class="ps-cells ps-hd">${seats.map(s=>`<span title="${esc(s.name)}">${esc(s.code)}</span>`).join('')}</div>
       <div class="ps-rl">${actMark(1)} 第一幕</div>
-      <div class="ps-cells">${cellsOf(1)}</div>
+      <div class="ps-cells">${row1}</div>
       <div class="ps-rl">${actMark(2)} 第二幕</div>
-      <div class="ps-cells">${cellsOf(2)}</div>
+      <div class="ps-cells">${row2}</div>
     </div>
     <div class="ps-legend">
       <span><i class="l-done"></i>已提交 ${seats.filter(s=>subOf(s.id,1).status==='done'||subOf(s.id,2).status==='done').length} 方</span>
@@ -299,7 +320,7 @@ function renderSeatTable(){
     const stCls = {done:'chip-done',draft:'chip-d',none:'chip-n'}[st];
     const on = s.id===S.activeSession;
     const ord = orderMap[s.id] ? `<span class="order-badge" title="集中研讨发言顺序">${orderMap[s.id]}</span>`
-                               : `<span class="chip chip-n" title="主办方不参与发言">主办</span>`;
+                               : `<span class="chip chip-n" title="不在本轮集中研讨发言顺序内">轮空</span>`;
     const cell = r => {
       if(r.status==='done') return `<span class="chip chip-ok"><span class="st">正式提交</span></span><span class="ts">提交：${esc(r.submittedAt||'--')}</span>`;
       if(r.status==='draft') return `<span class="chip chip-d"><span class="st">草稿已保存</span></span><span class="ts">保存：${esc(r.savedAt||'--')}</span>`;
@@ -394,7 +415,7 @@ function openArchive(sid){
   const rows = [
     ['席位编号', s.code],
     ['事件处置方', s.name],
-    ['席位性质', s.role + (s.role==='参演席位' ? ` · 参演席位第 ${idx+1} 位` : '')],
+    ['席位性质', s.role + (s.role==='参演席位' ? ` · 第 ${idx+1} 位` : ' · 不参演')],
     ['协调员', s.coordinator || '（未指定）'],
     ['对接学院 / 单位', s.unit || '（未指定）'],
     ['驻组专家', s.expert || '（未指定）'],
@@ -665,7 +686,7 @@ function printHTML(){
     </tr>`;
   }).join('');
 
-  const host = D.sessions.find(x=>x.role==='主办方');
+  const host = D.sessions.find(x=>x.organizer);
   const warn = D.warnings.find(x=>x.id===S.warningId);
   const flags = D.script.filter(x=>x.flagNote);
 
@@ -704,7 +725,7 @@ function printHTML(){
     </div>
 
     <div class="pr-sec">
-      <h3>三、席位名单与集中研讨发言顺序（九方）</h3>
+      <h3>三、席位名单与集中研讨发言顺序（十方）</h3>
       <table>
         <thead><tr><th>序</th><th>席位号</th><th>事件处置方</th><th>协调员</th><th>对接学院/单位</th><th>驻组专家</th><th>${actMark(1,true)} 第一幕 · 场景一方案</th><th>${actMark(2,true)} 第二幕 · 场景二方案</th></tr></thead>
         <tbody>${seatRows}</tbody>
@@ -715,7 +736,7 @@ function printHTML(){
       <h3>四、待确认事项</h3>
       <table><tbody>
         ${flags.map(x=>`<tr><td style="width:16%;">环节 ${x.no}</td><td>${esc(x.flagNote)}</td></tr>`).join('')}
-        <tr><td style="width:16%;">席位口径</td><td>源文档《导演组流程脚本.doc》称「九方」，而《事件处置方分组表》列 10 个处置方。本单按「B市妇联部门为主办方不参演 + 其余 9 个处置方为参演席位（九方）」处理，待导演组确认。</td></tr>
+        <tr><td style="width:16%;">席位口径</td><td>《事件处置方分组表》列 10 个处置方，本单按 <strong>10 方全部参演</strong>（十方推演）处理，发言顺序为分组表序号 1—10。其中 B市妇联部门为主办方，同时作为第 1 号参演席位参与集中研讨三轮发言。源文档《导演组流程脚本.doc》原称「九方」，现以十方为准。</td></tr>
         <tr><td style="width:16%;">素材规格</td><td>导入片《战略匠心》源文件为 640×368 / 7 分钟；环节1 时长由 5 分钟调整为 7 分钟以与素材对齐，后续环节顺延，全课结束时刻为 12:32。</td></tr>
         <tr><td style="width:16%;">素材版本</td><td>页面使用 h264 转码版（场景一 1280×720 / 场景二 1280×720）；微信目录中的 HEVC 原片（1922×1080）浏览器不可直接播放。</td></tr>
       </tbody></table>
@@ -911,7 +932,7 @@ function askReset(){
 function askResetOrder(){
   confirmAction({
     title:'恢复默认发言顺序',
-    body:'将「指定小组顺序」还原为《事件处置方分组表》序号 <em>2—10</em>。<br>你此前手动调整的顺序将<em>被覆盖</em>。',
+    body:'将「指定小组顺序」还原为《事件处置方分组表》序号 <em>1—10</em>。<br>你此前手动调整的顺序将<em>被覆盖</em>。',
     okText:'恢复默认顺序',
     onOk(){
       S.speakerOrder = D.initialState.speakerOrder.slice();
@@ -1221,7 +1242,7 @@ function renderAll(){
   $('#phTitle').textContent = D.meta.title;
   $('#phSub').textContent = D.meta.subtitle;
   $('#scriptTag').textContent = `${D.script.length} 个环节 · ${D.course.totalMinutes} 分钟`;
-  $('#seatTag').textContent = `${S.speakerOrder.length} 方参演 + ${D.sessions.length-S.speakerOrder.length} 主办`;
+  $('#seatTag').textContent = `${S.speakerOrder.length} 方参演`;
   $('#seatCountBadge').textContent = D.sessions.length;
 
   renderStageBar();
