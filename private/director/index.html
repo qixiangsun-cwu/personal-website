@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="robots" content="noindex, nofollow">
+<!-- ==== 访问门禁（仅线上私密部署版包含此段；本地 / 公开版无）====
+     访问方式：地址后追加 ?key=访问密钥
+     源码中只保存密钥的 SHA-256 哈希，密钥本体不入库。
+     解锁状态写入 sessionStorage；第二屏 screen.html 由 window.open() 打开，
+     会继承 opener 的 sessionStorage，因此第二屏无需在 URL 里带 key。
+     换密钥时请同时替换以下三处常量：本文件、screen.html、gate.html。 -->
+<script>
+var WORKSTATION_KEY_HASH = '2fe115eb0dac3a086b2cfee19270bd20d59156b2697bb2d0dcf9d6c47921154b';
+function sha256Hex(str) {
+            // 纯 JS SHA-256（用于兼容非 https 的本地打开场景）
+            function rightRotate(value, amount) {
+                return (value >>> amount) | (value << (32 - amount));
+            }
+            var mathPow = Math.pow, maxWord = mathPow(2, 32), lengthProperty = 'length';
+            var result = '', i, j;
+            var words = [], asciiBitLength = str[lengthProperty] * 8;
+            var hash = sha256Hex.h = sha256Hex.h || [];
+            var k = sha256Hex.k = sha256Hex.k || [];
+            var primeCounter = k[lengthProperty];
+            var isComposite = {};
+            for (var candidate = 2; primeCounter < 64; candidate++) {
+                if (!isComposite[candidate]) {
+                    for (i = 0; i < 313; i += candidate) isComposite[i] = candidate;
+                    hash[primeCounter] = (mathPow(candidate, 0.5) * maxWord) | 0;
+                    k[primeCounter++] = (mathPow(candidate, 1 / 3) * maxWord) | 0;
+                }
+            }
+            str += '\x80';
+            while (str[lengthProperty] % 64 - 56) str += '\x00';
+            for (i = 0; i < str[lengthProperty]; i++) {
+                j = str.charCodeAt(i);
+                if (j >> 8) return '';
+                words[i >> 2] |= j << ((3 - i) % 4) * 8;
+            }
+            words[words[lengthProperty]] = ((asciiBitLength / maxWord) | 0);
+            words[words[lengthProperty]] = (asciiBitLength);
+            for (j = 0; j < words[lengthProperty];) {
+                var w = words.slice(j, j += 16);
+                var oldHash = hash.slice(0, 8);
+                for (i = 0; i < 64; i++) {
+                    var w15 = w[i - 15], w2 = w[i - 2];
+                    var a = hash[0], e = hash[4];
+                    var temp1 = hash[7]
+                        + (rightRotate(e, 6) ^ rightRotate(e, 11) ^ rightRotate(e, 25))
+                        + ((e & hash[5]) ^ ((~e) & hash[6]))
+                        + k[i]
+                        + (w[i] = (i < 16) ? w[i] : (
+                            w[i - 16]
+                            + (rightRotate(w15, 7) ^ rightRotate(w15, 18) ^ (w15 >>> 3))
+                            + w[i - 7]
+                            + (rightRotate(w2, 17) ^ rightRotate(w2, 19) ^ (w2 >>> 10))
+                        ) | 0);
+                    var temp2 = (rightRotate(a, 2) ^ rightRotate(a, 13) ^ rightRotate(a, 22))
+                        + ((a & hash[1]) ^ (a & hash[2]) ^ (hash[1] & hash[2]));
+                    hash = [(temp1 + temp2) | 0].concat(hash);
+                    hash[4] = (hash[4] + temp1) | 0;
+                }
+                for (i = 0; i < 8; i++) hash[i] = (hash[i] + oldHash[i]) | 0;
+            }
+            for (i = 0; i < 8; i++) {
+                for (j = 3; j + 1; j--) {
+                    var b = (hash[i] >> (j * 8)) & 255;
+                    result += ((b < 16) ? 0 : '') + b.toString(16);
+                }
+            }
+            return result;
+        }
+(function () {
+  var ok = false;
+  try { ok = sessionStorage.getItem('director_unlocked') === '1'; } catch (e) {}
+  if (ok) return;
+  var key = '';
+  try { key = new URLSearchParams(window.location.search).get('key') || ''; } catch (e) {}
+  if (key && sha256Hex(key) === WORKSTATION_KEY_HASH) {
+    try { sessionStorage.setItem('director_unlocked', '1'); } catch (e) {}
+    return;
+  }
+  location.replace('gate.html');
+})();
+</script>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>导演工作台 · 导演组流程脚本工作站</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7.5' fill='%231A6FC4'/%3E%3Cpath d='M6 12V6h6M20 6h6v6M26 20v6h-6M12 26H6v-6' fill='none' stroke='rgba(255,255,255,.85)' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M12.6 11.8L19.8 16l-7.2 4.2z' fill='white'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="assets/css/workstation.css">
+</head>
+<body>
+
+<!-- ================= 顶栏 ================= -->
+<header class="topbar">
+  <div class="tb-logo">
+    <!-- P2 原创标志：导播安全框四角 + 播放三角 -->
+    <svg class="tb-mark" viewBox="0 0 32 32" role="img" aria-label="导演工作台标志">
+      <rect class="mk-bg" x="1" y="1" width="30" height="30" rx="7.5"></rect>
+      <path class="mk-frame" d="M6 12V6h6M20 6h6v6M26 20v6h-6M12 26H6v-6"></path>
+      <path class="mk-play" d="M12.6 11.8L19.8 16l-7.2 4.2z"></path>
+    </svg>
+    导演工作台
+  </div>
+  <div class="tb-crumb" id="tbCrumb">气旋危机决策课堂-Test</div>
+  <div class="tb-spacer"></div>
+  <div class="tb-tools">
+    <button class="tb-btn" id="btnSearch" title="快速搜索（/）" aria-label="快速搜索">⌕</button>
+    <button class="tb-btn" id="btnTheme" title="深色指挥室模式（D）" aria-label="切换深色指挥室模式" aria-pressed="false">◐</button>
+    <button class="tb-btn" id="btnDirector" title="导播全屏模式（G）" aria-label="进入导播全屏模式" aria-pressed="false">⛶</button>
+    <button class="tb-btn" id="btnSettings" title="设置（快捷键 ?）" aria-label="设置">⚙</button>
+    <div class="tb-user"><div class="tb-avatar">导</div>导演组</div>
+  </div>
+</header>
+
+<!-- ================= 快速搜索（P1 新增） ================= -->
+<div class="searchbar" id="searchBar" hidden>
+  <span class="sb-ic">⌕</span>
+  <input type="text" id="inpSearch" placeholder="搜索环节 / 席位 / 教学任务，按 Esc 关闭" autocomplete="off">
+  <span class="sb-count" id="searchCount"></span>
+  <button class="sb-x" id="btnSearchClose" aria-label="关闭搜索">✕</button>
+</div>
+
+<!-- ================= 页头 ================= -->
+<div class="pagehead">
+  <div class="ph-row">
+    <div>
+      <h1 class="ph-title" id="phTitle">导演工作台</h1>
+      <div class="ph-sub" id="phSub">流程脚本工作站</div>
+    </div>
+    <div class="ph-right">
+      <div class="conn"><span class="dot-live"></span><span id="connText">已连接课堂 · 导播在线</span></div>
+      <div class="clockbox"><b id="clockNow">--:--:--</b><span id="clockDate">演练时钟</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= 阶段进度条 ================= -->
+<div class="stagebar" id="stageBar"></div>
+
+<!-- ================= 时间刻度尺（P2 新增）================= -->
+<div class="ruler" id="ruler" role="img" aria-label="全天时间刻度尺">
+  <span class="rl-scale" id="rlScale">全天刻度 09:00 — 12:32</span>
+  <span class="rl-end" id="rlEnd"></span>
+  <div class="ruler-track" id="rulerTrack"></div>
+</div>
+
+<!-- ================= 主体 ================= -->
+<div class="wrap">
+  <div class="col-main">
+
+    <!-- ---------- 视频播放台 ---------- -->
+    <section class="card">
+      <div class="card-h">
+        <h2>视频播放台</h2>
+        <span class="tag" id="vpTag">当前环节素材</span>
+        <div class="sp"></div>
+        <button class="btn btn-o btn-sm" id="btnMini">小窗播放</button>
+        <button class="btn btn-o btn-sm" id="btnFull">大屏模式</button>
+      </div>
+      <div class="card-b tight">
+        <div class="media-tabs" id="mediaTabs"></div>
+        <div class="stage-box">
+          <video id="video" playsinline preload="metadata" tabindex="0" aria-label="环节视频播放区，空格播放/暂停"></video>
+          <div class="vp-badge" id="vpBadge">就绪</div>
+          <div class="vp-warn" id="vpWarn" style="display:none"></div>
+        </div>
+        <div class="vp-bar">
+          <button class="btn btn-p btn-sm" id="btnPlay">▶ 播放</button>
+          <span class="vp-time" id="vpTime">00:00 / 00:00</span>
+          <input type="range" class="vp-seek" id="vpSeek" min="0" max="1000" value="0" step="1" aria-label="播放进度">
+          <button class="btn btn-g btn-sm" id="btnLoop">循环：关</button>
+          <button class="btn btn-g btn-sm" id="btnMute">静音：关</button>
+          <div class="sp"></div>
+          <span class="chip chip-n" id="vpNote">请选择环节查看对应素材</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------- 流程脚本时间轴 ---------- -->
+    <section class="card" id="timelineCard">
+      <div class="card-h">
+        <h2>流程脚本 · 时间轴</h2>
+        <span class="tag" id="scriptTag">7 个环节 · 212 分钟</span>
+        <div class="sp"></div>
+        <button class="btn btn-o btn-sm" id="btnReset">恢复初始状态</button>
+      </div>
+      <div class="card-b tight" id="stepList"></div>
+    </section>
+
+    <!-- ---------- 席位提交进度 ---------- -->
+    <section class="card card-live-hide" id="seatProgressCard">
+      <div class="card-h">
+        <h2>席位提交进度</h2>
+        <span class="tag" id="seatTag">9 方参演 + 1 主办</span>
+        <div class="sp"></div>
+        <button class="btn btn-g btn-sm" id="btnExport">导出演示数据</button>
+      </div>
+      <div class="card-b tight">
+        <!-- P1 新增：提交完成度矩阵 -->
+        <div class="progress-strip" id="progressStrip"></div>
+        <div class="tbl-wrap">
+          <table class="grid">
+            <thead>
+              <tr>
+                <th style="width:190px">小组 / 席位</th>
+                <th class="col-act"><b class="act-roman boxed">Ⅰ</b>第一幕 · 场景一方案</th>
+                <th class="col-act"><b class="act-roman boxed">Ⅱ</b>第二幕 · 场景二方案</th>
+                <th style="width:96px">状态</th>
+                <th style="width:64px">操作</th>
+              </tr>
+            </thead>
+            <tbody id="seatTbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------- 集中研讨展示 ---------- -->
+    <section class="card">
+      <div class="card-h">
+        <h2>集中研讨展示</h2>
+        <span class="tag">仅展示正式提交；未提交时不展示草稿</span>
+        <div class="sp"></div>
+        <button class="btn btn-g btn-sm" id="btnPrev">上一组</button>
+        <button class="btn btn-o btn-sm" id="btnNext">下一组</button>
+      </div>
+      <div class="card-b tight">
+        <div class="seat-tabs" id="seatTabs"></div>
+        <div class="compare">
+          <div class="cmp-col">
+            <div class="cmp-head">
+              <span class="h" id="cmp1Title">第一幕</span>
+              <span class="sp"></span>
+              <span class="cmp-meta" id="cmp1Meta"></span>
+            </div>
+            <div id="cmp1Body"></div>
+          </div>
+          <div class="cmp-col">
+            <div class="cmp-head">
+              <span class="h" id="cmp2Title">第二幕</span>
+              <span class="sp"></span>
+              <span class="cmp-meta" id="cmp2Meta"></span>
+            </div>
+            <div id="cmp2Body"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- ================= 右侧导播栏 ================= -->
+  <aside class="col-side">
+
+    <div class="side-card">
+      <div class="side-h">导演导播<span class="sp"></span><span class="badge" id="sideStage">准备</span></div>
+      <div class="side-b">
+
+        <div class="now-step">
+          <div class="n" id="nowNo">环节 1</div>
+          <div class="t" id="nowName">观看背景导入片</div>
+          <div class="m" id="nowMeta">09:00 - 09:07</div>
+        </div>
+
+        <div class="countdown" id="countdown">
+          <div class="lb">距本环节结束</div>
+          <div class="cd-dial">
+            <svg class="cd-ring" viewBox="0 0 120 120" aria-hidden="true">
+              <circle class="cd-track" cx="60" cy="60" r="52"></circle>
+              <circle class="cd-fill" id="cdFill" cx="60" cy="60" r="52"></circle>
+            </svg>
+            <div class="num" id="cdNum">--:--</div>
+          </div>
+          <div class="sub" id="cdSub">--</div>
+        </div>
+
+        <div class="fld">
+          <label class="fld-l">阶段 / 幕</label>
+          <select id="selStage"></select>
+        </div>
+
+        <div class="side-row" style="margin-bottom:12px;">
+          <button class="btn btn-p" id="btnPrevStep">◀ 上一环节</button>
+          <button class="btn btn-p" id="btnNextStep">下一环节 ▶</button>
+        </div>
+
+        <div class="fld">
+          <label class="fld-l">警告与封控</label>
+          <select id="selWarn"></select>
+        </div>
+        <div class="fld">
+          <label class="fld-l">提交封控</label>
+          <div class="side-row">
+            <button class="btn btn-g" id="btnLock">开启全体封控</button>
+            <button class="btn btn-o" id="btnUnlock">解除</button>
+          </div>
+        </div>
+
+        <div class="fld">
+          <label class="fld-l">调整截止时间</label>
+          <select id="selDeadlineStep"></select>
+        </div>
+        <div class="fld">
+          <input type="datetime-local" id="inpDeadline">
+        </div>
+
+        <div class="fld">
+          <label class="fld-l">演练时钟</label>
+          <div class="side-row">
+            <button class="btn btn-g btn-sm" id="btnClockNow">同步真实时间</button>
+            <button class="btn btn-g btn-sm" id="btnClockStart">从 09:00 起演</button>
+          </div>
+        </div>
+
+        <div class="fld">
+          <label class="fld-l">语音播报 · 倒计时最后 60 秒</label>
+          <div class="side-row">
+            <button class="btn btn-g btn-sm" id="btnVoice">🔊 语音：开</button>
+            <button class="btn btn-g btn-sm" id="btnHelp">⌨ 快捷键</button>
+          </div>
+        </div>
+
+        <div class="fld">
+          <label class="fld-l">现场输出 · 打印 / 第二屏 / Word</label>
+          <button class="btn btn-p btn-lg" style="width:100%;" id="btnPrint">🖨 打印导播单（P）</button>
+          <div class="side-row" style="margin-top:6px;">
+            <button class="btn btn-g" id="btnScreen">🖥 第二屏（S）</button>
+            <button class="btn btn-g" id="btnWord">📄 导出 Word（W）</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-card">
+      <div class="side-h">指定小组顺序<span class="sp"></span><span class="badge" id="orderBadge">9 方</span></div>
+      <div class="side-b" style="padding:0;">
+        <div class="order-list" id="orderList"></div>
+        <div style="padding:9px 12px;border-top:1px solid var(--line-soft);">
+          <button class="btn btn-g btn-sm" id="btnResetOrder" style="width:100%;">恢复默认顺序（分组表序号 2—10）</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-card">
+      <div class="side-h">席位档案<span class="sp"></span><span class="badge" id="seatCountBadge">10</span></div>
+      <div class="side-b" style="padding:0;">
+        <div class="seat-mini" id="seatMini"></div>
+      </div>
+    </div>
+
+  </aside>
+</div>
+
+<!-- ================= 席位档案弹窗 ================= -->
+<div class="mask" id="mask">
+  <div class="modal">
+    <div class="modal-h">
+      <span class="h" id="modalTitle">席位档案</span>
+      <div class="sp"></div>
+      <button class="x" id="modalClose">×</button>
+    </div>
+    <div class="modal-b" id="modalBody"></div>
+    <div class="modal-f">
+      <button class="btn btn-g" id="modalCancel">关闭</button>
+      <button class="btn btn-p" id="modalConfirm">在研讨区查看该组</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= 确认弹窗（危险操作二次确认） ================= -->
+<div class="cmask" id="cmask">
+  <div class="cmodal" role="alertdialog" aria-modal="true" aria-labelledby="cmodalTitle" aria-describedby="cmodalBody">
+    <div class="cmodal-h">
+      <div class="cmodal-ic">!</div>
+      <span class="h" id="cmodalTitle">确认操作</span>
+    </div>
+    <div class="cmodal-b" id="cmodalBody"></div>
+    <div class="cmodal-f">
+      <button class="btn btn-g" id="cmodalCancel">取消</button>
+      <button class="btn btn-d" id="cmodalOk">确认执行</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= 小窗播放器 ================= -->
+<div class="mini" id="mini">
+  <div class="mini-h">
+    <span id="miniTitle">小窗播放</span>
+    <div class="sp"></div>
+    <button id="miniClose" title="关闭">✕</button>
+  </div>
+  <video id="miniVideo" playsinline muted></video>
+</div>
+
+<!-- ================= 打印导播单 ================= -->
+<div class="print-only" id="printArea"></div>
+
+<div class="toast" id="toast"></div>
+
+<!-- ================= 模式退出提示（P2 新增）================= -->
+<div class="mode-exit" id="modeExit">
+  <b id="modeExitName">导播模式</b>
+  <span id="modeExitHint"></span>
+  <span class="k">Esc</span> 退出
+  <button id="modeExitBtn">立即退出</button>
+</div>
+
+<script src="assets/js/flow-data.js"></script>
+<script src="assets/js/workstation.js"></script>
+</body>
+</html>

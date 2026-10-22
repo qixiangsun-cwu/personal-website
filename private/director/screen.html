@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow">
+<!-- ==== 访问门禁（仅线上私密部署版包含此段；本地 / 公开版无）====
+     访问方式：地址后追加 ?key=访问密钥
+     源码中只保存密钥的 SHA-256 哈希，密钥本体不入库。
+     解锁状态写入 sessionStorage；第二屏 screen.html 由 window.open() 打开，
+     会继承 opener 的 sessionStorage，因此第二屏无需在 URL 里带 key。
+     换密钥时请同时替换以下三处常量：本文件、screen.html、gate.html。 -->
+<script>
+var WORKSTATION_KEY_HASH = '2fe115eb0dac3a086b2cfee19270bd20d59156b2697bb2d0dcf9d6c47921154b';
+function sha256Hex(str) {
+            // 纯 JS SHA-256（用于兼容非 https 的本地打开场景）
+            function rightRotate(value, amount) {
+                return (value >>> amount) | (value << (32 - amount));
+            }
+            var mathPow = Math.pow, maxWord = mathPow(2, 32), lengthProperty = 'length';
+            var result = '', i, j;
+            var words = [], asciiBitLength = str[lengthProperty] * 8;
+            var hash = sha256Hex.h = sha256Hex.h || [];
+            var k = sha256Hex.k = sha256Hex.k || [];
+            var primeCounter = k[lengthProperty];
+            var isComposite = {};
+            for (var candidate = 2; primeCounter < 64; candidate++) {
+                if (!isComposite[candidate]) {
+                    for (i = 0; i < 313; i += candidate) isComposite[i] = candidate;
+                    hash[primeCounter] = (mathPow(candidate, 0.5) * maxWord) | 0;
+                    k[primeCounter++] = (mathPow(candidate, 1 / 3) * maxWord) | 0;
+                }
+            }
+            str += '\x80';
+            while (str[lengthProperty] % 64 - 56) str += '\x00';
+            for (i = 0; i < str[lengthProperty]; i++) {
+                j = str.charCodeAt(i);
+                if (j >> 8) return '';
+                words[i >> 2] |= j << ((3 - i) % 4) * 8;
+            }
+            words[words[lengthProperty]] = ((asciiBitLength / maxWord) | 0);
+            words[words[lengthProperty]] = (asciiBitLength);
+            for (j = 0; j < words[lengthProperty];) {
+                var w = words.slice(j, j += 16);
+                var oldHash = hash.slice(0, 8);
+                for (i = 0; i < 64; i++) {
+                    var w15 = w[i - 15], w2 = w[i - 2];
+                    var a = hash[0], e = hash[4];
+                    var temp1 = hash[7]
+                        + (rightRotate(e, 6) ^ rightRotate(e, 11) ^ rightRotate(e, 25))
+                        + ((e & hash[5]) ^ ((~e) & hash[6]))
+                        + k[i]
+                        + (w[i] = (i < 16) ? w[i] : (
+                            w[i - 16]
+                            + (rightRotate(w15, 7) ^ rightRotate(w15, 18) ^ (w15 >>> 3))
+                            + w[i - 7]
+                            + (rightRotate(w2, 17) ^ rightRotate(w2, 19) ^ (w2 >>> 10))
+                        ) | 0);
+                    var temp2 = (rightRotate(a, 2) ^ rightRotate(a, 13) ^ rightRotate(a, 22))
+                        + ((a & hash[1]) ^ (a & hash[2]) ^ (hash[1] & hash[2]));
+                    hash = [(temp1 + temp2) | 0].concat(hash);
+                    hash[4] = (hash[4] + temp1) | 0;
+                }
+                for (i = 0; i < 8; i++) hash[i] = (hash[i] + oldHash[i]) | 0;
+            }
+            for (i = 0; i < 8; i++) {
+                for (j = 3; j + 1; j--) {
+                    var b = (hash[i] >> (j * 8)) & 255;
+                    result += ((b < 16) ? 0 : '') + b.toString(16);
+                }
+            }
+            return result;
+        }
+(function () {
+  var ok = false;
+  try { ok = sessionStorage.getItem('director_unlocked') === '1'; } catch (e) {}
+  if (ok) return;
+  var key = '';
+  try { key = new URLSearchParams(window.location.search).get('key') || ''; } catch (e) {}
+  if (key && sha256Hex(key) === WORKSTATION_KEY_HASH) {
+    try { sessionStorage.setItem('director_unlocked', '1'); } catch (e) {}
+    return;
+  }
+  location.replace('gate.html');
+})();
+</script>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>第二屏 · 导演组流程脚本</title>
+<style>
+/* ============================================================
+   第二屏大屏输出（P3 新增）
+   完全自包含：不依赖 workstation.css。
+   理由 —— 这是一块常亮输出设备，主控台样式改动不应把它带坏。
+   ============================================================ */
+:root{
+  --bg:#05090F;          /* 比主控台更深：它是常亮显示设备 */
+  --card:#0D1520;
+  --line:#1E2C3C;
+  --ink-1:#EEF4FA;
+  --ink-2:#B4C4D6;
+  --ink-3:#8497AE;
+  --brand:#1A6FC4;
+  --brand-hi:#2C87D8;
+  --warn:#E0A23B;
+  --warn-ink:#F0C572;
+  --danger:#D64550;
+  --ok:#24A45C;
+  --mono:"Consolas","SF Mono","Menlo","Microsoft YaHei",monospace;
+  --sans:"Microsoft YaHei","PingFang SC","Hiragino Sans GB",sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100%;}
+body{
+  background:var(--bg);color:var(--ink-1);font-family:var(--sans);
+  display:flex;flex-direction:column;gap:clamp(8px,1.1vw,20px);
+  padding:clamp(14px,1.6vw,28px);
+  overflow:hidden;
+}
+.sr{position:absolute;left:-9999px;}
+
+/* ---------- 顶栏 ---------- */
+.top{display:flex;align-items:center;gap:16px;}
+.top-l{display:flex;flex-direction:column;align-items:flex-start;gap:7px;}
+.stage-desc{font-size:clamp(11px,1vw,17px);color:var(--ink-3);line-height:1.5;max-width:min(64ch,54vw);}
+.stage-chip{
+  display:flex;align-items:center;gap:10px;
+  background:var(--card);border:1px solid var(--line);border-radius:10px;
+  padding:9px 16px;font-size:clamp(13px,1.05vw,18px);color:var(--ink-2);
+}
+.stage-chip b{color:var(--ink-1);font-size:clamp(14px,1.15vw,20px);}
+.act-mark{
+  font-family:var(--mono);font-weight:700;color:#fff;background:var(--brand);
+  border-radius:5px;padding:1px 8px;font-size:clamp(12px,.95vw,17px);
+}
+.sp{flex:1;}
+.clock{
+  font-family:var(--mono);font-variant-numeric:tabular-nums;
+  font-size:clamp(24px,2.5vw,44px);font-weight:700;letter-spacing:1px;color:var(--ink-1);
+}
+.clock small{display:block;text-align:right;font-size:clamp(10px,.8vw,14px);
+  font-weight:400;color:var(--ink-3);letter-spacing:0;}
+
+/* ---------- 中部：当前环节 + 倒计时 ---------- */
+.main{
+  flex:1;display:grid;grid-template-columns:1fr auto;align-items:center;
+  gap:clamp(20px,3vw,64px);padding:clamp(10px,1.6vw,28px) 0;min-height:0;
+}
+.now-no{
+  font-family:var(--mono);font-size:clamp(12px,1vw,18px);letter-spacing:3px;
+  color:var(--brand-hi);text-transform:uppercase;margin-bottom:8px;
+}
+.now-name{
+  font-size:clamp(28px,3.4vw,62px);font-weight:700;line-height:1.22;
+  color:var(--ink-1);letter-spacing:.5px;
+  /* 超长环节名最多占两行，第三行省略 */
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+}
+.now-time{
+  margin-top:14px;font-family:var(--mono);font-variant-numeric:tabular-nums;
+  font-size:clamp(14px,1.35vw,26px);color:var(--ink-2);letter-spacing:1px;
+}
+/* 本环节进度：大屏中部不能只靠倒计时撑构图，这条同时回答「这一步走多远了」 */
+.step-prog{margin-top:clamp(12px,1.5vw,26px);max-width:34em;}
+.sp-meta{
+  display:flex;justify-content:space-between;
+  font-family:var(--mono);font-variant-numeric:tabular-nums;
+  font-size:clamp(10px,.9vw,16px);color:var(--ink-3);letter-spacing:1px;margin-bottom:6px;
+}
+.sp-track{position:relative;height:clamp(6px,.6vw,10px);border-radius:6px;background:var(--line);overflow:hidden;}
+.sp-fill{position:absolute;left:0;top:0;bottom:0;width:0;border-radius:6px;
+  background:linear-gradient(90deg,var(--brand),var(--brand-hi));}
+.next-line{
+  margin-top:clamp(14px,1.8vw,32px);padding-top:clamp(12px,1.4vw,24px);
+  border-top:1px solid var(--line);
+  font-size:clamp(13px,1.15vw,22px);color:var(--ink-3);
+}
+.next-line b{color:var(--ink-2);font-weight:600;}
+
+/* 倒计时仪表：右侧独立区块 */
+.cd-box{text-align:right;min-width:clamp(240px,26vw,470px);}
+.cd-label{font-size:clamp(11px,.95vw,18px);color:var(--ink-3);letter-spacing:2px;margin-bottom:6px;}
+.cd-num{
+  font-family:var(--mono);font-variant-numeric:tabular-nums;font-weight:700;
+  font-size:clamp(60px,8.2vw,164px);line-height:1;letter-spacing:2px;color:var(--ink-1);
+}
+.cd-num.warn{color:var(--warn-ink);}
+.cd-num.danger{color:#FF6B75;}
+.cd-sub{margin-top:12px;font-size:clamp(11px,.95vw,18px);color:var(--ink-3);
+  font-family:var(--mono);letter-spacing:.5px;}
+
+/* ---------- 告警条 ---------- */
+.alerts{display:flex;flex-wrap:wrap;gap:10px;min-height:0;}
+.alert{
+  display:none;align-items:center;gap:9px;border-radius:8px;
+  padding:8px 15px;font-size:clamp(12px,1.05vw,20px);font-weight:600;
+  border:1px solid transparent;
+}
+.alert.on{display:flex;}
+.alert.warn{background:rgba(224,162,59,.13);border-color:rgba(224,162,59,.45);color:var(--warn-ink);}
+.alert.danger{background:rgba(214,69,80,.14);border-color:rgba(214,69,80,.5);color:#FF8A93;}
+.alert.info{background:rgba(26,111,196,.14);border-color:rgba(26,111,196,.45);color:#8FC0EC;}
+
+/* ---------- 底部：全天进度 ---------- */
+.foot{display:flex;align-items:flex-end;gap:14px;}
+.bar-wrap{flex:1;}
+.bar-meta{
+  display:flex;justify-content:space-between;
+  font-family:var(--mono);font-variant-numeric:tabular-nums;
+  font-size:clamp(10px,.85vw,15px);color:var(--ink-3);margin-bottom:7px;
+}
+.bar{
+  position:relative;height:clamp(12px,1.15vw,20px);border-radius:10px;
+  background:var(--line);overflow:hidden;
+}
+.bar-done{position:absolute;left:0;top:0;bottom:0;background:rgba(44,135,216,.28);width:0;}
+.bar-fill{position:absolute;top:0;bottom:0;background:var(--brand);border-radius:10px;width:0;}
+.bar-head{position:absolute;top:-4px;bottom:-4px;width:3px;background:#fff;border-radius:2px;
+  box-shadow:0 0 12px rgba(255,255,255,.75);transform:translateX(-1.5px);}
+.bar-act{position:absolute;top:0;bottom:0;width:1px;background:rgba(255,255,255,.3);}
+/* 幕次标记必须单独一层：.bar 是 overflow:hidden（为圆角裁切填充用的），
+   标记挂在 bar 内部会被整条裁掉 —— 这个坑改了两次才定位到 */
+.bar-marks{position:relative;height:16px;margin-bottom:4px;}
+.bar-marks span{
+  position:absolute;top:0;transform:translateX(-50%);
+  font-family:var(--mono);font-weight:700;letter-spacing:1px;
+  font-size:clamp(10px,.8vw,15px);color:var(--brand-hi);
+}
+.byline{
+  font-size:clamp(10px,.8vw,14px);color:#4A5A6C;text-align:right;line-height:1.6;white-space:nowrap;
+}
+
+/* 加载 / 错误态 */
+.state{
+  position:fixed;inset:0;display:none;place-items:center;text-align:center;
+  background:var(--bg);color:var(--ink-2);font-size:clamp(14px,1.3vw,24px);z-index:9;
+  padding:40px;line-height:2;
+}
+.state.show{display:grid;}
+.state b{color:var(--ink-1);}
+.state i{color:var(--ink-3);font-style:normal;font-size:.8em;}
+
+@media (max-width:820px){
+  .main{grid-template-columns:1fr;align-content:center;gap:18px;}
+  .cd-box{text-align:left;min-width:0;}
+}
+</style>
+</head>
+<body>
+
+<div class="state show" id="stateBox">
+  <div><b>正在连接导演工作台…</b><br><i>本页是第二屏输出，请回到主控台继续操作</i></div>
+</div>
+
+<div class="top">
+  <div class="top-l">
+    <div class="stage-chip">
+      <span>当前阶段</span><b id="stgName">—</b>
+      <span class="act-mark" id="actMark" hidden>Ⅰ</span>
+    </div>
+    <div class="stage-desc" id="stgDesc"></div>
+  </div>
+  <div class="sp"></div>
+  <div class="clock"><span id="clockNow">--:--:--</span><small id="clockDate">—</small></div>
+</div>
+
+<main class="main">
+  <div>
+    <div class="now-no" id="nowNo">环节 — / —</div>
+    <div class="now-name" id="nowName">—</div>
+    <div class="now-time" id="nowTime">—</div>
+    <div class="step-prog">
+      <div class="sp-meta"><span>本环节进度</span><span id="spPct">—</span></div>
+      <div class="sp-track"><div class="sp-fill" id="spFill"></div></div>
+    </div>
+    <div class="next-line" id="nextLine">—</div>
+  </div>
+  <div class="cd-box">
+    <div class="cd-label" id="cdLabel">距本环节结束</div>
+    <div class="cd-num" id="cdNum">--:--</div>
+    <div class="cd-sub" id="cdSub">—</div>
+  </div>
+</main>
+
+<div class="alerts">
+  <div class="alert warn" id="alertWarn"></div>
+  <div class="alert danger" id="alertLock">⛔ 已提交封控，请各组停止提交</div>
+  <div class="alert info" id="alertSub"></div>
+</div>
+
+<div class="foot">
+  <div class="bar-wrap">
+    <div class="bar-meta"><span id="barStart">—</span><span id="barNow">—</span><span id="barEnd">—</span></div>
+    <div class="bar-marks" id="barMarks"></div>
+    <div class="bar" id="bar">
+      <div class="bar-done" id="barDone"></div>
+      <div class="bar-fill" id="barFill"></div>
+      <div class="bar-head" id="barHead" style="left:0"></div>
+    </div>
+  </div>
+  <div class="byline" id="byline">—</div>
+</div>
+
+<script src="assets/js/flow-data.js"></script>
+<script>
+/* ============================================================
+   第二屏逻辑（P3 新增）
+   与主控台之间唯一的耦合点是 localStorage 的 STORE_KEY —— 零后端。
+   监听 storage 事件（同源另一标签页写入时秒级触发）+ 500ms 轮询兜底
+   （有些浏览器 / 隐私模式下 storage 事件不触发）。
+   ============================================================ */
+'use strict';
+const STORE_KEY = 'director_workstation_v1';
+const DATA_URL  = 'data/flow.json';
+
+let D = null;
+let S = null;
+
+const $ = s => document.querySelector(s);
+const pad = n => String(n).padStart(2,'0');
+const hm2m = s => { const [h,m] = String(s).split(':').map(Number); return h*60+m; };
+const stepByNo  = n => D.script.find(s=>s.no===Number(n));
+const stageById = id => D.stages.find(s=>s.id===id);
+const ROMAN = {1:'Ⅰ', 2:'Ⅱ'};
+const actOfStage = id => id==='act1' ? 1 : id==='act2' ? 2 : 0;
+
+/* 与主控台 workstation.js 同源同公式的时钟。
+   ⚠ 与主控台踩过同一个坑：换算必须走「本地一天中的第几分钟」，
+   不能拿 epoch 毫秒和本地时分直接相减 —— epoch 是 UTC 基准，UTC+8 下 09:00 会显示成 17:00。 */
+function drillRaw(){ return (S && S.drill) ? (S.drill.courseStartMin + (Date.now()-S.drill.anchorWall)/60000) : null; }
+function nowMin(){
+  const raw = drillRaw();
+  if(raw !== null) return ((raw % 1440) + 1440) % 1440;
+  const d = new Date(); return d.getHours()*60 + d.getMinutes() + d.getSeconds()/60;
+}
+function wallDate(){
+  const real = new Date();
+  const raw = drillRaw();
+  if(raw === null) return real;
+  const m = nowMin();
+  return new Date(real.getFullYear(), real.getMonth(), real.getDate() + Math.floor(raw/1440),
+                  Math.floor(m/60), Math.floor(m%60), Math.floor((m%1)*60));
+}
+function clockText(){ const d = wallDate();
+  return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`; }
+function dateText(){ const d = wallDate();
+  const w = ['日','一','二','三','四','五','六'][d.getDay()];
+  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} 周${w}`; }
+
+async function loadData(){
+  try{
+    const res = await fetch(DATA_URL);
+    if(!res.ok) throw new Error('http '+res.status);
+    return await res.json();
+  }catch(e){
+    if(window.__FLOW_DATA__) return window.__FLOW_DATA__;
+    throw e;
+  }
+}
+function readState(){
+  try{ return JSON.parse(localStorage.getItem(STORE_KEY) || 'null'); }catch(e){ return null; }
+}
+
+function render(){
+  const saved = readState();
+  S = Object.assign({}, D.initialState, saved||{});
+
+  const s  = stepByNo(S.activeStep) || D.script[0];
+  const nx = stepByNo(s.no+1);
+  const stg = stageById(s.stage) || {};
+  const act = actOfStage(s.stage);
+
+  /* ---- 顶栏 ---- */
+  $('#stgName').textContent = stg.name || '—';
+  $('#stgDesc').textContent = stg.desc || '';
+  const am = $('#actMark');
+  am.hidden = !act;
+  if(act) am.textContent = ROMAN[act];
+
+  $('#clockNow').textContent = clockText();
+  $('#clockDate').textContent = dateText();
+
+  /* ---- 当前环节 ---- */
+  $('#nowNo').textContent = `环节 ${s.no} / ${D.script.length}`;
+  $('#nowName').textContent = s.name;
+  $('#nowTime').textContent = `${s.start} — ${s.end}　共 ${s.duration} 分钟`;
+  $('#nextLine').innerHTML = nx
+    ? `下一环节　<b>环节 ${nx.no} · ${nx.name}</b>　${nx.start} — ${nx.end}`
+    : '下一环节　<b>已是最后一个环节</b>';
+
+  /* ---- 倒计时（与主控台 tick() 同一算法）---- */
+  const end = hm2m(s.end), now = nowMin();
+  let left = end - now;
+  const over = now > end;
+  if(over && nx) left = hm2m(nx.end) - now;
+  const leftSec = Math.max(Math.round(left*60), 0);
+  const num = $('#cdNum');
+  num.textContent = `${pad(Math.floor(leftSec/60))}:${pad(leftSec%60)}`;
+  num.className = 'cd-num' + (leftSec<=60 ? ' danger' : leftSec<=300 ? ' warn' : '');
+  $('#cdLabel').textContent = over ? '距下一环节结束' : '距本环节结束';
+  $('#cdSub').textContent = over && nx
+    ? `本环节已超时 ${pad(Math.floor((now-end)/60))} 分钟`
+    : `${s.start} — ${s.end}　总时长 ${s.duration} 分钟`;
+
+  /* ---- 本环节进度：倒计时回答「还剩多久」，这条回答「这一步走多远了」 ---- */
+  const stepPct = Math.min(Math.max(((now - hm2m(s.start)) / Math.max(s.duration,1)) * 100, 0), 100);
+  $('#spFill').style.width = stepPct.toFixed(1)+'%';
+  $('#spPct').textContent = now < hm2m(s.start)
+    ? `尚未开始（${s.start} 开始）`
+    : (stepPct >= 100 ? '已超时' : `已用 ${Math.round(stepPct)}%`);
+
+  /* ---- 告警 ---- */
+  const warn = D.warnings.find(x=>x.id===S.warningId);
+  const aw = $('#alertWarn');
+  aw.classList.toggle('on', !!(warn && warn.id!=='w0'));
+  if(warn && warn.id!=='w0') aw.textContent = '⚠ ' + warn.text;
+  $('#alertLock').classList.toggle('on', !!S.lock);
+
+  /* 提交进度：只统计参演席位，主办方不计 */
+  const speakers = (S.speakerOrder||[]).length;
+  let done = 0;
+  (S.speakerOrder||[]).forEach(id=>{
+    [1,2].forEach(a=>{
+      const r = (S.submissions||{})[id+':'+a];
+      if(r && r.status==='done') done++;
+    });
+  });
+  const asub = $('#alertSub');
+  asub.classList.toggle('on', speakers>0 && done>0);
+  asub.textContent = `各组提交进度 ${done} / ${speakers*2}`;
+
+  /* ---- 全天进度条 ---- */
+  const t0 = hm2m(D.course.startTime), t1 = hm2m(D.course.endTime);
+  const span = Math.max(t1-t0, 1);
+  const pct = m => Math.min(Math.max(((m-t0)/span)*100, 0), 100);
+  const clamped = Math.min(Math.max(now, t0), t1);
+  $('#barDone').style.width  = pct(clamped).toFixed(2)+'%';
+  $('#barHead').style.left   = pct(clamped).toFixed(2)+'%';
+  const a = pct(hm2m(s.start)), b = pct(hm2m(s.end));
+  const fill = $('#barFill');
+  fill.style.left = a.toFixed(2)+'%';
+  fill.style.width = Math.max(b-a, 0).toFixed(2)+'%';
+  $('#barStart').textContent = D.course.startTime;
+  $('#barEnd').textContent   = D.course.endTime;
+  $('#barNow').textContent   = nowMin()>t1 ? '已收工' : `现在 ${clockText().slice(0,5)}`;
+
+  /* 阶段分界 + 幕次罗马数：与主控台同一套系统。
+     标记线留在 .bar 内（会被圆角裁切），罗马数写进 .bar-marks（独立一层，不被裁）。 */
+  const bar = $('#bar'), marks = $('#barMarks');
+  Array.from(bar.querySelectorAll('.bar-act')).forEach(e=>e.remove());
+  marks.innerHTML = '';
+  D.stages.forEach((st,i)=>{
+    if(i===0) return;
+    const p = pct(hm2m(st.from));
+    const el = document.createElement('div');
+    el.className = 'bar-act';
+    el.style.left = p.toFixed(2)+'%';
+    bar.appendChild(el);
+    const a2 = actOfStage(st.id);
+    if(a2){
+      const mk = document.createElement('span');
+      mk.textContent = ROMAN[a2];
+      mk.style.left = p.toFixed(2)+'%';
+      marks.appendChild(mk);
+    }
+  });
+
+  $('#byline').innerHTML =
+    `${D.meta.title}<br>${D.meta.docSource} · ${D.meta.revision}<br>本页仅供观看，请在主控台操作`;
+
+  $('#stateBox').classList.remove('show');
+}
+
+(async function init(){
+  try{
+    D = await loadData();
+  }catch(e){
+    $('#stateBox').innerHTML =
+      '<div><b>流程脚本数据加载失败</b><br><i>请用本地服务器打开本页，或确保 data/flow.json 与 index.html 同级存在</i></div>';
+    return;
+  }
+  render();
+  setInterval(render, 500);                       /* 轮询兜底：倒计时本身也要每秒刷新 */
+  window.addEventListener('storage', e=>{         /* 同源另一标签页写入时立即同步 */
+    if(!e.key || e.key === STORE_KEY) render();
+  });
+  document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) render(); });
+})();
+</script>
+</body>
+</html>

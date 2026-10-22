@@ -13,3 +13,16 @@ vote-app/.wrangler/
 # Wrangler / Pages 本地开发产物（根目录 pages dev 生成，禁止入库）
 .wrangler/
 node_modules/
+
+# ============================================================
+# 内部工具链 / 备份 / 临时产物 —— 与站点无关
+# 站点是 pages_build_output_dir="."（仓库根目录即站点），
+# 这些一旦被 git add 会被推上公开服务器，且 .toolchain 一项就有
+# 1.17 GB / 11859 个文件，会超过 Cloudflare Pages 20000 文件上限导致构建失败。
+# ============================================================
+.toolchain/
+_audit/
+_backup/
+_beautify_lecture/
+_trash_20260910/
+opencode.json

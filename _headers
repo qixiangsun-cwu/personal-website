@@ -18,3 +18,15 @@
 
 /zhian-2026/sw.js
   Cache-Control: no-cache
+
+/private/director
+  X-Robots-Tag: noindex, nofollow
+
+/private/director/
+  X-Robots-Tag: noindex, nofollow
+
+/private/director/*
+  X-Robots-Tag: noindex, nofollow
+
+/private/director/sw.js
+  Cache-Control: no-cache

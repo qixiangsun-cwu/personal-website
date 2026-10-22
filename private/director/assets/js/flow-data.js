@@ -1,0 +1,444 @@
+/* 自动生成：flow.json 的 file:// 降级副本，请勿手改 */
+window.__FLOW_DATA__ = {
+  "meta": {
+    "system": "气旋危机决策课堂-Test",
+    "title": "导演工作台",
+    "subtitle": "流程脚本工作站 · 九方推演 · 全程 09:00—12:32 · 212 分钟",
+    "docSource": "导演组流程脚本.doc",
+    "revision": "v1.0",
+    "note": "本工作站用于导演组现场导播与流程脚本调度。席位与人员配备依据《事件处置方分组表》整理；环节1「未成年人保护背景短片」为源文档原文，与《战略匠心》导入片不一致，已标注待确认。"
+  },
+  "course": {
+    "startTime": "09:00",
+    "endTime": "12:32",
+    "totalMinutes": 212,
+    "deadlinePrefix": "10/15",
+    "date": "2026-10-15"
+  },
+  "sessions": [
+    {
+      "id": "s1",
+      "code": "B101",
+      "name": "B市妇联部门",
+      "role": "主办方",
+      "speaker": false,
+      "coordinator": "陈琦",
+      "unit": "干训部",
+      "expert": "刘永吉"
+    },
+    {
+      "id": "s2",
+      "code": "B102",
+      "name": "B市政府部门",
+      "role": "参演席位",
+      "speaker": true,
+      "coordinator": "高宇琛",
+      "unit": "党校办",
+      "expert": "史晔华"
+    },
+    {
+      "id": "s3",
+      "code": "B103",
+      "name": "B市公安部门",
+      "role": "参演席位",
+      "speaker": true,
+      "coordinator": "吴海平",
+      "unit": "大屯派出所",
+      "expert": "警校老师"
+    },
+    {
+      "id": "s4",
+      "code": "B104",
+      "name": "B市检察机关",
+      "role": "参演席位",
+      "speaker": true,
+      "coordinator": "李娜",
+      "unit": "法学院",
+      "expert": "邢红枚"
+    },
+    {
+      "id": "s5",
+      "code": "B105",
+      "name": "B市法院",
+      "role": "参演席位",
+      "speaker": true,
+      "coordinator": "",
+      "unit": "法学院",
+      "expert": "法学院老师"
+    },
+    {
+      "id": "s6",
+      "code": "B106",
+      "name": "B市民政部门",
+      "role": "参演席位",
+      "speaker": true,
+      "coordinator": "张玉洁",
+      "unit": "社工学院",
+      "expert": "李芳英"
+    },
+    {
+      "id": "s7",
+      "code": "B107",
+      "name": "B市医疗卫生部门",
+      "role": "参演席位",
+      "speaker": true,
+      "coordinator": "",
+      "unit": "医务室",
+      "expert": "付京林"
+    },
+    {
+      "id": "s8",
+      "code": "B108",
+      "name": "B市教育部门",
+      "role": "参演席位",
+      "speaker": true,
+      "coordinator": "王玉晶",
+      "unit": "儿发学院",
+      "expert": "陈辉"
+    },
+    {
+      "id": "s9",
+      "code": "B109",
+      "name": "B市媒体宣传部门",
+      "role": "参演席位",
+      "speaker": true,
+      "coordinator": "无",
+      "unit": "文学学院",
+      "expert": "霍焕白"
+    },
+    {
+      "id": "s10",
+      "code": "B110",
+      "name": "B市网信部门",
+      "role": "参演席位",
+      "speaker": true,
+      "coordinator": "",
+      "unit": "数信学院",
+      "expert": ""
+    }
+  ],
+  "stages": [
+    {
+      "id": "prep",
+      "name": "准备",
+      "desc": "背景导入 · 课程导入 · 系统说明",
+      "from": "09:00",
+      "to": "09:27",
+      "steps": [
+        1,
+        2
+      ]
+    },
+    {
+      "id": "act1",
+      "name": "第一幕",
+      "desc": "分组推演场景一",
+      "from": "09:27",
+      "to": "10:17",
+      "steps": [
+        3
+      ]
+    },
+    {
+      "id": "act2",
+      "name": "第二幕",
+      "desc": "播放场景二 · 分组推演场景二",
+      "from": "10:17",
+      "to": "11:17",
+      "steps": [
+        4
+      ]
+    },
+    {
+      "id": "focus",
+      "name": "集中研讨",
+      "desc": "三轮发言 · 专家复盘总结",
+      "from": "11:17",
+      "to": "12:32",
+      "steps": [
+        5,
+        6,
+        7
+      ]
+    }
+  ],
+  "script": [
+    {
+      "no": 1,
+      "stage": "prep",
+      "start": "09:00",
+      "end": "09:07",
+      "duration": 7,
+      "tag": "开场导入",
+      "name": "观看背景导入片",
+      "docName": "观看未成年人保护背景短片",
+      "docFlag": "待确认",
+      "flagNote": "源文档环节1 原文为「观看未成年人保护背景短片」，与本次实际导入的《战略匠心》推演介绍片不符，疑为其他课程模板残留，待导演组确认后修订。",
+      "process": [
+        "观看背景导入片《战略匠心》"
+      ],
+      "task": "以《战略匠心》推演介绍片完成战略思维与情景推演方法的背景铺垫，开场 40 秒为习近平总书记 2019 年中央党校中青年干部培训班开班式讲话引用片段。",
+      "staff": [
+        "导演组",
+        "主持人",
+        "技术团队",
+        "摄影摄像"
+      ],
+      "deadline": null,
+      "media": [
+        "m1"
+      ]
+    },
+    {
+      "no": 2,
+      "stage": "prep",
+      "start": "09:07",
+      "end": "09:27",
+      "duration": 20,
+      "tag": "课程导入",
+      "name": "课程介绍 / 任务说明 / 操作系统介绍 / 播放场景一",
+      "docName": "课程介绍 / 任务说明 / 操作系统介绍 / 播放场景一",
+      "docFlag": "",
+      "flagNote": "",
+      "process": [
+        "课程介绍：介绍课程设计理念、课程开展方式",
+        "任务说明：播放推演介绍片《战略匠心》",
+        "操作系统介绍：讲授系统使用方法",
+        "播放场景一：播放场景一短片"
+      ],
+      "task": "课程团队介绍课程设计理念、课程开展方式；播放推演介绍片《战略匠心》；讲授系统使用；播放场景一短片。",
+      "staff": [
+        "导演组",
+        "主持人",
+        "技术团队",
+        "摄影摄像"
+      ],
+      "deadline": null,
+      "media": [
+        "m2"
+      ]
+    },
+    {
+      "no": 3,
+      "stage": "act1",
+      "start": "09:27",
+      "end": "10:17",
+      "duration": 50,
+      "tag": "分组推演",
+      "name": "分组推演场景一",
+      "docName": "分组推演场景一",
+      "docFlag": "",
+      "flagNote": "",
+      "process": [
+        "各组按要求撰写处置方案：① 形势研判  ② 对策思路  ③ 处置措施  ④ 效果预估"
+      ],
+      "task": "各组需按要求撰写处置方案，包括：1.形势研判 2.对策思路 3.处置措施 4.效果预估。处置方案需在 10:17 前形成文字，输入技术平台。",
+      "staff": [
+        "导演组",
+        "驻组指导老师",
+        "技术团队",
+        "学生助理",
+        "摄影摄像"
+      ],
+      "deadline": "10:17",
+      "media": []
+    },
+    {
+      "no": 4,
+      "stage": "act2",
+      "start": "10:17",
+      "end": "11:17",
+      "duration": 60,
+      "tag": "分组推演",
+      "name": "播放场景二 / 分组推演场景二",
+      "docName": "1、播放场景二 2、分组推演场景二",
+      "docFlag": "",
+      "flagNote": "",
+      "process": [
+        "各组指导教师组织学生助理播放场景二视频、发放场景二打印材料",
+        "场景一结束后，各方处置措施由导调组分发到各组（技术平台查看），供其配合场景二开展研判"
+      ],
+      "task": "播放场景二视频并发放打印材料；各方处置措施由导调组分发到各组供研判参考。处置方案需在 11:17 前形成文字，输入技术平台。",
+      "staff": [
+        "导演组",
+        "驻组指导老师",
+        "技术团队",
+        "学生助理",
+        "摄影摄像"
+      ],
+      "deadline": "11:17",
+      "media": [
+        "m3"
+      ]
+    },
+    {
+      "no": 5,
+      "stage": "focus",
+      "start": "11:17",
+      "end": "11:27",
+      "duration": 10,
+      "tag": "休整",
+      "name": "课间休息",
+      "docName": "课间休息",
+      "docFlag": "",
+      "flagNote": "",
+      "process": [],
+      "task": "全员休整，准备进入下一阶段。",
+      "staff": [
+        "全体人员"
+      ],
+      "deadline": null,
+      "media": []
+    },
+    {
+      "no": 6,
+      "stage": "focus",
+      "start": "11:27",
+      "end": "12:12",
+      "duration": 45,
+      "tag": "集体研讨",
+      "name": "集体研讨与作业",
+      "docName": "集体研讨与作业",
+      "docFlag": "",
+      "flagNote": "",
+      "process": [
+        "第一轮发言：九方按先后顺序阐述本组对两个场景的总体研判、对策思路、处置措施",
+        "第二轮发言：九方按顺序对其他方提出质询，或对本组已提交方案进行修订与调整",
+        "第三轮发言：九方做最后陈述"
+      ],
+      "task": "三轮发言：阐述 → 质询 / 修订 → 最后陈述（九方依次进行）。发言顺序由右侧「指定小组顺序」设定，默认为《事件处置方分组表》序号 2—10。",
+      "staff": [
+        "导演组",
+        "驻组指导老师",
+        "技术团队",
+        "学生助理",
+        "摄影摄像"
+      ],
+      "deadline": null,
+      "media": []
+    },
+    {
+      "no": 7,
+      "stage": "focus",
+      "start": "12:12",
+      "end": "12:32",
+      "duration": 20,
+      "tag": "复盘总结",
+      "name": "复盘与总结",
+      "docName": "复盘与总结",
+      "docFlag": "",
+      "flagNote": "",
+      "process": [
+        "视现场情况，各组负责老师可就本方向推演情况作简短点评",
+        "专家复盘总结"
+      ],
+      "task": "专家复盘总结；正式总结前各组负责老师可作简短点评。",
+      "staff": [
+        "导演组",
+        "主持人",
+        "驻组指导老师",
+        "技术团队",
+        "学生助理",
+        "摄影摄像"
+      ],
+      "deadline": null,
+      "media": []
+    }
+  ],
+  "media": [
+    {
+      "id": "m1",
+      "kind": "video",
+      "title": "导入片《战略匠心》",
+      "subtitle": "推演介绍片 · 开篇含习近平 2019 中央党校中青年干部培训班讲话引用",
+      "src": "assets/video/01-intro-strategic-craft.mp4",
+      "poster": "assets/poster/01.jpg",
+      "duration": 420,
+      "durationLabel": "07:00",
+      "resolution": "640×368",
+      "step": 1,
+      "note": "整片 07:00，与环节1（07 分钟）时长相符。"
+    },
+    {
+      "id": "m2",
+      "kind": "video",
+      "title": "场景一 · 全球疫情扩散与紧急大会",
+      "subtitle": "2026 年 7 月底疫情恶化 · 世卫组织应急 · 各国召开紧急大会",
+      "src": "assets/video/02-scene1-pandemic.mp4",
+      "poster": "assets/poster/02.jpg",
+      "duration": 26,
+      "durationLabel": "00:26",
+      "resolution": "1280×720",
+      "step": 2,
+      "note": "片尾提示：请各组围绕参加此次紧急大会做出形势研判，下定决心并提出处置措施。"
+    },
+    {
+      "id": "m3",
+      "kind": "video",
+      "title": "场景二 · 极端气候与干旱背景下的应急响应",
+      "subtitle": "中国多部门启动应急响应 · 美国 / 欧盟分别开会 · 联合国气候变化框架公约紧急会议",
+      "src": "assets/video/03-scene2-climate.mp4",
+      "poster": "assets/poster/03.jpg",
+      "duration": 104,
+      "durationLabel": "01:44",
+      "resolution": "1280×720",
+      "step": 4,
+      "note": "片尾提示：请各组根据以上情景进行形势研判，定下决心、明确意图、提出处置措施。"
+    }
+  ],
+  "warnings": [
+    {
+      "id": "w0",
+      "label": "（不设置）",
+      "text": "",
+      "level": "none"
+    },
+    {
+      "id": "w1",
+      "label": "国外疫情输入：仅导演组可编辑",
+      "text": "国外疫情输入：仅导演组可编辑",
+      "level": "warn"
+    },
+    {
+      "id": "w2",
+      "label": "本轮方案尚未正式提交，暂不计入集中研讨计分",
+      "text": "本轮方案尚未正式提交，暂不计入集中研讨计分",
+      "level": "warn"
+    },
+    {
+      "id": "w3",
+      "label": "全体封控：暂停各组提交与查阅，直至导演组解除",
+      "text": "全体封控：暂停各组提交与查阅，直至导演组解除",
+      "level": "danger"
+    },
+    {
+      "id": "w4",
+      "label": "距本幕截止不足 10 分钟，请提醒各组尽快提交",
+      "text": "距本幕截止不足 10 分钟，请提醒各组尽快提交",
+      "level": "info"
+    }
+  ],
+  "initialState": {
+    "activeStep": 1,
+    "activeStage": "prep",
+    "activeSession": "s2",
+    "speakerOrder": [
+      "s2",
+      "s3",
+      "s4",
+      "s5",
+      "s6",
+      "s7",
+      "s8",
+      "s9",
+      "s10"
+    ],
+    "deadlines": {
+      "3": "10:17",
+      "4": "11:17"
+    },
+    "warningId": "w0",
+    "lock": false,
+    "submissions": {}
+  }
+};
