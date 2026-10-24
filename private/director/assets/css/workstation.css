@@ -153,8 +153,11 @@ a{color:var(--blue-700);}
   color:#fff;display:flex;align-items:center;padding:0 var(--sp-6);gap:var(--sp-4);
   position:sticky;top:0;z-index:60;box-shadow:0 1px 0 rgba(0,0,0,.08);
 }
-.tb-logo{display:flex;align-items:center;gap:9px;font-size:var(--fs-m);font-weight:700;letter-spacing:.3px;}
+.tb-logo{display:flex;align-items:center;gap:9px;font-size:var(--fs-m);font-weight:700;letter-spacing:.3px;min-width:0;}
 .tb-mark{width:26px;height:26px;flex:none;display:block;}
+/* 标题文字单行截断：窄屏下工具区变宽时，宁可显示「导演工作…」也不能折成 N 行
+   撑破 52px 顶栏（折行是旧就有的毛病，文字按钮出现后更易触发） */
+.tb-logo-t{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .tb-mark .mk-bg{fill:rgba(255,255,255,.16);stroke:rgba(255,255,255,.30);stroke-width:1.5;}
 .tb-mark .mk-frame{
   fill:none;stroke:rgba(255,255,255,.88);stroke-width:2.4;
@@ -169,11 +172,27 @@ a{color:var(--blue-700);}
   color:rgba(255,255,255,.94);font-size:14px;transition:background var(--dur-1) var(--ease-out);
 }
 .tb-btn:hover{background:rgba(255,255,255,.16);}
+/* 法规库入口：顶栏唯一的【文字】按钮，用实心白底在蓝色顶栏里压过图标态，一眼可辨 */
+.tb-btn-laws{
+  width:auto;flex:0 0 auto;padding:0 11px;white-space:nowrap;
+  font-size:var(--fs-s);font-weight:700;letter-spacing:.4px;
+  background:rgba(255,255,255,.93);color:var(--brand-strong);
+  border:1px solid rgba(255,255,255,.55);
+}
+.tb-btn-laws:hover{background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.18);}
 .tb-user{
   display:flex;align-items:center;gap:8px;padding:4px 10px 4px 4px;border-radius:20px;
   background:rgba(255,255,255,.14);font-size:var(--fs-s);
 }
 .tb-avatar{width:24px;height:24px;border-radius:50%;background:#fff;color:var(--brand-strong);display:grid;place-items:center;font-weight:700;font-size:11.5px;}
+/* 窄屏顶栏（≤450px）：让出纯展示的「导演组」身份芯片并收紧按钮间距，
+   让 5 字标题 + 文字按钮 + 4 个图标在 414 / 390 / 360 三档常见手机宽度都完整显示。
+   .tb-user 在 JS 中零引用、不承载点击，隐藏无功能损失；
+   带 .topbar 前缀提高优先级，免得被上面的 .tb-user 基础规则按源顺序反压。 */
+@media(max-width:450px){
+  .topbar .tb-user{display:none;}
+  .tb-tools{gap:4px;}
+}
 
 /* ---------------- 页头 ---------------- */
 .pagehead{padding:var(--sp-5) var(--sp-7) 0;}
@@ -887,9 +906,10 @@ body.director .ruler{margin-top:var(--sp-2);}
   .cmp-col+.cmp-col{border-left:none;border-top:1px solid var(--line-soft);}
 }
 @media(max-width:760px){
-  .pagehead,.wrap,.searchbar{padding-left:var(--sp-4);padding-right:var(--sp-4);}
+  /* 顶栏此前一直守着 24px 留白没跟上，窄屏多让 8px 给标题与文字按钮 */
+  .pagehead,.wrap,.searchbar,.topbar{padding-left:var(--sp-4);padding-right:var(--sp-4);}
   .stagebar{margin-left:var(--sp-4);margin-right:var(--sp-4);}
-  /* P1：顶栏已只剩 2 个真实功能按钮（搜索/设置），窄屏保留可访问性；只裁面包屑 */
+  /* P1：窄屏保留全部功能入口（含文字「法规库」按钮），只裁面包屑腾出横向空间 */
   .tb-crumb{display:none;}
   .sb-item{flex:1 1 100%;}
   .sb-t,.sb-d{white-space:normal;}
