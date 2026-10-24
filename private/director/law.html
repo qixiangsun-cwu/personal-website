@@ -1,0 +1,665 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#ffffff">
+<!-- ==== 访问门禁（线上私密部署版；本地 / 公开版无此段）====
+     与 index.html 同源同款：?key= 密钥通过 SHA-256 校验后写入 sessionStorage，
+     否则跳回 gate.html。换密钥时请同时替换本文件、index.html、screen.html、gate.html。 -->
+<!-- ==== 访问门禁（仅线上私密部署版包含此段；本地 / 公开版无）====
+     访问方式：地址后追加 ?key=访问密钥
+     源码中只保存密钥的 SHA-256 哈希，密钥本体不入库。
+     解锁状态写入 sessionStorage；第二屏 screen.html 由 window.open() 打开，
+     会继承 opener 的 sessionStorage，因此第二屏无需在 URL 里带 key。
+     换密钥时请同时替换以下三处常量：本文件、screen.html、gate.html。 -->
+<script>
+var WORKSTATION_KEY_HASH = '2fe115eb0dac3a086b2cfee19270bd20d59156b2697bb2d0dcf9d6c47921154b';
+function sha256Hex(str) {
+            // 纯 JS SHA-256（用于兼容非 https 的本地打开场景）
+            function rightRotate(value, amount) {
+                return (value >>> amount) | (value << (32 - amount));
+            }
+            var mathPow = Math.pow, maxWord = mathPow(2, 32), lengthProperty = 'length';
+            var result = '', i, j;
+            var words = [], asciiBitLength = str[lengthProperty] * 8;
+            var hash = sha256Hex.h = sha256Hex.h || [];
+            var k = sha256Hex.k = sha256Hex.k || [];
+            var primeCounter = k[lengthProperty];
+            var isComposite = {};
+            for (var candidate = 2; primeCounter < 64; candidate++) {
+                if (!isComposite[candidate]) {
+                    for (i = 0; i < 313; i += candidate) isComposite[i] = candidate;
+                    hash[primeCounter] = (mathPow(candidate, 0.5) * maxWord) | 0;
+                    k[primeCounter++] = (mathPow(candidate, 1 / 3) * maxWord) | 0;
+                }
+            }
+            str += '\x80';
+            while (str[lengthProperty] % 64 - 56) str += '\x00';
+            for (i = 0; i < str[lengthProperty]; i++) {
+                j = str.charCodeAt(i);
+                if (j >> 8) return '';
+                words[i >> 2] |= j << ((3 - i) % 4) * 8;
+            }
+            words[words[lengthProperty]] = ((asciiBitLength / maxWord) | 0);
+            words[words[lengthProperty]] = (asciiBitLength);
+            for (j = 0; j < words[lengthProperty];) {
+                var w = words.slice(j, j += 16);
+                var oldHash = hash.slice(0, 8);
+                for (i = 0; i < 64; i++) {
+                    var w15 = w[i - 15], w2 = w[i - 2];
+                    var a = hash[0], e = hash[4];
+                    var temp1 = hash[7]
+                        + (rightRotate(e, 6) ^ rightRotate(e, 11) ^ rightRotate(e, 25))
+                        + ((e & hash[5]) ^ ((~e) & hash[6]))
+                        + k[i]
+                        + (w[i] = (i < 16) ? w[i] : (
+                            w[i - 16]
+                            + (rightRotate(w15, 7) ^ rightRotate(w15, 18) ^ (w15 >>> 3))
+                            + w[i - 7]
+                            + (rightRotate(w2, 17) ^ rightRotate(w2, 19) ^ (w2 >>> 10))
+                        ) | 0);
+                    var temp2 = (rightRotate(a, 2) ^ rightRotate(a, 13) ^ rightRotate(a, 22))
+                        + ((a & hash[1]) ^ (a & hash[2]) ^ (hash[1] & hash[2]));
+                    hash = [(temp1 + temp2) | 0].concat(hash);
+                    hash[4] = (hash[4] + temp1) | 0;
+                }
+                for (i = 0; i < 8; i++) hash[i] = (hash[i] + oldHash[i]) | 0;
+            }
+            for (i = 0; i < 8; i++) {
+                for (j = 3; j + 1; j--) {
+                    var b = (hash[i] >> (j * 8)) & 255;
+                    result += ((b < 16) ? 0 : '') + b.toString(16);
+                }
+            }
+            return result;
+        }
+(function () {
+  var ok = false;
+  try { ok = sessionStorage.getItem('director_unlocked') === '1'; } catch (e) {}
+  if (ok) return;
+  var key = '';
+  try { key = new URLSearchParams(window.location.search).get('key') || ''; } catch (e) {}
+  if (key && sha256Hex(key) === WORKSTATION_KEY_HASH) {
+    try { sessionStorage.setItem('director_unlocked', '1'); } catch (e) {}
+    return;
+  }
+  location.replace('gate.html');
+})();
+</script>
+<title>法规与政策参考库</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%231A6FC4'/%3E%3Cpath%20d='M9%208h14v2.4H9zM11%2012h10v9.6H11z'%20fill='%23fff'/%3E%3C/svg%3E">
+<style>
+/* ============================================================
+   方案 B · 独立手机阅读页
+   与 index.html 的抽屉共用同一套渲染器与视觉语言，但：
+   · 手机优先，正文 17px / 行高 1.8（工作台是 12.5px 的控制台字号）
+   · 不初始化工作台（流程/席位/视频台一律不加载）
+   · 不带 key 也能读，门禁段在部署线上版时按 index.html 同款加入
+   ============================================================ */
+:root{
+  --blue-700:#1A6FC4; --blue-600:#2C87D8;
+  --ink-1:#16202C; --ink-2:#41505F; --ink-3:#5A6A7D; --ink-4:#8A97A8;
+  --bg:#F4F7FA; --card:#FFFFFF;
+  --line:#DBE4EE; --line-soft:#EAF0F6;
+  --surf-0:#FCFDFE; --surf-1:#FBFCFE; --surf-2:#F7FAFC;
+  --surf-3:#F4F7FA; --surf-4:#EDF1F6; --surf-hi:#E9EFF6;
+  --bd-warn:#F0DFB8; --accent-rail:#D9A23C; --brand-hi:#2C87D8;
+  --r-s:4px; --r-m:7px; --r-l:11px;
+  --fs-2xs:10.5px; --fs-xs:11.5px; --fs-s:13px; --fs-base:15px;
+  --fs-read:17px;    /* 手机正文 */
+  --fs-l:20px; --fs-xl:24px;
+  --col:760px;       /* 桌面阅读列宽 */
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --ink-1:#E9EFF6; --ink-2:#B9C7D8; --ink-3:#96A8BD; --ink-4:#7B8DA3;
+    --bg:#0D151E; --card:#111A25;
+    --line:#253344; --line-soft:#1D2A3A;
+    --surf-0:#141E2A; --surf-1:#16202C; --surf-2:#18232F;
+    --surf-3:#1C2734; --surf-4:#202C3A; --surf-hi:#24313F;
+    --bd-warn:#6B5A20; --accent-rail:#C9932F;
+    --blue-700:#6FB3EE; --blue-600:#4E9FE2; --brand-hi:#1564A8;
+  }
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--bg); color:var(--ink-1);
+  font:var(--fs-base)/1.7 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+  -webkit-text-size-adjust:100%;
+  padding-bottom:env(safe-area-inset-bottom);
+}
+a{color:var(--blue-700)}
+
+/* ---------- 顶栏 ---------- */
+.top{
+  position:sticky; top:0; z-index:20;
+  padding:11px 14px; padding-top:calc(11px + env(safe-area-inset-top));
+  background:linear-gradient(180deg,var(--surf-1),var(--surf-2));
+  border-bottom:1px solid var(--line);
+}
+.top .r1{display:flex; align-items:center; gap:10px; min-width:0}
+.top .back{
+  flex:0 0 auto; width:34px; height:34px; border-radius:var(--r-m);
+  background:var(--surf-3); border:1px solid var(--line); color:var(--ink-2);
+  font-size:17px; line-height:1; cursor:pointer; display:none; align-items:center; justify-content:center;
+}
+.top .back:active{background:var(--surf-hi)}
+.top.doc .back{display:inline-flex}
+.top .ttl{flex:1; min-width:0}
+.top .ttl b{display:block; font-size:var(--fs-base); line-height:1.35; color:var(--ink-1);
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.top .ttl span{display:block; font-size:var(--fs-2xs); color:var(--ink-3); margin-top:1px}
+.top .home{
+  flex:0 0 auto; font-size:var(--fs-2xs); padding:5px 10px; border-radius:20px;
+  background:var(--surf-3); border:1px solid var(--line); color:var(--ink-2);
+  cursor:pointer; text-decoration:none; display:none;
+}
+.top.doc .home{display:inline-block}
+.top .home:active{background:var(--surf-hi)}
+
+/* 文内查找条（仅正文视图，吸顶） */
+.top .r2{display:flex; align-items:center; gap:9px; margin-top:9px}
+.top .r2[hidden]{display:none}
+#jump{
+  flex:1; min-width:0; padding:8px 12px; font-size:var(--fs-s); color:var(--ink-1);
+  background:var(--surf-0); border:1px solid var(--line); border-radius:20px;
+  outline:none; -webkit-appearance:none;
+}
+#jump:focus{border-color:var(--blue-600); box-shadow:0 0 0 3px rgba(44,135,216,.13)}
+.pos{flex:0 0 auto; font-size:var(--fs-2xs); color:var(--ink-3); white-space:nowrap}
+
+.wrap{max-width:var(--col); margin:0 auto; padding:16px 14px 56px}
+
+/* ---------- 目录 ---------- */
+.search{
+  width:100%; padding:11px 14px; font-size:var(--fs-base); color:var(--ink-1);
+  background:var(--surf-0); border:1px solid var(--line); border-radius:var(--r-l);
+  outline:none; -webkit-appearance:none;
+}
+.search:focus{border-color:var(--blue-600); box-shadow:0 0 0 3px rgba(44,135,216,.13)}
+.chips{display:flex; gap:7px; overflow-x:auto; padding:12px 0 4px; margin:0 -14px 4px;
+  padding-left:14px; padding-right:14px; -webkit-overflow-scrolling:touch; scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{
+  flex:0 0 auto; padding:6px 13px; border-radius:20px; cursor:pointer;
+  font-size:var(--fs-xs); color:var(--ink-2);
+  background:var(--surf-3); border:1px solid var(--line); white-space:nowrap;
+}
+.chip.on{background:var(--blue-700); border-color:var(--blue-700); color:#fff; font-weight:600}
+.chip .n{opacity:.7; margin-left:4px; font-size:var(--fs-2xs)}
+
+.count{font-size:var(--fs-2xs); color:var(--ink-3); padding:10px 2px 8px}
+.list{display:flex; flex-direction:column; gap:9px}
+.item{
+  display:flex; gap:11px; align-items:flex-start; text-align:left;
+  padding:13px 14px; cursor:pointer; text-decoration:none;
+  background:var(--card); border:1px solid var(--line); border-radius:var(--r-m);
+}
+.item:active{background:var(--surf-hi)}
+.item .no{
+  flex:0 0 auto; width:27px; height:27px; border-radius:var(--r-s);
+  background:var(--surf-sunk,#E3EAF2); color:var(--ink-2);
+  font-size:var(--fs-xs); font-weight:700; line-height:27px; text-align:center;
+}
+@media (prefers-color-scheme: dark){ .item .no{background:#23303E} }
+.item .tx{flex:1; min-width:0}
+.item .tx b{display:block; font-size:var(--fs-s); line-height:1.55; font-weight:600; color:var(--ink-1)}
+.item .tx small{display:block; margin-top:3px; font-size:var(--fs-2xs); color:var(--ink-3)}
+.item .flag{
+  flex:0 0 auto; margin-top:1px; padding:2px 7px; border-radius:20px;
+  font-size:var(--fs-2xs); line-height:1.5;
+  border:1px solid var(--bd-warn); background:var(--surf-3); color:var(--ink-2);
+}
+.empty{padding:44px 20px; text-align:center; color:var(--ink-3); font-size:var(--fs-s); line-height:1.8}
+
+/* ---------- 正文 ---------- */
+.doc-h{padding-bottom:15px; margin-bottom:17px; border-bottom:1px solid var(--line-soft)}
+.doc-h h1{margin:0 0 11px; font-size:var(--fs-xl); line-height:1.5; font-weight:700; letter-spacing:-.2px}
+.meta{display:flex; flex-wrap:wrap; gap:6px 8px; margin-bottom:11px}
+.meta span{font-size:var(--fs-2xs); padding:3px 9px; border-radius:20px;
+  color:var(--ink-2); background:var(--surf-3); border:1px solid var(--line)}
+.meta span.warn{border-color:var(--bd-warn)}
+.src{font-size:var(--fs-2xs); color:var(--ink-3); line-height:1.8}
+.src a{word-break:break-all}
+
+.note{
+  margin:0 0 18px; padding:11px 14px; font-size:var(--fs-s); line-height:1.8;
+  color:var(--ink-2); background:var(--surf-2);
+  border:1px solid var(--line); border-left:3px solid var(--accent-rail); border-radius:var(--r-s);
+}
+
+/* 手机正文排版：行宽、行高、段距都为长文阅读调过 */
+.body{font-size:var(--fs-read); line-height:1.8; color:var(--ink-1);
+  word-break:normal; overflow-wrap:break-word; text-align:justify}
+.body p{margin:0 0 14px}
+.body h1{font-size:var(--fs-l); margin:26px 0 13px; line-height:1.55}
+.body h2{font-size:calc(var(--fs-read) + 1px); margin:26px 0 12px; line-height:1.6; font-weight:700}
+.body h3,.body h4,.body h5,.body h6{font-size:var(--fs-base); margin:19px 0 10px; line-height:1.6}
+.body ul{margin:0 0 14px; padding-left:22px}
+.body li{margin-bottom:7px}
+.body blockquote{margin:0 0 15px; padding:9px 14px; color:var(--ink-2);
+  background:var(--surf-2); border-left:3px solid var(--accent-rail); border-radius:var(--r-s)}
+.body a{color:var(--blue-700); word-break:break-all}
+.body strong{font-weight:700}
+.body mark{background:rgba(217,162,60,.34); color:inherit; padding:0 1px; border-radius:2px}
+/* scroll-margin 要让开吸顶的两行头部，否则 scrollIntoView 会把命中行藏在头下面 */
+.body .hit{scroll-margin-top:124px; box-shadow:0 0 0 2px var(--brand-hi); border-radius:3px}
+
+.pdflink{
+  display:flex; align-items:center; gap:11px; margin:4px 0 18px;
+  padding:13px 15px; text-decoration:none;
+  background:var(--surf-2); border:1px solid var(--line); border-radius:var(--r-m);
+}
+.pdflink:active{background:var(--surf-hi)}
+.pdflink .ic{flex:0 0 auto; width:34px; height:34px; border-radius:var(--r-s);
+  background:var(--blue-700); color:#fff; font-size:var(--fs-2xs); font-weight:700;
+  line-height:34px; text-align:center; letter-spacing:.4px}
+.pdflink .tx b{display:block; font-size:var(--fs-s); color:var(--ink-1)}
+.pdflink .tx small{display:block; font-size:var(--fs-2xs); color:var(--ink-3); margin-top:2px}
+
+.pager{display:flex; gap:10px; margin-top:30px; padding-top:20px; border-top:1px solid var(--line-soft)}
+.pager a,.pager span{
+  flex:1 1 0; min-width:0; padding:12px 13px; border-radius:var(--r-m); text-decoration:none;
+  background:var(--card); border:1px solid var(--line); color:var(--ink-2);
+}
+.pager a:active{background:var(--surf-hi)}
+.pager .lab{display:block; font-size:var(--fs-2xs); color:var(--ink-4); margin-bottom:3px}
+.pager .t{display:block; font-size:var(--fs-2xs); line-height:1.5; color:var(--ink-1);
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.pager .off{opacity:.4}
+
+.totop{
+  position:fixed; right:16px; bottom:calc(16px + env(safe-area-inset-bottom)); z-index:15;
+  width:42px; height:42px; border-radius:50%; cursor:pointer;
+  background:var(--card); border:1px solid var(--line); color:var(--ink-2);
+  font-size:16px; box-shadow:0 3px 12px rgba(10,25,45,.14);
+  display:none; align-items:center; justify-content:center;
+}
+.totop.on{display:inline-flex}
+
+.load{padding:40px 0; text-align:center; color:var(--ink-3); font-size:var(--fs-s)}
+.err{padding:16px; font-size:var(--fs-s); line-height:1.9; color:var(--ink-2);
+  background:var(--surf-2); border:1px solid var(--line); border-radius:var(--r-m)}
+.err code{font-size:12px; word-break:break-all}
+
+/* 桌面：居中窄列，不把手机排版拉满屏 */
+@media(min-width:820px){
+  .wrap{padding:34px 24px 72px}
+  .doc-h h1{font-size:26px}
+  .body{font-size:16.5px}
+}
+@media print{
+  .top,.chips,.search,.pager,.totop,.count{display:none!important}
+  body{background:#fff}
+  .wrap{max-width:none; padding:0}
+}
+</style>
+</head>
+<body>
+
+<header class="top" id="top">
+  <div class="r1">
+    <button class="back" id="back" aria-label="返回目录">‹</button>
+    <div class="ttl">
+      <b id="barTitle">法规与政策参考库</b>
+      <span id="barSub">正在加载…</span>
+    </div>
+    <a class="home" id="home" href="index.html">工作台</a>
+  </div>
+  <!-- 文内查找：吸顶在标题下方，长文中翻到一半也能随时跳转 -->
+  <div class="r2" id="findbar" hidden>
+    <input type="search" id="jump" placeholder="在本文中查找 / 跳转到第 X 条" autocomplete="off" aria-label="文内查找">
+    <span class="pos" id="pos"></span>
+  </div>
+</header>
+
+<main class="wrap" id="wrap">
+  <!-- 目录 -->
+  <section id="catView">
+    <input class="search" id="q" type="search" placeholder="搜索标题 / 文号 / 机关" autocomplete="off">
+    <div class="chips" id="chips"></div>
+    <div class="count" id="count"></div>
+    <div class="list" id="list"></div>
+  </section>
+
+  <!-- 正文 -->
+  <article id="docView" hidden>
+    <div class="doc-h">
+      <h1 id="docTitle"></h1>
+      <div class="meta" id="docMeta"></div>
+      <div class="src" id="docSrc"></div>
+    </div>
+    <div class="note" id="docNote" hidden></div>
+    <div id="pdfBox"></div>
+    <div class="body" id="docBody"></div>
+    <nav class="pager" id="pager"></nav>
+  </article>
+</main>
+
+<button class="totop" id="totop" aria-label="回到顶部">↑</button>
+
+<script>
+/* ============================================================
+   渲染器：与 index.html 抽屉中的 lawMd2html 逐字一致，
+   保证同一份 .md 在方案 A 与方案 B 下渲染结果完全相同。
+   ============================================================ */
+function lawEsc(s){
+  return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+}
+function lawHrefOk(u){
+  return /^(https?:)?\/\//i.test(u) || /^\.{0,2}\//.test(u);
+}
+function lawInline(s){
+  let h = lawEsc(s);
+  h = h.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+  h = h.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, (m, txt, url) => {
+    if(!lawHrefOk(url)) return txt;
+    return '<a href="' + lawEsc(url) + '" target="_blank" rel="noopener noreferrer">' + txt + '</a>';
+  });
+  return h;
+}
+function lawMd2html(md){
+  const blocks = String(md).replace(/\r\n?/g, '\n').split(/\n{2,}/);
+  const out = [];
+  for(const raw of blocks){
+    const t = raw.replace(/^\s+|\s+$/g, '');
+    if(!t) continue;
+    const h = /^(#{1,6})\s+(.*)$/.exec(t);
+    if(h){
+      const lv = Math.min(6, h[1].length);
+      const body = t.replace(/^#{1,6}\s+/, '');
+      out.push('<h' + lv + '>' + body.split('\n').map(lawInline).join('<br>') + '</h' + lv + '>');
+      continue;
+    }
+    if(/^>\s?/.test(t)){
+      const inner = t.split('\n').map(l => lawInline(l.replace(/^>\s?/, ''))).join('<br>');
+      out.push('<blockquote>' + inner + '</blockquote>');
+      continue;
+    }
+    const ls = t.split('\n').filter(l => /^\s*[-*]\s+/.test(l));
+    if(ls.length && ls.length === t.split('\n').length){
+      out.push('<ul>' + ls.map(l => '<li>' + lawInline(l.replace(/^\s*[-*]\s+/, '')) + '</li>').join('') + '</ul>');
+      continue;
+    }
+    out.push('<p>' + t.split('\n').map(lawInline).join('<br>') + '</p>');
+  }
+  return out.join('\n');
+}
+
+/* ============================================================
+   状态与路由
+   深链：?n=9 打开第 9 份；?law=9 作为别名（与方案 A 地址通用，
+   便于两者之间来回切换而无需重新生成二维码）。
+   ============================================================ */
+const $  = (s, r=document) => r.querySelector(s);
+const IDX_URL = 'data/laws/index.json';
+const raw     = () => location.pathname.split('/').pop() || 'index.html';
+const bodyEl  = document.body;
+
+let IDX = null;                 // index.json
+let DOC = null;                 // 正文缓存 {file: html}
+let Q = '', CAT = 'all';
+/* 是否由本页目录进入正文。
+   扫码落地时 history 上一条是浏览器空白页（Chrome 的 history.length 常为 2），
+   此时 history.back() 会跳回空白页而不是目录 —— 所以只有本页主动入栈过才用原生返回。 */
+let FROM_CAT = false;
+
+const catName = id => ((IDX && IDX.cats) || []).find(c => c.id === id)?.name || id;
+const itemByN = n => ((IDX && IDX.items) || []).find(i => i.n === Number(n));
+
+function currentN(){
+  const p = new URLSearchParams(location.search);
+  const v = p.get('n') != null ? p.get('n') : p.get('law');
+  const n = parseInt(v, 10);
+  return Number.isInteger(n) && n >= 1 ? n : null;
+}
+function urlFor(n){ return n ? (raw() + '?n=' + n) : raw(); }
+
+/* ---------- 目录 ---------- */
+function renderChips(){
+  const chips = [{ id:'all', name:'全部' }].concat(IDX.cats || []);
+  const cnt = id => id === 'all' ? IDX.items.length : IDX.items.filter(i => i.cat === id).length;
+  $('#chips').innerHTML = chips.map(c =>
+    `<button class="chip${c.id===CAT?' on':''}" data-cat="${lawEsc(c.id)}">${lawEsc(c.name)}<span class="n">${cnt(c.id)}</span></button>`
+  ).join('');
+  $('#chips').querySelectorAll('.chip').forEach(b =>
+    b.onclick = () => { CAT = b.dataset.cat; renderChips(); renderList(); });
+}
+
+function filtered(){
+  const q = Q.trim().toLowerCase();
+  return (IDX.items || []).filter(it => {
+    if(CAT !== 'all' && it.cat !== CAT) return false;
+    if(!q) return true;
+    const hay = (it.title + ' ' + (it.docNo||'') + ' ' + (it.org||'') + ' ' + (it.date||'')).toLowerCase();
+    return hay.indexOf(q) >= 0;
+  });
+}
+
+function renderList(){
+  const items = filtered();
+  $('#count').textContent = `${items.length} / ${IDX.items.length} 份` + (CAT!=='all' ? ` · ${catName(CAT)}` : '');
+  if(!items.length){
+    $('#list').innerHTML = `<div class="empty">没有匹配「${lawEsc(Q.trim())}」的文件<br>换个关键词试试</div>`;
+    return;
+  }
+  $('#list').innerHTML = items.map(it => {
+    /* 副标题沿用 A 的规则（文号优先，否则发文机关）；补公开状态角标 */
+    const sub = (it.docNo || it.org || '') + (it.date ? ' · ' + it.date : '');
+    const partial = it.status === 'partial';
+    return `
+    <a class="item" href="${lawEsc(urlFor(it.n))}" data-n="${it.n}">
+      <span class="no">${String(it.n).padStart(2,'0')}</span>
+      <span class="tx"><b>${lawEsc(it.title)}</b><small>${lawEsc(sub)}</small></span>
+      ${partial ? `<span class="flag" title="${lawEsc(it.note || '部分公开')}">部分</span>` : ''}
+    </a>`;
+  }).join('');
+
+  $('#list').querySelectorAll('.item').forEach(a =>
+    a.onclick = e => { e.preventDefault(); goDoc(Number(a.dataset.n), true); });
+}
+
+function showCat(push){
+  $('#catView').hidden = false;
+  $('#docView').hidden = true;
+  $('#top').classList.remove('doc');
+  $('#findbar').hidden = true;      // 目录视图不显示文内查找
+  $('#jump').value = '';
+  $('#pos').textContent = '';
+  document.title = '法规与政策参考库';
+  $('#barTitle').textContent = '法规与政策参考库';
+  $('#barSub').textContent = `${IDX.items.length} 份 · 更新于 ${IDX.updated || '—'}`;
+  if(push) history.pushState({ n:null }, '', urlFor(null));
+}
+
+/* ---------- 正文 ---------- */
+async function fetchMd(it){
+  if(DOC && DOC[it.file] != null) return DOC[it.file];
+  const r = await fetch('data/laws/' + it.file, { cache:'no-cache' });
+  if(!r.ok) throw new Error('HTTP ' + r.status);
+  const txt = await r.text();
+  DOC = DOC || {}; DOC[it.file] = txt;
+  return txt;
+}
+
+async function showDoc(n, push){
+  const it = itemByN(n);
+  if(!it){ showCat(push); return; }
+
+  $('#catView').hidden = true;
+  $('#docView').hidden = false;
+  $('#top').classList.add('doc');
+  $('#findbar').hidden = false;
+  $('#jump').value = '';            // 正文即将重绘，命中高亮一并失效，先复位
+  $('#pos').textContent = '';
+  window.scrollTo(0, 0);
+
+  document.title = it.title + ' · 法规与政策参考库';
+  $('#barTitle').textContent = it.title;
+  $('#barSub').textContent = `${String(it.n).padStart(2,'0')} / ${IDX.items.length} · ${catName(it.cat)}`;
+
+  $('#docTitle').textContent = it.title;
+  /* 元信息胶囊：与方案 A lawOpenItem 逐项对齐（机关/文号/日期/施行/字数/公开状态） */
+  const meta = [];
+  if(it.org)       meta.push({ t: it.org });
+  if(it.docNo)     meta.push({ t: it.docNo });
+  if(it.date)      meta.push({ t: it.date });
+  if(it.effective) meta.push({ t: it.effective });
+  meta.push({ t: (it.chars || 0).toLocaleString('zh-CN') + ' 字' });
+  if(it.status === 'partial') meta.push({ t: '部分公开', w: true });
+  $('#docMeta').innerHTML = meta.map(m =>
+    `<span${m.w ? ' class="warn"' : ''}>${lawEsc(m.t)}</span>`).join('');
+
+  /* 原文出处：A 的文案是「原文出处（来源名）↗」，这里拆成可点链接 */
+  $('#docSrc').innerHTML = it.url
+    ? `原文出处：<a href="${lawEsc(it.url)}" target="_blank" rel="noopener noreferrer">${lawEsc(it.urlName || '来源')} ↗</a>`
+    : '';
+
+  $('#docNote').hidden = !it.note;
+  $('#docNote').textContent = it.note || '';
+
+  $('#docBody').innerHTML = '<div class="load">正在加载正文…</div>';
+  $('#pdfBox').innerHTML = '';
+
+  if(push) history.pushState({ n }, '', urlFor(n));
+
+  let md;
+  try{
+    md = await fetchMd(it);
+  }catch(err){
+    $('#docBody').innerHTML =
+      `<div class="err">正文加载失败：<code>${lawEsc(err.message)}</code><br>` +
+      `请确认 <code>data/laws/${lawEsc(it.file)}</code> 存在，并通过本地服务器访问。</div>`;
+    return;
+  }
+  if(currentN() !== n) return;   // 加载期间已跳走
+
+  $('#docBody').innerHTML = lawMd2html(md);
+
+  // 第 9 份带 PDF 原件
+  if(it.pdf){
+    $('#pdfBox').innerHTML =
+      `<a class="pdflink" href="${lawEsc('data/laws/' + it.pdf)}" target="_blank" rel="noopener noreferrer">
+         <span class="ic">PDF</span>
+         <span class="tx"><b>查看 / 下载 PDF 原件</b>
+           <small>${lawEsc(it.pdf)}${it.pages ? ' · ' + it.pages + ' 页' : ''}</small></span>
+       </a>`;
+  }
+
+  // 上一篇 / 下一篇
+  const idx = IDX.items.findIndex(x => x.n === n);
+  const prev = IDX.items[idx - 1], next = IDX.items[idx + 1];
+  const slot = (o, lab) => o
+    ? `<a href="${lawEsc(urlFor(o.n))}" data-n="${o.n}"><span class="lab">${lab}</span>
+         <span class="t">${lawEsc(o.title)}</span></a>`
+    : `<span class="off"><span class="lab">${lab}</span><span class="t">—</span></span>`;
+  $('#pager').innerHTML = slot(prev, '‹ 上一篇') + slot(next, '下一篇 ›');
+  $('#pager').querySelectorAll('a[data-n]').forEach(a =>
+    a.onclick = e => { e.preventDefault(); goDoc(Number(a.dataset.n), true); });
+}
+
+/* ---------- 文内查找 / 条文定位 ----------
+   与方案 A 的 lawFindInDoc 同一套算法，保证两边行为一致。 */
+function lawFindInDoc(q){
+  const body = $('#docBody');
+  const pos  = $('#pos');
+  body.querySelectorAll('mark').forEach(m => {
+    const p = m.parentNode;
+    while(m.firstChild) p.insertBefore(m.firstChild, m);
+    m.remove();
+    p.normalize();
+  });
+  body.querySelectorAll('.hit').forEach(e => e.classList.remove('hit'));
+
+  q = (q || '').trim();
+  if(q.length < 2){ pos.textContent = ''; return; }
+
+  const walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, null);
+  const nodes = [];
+  let nd;
+  while((nd = walker.nextNode())) if(nd.nodeValue && nd.nodeValue.indexOf(q) >= 0) nodes.push(nd);
+
+  if(!nodes.length){ pos.textContent = '未找到「' + q + '」'; return; }
+
+  let count = 0, first = null;
+  for(const node of nodes){
+    const frag = document.createDocumentFragment();
+    let rest = node.nodeValue;
+    for(;;){
+      const i = rest.indexOf(q);
+      if(i < 0){ frag.appendChild(document.createTextNode(rest)); break; }
+      if(i > 0) frag.appendChild(document.createTextNode(rest.slice(0, i)));
+      const mk = document.createElement('mark');
+      mk.textContent = q;
+      frag.appendChild(mk);
+      count++;
+      if(!first) first = mk;
+      rest = rest.slice(i + q.length);
+    }
+    node.parentNode.replaceChild(frag, node);
+  }
+
+  pos.textContent = '找到 ' + count + ' 处';
+  if(first){
+    let blk = first;
+    while(blk && blk !== body && blk.parentNode !== body) blk = blk.parentNode;
+    if(blk && blk !== body) blk.classList.add('hit');
+    first.scrollIntoView({ block:'center', behavior:'smooth' });
+  }
+}
+
+function goDoc(n, push){ FROM_CAT = !!push; showDoc(n, push); }
+
+/* ---------- 路由 / 事件 ---------- */
+function route(push){
+  const n = currentN();
+  if(n) showDoc(n, push); else showCat(push);
+}
+
+$('#back').onclick = () => {
+  if(FROM_CAT && history.length > 1) history.back();   // 本页进来的：用原生返回（带回滚动位置）
+  else showCat(true);                                   // 扫码直接落地的：直接显示目录
+};
+window.addEventListener('popstate', () => { FROM_CAT = false; route(false); });
+
+$('#q').oninput = e => { Q = e.target.value; renderList(); };
+
+/* 文内查找：防抖 200ms，回车立即 */
+let jt = null;
+$('#jump').oninput = e => { clearTimeout(jt); jt = setTimeout(() => lawFindInDoc(e.target.value), 200); };
+$('#jump').onkeydown = e => { if(e.key === 'Enter'){ clearTimeout(jt); lawFindInDoc(e.target.value); } };
+
+$('#totop').onclick = () => window.scrollTo({ top:0, behavior:'smooth' });
+window.addEventListener('scroll', () => {
+  $('#totop').classList.toggle('on', window.scrollY > 520);
+}, { passive:true });
+
+/* ---------- 启动 ---------- */
+(function init(){
+  if(location.protocol === 'file:'){
+    $('#list').innerHTML =
+      `<div class="err">法规库需要通过本地服务器打开（直接双击时浏览器禁止读取本地 JSON）。<br>
+       请运行同目录下的「启动本机服务器.ps1」，再访问提示的地址。</div>`;
+    $('#barSub').textContent = '需要本地服务器';
+    return;
+  }
+  fetch(IDX_URL, { cache:'no-cache' })
+    .then(r => { if(!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+    .then(j => {
+      IDX = j; DOC = DOC || {};
+      renderChips(); renderList();
+      route(false);
+    })
+    .catch(err => {
+      $('#list').innerHTML =
+        `<div class="err">目录加载失败：<code>${lawEsc(err.message)}</code><br>
+         请确认 <code>${lawEsc(IDX_URL)}</code> 存在。</div>`;
+      $('#barSub').textContent = '加载失败';
+    });
+})();
+</script>
+</body>
+</html>

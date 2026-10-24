@@ -104,6 +104,7 @@ function sha256Hex(str) {
   <div class="tb-crumb" id="tbCrumb">气旋危机决策课堂-Test</div>
   <div class="tb-spacer"></div>
   <div class="tb-tools">
+    <button class="tb-btn" id="btnLaws" title="法规库（L）" aria-label="打开法规与政策参考库">§</button>
     <button class="tb-btn" id="btnSearch" title="快速搜索（/）" aria-label="快速搜索">⌕</button>
     <button class="tb-btn" id="btnTheme" title="深色指挥室模式（D）" aria-label="切换深色指挥室模式" aria-pressed="false">◐</button>
     <button class="tb-btn" id="btnDirector" title="导播全屏模式（G）" aria-label="进入导播全屏模式" aria-pressed="false">⛶</button>
@@ -351,6 +352,49 @@ function sha256Hex(str) {
   </aside>
 </div>
 
+<!-- ================= 法规与政策参考库（十方改造新增） ================= -->
+<div class="lawmask" id="lawMask" role="dialog" aria-modal="true" aria-labelledby="lawTitle" hidden>
+  <div class="lawpanel">
+    <div class="law-h">
+      <span class="h" id="lawTitle">法规与政策参考库</span>
+      <span class="law-sub" id="lawSub"></span>
+      <div class="sp"></div>
+      <button class="x" id="lawClose" aria-label="关闭法规库">×</button>
+    </div>
+
+    <div class="law-b">
+      <aside class="law-side">
+        <div class="law-find">
+          <input type="search" id="lawSearch" placeholder="搜索标题 / 文号 / 机关" autocomplete="off" aria-label="搜索法规">
+          <span class="law-count" id="lawCount"></span>
+        </div>
+        <div class="law-cats" id="lawCats" role="tablist" aria-label="按类别筛选"></div>
+        <nav class="law-list" id="lawList" aria-label="法规目录"></nav>
+      </aside>
+
+      <main class="law-main">
+        <div class="law-empty" id="lawEmpty">
+          <b>从左侧选择一份文件</b>
+          <p>共 20 份法律、行政法规、司法解释、司法文件与政策文件，点开哪一份才加载哪一份的正文。</p>
+        </div>
+        <article class="law-doc" id="lawDoc" hidden>
+          <header class="law-doc-h">
+            <h2 id="lawDocTitle"></h2>
+            <div class="law-meta" id="lawDocMeta"></div>
+            <div class="law-doc-bar">
+              <span class="law-pos" id="lawPos"></span>
+              <div class="sp"></div>
+              <input type="search" id="lawJump" placeholder="跳转到第 X 条 / 章" aria-label="条文定位">
+              <a class="btn btn-o btn-sm" id="lawSrc" target="_blank" rel="noopener">原文出处 ↗</a>
+              <a class="btn btn-p btn-sm" id="lawPdf" hidden>打开 PDF 原件</a>
+            </div>
+          </header>
+          <div class="law-body" id="lawBody"></div>
+        </article>
+      </main>
+    </div>
+  </div>
+</div>
 <!-- ================= 席位档案弹窗 ================= -->
 <div class="mask" id="mask">
   <div class="modal">

@@ -1033,3 +1033,218 @@ body.theme-dark input[type=range].vp-seek::-webkit-slider-thumb{box-shadow:0 1px
   }
   .dot-live,.countdown .num.danger,.btn.armed{animation:none !important;}
 }
+
+
+/* ============================================================
+   法规与政策参考库（十方改造新增）
+   全部取值走既有设计令牌，深色指挥室模式自动跟随；
+   仅在 .law* 命名空间内新增，不改动任何既有规则。
+   ============================================================ */
+
+.lawmask{
+  position:fixed; inset:0; z-index:900;
+  display:flex; align-items:center; justify-content:center;
+  padding:22px; background:rgba(8,15,24,.5);
+  backdrop-filter:blur(2px);
+}
+.lawmask[hidden]{display:none;}
+.lawmask.show{animation:fadeIn var(--dur-1) var(--ease-out);}
+
+.lawpanel{
+  width:100%; max-width:1240px; height:100%; max-height:90vh;
+  display:flex; flex-direction:column; overflow:hidden;
+  background:var(--card); border:1px solid var(--line);
+  border-radius:var(--r-l); box-shadow:var(--sh-3);
+  animation:modalIn var(--dur-2) var(--ease-out);
+}
+
+/* ---------- 头部 ---------- */
+.law-h{
+  display:flex; align-items:center; gap:10px;
+  padding:13px 18px; border-bottom:1px solid var(--line-soft);
+  background:linear-gradient(180deg,var(--surf-1),var(--surf-2));
+}
+.law-h .h{font-size:var(--fs-l); font-weight:700;}
+.law-h .law-sub{font-size:var(--fs-2xs); color:var(--ink-3);}
+.law-h .sp{flex:1;}
+.law-h .x{
+  width:28px;height:28px;border-radius:var(--r-s);
+  display:grid;place-items:center;color:var(--ink-3);font-size:18px;line-height:1;
+}
+.law-h .x:hover{background:var(--surf-3); color:var(--ink-1);}
+
+/* ---------- 主体双栏 ---------- */
+.law-b{display:flex; flex:1; min-height:0;}
+
+.law-side{
+  flex:0 0 316px; min-width:260px;
+  display:flex; flex-direction:column; min-height:0;
+  border-right:1px solid var(--line-soft); background:var(--surf-2);
+}
+
+.law-find{
+  display:flex; align-items:center; gap:8px;
+  padding:10px 12px; border-bottom:1px solid var(--line-soft);
+}
+.law-find input{
+  flex:1; min-width:0; padding:7px 10px;
+  font-size:var(--fs-s); color:var(--ink-1);
+  background:var(--surf-0); border:1px solid var(--line); border-radius:var(--r-m);
+}
+.law-find input:focus{
+  outline:none; border-color:var(--blue-600); background:var(--card);
+  box-shadow:0 0 0 3px rgba(44,135,216,.13);
+}
+.law-count{font-size:var(--fs-2xs); color:var(--ink-3); white-space:nowrap;}
+
+.law-cats{
+  display:flex; flex-wrap:wrap; gap:5px;
+  padding:9px 12px; border-bottom:1px solid var(--line-soft);
+}
+.law-cat{
+  font-size:var(--fs-2xs); padding:2px 9px; border-radius:20px; cursor:pointer;
+  color:var(--ink-2); background:var(--surf-3); border:1px solid var(--line);
+  user-select:none;
+}
+.law-cat:hover{background:var(--surf-hi);}
+.law-cat.on{background:var(--card); color:var(--blue-700); border-color:var(--blue-300); font-weight:600;}
+
+.law-list{flex:1; min-height:0; overflow-y:auto;}
+
+.law-grp{
+  position:sticky; top:0; z-index:1;
+  padding:8px 12px 5px; font-size:var(--fs-2xs); font-weight:700;
+  letter-spacing:.06em; color:var(--ink-3);
+  background:var(--surf-2); border-bottom:1px solid var(--line-soft);
+}
+.law-item{
+  display:flex; gap:9px; align-items:flex-start;
+  width:100%; text-align:left; cursor:pointer;
+  padding:9px 12px; background:transparent;
+  border:0; border-bottom:1px solid var(--line-soft);
+  border-left:3px solid transparent;
+  font:inherit; color:var(--ink-1);
+}
+.law-item:hover{background:var(--surf-hi);}
+.law-item.on{
+  background:var(--card); border-left-color:var(--brand);
+  box-shadow:inset 0 0 0 1px var(--line-soft);
+}
+.law-item .n{
+  flex:0 0 22px; height:20px; margin-top:1px;
+  display:grid; place-items:center; border-radius:var(--r-s);
+  font-size:var(--fs-2xs); font-weight:700;
+  background:var(--surf-sunk); color:var(--ink-2);
+}
+.law-item.on .n{background:var(--brand); color:#fff;}
+.law-item .t{flex:1; min-width:0; font-size:var(--fs-s); line-height:1.5; color:var(--ink-1);}
+.law-item .t small{
+  display:block; margin-top:2px;
+  font-size:var(--fs-2xs); color:var(--ink-3);
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+.law-flag{
+  flex:0 0 auto; margin-top:1px; padding:0 6px; border-radius:20px;
+  font-size:var(--fs-2xs); line-height:17px;
+  border:1px solid var(--bd-warn); background:var(--surf-3); color:var(--ink-2);
+}
+
+/* ---------- 正文区 ---------- */
+.law-main{flex:1; min-width:0; overflow-y:auto; background:var(--card);}
+
+.law-empty{
+  height:100%; display:flex; flex-direction:column;
+  align-items:center; justify-content:center; gap:8px;
+  padding:40px 24px; text-align:center; color:var(--ink-3);
+}
+.law-empty b{font-size:var(--fs-l); color:var(--ink-2);}
+.law-empty p{max-width:420px; font-size:var(--fs-s); line-height:1.7;}
+
+.law-doc{padding:20px 26px 40px;}
+.law-doc-h{border-bottom:1px solid var(--line-soft); padding-bottom:14px; margin-bottom:16px;}
+.law-doc-h h2{
+  margin:0 0 10px; font-size:calc(var(--fs-l) + 2px); line-height:1.55; color:var(--ink-1);
+}
+.law-meta{
+  display:flex; flex-wrap:wrap; gap:6px 8px; margin-bottom:11px;
+}
+.law-meta span{
+  font-size:var(--fs-2xs); padding:2px 9px; border-radius:20px;
+  color:var(--ink-2); background:var(--surf-3); border:1px solid var(--line);
+}
+.law-meta span.warn{background:var(--surf-3); border-color:var(--bd-warn); color:var(--ink-2);}
+.law-doc-bar{display:flex; align-items:center; gap:8px; flex-wrap:wrap;}
+.law-pos{font-size:var(--fs-2xs); color:var(--ink-3);}
+.law-doc-bar .sp{flex:1;}
+.law-doc-bar input{
+  width:150px; padding:5px 9px; font-size:var(--fs-2xs); color:var(--ink-1);
+  background:var(--surf-0); border:1px solid var(--line); border-radius:var(--r-m);
+}
+.law-doc-bar input:focus{
+  outline:none; border-color:var(--blue-600);
+  box-shadow:0 0 0 3px rgba(44,135,216,.13);
+}
+.law-doc-bar a.btn{text-decoration:none; display:inline-flex; align-items:center;}
+
+.law-note{
+  margin:0 0 16px; padding:10px 13px; font-size:var(--fs-s); line-height:1.75;
+  color:var(--ink-2); background:var(--surf-2);
+  border:1px solid var(--line); border-left:3px solid var(--accent-rail);
+  border-radius:var(--r-s);
+}
+
+/* 正文排版：中文长文，控制行宽与段距 */
+.law-body{font-size:var(--fs-s); line-height:2; color:var(--ink-1);}
+.law-body p{margin:0 0 10px;}
+.law-body h1{font-size:var(--fs-l); margin:22px 0 12px; line-height:1.6;}
+.law-body h2{font-size:calc(var(--fs-base) + 1px); margin:22px 0 10px; line-height:1.6; color:var(--ink-1);}
+.law-body h3,.law-body h4,.law-body h5,.law-body h6{
+  font-size:var(--fs-base); margin:16px 0 8px; line-height:1.6; color:var(--ink-1);
+}
+.law-body ul{margin:0 0 10px; padding-left:20px;}
+.law-body li{margin-bottom:4px;}
+.law-body blockquote{
+  margin:0 0 12px; padding:8px 13px;
+  color:var(--ink-2); background:var(--surf-2);
+  border-left:3px solid var(--accent-rail); border-radius:var(--r-s);
+}
+.law-body a{color:var(--blue-700); word-break:break-all;}
+.law-body strong{font-weight:700;}
+.law-body mark{
+  background:rgba(217,162,60,.34); color:inherit;
+  padding:0 1px; border-radius:2px;
+}
+.law-body .hit{
+  scroll-margin-top:12px;
+  box-shadow:0 0 0 2px var(--brand-hi); border-radius:3px;
+}
+.law-loading{padding:26px 0; color:var(--ink-3); font-size:var(--fs-s);}
+.law-err{
+  padding:14px 16px; font-size:var(--fs-s); line-height:1.8; color:var(--ink-2);
+  background:var(--surf-2); border:1px solid var(--line); border-radius:var(--r-m);
+}
+
+/* ---------- 窄屏：侧栏改为顶部横排 ---------- */
+@media(max-width:860px){
+  .lawmask{padding:0;}
+  .lawpanel{max-width:none; max-height:none; border-radius:0; border:0;}
+  .law-b{flex-direction:column;}
+  .law-side{
+    flex:0 0 auto; max-height:40vh;
+    border-right:none; border-bottom:1px solid var(--line);
+  }
+  .law-list{max-height:22vh;}
+  .law-doc{padding:16px 15px 32px;}
+  .law-doc-bar input{width:110px;}
+}
+
+/* 打印法规正文时同样强制浅色，与既有打印规则保持一致 */
+@media print{
+  .lawmask{position:static; padding:0; background:none; backdrop-filter:none;}
+  .lawpanel{max-height:none; box-shadow:none; border:0;}
+}
+
+/* [hidden] 属性默认是 display:none，但只要元素自身声明了 display（如 .law-empty 的
+   flex、PDF 按钮的 inline-flex）就会被盖掉。法规库内所有显隐都靠 hidden 属性驱动，
+   这里在本命名空间内加一条兜底，避免「打开了却看不见」。 */
+.lawmask [hidden]{display:none !important;}

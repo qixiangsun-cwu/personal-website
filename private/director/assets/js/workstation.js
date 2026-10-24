@@ -1372,6 +1372,9 @@ function bind(){
   $('#btnReset').onclick = askReset;
   $('#btnResetOrder').onclick = askResetOrder;
 
+  /* 十方改造新增：法规与政策参考库 */
+  lawBind();
+
   $('#modalClose').onclick = closeModal;
   $('#modalCancel').onclick = closeModal;
   $('#modalConfirm').onclick = ()=>{ if(modalSid){ S.activeSession=modalSid; saveState(); renderAll(); } closeModal(); };
@@ -1415,15 +1418,17 @@ function bind(){
     const typing = t && (t.tagName==='INPUT' || t.tagName==='TEXTAREA' || t.tagName==='SELECT' || t.isContentEditable);
     const cOpen = $('#cmask').classList.contains('show');
     const mOpen = $('#mask').classList.contains('show');
+    const lOpen = lawsIsOpen();
 
     if(e.key === 'Escape'){
-      if(cOpen) closeConfirm();
+      if(lOpen) closeLaws();
+      else if(cOpen) closeConfirm();
       else if(!$('#searchBar').hidden) closeSearch();
       else if(mOpen) closeModal();
       else if(document.body.classList.contains('director')) setDirector(false);
       return;
     }
-    if(typing || cOpen || mOpen || e.ctrlKey || e.metaKey || e.altKey) return;
+    if(typing || cOpen || mOpen || lOpen || e.ctrlKey || e.metaKey || e.altKey) return;
 
     switch(e.key){
       case 'ArrowLeft':   e.preventDefault(); goStep(-1); break;
@@ -1437,6 +1442,7 @@ function bind(){
       case 'd': case 'D': e.preventDefault(); toggleTheme();    break;
       case 's': case 'S': e.preventDefault(); openSecondScreen(); break;
       case 'w': case 'W': e.preventDefault(); exportWord();       break;
+      case 'l': case 'L': e.preventDefault(); openLaws();         break;
     }
   });
 
@@ -1460,3 +1466,383 @@ function cycleSession(dir){
   S.activeSession = ids[i]; saveState();
   renderSeatTabs(); renderCompare(); renderSeatTable(); renderSeatMini();
 }
+
+/* ============================================================
+   法规与政策参考库（十方改造新增）
+
+   约束：无后端、无构建、无框架。只是 fetch 两个静态文件——
+     data/laws/index.json      目录（随手加载）
+     data/laws/NN.md           正文（点开哪一份才加载哪一份）
+   正文用下面这个小渲染器出 HTML，不引任何第三方库。
+
+   file:// 直接双击打开时 fetch 必然失败（与 flow.json 同样的取舍），
+   此处不提供 JS 副本降级，直接给「请用本地服务器打开」的提示。
+   ============================================================ */
+
+const LAWS_URL = 'data/laws/index.json';
+const LAWS_DIR = 'data/laws/';
+
+let LAWS = null;      // index.json 内容
+let LAW_MD = {};      // file -> 已加载的 markdown 原文
+let LAW_CAT = 'all';  // 当前类别筛选
+let LAW_Q = '';       // 当前搜索词
+let LAW_CUR = null;   // 当前打开的条目对象
+let LAW_PENDING = null; // 扫码深链：索引就绪后自动打开的 n
+let LAW_DEEP = false;   // 本次打开是否由二维码触发（不自动聚焦搜索框，避免手机弹键盘）
+
+/* ---------- 极简 markdown 渲染器 ---------- */
+
+function lawEsc(s){
+  return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+}
+
+function lawHrefOk(u){
+  return /^(https?:)?\/\//i.test(u) || /^\.{0,2}\//.test(u);
+}
+
+function lawInline(s){
+  let h = lawEsc(s);
+  h = h.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+  h = h.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, (m, txt, url) => {
+    if(!lawHrefOk(url)) return txt;
+    return '<a href="' + lawEsc(url) + '" target="_blank" rel="noopener noreferrer">' + txt + '</a>';
+  });
+  return h;
+}
+
+function lawMd2html(md){
+  const blocks = String(md).replace(/\r\n?/g, '\n').split(/\n{2,}/);
+  const out = [];
+  for(const raw of blocks){
+    const t = raw.replace(/^\s+|\s+$/g, '');
+    if(!t) continue;
+
+    const h = /^(#{1,6})\s+(.*)$/.exec(t);
+    if(h){
+      const lv = Math.min(6, h[1].length);
+      const body = t.replace(/^#{1,6}\s+/, '');
+      out.push('<h' + lv + '>' + body.split('\n').map(lawInline).join('<br>') + '</h' + lv + '>');
+      continue;
+    }
+    if(/^>\s?/.test(t)){
+      const inner = t.split('\n').map(l => lawInline(l.replace(/^>\s?/, ''))).join('<br>');
+      out.push('<blockquote>' + inner + '</blockquote>');
+      continue;
+    }
+    const ls = t.split('\n').filter(l => /^\s*[-*]\s+/.test(l));
+    if(ls.length && ls.length === t.split('\n').length){
+      out.push('<ul>' + ls.map(l => '<li>' + lawInline(l.replace(/^\s*[-*]\s+/, '')) + '</li>').join('') + '</ul>');
+      continue;
+    }
+    out.push('<p>' + t.split('\n').map(lawInline).join('<br>') + '</p>');
+  }
+  return out.join('\n');
+}
+
+/* ---------- 打开 / 关闭 ---------- */
+
+function openLaws(opt){
+  const m = $('#lawMask');
+  if(!m) return;
+  const focus = !opt || opt.focus !== false;
+  m.hidden = false;
+  m.classList.add('show');
+  document.body.style.overflow = 'hidden';
+  lawEnsureIndex();
+  if(focus) setTimeout(()=>{ const i = $('#lawSearch'); if(i) i.focus(); }, 40);
+}
+
+function closeLaws(){
+  const m = $('#lawMask');
+  if(!m) return;
+  m.classList.remove('show');
+  m.hidden = true;
+  document.body.style.overflow = '';
+}
+
+function lawsIsOpen(){
+  const m = $('#lawMask');
+  return !!(m && !m.hidden);
+}
+
+/* ---------- 目录加载 ---------- */
+
+function lawFlushPending(){
+  if(LAW_PENDING == null) return;
+  const n = LAW_PENDING;
+  LAW_PENDING = null;
+  lawOpenItem(n);
+}
+
+function lawEnsureIndex(){
+  if(LAWS){ lawRenderSide(); lawFlushPending(); return; }
+
+  if(location.protocol === 'file:'){
+    $('#lawList').innerHTML =
+      '<div class="law-err" style="margin:12px">' +
+      '法规库需要通过本地服务器打开（直接双击 index.html 时浏览器禁止读取本地 JSON）。<br>' +
+      '请运行同目录下的「启动本机服务器.ps1」，再访问提示的地址。</div>';
+    $('#lawCats').innerHTML = '';
+    $('#lawCount').textContent = '';
+    return;
+  }
+
+  $('#lawList').innerHTML = '<div class="law-loading" style="padding:16px 12px">正在加载目录…</div>';
+
+  fetch(LAWS_URL, {cache:'no-cache'})
+    .then(r => { if(!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+    .then(j => { LAWS = j; lawRenderSide(); lawFlushPending(); })
+    .catch(err => {
+      $('#lawList').innerHTML =
+        '<div class="law-err" style="margin:12px">目录加载失败：<code>' + lawEsc(err.message) + '</code><br>' +
+        '请确认 <code>' + LAWS_URL + '</code> 存在，并通过本地服务器访问。</div>';
+    });
+}
+
+/* ---------- 左侧渲染 ---------- */
+
+function lawCatName(id){
+  const c = (LAWS.cats || []).find(c => c.id === id);
+  return c ? c.name : id;
+}
+
+function lawFiltered(){
+  const q = LAW_Q.trim().toLowerCase();
+  return (LAWS.items || []).filter(it => {
+    if(LAW_CAT !== 'all' && it.cat !== LAW_CAT) return false;
+    if(!q) return true;
+    const hay = (it.title + ' ' + (it.docNo||'') + ' ' + (it.org||'') + ' ' + (it.date||'')).toLowerCase();
+    return hay.indexOf(q) >= 0;
+  });
+}
+
+function lawRenderSide(){
+  const sub = $('#lawSub');
+  if(sub){
+    sub.textContent = LAWS.count + ' 份 · 更新于 ' + (LAWS.updated || '—');
+  }
+
+  /* 类别筛选条 */
+  const cats = [{id:'all', name:'全部'}].concat(LAWS.cats || []);
+  $('#lawCats').innerHTML = cats.map(c => {
+    const on = c.id === LAW_CAT ? ' on' : '';
+    const n = c.id === 'all'
+      ? (LAWS.items||[]).length
+      : (LAWS.items||[]).filter(i => i.cat === c.id).length;
+    return '<button class="law-cat' + on + '" data-cat="' + c.id + '" role="tab" ' +
+           'aria-selected="' + (c.id === LAW_CAT) + '">' + lawEsc(c.name) + ' ' + n + '</button>';
+  }).join('');
+
+  /* 目录列表：「全部」视图按类别定义顺序 + 序号排序，否则分类标题会交错重复 */
+  const list = lawFiltered();
+  if(LAW_CAT === 'all'){
+    const ord = {};
+    (LAWS.cats || []).forEach((c, i) => { ord[c.id] = i; });
+    list.sort((a, b) => ((ord[a.cat] ?? 99) - (ord[b.cat] ?? 99)) || (a.n - b.n));
+  }
+  $('#lawCount').textContent = list.length + ' / ' + (LAWS.items||[]).length;
+
+  if(!list.length){
+    $('#lawList').innerHTML = '<div class="law-loading" style="padding:22px 12px;text-align:center">没有匹配的文件</div>';
+    return;
+  }
+
+  let html = '', lastCat = null;
+  for(const it of list){
+    if(LAW_CAT === 'all' && it.cat !== lastCat){
+      lastCat = it.cat;
+      html += '<div class="law-grp">' + lawEsc(lawCatName(it.cat)) + '</div>';
+    }
+    const on = (LAW_CUR && LAW_CUR.n === it.n) ? ' on' : '';
+    const flag = it.status === 'partial'
+      ? '<span class="law-flag" title="' + lawEsc(it.note || '部分公开') + '">部分</span>'
+      : '';
+    html += '<button class="law-item' + on + '" data-n="' + it.n + '">' +
+              '<span class="n">' + it.n + '</span>' +
+              '<span class="t">' + lawEsc(it.title) + '<small>' +
+                lawEsc(it.docNo || it.org || '') +
+              '</small></span>' + flag +
+            '</button>';
+  }
+  $('#lawList').innerHTML = html;
+}
+
+/* ---------- 打开一份文件 ---------- */
+
+function lawOpenItem(n){
+  const it = (LAWS.items || []).find(i => i.n === n);
+  if(!it) return;
+
+  LAW_CUR = it;
+  lawRenderSide();
+
+  $('#lawEmpty').hidden = true;
+  $('#lawDoc').hidden = false;
+  $('#lawDocTitle').textContent = it.title;
+  $('#lawPos').textContent = '';
+  $('#lawJump').value = '';
+
+  /* 元信息胶囊 */
+  const meta = [];
+  if(it.org)    meta.push({t: it.org});
+  if(it.docNo)  meta.push({t: it.docNo});
+  if(it.date)   meta.push({t: it.date});
+  if(it.effective) meta.push({t: it.effective});
+  meta.push({t: (it.chars||0).toLocaleString('zh-CN') + ' 字'});
+  if(it.status === 'partial') meta.push({t: '部分公开', w: true});
+  $('#lawDocMeta').innerHTML = meta.map(m =>
+    '<span' + (m.w ? ' class="warn"' : '') + '>' + lawEsc(m.t) + '</span>').join('');
+
+  /* 原文出处 / PDF */
+  const a = $('#lawSrc');
+  a.href = it.url || '#';
+  a.textContent = '原文出处（' + (it.urlName || '来源') + '）↗';
+  const p = $('#lawPdf');
+  if(it.pdf){ p.hidden = false; p.href = LAWS_DIR + it.pdf; }
+  else { p.hidden = true; p.removeAttribute('href'); }
+
+  /* 提示条 */
+  const old = $('#lawDoc .law-note');
+  if(old) old.remove();
+  if(it.note){
+    const d = document.createElement('div');
+    d.className = 'law-note';
+    d.textContent = it.note;
+    $('#lawDocTitle').after(d);
+  }
+
+  const body = $('#lawBody');
+  if(LAW_MD[it.file] != null){ body.innerHTML = lawMd2html(LAW_MD[it.file]); return; }
+
+  body.innerHTML = '<div class="law-loading">正在加载正文…</div>';
+
+  fetch(LAWS_DIR + it.file, {cache:'force-cache'})
+    .then(r => { if(!r.ok) throw new Error('HTTP ' + r.status); return r.text(); })
+    .then(txt => {
+      LAW_MD[it.file] = txt;
+      /* 用户可能在加载期间已经切到别处 */
+      if(!LAW_CUR || LAW_CUR.n !== it.n) return;
+      body.innerHTML = lawMd2html(txt);
+    })
+    .catch(err => {
+      body.innerHTML =
+        '<div class="law-err">正文加载失败：<code>' + lawEsc(err.message) + '</code><br>' +
+        '请确认 <code>' + LAWS_DIR + it.file + '</code> 存在。' +
+        (err.message.indexOf('HTTP 404') >= 0
+          ? '<br>若已开启 Service Worker 且当前离线，该文件尚未被缓存过，需联网打开一次。'
+          : '') + '</div>';
+    });
+}
+
+/* ---------- 文内查找 / 条文定位 ---------- */
+
+function lawFindInDoc(q){
+  const body = $('#lawBody');
+  const pos  = $('#lawPos');
+  body.querySelectorAll('mark').forEach(m => {
+    const p = m.parentNode;
+    while(m.firstChild) p.insertBefore(m.firstChild, m);
+    m.remove();
+    p.normalize();
+  });
+  body.querySelectorAll('.hit').forEach(e => e.classList.remove('hit'));
+
+  q = (q || '').trim();
+  if(q.length < 2){ pos.textContent = ''; return; }
+
+  const walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, null);
+  const nodes = [];
+  let nd;
+  while((nd = walker.nextNode())) if(nd.nodeValue && nd.nodeValue.indexOf(q) >= 0) nodes.push(nd);
+
+  if(!nodes.length){ pos.textContent = '未找到「' + q + '」'; return; }
+
+  let count = 0, first = null;
+  for(const node of nodes){
+    const frag = document.createDocumentFragment();
+    let rest = node.nodeValue;
+    for(;;){
+      const i = rest.indexOf(q);
+      if(i < 0){ frag.appendChild(document.createTextNode(rest)); break; }
+      if(i > 0) frag.appendChild(document.createTextNode(rest.slice(0, i)));
+      const mk = document.createElement('mark');
+      mk.textContent = q;
+      frag.appendChild(mk);
+      count++;
+      if(!first) first = mk;
+      rest = rest.slice(i + q.length);
+    }
+    node.parentNode.replaceChild(frag, node);
+  }
+
+  pos.textContent = '找到 ' + count + ' 处';
+  if(first){
+    let blk = first;
+    while(blk && blk !== body && blk.parentNode !== body) blk = blk.parentNode;
+    if(blk && blk !== body) blk.classList.add('hit');
+    first.scrollIntoView({block:'center', behavior:'smooth'});
+  }
+}
+
+/* ---------- 事件绑定 ---------- */
+
+function lawBind(){
+  const m = $('#lawMask');
+  if(!m) return;
+
+  $('#btnLaws').onclick = () => lawsIsOpen() ? closeLaws() : openLaws();
+  $('#lawClose').onclick = closeLaws;
+  /* 点遮罩关闭，点面板内不关（与席位档案弹窗一致） */
+  m.onclick = e => { if(e.target === m) closeLaws(); };
+
+  $('#lawCats').onclick = e => {
+    const b = e.target.closest('.law-cat');
+    if(!b) return;
+    LAW_CAT = b.dataset.cat;
+    lawRenderSide();
+  };
+
+  $('#lawList').onclick = e => {
+    const b = e.target.closest('.law-item');
+    if(!b) return;
+    lawOpenItem(parseInt(b.dataset.n, 10));
+  };
+
+  /* ---- 扫码深链 ----
+     二维码形如 .../director/?key=XXX&law=9 或 ...&key=XXX&cat=doc。
+     key 由线上门禁读取并校验，此处只认 law / cat 两个参数。 */
+  let deepOpen = false;
+  try{
+    const q = new URLSearchParams(location.search);
+    const cat = q.get('cat');
+    const law = q.get('law');
+    if(cat){ LAW_CAT = cat; deepOpen = true; }
+    if(law != null){
+      // 只要是 law 参数（哪怕格式错/越界）都展开目录，避免扫码后页面毫无反应；
+      // 合法 1..20 才进一步自动打开该篇。
+      deepOpen = true;
+      const n = parseInt(law, 10);
+      if(n >= 1) LAW_PENDING = n;
+    }
+  }catch(e){}
+  if(deepOpen){ LAW_DEEP = true; openLaws({focus:false}); }
+
+  let t = null;
+  $('#lawSearch').oninput = e => {
+    LAW_Q = e.target.value;
+    clearTimeout(t);
+    t = setTimeout(lawRenderSide, 120);
+  };
+  /* 回车直接打开第一条命中 */
+  $('#lawSearch').onkeydown = e => {
+    if(e.key !== 'Enter') return;
+    const list = lawFiltered();
+    if(list.length) lawOpenItem(list[0].n);
+  };
+
+  let t2 = null;
+  const jump = $('#lawJump');
+  jump.oninput = e => { clearTimeout(t2); t2 = setTimeout(() => lawFindInDoc(e.target.value), 200); };
+  jump.onkeydown = e => { if(e.key === 'Enter'){ clearTimeout(t2); lawFindInDoc(e.target.value); } };
+}
+

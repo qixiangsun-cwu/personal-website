@@ -22,6 +22,9 @@ const SHELL = [
   './assets/js/workstation.js',
   './assets/js/flow-data.js',
   './data/flow.json',
+  /* 法规与政策参考库：只预缓存目录，20 份正文按需缓存（约 1 MB，不进首屏） */
+  './data/laws/index.json',
+  './law.html',
   /* 封面图实际文件名是 01.jpg / 02.jpg / 03.jpg（不是视频名同名的 jpg）。
      写错路径不会报错，只会被 .catch(()=>{}) 静默吞掉 —— 改这里时务必对一下 assets/poster/ 实际文件。 */
   './assets/poster/01.jpg',
