@@ -180,7 +180,18 @@ foreach ($it in @($merged | Where-Object { $_.date -ge $latestCutoff })) {
     $srcCount[$src]++
 }
 $current = @($currentList)
-$archive = @($merged | Where-Object { $_.date -lt $latestCutoff } | Select-Object -First 300)
+# 归档 = 未进入 current 的全部条目（含被“每源限 1 条”挤掉的同日条目），
+# 避免 date >= cutoff 但未选入 current 的条目既不进 current 也不进 archive 而丢失
+$selKeys = @{}
+foreach ($it in $currentList) {
+    $selU = [string]$it.url; $selT = [string]$it.title
+    if ($selU) { $selKeys[$selU] = $true }
+    if ($selT) { $selKeys[$selT] = $true }
+}
+$archive = @($merged | Where-Object {
+    $u = [string]$_.url; $t = [string]$_.title
+    !(($u -and $selKeys.ContainsKey($u)) -or ($t -and $selKeys.ContainsKey($t)))
+} | Select-Object -First 300)
 
 $pending = [PSCustomObject]@{
     generated = (Get-Date -Format 'yyyy-MM-dd HH:mm:ss')

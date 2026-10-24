@@ -17,9 +17,13 @@
 ## 每日审批流程
 
 1. 读取 `ai-news.pending.json`，与 `ai-news.json` 对比列出「本期新增」；
-2. 把非中文条目翻译成中文（更新 `title` / `summary`，保留 `title_en`）；
-3. 在对话框里列出中文待审条目，等用户确认；
-4. 用户回复「批准」后运行 `scripts\approve-ai-news.ps1 -Headless` 发布并推送；
+2. 把非中文条目翻译成中文，**必须写回 `ai-news.pending.json` 文件本身**
+   （更新 `title` / `summary`，保留 `title_en`）——只在对话里展示译文无效：
+   发布脚本是把待审稿整体复制为 `ai-news.json`，不读对话内容；
+3. 发布前自检：待审稿中不得残留英文标题条目（可用脚本按
+   `title -notmatch '[\u4e00-\u9fff]'` 校验）；
+4. 在对话框里列出中文待审条目，等用户确认；
+5. 用户回复「批准」后运行 `scripts\approve-ai-news.ps1 -Headless` 发布并推送；
    用户指定剔除某几条时，先从待审稿中删除再发布。
 
 ## 视觉与前端约定
