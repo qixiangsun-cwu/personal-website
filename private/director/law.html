@@ -78,6 +78,22 @@ a{color:var(--blue-700)}
 .top.doc .home{display:inline-block}
 .top .home:active{background:var(--surf-hi)}
 
+/* 二维码：目录页入口 + 正文页「本页二维码」 */
+.qrcat{display:flex;align-items:center;gap:8px;margin:2px 0 12px;font-size:var(--fs-2xs);}
+.qrcat a{color:var(--blue-700, #175FA8);text-decoration:none;background:var(--surf-0);border:1px solid var(--line);
+  border-radius:20px;padding:6px 12px;display:inline-flex;align-items:center;gap:6px;}
+.qrcat a:active{background:var(--surf-hi)}
+.qropen{margin-top:10px;font:inherit;font-size:var(--fs-2xs);padding:6px 12px;border-radius:20px;
+  background:var(--surf-3);border:1px solid var(--line);color:var(--ink-2);cursor:pointer;}
+.qropen:active{background:var(--surf-hi)}
+.qr-inline{display:flex;gap:14px;align-items:center;margin-top:12px;padding:12px 14px;
+  border:1px solid var(--line);border-radius:var(--r-m);background:var(--surf-0);}
+.qr-inline[hidden]{display:none}
+.qr-inline img{width:116px;height:116px;background:#fff;border-radius:6px;padding:4px;flex:0 0 auto}
+.qr-inline .qtx{min-width:0}
+.qr-inline .qtx b{display:block;font-size:var(--fs-s);color:var(--ink-1)}
+.qr-inline .qtx small{display:block;font-size:var(--fs-2xs);color:var(--ink-3);word-break:break-all;margin-top:4px}
+
 /* 文内查找条（仅正文视图，吸顶） */
 .top .r2{display:flex; align-items:center; gap:9px; margin-top:9px}
 .top .r2[hidden]{display:none}
@@ -240,6 +256,7 @@ a{color:var(--blue-700)}
     <input class="search" id="q" type="search" placeholder="搜索标题 / 文号 / 机关" autocomplete="off">
     <div class="chips" id="chips"></div>
     <div class="count" id="count"></div>
+    <div class="qrcat"><a href="qrcode.html">📱 二维码总表 · 扫码即读 ↗</a></div>
     <div class="list" id="list"></div>
   </section>
 
@@ -249,6 +266,14 @@ a{color:var(--blue-700)}
       <h1 id="docTitle"></h1>
       <div class="meta" id="docMeta"></div>
       <div class="src" id="docSrc"></div>
+      <button class="qropen" id="qrBtn" type="button">📱 本页二维码</button>
+      <div class="qr-inline" id="qrInline" hidden>
+        <img id="qrImg" alt="本页二维码" width="116" height="116">
+        <div class="qtx">
+          <b>扫码在手机上阅读本页</b>
+          <small id="qrUrl"></small>
+        </div>
+      </div>
     </div>
     <div class="note" id="docNote" hidden></div>
     <div id="pdfBox"></div>
@@ -439,6 +464,20 @@ async function showDoc(n, push){
   $('#docNote').hidden = !it.note;
   $('#docNote').textContent = it.note || '';
 
+  /* 本页二维码：assets/qr/QR-nn.svg；缺图则把入口按钮隐藏，避免点了空白 */
+  try{
+    const nn = String(n).padStart(2, '0');
+    const qb = $('#qrBtn'), qp = $('#qrInline'), qi = $('#qrImg');
+    if(qb && qp && qi){
+      qp.hidden = true;
+      qi.onload = () => { qb.hidden = false; };
+      qi.onerror = () => { qb.hidden = true; qp.hidden = true; };
+      qi.src = `assets/qr/QR-${nn}.svg`;
+      const u = $('#qrUrl');
+      if(u) u.textContent = location.origin + location.pathname.replace(/[^/]*$/, '') + `law.html?n=${n}`;
+    }
+  }catch(e){}
+
   $('#docBody').innerHTML = '<div class="load">正在加载正文…</div>';
   $('#pdfBox').innerHTML = '';
 
@@ -554,6 +593,12 @@ $('#totop').onclick = () => window.scrollTo({ top:0, behavior:'smooth' });
 window.addEventListener('scroll', () => {
   $('#totop').classList.toggle('on', window.scrollY > 520);
 }, { passive:true });
+
+/* 本页二维码：展开/收起（每篇正文的码在 showDoc 里换图） */
+$('#qrBtn').onclick = () => {
+  const box = $('#qrInline');
+  if(box) box.hidden = !box.hidden;
+};
 
 /* ---------- 启动 ---------- */
 (function init(){
