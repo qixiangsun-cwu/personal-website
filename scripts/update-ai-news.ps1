@@ -188,14 +188,30 @@ foreach ($it in $currentList) {
     if ($selU) { $selKeys[$selU] = $true }
     if ($selT) { $selKeys[$selT] = $true }
 }
-# arXiv 洪峰控制：周一常一次性投递上百篇论文，每天最多归档 5 条（merged 已按日期降序，取最新 5 条）
-# 其余来源不限制。被挤掉的 arXiv 条目不进网页（论文摘要过多会淹没新闻页，且工作量不可控）
+# arXiv 洪峰控制：周一常一次性投递上百篇论文，每天最多归档 5 条（取最新）。
+# 关键：已发布条目（存在于 ai-news.json）永远保留——否则同日二次抓取时，新抓条目会
+# 挤掉当天早些时候已发布的译文，批准后会从网站上消失。限流只约束尚未发布的新条目。
+$pubUrls = @{}
+if ($old) { foreach ($it in @($old.current) + @($old.archive)) { if ($it.url) { $pubUrls[[string]$it.url] = $true } } }
 $arxivDayCount = @{}
 $archivePool = [System.Collections.Generic.List[object]]::new()
+# 第一遍：已发布条目先占当日名额并保留（不受 5 条限流约束）
+foreach ($it in $merged) {
+    $u = [string]$it.url; $t = [string]$it.title
+    if (($u -and $selKeys.ContainsKey($u)) -or ($t -and $selKeys.ContainsKey($t))) { continue }
+    if ($u -match 'arxiv\.org' -and $u -and $pubUrls.ContainsKey($u)) {
+        $dayKey = [string]$it.date
+        if (-not $arxivDayCount.ContainsKey($dayKey)) { $arxivDayCount[$dayKey] = 0 }
+        $arxivDayCount[$dayKey]++
+        $archivePool.Add($it)
+    }
+}
+# 第二遍：新抓取条目（非 arXiv 不限；arXiv 只能用当日剩余名额）
 foreach ($it in $merged) {
     $u = [string]$it.url; $t = [string]$it.title
     if (($u -and $selKeys.ContainsKey($u)) -or ($t -and $selKeys.ContainsKey($t))) { continue }
     if ($u -match 'arxiv\.org') {
+        if ($u -and $pubUrls.ContainsKey($u)) { continue }  # 第一遍已加入
         $dayKey = [string]$it.date
         if (-not $arxivDayCount.ContainsKey($dayKey)) { $arxivDayCount[$dayKey] = 0 }
         $arxivDayCount[$dayKey]++
