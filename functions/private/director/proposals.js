@@ -13,6 +13,7 @@ const KEY_HASH = '2fe115eb0dac3a086b2cfee19270bd20d59156b2697bb2d0dcf9d6c4792115
 
 // 组：s1..s10（与 data/flow.json 的 sessions[].id 一致）
 const GROUPS = new Set(['s1', 's2', 's3', 's4', 's5', 's6', 's7', 's8', 's9', 's10']);
+const GROUP_IDS = [...GROUPS];      // 固定顺序，直接按键读取时用
 
 // 字段白名单（不允许写入白名单以外的键）
 const FIELDS = {
@@ -97,6 +98,7 @@ async function readOpen(kv) {
 }
 
 // KV list 单页最多 1000 条，这里翻页取全；实际数据最多 20 条。
+// ⚠ 仅用于兼容旧代码；GET / reset 已改为直接按键读写（见下方说明），不再依赖 list。
 async function listKeys(kv, prefix) {
   const names = [];
   let cursor;
@@ -118,18 +120,23 @@ async function handleGet(kv, url) {
   const open = await readOpen(kv);
   const proposals = {};
 
-  const keys = await listKeys(kv, group ? `${PROPOSAL_PREFIX}${group}:` : PROPOSAL_PREFIX);
-  // KV 返回按 key 升序，s1..s10 天然有序；这里不做额外排序。
-  for (const key of keys) {
-    const proposal = await readJSON(kv, key, null);
-    if (!proposal || typeof proposal !== 'object') continue;
-    const g = proposal.group;
-    const act = normalizeAct(proposal.act);
-    if (!GROUPS.has(g) || act === 0) continue;
-    if (group && g !== group) continue;
+  /* 直接按 key 读，不用 kv.list()：
+     KV 的 list 结果走独立缓存，刚写入的 key 可能在 list 里延迟数十秒才出现；
+     get() 则能立刻读到 —— 否则导演台 5 秒轮询会看起来「一直没提交」。 */
+  const pairs = [];
+  for (const g of (group ? [group] : GROUP_IDS)) {
+    for (const act of [1, 2]) pairs.push([g, act]);
+  }
+  const records = await Promise.all(
+    pairs.map(([g, act]) => readJSON(kv, proposalKey(g, act), null))
+  );
+  records.forEach((proposal, index) => {
+    const [g, act] = pairs[index];
+    if (!proposal || typeof proposal !== 'object') return;
+    if (proposal.group !== g || normalizeAct(proposal.act) !== act) return;
     if (!proposals[g]) proposals[g] = {};
     proposals[g][`act${act}`] = proposal;
-  }
+  });
 
   return json({ ok: true, serverTime: new Date().toISOString(), open, proposals }, 200);
 }
@@ -212,8 +219,12 @@ async function handleOpen(kv, request) {
 
 // POST ?key=KEY&action=reset（清空本场数据）
 async function handleReset(kv) {
-  const keys = await listKeys(kv, PROPOSAL_PREFIX);
-  for (const key of keys) await kv.delete(key);
+  /* 同样不用 list：直接删固定的 20 个 key，避免 list 缓存导致「清不干净」 */
+  const keys = [];
+  for (const g of GROUP_IDS) {
+    for (const act of [1, 2]) keys.push(proposalKey(g, act));
+  }
+  await Promise.all(keys.map((key) => kv.delete(key)));
   const open = { act1: false, act2: false };
   await kv.put(OPEN_KEY, JSON.stringify(open));
   return json({ ok: true, cleared: true }, 200);
