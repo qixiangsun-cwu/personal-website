@@ -317,8 +317,11 @@ async function refreshProposals(){
 function startProposalPolling(){
   refreshProposals();
   clearInterval(proposalTimer);
-  proposalTimer = setInterval(()=>{ if(document.visibilityState === 'visible') refreshProposals(); }, 5000);
+  /* KV 免费版每天只有 10 万次读；20 个 key × 每 15 秒一次 ≈ 1.7 万读/场，留足余量。
+     需要立刻看最新状态时，点「刷新提案」或切回本页即可。 */
+  proposalTimer = setInterval(()=>{ if(document.visibilityState === 'visible') refreshProposals(); }, 15000);
   document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) refreshProposals(); });
+  window.addEventListener('focus', ()=>refreshProposals());
   window.addEventListener('storage', e=>{
     if(e.key === PROPOSAL_CACHE) refreshProposals();     /* 第二屏 / 多标签页互相拉齐 */
   });
@@ -1383,6 +1386,9 @@ function openSettings(){
         <button class="btn btn-g btn-sm" id="setExport">导出</button>
       </div>
       <div class="set-row">
+        <div class="sl"><b>KV 每日额度</b><span>免费版：读 10 万/日 · 写 1,000/日（北京 08:00 重置）。本页每 15 秒刷新一次、组端输入停 15 秒保存一次，单场约 1.7 万读 / 数百写</span></div>
+      </div>
+      <div class="set-row">
         <div class="sl"><b>数据源</b><span>${esc(D.meta.docSource)} · ${esc(D.meta.revision)} · 纯静态 + 提案服务（Cloudflare Functions/KV）</span></div>
       </div>`
   });
@@ -1593,6 +1599,7 @@ function bind(){
     window.open('group.html' + (k ? '?key=' + encodeURIComponent(k) : ''), '_blank');
   };
   $('#btnExport').onclick = exportData;
+  if($('#btnPropHit')) $('#btnPropHit').onclick = ()=>{ refreshProposals(); toast('已刷新各组提案'); };
   $('#btnReset').onclick = askReset;
   $('#btnResetOrder').onclick = askResetOrder;
 

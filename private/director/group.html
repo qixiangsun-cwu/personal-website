@@ -209,6 +209,8 @@ textarea:disabled{background:var(--surf-2);color:var(--ink-3);border-color:var(-
 .ref-empty{padding:2px 0 4px;border-top:1px solid var(--line-soft);font-size:var(--fs-s);color:var(--ink-3);}
 
 .foot{margin:22px 0 0;font-size:var(--fs-xs);line-height:1.8;color:var(--ink-4);text-align:center;}
+.foot-tools{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:10px;flex-wrap:wrap;}
+.copy-hint{font-size:var(--fs-2xs);color:var(--ink-3);}
 
 /* ---------- 轻提示 ---------- */
 .toast{
@@ -300,7 +302,7 @@ textarea:disabled{background:var(--surf-2);color:var(--ink-3);border-color:var(-
   <!-- 未选组时的引导 -->
   <section class="empty" id="emptyState">
     <b>10 个组共用本链接</b>
-    <p>请在页面右上角下拉选择本组（B101—B110）。选组后即可填写第一幕四点方案与第二幕三点方案；内容输入停止 1.2 秒后自动保存，截止后自动锁定。</p>
+    <p>请在页面右上角下拉选择本组（B101—B110）。选组后即可填写第一幕四点方案与第二幕三点方案；内容输入停止 15 秒后自动保存，截止后自动锁定。</p>
   </section>
 
   <!-- 幕次切换 -->
@@ -308,7 +310,7 @@ textarea:disabled{background:var(--surf-2);color:var(--ink-3);border-color:var(-
     <button type="button" class="tab" id="tab1" role="tab" aria-selected="true" aria-controls="pane1" data-act="1">第一幕 · 四点方案<span class="tab-st" id="tabSt1"></span></button>
     <button type="button" class="tab" id="tab2" role="tab" aria-selected="false" aria-controls="pane2" data-act="2">第二幕 · 三点方案<span class="tab-st" id="tabSt2"></span></button>
     <div class="sp"></div>
-    <span class="saved" id="savedHint" aria-live="polite">输入停止 1.2 秒后自动保存</span>
+    <span class="saved" id="savedHint" aria-live="polite">输入停止 15 秒后自动保存</span>
   </div>
 
   <!-- ================= 第一幕 ================= -->
@@ -351,6 +353,11 @@ textarea:disabled{background:var(--surf-2);color:var(--ink-3);border-color:var(-
   </section>
 
   <p class="foot">截止前可反复修改；点击「提交本幕」后，导演台据此显示「已提交」，本页仍可继续修改。截止后自动锁定。</p>
+
+  <div class="foot-tools">
+    <button type="button" class="btn btn-o btn-sm" id="btnCopyPlan">复制本组方案文本</button>
+    <span class="copy-hint" id="copyHint" aria-live="polite"></span>
+  </div>
 </main>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -419,6 +426,10 @@ var state = {
   saving: {'1':false, '2':false},
   savedAt: {'1':null, '2':null},
   timers: {'1':null, '2':null},
+  maxTimers: {'1':null, '2':null},   /* 持续输入时的兜底写盘计时（60 秒） */
+  lastSnap: {'1':null, '2':null},    /* 上次已写云端的快照，用于跳过无变化写入 */
+  lastWrite: {'1':null, '2':null},   /* 上次写云端的时间，限制 3.5 秒一次（KV 同 key 1 次/秒） */
+  limitHit: false,                   /* 是否触发了每日写入额度 */
   lockCache: {'1':null, '2':null}
 };
 
@@ -823,6 +834,7 @@ function applyServerRecord(act, p){
   applyFields(act, f);
   state.proposals[act] = p;
   state.submitted[act] = (p.submitted === true);
+  state.lastSnap[act] = snapshotOf(f, p.submitted === true);   /* 载入后不算「有变化」 */
   if (p.updatedAt) {
     var tt = Date.parse(p.updatedAt);
     if (!isNaN(tt)) state.savedAt[act] = tt;
@@ -881,21 +893,60 @@ function sync(groupId){
 
 /* ============================================================
    8. 保存 / 提交
+   ------------------------------------------------------------
+   KV 免费版每天只有 1000 次「写」、同一 key 每秒最多 1 次写，
+   所以自动保存做了三层收敛：
+     ① 输入停止 15 秒才写（不是每次停顿都写）
+     ② 内容没变化直接跳过
+     ③ 同一幕两次写至少间隔 3.5 秒；持续输入最多 60 秒兜底落一次
+   提交本幕 / 切走页面 / 关页 都会立即写一次。
    ============================================================ */
+var AUTO_SAVE_MS = 15000;
+var AUTO_MAX_MS  = 60000;
+var MIN_WRITE_MS = 3500;
+
+function snapshotOf(fields, submitted){
+  return JSON.stringify(fields) + '|' + (submitted ? '1' : '0');
+}
+
 function saveAct(act, submitted, reason){
   if (!state.group || isLocked(act)) return Promise.resolve(false);
   clearTimeout(state.timers[act]);
   state.timers[act] = null;
+  clearTimeout(state.maxTimers[act]);
+  state.maxTimers[act] = null;
+
   var fields = collectFields(act);
+  var snap = snapshotOf(fields, !!submitted);
+  writeDraft(act, fields, !!submitted);
+  if (submitted) state.submitted[act] = true;
+
+  /* ② 内容没变化：不写云端 */
+  if (reason !== 'submit' && state.lastSnap[act] === snap) {
+    state.dirty[act] = false;
+    setSavedHint('内容未变化，跳过保存');
+    renderStatus(); renderTabs();
+    return Promise.resolve(true);
+  }
+
+  /* ③ 写频率保护：同一幕 3.5 秒内只写一次（KV 限制同 key 1 次/秒） */
+  if (reason !== 'submit' && state.lastWrite[act] && (now() - state.lastWrite[act] < MIN_WRITE_MS)) {
+    var wait = MIN_WRITE_MS - (now() - state.lastWrite[act]);
+    state.timers[act] = setTimeout(function(){
+      saveAct(act, state.submitted[act], 'auto');
+    }, wait + 50);
+    setSavedHint('稍后自动保存…');
+    return Promise.resolve(true);
+  }
+
   var payload = {
     group: state.group,
     act: Number(act),
     fields: fields,
     submitted: !!submitted
   };
-  writeDraft(act, fields, !!submitted);
-  if (submitted) state.submitted[act] = true;
   state.saving[act] = true;
+  state.dirty[act] = false;
   setMsg(act, '正在保存…');
   renderStatus();
   renderTabs();
@@ -920,16 +971,23 @@ function saveAct(act, submitted, reason){
         var t = Date.parse(r.data.proposal.updatedAt || '');
         state.savedAt[act] = isNaN(t) ? now() : t;
         state.dirty[act] = false;
+        state.lastSnap[act] = snap;
+        state.lastWrite[act] = now();
         setSavedHint((reason === 'submit' ? '已提交并保存 ' : '已保存 ') + hhmmss(now()));
         setMsg(act, reason === 'submit' ? '已提交，仍可继续修改' : '');
         return true;
       }
+      if (r.res.status === 429 || r.res.status === 403) {
+        state.limitHit = true;
+        setApi('down', '云端写入受限（可能已达每日写额度）——内容已存本机，可点页面底部「复制本组方案」先保存到微信或文档。');
+        throw new Error('limit');
+      }
       throw new Error('save failed');
     })
     .catch(function(){
-      state.dirty[act] = false;
+      state.dirty[act] = true;          /* 失败要留着 dirty，切页/重试时补写 */
       state.savedAt[act] = now();
-      if (state.api !== 'down') {
+      if (!state.limitHit && state.api !== 'down') {
         setApi('down', '提案服务暂时不可用，当前内容仅保存在本机浏览器。');
       }
       setSavedHint('已存本机 ' + hhmmss(now()), true);
@@ -958,7 +1016,14 @@ function onInput(act, ta){
   clearTimeout(state.timers[act]);
   state.timers[act] = setTimeout(function(){
     saveAct(act, state.submitted[act], 'auto');
-  }, 1200);
+  }, AUTO_SAVE_MS);
+  /* 持续输入不松手时，也要保证 60 秒内落一次云端 */
+  if (!state.maxTimers[act]) {
+    state.maxTimers[act] = setTimeout(function(){
+      state.maxTimers[act] = null;
+      if (state.dirty[act]) saveAct(act, state.submitted[act], 'auto');
+    }, AUTO_MAX_MS);
+  }
 }
 
 function submitAct(act){
@@ -972,6 +1037,8 @@ function flushDirty(){
     if (state.dirty[act] && state.group) {
       clearTimeout(state.timers[act]);
       state.timers[act] = null;
+      clearTimeout(state.maxTimers[act]);
+      state.maxTimers[act] = null;
       jobs.push(saveAct(act, state.submitted[act], 'auto'));
     }
   });
@@ -985,15 +1052,20 @@ function resetGroupData(){
   ACTS.forEach(function(act){
     clearTimeout(state.timers[act]);
     state.timers[act] = null;
+    clearTimeout(state.maxTimers[act]);
+    state.maxTimers[act] = null;
     state.dirty[act] = false;
     state.saving[act] = false;
     state.submitted[act] = false;
     state.savedAt[act] = null;
+    state.lastSnap[act] = null;
+    state.lastWrite[act] = null;
     state.proposals[act] = null;
     clearFields(act);
     setMsg(act, '');
   });
-  setSavedHint('输入停止 1.2 秒后自动保存');
+  state.limitHit = false;
+  setSavedHint('输入停止 15 秒后自动保存');
 }
 
 function loadDrafts(group){
@@ -1020,7 +1092,7 @@ function hintAfterLoad(){
   }
   var d = state.group ? readDraft(state.group, act) : null;
   if (d && d.savedAt) { setSavedHint('已载入本机草稿'); return; }
-  setSavedHint('输入停止 1.2 秒后自动保存');
+  setSavedHint('输入停止 15 秒后自动保存');
 }
 
 function selectGroup(id){
@@ -1068,6 +1140,46 @@ function tick(){
 /* ============================================================
    11. 事件与启动
    ============================================================ */
+/* 兜底：云端写入受限（每日额度）时，把本组方案一键复制到微信/文档 */
+function setCopyHint(t){
+  var n = byId('copyHint');
+  if (!n) return;
+  n.textContent = t;
+  setTimeout(function(){ if (n.textContent === t) n.textContent = ''; }, 5000);
+}
+function copyPlanText(){
+  if (!state.group) { setCopyHint('请先选择本组'); return; }
+  var sel = ui.selGroup;
+  var label = (sel && sel.options[sel.selectedIndex]) ? sel.options[sel.selectedIndex].text : state.group;
+  var lines = ['【' + label + '】战略推演处置方案'];
+  ACTS.forEach(function(act){
+    var fields = collectFields(act);
+    lines.push('');
+    lines.push('—— ' + ACT_META[act].title + (state.submitted[act] ? '（已提交）' : '（草稿）') + ' ——');
+    FIELD_DEFS[act].forEach(function(f){
+      var v = String(fields[f.key] || '').trim();
+      lines.push('【' + f.name + '】' + (v || '（未填）'));
+    });
+  });
+  var text = lines.join('\n');
+  function done(ok){ setCopyHint(ok ? '已复制，可直接粘贴到微信 / 文档' : '复制失败，请手动选中正文复制'); }
+  function fallback(){
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed'; ta.style.left = '-9999px';
+    document.body.appendChild(ta); ta.select();
+    var ok = false;
+    try { ok = document.execCommand('copy'); } catch (e) {}
+    document.body.removeChild(ta);
+    done(ok);
+  }
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(function(){ done(true); }).catch(fallback);
+  } else {
+    fallback();
+  }
+}
+
 function switchAct(act){
   if (!state.group || state.activeAct === act) return;
   state.activeAct = act;
@@ -1090,6 +1202,7 @@ function init(){
   ui.btn1.addEventListener('click', function(){ submitAct('1'); });
   ui.btn2.addEventListener('click', function(){ submitAct('2'); });
   ui.svcRetry.addEventListener('click', function(){ sync(state.group || null); });
+  byId('btnCopyPlan').addEventListener('click', copyPlanText);
 
   function onTabKey(e){
     if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
