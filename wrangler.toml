@@ -3,3 +3,9 @@
 name = "personal-website"
 pages_build_output_dir = "."
 compatibility_date = "2025-07-18"
+
+# 导演工作台 · 各组提案存储（Pages Function: functions/private/director/proposals.js）
+# 绑定变量名 PROPOSALS；命名空间名 director-proposals，创建于 2026-10-26
+[[kv_namespaces]]
+binding = "PROPOSALS"
+id = "74e6d97acf4a44828ae0c34d4548e742"
