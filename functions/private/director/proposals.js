@@ -234,8 +234,16 @@ export async function onRequest(context) {
   const { request, env } = context;
   const url = new URL(request.url);
 
-  // 1) 鉴权先行：无 key / 错 key 一律 401，不泄露存储状态
-  if (!(await authorized(url.searchParams.get('key') || ''))) {
+  /* 鉴权分两档（2026-10-26 改）：
+     · 组端页 group.html 是公开页（不需要输入密钥），所以「读本组」与「保存/提交」不校验 key；
+     · 导演台相关的「读全量」「重开本幕」「清空本场」仍然必须带 key。
+     公开的只到「单组」这一级：GET 不带 group / POST 带 action 一律 401。 */
+  const action = url.searchParams.get('action');
+  const group = url.searchParams.get('group');
+  const groupScoped = (request.method === 'GET' && group !== null)
+    || (request.method === 'POST' && action === null);
+
+  if (!groupScoped && !(await authorized(url.searchParams.get('key') || ''))) {
     return fail('unauthorized', 401);
   }
 
@@ -246,7 +254,6 @@ export async function onRequest(context) {
   try {
     if (request.method === 'GET') return await handleGet(kv, url);
     if (request.method === 'POST') {
-      const action = url.searchParams.get('action');
       if (action === 'open') return await handleOpen(kv, request);
       if (action === 'reset') return await handleReset(kv);
       if (action !== null) return badRequest();
