@@ -78,6 +78,7 @@ function sha256Hex(str) {
   try { key = new URLSearchParams(window.location.search).get('key') || ''; } catch (e) {}
   if (key && sha256Hex(key) === WORKSTATION_KEY_HASH) {
     try { sessionStorage.setItem('director_unlocked', '1'); } catch (e) {}
+    try { sessionStorage.setItem('WORKSTATION_KEY', key); } catch (e) {}
     return;
   }
   location.replace('gate.html');
@@ -328,6 +329,9 @@ function sha256Hex(str) {
             <button class="btn btn-g" id="btnScreen">🖥 第二屏（S）</button>
             <button class="btn btn-g" id="btnWord">📄 导出 Word（W）</button>
           </div>
+          <div class="side-row" style="margin-top:6px;">
+            <button class="btn btn-g" id="btnGroupPage" style="width:100%;">📝 组端填写页（各组提案）</button>
+          </div>
         </div>
       </div>
     </div>
@@ -395,6 +399,7 @@ function sha256Hex(str) {
     </div>
   </div>
 </div>
+
 <!-- ================= 席位档案弹窗 ================= -->
 <div class="mask" id="mask">
   <div class="modal">

@@ -224,6 +224,7 @@ document.getElementById('gateForm').addEventListener('submit', function (ev) {
   var errEl = document.getElementById('gateErr');
   if (val && sha256Hex(val) === WORKSTATION_KEY_HASH) {
     try { sessionStorage.setItem('director_unlocked', '1'); } catch (e) {}
+    try { sessionStorage.setItem('WORKSTATION_KEY', val); } catch (e) {}
     /* 重定向到带 key 的地址，这样地址栏本身就是一条可复制的专属链接 */
     location.replace('index.html?key=' + encodeURIComponent(val));
   } else {

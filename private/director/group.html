@@ -1,0 +1,1215 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow">
+<!-- ==== 访问门禁（仅线上私密部署版包含此段；本地 / 公开版无）====
+     访问方式：地址后追加 ?key=访问密钥
+     源码中只保存密钥的 SHA-256 哈希，密钥本体不入库。
+     解锁状态写入 sessionStorage；第二屏 screen.html 由 window.open() 打开，
+     会继承 opener 的 sessionStorage，因此第二屏无需在 URL 里带 key。
+     换密钥时请同时替换以下三处常量：本文件、screen.html、gate.html。 -->
+<script>
+var WORKSTATION_KEY_HASH = '2fe115eb0dac3a086b2cfee19270bd20d59156b2697bb2d0dcf9d6c47921154b';
+function sha256Hex(str) {
+            // 纯 JS SHA-256（用于兼容非 https 的本地打开场景）
+            function rightRotate(value, amount) {
+                return (value >>> amount) | (value << (32 - amount));
+            }
+            var mathPow = Math.pow, maxWord = mathPow(2, 32), lengthProperty = 'length';
+            var result = '', i, j;
+            var words = [], asciiBitLength = str[lengthProperty] * 8;
+            var hash = sha256Hex.h = sha256Hex.h || [];
+            var k = sha256Hex.k = sha256Hex.k || [];
+            var primeCounter = k[lengthProperty];
+            var isComposite = {};
+            for (var candidate = 2; primeCounter < 64; candidate++) {
+                if (!isComposite[candidate]) {
+                    for (i = 0; i < 313; i += candidate) isComposite[i] = candidate;
+                    hash[primeCounter] = (mathPow(candidate, 0.5) * maxWord) | 0;
+                    k[primeCounter++] = (mathPow(candidate, 1 / 3) * maxWord) | 0;
+                }
+            }
+            str += '\x80';
+            while (str[lengthProperty] % 64 - 56) str += '\x00';
+            for (i = 0; i < str[lengthProperty]; i++) {
+                j = str.charCodeAt(i);
+                if (j >> 8) return '';
+                words[i >> 2] |= j << ((3 - i) % 4) * 8;
+            }
+            words[words[lengthProperty]] = ((asciiBitLength / maxWord) | 0);
+            words[words[lengthProperty]] = (asciiBitLength);
+            for (j = 0; j < words[lengthProperty];) {
+                var w = words.slice(j, j += 16);
+                var oldHash = hash.slice(0, 8);
+                for (i = 0; i < 64; i++) {
+                    var w15 = w[i - 15], w2 = w[i - 2];
+                    var a = hash[0], e = hash[4];
+                    var temp1 = hash[7]
+                        + (rightRotate(e, 6) ^ rightRotate(e, 11) ^ rightRotate(e, 25))
+                        + ((e & hash[5]) ^ ((~e) & hash[6]))
+                        + k[i]
+                        + (w[i] = (i < 16) ? w[i] : (
+                            w[i - 16]
+                            + (rightRotate(w15, 7) ^ rightRotate(w15, 18) ^ (w15 >>> 3))
+                            + w[i - 7]
+                            + (rightRotate(w2, 17) ^ rightRotate(w2, 19) ^ (w2 >>> 10))
+                        ) | 0);
+                    var temp2 = (rightRotate(a, 2) ^ rightRotate(a, 13) ^ rightRotate(a, 22))
+                        + ((a & hash[1]) ^ (a & hash[2]) ^ (hash[1] & hash[2]));
+                    hash = [(temp1 + temp2) | 0].concat(hash);
+                    hash[4] = (hash[4] + temp1) | 0;
+                }
+                for (i = 0; i < 8; i++) hash[i] = (hash[i] + oldHash[i]) | 0;
+            }
+            for (i = 0; i < 8; i++) {
+                for (j = 3; j + 1; j--) {
+                    var b = (hash[i] >> (j * 8)) & 255;
+                    result += ((b < 16) ? 0 : '') + b.toString(16);
+                }
+            }
+            return result;
+        }
+(function () {
+  var ok = false;
+  try { ok = sessionStorage.getItem('director_unlocked') === '1'; } catch (e) {}
+  if (ok) return;
+  var key = '';
+  try { key = new URLSearchParams(window.location.search).get('key') || ''; } catch (e) {}
+  if (key && sha256Hex(key) === WORKSTATION_KEY_HASH) {
+    try { sessionStorage.setItem('director_unlocked', '1'); } catch (e) {}
+    try { sessionStorage.setItem('WORKSTATION_KEY', key); } catch (e) {}
+    return;
+  }
+  location.replace('gate.html');
+})();
+</script>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>分组提案填写 · 战略推演</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7.5' fill='%231A6FC4'/%3E%3Cpath d='M6 12V6h6M20 6h6v6M26 20v6h-6M12 26H6v-6' fill='none' stroke='rgba(255,255,255,.85)' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M12.6 11.8L19.8 16l-7.2 4.2z' fill='white'/%3E%3C/svg%3E">
+<style>
+/* ============================================================
+   组端填写页 · 提案（第一幕四点 / 第二幕三点）
+   单文件、自包含：无外部库、无构建、系统字体栈
+   视觉：品牌蓝 #1A6FC4 / 墨色 #1F2D3D / 底 #F6F8FB / 边框 #DFE6EF
+        圆角 ≤8px、无渐变、无投影
+   ============================================================ */
+:root{
+  color-scheme:light;
+  --brand:#1A6FC4;
+  --brand-strong:#155C9F;
+  --brand-soft:#E7F1FB;
+  --ink-1:#1F2D3D;
+  --ink-2:#46586B;
+  --ink-3:#6B7C8F;
+  --ink-4:#8A99A9;
+  --bg:#F6F8FB;
+  --card:#FFFFFF;
+  --line:#DFE6EF;
+  --line-soft:#EDF2F7;
+  --surf:#FBFCFE;
+  --surf-2:#F1F5FA;
+  --draft-bg:#FDF1E1; --draft-ink:#8F5406; --bd-draft:#F0DCB8;
+  --ok-bg:#E6F6EC;    --ok-ink:#1E7A3C;    --bd-ok:#B8E0C8;
+  --warn-bg:#FFF6E5;  --warn-ink:#8F5A05;  --bd-warn:#F0DFB8;
+  --danger:#B93131;
+  --r-s:4px; --r-m:6px; --r-l:8px;
+  --fs-2xs:10.5px; --fs-xs:11.5px; --fs-s:12.5px; --fs-base:13.5px;
+  --fs-m:15px; --fs-l:18px; --fs-xl:22px;
+  --font:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei","Source Han Sans SC","Noto Sans CJK SC",system-ui,sans-serif;
+  --mono:"Consolas","SF Mono","Menlo","Courier New",monospace;
+  --maxw:1080px;
+}
+*,*::before,*::after{box-sizing:border-box;}
+[hidden]{display:none !important;}
+html{-webkit-text-size-adjust:100%;}
+body{
+  margin:0;min-height:100vh;background:var(--bg);color:var(--ink-1);
+  font-family:var(--font);font-size:var(--fs-base);line-height:1.65;
+  -webkit-font-smoothing:antialiased;
+}
+a{color:var(--brand);text-decoration:none;}
+a:hover{text-decoration:underline;}
+button{font-family:inherit;}
+:focus-visible{outline:2px solid var(--brand);outline-offset:2px;}
+
+/* ---------- 顶栏 ---------- */
+.topbar{position:sticky;top:0;z-index:20;background:var(--card);border-bottom:1px solid var(--line);}
+.topbar-in{
+  max-width:var(--maxw);margin:0 auto;min-height:56px;padding:8px 20px;
+  display:flex;align-items:center;gap:16px;flex-wrap:wrap;
+}
+.brand{display:flex;align-items:center;gap:8px;min-width:0;}
+.brand svg{display:block;width:26px;height:26px;flex:0 0 auto;}
+.brand-t{font-size:var(--fs-m);font-weight:700;color:var(--ink-1);white-space:nowrap;letter-spacing:.2px;}
+.pick{display:flex;align-items:center;gap:8px;min-width:0;}
+.pick-l{font-size:var(--fs-s);color:var(--ink-3);white-space:nowrap;}
+#selGroup{
+  height:34px;max-width:min(330px,62vw);padding:0 30px 0 10px;
+  font-family:inherit;font-size:13px;color:var(--ink-1);
+  background-color:var(--surf);
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%236B7C8F' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 9px center;
+  border:1px solid var(--line);border-radius:var(--r-m);
+  -webkit-appearance:none;appearance:none;cursor:pointer;text-overflow:ellipsis;
+}
+#selGroup:hover{border-color:#C5DEF3;}
+#selGroup:focus{border-color:var(--brand);outline:2px solid rgba(26,111,196,.18);outline-offset:0;}
+.top-sp{flex:1 1 auto;}
+.top-right{display:flex;align-items:center;gap:14px;margin-left:auto;}
+.clock{font-family:var(--mono);font-size:12px;color:var(--ink-3);white-space:nowrap;}
+.lawlink{
+  display:inline-flex;align-items:center;height:30px;padding:0 12px;
+  border:1px solid var(--line);border-radius:var(--r-m);
+  background:var(--surf);color:var(--ink-2);font-size:var(--fs-s);font-weight:600;white-space:nowrap;
+}
+.lawlink:hover{color:var(--brand);border-color:#C5DEF3;background:var(--brand-soft);text-decoration:none;}
+
+/* ---------- 服务提示条 ---------- */
+.svc{background:var(--warn-bg);border-bottom:1px solid var(--bd-warn);color:var(--warn-ink);}
+.svc-in{
+  max-width:var(--maxw);margin:0 auto;padding:8px 20px;
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:var(--fs-s);
+}
+.svc-ic{
+  flex:0 0 auto;width:18px;height:18px;border-radius:50%;
+  background:var(--warn-ink);color:#fff;font-size:12px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;
+}
+.svc-retry{
+  margin-left:auto;padding:3px 10px;font-size:12px;color:var(--warn-ink);
+  background:transparent;border:1px solid var(--bd-warn);border-radius:var(--r-m);cursor:pointer;
+}
+.svc-retry:hover{background:rgba(143,90,5,.08);}
+
+/* ---------- 主体 ---------- */
+.wrap{max-width:var(--maxw);margin:0 auto;padding:20px 20px 64px;}
+.pagehead{
+  display:flex;align-items:flex-end;justify-content:space-between;gap:20px;
+  flex-wrap:wrap;margin:0 0 16px;
+}
+.ph-l{min-width:0;}
+#groupTitle{margin:0;font-size:var(--fs-xl);line-height:1.3;font-weight:700;color:var(--ink-1);overflow-wrap:anywhere;}
+.ph-sub{margin:5px 0 0;font-size:var(--fs-s);color:var(--ink-3);overflow-wrap:anywhere;}
+.ph-r{display:flex;align-items:center;gap:16px;}
+.cd{display:flex;flex-direction:column;align-items:flex-end;line-height:1.2;}
+.cd-lb{font-size:var(--fs-xs);color:var(--ink-3);white-space:nowrap;}
+.cd-num{font-family:var(--mono);font-size:21px;font-weight:700;color:var(--brand);letter-spacing:.6px;margin-top:2px;white-space:nowrap;}
+.cd.urgent .cd-num{color:var(--danger);}
+.badge{
+  display:inline-flex;align-items:center;height:24px;padding:0 10px;
+  border-radius:var(--r-m);font-size:12px;font-weight:600;white-space:nowrap;border:1px solid transparent;
+}
+.badge-draft{background:var(--draft-bg);color:var(--draft-ink);border-color:var(--bd-draft);}
+.badge-ok{background:var(--ok-bg);color:var(--ok-ink);border-color:var(--bd-ok);}
+.badge-locked{background:#EDF1F6;color:var(--ink-2);border-color:#CFDCE9;}
+
+.lockbar{
+  display:flex;align-items:center;gap:6px;flex-wrap:wrap;
+  margin:0 0 14px;padding:9px 14px;border:1px solid var(--bd-warn);border-radius:var(--r-l);
+  background:var(--warn-bg);color:var(--warn-ink);font-size:13px;
+}
+.lockbar b{font-weight:700;}
+
+.empty{background:var(--card);border:1px dashed var(--line);border-radius:var(--r-l);padding:44px 24px;text-align:center;}
+.empty b{display:block;margin-bottom:6px;font-size:var(--fs-m);color:var(--ink-1);}
+.empty p{margin:0 auto;max-width:540px;font-size:13px;line-height:1.8;color:var(--ink-3);}
+
+/* ---------- 幕次 tab ---------- */
+.tabs{display:flex;align-items:center;gap:4px;flex-wrap:wrap;border-bottom:1px solid var(--line);margin:0 0 16px;}
+.tab{
+  position:relative;margin-bottom:-1px;padding:10px 16px;border:0;border-bottom:2px solid transparent;
+  background:none;color:var(--ink-3);font-size:14px;font-weight:600;cursor:pointer;white-space:nowrap;
+}
+.tab:hover{color:var(--ink-1);}
+.tab[aria-selected="true"]{color:var(--brand);border-bottom-color:var(--brand);}
+.tab .tab-st{margin-left:6px;font-size:var(--fs-xs);font-weight:400;color:var(--ink-4);}
+.tab[aria-selected="true"] .tab-st{color:var(--brand);}
+.tabs .sp{flex:1 1 auto;}
+.saved{font-size:var(--fs-xs);color:var(--ink-3);white-space:nowrap;padding-bottom:2px;}
+.saved.err{color:var(--warn-ink);}
+
+/* ---------- 填写面板 ---------- */
+.pane-h{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 12px;}
+.pane-h h2{margin:0;font-size:var(--fs-m);font-weight:700;color:var(--ink-1);}
+.pane-h .dl{font-size:var(--fs-xs);color:var(--ink-3);}
+.pane-lock{
+  margin:0 0 12px;padding:8px 12px;border:1px solid var(--bd-warn);border-radius:var(--r-m);
+  background:var(--warn-bg);color:var(--warn-ink);font-size:var(--fs-s);
+}
+.fields{display:flex;flex-direction:column;gap:12px;}
+.field{
+  display:grid;grid-template-columns:1fr;gap:8px;
+  padding:14px;background:var(--card);border:1px solid var(--line);border-radius:var(--r-l);
+}
+.f-l{min-width:0;}
+.f-name{display:block;margin-bottom:4px;font-size:var(--fs-base);font-weight:700;color:var(--ink-1);}
+.f-hint{margin:0;font-size:12px;line-height:1.7;color:var(--ink-3);}
+.f-r{display:flex;flex-direction:column;gap:5px;min-width:0;}
+textarea{
+  width:100%;min-height:128px;padding:10px 12px;
+  border:1px solid var(--line);border-radius:var(--r-m);background:var(--surf);
+  color:var(--ink-1);font-family:inherit;font-size:var(--fs-base);line-height:1.7;
+  resize:vertical;outline:none;transition:border-color .15s;
+}
+textarea::placeholder{color:var(--ink-4);}
+textarea:hover:not(:disabled){border-color:#C9D6E4;}
+textarea:focus{border-color:var(--brand);outline:2px solid rgba(26,111,196,.16);outline-offset:0;}
+textarea:disabled{background:var(--surf-2);color:var(--ink-3);border-color:var(--line-soft);cursor:not-allowed;}
+.f-meta{display:flex;justify-content:flex-end;font-family:var(--mono);font-size:var(--fs-2xs);color:var(--ink-4);}
+.cnt.warn{color:var(--danger);font-weight:700;}
+.actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:16px;}
+.actions .sp{flex:1 1 auto;}
+.act-msg{font-size:12px;color:var(--ink-3);min-height:1em;}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;height:38px;padding:0 20px;
+  border:1px solid transparent;border-radius:var(--r-m);
+  font-size:var(--fs-base);font-weight:600;cursor:pointer;
+  transition:background-color .15s,color .15s,border-color .15s;
+}
+.btn-p{background:var(--brand);color:#fff;border-color:var(--brand);}
+.btn-p:hover:not(:disabled){background:var(--brand-strong);border-color:var(--brand-strong);}
+.btn-p:disabled{background:#B9CFE6;border-color:#B9CFE6;color:#fff;cursor:not-allowed;}
+
+/* ---------- 第一幕参照卡（第二幕页） ---------- */
+.refcard{margin:0 0 18px;border:1px solid var(--line);border-radius:var(--r-l);background:var(--surf);}
+.refcard>summary{
+  display:flex;align-items:center;gap:8px;padding:11px 14px;
+  font-size:13px;font-weight:700;color:var(--ink-1);list-style:none;cursor:pointer;
+}
+.refcard>summary::-webkit-details-marker{display:none;}
+.refcard>summary::before{content:"\25B8";display:inline-block;font-size:11px;color:var(--ink-3);}
+.refcard[open]>summary::before{content:"\25BE";}
+.ref-t{flex:1 1 auto;min-width:0;}
+.ref-st{font-size:var(--fs-xs);font-weight:400;color:var(--ink-3);}
+.refcard-b{padding:0 14px 14px;display:flex;flex-direction:column;}
+.ref-item{padding:10px 0;border-top:1px solid var(--line-soft);}
+.ref-item b{display:block;margin-bottom:3px;font-size:12px;font-weight:700;color:var(--brand);}
+.ref-item p{margin:0;font-size:13px;line-height:1.75;color:var(--ink-2);white-space:pre-wrap;overflow-wrap:anywhere;}
+.ref-empty{padding:2px 0 4px;border-top:1px solid var(--line-soft);font-size:var(--fs-s);color:var(--ink-3);}
+
+.foot{margin:22px 0 0;font-size:var(--fs-xs);line-height:1.8;color:var(--ink-4);text-align:center;}
+
+/* ---------- 轻提示 ---------- */
+.toast{
+  position:fixed;left:50%;bottom:28px;z-index:60;max-width:min(560px,90vw);
+  transform:translate(-50%,8px);padding:9px 16px;border-radius:var(--r-m);
+  background:var(--ink-1);color:#fff;font-size:var(--fs-s);line-height:1.5;text-align:center;
+  opacity:0;pointer-events:none;transition:opacity .18s,transform .18s;
+}
+.toast.show{opacity:1;transform:translate(-50%,0);}
+
+/* ---------- 窄屏 ---------- */
+@media (max-width:759px){
+  .topbar-in{padding:8px 14px;gap:10px;}
+  .brand-t{font-size:14px;}
+  .pick{order:3;width:100%;justify-content:space-between;}
+  #selGroup{flex:1 1 auto;min-width:0;max-width:none;}
+  .wrap{padding:14px 14px 56px;}
+  #groupTitle{font-size:19px;}
+  .ph-r{width:100%;justify-content:space-between;gap:12px;}
+  .cd{align-items:flex-start;}
+  .cd-num{font-size:19px;}
+  .tab{padding:9px 12px;font-size:13px;}
+  .tabs .saved{width:100%;padding:0 0 6px;}
+  .svc-in{padding:8px 14px;}
+  .field{padding:13px;}
+  .actions{flex-direction:column-reverse;align-items:stretch;}
+  .actions .btn{width:100%;}
+  .actions .sp{display:none;}
+  .act-msg{order:2;text-align:center;}
+}
+@media (min-width:760px){
+  .field{grid-template-columns:248px minmax(0,1fr);gap:20px;padding:16px 18px;align-items:start;}
+}
+</style>
+</head>
+<body>
+
+<!-- ================= 顶栏 ================= -->
+<header class="topbar">
+  <div class="topbar-in">
+    <div class="brand">
+      <svg viewBox="0 0 32 32" role="img" aria-label="战略推演标志">
+        <rect x="1" y="1" width="30" height="30" rx="7.5" fill="#1A6FC4"></rect>
+        <path d="M6 12V6h6M20 6h6v6M26 20v6h-6M12 26H6v-6" fill="none" stroke="rgba(255,255,255,.85)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path>
+        <path d="M12.6 11.8L19.8 16l-7.2 4.2z" fill="#fff"></path>
+      </svg>
+      <span class="brand-t">分组提案填写</span>
+    </div>
+    <div class="pick">
+      <label class="pick-l" for="selGroup">本组</label>
+      <select id="selGroup" aria-label="选择本组"></select>
+    </div>
+    <div class="top-sp"></div>
+    <div class="top-right">
+      <span class="clock" id="clockNow" title="当前时间（已按服务器时间校正）">--:--:--</span>
+      <a class="lawlink" href="law.html" target="_blank" rel="noopener" title="在新标签打开法规与政策参考库">法规库 ↗</a>
+    </div>
+  </div>
+</header>
+
+<!-- ================= 服务状态提示（503 / 未授权 / 网络异常） ================= -->
+<div class="svc" id="svcBanner" role="status" hidden>
+  <div class="svc-in">
+    <span class="svc-ic" aria-hidden="true">!</span>
+    <span id="svcMsg">提案服务未启用（未绑定存储），当前内容仅保存在本机浏览器。</span>
+    <button type="button" class="svc-retry" id="svcRetry">重试</button>
+  </div>
+</div>
+
+<main class="wrap">
+  <div class="pagehead">
+    <div class="ph-l">
+      <h1 id="groupTitle">请选择本组</h1>
+      <p class="ph-sub" id="groupSub">在页面右上角选择本组（B101—B110）后即可填写两幕方案。</p>
+    </div>
+    <div class="ph-r">
+      <div class="cd" id="cdBox">
+        <span class="cd-lb" id="cdLabel">本幕倒计时</span>
+        <b class="cd-num" id="cdNum">--:--</b>
+      </div>
+      <span class="badge badge-draft" id="statusBadge" hidden>草稿</span>
+    </div>
+  </div>
+
+  <div class="lockbar" id="lockBar" role="status" hidden>
+    <b>本幕已锁定</b>，如需修改请联系导演组。
+  </div>
+
+  <!-- 未选组时的引导 -->
+  <section class="empty" id="emptyState">
+    <b>10 个组共用本链接</b>
+    <p>请在页面右上角下拉选择本组（B101—B110）。选组后即可填写第一幕四点方案与第二幕三点方案；内容输入停止 1.2 秒后自动保存，截止后自动锁定。</p>
+  </section>
+
+  <!-- 幕次切换 -->
+  <div class="tabs" id="tabsBar" role="tablist" aria-label="选择幕次" hidden>
+    <button type="button" class="tab" id="tab1" role="tab" aria-selected="true" aria-controls="pane1" data-act="1">第一幕 · 四点方案<span class="tab-st" id="tabSt1"></span></button>
+    <button type="button" class="tab" id="tab2" role="tab" aria-selected="false" aria-controls="pane2" data-act="2">第二幕 · 三点方案<span class="tab-st" id="tabSt2"></span></button>
+    <div class="sp"></div>
+    <span class="saved" id="savedHint" aria-live="polite">输入停止 1.2 秒后自动保存</span>
+  </div>
+
+  <!-- ================= 第一幕 ================= -->
+  <section class="pane" id="pane1" role="tabpanel" aria-labelledby="tab1" hidden>
+    <div class="pane-h">
+      <h2>第一幕 · 场景一方案</h2>
+      <span class="dl" id="dl1">第一幕截止 —</span>
+      <span class="badge badge-draft" id="paneBadge1">草稿</span>
+    </div>
+    <div class="pane-lock" id="paneLock1" hidden>本幕已锁定，如需修改请联系导演组。</div>
+    <div class="fields" id="fields1"></div>
+    <div class="actions">
+      <span class="act-msg" id="msg1" aria-live="polite"></span>
+      <span class="sp"></span>
+      <button type="button" class="btn btn-p" id="btnSubmit1">提交本幕</button>
+    </div>
+  </section>
+
+  <!-- ================= 第二幕 ================= -->
+  <section class="pane" id="pane2" role="tabpanel" aria-labelledby="tab2" hidden>
+    <details class="refcard" id="refCard" open>
+      <summary>
+        <span class="ref-t">本组第一幕方案（只读参照）</span>
+        <span class="ref-st" id="refSt"></span>
+      </summary>
+      <div class="refcard-b" id="refBody"></div>
+    </details>
+    <div class="pane-h">
+      <h2>第二幕 · 场景二方案</h2>
+      <span class="dl" id="dl2">第二幕截止 —</span>
+      <span class="badge badge-draft" id="paneBadge2">草稿</span>
+    </div>
+    <div class="pane-lock" id="paneLock2" hidden>本幕已锁定，如需修改请联系导演组。</div>
+    <div class="fields" id="fields2"></div>
+    <div class="actions">
+      <span class="act-msg" id="msg2" aria-live="polite"></span>
+      <span class="sp"></span>
+      <button type="button" class="btn btn-p" id="btnSubmit2">提交本幕</button>
+    </div>
+  </section>
+
+  <p class="foot">截止前可反复修改；点击「提交本幕」后，导演台据此显示「已提交」，本页仍可继续修改。截止后自动锁定。</p>
+</main>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="assets/js/flow-data.js"></script>
+<script>
+(function(){
+'use strict';
+
+/* ============================================================
+   0. 数据与常量
+   ============================================================ */
+var DATA = window.__FLOW_DATA__ || {};
+var SESSIONS = Array.isArray(DATA.sessions) ? DATA.sessions : [];
+var COURSE = DATA.course || {};
+var INIT = DATA.initialState || {};
+var DEADLINES = (INIT && INIT.deadlines) ? INIT.deadlines : {};
+var MAX_LEN = 5000;
+
+var FIELD_DEFS = {
+  '1': [
+    {key:'situation', name:'形势研判',
+     hint:'发生了什么、风险点在哪、涉及哪些群体与法律',
+     ph:'本组对事件经过、核心风险点、涉及群体与相关法律依据的研判…'},
+    {key:'approach', name:'对策思路',
+     hint:'处置原则与总体思路',
+     ph:'处置原则、总体路径与优先顺序…'},
+    {key:'measures', name:'处置措施',
+     hint:'谁来做、做什么、什么时间节点',
+     ph:'牵头单位 / 配合单位 / 具体动作 / 时间节点…'},
+    {key:'forecast', name:'效果预估',
+     hint:'预期效果与可能的次生风险',
+     ph:'预期达到的效果、可能出现的次生风险与应对…'}
+  ],
+  '2': [
+    {key:'judgement', name:'总体研判',
+     hint:'结合第二幕新情况，重新判断风险与走势',
+     ph:'第二幕出现的新情况、风险走势与关键矛盾…'},
+    {key:'approach', name:'对策思路',
+     hint:'在第二幕条件下的处置原则与总体思路',
+     ph:'在第二幕条件下的处置原则与总体思路（相较第一幕如何调整）…'},
+    {key:'measures', name:'处置措施',
+     hint:'谁来做、做什么、什么时间节点（含与第一幕的衔接）',
+     ph:'牵头单位 / 配合单位 / 具体动作 / 时间节点 / 与第一幕的衔接…'}
+  ]
+};
+var ACT_META = {
+  '1': {name:'第一幕', title:'第一幕 · 场景一方案', tab:'第一幕 · 四点方案', deadlineKey:'3', serverKey:'act1'},
+  '2': {name:'第二幕', title:'第二幕 · 场景二方案', tab:'第二幕 · 三点方案', deadlineKey:'4', serverKey:'act2'}
+};
+var ACTS = ['1','2'];
+
+/* ============================================================
+   1. 状态
+   ============================================================ */
+var state = {
+  group: null,
+  serverOffset: 0,
+  timeSynced: false,
+  open: {act1:false, act2:false},
+  api: 'init',                 /* init | ok | down */
+  activeAct: '1',
+  proposals: {'1':null, '2':null},
+  submitted: {'1':false, '2':false},
+  dirty: {'1':false, '2':false},
+  saving: {'1':false, '2':false},
+  savedAt: {'1':null, '2':null},
+  timers: {'1':null, '2':null},
+  lockCache: {'1':null, '2':null}
+};
+
+/* ============================================================
+   2. DOM
+   ============================================================ */
+function byId(id){ return document.getElementById(id); }
+var ui = {
+  selGroup: byId('selGroup'),
+  clock: byId('clockNow'),
+  svc: byId('svcBanner'),
+  svcMsg: byId('svcMsg'),
+  svcRetry: byId('svcRetry'),
+  title: byId('groupTitle'),
+  sub: byId('groupSub'),
+  cdBox: byId('cdBox'),
+  cdLabel: byId('cdLabel'),
+  cdNum: byId('cdNum'),
+  badge: byId('statusBadge'),
+  lockbar: byId('lockBar'),
+  empty: byId('emptyState'),
+  tabs: byId('tabsBar'),
+  tab1: byId('tab1'),
+  tab2: byId('tab2'),
+  tabSt1: byId('tabSt1'),
+  tabSt2: byId('tabSt2'),
+  saved: byId('savedHint'),
+  pane1: byId('pane1'),
+  pane2: byId('pane2'),
+  dl1: byId('dl1'),
+  dl2: byId('dl2'),
+  paneBadge1: byId('paneBadge1'),
+  paneBadge2: byId('paneBadge2'),
+  paneLock1: byId('paneLock1'),
+  paneLock2: byId('paneLock2'),
+  fields1: byId('fields1'),
+  fields2: byId('fields2'),
+  msg1: byId('msg1'),
+  msg2: byId('msg2'),
+  btn1: byId('btnSubmit1'),
+  btn2: byId('btnSubmit2'),
+  refCard: byId('refCard'),
+  refSt: byId('refSt'),
+  refBody: byId('refBody'),
+  toast: byId('toast')
+};
+
+/* ============================================================
+   3. 工具
+   ============================================================ */
+function pad2(n){ return (n < 10 ? '0' : '') + n; }
+function hhmmss(ms){
+  var d = new Date(ms);
+  return pad2(d.getHours()) + ':' + pad2(d.getMinutes()) + ':' + pad2(d.getSeconds());
+}
+function fmtRemain(ms){
+  var s = Math.max(0, Math.floor(ms / 1000));
+  var h = Math.floor(s / 3600);
+  var m = Math.floor((s % 3600) / 60);
+  var sec = s % 60;
+  if (h > 0) return h + ':' + pad2(m) + ':' + pad2(sec);
+  return pad2(m) + ':' + pad2(sec);
+}
+function now(){ return Date.now() + state.serverOffset; }
+
+function deadlineMs(act){
+  var key = ACT_META[act].deadlineKey;
+  var hm = DEADLINES[key];
+  var date = String(COURSE.date || '').trim();
+  var dm = /^(\d{4})-(\d{2})-(\d{2})$/.exec(date);
+  var t = /^(\d{1,2}):(\d{2})$/.exec(String(hm || '').trim());
+  if (!dm || !t) return null;
+  return new Date(+dm[1], +dm[2] - 1, +dm[3], +t[1], +t[2], 0, 0).getTime();
+}
+function forcedOpen(act){ return state.open[ACT_META[act].serverKey] === true; }
+function isLocked(act){
+  var end = deadlineMs(act);
+  if (end == null) return false;
+  return now() > end && !forcedOpen(act);
+}
+function taFor(act, key){ return document.getElementById('f' + act + '-' + key); }
+function findSession(id){
+  for (var i = 0; i < SESSIONS.length; i++) { if (SESSIONS[i].id === id) return SESSIONS[i]; }
+  return null;
+}
+function apiKey(){
+  try { return sessionStorage.getItem('WORKSTATION_KEY') || ''; } catch (e) { return ''; }
+}
+function apiUrl(extra){
+  var url;
+  try { url = new URL('proposals', location.href); } catch (e) { url = null; }
+  if (!url) return 'proposals';
+  var k = apiKey();
+  if (k) url.searchParams.set('key', k);
+  if (extra) {
+    for (var p in extra) {
+      if (Object.prototype.hasOwnProperty.call(extra, p) && extra[p] != null) {
+        url.searchParams.set(p, extra[p]);
+      }
+    }
+  }
+  return url.href;
+}
+function draftKey(group, act){ return 'proposal_draft_' + group + '_' + act; }
+function readDraft(group, act){
+  try {
+    var raw = localStorage.getItem(draftKey(group, act));
+    if (!raw) return null;
+    var o = JSON.parse(raw);
+    return (o && typeof o === 'object') ? o : null;
+  } catch (e) { return null; }
+}
+function writeDraft(act, fields, submitted){
+  try {
+    if (!state.group) return false;
+    localStorage.setItem(draftKey(state.group, act),
+      JSON.stringify({fields:fields, submitted:!!submitted, savedAt:now()}));
+    return true;
+  } catch (e) { return false; }
+}
+
+var toastTimer = null;
+function toast(msg){
+  ui.toast.textContent = msg;
+  ui.toast.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(function(){ ui.toast.classList.remove('show'); }, 2600);
+}
+function setSavedHint(text, isErr){
+  ui.saved.textContent = text;
+  ui.saved.classList.toggle('err', !!isErr);
+}
+function setMsg(act, text){
+  var n = act === '1' ? ui.msg1 : ui.msg2;
+  if (n) n.textContent = text || '';
+}
+function updateCounter(act, ta){
+  var cnt = document.getElementById('cnt' + act + '-' + ta.dataset.key);
+  if (!cnt) return;
+  var n = String(ta.value || '').length;
+  cnt.textContent = n + ' / ' + MAX_LEN;
+  cnt.classList.toggle('warn', n >= MAX_LEN * 0.9);
+}
+function applyBadge(node, st){
+  if (!node) return;
+  if (!st) { node.hidden = true; return; }
+  node.hidden = false;
+  node.textContent = st.text;
+  node.className = 'badge ' + st.cls;
+}
+
+/* ============================================================
+   4. 构建表单
+   ============================================================ */
+function buildFields(){
+  ACTS.forEach(function(act){
+    var box = act === '1' ? ui.fields1 : ui.fields2;
+    var frag = document.createDocumentFragment();
+    FIELD_DEFS[act].forEach(function(f){
+      var wrap = document.createElement('div');
+      wrap.className = 'field';
+
+      var left = document.createElement('div');
+      left.className = 'f-l';
+      var lab = document.createElement('label');
+      lab.className = 'f-name';
+      lab.setAttribute('for', 'f' + act + '-' + f.key);
+      lab.textContent = f.name;
+      var hint = document.createElement('p');
+      hint.className = 'f-hint';
+      hint.id = 'h' + act + '-' + f.key;
+      hint.textContent = f.hint;
+      left.appendChild(lab);
+      left.appendChild(hint);
+
+      var right = document.createElement('div');
+      right.className = 'f-r';
+      var ta = document.createElement('textarea');
+      ta.id = 'f' + act + '-' + f.key;
+      ta.dataset.key = f.key;
+      ta.dataset.act = act;
+      ta.rows = 5;
+      ta.maxLength = MAX_LEN;
+      ta.placeholder = f.ph || '';
+      ta.setAttribute('aria-describedby', 'h' + act + '-' + f.key);
+      ta.addEventListener('input', function(){ onInput(act, ta); });
+      var meta = document.createElement('div');
+      meta.className = 'f-meta';
+      var cnt = document.createElement('span');
+      cnt.className = 'cnt';
+      cnt.id = 'cnt' + act + '-' + f.key;
+      cnt.textContent = '0 / ' + MAX_LEN;
+      meta.appendChild(cnt);
+      right.appendChild(ta);
+      right.appendChild(meta);
+
+      wrap.appendChild(left);
+      wrap.appendChild(right);
+      frag.appendChild(wrap);
+    });
+    box.appendChild(frag);
+  });
+}
+
+function populateSelect(){
+  var frag = document.createDocumentFragment();
+  var ph = document.createElement('option');
+  ph.value = '';
+  ph.textContent = '请选择本组…';
+  frag.appendChild(ph);
+  SESSIONS.forEach(function(s){
+    var o = document.createElement('option');
+    o.value = s.id;
+    o.textContent = (s.code ? s.code + ' · ' : '') + (s.name || s.id);
+    frag.appendChild(o);
+  });
+  ui.selGroup.appendChild(frag);
+}
+
+/* ============================================================
+   5. 字段读写
+   ============================================================ */
+function applyFields(act, fields){
+  FIELD_DEFS[act].forEach(function(f){
+    var ta = taFor(act, f.key);
+    if (!ta) return;
+    var v = fields ? fields[f.key] : '';
+    ta.value = (v == null ? '' : String(v));
+    updateCounter(act, ta);
+  });
+}
+function clearFields(act){
+  applyFields(act, null);
+}
+function collectFields(act){
+  var out = {};
+  FIELD_DEFS[act].forEach(function(f){
+    var ta = taFor(act, f.key);
+    out[f.key] = ta ? String(ta.value || '').trim() : '';
+  });
+  return out;
+}
+
+/* ============================================================
+   6. 渲染
+   ============================================================ */
+function statusOf(act){
+  if (!state.group) return null;
+  if (isLocked(act)) return {text:'已锁定', cls:'badge-locked'};
+  if (state.submitted[act]) return {text:'已提交', cls:'badge-ok'};
+  return {text:'草稿', cls:'badge-draft'};
+}
+
+function renderGroup(){
+  var s = findSession(state.group);
+  if (!s) {
+    ui.title.textContent = '请选择本组';
+    ui.sub.textContent = '在页面右上角选择本组（B101—B110）后即可填写两幕方案。';
+    return;
+  }
+  ui.title.textContent = (s.code ? s.code + ' · ' : '') + (s.name || s.id);
+  var sys = (DATA.meta && DATA.meta.system) ? String(DATA.meta.system) : '战略推演';
+  var date = COURSE.date ? String(COURSE.date) : '';
+  ui.sub.textContent = sys + (date ? ' · ' + date : '') + ' · 组长填写页（第一幕四点 / 第二幕三点）';
+}
+
+function renderDeadlineLabels(){
+  ui.dl1.textContent = ACT_META['1'].name + '截止 ' + (DEADLINES[ACT_META['1'].deadlineKey] || '—');
+  ui.dl2.textContent = ACT_META['2'].name + '截止 ' + (DEADLINES[ACT_META['2'].deadlineKey] || '—');
+}
+
+function renderCountdown(){
+  var act = state.activeAct;
+  if (!state.group) {
+    ui.cdLabel.textContent = '本幕倒计时';
+    ui.cdNum.textContent = '--:--';
+    ui.cdBox.classList.remove('urgent');
+    return;
+  }
+  var end = deadlineMs(act);
+  if (end == null) {
+    ui.cdLabel.textContent = ACT_META[act].name + '无截止时间';
+    ui.cdNum.textContent = '--:--';
+    ui.cdBox.classList.remove('urgent');
+    return;
+  }
+  var t = now();
+  if (t > end && forcedOpen(act)) {
+    ui.cdLabel.textContent = '导演组已重新开放本幕';
+    ui.cdNum.textContent = '已重开';
+    ui.cdBox.classList.remove('urgent');
+    return;
+  }
+  var rem = end - t;
+  if (rem > 0) {
+    ui.cdLabel.textContent = '距' + ACT_META[act].name + '截止' + (state.timeSynced ? '' : '（本机时间）');
+    ui.cdNum.textContent = fmtRemain(rem);
+    ui.cdBox.classList.toggle('urgent', rem <= 300000);
+  } else {
+    ui.cdLabel.textContent = ACT_META[act].name + '已截止' + (state.timeSynced ? '' : '（本机时间）');
+    ui.cdNum.textContent = '00:00';
+    ui.cdBox.classList.remove('urgent');
+  }
+}
+
+function renderStatus(){
+  applyBadge(ui.badge, statusOf(state.activeAct));
+  applyBadge(ui.paneBadge1, statusOf('1'));
+  applyBadge(ui.paneBadge2, statusOf('2'));
+}
+
+function renderRefCard(){
+  var body = ui.refBody;
+  while (body.firstChild) body.removeChild(body.firstChild);
+  var has = false;
+  FIELD_DEFS['1'].forEach(function(f){
+    var ta = taFor('1', f.key);
+    var v = ta ? String(ta.value || '').trim() : '';
+    if (!v) return;
+    has = true;
+    var item = document.createElement('div');
+    item.className = 'ref-item';
+    var b = document.createElement('b');
+    b.textContent = f.name;
+    var p = document.createElement('p');
+    p.textContent = v;
+    item.appendChild(b);
+    item.appendChild(p);
+    body.appendChild(item);
+  });
+  if (!has) {
+    var e = document.createElement('div');
+    e.className = 'ref-empty';
+    e.textContent = '第一幕方案尚未填写。填写第一幕后，本组第二幕可在此对照第一幕的形势研判与处置措施。';
+    body.appendChild(e);
+  }
+  var st = state.group ? statusOf('1') : null;
+  ui.refSt.textContent = st ? ('第一幕 · ' + st.text) : '';
+}
+
+function renderTabs(){
+  var act = state.activeAct;
+  ACTS.forEach(function(a){
+    var tab = a === '1' ? ui.tab1 : ui.tab2;
+    var pane = a === '1' ? ui.pane1 : ui.pane2;
+    var stNode = a === '1' ? ui.tabSt1 : ui.tabSt2;
+    var sel = (a === act);
+    tab.setAttribute('aria-selected', sel ? 'true' : 'false');
+    tab.tabIndex = sel ? 0 : -1;
+    pane.hidden = !sel || !state.group;
+    var st = statusOf(a);
+    stNode.textContent = st ? st.text : '';
+  });
+  ui.tabs.hidden = !state.group;
+  ui.empty.hidden = !!state.group;
+  renderRefCard();
+  renderCountdown();
+}
+
+function renderLock(act){
+  var locked = isLocked(act);
+  state.lockCache[act] = locked;
+  var note = act === '1' ? ui.paneLock1 : ui.paneLock2;
+  var btn = act === '1' ? ui.btn1 : ui.btn2;
+  var disabled = locked || !state.group;
+  if (note) note.hidden = !locked;
+  if (btn) btn.disabled = disabled;
+  FIELD_DEFS[act].forEach(function(f){
+    var ta = taFor(act, f.key);
+    if (ta) ta.disabled = disabled;
+  });
+  if (act === state.activeAct) ui.lockbar.hidden = !locked;
+}
+
+function renderAll(){
+  renderGroup();
+  renderDeadlineLabels();
+  renderTabs();
+  renderStatus();
+  renderLock('1');
+  renderLock('2');
+  renderCountdown();
+}
+
+/* ============================================================
+   7. 服务端同步
+   ============================================================ */
+function setApi(kind, msg){
+  state.api = kind;
+  if (kind === 'ok') { ui.svc.hidden = true; return; }
+  if (msg) ui.svcMsg.textContent = msg;
+  ui.svc.hidden = false;
+}
+
+function applyServerRecord(act, p){
+  if (state.dirty[act] || state.saving[act]) return;
+  if (p.updatedAt) {
+    var t = Date.parse(p.updatedAt);
+    if (!isNaN(t) && state.savedAt[act] && state.savedAt[act] > t + 1500) return; /* 本机更新，勿覆盖 */
+  }
+  var f = (p.fields && typeof p.fields === 'object') ? p.fields : {};
+  applyFields(act, f);
+  state.proposals[act] = p;
+  state.submitted[act] = (p.submitted === true);
+  if (p.updatedAt) {
+    var tt = Date.parse(p.updatedAt);
+    if (!isNaN(tt)) state.savedAt[act] = tt;
+  }
+  renderStatus();
+  renderTabs();
+}
+
+function applyServer(data, groupId){
+  if (data.serverTime) {
+    var t = Date.parse(data.serverTime);
+    if (!isNaN(t)) { state.serverOffset = t - Date.now(); state.timeSynced = true; }
+  }
+  if (data.open && typeof data.open === 'object') {
+    state.open = {act1: data.open.act1 === true, act2: data.open.act2 === true};
+  }
+  var all = (data.proposals && typeof data.proposals === 'object') ? data.proposals : {};
+  var target = groupId || state.group;
+  if (target && all[target] && typeof all[target] === 'object') {
+    ACTS.forEach(function(act){
+      var p = all[target][ACT_META[act].serverKey];
+      if (p && typeof p === 'object') applyServerRecord(act, p);
+    });
+  }
+  renderAll();
+}
+
+function sync(groupId){
+  var url = apiUrl(groupId ? {group: groupId} : null);
+  return fetch(url, {cache:'no-store', headers:{'Accept':'application/json'}})
+    .then(function(res){
+      return res.json().catch(function(){ return null; }).then(function(data){
+        return {res: res, data: data};
+      });
+    })
+    .then(function(r){
+      if (r.res.ok && r.data && r.data.ok === true) {
+        applyServer(r.data, groupId);
+        setApi('ok');
+        return true;
+      }
+      if (r.res.status === 401) {
+        setApi('down', '提案服务未授权（访问密钥无效），当前内容仅保存在本机浏览器。');
+      } else if (r.res.status === 503) {
+        setApi('down', '提案服务未启用（未绑定存储），当前内容仅保存在本机浏览器。');
+      } else {
+        setApi('down', '提案服务暂时不可用，当前内容仅保存在本机浏览器。');
+      }
+      return false;
+    })
+    .catch(function(){
+      setApi('down', '提案服务未启用（未绑定存储），当前内容仅保存在本机浏览器。');
+      return false;
+    });
+}
+
+/* ============================================================
+   8. 保存 / 提交
+   ============================================================ */
+function saveAct(act, submitted, reason){
+  if (!state.group || isLocked(act)) return Promise.resolve(false);
+  clearTimeout(state.timers[act]);
+  state.timers[act] = null;
+  var fields = collectFields(act);
+  var payload = {
+    group: state.group,
+    act: Number(act),
+    fields: fields,
+    submitted: !!submitted
+  };
+  writeDraft(act, fields, !!submitted);
+  if (submitted) state.submitted[act] = true;
+  state.saving[act] = true;
+  setMsg(act, '正在保存…');
+  renderStatus();
+  renderTabs();
+
+  return fetch(apiUrl(), {
+    method: 'POST',
+    headers: {'Content-Type':'application/json', 'Accept':'application/json'},
+    body: JSON.stringify(payload),
+    cache: 'no-store'
+  })
+    .then(function(res){
+      return res.json().catch(function(){ return null; }).then(function(data){
+        return {res: res, data: data};
+      });
+    })
+    .then(function(r){
+      if (r.res.ok && r.data && r.data.ok === true && r.data.proposal) {
+        state.api = 'ok';
+        ui.svc.hidden = true;
+        state.proposals[act] = r.data.proposal;
+        state.submitted[act] = (r.data.proposal.submitted === true);
+        var t = Date.parse(r.data.proposal.updatedAt || '');
+        state.savedAt[act] = isNaN(t) ? now() : t;
+        state.dirty[act] = false;
+        setSavedHint((reason === 'submit' ? '已提交并保存 ' : '已保存 ') + hhmmss(now()));
+        setMsg(act, reason === 'submit' ? '已提交，仍可继续修改' : '');
+        return true;
+      }
+      throw new Error('save failed');
+    })
+    .catch(function(){
+      state.dirty[act] = false;
+      state.savedAt[act] = now();
+      if (state.api !== 'down') {
+        setApi('down', '提案服务暂时不可用，当前内容仅保存在本机浏览器。');
+      }
+      setSavedHint('已存本机 ' + hhmmss(now()), true);
+      setMsg(act, '保存失败，已存本机草稿');
+      return false;
+    })
+    .then(function(ok){
+      state.saving[act] = false;
+      renderStatus();
+      renderTabs();
+      renderLock(act);
+      if (reason === 'submit') {
+        if (ok) toast('本幕方案已提交，仍可继续修改');
+        else toast('提案服务未启用，提交状态仅保存在本机');
+      }
+      return ok;
+    });
+}
+
+function onInput(act, ta){
+  if (isLocked(act)) return;
+  state.dirty[act] = true;
+  updateCounter(act, ta);
+  setSavedHint('正在输入…');
+  setMsg(act, '');
+  clearTimeout(state.timers[act]);
+  state.timers[act] = setTimeout(function(){
+    saveAct(act, state.submitted[act], 'auto');
+  }, 1200);
+}
+
+function submitAct(act){
+  if (!state.group || isLocked(act)) return;
+  saveAct(act, true, 'submit');
+}
+
+function flushDirty(){
+  var jobs = [];
+  ACTS.forEach(function(act){
+    if (state.dirty[act] && state.group) {
+      clearTimeout(state.timers[act]);
+      state.timers[act] = null;
+      jobs.push(saveAct(act, state.submitted[act], 'auto'));
+    }
+  });
+  return Promise.all(jobs);
+}
+
+/* ============================================================
+   9. 选组与载入
+   ============================================================ */
+function resetGroupData(){
+  ACTS.forEach(function(act){
+    clearTimeout(state.timers[act]);
+    state.timers[act] = null;
+    state.dirty[act] = false;
+    state.saving[act] = false;
+    state.submitted[act] = false;
+    state.savedAt[act] = null;
+    state.proposals[act] = null;
+    clearFields(act);
+    setMsg(act, '');
+  });
+  setSavedHint('输入停止 1.2 秒后自动保存');
+}
+
+function loadDrafts(group){
+  var loaded = false;
+  ACTS.forEach(function(act){
+    var d = readDraft(group, act);
+    if (!d || !d.fields || typeof d.fields !== 'object') return;
+    applyFields(act, d.fields);
+    state.submitted[act] = (d.submitted === true);
+    if (d.savedAt) state.savedAt[act] = d.savedAt;
+    loaded = true;
+  });
+  if (loaded) setSavedHint('已载入本机草稿');
+}
+
+/* 载入/同步完成后的保存提示：优先显示服务端最后保存时间 */
+function hintAfterLoad(){
+  var act = state.activeAct;
+  if (state.dirty[act] || state.saving[act]) return;
+  var p = state.proposals[act];
+  if (p && p.updatedAt) {
+    var t = Date.parse(p.updatedAt);
+    if (!isNaN(t)) { setSavedHint('已同步 ' + hhmmss(t)); return; }
+  }
+  var d = state.group ? readDraft(state.group, act) : null;
+  if (d && d.savedAt) { setSavedHint('已载入本机草稿'); return; }
+  setSavedHint('输入停止 1.2 秒后自动保存');
+}
+
+function selectGroup(id){
+  var s = findSession(id);
+  if (!s) {
+    state.group = null;
+    try { localStorage.removeItem('proposal_group'); } catch (e) {}
+    ui.selGroup.value = '';
+    resetGroupData();
+    renderAll();
+    return Promise.resolve(false);
+  }
+  var prev = state.group;
+  var flush = (prev && prev !== id) ? flushDirty() : Promise.resolve();
+  return flush.then(function(){
+    state.group = id;
+    try { localStorage.setItem('proposal_group', id); } catch (e) {}
+    ui.selGroup.value = id;
+    resetGroupData();
+    loadDrafts(id);
+    state.activeAct = '1';
+    renderAll();
+    return sync(id).then(function(ok){ hintAfterLoad(); return ok; });
+  });
+}
+
+/* ============================================================
+   10. 计时
+   ============================================================ */
+function tick(){
+  if (document.hidden) return;
+  ui.clock.textContent = hhmmss(now());
+  renderCountdown();
+  ACTS.forEach(function(act){
+    var l = isLocked(act);
+    if (state.lockCache[act] !== l) {
+      renderLock(act);
+      renderStatus();
+      renderTabs();
+      renderCountdown();
+    }
+  });
+}
+
+/* ============================================================
+   11. 事件与启动
+   ============================================================ */
+function switchAct(act){
+  if (!state.group || state.activeAct === act) return;
+  state.activeAct = act;
+  renderTabs();
+  renderStatus();
+  renderLock('1');
+  renderLock('2');
+  renderCountdown();
+}
+
+function init(){
+  buildFields();
+  populateSelect();
+
+  ui.selGroup.addEventListener('change', function(){
+    selectGroup(ui.selGroup.value);
+  });
+  ui.tab1.addEventListener('click', function(){ switchAct('1'); });
+  ui.tab2.addEventListener('click', function(){ switchAct('2'); });
+  ui.btn1.addEventListener('click', function(){ submitAct('1'); });
+  ui.btn2.addEventListener('click', function(){ submitAct('2'); });
+  ui.svcRetry.addEventListener('click', function(){ sync(state.group || null); });
+
+  function onTabKey(e){
+    if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+    e.preventDefault();
+    var next = state.activeAct === '1' ? '2' : '1';
+    switchAct(next);
+    (next === '1' ? ui.tab1 : ui.tab2).focus();
+  }
+  ui.tab1.addEventListener('keydown', onTabKey);
+  ui.tab2.addEventListener('keydown', onTabKey);
+
+  document.addEventListener('visibilitychange', function(){
+    if (document.hidden) { flushDirty(); }
+    else { tick(); sync(state.group || null); }
+  });
+  window.addEventListener('beforeunload', function(){
+    if (state.dirty['1'] || state.dirty['2']) flushDirty();
+  });
+
+  renderAll();
+  sync(null);
+
+  var saved = null;
+  try { saved = localStorage.getItem('proposal_group'); } catch (e) {}
+  if (saved && findSession(saved)) selectGroup(saved);
+
+  tick();
+  setInterval(tick, 1000);
+  setInterval(function(){
+    if (!document.hidden) sync(state.group || null);
+  }, 30000);
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
+}
+})();
+</script>
+</body>
+</html>

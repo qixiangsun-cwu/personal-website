@@ -218,8 +218,134 @@ function renderSteps(){
 
 /* ---------------- 提交状态 ---------------- */
 const subKey = (sid,act) => `${sid}__${act}`;
+
+/* ---------------- 各组提案（组端 group.html 提交，存 Cloudflare KV） ----------------
+   契约见 Temp\opencode\proposal_spec.md。
+   优先读服务端；服务端不可用时自动退回本机 S.submissions（旧演示逻辑，彩排可用）。 */
+const PROPOSAL_API = (()=>{ try{ return new URL('proposals', location.href).href; }catch(e){ return 'proposals'; } })();
+const PROPOSAL_FIELDS = { 1:['situation','approach','measures','forecast'], 2:['judgement','approach','measures'] };
+const PROPOSAL_LABELS = { situation:'形势研判', approach:'对策思路', measures:'处置措施', forecast:'效果预估', judgement:'总体研判' };
+const PROPOSAL_CACHE  = 'director_proposals_cache';
+let PROPOSALS = null;      // { ok, proposals:{sid:{act1,act2}}, open:{act1,act2}, offsetMs }
+let proposalTimer = null;
+let proposalBusy = false;
+
+function proposalKey(){
+  try{ return sessionStorage.getItem('WORKSTATION_KEY') || ''; }catch(e){ return ''; }
+}
+function proposalStamp(iso){
+  if(!iso) return '';
+  const d = new Date(iso);
+  if(isNaN(d)) return '';
+  return `${pad(d.getMonth()+1)}/${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+function proposalOf(sid, act){
+  const p = (PROPOSALS && PROPOSALS.ok && PROPOSALS.proposals) ? PROPOSALS.proposals[sid] : null;
+  return p ? (p['act'+act] || null) : null;
+}
+function proposalText(act, fields){
+  return PROPOSAL_FIELDS[act].map(k=>`【${PROPOSAL_LABELS[k]}】${((fields||{})[k]||'').trim() || '（未填）'}`).join('\n');
+}
+/* 打印 / Word / 归档用：带标签的 HTML 片段（Word 不认 pre-line，必须用 <br>） */
+function proposalHTML(act, rec){
+  if(!rec || rec.status==='none') return '<span style="color:#888;">未提交</span>';
+  return PROPOSAL_FIELDS[act].map(k=>{
+    const v = ((rec.fields||{})[k] || '').trim();
+    return `<b>【${PROPOSAL_LABELS[k]}】</b><br>${v ? esc(v).replace(/\n/g,'<br>') : '（未填）'}`;
+  }).join('<br>');
+}
+/* 截止锁定：到点且导演未“重开本幕”即锁定 */
+function proposalLocked(act){
+  const dl = (D && D.initialState && D.initialState.deadlines) ? D.initialState.deadlines[act===1?'3':'4'] : null;
+  if(!dl) return false;
+  const target = Date.parse(`${D.course.date}T${dl}:00`);
+  if(isNaN(target)) return false;
+  if(PROPOSALS && PROPOSALS.ok && PROPOSALS.open && PROPOSALS.open['act'+act]) return false;
+  return Date.now() + ((PROPOSALS && PROPOSALS.offsetMs) || 0) > target;
+}
+async function fetchProposals(){
+  if(proposalBusy) return false;
+  proposalBusy = true;
+  try{
+    const u = new URL(PROPOSAL_API);
+    const k = proposalKey(); if(k) u.searchParams.set('key', k);
+    const res = await fetch(u.href, { cache:'no-store' });
+    const j = await res.json().catch(()=>null);
+    if(res.ok && j && j.ok){
+      PROPOSALS = {
+        ok:true, proposals:j.proposals || {}, open:j.open || {},
+        offsetMs: j.serverTime ? (Date.parse(j.serverTime) - Date.now()) : 0
+      };
+      /* 中继给第二屏（第二屏零后端，只读 localStorage） */
+      try{
+        localStorage.setItem(PROPOSAL_CACHE, JSON.stringify({
+          at: Date.now(), proposals: PROPOSALS.proposals, open: PROPOSALS.open
+        }));
+      }catch(e){}
+      return true;
+    }
+    PROPOSALS = { ok:false, error:(j && j.error) || ('http_'+res.status) };
+  }catch(e){
+    PROPOSALS = { ok:false, error:'network' };
+  }finally{
+    proposalBusy = false;
+  }
+  return false;
+}
+async function proposalPost(body, action){
+  const u = new URL(PROPOSAL_API);
+  const k = proposalKey(); if(k) u.searchParams.set('key', k);
+  if(action) u.searchParams.set('action', action);
+  try{
+    const res = await fetch(u.href, {
+      method:'POST', cache:'no-store', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(body || {})
+    });
+    const j = await res.json().catch(()=>null);
+    if(res.ok && j && j.ok) return j;
+    toast(`提案服务返回 ${res.status}${j && j.error ? ' · '+j.error : ''}`);
+  }catch(e){
+    toast('提案服务不可达：请检查网络，或在 Cloudflare 绑定 KV 后重试');
+  }
+  return null;
+}
+async function refreshProposals(){
+  await fetchProposals();
+  renderProgress(); renderSeatTable(); renderSeatTabs(); renderCompare();
+  renderSeatMini(); buildPrintArea(); renderProposalStatus();
+}
+function startProposalPolling(){
+  refreshProposals();
+  clearInterval(proposalTimer);
+  proposalTimer = setInterval(()=>{ if(document.visibilityState === 'visible') refreshProposals(); }, 5000);
+  document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) refreshProposals(); });
+  window.addEventListener('storage', e=>{
+    if(e.key === PROPOSAL_CACHE) refreshProposals();     /* 第二屏 / 多标签页互相拉齐 */
+  });
+}
+function renderProposalStatus(){
+  const el = $('#seatTag');
+  if(!el) return;
+  const ok = !!(PROPOSALS && PROPOSALS.ok);
+  el.textContent = `${S.speakerOrder.length} 方参演 · ${ok ? '提案实时同步' : '提案未接入'}`;
+  el.title = ok
+    ? '各组在 group.html 填写，控制台每 5 秒自动刷新'
+    : '未检测到提案服务（需在 Cloudflare 绑定 KV）；当前仅本机演示数据可用';
+}
+
 function subOf(sid, act){
-  return S.submissions[subKey(sid,act)] || {status:'none', savedAt:'', submittedAt:'', text:''};
+  const p = proposalOf(sid, act);
+  if(p){
+    const fields = p.fields || {};
+    return {
+      status: p.submitted ? 'done' : 'draft',
+      savedAt: proposalStamp(p.updatedAt),
+      submittedAt: p.submitted ? proposalStamp(p.updatedAt) : '',
+      text: proposalText(act, fields),
+      fields, fromServer: true
+    };
+  }
+  return S.submissions[subKey(sid,act)] || {status:'none', savedAt:'', submittedAt:'', text:'', fields:{}};
 }
 function setSub(sid, act, patch){
   const k = subKey(sid,act);
@@ -375,16 +501,25 @@ function renderCompare(){
   $('#cmp1Title').innerHTML = `${esc(s.name)} · ${actMark(1, true)} 第一幕`;
   $('#cmp2Title').innerHTML = `${esc(s.name)} · ${actMark(2, true)} 第二幕`;
   const a1 = subOf(s.id,1), a2 = subOf(s.id,2);
-  $('#cmp1Meta').textContent = a1.submittedAt ? `正式提交 · ${a1.submittedAt}` : '尚未正式提交';
-  $('#cmp2Meta').textContent = a2.submittedAt ? `正式提交 · ${a2.submittedAt}` : '尚未正式提交';
+  const meta = r => {
+    if(r.fromServer) return r.status==='done'
+      ? `已提交 · ${r.submittedAt}`
+      : `草稿 · ${r.savedAt}（组端尚未点“提交本幕”）`;
+    return r.submittedAt ? `正式提交 · ${r.submittedAt}` : '尚未正式提交';
+  };
+  $('#cmp1Meta').textContent = meta(a1);
+  $('#cmp2Meta').textContent = meta(a2);
 
-  const body = (rec, actName) => {
+  const body = (rec, act, actName) => {
+    if(rec.fromServer && rec.status !== 'none')
+      return (rec.status === 'done' ? '' : '<div class="cmp-meta" style="margin-bottom:6px;">草稿（组端尚未点“提交本幕”）</div>')
+        + `<div class="cmp-text">${proposalHTML(act, rec)}</div>`;
     if(rec.status==='done') return `<div class="cmp-text">${esc(rec.text||'（正式提交内容待技术平台回填）')}</div>`;
     if(rec.status==='draft') return `<div class="cmp-empty"><b>本组已保存草稿</b>尚未正式提交，按规则不展示草稿内容。<br>导演组可在技术平台查看，或代为提交。</div>`;
     return `<div class="cmp-empty"><b>尚未正式提交</b>该组${actName}方案未提交，<br>正式提交后将在此双栏对比展示。</div>`;
   };
-  $('#cmp1Body').innerHTML = body(a1,'场景一');
-  $('#cmp2Body').innerHTML = body(a2,'场景二');
+  $('#cmp1Body').innerHTML = body(a1, 1, '场景一');
+  $('#cmp2Body').innerHTML = body(a2, 2, '场景二');
 }
 
 /* ---------------- 席位档案侧栏 ---------------- */
@@ -434,14 +569,22 @@ function openArchive(sid){
         <div>第一幕：${stChip(a1)}</div>
         <div>第二幕：${stChip(a2)}</div>
       </div>
-      <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">
-        <button class="btn btn-o btn-sm" data-sim="${sid}|1|done">模拟第一幕已提交</button>
-        <button class="btn btn-g btn-sm" data-sim="${sid}|1|draft">存为草稿</button>
-        <button class="btn btn-o btn-sm" data-sim="${sid}|2|done">模拟第二幕已提交</button>
-        <button class="btn btn-g btn-sm" data-sim="${sid}|2|draft">存为草稿</button>
-        <button class="btn btn-g btn-sm" data-sim="${sid}|0|reset">重置该席位</button>
+      <div style="margin-top:12px;">
+        ${PROPOSALS && PROPOSALS.ok
+          ? `<div style="font-size:var(--fs-2xs);color:var(--ink-4);margin-bottom:10px;">数据来自各组在组端页面的实时提交（每 5 秒同步）</div>
+             <div style="font-size:12.5px;font-weight:700;margin-bottom:6px;">${actMark(1,true)} 第一幕方案</div>
+             <div class="cmp-text" style="min-height:0;">${a1.status==='none' ? '未提交' : proposalHTML(1,a1)}</div>
+             <div style="font-size:12.5px;font-weight:700;margin:12px 0 6px;">${actMark(2,true)} 第二幕方案</div>
+             <div class="cmp-text" style="min-height:0;">${a2.status==='none' ? '未提交' : proposalHTML(2,a2)}</div>`
+          : `<div style="display:flex;gap:8px;flex-wrap:wrap;">
+               <button class="btn btn-o btn-sm" data-sim="${sid}|1|done">模拟第一幕已提交</button>
+               <button class="btn btn-g btn-sm" data-sim="${sid}|1|draft">存为草稿</button>
+               <button class="btn btn-o btn-sm" data-sim="${sid}|2|done">模拟第二幕已提交</button>
+               <button class="btn btn-g btn-sm" data-sim="${sid}|2|draft">存为草稿</button>
+               <button class="btn btn-g btn-sm" data-sim="${sid}|0|reset">重置该席位</button>
+             </div>
+             <div style="margin-top:8px;font-size:var(--fs-2xs);color:var(--ink-4);">「模拟」用于现场彩排与流程验证；接入提案服务后，此处显示各组真实提交。</div>`}
       </div>
-      <div style="margin-top:8px;font-size:var(--fs-2xs);color:var(--ink-4);">「模拟」用于现场彩排与流程验证，正式上课时由技术平台回填真实状态。</div>
     </div>
     <div style="margin-top:14px;padding:10px 12px;background:var(--blue-50);border:1px solid var(--blue-100);border-radius:var(--r-m);font-size:12px;color:var(--ink-2);line-height:1.85;">
       <b style="color:var(--blue-900);">席位档案说明</b><br>
@@ -542,6 +685,8 @@ function renderSide(){
   const wsel = $('#selWarn');
   if(wsel.options.length !== D.warnings.length)
     wsel.innerHTML = D.warnings.map(x=>`<option value="${x.id}">${esc(x.label)}</option>`).join('');
+  /* 历史 localStorage 里可能存着已被删除的警告 id（如旧的「国外疫情输入」），回退到不设置 */
+  if(!D.warnings.some(x=>x.id===S.warningId)){ S.warningId = D.warnings[0].id; saveState(); }
   wsel.value = S.warningId;
   const w = D.warnings.find(x=>x.id===S.warningId) || D.warnings[0];
   const wb = $('#vpWarn');
@@ -690,6 +835,23 @@ function printHTML(){
   const warn = D.warnings.find(x=>x.id===S.warningId);
   const flags = D.script.filter(x=>x.flagNote);
 
+  /* 各组方案原文（打印/Word 用全文；草稿也打印出来，避免组端漏点“提交”时现场没内容） */
+  const propCell = (r, act) => {
+    if(r.status==='none') return '未提交';
+    const draft = r.status==='draft' ? '<br><span style="color:#8F5406;">（草稿）</span>' : '';
+    if(r.fromServer) return proposalHTML(act, r) + draft;
+    return esc(r.text||'（无内容）').replace(/\n/g,'<br>') + draft;
+  };
+  const propRows = order.map((x,i)=>{
+    const a1 = subOf(x.id,1), a2 = subOf(x.id,2);
+    return `<tr>
+      <td style="width:4%;">${i+1}</td>
+      <td style="width:13%;">${esc(x.code)}<br>${esc(x.name)}</td>
+      <td>${propCell(a1,1)}</td>
+      <td>${propCell(a2,2)}</td>
+    </tr>`;
+  }).join('');
+
   return `
     <div class="pr-h">
       <h1>导演组流程脚本 · 导播单</h1>
@@ -711,6 +873,7 @@ function printHTML(){
           <tr><th>参演方数</th><td>${S.speakerOrder.length} 方</td></tr>
           <tr><th>提交封控</th><td>${S.lock?'已封控':'未封控'}</td></tr>
           <tr><th>警告提示</th><td>${warn&&warn.id!=='w0'?esc(warn.text):'无'}</td></tr>
+          <tr><th>提案同步</th><td>${PROPOSALS&&PROPOSALS.ok?'已接入（各组组端提交）':'未接入（本机演示数据）'}</td></tr>
           <tr><th>关键截止</th><td>${Object.entries(S.deadlines).map(([k,v])=>`环节 ${k} 前 ${esc(v)}`).join('；')||'—'}</td></tr>
         </tbody></table>
       </div>
@@ -733,12 +896,24 @@ function printHTML(){
     </div>
 
     <div class="pr-sec">
-      <h3>四、待确认事项</h3>
+      <h3>四、各组方案（组端提交原文）</h3>
+      <table>
+        <thead><tr>
+          <th>序</th><th>席位</th>
+          <th>${actMark(1,true)} 第一幕（形势研判 / 对策思路 / 处置措施 / 效果预估）</th>
+          <th>${actMark(2,true)} 第二幕（总体研判 / 对策思路 / 处置措施）</th>
+        </tr></thead>
+        <tbody>${propRows}</tbody>
+      </table>
+    </div>
+
+    <div class="pr-sec">
+      <h3>五、口径与素材说明</h3>
       <table><tbody>
         ${flags.map(x=>`<tr><td style="width:16%;">环节 ${x.no}</td><td>${esc(x.flagNote)}</td></tr>`).join('')}
         <tr><td style="width:16%;">席位口径</td><td>《事件处置方分组表》列 10 个处置方，本单按 <strong>10 方全部参演</strong>（十方推演）处理，发言顺序为分组表序号 1—10。其中 B市妇联部门为主办方，同时作为第 1 号参演席位参与集中研讨三轮发言。源文档《导演组流程脚本.doc》原称「九方」，现以十方为准。</td></tr>
-        <tr><td style="width:16%;">素材规格</td><td>导入片《战略匠心》源文件为 640×368 / 7 分钟；环节1 时长由 5 分钟调整为 7 分钟以与素材对齐，后续环节顺延，全课结束时刻为 12:32。</td></tr>
-        <tr><td style="width:16%;">素材版本</td><td>页面使用 h264 转码版（场景一 1280×720 / 场景二 1280×720）；微信目录中的 HEVC 原片（1922×1080）浏览器不可直接播放。</td></tr>
+        <tr><td style="width:16%;">素材清单</td><td>本场 5 段：先导片·战略推演背景 07:00（960×540）；科普短片一 02:59、科普短片二 03:00（640×368）；情景一 03:05、情景二 02:52（1280×720）。单文件均 ≤25 MB，H.264 / AAC，浏览器直接播放。</td></tr>
+        <tr><td style="width:16%;">素材版本</td><td>情景一/二 源为 HEVC（1922×1080），已转 H.264；科普短片为源文件重封装；均带 faststart，可边下边播。情景二由学生助理在各分组教室播放。</td></tr>
       </tbody></table>
     </div>
 
@@ -938,6 +1113,30 @@ function askResetOrder(){
       S.speakerOrder = D.initialState.speakerOrder.slice();
       saveState(); renderOrder(); renderSeatTable();
       toast('发言顺序已恢复默认');
+    }
+  });
+}
+
+/* ---------------- 提案服务：重开本幕 / 清空本场 ---------------- */
+async function reopenAct(act){
+  if(!(PROPOSALS && PROPOSALS.ok)){ toast('提案服务未接入，无法重开'); return; }
+  const j = await proposalPost({ act, open:true }, 'open');
+  if(j){
+    await refreshProposals();
+    toast(`已重新开放第${act===1?'一':'二'}幕，各组可继续修改`);
+    closeConfirm(); setTimeout(openSettings, 80);
+  }
+}
+function askClearProposals(){
+  if(!(PROPOSALS && PROPOSALS.ok)){ toast('提案服务未接入，无可清空数据'); return; }
+  confirmAction({
+    title:'清空本场提案',
+    icon:'!',
+    okText:'确认清空',
+    body:'将删除 Cloudflare KV 中<em>全部 10 组 × 2 幕</em>的方案与「重开本幕」状态，<br><em>不可撤销</em>。建议只在正式场开始前、彩排数据需要作废时使用。',
+    onOk: async ()=>{
+      const j = await proposalPost({}, 'reset');
+      if(j){ await refreshProposals(); toast('本场提案已清空'); }
     }
   });
 }
@@ -1160,6 +1359,22 @@ function openSettings(){
         }
       </div>
       <div class="set-row">
+        <div class="sl"><b>各组提案</b><span>${
+          PROPOSALS && PROPOSALS.ok
+            ? '已接入 · 各组在组端页面提交，控制台每 5 秒同步'
+            : '未接入：需在 Cloudflare Pages 绑定 KV 变量 PROPOSALS（之后刷新本页）'
+        }</span></div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+          <a class="btn btn-g btn-sm" id="setGroupLink" target="_blank" rel="noopener">组端页</a>
+          <button class="btn btn-g btn-sm" id="setOpen1">重开第一幕</button>
+          <button class="btn btn-g btn-sm" id="setOpen2">重开第二幕</button>
+        </div>
+      </div>
+      <div class="set-row">
+        <div class="sl"><b>清空本场提案</b><span>删除云端全部方案与「重开本幕」状态，不可撤销</span></div>
+        <button class="btn btn-g btn-sm" id="setClearProp">清空</button>
+      </div>
+      <div class="set-row">
         <div class="sl"><b>恢复初始状态</b><span>清空本机保存的全部运行状态，不可撤销</span></div>
         <button class="btn btn-g btn-sm" id="setReset">执行</button>
       </div>
@@ -1168,7 +1383,7 @@ function openSettings(){
         <button class="btn btn-g btn-sm" id="setExport">导出</button>
       </div>
       <div class="set-row">
-        <div class="sl"><b>数据源</b><span>${esc(D.meta.docSource)} · ${esc(D.meta.revision)} · 纯静态无后端</span></div>
+        <div class="sl"><b>数据源</b><span>${esc(D.meta.docSource)} · ${esc(D.meta.revision)} · 纯静态 + 提案服务（Cloudflare Functions/KV）</span></div>
       </div>`
   });
   $('#setVoice').onclick = ()=>{
@@ -1179,6 +1394,11 @@ function openSettings(){
   };
   $('#setReset').onclick = ()=>{ closeConfirm(); setTimeout(askReset, 80); };
   $('#setExport').onclick = exportData;
+  const gl = $('#setGroupLink');
+  if(gl){ const k = proposalKey(); gl.href = 'group.html' + (k ? '?key='+encodeURIComponent(k) : ''); }
+  if($('#setOpen1')) $('#setOpen1').onclick = ()=>reopenAct(1);
+  if($('#setOpen2')) $('#setOpen2').onclick = ()=>reopenAct(2);
+  if($('#setClearProp')) $('#setClearProp').onclick = askClearProposals;
   $('#setTheme').onclick = ()=>{
     toggleTheme();
     const b = $('#setTheme');
@@ -1242,7 +1462,7 @@ function renderAll(){
   $('#phTitle').textContent = D.meta.title;
   $('#phSub').textContent = D.meta.subtitle;
   $('#scriptTag').textContent = `${D.script.length} 个环节 · ${D.course.totalMinutes} 分钟`;
-  $('#seatTag').textContent = `${S.speakerOrder.length} 方参演`;
+  renderProposalStatus();
   $('#seatCountBadge').textContent = D.sessions.length;
 
   renderStageBar();
@@ -1368,6 +1588,10 @@ function bind(){
   $('#btnPrint').onclick = ()=>{ buildPrintArea(); window.print(); };
   $('#btnWord').onclick = exportWord;
   $('#btnScreen').onclick = openSecondScreen;
+  $('#btnGroupPage').onclick = ()=>{
+    const k = proposalKey();
+    window.open('group.html' + (k ? '?key=' + encodeURIComponent(k) : ''), '_blank');
+  };
   $('#btnExport').onclick = exportData;
   $('#btnReset').onclick = askReset;
   $('#btnResetOrder').onclick = askResetOrder;
@@ -1406,6 +1630,8 @@ function bind(){
   /* ---- P3 新增：第二屏 / 离线缓存 / 网络状态 ---- */
   applyOffline();
   renderConn();
+  /* 提案服务：首拉 + 5 秒轮询（页面隐藏时暂停） */
+  startProposalPolling();
   window.addEventListener('online',  ()=>{ renderConn(); toast('网络已恢复'); });
   window.addEventListener('offline', ()=>{
     renderConn();

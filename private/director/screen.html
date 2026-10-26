@@ -78,6 +78,7 @@ function sha256Hex(str) {
   try { key = new URLSearchParams(window.location.search).get('key') || ''; } catch (e) {}
   if (key && sha256Hex(key) === WORKSTATION_KEY_HASH) {
     try { sessionStorage.setItem('director_unlocked', '1'); } catch (e) {}
+    try { sessionStorage.setItem('WORKSTATION_KEY', key); } catch (e) {}
     return;
   }
   location.replace('gate.html');
@@ -187,6 +188,27 @@ body{
 .cd-sub{margin-top:12px;font-size:clamp(11px,.95vw,18px);color:var(--ink-3);
   font-family:var(--mono);letter-spacing:.5px;}
 
+/* ---------- 各组方案（集中研讨投屏） ---------- */
+.props{
+  display:none;flex-direction:column;flex:0 0 auto;height:clamp(180px,34vh,340px);
+  background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden;
+}
+.props.on{display:flex;}
+.props-h{
+  display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+  padding:clamp(8px,.9vw,14px) clamp(12px,1.4vw,22px);border-bottom:1px solid var(--line);
+  font-size:clamp(13px,1.15vw,22px);
+}
+.props-h b{color:var(--ink-1);}
+.props-h span{color:var(--ink-3);font-family:var(--mono);font-size:clamp(10px,.9vw,16px);}
+.props-body{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:0;min-height:0;}
+.prop-col{display:flex;flex-direction:column;min-height:0;padding:clamp(8px,.9vw,14px) clamp(12px,1.4vw,22px);}
+.prop-col + .prop-col{border-left:1px solid var(--line);}
+.prop-t{font-family:var(--mono);color:var(--brand-hi);font-size:clamp(11px,.95vw,18px);letter-spacing:1px;margin-bottom:6px;}
+.prop-c{flex:1;overflow:auto;font-size:clamp(12px,1.05vw,19px);line-height:1.65;color:var(--ink-2);}
+.prop-c b{color:var(--ink-3);font-weight:600;}
+.prop-c .empty{color:var(--ink-3);}
+
 /* ---------- 告警条 ---------- */
 .alerts{display:flex;flex-wrap:wrap;gap:10px;min-height:0;}
 .alert{
@@ -280,6 +302,23 @@ body{
   </div>
 </main>
 
+<section class="props" id="props">
+  <div class="props-h">
+    <b id="propGroup">—</b>
+    <span id="propMeta">组端提交 · 自动同步</span>
+  </div>
+  <div class="props-body">
+    <div class="prop-col">
+      <div class="prop-t">Ⅰ 第一幕 · 形势研判 / 对策思路 / 处置措施 / 效果预估</div>
+      <div class="prop-c" id="prop1"></div>
+    </div>
+    <div class="prop-col">
+      <div class="prop-t">Ⅱ 第二幕 · 总体研判 / 对策思路 / 处置措施</div>
+      <div class="prop-c" id="prop2"></div>
+    </div>
+  </div>
+</section>
+
 <div class="alerts">
   <div class="alert warn" id="alertWarn"></div>
   <div class="alert danger" id="alertLock">⛔ 已提交封控，请各组停止提交</div>
@@ -359,6 +398,35 @@ function readState(){
   try{ return JSON.parse(localStorage.getItem(STORE_KEY) || 'null'); }catch(e){ return null; }
 }
 
+/* ---- 各组提案：主控台把云端结果写入 localStorage 中继，第二屏零后端只读 ---- */
+const PROP_CACHE = 'director_proposals_cache';
+const PROP_FIELDS = { 1:['situation','approach','measures','forecast'], 2:['judgement','approach','measures'] };
+const PROP_LABELS = { situation:'形势研判', approach:'对策思路', measures:'处置措施', forecast:'效果预估', judgement:'总体研判' };
+const escHTML = s => String(s??'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function readProposals(){ try{ return JSON.parse(localStorage.getItem(PROP_CACHE) || 'null'); }catch(e){ return null; } }
+function propHTML(act, rec){
+  if(!rec) return '<div class="empty">尚未提交</div>';
+  const f = rec.fields || {};
+  return PROP_FIELDS[act].map(k=>{
+    const v = String(f[k]||'').trim();
+    return `<div style="margin-bottom:8px;"><b>【${PROP_LABELS[k]}】</b>${v ? escHTML(v).replace(/\n/g,'<br>') : '<span class="empty">（未填）</span>'}</div>`;
+  }).join('');
+}
+function renderProposals(cache){
+  const box = $('#props');
+  if(!box) return;
+  const sid = (S && S.activeSession) || '';
+  const sess = D.sessions.find(x=>x.id===sid);
+  const g = cache && cache.proposals ? cache.proposals[sid] : null;
+  const any = !!(g && (g.act1 || g.act2));
+  box.classList.toggle('on', !!sess && any);
+  if(!sess || !any) return;
+  $('#propGroup').textContent = `${sess.code} · ${sess.name}`;
+  $('#propMeta').textContent = `组端提交 · ${(g.act1 && g.act2) ? '两幕' : '单幕'} · 自动同步`;
+  $('#prop1').innerHTML = propHTML(1, g.act1);
+  $('#prop2').innerHTML = propHTML(2, g.act2);
+}
+
 function render(){
   const saved = readState();
   S = Object.assign({}, D.initialState, saved||{});
@@ -414,18 +482,23 @@ function render(){
   if(warn && warn.id!=='w0') aw.textContent = '⚠ ' + warn.text;
   $('#alertLock').classList.toggle('on', !!S.lock);
 
-  /* 提交进度：只统计参演席位，主办方不计 */
+  /* 提交进度：优先读主控台中继的云端提案；旧演示态回退 S.submissions */
   const speakers = (S.speakerOrder||[]).length;
+  const cache = readProposals();
   let done = 0;
   (S.speakerOrder||[]).forEach(id=>{
     [1,2].forEach(a=>{
-      const r = (S.submissions||{})[id+':'+a];
-      if(r && r.status==='done') done++;
+      const g = cache && cache.proposals ? cache.proposals[id] : null;
+      const r = g ? g['act'+a] : (S.submissions||{})[id+'__'+a];
+      if(r && (r.submitted === true || r.status === 'done')) done++;
     });
   });
   const asub = $('#alertSub');
   asub.classList.toggle('on', speakers>0 && done>0);
   asub.textContent = `各组提交进度 ${done} / ${speakers*2}`;
+
+  /* ---- 当前组的方案（集中研讨投屏用） ---- */
+  renderProposals(cache);
 
   /* ---- 全天进度条 ---- */
   const t0 = hm2m(D.course.startTime), t1 = hm2m(D.course.endTime);
@@ -480,7 +553,7 @@ function render(){
   render();
   setInterval(render, 500);                       /* 轮询兜底：倒计时本身也要每秒刷新 */
   window.addEventListener('storage', e=>{         /* 同源另一标签页写入时立即同步 */
-    if(!e.key || e.key === STORE_KEY) render();
+    if(!e.key || e.key === STORE_KEY || e.key === PROP_CACHE) render();
   });
   document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) render(); });
 })();
