@@ -188,10 +188,22 @@ foreach ($it in $currentList) {
     if ($selU) { $selKeys[$selU] = $true }
     if ($selT) { $selKeys[$selT] = $true }
 }
-$archive = @($merged | Where-Object {
-    $u = [string]$_.url; $t = [string]$_.title
-    !(($u -and $selKeys.ContainsKey($u)) -or ($t -and $selKeys.ContainsKey($t)))
-} | Select-Object -First 300)
+# arXiv 洪峰控制：周一常一次性投递上百篇论文，每天最多归档 5 条（merged 已按日期降序，取最新 5 条）
+# 其余来源不限制。被挤掉的 arXiv 条目不进网页（论文摘要过多会淹没新闻页，且工作量不可控）
+$arxivDayCount = @{}
+$archivePool = [System.Collections.Generic.List[object]]::new()
+foreach ($it in $merged) {
+    $u = [string]$it.url; $t = [string]$it.title
+    if (($u -and $selKeys.ContainsKey($u)) -or ($t -and $selKeys.ContainsKey($t))) { continue }
+    if ($u -match 'arxiv\.org') {
+        $dayKey = [string]$it.date
+        if (-not $arxivDayCount.ContainsKey($dayKey)) { $arxivDayCount[$dayKey] = 0 }
+        $arxivDayCount[$dayKey]++
+        if ($arxivDayCount[$dayKey] -gt 5) { continue }
+    }
+    $archivePool.Add($it)
+}
+$archive = @($archivePool | Select-Object -First 300)
 
 $pending = [PSCustomObject]@{
     generated = (Get-Date -Format 'yyyy-MM-dd HH:mm:ss')
