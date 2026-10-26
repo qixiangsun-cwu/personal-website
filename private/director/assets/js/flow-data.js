@@ -216,7 +216,9 @@ window.__FLOW_DATA__ = {
       ],
       "deadline": null,
       "media": [
-        "m2"
+        "m2",
+        "m3",
+        "m4"
       ]
     },
     {
@@ -269,7 +271,7 @@ window.__FLOW_DATA__ = {
       ],
       "deadline": "11:17",
       "media": [
-        "m3"
+        "m5"
       ]
     },
     {
@@ -350,41 +352,67 @@ window.__FLOW_DATA__ = {
     {
       "id": "m1",
       "kind": "video",
-      "title": "导入片《战略匠心》",
-      "subtitle": "推演介绍片 · 开篇含习近平 2019 中央党校中青年干部培训班讲话引用",
-      "src": "assets/video/01-intro-strategic-craft.mp4",
+      "title": "先导片 · 战略推演背景",
+      "subtitle": "推演介绍片 · 战略情景推演的源流与方法 · 全长 07:00",
+      "src": "assets/video/01-intro-strategy-background.mp4",
       "poster": "assets/poster/01.jpg",
       "duration": 420,
       "durationLabel": "07:00",
-      "resolution": "640×368",
+      "resolution": "960×540",
       "step": 1,
-      "note": "整片 07:00，与环节1（07 分钟）时长相符。"
+      "note": "整片 07:00，与环节 1（07 分钟）时长相符。"
     },
     {
       "id": "m2",
       "kind": "video",
-      "title": "场景一 · 全球疫情扩散与紧急大会",
-      "subtitle": "2026 年 7 月底疫情恶化 · 世卫组织应急 · 各国召开紧急大会",
-      "src": "assets/video/02-scene1-pandemic.mp4",
+      "title": "先导片 · 科普短片一",
+      "subtitle": "未成年人保护科普（一）· 家庭监护与人身安全 · 全长 02:59",
+      "src": "assets/video/02-prelude-science-1.mp4",
       "poster": "assets/poster/02.jpg",
-      "duration": 26,
-      "durationLabel": "00:26",
-      "resolution": "1280×720",
+      "duration": 179,
+      "durationLabel": "02:59",
+      "resolution": "640×368",
       "step": 2,
-      "note": "片尾提示：请各组围绕参加此次紧急大会做出形势研判，下定决心并提出处置措施。"
+      "note": "环节 2 课程介绍段播放，为未成年人保护情景做知识铺垫。"
     },
     {
       "id": "m3",
       "kind": "video",
-      "title": "场景二 · 极端气候与干旱背景下的应急响应",
-      "subtitle": "中国多部门启动应急响应 · 美国 / 欧盟分别开会 · 联合国气候变化框架公约紧急会议",
-      "src": "assets/video/03-scene2-climate.mp4",
+      "title": "先导片 · 科普短片二",
+      "subtitle": "未成年人保护科普（二）· 学校、网络与社会保护 · 全长 03:00",
+      "src": "assets/video/03-prelude-science-2.mp4",
       "poster": "assets/poster/03.jpg",
-      "duration": 104,
-      "durationLabel": "01:44",
+      "duration": 180,
+      "durationLabel": "03:00",
+      "resolution": "640×368",
+      "step": 2,
+      "note": "环节 2 课程介绍段播放，介绍未成年人保护相关法律制度。"
+    },
+    {
+      "id": "m4",
+      "kind": "video",
+      "title": "情景一 · 女童小芳独居事件",
+      "subtitle": "2027 年 · A 省 B 市 C 社区 · 独居女童受侵害 · 发现、上报与十方联动 · 全长 03:05",
+      "src": "assets/video/04-scene1.mp4",
+      "poster": "assets/poster/04.jpg",
+      "duration": 185,
+      "durationLabel": "03:05",
+      "resolution": "1280×720",
+      "step": 2,
+      "note": "片尾提示：请各方根据以上情景进行形势研判，定下决心、明确意图、提出本方处置措施。"
+    },
+    {
+      "id": "m5",
+      "kind": "video",
+      "title": "情景二 · 舆情与紧急会议",
+      "subtitle": "距峰会开幕数日 · 网络舆情升级 · B 市妇联紧急会议 · 全长 02:52",
+      "src": "assets/video/05-scene2.mp4",
+      "poster": "assets/poster/05.jpg",
+      "duration": 172,
+      "durationLabel": "02:52",
       "resolution": "1280×720",
       "step": 4,
-      "note": "片尾提示：请各组根据以上情景进行形势研判，定下决心、明确意图、提出处置措施。"
+      "note": "片尾提示：请各组围绕参加此次紧急会议做出形势研判，定下决心并提出处置措施。"
     }
   ],
   "warnings": [

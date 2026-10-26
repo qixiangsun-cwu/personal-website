@@ -10,10 +10,10 @@
    2) 只在用户于设置面板里手动打开时才注册。默认关闭。
    ============================================================ */
 
-const VERSION = 'ws-v1';
+const VERSION = 'ws-v2';
 
 /* 预缓存：小体积、决定「能不能打开」的壳。
-   视频（40 MB）不预缓存 —— 首次播放时按需写入缓存。 */
+   视频（五段合计约 85 MB）不预缓存 —— 首次播放时按需写入缓存。 */
 const SHELL = [
   './',
   './index.html',
@@ -25,11 +25,13 @@ const SHELL = [
   /* 法规与政策参考库：只预缓存目录，20 份正文按需缓存（约 1 MB，不进首屏） */
   './data/laws/index.json',
   './law.html',
-  /* 封面图实际文件名是 01.jpg / 02.jpg / 03.jpg（不是视频名同名的 jpg）。
+  /* 封面图实际文件名是 01.jpg … 05.jpg（不是视频名同名的 jpg）。
      写错路径不会报错，只会被 .catch(()=>{}) 静默吞掉 —— 改这里时务必对一下 assets/poster/ 实际文件。 */
   './assets/poster/01.jpg',
   './assets/poster/02.jpg',
-  './assets/poster/03.jpg'
+  './assets/poster/03.jpg',
+  './assets/poster/04.jpg',
+  './assets/poster/05.jpg'
 ];
 
 const MEDIA_RE = /\.(mp4|webm|jpg|jpeg|png|webp|gif|ico)(\?.*)?$/i;
