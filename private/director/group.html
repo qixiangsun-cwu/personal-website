@@ -9,7 +9,7 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7.5' fill='%231A6FC4'/%3E%3Cpath d='M6 12V6h6M20 6h6v6M26 20v6h-6M12 26H6v-6' fill='none' stroke='rgba(255,255,255,.85)' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M12.6 11.8L19.8 16l-7.2 4.2z' fill='white'/%3E%3C/svg%3E">
 <style>
 /* ============================================================
-   组端填写页 · 提案（第一幕四点 / 第二幕三点）
+   组端填写页 · 提案（第一幕四点 → 情景二 → 第二幕三点）
    单文件、自包含：无外部库、无构建、系统字体栈
    视觉：品牌蓝 #1A6FC4 / 墨色 #1F2D3D / 底 #F6F8FB / 边框 #DFE6EF
         圆角 ≤8px、无渐变、无投影
@@ -145,6 +145,12 @@ button{font-family:inherit;}
 .tab[aria-selected="true"]{color:var(--brand);border-bottom-color:var(--brand);}
 .tab .tab-st{margin-left:6px;font-size:var(--fs-xs);font-weight:400;color:var(--ink-4);}
 .tab[aria-selected="true"] .tab-st{color:var(--brand);}
+/* 两幕之间：情景二视频 */
+.tab-video .dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--brand);margin-right:6px;vertical-align:1px;}
+.vwrap{margin:0;}
+.vwrap video{display:block;width:100%;max-height:62vh;background:#000;border-radius:8px;border:1px solid var(--line);}
+.vtip{margin:10px 0 0;font-size:var(--fs-xs);color:var(--ink-3);line-height:1.75;}
+.vtip b{color:var(--ink-2);}
 .tabs .sp{flex:1 1 auto;}
 .saved{font-size:var(--fs-xs);color:var(--ink-3);white-space:nowrap;padding-bottom:2px;}
 .saved.err{color:var(--warn-ink);}
@@ -302,12 +308,13 @@ textarea:disabled{background:var(--surf-2);color:var(--ink-3);border-color:var(-
   <!-- 未选组时的引导 -->
   <section class="empty" id="emptyState">
     <b>10 个组共用本链接</b>
-    <p>请在页面右上角下拉选择本组（B101—B110）。选组后即可填写第一幕四点方案与第二幕三点方案；内容输入停止 30 秒后自动保存，截止后自动锁定。</p>
+    <p>请在页面右上角下拉选择本组（B101—B110）。选组后按顺序填写：<b>第一幕四点方案 → 观看情景二短片 → 第二幕三点方案</b>；内容输入停止 30 秒后自动保存，截止后自动锁定。</p>
   </section>
 
   <!-- 幕次切换 -->
   <div class="tabs" id="tabsBar" role="tablist" aria-label="选择幕次" hidden>
     <button type="button" class="tab" id="tab1" role="tab" aria-selected="true" aria-controls="pane1" data-act="1">第一幕 · 四点方案<span class="tab-st" id="tabSt1"></span></button>
+    <button type="button" class="tab tab-video" id="tabV" role="tab" aria-selected="false" aria-controls="paneV" data-view="scene2"><span class="dot"></span>情景二 · 看片<span class="tab-st">02:43</span></button>
     <button type="button" class="tab" id="tab2" role="tab" aria-selected="false" aria-controls="pane2" data-act="2">第二幕 · 三点方案<span class="tab-st" id="tabSt2"></span></button>
     <div class="sp"></div>
     <span class="saved" id="savedHint" aria-live="polite">输入停止 30 秒后自动保存</span>
@@ -326,6 +333,27 @@ textarea:disabled{background:var(--surf-2);color:var(--ink-3);border-color:var(-
       <span class="act-msg" id="msg1" aria-live="polite"></span>
       <span class="sp"></span>
       <button type="button" class="btn btn-p" id="btnSubmit1">提交本幕</button>
+    </div>
+  </section>
+
+  <!-- ============ 两幕之间：情景二（看片） ============ -->
+  <section class="pane" id="paneV" role="tabpanel" aria-labelledby="tabV" hidden>
+    <div class="pane-h">
+      <h2>情景二 · 舆情与紧急会议</h2>
+      <span class="dl">两幕之间 · 先看片，再写第二幕</span>
+    </div>
+    <div class="vwrap">
+      <video id="sceneVideo" controls preload="metadata" playsinline poster="assets/poster/05.jpg">
+        <source src="assets/video/05-scene2.mp4" type="video/mp4">
+        你的浏览器不支持视频播放，请用 Chrome / Edge 打开。
+      </video>
+      <p class="vtip" id="sceneTip">本段 <b>02:43</b>。看完后进入「第二幕 · 三点方案」，围绕<b>总体研判 / 对策思路 / 处置措施</b>填写（截止前仍可修改）。</p>
+    </div>
+    <div class="actions">
+      <span class="act-msg" id="msgV" aria-live="polite"></span>
+      <span class="sp"></span>
+      <button type="button" class="btn btn-o" id="btnSceneBack">← 回看第一幕</button>
+      <button type="button" class="btn btn-p" id="btnSceneNext">进入第二幕 →</button>
     </div>
   </section>
 
@@ -420,6 +448,7 @@ var state = {
   open: {act1:false, act2:false},
   api: 'init',                 /* init | ok | down */
   activeAct: '1',
+  activeView: '1',            /* '1' 第一幕 | 'scene2' 情景二看片 | '2' 第二幕 */
   proposals: {'1':null, '2':null},
   submitted: {'1':false, '2':false},
   dirty: {'1':false, '2':false},
@@ -454,11 +483,17 @@ var ui = {
   tabs: byId('tabsBar'),
   tab1: byId('tab1'),
   tab2: byId('tab2'),
+  tabV: byId('tabV'),
   tabSt1: byId('tabSt1'),
   tabSt2: byId('tabSt2'),
   saved: byId('savedHint'),
   pane1: byId('pane1'),
   pane2: byId('pane2'),
+  paneV: byId('paneV'),
+  sceneVideo: byId('sceneVideo'),
+  sceneTip: byId('sceneTip'),
+  btnSceneBack: byId('btnSceneBack'),
+  btnSceneNext: byId('btnSceneNext'),
   dl1: byId('dl1'),
   dl2: byId('dl2'),
   paneBadge1: byId('paneBadge1'),
@@ -693,7 +728,7 @@ function renderGroup(){
   ui.title.textContent = (s.code ? s.code + ' · ' : '') + (s.name || s.id);
   var sys = (DATA.meta && DATA.meta.system) ? String(DATA.meta.system) : '战略推演';
   var date = COURSE.date ? String(COURSE.date) : '';
-  ui.sub.textContent = sys + (date ? ' · ' + date : '') + ' · 组长填写页（第一幕四点 / 第二幕三点）';
+  ui.sub.textContent = sys + (date ? ' · ' + date : '') + ' · 组长填写页（第一幕四点 → 情景二 → 第二幕三点）';
 }
 
 function renderDeadlineLabels(){
@@ -771,17 +806,17 @@ function renderRefCard(){
 }
 
 function renderTabs(){
-  var act = state.activeAct;
+  var v = state.activeView;
+  [['1', ui.tab1, ui.pane1], ['scene2', ui.tabV, ui.paneV], ['2', ui.tab2, ui.pane2]].forEach(function(x){
+    var sel = (x[0] === v);
+    x[1].setAttribute('aria-selected', sel ? 'true' : 'false');
+    x[1].tabIndex = sel ? 0 : -1;
+    x[2].hidden = !sel || !state.group;
+  });
   ACTS.forEach(function(a){
-    var tab = a === '1' ? ui.tab1 : ui.tab2;
-    var pane = a === '1' ? ui.pane1 : ui.pane2;
-    var stNode = a === '1' ? ui.tabSt1 : ui.tabSt2;
-    var sel = (a === act);
-    tab.setAttribute('aria-selected', sel ? 'true' : 'false');
-    tab.tabIndex = sel ? 0 : -1;
-    pane.hidden = !sel || !state.group;
     var st = statusOf(a);
-    stNode.textContent = st ? st.text : '';
+    var node = a === '1' ? ui.tabSt1 : ui.tabSt2;
+    node.textContent = st ? st.text : '';
   });
   ui.tabs.hidden = !state.group;
   ui.empty.hidden = !!state.group;
@@ -801,7 +836,7 @@ function renderLock(act){
     var ta = taFor(act, f.key);
     if (ta) ta.disabled = disabled;
   });
-  if (act === state.activeAct) ui.lockbar.hidden = !locked;
+  if (state.activeView !== 'scene2' && act === state.activeAct) ui.lockbar.hidden = !locked;
 }
 
 function renderAll(){
@@ -1028,7 +1063,11 @@ function onInput(act, ta){
 
 function submitAct(act){
   if (!state.group || isLocked(act)) return;
-  saveAct(act, true, 'submit');
+  var p = saveAct(act, true, 'submit');
+  /* 第一幕提交成功后，自动切到「情景二」看片，作为两幕之间的过渡 */
+  if (act === '1' && p && p.then) {
+    p.then(function(ok){ if (ok) switchView('scene2'); });
+  }
 }
 
 function flushDirty(){
@@ -1114,6 +1153,7 @@ function selectGroup(id){
     resetGroupData();
     loadDrafts(id);
     state.activeAct = '1';
+    state.activeView = '1';
     renderAll();
     return sync(id).then(function(ok){ hintAfterLoad(); return ok; });
   });
@@ -1180,15 +1220,19 @@ function copyPlanText(){
   }
 }
 
-function switchAct(act){
-  if (!state.group || state.activeAct === act) return;
-  state.activeAct = act;
+function switchView(view){
+  if (!state.group || state.activeView === view) return;
+  state.activeView = view;
+  /* 情景二看片期间，倒计时/状态按第二幕算（10:15—11:15 同一时间窗） */
+  state.activeAct = (view === '1') ? '1' : '2';
   renderTabs();
   renderStatus();
   renderLock('1');
   renderLock('2');
   renderCountdown();
 }
+/* 兼容旧调用 */
+function switchAct(act){ switchView(act); }
 
 function init(){
   buildFields();
@@ -1204,16 +1248,6 @@ function init(){
   ui.svcRetry.addEventListener('click', function(){ sync(state.group || null); });
   byId('btnCopyPlan').addEventListener('click', copyPlanText);
 
-  function onTabKey(e){
-    if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
-    e.preventDefault();
-    var next = state.activeAct === '1' ? '2' : '1';
-    switchAct(next);
-    (next === '1' ? ui.tab1 : ui.tab2).focus();
-  }
-  ui.tab1.addEventListener('keydown', onTabKey);
-  ui.tab2.addEventListener('keydown', onTabKey);
-
   document.addEventListener('visibilitychange', function(){
     if (document.hidden) { flushDirty(); }
     else { tick(); sync(state.group || null); }
@@ -1221,6 +1255,33 @@ function init(){
   window.addEventListener('beforeunload', function(){
     if (state.dirty['1'] || state.dirty['2']) flushDirty();
   });
+
+  /* 两幕之间：情景二看片 */
+  ui.tabV.addEventListener('click', function(){ switchView('scene2'); });
+  ui.btnSceneBack.addEventListener('click', function(){ switchView('1'); });
+  ui.btnSceneNext.addEventListener('click', function(){ switchView('2'); });
+  if (ui.sceneVideo) {
+    ui.sceneVideo.addEventListener('ended', function(){
+      if (ui.sceneTip) ui.sceneTip.innerHTML = '已看完情景二。请点右下角「进入第二幕 →」，围绕<b>总体研判 / 对策思路 / 处置措施</b>填写方案。';
+    });
+    ui.sceneVideo.addEventListener('play', function(){
+      state.videoPlayed = true;
+    });
+  }
+
+  function onTabKey(e){
+    if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+    e.preventDefault();
+    var order = ['1', 'scene2', '2'];
+    var i = order.indexOf(state.activeView);
+    var next = order[(i + (e.key === 'ArrowRight' ? 1 : -1) + order.length) % order.length];
+    switchView(next);
+    var tab = next === '1' ? ui.tab1 : next === 'scene2' ? ui.tabV : ui.tab2;
+    tab.focus();
+  }
+  ui.tab1.addEventListener('keydown', onTabKey);
+  ui.tabV.addEventListener('keydown', onTabKey);
+  ui.tab2.addEventListener('keydown', onTabKey);
 
   renderAll();
   sync(null);
