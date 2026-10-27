@@ -274,6 +274,8 @@ async function fetchProposals(){
     if(res.ok && j && j.ok){
       PROPOSALS = {
         ok:true, proposals:j.proposals || {}, open:j.open || {},
+        storage: j.storage || 'kv',
+        usage: j.usage || null,
         offsetMs: j.serverTime ? (Date.parse(j.serverTime) - Date.now()) : 0
       };
       /* 中继给第二屏（第二屏零后端，只读 localStorage） */
@@ -317,9 +319,9 @@ async function refreshProposals(){
 function startProposalPolling(){
   refreshProposals();
   clearInterval(proposalTimer);
-  /* KV 免费版每天只有 10 万次读；20 个 key × 每 15 秒一次 ≈ 1.7 万读/场，留足余量。
+  /* KV 免费版每天只有 10 万次读；20 个 key × 每 30 秒一次 ≈ 0.85 万读/场，留足余量。
      需要立刻看最新状态时，点「刷新提案」或切回本页即可。 */
-  proposalTimer = setInterval(()=>{ if(document.visibilityState === 'visible') refreshProposals(); }, 15000);
+  proposalTimer = setInterval(()=>{ if(document.visibilityState === 'visible') refreshProposals(); }, 30000);
   document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) refreshProposals(); });
   window.addEventListener('focus', ()=>refreshProposals());
   window.addEventListener('storage', e=>{
@@ -332,8 +334,43 @@ function renderProposalStatus(){
   const ok = !!(PROPOSALS && PROPOSALS.ok);
   el.textContent = `${S.speakerOrder.length} 方参演 · ${ok ? '提案实时同步' : '提案未接入'}`;
   el.title = ok
-    ? '各组在 group.html 填写，控制台每 5 秒自动刷新'
-    : '未检测到提案服务（需在 Cloudflare 绑定 KV）；当前仅本机演示数据可用';
+    ? '各组在 group.html 填写，控制台每 30 秒自动刷新'
+    : '未检测到提案服务（需在 Cloudflare 绑定 D1/KV）；当前仅本机演示数据可用';
+  renderQuotaTag();
+}
+
+/* 今日额度提示：D1 模式显示实际读/写行数与剩余额度；KV 模式只提示模式 */
+function renderQuotaTag(){
+  const el = $('#quotaTag');
+  if(!el) return;
+  const ok = !!(PROPOSALS && PROPOSALS.ok);
+  const storage = PROPOSALS && PROPOSALS.storage;
+  const u = PROPOSALS && PROPOSALS.usage;
+
+  if(!ok){
+    el.textContent = '额度 —';
+    el.title = '提案服务未接入，暂无额度数据';
+    el.classList.remove('warn');
+    return;
+  }
+  if(storage === 'd1' && u && u.limits){
+    const fmt = n => n >= 10000 ? (n / 10000).toFixed(n >= 100000 ? 0 : 1) + ' 万' : String(n);
+    const readPct = u.reads / u.limits.reads;
+    const writePct = u.writes / u.limits.writes;
+    el.textContent = `今日 读 ${fmt(u.reads)} · 写 ${fmt(u.writes)}`;
+    el.title =
+      `存储：D1（免费额度按日，北京时间 08:00 重置）\n` +
+      `今日（UTC ${u.day}）：请求 ${u.req} 次、读 ${u.reads} 行、写 ${u.writes} 行\n` +
+      `剩余：读 ${(u.limits.reads - u.reads).toLocaleString('zh-CN')} 行、写 ${(u.limits.writes - u.writes).toLocaleString('zh-CN')} 行\n` +
+      `说明：这是本站自己的计数，不含账号内其它项目`;
+    el.classList.toggle('warn', Math.max(readPct, writePct) > 0.8);
+    return;
+  }
+  el.textContent = storage === 'kv' ? '额度：KV 模式' : '额度 —';
+  el.title = storage === 'kv'
+    ? '当前走 KV（免费 读 10 万/日、写 1,000/日）。绑定 D1 后这里会显示今日读/写行数与剩余额度'
+    : '暂无额度数据';
+  el.classList.remove('warn');
 }
 
 function subOf(sid, act){
@@ -1386,7 +1423,13 @@ function openSettings(){
         <button class="btn btn-g btn-sm" id="setExport">导出</button>
       </div>
       <div class="set-row">
-        <div class="sl"><b>KV 每日额度</b><span>免费版：读 10 万/日 · 写 1,000/日（北京 08:00 重置）。本页每 15 秒刷新一次、组端输入停 15 秒保存一次，单场约 1.7 万读 / 数百写</span></div>
+        <div class="sl"><b>存储与今日额度</b><span>${
+          PROPOSALS && PROPOSALS.ok
+            ? (PROPOSALS.storage === 'd1'
+                ? 'D1 模式（免费：读 500 万行/日、写 10 万行/日；北京 08:00 重置）'
+                : 'KV 模式（免费：读 10 万/日、写 1,000/日）—— 绑定 D1 后自动切换')
+            : '未接入提案服务'
+        }。本页每 30 秒刷新一次、组端输入停 30 秒保存一次</span></div>
       </div>
       <div class="set-row">
         <div class="sl"><b>数据源</b><span>${esc(D.meta.docSource)} · ${esc(D.meta.revision)} · 纯静态 + 提案服务（Cloudflare Functions/KV）</span></div>

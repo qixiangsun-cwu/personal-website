@@ -1,19 +1,28 @@
 // 导演组流程脚本工作站 · 「各组提案」后端（Cloudflare Pages Function）
-// 契约见：Temp\opencode\proposal_spec.md（唯一真源，前端/后端/本地 mock 都按它实现）
 //
 // 路径：/private/director/proposals
 // 鉴权：?key=<访问密钥>，服务端比对 sha256Hex(key) 与 WORKSTATION_KEY_HASH
-//       （哈希常量与 index.html / screen.html / gate.html 里的是同一个，可公开）
-// 存储：KV 绑定变量 PROPOSALS（后台手动绑定，代码里不写 id）
-//       p:{group}:{act}  -> JSON proposal
-//       meta:open        -> {"act1":false,"act2":false}
-// 无第三方依赖；所有响应 Cache-Control: no-store，避免边缘/浏览器缓存提案。
+// 存储：优先 D1（绑定变量 DB）；未绑定 D1 时退回 KV（绑定变量 PROPOSALS）
+//   D1 表（首次请求自动建）：
+//     proposals(grp TEXT, act INTEGER, fields TEXT, submitted INTEGER, updated_at TEXT, PRIMARY KEY(grp,act))
+//     meta(k TEXT PRIMARY KEY, v TEXT)
+//     usage(day TEXT PRIMARY KEY, req INTEGER, rows_read INTEGER, rows_written INTEGER)
+//   KV 键（兜底模式）：
+//     p:{group}:{act} -> JSON proposal；meta:open -> {"act1":false,"act2":false}
+//
+// 响应在契约基础上多两个字段：
+//   storage: 'd1' | 'kv'       —— 当前用的存储
+//   usage:   {day, req, reads, writes, limits:{reads,writes}} | null  —— 今日用量（KV 模式为 null）
+// 无第三方依赖；所有响应 Cache-Control: no-store。
 
 const KEY_HASH = '2fe115eb0dac3a086b2cfee19270bd20d59156b2697bb2d0dcf9d6c47921154b';
 
+// D1 免费额度（每日，UTC 00:00 重置）
+const D1_LIMITS = { reads: 5000000, writes: 100000 };
+
 // 组：s1..s10（与 data/flow.json 的 sessions[].id 一致）
 const GROUPS = new Set(['s1', 's2', 's3', 's4', 's5', 's6', 's7', 's8', 's9', 's10']);
-const GROUP_IDS = [...GROUPS];      // 固定顺序，直接按键读取时用
+const GROUP_IDS = [...GROUPS];
 
 // 字段白名单（不允许写入白名单以外的键）
 const FIELDS = {
@@ -25,130 +34,187 @@ const MAX_LEN = 5000;          // 单字段最大长度（超长截断即可，�
 const OPEN_KEY = 'meta:open';
 const PROPOSAL_PREFIX = 'p:';
 
-// 本接口可能被 3 个以上浏览器并发轮询 + 自动保存，每次写都落 KV。
-// 组数固定 10、幕固定 2，数据量极小，无需额外限流；这里只做统一错误兜底。
-
+/* ---------------- 通用工具 ---------------- */
 function json(body, status) {
   return new Response(JSON.stringify(body), {
     status,
-    headers: {
-      'Content-Type': 'application/json; charset=utf-8',
-      'Cache-Control': 'no-store',
-    },
+    headers: { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' },
   });
 }
-
-function fail(error, status) {
-  return json({ ok: false, error }, status);
-}
-
-function badRequest() {
-  return fail('bad_request', 400);
-}
+function fail(error, status) { return json({ ok: false, error }, status); }
+function badRequest() { return fail('bad_request', 400); }
 
 async function sha256Hex(text) {
   const data = new TextEncoder().encode(text);
   const digest = await crypto.subtle.digest('SHA-256', data);
-  return Array.from(new Uint8Array(digest))
-    .map((b) => b.toString(16).padStart(2, '0'))
-    .join('');
+  return Array.from(new Uint8Array(digest)).map((b) => b.toString(16).padStart(2, '0')).join('');
 }
-
 async function authorized(key) {
   if (typeof key !== 'string' || key.length === 0) return false;
-  const hex = await sha256Hex(key);
-  return hex === KEY_HASH;
+  return (await sha256Hex(key)) === KEY_HASH;
 }
 
-function proposalKey(group, act) {
-  return `${PROPOSAL_PREFIX}${group}:${act}`;
-}
-
-// act 允许 1 / 2 / "1" / "2"（前端偶尔会从字符串拼出来），其余一律非法。
+// act 允许 1 / 2 / "1" / "2"，其余一律非法。
 function normalizeAct(value) {
   if (value === 1 || value === '1') return 1;
   if (value === 2 || value === '2') return 2;
   return 0;
 }
-
-// 值转字符串 → trim → 截断到 5000。对象/数组不接受，返回 null 由调用方报 400。
+// 值转字符串 → trim → 截断；对象/数组不接受（返回 null）。
 function normalizeValue(value) {
   if (value === null || value === undefined) return '';
   const type = typeof value;
   if (type === 'object' || type === 'function' || type === 'symbol') return null;
   return String(value).trim().slice(0, MAX_LEN);
 }
+function emptyOpen() { return { act1: false, act2: false }; }
+function dayKey() { return new Date().toISOString().slice(0, 10); }
 
-async function readJSON(kv, key, fallback) {
-  const raw = await kv.get(key);
-  if (raw === null || raw === undefined) return fallback;
-  try {
-    return JSON.parse(raw);
-  } catch {
-    return fallback;
-  }
+/* ================================================================
+   存储适配层：D1 优先，KV 兜底
+   适配器接口：kind / getProposal / putProposal / getOpen / setOpen /
+              clear / getUsage / bump(reads, writes)
+   ================================================================ */
+
+/* ---------------- D1 ---------------- */
+const D1_STATEMENTS = [
+  'CREATE TABLE IF NOT EXISTS proposals (grp TEXT NOT NULL, act INTEGER NOT NULL, fields TEXT NOT NULL, submitted INTEGER NOT NULL, updated_at TEXT NOT NULL, PRIMARY KEY (grp, act))',
+  'CREATE TABLE IF NOT EXISTS meta (k TEXT PRIMARY KEY, v TEXT NOT NULL)',
+  'CREATE TABLE IF NOT EXISTS usage (day TEXT PRIMARY KEY, req INTEGER NOT NULL DEFAULT 0, rows_read INTEGER NOT NULL DEFAULT 0, rows_written INTEGER NOT NULL DEFAULT 0)',
+];
+let d1Ready = false;
+async function d1Ensure(db) {
+  if (d1Ready) return;
+  await db.batch(D1_STATEMENTS.map((sql) => db.prepare(sql)));
+  d1Ready = true;
 }
 
-async function readOpen(kv) {
-  const value = await readJSON(kv, OPEN_KEY, null);
+function rowToProposal(row) {
+  if (!row) return null;
+  let fields = {};
+  try { fields = JSON.parse(row.fields || '{}') || {}; } catch { fields = {}; }
   return {
-    act1: Boolean(value && value.act1 === true),
-    act2: Boolean(value && value.act2 === true),
+    group: row.grp,
+    act: Number(row.act),
+    fields,
+    submitted: Number(row.submitted) === 1,
+    updatedAt: row.updated_at,
   };
 }
 
-// KV list 单页最多 1000 条，这里翻页取全；实际数据最多 20 条。
-// ⚠ 仅用于兼容旧代码；GET / reset 已改为直接按键读写（见下方说明），不再依赖 list。
-async function listKeys(kv, prefix) {
-  const names = [];
-  let cursor;
-  for (let page = 0; page < 100; page++) {
-    const result = await kv.list(cursor ? { prefix, cursor } : { prefix });
-    for (const item of result.keys || []) names.push(item.name);
-    if (result.list_complete) break;
-    cursor = result.cursor;
-    if (!cursor) break;
-  }
-  return names;
+function d1Store(db) {
+  return {
+    kind: 'd1',
+    async getProposal(group, act) {
+      const row = await db.prepare('SELECT grp, act, fields, submitted, updated_at FROM proposals WHERE grp=? AND act=?')
+        .bind(group, act).first();
+      return rowToProposal(row);
+    },
+    async putProposal(p) {
+      await db.prepare(
+        'INSERT INTO proposals (grp, act, fields, submitted, updated_at) VALUES (?,?,?,?,?) ' +
+        'ON CONFLICT(grp, act) DO UPDATE SET fields=excluded.fields, submitted=excluded.submitted, updated_at=excluded.updated_at'
+      ).bind(p.group, p.act, JSON.stringify(p.fields), p.submitted ? 1 : 0, p.updatedAt).run();
+    },
+    async getOpen() {
+      const row = await db.prepare('SELECT v FROM meta WHERE k=?').bind(OPEN_KEY).first();
+      if (!row) return emptyOpen();
+      try {
+        const v = JSON.parse(row.v || '{}');
+        return { act1: v.act1 === true, act2: v.act2 === true };
+      } catch { return emptyOpen(); }
+    },
+    async setOpen(open) {
+      await db.prepare('INSERT INTO meta (k, v) VALUES (?,?) ON CONFLICT(k) DO UPDATE SET v=excluded.v')
+        .bind(OPEN_KEY, JSON.stringify(open)).run();
+    },
+    async clear() {
+      await db.prepare('DELETE FROM proposals').run();
+      await this.setOpen(emptyOpen());
+    },
+    async getUsage() {
+      const day = dayKey();
+      const row = await db.prepare('SELECT req, rows_read, rows_written FROM usage WHERE day=?').bind(day).first();
+      return {
+        day,
+        req: row ? Number(row.req) : 0,
+        reads: row ? Number(row.rows_read) : 0,
+        writes: row ? Number(row.rows_written) : 0,
+        limits: D1_LIMITS,
+      };
+    },
+    async bump(reads, writes) {
+      const day = dayKey();
+      await db.prepare(
+        'INSERT INTO usage (day, req, rows_read, rows_written) VALUES (?,1,?,?) ' +
+        'ON CONFLICT(day) DO UPDATE SET req=req+1, rows_read=rows_read+?, rows_written=rows_written+?'
+      ).bind(day, reads, writes, reads, writes).run();
+      return this.getUsage();
+    },
+  };
 }
 
+/* ---------------- KV 兜底 ---------------- */
+async function readJSON(kv, key, fallback) {
+  const raw = await kv.get(key);
+  if (raw === null || raw === undefined) return fallback;
+  try { return JSON.parse(raw); } catch { return fallback; }
+}
+function kvStore(kv) {
+  const key = (g, a) => `${PROPOSAL_PREFIX}${g}:${a}`;
+  return {
+    kind: 'kv',
+    async getProposal(group, act) {
+      const p = await readJSON(kv, key(group, act), null);
+      if (!p || typeof p !== 'object') return null;
+      if (p.group !== group || normalizeAct(p.act) !== act) return null;
+      return p;
+    },
+    async putProposal(p) { await kv.put(key(p.group, p.act), JSON.stringify(p)); },
+    async getOpen() {
+      const v = await readJSON(kv, OPEN_KEY, null);
+      return { act1: Boolean(v && v.act1 === true), act2: Boolean(v && v.act2 === true) };
+    },
+    async setOpen(open) { await kv.put(OPEN_KEY, JSON.stringify(open)); },
+    async clear() {
+      const keys = [];
+      for (const g of GROUP_IDS) for (const act of [1, 2]) keys.push(key(g, act));
+      await Promise.all(keys.map((k) => kv.delete(k)));
+      await this.setOpen(emptyOpen());
+    },
+    async getUsage() { return null; },   // KV 读不到自己的每日用量（没有公开 API）
+    async bump() { return null; },
+  };
+}
+
+/* ================================================================
+   业务处理（存储无关）
+   ================================================================ */
+
 // GET ?key=KEY[&group=s3]
-async function handleGet(kv, url) {
+async function handleGet(store, url) {
   const group = url.searchParams.get('group');
   if (group !== null && !GROUPS.has(group)) return badRequest();
 
-  const open = await readOpen(kv);
+  const open = await store.getOpen();
   const proposals = {};
-
-  /* 直接按 key 读，不用 kv.list()：
-     KV 的 list 结果走独立缓存，刚写入的 key 可能在 list 里延迟数十秒才出现；
-     get() 则能立刻读到 —— 否则导演台 5 秒轮询会看起来「一直没提交」。 */
-  const pairs = [];
-  for (const g of (group ? [group] : GROUP_IDS)) {
-    for (const act of [1, 2]) pairs.push([g, act]);
+  const targets = group ? [group] : GROUP_IDS;
+  for (const g of targets) {
+    for (const act of [1, 2]) {
+      const p = await store.getProposal(g, act);
+      if (!p) continue;
+      if (!proposals[g]) proposals[g] = {};
+      proposals[g][`act${act}`] = p;
+    }
   }
-  const records = await Promise.all(
-    pairs.map(([g, act]) => readJSON(kv, proposalKey(g, act), null))
-  );
-  records.forEach((proposal, index) => {
-    const [g, act] = pairs[index];
-    if (!proposal || typeof proposal !== 'object') return;
-    if (proposal.group !== g || normalizeAct(proposal.act) !== act) return;
-    if (!proposals[g]) proposals[g] = {};
-    proposals[g][`act${act}`] = proposal;
-  });
-
-  return json({ ok: true, serverTime: new Date().toISOString(), open, proposals }, 200);
+  const usage = await store.bump(targets.length * 2 + 1, 0);
+  return json({ ok: true, serverTime: new Date().toISOString(), open, proposals, storage: store.kind, usage }, 200);
 }
 
 // POST ?key=KEY（保存/提交）
-async function handleSave(kv, request) {
+async function handleSave(store, request) {
   let body;
-  try {
-    body = await request.json();
-  } catch {
-    return badRequest();
-  }
+  try { body = await request.json(); } catch { return badRequest(); }
   if (!body || typeof body !== 'object' || Array.isArray(body)) return badRequest();
 
   const group = body.group;
@@ -172,7 +238,7 @@ async function handleSave(kv, request) {
   }
 
   // 合并式保存：未提交的字段沿用旧值（前端一般每次 POST 全量 fields，此规则无害）。
-  const existing = await readJSON(kv, proposalKey(group, act), null);
+  const existing = await store.getProposal(group, act);
   const oldFields = (existing && existing.fields) || {};
   const nextFields = {};
   for (const key of allowed) {
@@ -193,43 +259,38 @@ async function handleSave(kv, request) {
     updatedAt: new Date().toISOString(),
   };
 
-  await kv.put(proposalKey(group, act), JSON.stringify(proposal));
-  return json({ ok: true, proposal }, 200);
+  await store.putProposal(proposal);
+  const usage = await store.bump(1, 1);
+  return json({ ok: true, proposal, storage: store.kind, usage }, 200);
 }
 
 // POST ?key=KEY&action=open（导演重开/收回本幕）
-async function handleOpen(kv, request) {
+async function handleOpen(store, request) {
   let body;
-  try {
-    body = await request.json();
-  } catch {
-    return badRequest();
-  }
+  try { body = await request.json(); } catch { return badRequest(); }
   if (!body || typeof body !== 'object' || Array.isArray(body)) return badRequest();
 
   const act = normalizeAct(body.act);
   if (act === 0) return badRequest();
   if (typeof body.open !== 'boolean') return badRequest();
 
-  const open = await readOpen(kv);
+  const open = await store.getOpen();
   open[`act${act}`] = body.open;
-  await kv.put(OPEN_KEY, JSON.stringify(open));
-  return json({ ok: true, open }, 200);
+  await store.setOpen(open);
+  const usage = await store.bump(1, 1);
+  return json({ ok: true, open, storage: store.kind, usage }, 200);
 }
 
 // POST ?key=KEY&action=reset（清空本场数据）
-async function handleReset(kv) {
-  /* 同样不用 list：直接删固定的 20 个 key，避免 list 缓存导致「清不干净」 */
-  const keys = [];
-  for (const g of GROUP_IDS) {
-    for (const act of [1, 2]) keys.push(proposalKey(g, act));
-  }
-  await Promise.all(keys.map((key) => kv.delete(key)));
-  const open = { act1: false, act2: false };
-  await kv.put(OPEN_KEY, JSON.stringify(open));
-  return json({ ok: true, cleared: true }, 200);
+async function handleReset(store) {
+  await store.clear();
+  const usage = await store.bump(1, 20);
+  return json({ ok: true, cleared: true, storage: store.kind, usage }, 200);
 }
 
+/* ================================================================
+   入口
+   ================================================================ */
 export async function onRequest(context) {
   const { request, env } = context;
   const url = new URL(request.url);
@@ -247,17 +308,33 @@ export async function onRequest(context) {
     return fail('unauthorized', 401);
   }
 
-  // 2) KV 未绑定（Cloudflare 后台还没绑 PROPOSALS）：503，前端据此提示「提案服务未启用」
+  /* 存储选择：D1 优先；D1 未绑定时退回 KV；两者都没有 → 503（前端据此提示未启用） */
+  const db = env && env.DB;
   const kv = env && env.PROPOSALS;
-  if (!kv) return fail('kv_unbound', 503);
+  if (!db && !kv) return fail('kv_unbound', 503);
 
   try {
-    if (request.method === 'GET') return await handleGet(kv, url);
+    if (!db) {
+      // KV 兜底模式
+      const store = kvStore(kv);
+      if (request.method === 'GET') return await handleGet(store, url);
+      if (request.method === 'POST') {
+        if (action === 'open') return await handleOpen(store, request);
+        if (action === 'reset') return await handleReset(store);
+        if (action !== null) return badRequest();
+        return await handleSave(store, request);
+      }
+      return fail('method_not_allowed', 405);
+    }
+
+    await d1Ensure(db);
+    const store = d1Store(db);
+    if (request.method === 'GET') return await handleGet(store, url);
     if (request.method === 'POST') {
-      if (action === 'open') return await handleOpen(kv, request);
-      if (action === 'reset') return await handleReset(kv);
+      if (action === 'open') return await handleOpen(store, request);
+      if (action === 'reset') return await handleReset(store);
       if (action !== null) return badRequest();
-      return await handleSave(kv, request);
+      return await handleSave(store, request);
     }
     return fail('method_not_allowed', 405);
   } catch (err) {

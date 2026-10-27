@@ -302,7 +302,7 @@ textarea:disabled{background:var(--surf-2);color:var(--ink-3);border-color:var(-
   <!-- 未选组时的引导 -->
   <section class="empty" id="emptyState">
     <b>10 个组共用本链接</b>
-    <p>请在页面右上角下拉选择本组（B101—B110）。选组后即可填写第一幕四点方案与第二幕三点方案；内容输入停止 15 秒后自动保存，截止后自动锁定。</p>
+    <p>请在页面右上角下拉选择本组（B101—B110）。选组后即可填写第一幕四点方案与第二幕三点方案；内容输入停止 30 秒后自动保存，截止后自动锁定。</p>
   </section>
 
   <!-- 幕次切换 -->
@@ -310,7 +310,7 @@ textarea:disabled{background:var(--surf-2);color:var(--ink-3);border-color:var(-
     <button type="button" class="tab" id="tab1" role="tab" aria-selected="true" aria-controls="pane1" data-act="1">第一幕 · 四点方案<span class="tab-st" id="tabSt1"></span></button>
     <button type="button" class="tab" id="tab2" role="tab" aria-selected="false" aria-controls="pane2" data-act="2">第二幕 · 三点方案<span class="tab-st" id="tabSt2"></span></button>
     <div class="sp"></div>
-    <span class="saved" id="savedHint" aria-live="polite">输入停止 15 秒后自动保存</span>
+    <span class="saved" id="savedHint" aria-live="polite">输入停止 30 秒后自动保存</span>
   </div>
 
   <!-- ================= 第一幕 ================= -->
@@ -901,9 +901,9 @@ function sync(groupId){
      ③ 同一幕两次写至少间隔 3.5 秒；持续输入最多 60 秒兜底落一次
    提交本幕 / 切走页面 / 关页 都会立即写一次。
    ============================================================ */
-var AUTO_SAVE_MS = 15000;
-var AUTO_MAX_MS  = 60000;
-var MIN_WRITE_MS = 3500;
+var AUTO_SAVE_MS = 30000;
+var AUTO_MAX_MS  = 120000;
+var MIN_WRITE_MS = 5000;
 
 function snapshotOf(fields, submitted){
   return JSON.stringify(fields) + '|' + (submitted ? '1' : '0');
@@ -1065,7 +1065,7 @@ function resetGroupData(){
     setMsg(act, '');
   });
   state.limitHit = false;
-  setSavedHint('输入停止 15 秒后自动保存');
+  setSavedHint('输入停止 30 秒后自动保存');
 }
 
 function loadDrafts(group){
@@ -1092,7 +1092,7 @@ function hintAfterLoad(){
   }
   var d = state.group ? readDraft(state.group, act) : null;
   if (d && d.savedAt) { setSavedHint('已载入本机草稿'); return; }
-  setSavedHint('输入停止 15 秒后自动保存');
+  setSavedHint('输入停止 30 秒后自动保存');
 }
 
 function selectGroup(id){
@@ -1233,7 +1233,7 @@ function init(){
   setInterval(tick, 1000);
   setInterval(function(){
     if (!document.hidden) sync(state.group || null);
-  }, 30000);
+  }, 60000);
 }
 
 if (document.readyState === 'loading') {
