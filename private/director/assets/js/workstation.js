@@ -205,7 +205,8 @@ function renderSteps(){
     const on = s.no===S.activeStep;
     const t = stepTimes(s);
     const dl = S.deadlines[s.no];
-    const media = D.media.filter(m=>m.step===s.no);
+    const media = consoleMedia().filter(m=>m.step===s.no);
+    const breakoutMedia = (D.media||[]).filter(m=>m.console === false && m.step===s.no);
     const act = actOfStage(s.stage);
     const actRail = act ? `<div class="act-rail" title="${actName(act)}">${ROMAN[act]}</div>` : '';
     const staff = s.staff.map(x=>`<span class="chip">${esc(x)}</span>`).join('');
@@ -215,7 +216,9 @@ function renderSteps(){
     const docDiff = (s.docFlag && s.docName && s.docName!==s.name)
       ? `<span class="step-flag">文档原文：${esc(s.docName)}</span>` : '';
     const deadChip = dl ? `<span class="chip chip-warn">截止 ${esc(dl)}</span>` : '';
-    const mediaChip = media.length ? `<span class="chip chip-b">素材 ${media.length} 段 · ${esc(media[0].durationLabel)}</span>` : '';
+    const mediaChip = media.length
+      ? `<span class="chip chip-b">素材 ${media.length} 段 · ${esc(media[0].durationLabel)}</span>`
+      : (breakoutMedia.length ? `<span class="chip">各分组教室播放 · ${esc(breakoutMedia[0].durationLabel)}</span>` : '');
     return `<div class="step ${on?'on':''}" data-no="${s.no}">
       <div class="step-time">
         <div class="t">${esc(t.start)}</div>
@@ -737,11 +740,17 @@ function openArchive(sid){
 function closeModal(){ $('#mask').classList.remove('show'); modalSid=null; }
 
 /* ---------------- 视频 ---------------- */
+/* 导演台素材区只列 console !== false 的片子；
+   情景二（各分组教室播放）标记为 console:false，不出现在导演台，
+   但数据仍保留，组端填写页内嵌/备注可用。 */
+const consoleMedia = () => (D.media || []).filter(m => m.console !== false);
+
 function renderMediaTabs(){
   const host = $('#mediaTabs');
-  if(!D.media.length){ host.innerHTML=''; return; }
+  const list = consoleMedia();
+  if(!list.length){ host.innerHTML=''; return; }
   const cur = stepByNo(S.activeStep);
-  host.innerHTML = D.media.map(m=>{
+  host.innerHTML = list.map(m=>{
     const on = cur && m.step===cur.no;
     return `<button class="mtab ${on?'on':''}" data-mid="${m.id}">
       <span class="mn">环节 ${m.step}</span>
@@ -771,7 +780,7 @@ function loadMedia(mid, autoplay){
 }
 function mediaOfCurrentStep(){
   const cur = stepByNo(S.activeStep);
-  return D.media.find(m=>m.step===cur.no) || null;
+  return consoleMedia().find(m=>m.step===cur.no) || null;
 }
 function updateVpTime(){
   const v = $('#video');
@@ -1811,14 +1820,20 @@ function syncMediaToStep(){
   const cur = stepByNo(S.activeStep) || D.script[0];
   if(!m){
     // 本环节无视频素材 → 清空播放区并给出提示，避免误放上一环节画面
+    const breakout = (D.media||[]).find(x=>x.console === false && x.step===cur.no);
     if(currentMediaId !== null){
       currentMediaId = null;
       const v = $('#video');
       v.removeAttribute('src'); v.load();
       $('#miniVideo').removeAttribute('src'); $('#miniVideo').load();
-      $('#vpBadge').textContent = `环节 ${cur.no} · 本环节无视频素材`;
       const ct = stepTimes(cur);
-  $('#vpNote').textContent = `「${cur.name}」为 ${ct.start}—${ct.end} 的 ${ct.duration} 分钟环节，无配套视频。请按流程脚本推进。`;
+      if(breakout){
+        $('#vpBadge').textContent = `环节 ${cur.no} · 视频在各分组教室播放`;
+        $('#vpNote').textContent = `本环节视频《${breakout.title}》（${breakout.durationLabel}）在各分组教室由指导教师组织助教播放，组端填写页内嵌同片；导演台不排播。`;
+      }else{
+        $('#vpBadge').textContent = `环节 ${cur.no} · 本环节无视频素材`;
+        $('#vpNote').textContent = `「${cur.name}」为 ${ct.start}—${ct.end} 的 ${ct.duration} 分钟环节，无配套视频。请按流程脚本推进。`;
+      }
       $('#vpTime').textContent = '00:00 / 00:00';
     }
     return;
