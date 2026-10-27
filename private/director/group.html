@@ -1059,7 +1059,9 @@ function sync(groupId){
         return true;
       }
       if (r.res.status === 401) {
-        setApi('down', '提案服务未授权（访问密钥无效），当前内容仅保存在本机浏览器。');
+        /* 未选组时不应发起全量读（需密钥），401 属正常，不弹「未授权」 */
+        if (groupId) setApi('down', '提案服务未授权（访问密钥无效），当前内容仅保存在本机浏览器。');
+        return false;
       } else if (r.res.status === 503) {
         setApi('down', '提案服务未启用（未绑定存储），当前内容仅保存在本机浏览器。');
       } else {
@@ -1464,7 +1466,6 @@ function init(){
   ui.tab2.addEventListener('keydown', onTabKey);
 
   renderAll();
-  sync(null);
 
   var saved = null;
   try { saved = localStorage.getItem('proposal_group'); } catch (e) {}
@@ -1473,7 +1474,7 @@ function init(){
   tick();
   setInterval(tick, 1000);
   setInterval(function(){
-    if (!document.hidden) sync(state.group || null);
+    if (!document.hidden && state.group) sync(state.group);
   }, 60000);
 }
 
