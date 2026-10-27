@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>清空本场数据 · 导演组</title>
+<style>
+:root{
+  --bg:#0E1622; --card:#16202B; --line:#26323F; --ink:#E8EEF5; --ink2:#9FB0C2; --ink3:#6E8098;
+  --brand:#3B8FE0; --ok:#3FBF7F; --err:#FF6B6B;
+}
+*{box-sizing:border-box;}
+body{margin:0;min-height:100vh;background:var(--bg);color:var(--ink);
+  font-family:"Microsoft YaHei","PingFang SC","Hiragino Sans GB",sans-serif;
+  display:flex;align-items:center;justify-content:center;padding:24px;}
+main{width:100%;max-width:460px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:26px 24px;}
+h1{margin:0 0 4px;font-size:20px;letter-spacing:.5px;}
+.sub{margin:0 0 18px;color:var(--ink2);font-size:13px;line-height:1.7;}
+.stat{background:#0F1A26;border:1px solid var(--line);border-radius:10px;padding:12px 14px;font-size:13px;color:var(--ink2);line-height:1.7;margin-bottom:16px;}
+.stat b{color:var(--ink);}
+button#go{width:100%;padding:16px;border:0;border-radius:10px;background:var(--err);color:#fff;
+  font-size:17px;font-weight:700;letter-spacing:1px;cursor:pointer;font-family:inherit;}
+button#go:disabled{opacity:.55;cursor:default;}
+.msg{margin-top:14px;font-size:14px;line-height:1.7;min-height:22px;color:var(--ink2);word-break:break-all;}
+.msg.ok{color:var(--ok);font-weight:700;}
+.msg.err{color:var(--err);}
+.hint{margin:16px 0 0;font-size:12px;color:var(--ink3);line-height:1.8;}
+.hint code{background:#0F1A26;border:1px solid var(--line);border-radius:4px;padding:1px 5px;color:var(--ink2);}
+.foot{margin-top:20px;font-size:12.5px;text-align:center;}
+.foot a{color:var(--brand);text-decoration:none;}
+</style>
+</head>
+<body>
+<main>
+  <h1>清空本场数据</h1>
+  <p class="sub" id="sub">正在校验链接…</p>
+
+  <div id="panel" hidden>
+    <div class="stat" id="stat">正在读取当前数据…</div>
+    <button type="button" id="go" disabled>清空本场数据</button>
+    <p class="hint">
+      会删除 <b>10 组 × 2 幕</b>的全部方案与「重开本幕」状态，<b>不可撤销</b>。<br>
+      用于正式开始前把彩排 / 测试数据一键作废。
+    </p>
+  </div>
+
+  <div class="msg" id="msg" aria-live="polite"></div>
+  <p class="foot"><a href="index.html">返回导演工作台</a></p>
+</main>
+
+<script>
+/* 访问密钥的 SHA-256（与 index/screen/gate/proposals 里同一个哈希；换密钥时这 5 处都要换） */
+var KEY_HASH = '2fe115eb0dac3a086b2cfee19270bd20d59156b2697bb2d0dcf9d6c47921154b';
+var key = '';
+try { key = new URLSearchParams(location.search).get('key') || ''; } catch (e) {}
+var api = location.pathname.replace(/clear(\.html)?$/, '') + 'proposals';
+var subEl = document.getElementById('sub');
+var panel = document.getElementById('panel');
+var statEl = document.getElementById('stat');
+var msgEl = document.getElementById('msg');
+var btn = document.getElementById('go');
+
+function say(text, cls){
+  msgEl.className = 'msg' + (cls ? ' ' + cls : '');
+  msgEl.textContent = text || '';
+}
+
+async function sha256Hex(text){
+  if (!(window.crypto && crypto.subtle)) return '';
+  var data = new TextEncoder().encode(text);
+  var digest = await crypto.subtle.digest('SHA-256', data);
+  return Array.from(new Uint8Array(digest)).map(function(b){ return b.toString(16).padStart(2, '0'); }).join('');
+}
+
+async function refreshStat(){
+  statEl.textContent = '正在读取当前数据…';
+  try{
+    var r = await fetch(api + '?key=' + encodeURIComponent(key), { cache: 'no-store' });
+    var j = await r.json().catch(function(){ return null; });
+    if (!r.ok || !j || j.ok !== true){ statEl.textContent = '读取失败（' + r.status + '）'; return; }
+    var groups = Object.keys(j.proposals || {}).length;
+    var total = 0;
+    Object.keys(j.proposals || {}).forEach(function(g){ total += Object.keys(j.proposals[g] || {}).length; });
+    statEl.innerHTML = '当前：<b>' + groups + ' 组 / ' + total + ' 份</b>方案 · 存储 <b>' + (j.storage || '—') + '</b>';
+  }catch(e){
+    statEl.textContent = '读取失败：' + e.message;
+  }
+}
+
+async function doClear(){
+  btn.disabled = true;
+  statEl.textContent = '正在清空…';
+  say('');
+  try{
+    var r = await fetch(api + '?key=' + encodeURIComponent(key) + '&action=reset', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+      body: '{}', cache: 'no-store'
+    });
+    var j = await r.json().catch(function(){ return null; });
+    if (r.ok && j && j.ok === true){
+      say('已清空 ✓ 现在各组均处于「未提交」状态', 'ok');
+      await refreshStat();
+    } else {
+      say('清空失败：' + ((j && j.error) || ('HTTP ' + r.status)), 'err');
+      statEl.textContent = '清空失败，请重试';
+    }
+  }catch(e){
+    say('网络异常：' + e.message, 'err');
+    statEl.textContent = '网络异常，请检查网络后重试';
+  }finally{
+    btn.disabled = false;
+  }
+}
+
+(async function init(){
+  if (!key){
+    subEl.textContent = '缺少密钥：请用导演组给你的私密链接打开（形如 clear.html?key=…）。';
+    say('链接无效', 'err');
+    return;
+  }
+  var hex = await sha256Hex(key);
+  if (!hex || hex !== KEY_HASH){
+    subEl.textContent = '链接无效或密钥已更换。';
+    say('无效链接', 'err');
+    return;
+  }
+  subEl.textContent = '链接有效。确认后会清空本场全部组方案。';
+  panel.hidden = false;
+  btn.disabled = false;
+  btn.addEventListener('click', doClear);
+  await refreshStat();
+  /* 可选：链接加 &auto=1 时，打开即清空（真正的「一键清场」） */
+  try{
+    if (new URLSearchParams(location.search).get('auto') === '1') await doClear();
+  }catch(e){}
+})();
+</script>
+</body>
+</html>

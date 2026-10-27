@@ -1345,14 +1345,22 @@ async function reopenAct(act){
 }
 function askClearProposals(){
   if(!(PROPOSALS && PROPOSALS.ok)){ toast('提案服务未接入，无可清空数据'); return; }
+  const groups = Object.keys((PROPOSALS && PROPOSALS.proposals) || {}).length;
   confirmAction({
-    title:'清空本场提案',
+    title:'清空本场提案（正式开始前）',
     icon:'!',
     okText:'确认清空',
-    body:'将删除 Cloudflare KV 中<em>全部 10 组 × 2 幕</em>的方案与「重开本幕」状态，<br><em>不可撤销</em>。建议只在正式场开始前、彩排数据需要作废时使用。',
+    body:`将删除云端<em>全部 10 组 × 2 幕</em>的方案与「重开本幕」状态，并清理本机缓存${groups ? `（当前有 ${groups} 组数据）` : ''}。<br><em>不可撤销</em>；清空后各组页面会显示为未提交，便于正式场从零开始。`,
     onOk: async ()=>{
       const j = await proposalPost({}, 'reset');
-      if(j){ await refreshProposals(); toast('本场提案已清空'); }
+      if(!j){ toast('清空失败，请检查密钥或网络'); return; }
+      /* 清掉本机演示数据与第二屏中继缓存，确保「看起来也是空的」 */
+      try{ localStorage.removeItem(PROPOSAL_CACHE); }catch(e){}
+      try{ S.submissions = JSON.parse(JSON.stringify(D.initialState.submissions || {})); saveState(); }catch(e){}
+      PROPOSALS = null;
+      await refreshProposals();
+      renderAll();
+      toast('本场已清空：各组显示未提交');
     }
   });
 }
@@ -1917,6 +1925,7 @@ function bind(){
   };
   $('#btnExport').onclick = exportData;
   if($('#btnPropHit')) $('#btnPropHit').onclick = ()=>{ refreshProposals(); toast('已刷新各组提案'); };
+  if($('#btnClearAll')) $('#btnClearAll').onclick = askClearProposals;
   $('#btnReset').onclick = askReset;
   $('#btnResetOrder').onclick = askResetOrder;
 
