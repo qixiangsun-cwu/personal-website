@@ -6,11 +6,10 @@
 <link rel="icon" href="data:,">
 <title>模型转换器 · WebXR（开发模板）</title>
 <!--
-  开发模板：src/03_模型转换器_template.html
+  本站「在线版」：单文件、零外部请求，全部库已内联。
   ─────────────────────────────────────────────────────────────
-  可编辑的开发版：库用 ../lib/ 外部引用；双击（file://）即可使用（不读本地模型文件，由用户拖入）。
-  改完运行：python tools/build_workbench.py
-  构建脚本会把全部库内联，生成 demos/03_模型转换器.html（单文件、零外部请求）。
+  课堂用法：在浏览器里打开本页，把 .glb / .gltf / .obj / .fbx 拖进来即可转换。
+  **不需要构建、不需要下载代码、不需要本地服务器。**
   ─────────────────────────────────────────────────────────────
 -->
 <style>
@@ -80,7 +79,7 @@
     <div class="pipe">第 8 次课（2026-10-28）· Part 2：开源模型下载 → 转换 → 嵌入</div>
     <div class="keys">用法：把模型文件拖进窗口（或点「选择文件」）→ 自动解析并统计 → 点「导出 GLB」下载
 多文件（Poly Haven 风格）：把 <b>x.gltf</b> + <b>x.bin</b> + <b>textures/</b> 里的贴图<b>一起</b>选中/拖入</div>
-    <div class="meta">开发版：<code>src\03_模型转换器_template.html</code>，改完运行 <code>python tools\build_workbench.py</code> 重新生成单文件页</div>
+    <div class="meta"><b>在线版：直接使用，无需构建</b> · 拖入文件即转换，解析与导出都在本机浏览器完成</div>
   </div>
 
   <div id="filesPanel" class="panel">

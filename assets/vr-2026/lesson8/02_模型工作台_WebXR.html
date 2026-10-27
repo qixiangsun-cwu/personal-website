@@ -6,14 +6,10 @@
 <link rel="icon" href="data:,">
 <title>模型工作台 · WebXR（开发模板）</title>
 <!--
-  开发模板：src/02_模型工作台_template.html
+  本站「在线版」：单文件、零外部请求，4 个模型已内联（base64）。
   ─────────────────────────────────────────────────────────────
-  这是「可编辑的开发版」：库用 ../lib/ 外部引用、模型用 fetch('../assets/models/*.glb')；
-  双击本文件（file://）打不开模型（浏览器禁止 file:// fetch），请用 http 打开：
-      cd demos && python -m http.server 8038
-      http://127.0.0.1:8038/src/02_模型工作台_template.html
-  改完运行：python tools/build_workbench.py
-  构建脚本会把库与 4 个模型全部内联，生成 demos/02_模型工作台_WebXR.html（单文件、零外部请求）。
+  课堂用法：在浏览器里直接打开本页即可；模型用右侧卡片加载，或用「导入本机 GLB」
+  导入从课程页下载的 .glb。**不需要构建、不需要下载代码、不需要本地服务器。**
   ─────────────────────────────────────────────────────────────
 -->
 <style>
@@ -84,8 +80,7 @@
   <div class="keys">PC：左键拖空白处环视 · 左键点模型选中 · 按住拖动移动 · Q/E 旋转 · 滚轮缩放 · 空格 播放/暂停 · Delete 删除 · R 重置视角
 VR：扳机射线抓取/移动 · 右摇杆旋转 · 左摇杆推拉缩放</div>
   <div id="statbar">正在加载内嵌模型…</div>
-  <div class="meta">模型来自开源站点（许可证见右侧卡片）· 单文件零外部请求
-开发版：<code>src\02_模型工作台_template.html</code>，改完运行 <code>python tools\build_workbench.py</code> 重新生成单文件页</div>
+  <div class="meta">模型来自开源站点（许可证见右侧卡片）· 单文件零外部请求 · <b>在线版：直接使用，无需构建</b></div>
 </div>
 
 <div id="selbox" class="panel">

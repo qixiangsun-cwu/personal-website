@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第8次课 · 学生作品墙（全部提交） | 2026年虚拟现实技术</title>
+<meta name="description" content="《虚拟现实技术》第 8 次课（2026-10-28）课堂作业作品墙：646 机房交互验证 + 模型管线，全部提交作品展示（截图 + 一句话 + 许可）。">
+<link rel="stylesheet" href="assets/vr-2026/course.css">
+<link rel="icon" href="favicon.svg">
+<style>
+  .works-hero{padding:56px 0 30px;background:linear-gradient(135deg,#1f3864,#306998 70%,#3b78aa)}
+  .works-hero .hero-inner{max-width:1180px;margin:0 auto;padding:0 24px}
+  .works-hero .kicker{color:#cfe0f5}
+  .works-hero h1{color:#fff;font-size:40px;margin:10px 0 8px;line-height:1.25}
+  .works-hero .sub{color:#e3edf9;font-size:16px;max-width:900px;line-height:1.8}
+  .works-hero .meta{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+  .works-hero .meta span{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.25);color:#fff;border-radius:999px;padding:5px 13px;font-size:13px}
+  main.works-main{max-width:1180px;margin:0 auto;padding:26px 24px 60px}
+  .works-bar{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:18px}
+  .works-bar .cnt{font-size:14px;color:#555}
+  .works-bar .tools{display:flex;gap:9px;flex-wrap:wrap}
+  .works-bar input[type=search]{padding:8px 12px;border:1px solid #d8cfbc;border-radius:8px;font:inherit;font-size:14px;background:#fffdf8;min-width:220px}
+  .works-bar a.btn{padding:8px 14px;border-radius:8px;background:#306998;color:#fff;text-decoration:none;font-size:14px}
+  .works-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
+  .work-card{background:#fffdf8;border:1px solid #e4ddcc;border-radius:12px;overflow:hidden;box-shadow:0 3px 12px rgba(43,40,32,.06);display:flex;flex-direction:column}
+  .work-card .shot{position:relative;aspect-ratio:16/9;background:#101a2c;overflow:hidden}
+  .work-card .shot img{width:100%;height:100%;object-fit:cover;display:block}
+  .work-card .shot .no{position:absolute;left:9px;top:9px;background:rgba(10,16,32,.72);color:#fff;font-size:12px;border-radius:6px;padding:2px 8px}
+  .work-card .body{padding:12px 14px 14px;display:flex;flex-direction:column;gap:6px;flex:1}
+  .work-card .who{font-size:14px;font-weight:600;color:#1f3864}
+  .work-card .cap{font-size:14px;color:#3d3a30;line-height:1.6;flex:1}
+  .work-card .tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:2px}
+  .work-card .tag{font-size:11px;border-radius:999px;padding:2px 9px;background:#eaf1f8;color:#306998}
+  .work-card .tag.lic{background:#f3efe3;color:#8a6d1f}
+  .empty{border:2px dashed #d8cfbc;border-radius:12px;padding:34px 24px;text-align:center;color:#6b6657;background:#fbf8f0;line-height:1.9}
+  .empty b{color:#1f3864}
+  details.how{margin-top:26px;background:#f6f3ec;border:1px solid #e4ddcc;border-radius:10px;padding:10px 16px}
+  details.how summary{cursor:pointer;color:#306998;font-size:14px}
+  details.how p,details.how li{font-size:13.5px;line-height:1.85;color:#4a463b}
+  footer.works-footer{text-align:center;color:#7a7568;font-size:13px;padding:22px 20px 40px;border-top:1px solid #e9e2d2;margin-top:20px}
+  @media (max-width:640px){.works-hero h1{font-size:27px}.works-hero{padding:34px 0 22px}main.works-main{padding:18px 14px 44px}}
+</style>
+</head>
+<body>
+
+<header class="works-hero">
+  <div class="hero-inner">
+    <span class="kicker">虚拟现实技术 · 第 8 次课 · 2026-10-28</span>
+    <h1>学生作品墙：交互验证 × 模型管线</h1>
+    <p class="sub">646 机房 90′ 课堂作业的全部提交作品都会在这里展示：<strong>一张截图 + 一句话 + 模型许可</strong>。作品按提交顺序上传，不分优劣。</p>
+    <div class="meta">
+      <span>全部提交 · 不筛选</span>
+      <span>截图 + 一句话 + 许可</span>
+      <span>第 3–4 节持续更新</span>
+    </div>
+  </div>
+</header>
+
+<main class="works-main">
+  <div class="works-bar">
+    <div class="cnt" id="cnt">作品加载中…</div>
+    <div class="tools">
+      <input type="search" id="q" placeholder="搜学号 / 姓名 / 关键词">
+      <a class="btn" href="vr-2026-lesson8-hw.html">作业要求（一页版）→</a>
+      <a class="btn" href="vr-2026-lesson8.html">本课主页 →</a>
+    </div>
+  </div>
+
+  <div class="works-grid" id="grid"></div>
+  <div class="empty" id="empty" style="display:none">
+    <b>作品陆续上传中…</b><br>
+    授课教师会在第 3–4 节（430 教室）按提交顺序把<strong>全部同学</strong>的作品放上来。<br>
+    每件作品 = 一张 16:9 截图 + 不超过 30 字的一句话 + 模型许可。
+  </div>
+
+  <details class="how">
+    <summary>教师用：怎么把全部作品一次性放上来（3 步）</summary>
+    <p>1. 收齐学生文件夹：每个文件夹名形如 <code>230812003_张三_第8次课/</code>，内含 <code>S2.png</code>、<code>说明.md</code>（第一行一句话）、<code>许可卡.txt</code>。</p>
+    <p>2. 在本目录打开终端运行：</p>
+    <pre><code>py -3 build_works.py --src "D:\收作业文件夹" --out "D:\各种工作\个人网站\assets\vr-2026\lesson8\works"</code></pre>
+    <p>脚本会把截图复制为 <code>works/&lt;学号&gt;.png</code>、读取一句话与许可，重写 <code>works-data.js</code>（全部作品一条不落）。</p>
+    <p>3. 部署：在站点仓库运行 <code>powershell -ExecutionPolicy Bypass -File assets\vr-2026\lesson8\works\deploy_works.ps1</code>（自动 add / commit / push，Cloudflare 约 1 分钟生效）。</p>
+    <p>不公开的个别作品：在 <code>说明.md</code> 第一行写 <code>不公开</code>，脚本会跳过（但仍计入教师存档）。</p>
+  </details>
+</main>
+
+<footer class="works-footer">
+  虚拟现实技术（1050080280）· 中华女子学院 · 2026 秋 · 第 8 次课作品墙
+</footer>
+
+<script src="assets/vr-2026/lesson8/works/works-data.js"></script>
+<script>
+(function(){
+  'use strict';
+  var WORKS = (window.LESSON8_WORKS || []);
+  var grid = document.getElementById('grid');
+  var empty = document.getElementById('empty');
+  var cnt = document.getElementById('cnt');
+  var q = document.getElementById('q');
+
+  function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+
+  function card(w, i){
+    var img = w.img ? 'assets/vr-2026/lesson8/works/' + w.img : '';
+    var el = document.createElement('article');
+    el.className = 'work-card';
+    el.innerHTML =
+      '<div class="shot">' +
+        (img ? '<img loading="lazy" src="' + esc(img) + '" alt="' + esc(w.name || '') + ' 的课堂作业截图">' : '') +
+        '<span class="no">#' + String(i + 1).padStart(2, '0') + '</span>' +
+      '</div>' +
+      '<div class="body">' +
+        '<div class="who">' + esc(w.name || '匿名') + '</div>' +
+        '<div class="cap">' + esc(w.caption || '') + '</div>' +
+        '<div class="tags">' +
+          (w.model ? '<span class="tag">模型：' + esc(w.model) + '</span>' : '') +
+          (w.license ? '<span class="tag lic">' + esc(w.license) + '</span>' : '') +
+        '</div>' +
+      '</div>';
+    return el;
+  }
+
+  function render(){
+    var kw = (q.value || '').trim().toLowerCase();
+    var list = WORKS.filter(function(w){
+      if (!w) return false;
+      var hay = [w.name, w.caption, w.model, w.license].join(' ').toLowerCase();
+      return !kw || hay.indexOf(kw) >= 0;
+    });
+    grid.innerHTML = '';
+    list.forEach(function(w, i){ grid.appendChild(card(w, i)); });
+    cnt.textContent = '共 ' + WORKS.length + ' 件作品' + (kw ? '（筛选出 ' + list.length + ' 件）' : '');
+    empty.style.display = WORKS.length ? 'none' : 'block';
+  }
+
+  q.addEventListener('input', render);
+  render();
+})();
+</script>
+</body>
+</html>

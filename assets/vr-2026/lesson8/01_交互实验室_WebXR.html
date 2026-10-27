@@ -131,10 +131,9 @@ window.addEventListener('unhandledrejection', function(ev){
  *   ⑨ PC 模式完整可用（鼠标 + 键盘），无头显课堂可全程演示
  *   ⑩ 三个目标（吸附 / 双手 2 倍 / poke）实时计数
  *
- * 两种形态（同一份代码）：
- *   · 开发版模板 = 本文件（demos\src\01_交互实验室_template.html，库用 ../lib/three.min.js 外链）
- *   · 单文件成品 = demos\01_交互实验室_WebXR.html（three r128 内联，零外部请求，双击可看）
- *   构建：python tools\build_interaction.py
+ * 形态：本站「在线版」单文件成品（three r128 已内联、零外部请求）。
+ *   · 课堂用法：在浏览器里直接打开本页即可操作，**不需要构建、不需要下载代码**。
+ *   · 学生课堂作业只做页面上的交互验证，不修改本文件。
  * 约定（验证工具依赖）：`  renderer.setAnimationLoop(animate);` 两空格缩进；
  *   animate() 内调用 renderer.render(scene, camera)；
  *   renderer.xr.setReferenceSpaceType('local-floor') 在会话创建前调用；
@@ -1682,8 +1681,8 @@ function boot(){
   $('hudPC').innerHTML = '<b>PC 操作</b><br>' + CFG.pcKeys;
   $('hudVR').innerHTML = '<b>头显操作</b><br>' + CFG.vrKeys;
   $('hudTeach').innerHTML = '<b>课堂要点</b><br>' + CFG.teach;
-  $('hudDev').innerHTML = '开发版：<b>src\\01_交互实验室_template.html</b>' +
-    '（改完运行 <span class="k">python tools\\build_interaction.py</span> 重新生成单文件页）';
+  $('hudDev').innerHTML = '在线版：本站直接使用 · <b>无需构建 / 无需下载代码</b>' +
+    '（课堂作业只做页面内的交互验证）';
   $('loadTitle').textContent = CFG.title;
   $('loadMsg').textContent = '就绪 · ' + CFG.part;
 

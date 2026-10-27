@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>第8次课 · WebXR 交互进阶 + 开源 3D 模型资产管线（先做后讲） | 2026年虚拟现实技术</title>
-<meta name="description" content="《虚拟现实技术》第 8 次课（2026-10-28 · 4 学时）两段式：第 1–2 节 90′ 在 646 机房学生自主做课堂作业（教师只开场 5′ ＋ 巡场，不讲课），第 3–4 节 90′ 在 430 教室教师戴 VR 头显讲课与演示。内容两部分：① WebXR 交互进阶（输入源三字段 handedness/profiles/gamepad、select vs squeeze、状态机 idle→hover→grab→snap、双手缩放 scale=d_now/d_start、双阈值吸附、poke 0.14m vs 射线 6m、输入源检查器）；② 开源 3D 模型 → WebXR 资产管线（Poly Haven / Poly Pizza / Khronos / Kenney / Sketchfab、CC0/CC-BY/CC-BY-NC/SCEA、GLB vs GLTF、转换≠优化 Duck 120,484→152,408 B +26.5%、归一化 1.2m、场景 JSON、许可卡）。含 4 个在线演示（01 交互实验室 / 02 模型工作台 / 03 模型转换器 / 04 头显自检页）、学生作业包与作业单打印版下载、20 分构成、诚实边界。">
+<meta name="description" content="《虚拟现实技术》第 8 次课（2026-10-28 · 4 学时）两段式：第 1–2 节 90′ 在 646 机房学生用线上页面完成一页版课堂作业（20 分：A 组交互验证 10 分 ＋ B 组模型管线 10 分），第 3–4 节 90′ 在 430 教室教师戴 VR 头显讲课与演示。内容两部分：① WebXR 交互进阶（输入源三字段 handedness/profiles/gamepad、select vs squeeze、状态机 idle→hover→grab→snap、双手缩放 scale=d_now/d_start、双阈值吸附、poke 0.14m vs 射线 6m、输入源检查器）；② 开源 3D 模型 → WebXR 资产管线（Poly Haven / Poly Pizza / Khronos / Kenney / Sketchfab、CC0/CC-BY/CC-BY-NC/SCEA、GLB vs GLTF、转换≠优化 Duck 120,484→152,408 B +26.5%、归一化 1.2m、场景 JSON、许可卡）。含 4 个在线演示（01 / 02 / 03 / 04 头显自检页）、一页版作业页入口、3 个模型下载、20 分构成、诚实边界。">
 <link rel="stylesheet" href="assets/vr-2026/course.css">
 <style>
 /* 本节课表格首列不换行（时段/编号） */
@@ -29,7 +29,7 @@ pre{max-width:100%;}
   <div class="hero-inner">
     <span class="kicker">虚拟现实技术 · 第 8 次课 · 先做后讲</span>
     <h1>先动手，再听原理：交互零件装成系统 × 开源模型变成资产</h1>
-    <p class="sub">第 8 次课 · 2026-10-28 · 4 学时 —— <strong>前两节 90′</strong>在 <strong>646 机房</strong>自己动手（教师只开场 5′ ＋ 巡场，<strong>不讲课</strong>）：改一处交互、转一个 GLB、写一张许可卡；<strong>后两节 90′</strong>换到 <strong>430 教室</strong>，教师<strong>戴上头显</strong>把你们刚做的事拆开讲——<strong>动手在前、原理在后</strong></p>
+    <p class="sub">第 8 次课 · 2026-10-28 · 4 学时 —— <strong>前两节 90′</strong>在 <strong>646 机房</strong>用<strong>线上页面</strong>完成<strong>一页版课堂作业</strong>（A 组交互验证 10 分 ＋ B 组模型管线 10 分；教师只开场 5′ ＋ 巡场，<strong>不讲课</strong>）；<strong>后两节 90′</strong>换到 <strong>430 教室</strong>，教师<strong>戴上头显</strong>把你们刚做的事拆开讲——<strong>动手在前、原理在后</strong></p>
     <div class="meta">
       <span>中华女子学院</span><span>第 8 次课 · 2026-10-28（周三）· 4 学时 / 180 分钟</span><span>第 1–2 节 646 机房 90′ 自主作业 ＋ 第 3–4 节 430 教室 90′ 头显讲课</span><span>授课人：孙琪翔</span><span>数字媒体技术实验室</span>
     </div>
@@ -42,12 +42,12 @@ pre{max-width:100%;}
     <a href="vr-2026.html" class="nav-back">← 课程主页</a>
     <a href="#guide" data-sec="guide" class="on">导、两段式总览</a>
     <a href="#p646" data-sec="p646">646、前 90′ 作业</a>
-    <a href="#practice" data-sec="practice">练、练习要求</a>
+    <a href="#practice" data-sec="practice">练、一页版作业</a>
     <a href="#p430" data-sec="p430">430、后 90′ 讲课</a>
     <a href="#c1" data-sec="c1">一、交互进阶</a>
     <a href="#c2" data-sec="c2">二、模型管线</a>
     <a href="#lab" data-sec="lab">演、在线演示</a>
-    <a href="#hw" data-sec="hw">交、20 分与提交</a>
+    <a href="#hw" data-sec="hw">交、提交与评分</a>
     <a href="#honest" data-sec="honest">诚、诚实边界</a>
     <a href="#next" data-sec="next">下、下一课</a>
   </div>
@@ -69,8 +69,8 @@ pre{max-width:100%;}
      所以这次课<strong>换了排法</strong>：前两节我不讲，你们自己动手；后两节戴上头显，我再讲<strong>你们刚才做的事到底发生了什么</strong>。</p>
 
   <div class="key"><strong>教学底线（下课时每人至少做到这一条）</strong><br>
-    交出一份<strong>“改过一处交互 ＋ 转出一个 GLB ＋ 导出场景 JSON ＋ 一张许可卡”</strong>的作业，
-    并且能说出<strong>“我改的是哪一处、这个模型能不能用”</strong>。分数只是结果，这两句话才是本课目标。</div>
+    交出一份<strong>“A 组五项交互都做过并记录 ＋ B 组管线跑通（转 GLB → 导入操作 → 场景 JSON ＋ 许可卡）”</strong>的作业，
+    并且能说出<strong>“状态是怎么变的、这个模型能不能用”</strong>。分数只是结果，这两句话才是本课目标。</div>
 
   <h3>一、两段式分工（先记住这张表）</h3>
   <div class="tbl-wrap">
@@ -78,34 +78,34 @@ pre{max-width:100%;}
       <thead><tr><th></th><th>第 1–2 节（90′）· 646 机房</th><th>第 3–4 节（90′）· 430 教室</th></tr></thead>
       <tbody>
         <tr><td><strong>谁在动</strong></td><td><strong>学生动手</strong>（教师只开场 5′ ＋ 巡场答疑）</td><td><strong>教师讲与演示</strong>（学生看，少量轮流体验）</td></tr>
-        <tr><td><strong>主材料</strong></td><td><strong>学生课堂作业包</strong>（三页 ＋ 离线模型 ＋ 90′ 作业单）</td><td><strong>01 交互实验室</strong> / <strong>02 模型工作台</strong> / <strong>03 模型转换器</strong> / <strong>04 头显自检页</strong></td></tr>
-        <tr><td><strong>产出</strong></td><td>改过的学生版 HTML ＋ GLB ＋ 场景 JSON ＋ 许可卡 ＋ S1/S2/S3 截图 ＋ 作业单</td><td>观察记录（看头显演示）＋ 修正后的理解 ＋ 课后补齐</td></tr>
+        <tr><td><strong>主材料</strong></td><td><strong>一页版作业页</strong>（<a href="vr-2026-lesson8-hw.html">vr-2026-lesson8-hw</a>）＋ 线上 <strong>01 / 02 / 03 / 04</strong> 四页</td><td><strong>01 交互实验室</strong> / <strong>02 模型工作台</strong> / <strong>03 模型转换器</strong> / <strong>04 头显自检页</strong></td></tr>
+        <tr><td><strong>产出</strong></td><td>A 组交互记录 ＋ B 组 GLB / 场景 JSON / 许可卡 ＋ <strong>S1 / S2 / S3</strong> 截图 ＋ 说明.md</td><td>观察记录（看头显演示）＋ 修正后的理解 ＋ 课后补齐</td></tr>
         <tr><td><strong>教师角色</strong></td><td>发材料、<strong>每 15′ 广播一次进度</strong>、巡场、收作业</td><td>主讲、<strong>戴头显演示</strong>、控投屏、组织轮换</td></tr>
       </tbody>
     </table>
   </div>
-  <div class="note"><strong>为什么这么排（三个现实约束）</strong>：① 机房机器<strong>不保证有 Python / Node</strong>，也不保证网络 → 前 90′ 走“<strong>直接改单文件 HTML → 保存 → 刷新</strong> ＋ 离线模型包”的零依赖路径；② 头显在 <strong>430</strong>，不可能让全班在机房排队；③ <strong>动手在前、原理在后</strong>，学生带着“我刚才卡住的地方”听后半场，注意力才在。</div>
+  <div class="note"><strong>为什么这么排（三个现实约束）</strong>：① 前 90′ 全部走<strong>线上页面</strong>（01 / 02 / 03 / 04 ＋ 站内模型下载），学生<strong>不装软件、不下载代码、不改 HTML</strong>，打开就能做；② 头显在 <strong>430</strong>，不可能让全班在机房排队；③ <strong>动手在前、原理在后</strong>，学生带着“我刚才卡住的地方”听后半场，注意力才在。</div>
 
-  <h3>二、今天的三样产出</h3>
+  <h3>二、今天要做的一页作业（20 分）</h3>
   <div class="grid3">
     <div class="cell">
-      <h4>① 一处被改过的交互</h4>
-      <p>在<strong>学生版 01 交互实验室</strong>里改一个参数（或加一个按钮），<strong>保存 + 刷新</strong>后能看到变化；
-        记录表写清“原值 → 新值 → 前后现象”。</p>
+      <h4>A 组 · 交互验证（10 分）</h4>
+      <p>用<strong>线上 01 交互实验室</strong>做 5 项：<strong>吸附 / 双手缩放 2× / Poke 直触 / 触觉模式 / 输入源三字段</strong>；
+        每项写“状态怎么变 ＋ 我观察到什么”，截 <strong>S1</strong>，再用一句话说清 <strong>squeeze vs select</strong>。</p>
     </div>
     <div class="cell">
-      <h4>② 一条跑通的资产管线</h4>
-      <p>来源 → <strong>转 GLB</strong> → 导入工作台（自动归一化）→ <strong>3 个操作</strong> → <strong>导出场景 JSON</strong>。
-        没网就用<strong>教师离线包</strong>，照常给分。</p>
+      <h4>B 组 · 模型管线（10 分）</h4>
+      <p><strong>下载 Fox.glb</strong>（站内）→ 03 转换器转出 GLB 并记体积变化 → 02 工作台导入后<strong>旋转 45°、缩放 1.5×、换色、播动画</strong>
+        → 截 <strong>S2</strong> → 导出 <strong>scene.json</strong>。</p>
     </div>
     <div class="cell">
-      <h4>③ 一张写满的许可卡</h4>
-      <p>资产名 / 作者 / <strong>来源 URL</strong> / 许可（CC0 / CC-BY / CC-BY-NC / SCEA）/ 可商用？需署名？/ 改了什么 / 结论。
-        <strong>430 会被当众“判卷”</strong>。</p>
+      <h4>许可卡 ＋ 提交</h4>
+      <p><strong>许可卡.txt</strong>：模型名 / 来源 / 许可 / 能否商用 / 是否署名。连同 <strong>S1/S2/S3、scene.json、说明.md</strong>
+        放进 <code class="inline">学号_姓名_第8次课</code>，<strong>本场下课交</strong>。</p>
     </div>
   </div>
 
-  <div class="warn"><strong>今天最容易走偏的两件事</strong>：① 把前两节当成“等老师讲”——<strong>前两节我不讲</strong>，卡住先翻作业单“常见坑”，再举手；
+  <div class="warn"><strong>今天最容易走偏的两件事</strong>：① 把前两节当成“等老师讲”——<strong>前两节我不讲</strong>，先按<a href="vr-2026-lesson8-hw.html">一页版作业页</a><strong>先 A 后 B</strong> 做，卡住举手；
     ② 把后两节当成“看电影”——<strong>头显是教具不是奖品</strong>，戴的人有任务（抓一次 / 缩一次 / 戳一次），没戴的人有<strong>观察卡</strong>，不是干等。</div>
 </section>
 
@@ -124,12 +124,12 @@ pre{max-width:100%;}
     <table>
       <thead><tr><th>时间</th><th>环节</th><th>学生做什么</th><th>教师做什么</th></tr></thead>
       <tbody>
-        <tr><td><strong>0–5′</strong></td><td>发作业包与说明</td><td>打开<strong>作业包「00_先读我」</strong>，确认三页位置、下载 / 拷贝位置</td><td>念清四件事：<strong>两段式安排 · 练习 1/2 各 35′ · 提交清单与命名 · 卡住先看“常见坑”再举手</strong>；强调<strong>不许改 demos 原件</strong></td></tr>
-        <tr><td><strong>5–10′</strong></td><td>三页跑通热身（<strong>4 钩</strong>）</td><td>双击 <strong>01 交互实验室 / 02 模型工作台 / 03 模型转换器</strong>各看一眼，勾 4 个钩</td><td>只抓“打不开”的机器：白屏 → 换 Chrome / 换机位，别的先不管</td></tr>
-        <tr><td><strong>10–45′</strong></td><td><strong>练习 1 · 交互改造（35′）</strong></td><td>打开<strong>学生版 01</strong> → 找「学生练习区」→ 改 2 项 A 必做 → <strong>Ctrl+S 保存 → F5 刷新</strong> → 记录 → S1/S2 截图 → 勾 6 项</td><td>前 3′ 示范一次“<strong>改一个数 → 保存 → 刷新</strong>”；每 15′ 广播进度；巡场先看<strong>改的是不是学生版</strong></td></tr>
-        <tr><td><strong>45–50′</strong></td><td>答疑与休息（5′）</td><td>休息、互相看屏幕、补齐截图</td><td>只答“三个人以上问的”，其余留到巡场；典型错误记下来（<strong>430 开场就用它</strong>）</td></tr>
-        <tr><td><strong>50–85′</strong></td><td><strong>练习 2 · 模型管线（35′）</strong></td><td>选来源（无网用<strong>离线包</strong>）→ 转 GLB → 导入工作台 → <strong>3 个操作</strong> → 导出场景 JSON → 写许可卡 → 勾 6 项</td><td>广播“<strong>许可当场记，别靠记忆</strong>”；巡场查三件事：来源 URL 填没填 / 许可栏写没写 / <strong>有没有把 NC 模型放进作品</strong></td></tr>
-        <tr><td><strong>85–90′</strong></td><td>提交与自检</td><td>按命名规范把文件放进 <code class="inline">学号_姓名_第8次课</code>，按作业单 §五逐项打钩</td><td>按机位收文件、清点数量、记下未交名单</td></tr>
+        <tr><td><strong>0–5′</strong></td><td>发一页作业 ＋ 演示入口</td><td>打开<strong>一页版作业页</strong>（<a href="vr-2026-lesson8-hw.html">vr-2026-lesson8-hw</a>）与课程页，确认 01/02/03 三个工具能开</td><td>念清四件事：<strong>一页作业 20 分（A 10 ＋ B 10）· 先 A 后 B · 提交清单与命名 · 全程线上、不装软件</strong>；示范一次“点开 01 就能操作、不用下载任何东西”</td></tr>
+        <tr><td><strong>5–10′</strong></td><td>打开四个在线页（热身）</td><td>依次打开 <strong>01 交互实验室 / 02 模型工作台 / 03 模型转换器 / 04 头显自检</strong>，各看一眼能不能操作</td><td>只抓“打不开”的机器：白屏 → 换 Chrome / 换机位，别的先不管</td></tr>
+        <tr><td><strong>10–40′</strong></td><td><strong>A 组 · 交互验证（30′）</strong></td><td>在 01 里做 5 项（吸附 / 双手 2× / Poke / 触觉 / 输入源三字段），逐项记“状态怎么变 ＋ 我观察到什么”，截 <strong>S1</strong>，写一句话 squeeze vs select</td><td>前 3′ 投屏演示一遍五项怎么触发（<code class="inline">T</code> / <code class="inline">P</code> / <code class="inline">H</code> / <code class="inline">1</code><code class="inline">2</code><code class="inline">3</code>）；每 15′ 广播进度；巡场只看“记录写了没”</td></tr>
+        <tr><td><strong>40–45′</strong></td><td>答疑与休息（5′）</td><td>休息、互相看屏幕、确认 S1 截到了</td><td>只答“三个人以上问的”，其余留到巡场；典型错误记下来（<strong>430 开场就用它</strong>）</td></tr>
+        <tr><td><strong>45–80′</strong></td><td><strong>B 组 · 模型管线（35′）</strong></td><td>下载 <strong>Fox.glb</strong>（站内）→ 03 转换器转 GLB 记体积 → 02 工作台导入并旋转 45° / 缩放 1.5× / 换色 / 动画 → 截 <strong>S2</strong> → 导出 <strong>scene.json</strong> → 写许可卡</td><td>广播“<strong>许可当场记，别靠记忆</strong>”；巡场查三件事：体积数字填没填 / 三个操作做了没 / 许可卡空没空</td></tr>
+        <tr><td><strong>80–90′</strong></td><td>提交与自检</td><td>把 <strong>S2.png（展示图）、S1.png、scene.json、许可卡.txt、说明.md</strong> 放进 <code class="inline">学号_姓名_第8次课</code>，交到指定共享盘 / 群文件；<strong>每人确保 S2 与一句话能直接上墙</strong></td><td>按机位清点、记下未交名单；<strong>全部作业统一上「作品墙」</strong>（不愿公开的按说明.md 第一行「不公开」处理）</td></tr>
       </tbody>
     </table>
   </div>
@@ -139,7 +139,7 @@ pre{max-width:100%;}
     <div class="step-card">
       <div class="sc-no">钩 1</div>
       <div class="sc-title">页面无白屏</div>
-      <div class="sc-desc">三页各双击一次，能看到 3D 画面 / 面板。<strong>白屏先换浏览器</strong>（Chrome / Edge），再换机位。</div>
+      <div class="sc-desc">四个在线页各点开一次，能看到 3D 画面 / 面板。<strong>白屏先换浏览器</strong>（Chrome / Edge），再换机位。</div>
     </div>
     <div class="step-card">
       <div class="sc-no">钩 2</div>
@@ -158,71 +158,80 @@ pre{max-width:100%;}
     </div>
   </div>
 
-  <div class="note"><strong>教师巡场节奏（646 的 90′ 怎么走）</strong>：0–5′ 站着讲（不开电脑）→ 5–10′ 只解决“打不开”→ 10–45′ 巡场三问（<strong>你改的是哪个文件？记录表填了吗？保存刷新后真的变了吗？</strong>）→ 每 15′ 广播一次（T+15 / 30 / 45 / 60 / 75）→ 45–50′ 统一答疑 → 50–85′ <strong>查许可</strong>（URL 空着的当场补）→ 85–90′ 收作业。</div>
+  <div class="note"><strong>教师巡场节奏（646 的 90′ 怎么走）</strong>：0–5′ 站着讲（不开电脑）→ 5–10′ 只解决“打不开”→ 10–40′ 巡场三问（<strong>A 组五项做全了吗？状态/HUD 写了吗？S1 截到了吗？</strong>）→ 每 15′ 广播一次（T+15 / 30 / 45）→ 40–45′ 统一答疑 → 45–80′ <strong>查体积数字与许可卡</strong>（空着的当场补）→ 80–90′ 收作业。</div>
 
-  <div class="warn"><strong>646 降级预案（一页）</strong>：作业包没拷到 → U 盘 / 共享盘补，或两人一机；<strong>没有 Python / Node → 本来就不需要</strong>（学生版直接改 HTML，不提供构建步骤）；<strong>网络断 → 练习 2 走离线包</strong>，记录写“教师离线包”，照常给分；投影听不清 → 把“每 15′ 广播”改成写黑板＋巡场口头提醒；时间不够 → 砍 B/C，只保 A 必做（每练习基础 7 分）。</div>
+  <div class="warn"><strong>646 降级预案（一页）</strong>：页面打不开 → 换浏览器（Chrome / Edge）/ 换机位，或两人一机共用一台；<strong>站内模型下载失败 → 用 02 工作台里已内嵌的 Fox 直接做 B2–B3</strong>（B1 的体积对比改为记录内嵌模型大小，照常给分）；<strong>网络整体断 → A 组照做（单文件页可先用教师拷贝），B 组改为“PC 端 02 内嵌模型 + 口头讲管线”</strong>；投影听不清 → 把“每 15′ 广播”改成写黑板＋巡场口头提醒；时间不够 → <strong>保 A 组与 B2/B3/B4</strong>（B1 可课后补）。</div>
 </section>
 
 <!-- ===== 练：646 练习要求 + 资源下载 ===== -->
-<section id="practice">
+<section id="practice"><section id="practice">
   <div class="sec-head">
     <div class="sec-num">练</div>
     <div>
-      <h2>646 练习要求：两个练习各 35′，各 10 分</h2>
-      <p class="sec-sub">练习 1 改交互（<strong>直接改单文件 HTML 末尾「学生练习区」→ 保存 → 刷新</strong>）；练习 2 走完模型管线（<strong>没网用离线包</strong>）</p>
+      <h2>646 课堂作业（一页版）：A 组交互验证 10 分 ＋ B 组模型管线 10 分</h2>
+      <p class="sec-sub">全程用<strong>线上页面</strong>：<strong>不装软件、不下载代码、不改 HTML</strong>；作业内容与可打印版都在<a href="vr-2026-lesson8-hw.html">一页版作业页</a></p>
     </div>
   </div>
 
-  <h3>一、学生资源下载（机房用这一份就够）</h3>
+  <h3>一、作业入口与站内模型（机房用这一份就够）</h3>
   <div class="demo-grid">
-    <a class="demo-card" href="assets/vr-2026/lesson8/作业包.zip" download>
-      <div class="dc-no">STUDENT KIT · 作业包</div>
-      <div class="dc-title">学生课堂作业包（zip）</div>
-      <div class="dc-desc">三页学生版（<strong>01 学生版 / 02 / 03</strong>）＋ <strong>4 个离线模型</strong>（含许可）＋ 90′ 作业单 ＋ 提交模板 ＋ 三张“应该长什么样”的截图。<strong>3,774,225 B / 30 条目</strong>。</div>
-      <div class="dc-meta">机房<strong>不需要 Python / Node / 服务器 / 联网</strong>；解压后双击 <code class="inline">pages\01_交互实验室_学生版.html</code> 即可开始。</div>
-      <div class="dc-links"><span>下载作业包 →</span><span class="tag green">离线可用</span></div>
+    <a class="demo-card" href="vr-2026-lesson8-hw.html">
+      <div class="dc-no">HOMEWORK · 一页版（20 分）</div>
+      <div class="dc-title">课堂作业：交互验证 ＋ 模型管线</div>
+      <div class="dc-desc"><strong>A 组交互验证 10 分</strong>（01 五项操作：吸附 / 双手缩放 2× / Poke / 触觉 / 输入源三字段，S1 截图，一句话 squeeze vs select）；<strong>B 组模型管线 10 分</strong>（Fox.glb → 03 转 GLB 记体积 → 02 导入并旋转 45° / 缩放 1.5× / 换色 / 动画 → <strong>S2 展示图</strong> → scene.json → 许可卡）。<br><strong>全部提交作品都会放进「第 8 次课作品墙」</strong>（图片 ＋ 一句话 ＋ 许可）。</div>
+      <div class="dc-meta"><strong>一屏看完</strong>（1280×800 不滚动）· 可 A4 横向打印 · 手机上也能读；<strong>本场下课交</strong>。</div>
+      <div class="dc-links"><span>打开一页版作业 →</span><span class="tag green">646 全程线上</span><span class="tag gold">全部上作品墙</span></div>
     </a>
-    <a class="demo-card" href="assets/vr-2026/lesson8/作业单_打印版.html" target="_blank" rel="noopener">
-      <div class="dc-no">WORKSHEET · 90′ 机房版</div>
-      <div class="dc-title">作业单 · 打印版（A4 直接印）</div>
-      <div class="dc-desc">90′ 时间轴 5+5+35+5+35+5、练习 1/2 的 A 必做 / B 进阶 / C 挑战、6+6 个可勾选检查点、改动记录表、转换前后对比表、许可卡模板、20 分量规、提交清单。</div>
-      <div class="dc-meta">浏览器打开后 <code class="inline">Ctrl+P</code> → A4 → <strong>双面打印</strong>（短边翻页）；<strong>不用 Word / 不用 Pandoc</strong>，也不依赖网络。</div>
-      <div class="dc-links"><span>打开打印版 →</span><span class="tag gold">当堂交纸质 / 拍照</span></div>
-    </a>
+    <div class="demo-card" style="cursor:default">
+      <div class="dc-no">MODELS · 站内下载（3 个）</div>
+      <div class="dc-title">作业用模型（CC0 / CC-BY，已核对许可）</div>
+      <div class="dc-desc">
+        <a href="assets/vr-2026/lesson8/models/Fox.glb" download>Fox.glb</a>（162,852 B · 576 三角面 · 3 段动画 · CC0 模型 ＋ CC-BY 4.0 动画，<strong>需署名</strong>）<br>
+        <a href="assets/vr-2026/lesson8/models/Duck.glb" download>Duck.glb</a>（120,484 B · 4,212 三角面 · 无动画 · SCEA，非 CC）<br>
+        <a href="assets/vr-2026/lesson8/models/ArmChair_01.glb" download>ArmChair_01.glb</a>（768,568 B · 5,626 三角面 · 3 纹理 · CC0）
+      </div>
+      <div class="dc-meta">许可原文与署名写法：<code class="inline">models\README_许可.md</code>；<strong>DamagedHelmet（CC-BY-NC）不在站内，不得进作品</strong>。</div>
+      <div class="dc-links"><span class="tag gold">下载即用</span><span class="tag">无需登录</span></div>
+    </div>
   </div>
-  <div class="note"><strong>机房铁律三条</strong>：① <strong>只改作业包里的学生版</strong>，不碰 <code class="inline">demos\</code> 原件（改坏重新拷一份，不扣分）；② <strong>Ctrl+S 保存 → 浏览器 Ctrl+F5 刷新</strong>，<strong>没刷新 = 白改</strong>（第一大坑）；③ 每个勾都要<strong>能当场演示</strong>，勾了不算数，被抽查要 30 秒内点出来。</div>
+  <div class="btn-row">
+    <a class="btn" href="vr-2026-lesson8-hw.html">打开一页版作业（20 分）→</a>
+    <a class="btn ghost" href="vr-2026-lesson8-works.html">第 8 次课作品墙 →</a>
+  </div>
+  <div class="note"><strong>机房铁律三条</strong>：① <strong>全程用线上页面</strong>——不装任何软件、不下载代码、不改 HTML（今天没有“改代码”这一步）；② <strong>先 A 后 B</strong>，A 组 30′、B 组 35′，卡住先看作业页提示再举手；③ 截图用 <strong>Win + Shift + S</strong>，文件名带<strong>学号＋姓名</strong>。</div>
 
-  <h3>二、练习 1 · 交互改造（35′，10 分）</h3>
-  <p>打开 <code class="inline">pages\01_交互实验室_学生版.html</code>，<strong>Ctrl+F 搜「学生练习区」</strong>——就在参数旁边。改完 <strong>Ctrl+S → F5</strong>，想看生效没有：<code class="inline">F12</code> → Console → 输入 <code class="inline">__lab.limits()</code>。</p>
+  <h3>二、A 组 · 交互验证（30′，10 分）</h3>
+  <p>打开<strong>线上 01 交互实验室</strong>（PC 键盘即可），按作业页表格做 5 项并记录：<strong>①吸附 ②双手缩放到 2×（<code class="inline">T</code>，<code class="inline">[</code><code class="inline">]</code>/滚轮）③ Poke 直触（<code class="inline">P</code>）④ 触觉模式切换（<code class="inline">H</code>，<code class="inline">1</code><code class="inline">2</code><code class="inline">3</code>）⑤ 读输入源检查器三字段</strong>；截 <strong>S1</strong>（含状态机 HUD 与目标 3/3），写一句话回答“为什么抓取用 squeeze 而不是 select”。</p>
   <div class="tbl-wrap">
     <table>
-      <thead><tr><th>编号</th><th>改什么</th><th>默认值 → 试什么</th><th>要观察的现象</th></tr></thead>
+      <thead><tr><th>#</th><th>动作</th><th>状态怎么变</th><th>评分点</th></tr></thead>
       <tbody>
-        <tr><td><strong>A1</strong></td><td>吸附判定半径 <code class="inline">SNAP_DIST</code></td><td><strong>0.30 m</strong> → 0.12（几乎吸不上）/ 0.60（隔空就吸上）</td><td>吸附成功率、<strong>误吸附</strong>、控制感；改完 <code class="inline">__lab.limits().snapDist</code> 要跟着变</td></tr>
-        <tr><td><strong>A2</strong></td><td>新增一个 <strong>poke 按钮</strong></td><td>照 <code class="inline">makePokeButton(...)</code> 复制一行改位置</td><td>新按钮能<strong>直触触发</strong>，HUD 状态与触觉模式有变化</td></tr>
-        <tr><td><strong>B1</strong></td><td>触觉强度 <code class="inline">HAPTIC</code> 表</td><td>short <strong>0.35 → 0.8</strong></td><td>“同一强度用到底 = 噪音”；PC 端走<strong>音效 + 日志</strong>降级</td></tr>
-        <tr><td><strong>C1</strong></td><td>状态机 <code class="inline">TRANS</code> 转移表</td><td>删掉 <code class="inline">idle → grab</code> 出口</td><td>哪些操作<strong>先被拒绝</strong>；被拒记录在 <code class="inline">S.lastReject</code></td></tr>
+        <tr><td>①</td><td>把方块吸进插槽（吸附）</td><td><code class="inline">idle → hover → grab → snap</code></td><td>动作做到 ＋ 状态写对</td></tr>
+        <tr><td>②</td><td>双手把能量球缩放到 2×（<code class="inline">T</code> / <code class="inline">[</code><code class="inline">]</code> / 滚轮）</td><td>双手抓 → <strong>scale 1 → 2</strong></td><td>能说出“间距 → 缩放”</td></tr>
+        <tr><td>③</td><td>Poke 直触按下按钮（<code class="inline">P</code>）</td><td><code class="inline">idle / hover → active</code></td><td>近处直触 vs 远处射线</td></tr>
+        <tr><td>④</td><td>触觉模式切换（<code class="inline">H</code>，<code class="inline">1</code><code class="inline">2</code><code class="inline">3</code>）</td><td>short / long / pattern</td><td>PC 端走音效＋日志降级</td></tr>
+        <tr><td>⑤</td><td>读输入源检查器三字段</td><td><code class="inline">handedness</code> / <code class="inline">profiles</code> / <code class="inline">gamepad</code></td><td>PC 显示“模拟源”属正常</td></tr>
       </tbody>
     </table>
   </div>
-  <div class="key"><strong>练习 1 的评分点不是“改得多”</strong>，而是你能说清：<strong>改前什么现象、改后什么现象、为什么。</strong>记录表三列（改了什么 / 原值→新值 / 前后现象）比代码行数重要。</div>
+  <div class="key"><strong>A 组评分（10 分）＝ 动作 4 ＋ 记录 4 ＋ 一句话 2。</strong>只点一下不给分：要写出<strong>“状态怎么变 / HUD 数字”</strong>；一句话要么说“select 是点一下、squeeze 是握住”，要么说“抓取是持续动作”。</div>
 
-  <h3>三、练习 2 · 开源模型 → WebXR 资产管线（35′，10 分）</h3>
-  <p>一句话任务：<strong>下一个模型 → 转成 GLB → 导入工作台 → 3 个操作 → 导出场景 JSON ＋ 写一张许可卡。</strong>五件产出缺一扣分：</p>
+  <h3>三、B 组 · 模型管线（35′，10 分）</h3>
+  <p>五步走完：<strong>下载 Fox.glb → 03 转换器转出 GLB 记体积 → 02 工作台导入并操作 → 导出场景 JSON → 写许可卡</strong>。</p>
   <div class="tbl-wrap">
     <table>
-      <thead><tr><th>#</th><th>产出</th><th>怎么算合格</th></tr></thead>
+      <thead><tr><th>#</th><th>做什么</th><th>要交 / 要记录</th></tr></thead>
       <tbody>
-        <tr><td>①</td><td><strong>转换后的 <code class="inline">.glb</code></strong></td><td>能被 02 工作台<strong>导入成功</strong>；文件大小不是 0</td></tr>
-        <tr><td>②</td><td><strong>下载 / 离线记录表</strong></td><td>来源站点、<strong>URL</strong>、作者、许可四项都填了（离线包写“教师离线包”）</td></tr>
-        <tr><td>③</td><td><strong>场景 JSON</strong></td><td>02 里「导出场景 JSON」得到，打开后 <code class="inline">pos / rot / scale / color / anim / triangles / license</code> 都有值</td></tr>
-        <tr><td>④</td><td><strong>三个操作</strong></td><td>移动 / 旋转 / 缩放 / 换色 / 播动画里做 3 个，并记下参数</td></tr>
-        <tr><td>⑤</td><td><strong>许可卡</strong></td><td>作者、来源、许可、可商用、需署名、改了什么、结论——<strong>不许空着，不确定写“待核实”</strong></td></tr>
+        <tr><td><strong>B0</strong></td><td>站内下载 <a href="assets/vr-2026/lesson8/models/Fox.glb" download>Fox.glb</a>（也可换 Duck / ArmChair_01）</td><td>模型名；许可要看 <code class="inline">README_许可.md</code></td></tr>
+        <tr><td><strong>B1</strong></td><td>03 转换器：拖入 <code class="inline">.glb</code> → 导出 GLB</td><td>源大小 / 输出大小 / 变化% ＋ 一句话“为什么转换≠优化”</td></tr>
+        <tr><td><strong>B2</strong></td><td>02 工作台：导入本机 GLB → 选中 → <strong>旋转 45°、缩放 1.5×、换色、播放/暂停动画</strong></td><td>截图 <strong>S2</strong>（含 HUD 统计）</td></tr>
+        <tr><td><strong>B3</strong></td><td>导出场景 JSON</td><td><code class="inline">scene.json</code>，含 <code class="inline">id / name / pos / rot / scale / color / anim</code></td></tr>
+        <tr><td><strong>B4</strong></td><td>写许可卡</td><td><code class="inline">许可卡.txt</code>：模型名 / 来源 / 许可 / 能否商用 / 是否署名</td></tr>
       </tbody>
     </table>
   </div>
-  <div class="warn"><strong>练习 2 三个高频坑</strong>：① <strong>只拖 .gltf</strong> → 缺 <code class="inline">.bin</code> / 纹理，必须<strong>多文件一起拖</strong>；② <strong>导入后模型巨大或看不见</strong> → 正常，工作台会归一化到 <strong>1.2 m</strong>，先加载再摆；③ <strong>许可卡写“网上找的”</strong> → 等于没写，要写站点＋URL。</div>
-</section>
+  <div class="warn"><strong>B 组三个高频坑</strong>：① <strong>拖错格式</strong> → 03 只接受 <code class="inline">.glb/.gltf/.obj/.fbx</code>，站内给的就是 <code class="inline">.glb</code>，直接拖；② <strong>导入后巨大或看不见</strong> → 正常，工作台会归一化到 <strong>1.2 m</strong>，先加载再摆；③ <strong>许可卡空着</strong> → 该项 0 分，不确定写“待核实”。</div>
+</section></section>
 
 <!-- ===== 430：后 90′ 头显讲课 ===== -->
 <section id="p430">
@@ -239,7 +248,7 @@ pre{max-width:100%;}
     <table>
       <thead><tr><th>时间</th><th>环节</th><th>讲什么 / 演什么</th><th>学生做什么</th></tr></thead>
       <tbody>
-        <tr><td><strong>0–10′</strong></td><td>收作业 ＋ 开场</td><td>开场三句话：<strong>“你改的那一处，其实是在改状态机” / “你转的 GLB 还缺一步归一化” / “你写的许可卡决定模型能不能进作品”</strong></td><td>交作业单；拿<strong>观察卡</strong>（每人一张）</td></tr>
+        <tr><td><strong>0–10′</strong></td><td>收作业 ＋ 开场</td><td>开场三句话：<strong>“你刚做的吸附 / 双手缩放，其实都是在走状态机” / “你转的 GLB 还缺一步归一化” / “你写的许可卡决定模型能不能进作品”</strong></td><td>交作业（S1/S2/S3 ＋ scene.json ＋ 许可卡.txt ＋ 说明.md）；拿<strong>观察卡</strong>（每人一张）</td></tr>
         <tr><td><strong>10–30′</strong></td><td><strong>交互原理深化</strong></td><td>输入源三字段 → <code class="inline">select</code> vs <code class="inline">squeeze</code> → 状态机 → 双手变换数学 → 双阈值吸附（<strong>用你们 646 的真实错误当例子</strong>）</td><td>听讲、回答、在观察卡记关键词</td></tr>
         <tr><td><strong>30–45′</strong></td><td><strong>头显演示 1：01 交互实验室</strong></td><td>戴前先做 <strong>04 头显自检页 30 秒自检</strong> → 投屏 → 戴入 → 演 5 步：<strong>输入源检查器 / 射线悬停→选择 / 单手抓取 / 双手变换 / 吸附＋poke</strong></td><td>看投屏；戴头显的人做 3 件事（<strong>抓一次 / 缩一次 / 戳一次</strong>），其余人填观察卡</td></tr>
         <tr><td><strong>45–55′</strong></td><td>休息与设备轮换</td><td>头显消毒 / 换人 / 充电；教师把演示页切到 03、02 备用</td><td>轮流戴（每人 60–90 秒）；没戴的补观察卡</td></tr>
@@ -249,7 +258,7 @@ pre{max-width:100%;}
       </tbody>
     </table>
   </div>
-  <div class="note"><strong>两段之间的转场（约 10′，不计教学时长）</strong>：646 收尾存文件 2′ → 教师清点练习单 / U 盘 2′ → <strong>带队转场 646 → 430</strong>（6 层走 4 层，点名）5′ → 落座、发观察卡、点亮投屏 1′。<strong>宁可压缩点评 2 分钟，也不要压转场</strong>——迟到的开场会毁掉整个后半场。</div>
+  <div class="note"><strong>两段之间的转场（约 10′，不计教学时长）</strong>：646 收尾交作业 / 存截图 2′ → 教师清点提交文件夹、把待上墙的 S2 ＋ 一句话汇总 2′ → <strong>带队转场 646 → 430</strong>（6 层走 4 层，点名）5′ → 落座、发观察卡、点亮投屏 1′。<strong>宁可压缩点评 2 分钟，也不要压转场</strong>——迟到的开场会毁掉整个后半场。</div>
 
   <h3>二、两次头显演示的逐步操作</h3>
   <div class="grid2">
@@ -338,7 +347,7 @@ pre{max-width:100%;}
 转移表：TRANS = { idle:{hover,grab,poke}, hover:{unhover,grab,poke,disable},
                  grab:{release,snap,disable}, snap:{release,hover,grab,reset}, … }
 被拒绝的转移记在 S.lastReject（课堂上「删掉 idle→grab 出口」就能看到）</pre>
-  <div class="note"><strong>你改的 <code class="inline">SNAP_DIST</code>，不只是改一个数</strong>——它改的是 <code class="inline">grab → snap</code> 这条转移<strong>什么时候允许发生</strong>。删掉 <code class="inline">idle → grab</code> 出口后，“没悬停就能抓”的入口没了：<strong>必须先 hover 才能 grab</strong>，这不是 bug，是<strong>规则</strong>。</div>
+  <div class="note"><strong>吸附半径 <code class="inline">SNAP_DIST</code>（页面默认 0.30 m）不只是一个数</strong>——它决定 <code class="inline">grab → snap</code> 这条转移<strong>什么时候允许发生</strong>。如果把 <code class="inline">idle → grab</code> 出口删掉，“没悬停就能抓”的入口就没了：<strong>必须先 hover 才能 grab</strong>，这不是 bug，是<strong>规则</strong>。</div>
 
   <h3>四、双手变换数学：间距 → 缩放，相对角 → 旋转</h3>
 <pre>两只手同时抓同一个物体时（以「抓取那一帧」为基准，不是每帧累加）：
@@ -362,7 +371,7 @@ pre{max-width:100%;}
       </tbody>
     </table>
   </div>
-  <div class="key"><strong>把 <code class="inline">SNAP_DIST</code> 从 0.30 改到 0.60</strong>，就变成“隔空老远就吸上”——<strong>误吸附比吸不上更糟</strong>，因为用户失去控制感。这就是练习 1-A 要你对比 0.12 / 0.30 / 0.60 的原因。</div>
+  <div class="key"><strong>如果把 <code class="inline">SNAP_DIST</code> 从 0.30 放到 0.60</strong>，就变成“隔空老远就吸上”——<strong>误吸附比吸不上更糟</strong>，因为用户失去控制感。A 组做吸附时，<strong>注意 HUD 里从 hover 到 snap 的那一下“咔”</strong>，就是双阈值同时满足的瞬间。</div>
 </section>
 
 <!-- ===== 二、模型管线（原理） ===== -->
@@ -423,9 +432,9 @@ pre{max-width:100%;}
 
 为什么变大？贴图重新编码、缓冲重排——「再转一次」不是优化。
 真要变小：减面 / 贴图降采样 / Draco / meshopt（第 10 次课的内容）。</pre>
-  <div class="note"><strong>这条数字 430 现场会投出来</strong>（03 转换器的真实统计）：你下载的模型<strong>转成 GLB 就完成“能用”，不是“变好”</strong>；<strong>“转了”和“优化了”是两件事</strong>。作业单里的“转换前后对比表”就是让你亲眼记录这件事。</div>
+  <div class="note"><strong>这条数字 430 现场会投出来</strong>（03 转换器的真实统计）：你下载的模型<strong>转成 GLB 就完成“能用”，不是“变好”</strong>；<strong>“转了”和“优化了”是两件事</strong>。B 组作业里的“源大小 / 输出大小 / 变化%”就是让你亲眼记录这件事。</div>
 
-  <h3>五、四个离线模型（真实字节 / 三角面 / 许可）</h3>
+  <h3>五、四个站内模型（真实字节 / 三角面 / 许可）</h3>
   <div class="tbl-wrap">
     <table>
       <thead><tr><th>模型</th><th>字节</th><th>三角面</th><th>动画</th><th>许可（能否进作品）</th></tr></thead>
@@ -437,7 +446,7 @@ pre{max-width:100%;}
       </tbody>
     </table>
   </div>
-  <p class="res-sub">数据来自 <code class="inline">_manifest.json</code>（用 <code class="inline">glb_stats.py</code> 真实解析 GLB 的 JSON chunk，不是估算）；四个文件合计 <strong>1,542,860 B</strong>，都放在学生作业包的 <code class="inline">offline_models\</code> 里，<strong>断网也能做练习 2</strong>。</p>
+  <p class="res-sub">数据来自教师机 <code class="inline">_manifest.json</code>（真实解析 GLB 的 JSON chunk，不是估算）；其中 Fox / Duck / ArmChair_01 三个文件已放到本站 <code class="inline">assets/vr-2026/lesson8/models/</code> 供下载（许可原文见 <code class="inline">models\README_许可.md</code>）。</p>
 
   <h3>六、归一化：为什么导入后先“缩到 1.2 m”</h3>
   <p>不同来源的模型单位五花八门——有的 0.1 m 高、有的 10 m 高，原点有的在脚底、有的在中心。所以工作台导入时统一做三件事：<strong>缩放（<code class="inline">NORM_HEIGHT = 1.2</code> 米高）→ 贴地 → 居中</strong>。
@@ -461,7 +470,7 @@ pre{max-width:100%;}
       <p><strong>实测</strong>：同一场景连续导出两次，<strong>字符串完全一致</strong>（可复现）；VR 里摆的东西只有存成数据才带得走。</p>
     </div>
     <div class="cell">
-      <h4>许可卡（作业单上写，当堂判卷）</h4>
+      <h4>许可卡（B 组交 <code class="inline">许可卡.txt</code>，430 当众判卷）</h4>
 <pre>┌ 资产许可卡（Asset License Card）┐
 │ 资产名：______________________  │
 │ 作者：________________________  │
@@ -488,7 +497,7 @@ pre{max-width:100%;}
     </div>
   </div>
 
-  <p>下面四页就是 646 与 430 用的同一套页面。<strong>PC 上双击本地文件也能跑</strong>（学生版在作业包里）；<strong>要进 VR 必须用 http(s)</strong>——头显浏览器里打开本站点地址即可。
+  <p>下面四页就是 646 与 430 用的同一套页面，<strong>全部在线打开、点开即用</strong>（不装软件、不用下载代码）。<strong>要进 VR 必须用 http(s)</strong>——头显浏览器里打开本站点地址即可。
     每页左上角 HUD 都写着 PC / 头显操作；<strong>04 是“戴前 30 秒自检”，不是演示页</strong>。</p>
 
   <div class="btn-row">
@@ -502,7 +511,7 @@ pre{max-width:100%;}
       <div class="dc-no">DEMO 01 · Part 1 主演示</div>
       <div class="dc-title">交互实验室：状态机 / 双手变换 / 吸附插槽 / poke</div>
       <div class="dc-desc">三个目标：<strong>把方块吸进插槽</strong>、<strong>双手把能量球缩放到 2 倍</strong>、<strong>Poke 直触按钮</strong>；右上角<strong>输入源检查器</strong>实时显示 <code class="inline">handedness / profiles / gamepad</code>；HUD 实时显示每个物体与每只手的<strong>状态机状态</strong>。</div>
-      <div class="dc-meta"><strong>实测基线</strong>：675,366 B · 30/30 断言 PASS · <code class="inline">ERRS:NO_ERROR</code> · DrawCall 29 · 三角面 4,096 · 吸附后位置差 0 m · 双手 scale 1→2、ΔrotY 30°</div>
+      <div class="dc-meta"><strong>文件</strong> 677,112 B · 单文件零外部请求 · 三个目标：吸附 / 双手 scale 1→2 / poke；右上角输入源检查器实时刷新</div>
       <div class="dc-links"><span>打开演示 →</span><span class="tag">PC + VR</span></div>
     </a>
     <a class="demo-card" href="assets/vr-2026/lesson8/02_模型工作台_WebXR.html" target="_blank" rel="noopener">
@@ -510,7 +519,7 @@ pre{max-width:100%;}
       <div class="dc-no">DEMO 02 · Part 2 主演示</div>
       <div class="dc-title">模型工作台：4 个模型 / 归一化 / 本地导入 / 场景 JSON</div>
       <div class="dc-desc">内嵌 <strong>Fox、CesiumMan、Duck、ArmChair_01</strong>（许可角标在卡上）；导入自动<strong>归一化到 1.2 m ＋ 贴地 ＋ 居中</strong>；拖 / 旋 / 缩 / 换色 / 播动画 / 复制删除；<strong>本地导入 .glb</strong>（不重新打包页面）；<strong>导出场景 JSON</strong>。</div>
-      <div class="dc-meta"><strong>实测基线</strong>：2,805,064 B · 4 模型归一化高度均 <strong>1.2000 m</strong> · 模型合计 <strong>15,086 三角面</strong> · 动画播放 Δ≈0.90 s · 导入 Duck（120,484 B）成功 · 场景 JSON 两次导出完全一致</div>
+      <div class="dc-meta"><strong>文件</strong> 2,809,913 B · 4 个内嵌模型归一化到约 <strong>1.2 m</strong> · 导入后许可见「本地导入 · 请自行确认」· 场景 JSON 字段：<code class="inline">pos/rot/scale/color/anim</code></div>
       <div class="dc-links"><span>打开演示 →</span><span class="tag">PC + VR</span><span class="tag green">4 模型真实数据</span></div>
     </a>
     <a class="demo-card" href="assets/vr-2026/lesson8/03_模型转换器.html" target="_blank" rel="noopener">
@@ -518,11 +527,11 @@ pre{max-width:100%;}
       <div class="dc-no">DEMO 03 · Part 2 工具页</div>
       <div class="dc-title">格式转换器：GLB / GLTF / OBJ / FBX → 一个 GLB</div>
       <div class="dc-desc">拖入文件即可解析并统计（mesh / 三角面 / 材质 / 纹理 / 动画 / 源大小）→ <strong>导出 GLB</strong>；支持 <strong>Poly Haven 风格多文件</strong>（<code class="inline">.gltf ＋ .bin ＋ textures\ 里的贴图</code> 一起拖）。这里能亲眼看到 <strong>“转换 ≠ 优化”</strong>。</div>
-      <div class="dc-meta"><strong>实测基线</strong>：941,810 B · 6/6 类输入全转出合法 GLB · <code class="inline">Duck.glb</code> 往返 <strong>120,484 → 152,408 B（+26.5%）</strong> · 多文件 gltf＋bin＋3 纹理 → 841,904 B</div>
+      <div class="dc-meta"><strong>文件</strong> 953,048 B · 支持 GLB/GLTF/OBJ/FBX → 一个 GLB · 支持 Poly Haven 多文件一起拖 · <strong>转换≠优化</strong>（GLB→GLB 常变大）</div>
       <div class="dc-links"><span>打开演示 →</span><span class="tag">PC + VR</span><span class="tag gold">转换≠优化</span></div>
     </a>
     <a class="demo-card" href="assets/vr-2026/lesson8/04_头显自检页.html" target="_blank" rel="noopener">
-      <div class="dc-noshot">纯 WebXR ＋ DOM · 13,583 B · 无 three、无外部请求</div>
+      <div class="dc-noshot">纯 WebXR ＋ DOM · 13,857 B · 无 three、无外部请求</div>
       <div class="dc-no">DEMO 04 · 戴前 30 秒</div>
       <div class="dc-title">头显自检页：先确认“这台能进 VR”</div>
       <div class="dc-desc">显示<strong>安全上下文 ✓ / navigator.xr 有 / immersive-vr 支持</strong>；点「进入 VR 自检会话」后实时显示<strong>帧率 / 输入源数量 / handedness / profiles / 按键数 / 轴数 / 触觉执行器 / 位姿 tracked</strong>；可<strong>触发一次手柄震动</strong>、复制自检结果。</div>
@@ -547,48 +556,50 @@ pre{max-width:100%;}
   </div>
   <p class="res-sub">三张截图均为无头 Chrome 实测（1280×800，SwiftShader 软件渲染）；<strong>数字是渲染规模，不是真机帧率</strong>——真机性能第 10 次课再上。</p>
 
-  <div class="note"><strong>怎么打开最省事</strong>：<strong>PC</strong> → 直接点上面的卡片（新窗口），或在作业包里双击 <code class="inline">pages\</code> 下的学生版；<strong>头显</strong> → 头显浏览器打开本站点地址（<strong>必须 http(s)，本地 <code class="inline">file://</code> 进不了 VR</strong>）→ 先 04 自检 → 再进 01 / 02。</div>
+  <div class="note"><strong>怎么打开最省事</strong>：<strong>PC</strong> → 直接点上面的卡片（新窗口），或从<a href="vr-2026-lesson8-hw.html">一页版作业页</a>点工具链接；<strong>头显</strong> → 头显浏览器打开本站点地址（<strong>必须 http(s)，本地 <code class="inline">file://</code> 进不了 VR</strong>）→ 先 04 自检 → 再进 01 / 02。</div>
 </section>
 
 <!-- ===== 交：20 分构成与提交 ===== -->
-<section id="hw">
+<section id="hw"><section id="hw">
   <div class="sec-head">
     <div class="sec-num">交</div>
     <div>
       <h2>20 分怎么构成 · 交什么 · 怎么命名</h2>
-      <p class="sec-sub">练习 1 <strong>10 分</strong> ＋ 练习 2 <strong>10 分</strong>；646 当堂交，计入课程<strong>课堂作业 30%</strong> 的当次部分</p>
+      <p class="sec-sub"><strong>A 组交互验证 10 分 ＋ B 组模型管线 10 分</strong>；646 本场下课交，计入课程<strong>课堂作业 30%</strong> 的当次部分</p>
     </div>
   </div>
 
-  <h3>一、分数构成（每个练习上限 10 分）</h3>
+  <h3>一、分数构成（A 组 10 ＋ B 组 10 ＝ 20）</h3>
   <div class="tbl-wrap">
     <table>
-      <thead><tr><th>档</th><th>分值</th><th>练习 1 · 交互改造</th><th>练习 2 · 模型管线</th></tr></thead>
+      <thead><tr><th>组</th><th>分值拆分</th><th>怎么拿分</th></tr></thead>
       <tbody>
-        <tr><td><strong>A 必做</strong></td><td><strong>7 分</strong>（达标线）</td><td>A1 改 <code class="inline">SNAP_DIST</code> ＋ A2 加 poke 按钮（<strong>任选 2 项</strong>），记录表两行都填“原值 → 新值 → 现象”</td><td>管线走完：<code class="inline">.glb</code> ＋ 记录表 ＋ 场景 JSON ＋ 3 操作 ＋ <strong>许可卡无空缺</strong></td></tr>
-        <tr><td><strong>B 进阶</strong></td><td><strong>＋2 分</strong></td><td>双手吸附对齐 / 触觉强度 / 换色板等，<strong>并给出验证方式</strong></td><td>换色板＋动画切换进 JSON / JSON 字段讲解 / 换来源重跑管线</td></tr>
-        <tr><td><strong>C 挑战</strong></td><td><strong>＋1 分</strong></td><td>改状态机（删 <code class="inline">TRANS.idle.grab</code> 看哪个操作先被拒）</td><td>Poly Haven <strong>多文件一次转换</strong>（gltf＋bin＋纹理）</td></tr>
+        <tr><td><strong>A 组 · 交互验证</strong></td><td><strong>动作 4 ＋ 记录 4 ＋ 一句话 2 ＝ 10</strong></td><td>01 里 5 项都做到（吸附 / 双手 2× / Poke / 触觉 / 输入源三字段）；每项写“状态怎么变 ＋ 我观察到什么”；S1 截图；一句话答 squeeze vs select</td></tr>
+        <tr><td><strong>B 组 · 模型管线</strong></td><td><strong>转换 3 ＋ 操作 3 ＋ JSON 2 ＋ 许可 2 ＝ 10</strong></td><td>03 转出 GLB 并记体积变化；02 导入后完成旋转 45° / 缩放 1.5× / 换色 / 动画并截 S2；导出 scene.json 字段齐全；许可卡五项填满</td></tr>
       </tbody>
     </table>
   </div>
-  <div class="note"><strong>两个 10 分加起来是 20 分</strong>；A 必做就是<strong>达标线</strong>（每练习 7 分），B/C 是加分项。<strong>折算比例以教师最终通知为准</strong>（<code class="inline">【待确认】</code>）。430 的观察卡 / 头显体验 / 问答记为<strong>过程性评价</strong>（不单独计分）。</div>
+  <div class="note"><strong>两组各 10 分，合计 20 分</strong>；<strong>同组内不设“必做/加分”</strong>——按上面拆分逐项拿分。<strong>折算比例以教师最终通知为准</strong>（<code class="inline">【待确认】</code>）。430 的观察卡 / 头显体验 / 问答记为<strong>过程性评价</strong>（不单独计分）。<br>
+    <strong>公开口径</strong>：<strong>全部提交作品都会放进「第 8 次课作品墙」</strong>（图片 ＋ 一句话 ＋ 许可）；<strong>提交即视为同意以上内容公开展示</strong>；不同意公开 → 在 <code class="inline">说明.md</code> 第一行写「<strong>不公开</strong>」，教师按此不上墙。<a href="vr-2026-lesson8-works.html">→ 打开作品墙</a></div>
 
   <h3>二、提交清单与命名规范</h3>
   <div class="tbl-wrap">
     <table>
-      <thead><tr><th>放进 <code class="inline">学号_姓名_第8次课\</code></th><th>命名示例</th><th>要求</th></tr></thead>
+      <thead><tr><th>放进 <code class="inline">学号_姓名_第8次课\</code></th><th>命名</th><th>要求（可直接发布到作品墙）</th></tr></thead>
       <tbody>
-        <tr><td>改后的学生版 HTML</td><td><code class="inline">01_交互实验室_学生版_2023xxxx张三.html</code></td><td><strong>必须带学号＋姓名</strong>，否则算没交</td></tr>
-        <tr><td>转换后的 GLB</td><td><code class="inline">Fox_2023xxxx张三.glb</code></td><td>能再导入 02 才算成功</td></tr>
-        <tr><td>场景 JSON</td><td><code class="inline">scene_2023xxxx张三.json</code></td><td>打开后字段齐全，不是空文件</td></tr>
-        <tr><td>三张截图</td><td><code class="inline">S1_全景.png</code> / <code class="inline">S2_特写.png</code> / <code class="inline">S3_工作台.png</code></td><td>能看清 HUD 数字与前后差异；用 <strong>Win + Shift + S</strong> 截，<strong>不装任何软件</strong></td></tr>
-        <tr><td>作业单</td><td>纸质交 / 拍照放这里</td><td>记录表、勾选框、许可卡写完，<strong>当堂交</strong></td></tr>
+        <tr><td><strong>展示图（必交）</strong></td><td><code class="inline">S2.png</code></td><td><strong>16:9 · ≥1280×720 · 含页面 HUD · 不出现个人隐私</strong>（这张直接上作品墙）</td></tr>
+        <tr><td><strong>一句话文案（必交）</strong></td><td>写在 <code class="inline">说明.md</code> 第一段</td><td><strong>≤30 字</strong>：我做了什么 ＋ 一句结论（作品墙上显示这句）</td></tr>
+        <tr><td><strong>许可卡（必交）</strong></td><td><code class="inline">许可卡.txt</code></td><td>模型名 / 来源 / 许可 / 能否商用 / 是否署名；不确定写“待核实”</td></tr>
+        <tr><td><strong>场景 JSON（必交）</strong></td><td><code class="inline">scene.json</code></td><td>含 <code class="inline">id / name / pos / rot / scale / color / anim</code>，不是空文件</td></tr>
+        <tr><td><strong>署名 / 公开设置</strong></td><td><code class="inline">说明.md</code></td><td>作品墙按 <code class="inline">学号_姓名</code> 显示；不愿公开真名 → 第一行写 <code class="inline">公开名：昵称</code>；<strong>不同意公开</strong> → 第一行写「<strong>不公开</strong>」</td></tr>
+        <tr><td>可选</td><td><code class="inline">S1.png</code> / <code class="inline">S3.png</code> / 转换的 <code class="inline">.glb</code></td><td>S1 用于评分（01 五项操作）；S3 工作台全景；GLB 愿意交就放</td></tr>
       </tbody>
     </table>
   </div>
-  <div class="key"><strong>提交前 60 秒自检</strong>：文件夹名有没有<strong>学号＋姓名</strong>？是不是<strong>整个文件夹</strong>拷过去（不是只拷 HTML）？JSON 打开是不是空的？截图能不能看清字？<br>
-    <strong>机房口径</strong>：<strong>不需要 Python / Node / 服务器 / 联网</strong>；<strong>改代码 = 改单文件末尾「学生练习区」→ 保存 → 刷新</strong>，不提供任何构建步骤。</div>
-</section>
+  <div class="key"><strong>交付方式</strong>：整个文件夹交教师指定的<strong>共享盘 / 群文件</strong>，文件名前缀 <code class="inline">第8次课_学号_姓名</code>。<br>
+    <strong>提交前 60 秒自检</strong>：文件夹名有没有<strong>学号＋姓名</strong>？S2 是不是 <strong>16:9、≥1280×720、含 HUD、无隐私</strong>？一句话够不够 30 字以内、能直接贴到网页上？JSON 打开是不是空的？许可卡五项填满了吗？<br>
+    <strong>作品墙</strong>：<strong>全部提交作品都会放进「第 8 次课作品墙」</strong>（图片 ＋ 一句话 ＋ 许可）——提交即视为同意公开展示；不同意 → <code class="inline">说明.md</code> 第一行写「不公开」。<a href="vr-2026-lesson8-works.html">→ 作品墙</a></div>
+</section></section>
 
 <!-- ===== 诚：诚实边界 ===== -->
 <section id="honest">
@@ -605,10 +616,10 @@ pre{max-width:100%;}
       <thead><tr><th>项</th><th>事实</th><th>课堂口径</th></tr></thead>
       <tbody>
         <tr><td><strong>真机头显</strong></td><td>本课四页在<strong>无头 Chrome ＋ SwiftShader 软件渲染</strong>下实测 PASS；<strong>PICO / Quest 真机未实测</strong>（型号口径 PICO Neo3 / PICO 4 Ultra 并存，<strong>待确认</strong>）</td><td>430 现场<strong>每次戴入前先做 04 自检</strong>；进不去就 PC 投屏，<strong>不硬撑</strong></td></tr>
-        <tr><td><strong>机房网络 / 下载</strong></td><td>练习 2 的“现场下载开源模型”<strong>未在 646 网络实测</strong></td><td>优先<strong>教师离线包</strong>；能下就下，下不了照常给分</td></tr>
+        <tr><td><strong>机房网络 / 站内下载</strong></td><td>作业用的 Fox / Duck / ArmChair 三个模型放在本站 <code class="inline">models/</code>，<strong>未在 646 机房网络实测下载</strong></td><td>下载失败 → 用 02 工作台已内嵌的 Fox 做 B2–B3；B1 体积对比改为记录内嵌模型大小</td></tr>
         <tr><td><strong>性能数字</strong></td><td>DrawCall / 三角面 / FPS 来自无头验证</td><td><strong>是“渲染规模”，不是“能跑 72Hz”</strong>；真机性能第 10 次课再上</td></tr>
         <tr><td><strong>M2 口径</strong></td><td>大作业任务书原定 10-28 交 <strong>M2 设计两张图</strong>；<strong>2026-10-27 换课＋两段式</strong>后，本课课堂作业替代当次提交，<strong>动线图 / 状态机图并入第 9 次课</strong></td><td><strong>M2 最终交付口径待教师确认（<code class="inline">【待确认】</code>）</strong>；不写死、不替教师承诺</td></tr>
-        <tr><td><strong>许可会变</strong></td><td>站点与仓库许可可能更新</td><td>以 <code class="inline">_manifest.json</code> 与 <code class="inline">LICENSES\</code> 原文为准；<strong>不确定写“待核实”</strong></td></tr>
+        <tr><td><strong>许可会变</strong></td><td>站点与仓库许可可能更新</td><td>以 <code class="inline">assets/vr-2026/lesson8/models/README_许可.md</code> 与源站原文为准；<strong>不确定写“待核实”</strong></td></tr>
         <tr><td><strong>头显数量 / 投屏</strong></td><td>可用台数与投屏方式<strong>课前才能定</strong></td><td>1 台 → 抽 2–3 人体验 60″；全坏 → 全程 PC 投屏</td></tr>
       </tbody>
     </table>
@@ -631,16 +642,16 @@ pre{max-width:100%;}
       <thead><tr><th></th><th>第 7 次课（10-21）</th><th>本次课（10-28，两段式）</th><th>下次课（11-11）</th></tr></thead>
       <tbody>
         <tr><td>一句话</td><td>把“能做的事”做全</td><td><strong>先做后讲</strong>：交互装成系统 ＋ 模型变成资产</td><td>路要通、退得出、谁都点得到</td></tr>
-        <tr><td>学生产出</td><td>交互测试台 ＋ <strong>M1 选题一页纸</strong></td><td><strong>课堂作业 3</strong>：改过的交互页 ＋ 跑通的资产管线 ＋ 许可卡</td><td><strong>M3 主流程可玩（硬门槛）</strong></td></tr>
+        <tr><td>学生产出</td><td>交互测试台 ＋ <strong>M1 选题一页纸</strong></td><td><strong>课堂作业 3（一页版）</strong>：交互验证记录 ＋ 跑通的资产管线 ＋ 许可卡</td><td><strong>M3 主流程可玩（硬门槛）</strong></td></tr>
       </tbody>
     </table>
   </div>
 
   <ul>
-    <li><strong>今天的两块砖，正好是 M3 的地基</strong>：改过的交互页 → 作品的交互模块；许可卡 → 期末说明文档的<strong>资产清单</strong>；场景 JSON → “我的场景存档”。</li>
+    <li><strong>今天的两块砖，正好是 M3 的地基</strong>：交互验证记录 → 作品的交互模块依据；许可卡 → 期末说明文档的<strong>资产清单</strong>；场景 JSON → “我的场景存档”。</li>
     <li>第 9 次课讲<strong>交互、谜题与可访问性</strong>（案例 02 二）：重点补<strong>免手柄通路</strong>（手部追踪 / poke / gaze）与<strong>退出路</strong>。</li>
     <li><strong>M2 口径提醒</strong>：原定 10-28 交的“动线图 ＋ 状态机图”<strong>并入第 9 次课</strong>，<strong>最终交付形态待教师确认</strong>——作业以教师通知为准。</li>
-    <li>课后要做的两件事：<strong>练习单没做完的补齐</strong>；<strong>许可卡放进期末作品的资产清单</strong>。</li>
+    <li>课后要做的两件事：<strong>作业没交齐的补齐</strong>；<strong>许可卡放进期末作品的资产清单</strong>。</li>
   </ul>
   <div class="key"><strong>三句话收尾</strong>：<strong>零件要装成系统</strong>——状态机决定“什么条件下允许发生什么”；<strong>模型要过管线</strong>——下载 → 转换（≠优化）→ 导入（归一化）→ 存成 JSON；<strong>许可要写进卡</strong>——CC0 免署名、CC-BY 必须署名、CC-BY-NC 不能进作品，不确定写“待核实”。</div>
 
@@ -655,8 +666,8 @@ pre{max-width:100%;}
 
 <footer>
   <div class="f-main">中华女子学院 · 2026年虚拟现实技术 · 第 8 次课</div>
-  <div>数据科学与信息技术学院 · 授课教师：孙琪翔 · 2026-10-28 · 先做后讲：交互零件装成系统 × 开源模型变成资产（646 机房 90′ 自主作业 ＋ 430 教室 90′ 头显讲课）</div>
-  <div style="margin-top:6px;font-size:12px;opacity:.75;">本页为 2026-10-27 两段式定稿版，依据第 8 次课资料包（教学方案 / 430 头显讲课方案 / 学生练习单 / 课前检查清单 / demos）与学生课堂作业包整理；四个演示为单文件 WebXR、零外部请求，三页演示与转换器均通过无头 Chrome 实测（数字见各卡片“实测基线”）；<strong>真机头显 VR 会话、手柄握持与触觉、机房现场下载未实测</strong>，性能数字为渲染规模而非帧率；<strong>M2 交付口径待教师确认</strong>（动线图 / 状态机图并入第 9 次课）；头显型号与可用台数标【待确认】。</div>
+  <div>数据科学与信息技术学院 · 授课教师：孙琪翔 · 2026-10-28 · 先做后讲：交互验证 + 模型管线（646 机房 90′ 一页版线上作业 ＋ 430 教室 90′ 头显讲课）</div>
+  <div style="margin-top:6px;font-size:12px;opacity:.75;">本页为 2026-10-27 两段式定稿版（2026-10-27 晚按教师要求改为<strong>一页版线上课堂作业</strong>：A 组交互验证 10 分 ＋ B 组模型管线 10 分，全程用线上页面、不下载代码），依据第 8 次课资料包（教学方案 / 430 头显讲课方案 / 课前检查清单 / demos）整理；四个演示为单文件 WebXR、零外部请求；<strong>真机头显 VR 会话、手柄握持与触觉、机房站内下载未实测</strong>；<strong>M2 交付口径待教师确认</strong>（动线图 / 状态机图并入第 9 次课）；头显型号与可用台数标【待确认】；<strong>全部提交作品将统一收入「第 8 次课作品墙」</strong>（不愿公开者按 说明.md 第一行「不公开」处理）。</div>
   <div style="margin-top:12px;font-size:14px;"><a href="vr-2026.html">← 返回课程主页</a> · <a href="index.html">返回个人网站</a></div>
 </footer>
 

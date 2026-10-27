@@ -272,7 +272,7 @@
       <thead><tr><th>课次</th><th>日期</th><th>一句话主题</th><th>你要交的里程碑</th></tr></thead>
       <tbody>
         <tr><td><strong>第 7 次（今天）</strong></td><td>10-21</td><td><strong>交互零件库</strong>：先把“能做的事”做全</td><td><strong>M1 选题一页纸</strong></td></tr>
-        <tr><td>第 8 次</td><td>10-28</td><td>WebXR 交互进阶 + 开源 3D 模型资产管线（先做后讲）</td><td>课堂作业 3（M2 并入第 9 次课）</td></tr>
+        <tr><td>第 8 次</td><td>10-28</td><td>WebXR 交互进阶 + 开源 3D 模型资产管线（先做后讲）</td><td>课堂作业 3：交互验证 + 模型管线 + 许可卡（一页版；M2 并入第 9 次课）</td></tr>
         <tr><td>第 9 次</td><td>11-11</td><td>路要通、退得出、谁都点得到</td><td><strong>M3 主流程可玩（硬门槛）</strong></td></tr>
         <tr><td>第 10 次</td><td>11-18</td><td>好看和跑得动是两件事</td><td>M4 性能报告</td></tr>
         <tr><td>第 11 次</td><td>11-25</td><td>让作品会说话，并且能被度量</td><td>M5 功能封版</td></tr>
@@ -1684,17 +1684,17 @@
       <tbody>
         <tr><td>一句话</td><td>从“一个房间”到“一条路”</td><td>从“一条路”到“能演示的作品”</td><td>从“零件”到“系统”，从“网上的模型”到“能用的资产”</td></tr>
         <tr><td>核心对象</td><td><strong>一张图</strong>（节点 + 边）</td><td><strong>一套零件</strong>（射线 / 抓取 / 投掷 / 3D UI / 移动 / 悬停 / 触觉 / 拉取 / 转向）</td><td><strong>一台状态机</strong>（idle → hover → grab → snap）＋ <strong>一条资产管线</strong>（下载 → 转换 → 导入 → 操作 → 场景 JSON + 许可卡）</td></tr>
-        <tr><td>学生产出</td><td>多点漫游作品 + 验收记录</td><td><strong>两张练习检查表</strong> + 观察卡 + <strong>PICO 上一次完整演示</strong> + <strong>M1 选题一页纸</strong> + H1—H5 作业</td><td><strong>课堂作业 3</strong>：改一处交互 + 转一个 GLB + 导出场景 JSON + 许可卡（<strong>M2 并入第 9 次课，待教师确认</strong>）</td></tr>
+        <tr><td>学生产出</td><td>多点漫游作品 + 验收记录</td><td><strong>两张练习检查表</strong> + 观察卡 + <strong>PICO 上一次完整演示</strong> + <strong>M1 选题一页纸</strong> + H1—H5 作业</td><td><strong>课堂作业 3（一页版）</strong>：A 交互验证（01 五项操作与状态机记录）＋ B 模型管线（03 转换 → 02 导入操作 → 场景 JSON + 许可卡）（<strong>M2 并入第 9 次课，待教师确认</strong>）</td></tr>
       </tbody>
     </table>
   </div>
 
   <ul>
-    <li><strong>前 90′ 自己动手</strong>：用「学生课堂作业包」——直接改单文件末尾的「学生练习区」→ 保存 → 刷新（<strong>机房不需要 Python / Node / 联网</strong>）；模型转换有离线包兜底；</li>
-    <li><strong>练习 1（35′）交互改造</strong>：改吸附半径 / 加一个 poke 按钮 / 改触觉强度 / 给状态机 HUD 加字段（四选二）；</li>
-    <li><strong>练习 2（35′）模型管线</strong>：下载或离线模型 → 转成 GLB → 工作台导入 + 3 个操作 → 导出场景 JSON → 写许可卡；</li>
+    <li><strong>前 90′ 自己动手</strong>：用<strong>线上四页</strong>（01 交互实验室 / 02 模型工作台 / 03 模型转换器 / 04 头显自检）＋<strong>一页版课堂作业</strong>；全程<strong>不装软件、不下载代码</strong>；模型从作业页链接下载；</li>
+    <li><strong>A 组 · 交互验证（约 30′，10 分）</strong>：01 完成 5 项——吸附方块入槽 / 双手把能量球缩放到 2× / poke 直触按钮 / 触觉模式切换 / 读输入源三字段；记录状态怎么变（idle→hover→grab→snap）＋ 一句话“为什么抓取用 squeeze”；</li>
+    <li><strong>B 组 · 模型管线（约 40′，10 分）</strong>：下载模型 → 03 转 GLB（记录源/输出大小与变化%）→ 02 导入后旋转 45°、缩放 1.5×、换色、播/停动画 → 导出场景 JSON ＋ 写许可卡；</li>
     <li><strong>后 90′ 戴头显讲</strong>：教师演示输入源 / <code class="inline">select</code> vs <code class="inline">squeeze</code> / 双手变换 / 吸附 / poke / 状态机，再讲“转换 ≠ 优化”与许可陷阱（<code class="inline">DamagedHelmet</code> 是 CC-BY-NC，不能进作品）；没戴头显的同学填观察卡；</li>
-    <li><strong>作业截止</strong>：第 7 次课作业 H1—H5 于 <strong>10-27 23:59</strong> 截止；第 8 次课的课堂作业 3 在 <strong>646 机房当堂交</strong>。</li>
+    <li><strong>作业截止</strong>：第 7 次课作业 H1—H5 于 <strong>10-27 23:59</strong> 截止；第 8 次课的课堂作业 3 在 <strong>646 机房当堂交</strong>；<strong>全部提交作品都会放入课程网页「第 8 次课作品墙」</strong>（截图 + 一句话 + 许可）——不是只放优秀。</li>
   </ul>
   <div class="key"><strong>今晚要交的事只有一件：M1 选题一页纸，六栏。</strong>
     交之前自己再问一遍——<strong>“为什么这件事必须用 VR”</strong>这一栏，写的是不是一句换成视频也能说通的话？</div>
