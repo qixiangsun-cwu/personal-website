@@ -358,6 +358,25 @@ const pad = n => String(n).padStart(2,'0');
 const hm2m = s => { const [h,m] = String(s).split(':').map(Number); return h*60+m; };
 const stepByNo  = n => D.script.find(s=>s.no===Number(n));
 const stageById = id => D.stages.find(s=>s.id===id);
+/* 与主控台一致：环节时间可被导演台覆盖（S.timeline） */
+function stepTimes(s){
+  if(!s) return { start:'', end:'', duration:0 };
+  const o = (S.timeline && S.timeline[String(s.no)]) || null;
+  const ok = v => typeof v === 'string' && /^\d{1,2}:\d{2}$/.test(v);
+  const start = (o && ok(o.start)) ? o.start : s.start;
+  const end   = (o && ok(o.end)) ? o.end : s.end;
+  let duration = Math.round(hm2m(end) - hm2m(start));
+  if(!isFinite(duration) || duration < 0) duration = Number(s.duration) || 0;
+  return { start, end, duration };
+}
+function stageRange(st){
+  if(!st) return { from:'', to:'' };
+  const list = D.script.filter(x => (st.steps||[]).includes(x.no)).map(stepTimes);
+  if(!list.length) return { from: st.from || '', to: st.to || '' };
+  const from = list.reduce((a,b)=> hm2m(b.start) < hm2m(a) ? b.start : a, list[0].start);
+  const to   = list.reduce((a,b)=> hm2m(b.end)   > hm2m(a) ? b.end   : a, list[0].end);
+  return { from, to };
+}
 const ROMAN = {1:'Ⅰ', 2:'Ⅱ'};
 const actOfStage = id => id==='act1' ? 1 : id==='act2' ? 2 : 0;
 
@@ -433,6 +452,8 @@ function render(){
 
   const s  = stepByNo(S.activeStep) || D.script[0];
   const nx = stepByNo(s.no+1);
+  const t  = stepTimes(s);
+  const nt = stepTimes(nx);
   const stg = stageById(s.stage) || {};
   const act = actOfStage(s.stage);
 
@@ -449,16 +470,16 @@ function render(){
   /* ---- 当前环节 ---- */
   $('#nowNo').textContent = `环节 ${s.no} / ${D.script.length}`;
   $('#nowName').textContent = s.name;
-  $('#nowTime').textContent = `${s.start} — ${s.end}　共 ${s.duration} 分钟`;
+  $('#nowTime').textContent = `${t.start} — ${t.end}　共 ${t.duration} 分钟`;
   $('#nextLine').innerHTML = nx
-    ? `下一环节　<b>环节 ${nx.no} · ${nx.name}</b>　${nx.start} — ${nx.end}`
+    ? `下一环节　<b>环节 ${nx.no} · ${nx.name}</b>　${nt.start} — ${nt.end}`
     : '下一环节　<b>已是最后一个环节</b>';
 
   /* ---- 倒计时（与主控台 tick() 同一算法）---- */
-  const end = hm2m(s.end), now = nowMin();
+  const end = hm2m(t.end), now = nowMin();
   let left = end - now;
   const over = now > end;
-  if(over && nx) left = hm2m(nx.end) - now;
+  if(over && nx) left = hm2m(nt.end) - now;
   const leftSec = Math.max(Math.round(left*60), 0);
   const num = $('#cdNum');
   num.textContent = `${pad(Math.floor(leftSec/60))}:${pad(leftSec%60)}`;
@@ -466,13 +487,13 @@ function render(){
   $('#cdLabel').textContent = over ? '距下一环节结束' : '距本环节结束';
   $('#cdSub').textContent = over && nx
     ? `本环节已超时 ${pad(Math.floor((now-end)/60))} 分钟`
-    : `${s.start} — ${s.end}　总时长 ${s.duration} 分钟`;
+    : `${t.start} — ${t.end}　总时长 ${t.duration} 分钟`;
 
   /* ---- 本环节进度：倒计时回答「还剩多久」，这条回答「这一步走多远了」 ---- */
-  const stepPct = Math.min(Math.max(((now - hm2m(s.start)) / Math.max(s.duration,1)) * 100, 0), 100);
+  const stepPct = Math.min(Math.max(((now - hm2m(t.start)) / Math.max(t.duration,1)) * 100, 0), 100);
   $('#spFill').style.width = stepPct.toFixed(1)+'%';
-  $('#spPct').textContent = now < hm2m(s.start)
-    ? `尚未开始（${s.start} 开始）`
+  $('#spPct').textContent = now < hm2m(t.start)
+    ? `尚未开始（${t.start} 开始）`
     : (stepPct >= 100 ? '已超时' : `已用 ${Math.round(stepPct)}%`);
 
   /* ---- 告警 ---- */
@@ -507,7 +528,7 @@ function render(){
   const clamped = Math.min(Math.max(now, t0), t1);
   $('#barDone').style.width  = pct(clamped).toFixed(2)+'%';
   $('#barHead').style.left   = pct(clamped).toFixed(2)+'%';
-  const a = pct(hm2m(s.start)), b = pct(hm2m(s.end));
+  const a = pct(hm2m(t.start)), b = pct(hm2m(t.end));
   const fill = $('#barFill');
   fill.style.left = a.toFixed(2)+'%';
   fill.style.width = Math.max(b-a, 0).toFixed(2)+'%';
@@ -522,7 +543,8 @@ function render(){
   marks.innerHTML = '';
   D.stages.forEach((st,i)=>{
     if(i===0) return;
-    const p = pct(hm2m(st.from));
+    const rg = stageRange(st);
+    const p = pct(hm2m(rg.from));
     const el = document.createElement('div');
     el.className = 'bar-act';
     el.style.left = p.toFixed(2)+'%';

@@ -73,6 +73,8 @@ function loadState(){
     if(isLegacy) S.speakerOrder = defOrder.slice();
   }
   S.deadlines   = Object.assign({}, D.initialState.deadlines, (saved&&saved.deadlines)||{});
+  /* 环节时间覆盖：{ "3": {start:"10:20", end:"11:10"}, ... }，不存在的环节用 flow.json 原值 */
+  S.timeline    = (saved && saved.timeline && typeof saved.timeline === 'object') ? saved.timeline : {};
   S.submissions = Object.assign({}, JSON.parse(JSON.stringify(D.initialState.submissions||{})), (saved&&saved.submissions)||{});
   S.voiceOn     = (saved && typeof saved.voiceOn==='boolean') ? saved.voiceOn : true;
   /* 提示音：默认关闭（现场大多用不到声音），需要时在设置里手动打开 */
@@ -93,7 +95,7 @@ function saveState(){
   try{
     localStorage.setItem(STORE_KEY, JSON.stringify({
       activeStep:S.activeStep, activeStage:S.activeStage, activeSession:S.activeSession,
-      speakerOrder:S.speakerOrder, deadlines:S.deadlines, warningId:S.warningId,
+      speakerOrder:S.speakerOrder, deadlines:S.deadlines, timeline:S.timeline, warningId:S.warningId,
       lock:S.lock, voiceOn:S.voiceOn, cueOn:S.cueOn, submissions:S.submissions, theme:S.theme,
       drill:S.drill, offlineOn:S.offlineOn
     }));
@@ -138,6 +140,29 @@ const sessionById = id => D.sessions.find(s=>s.id===id);
 const speakerSessions = () => S.speakerOrder.map(id=>sessionById(id)).filter(Boolean);
 const hm2m = s => { const [h,m]=String(s).split(':').map(Number); return h*60+m; };
 
+/* 环节有效时间 = flow.json 默认值 + 导演台里改过的 S.timeline 覆盖。
+   所有展示（时间轴/倒计时/导播单/刻度尺/投屏提示）都要走这里，避免「改了时间但倒计时没变」。 */
+function stepTimes(s){
+  if(!s) return { start:'', end:'', duration:0 };
+  const o = S.timeline && S.timeline[String(s.no)];
+  const ok = v => typeof v === 'string' && /^\d{1,2}:\d{2}$/.test(v);
+  const start = (o && ok(o.start)) ? o.start : s.start;
+  const end   = (o && ok(o.end)) ? o.end : s.end;
+  let duration = Math.round(hm2m(end) - hm2m(start));
+  if(!isFinite(duration) || duration < 0) duration = Number(s.duration) || 0;
+  return { start, end, duration };
+}
+/* 阶段起止 = 该阶段各环节有效时间的最小开始 / 最大结束 */
+function stageRange(st){
+  if(!st) return { from:'', to:'' };
+  const list = D.script.filter(x => (st.steps||[]).includes(x.no)).map(stepTimes);
+  if(!list.length) return { from: st.from || '', to: st.to || '' };
+  const from = list.reduce((a,b)=> hm2m(b.start) < hm2m(a) ? b.start : a, list[0].start);
+  const to   = list.reduce((a,b)=> hm2m(b.end)   > hm2m(a) ? b.end   : a, list[0].end);
+  return { from, to };
+}
+const stepMinutes = s => stepTimes(s).duration;
+
 /* ---------------- 阶段进度条 ---------------- */
 function renderStageBar(){
   const bar = $('#stageBar');
@@ -149,13 +174,14 @@ function renderStageBar(){
   /* 阶段宽度 = 该阶段总时长（分钟），让进度条表达真实时间比例而非等宽 */
   const stageMinutes = s => D.script
     .filter(x=>(s.steps||[]).includes(x.no))
-    .reduce((t,x)=>t+(Number(x.duration)||0),0);
+    .reduce((t,x)=>t+stepMinutes(x),0);
 
   bar.innerHTML = D.stages.map((s,i)=>{
     const on = s.id===curStageId, done = i<curIdx;
     const mins = stageMinutes(s);
+    const rg = stageRange(s);
     return `<div class="sb-item ${on?'on':''} ${done?'done':''}" data-stage="${s.id}" style="flex-grow:${Math.max(mins,1)}"
-      title="${esc(s.name)}｜${esc(s.desc)}｜${mins} 分钟（${esc(s.from)}—${esc(s.to)}）">
+      title="${esc(s.name)}｜${esc(s.desc)}｜${mins} 分钟（${esc(rg.from)}—${esc(rg.to)}）">
       <div class="sb-num">${done?'✓':i+1}</div>
       <div style="min-width:0;"><div class="sb-t">${esc(s.name)}${actMark(actOfStage(s.id))}</div><div class="sb-d">${esc(s.desc)}</div></div>
     </div>`;
@@ -163,7 +189,7 @@ function renderStageBar(){
     <div class="sb-meta">
       <div class="k">当前阶段 · ${esc(st.name)}（${stageMinutes(st)} 分钟）</div>
       <div class="v">${esc(st.id==='prep'?'等待导演组统一开幕':st.id==='act1'?'各组撰写场景一处置方案':st.id==='act2'?'播放场景二 · 各组配合研判':'十方依次发言、质询与总结')}</div>
-      <div class="v" style="font-size:11.5px;font-weight:400;color:var(--ink-3);">${esc(st.from)} — ${esc(st.to)}</div>
+      <div class="v" style="font-size:11.5px;font-weight:400;color:var(--ink-3);">${esc(stageRange(st).from)} — ${esc(stageRange(st).to)}</div>
     </div>`;
 
   $$('.sb-item', bar).forEach(el=>el.onclick=()=>{
@@ -177,6 +203,7 @@ function renderSteps(){
   const host = $('#stepList');
   host.innerHTML = D.script.map(s=>{
     const on = s.no===S.activeStep;
+    const t = stepTimes(s);
     const dl = S.deadlines[s.no];
     const media = D.media.filter(m=>m.step===s.no);
     const act = actOfStage(s.stage);
@@ -191,9 +218,9 @@ function renderSteps(){
     const mediaChip = media.length ? `<span class="chip chip-b">素材 ${media.length} 段 · ${esc(media[0].durationLabel)}</span>` : '';
     return `<div class="step ${on?'on':''}" data-no="${s.no}">
       <div class="step-time">
-        <div class="t">${esc(s.start)}</div>
-        <div class="d">${esc(s.end)}</div>
-        <div class="d" style="margin-top:4px;">${s.duration} 分钟</div>
+        <div class="t">${esc(t.start)}</div>
+        <div class="d">${esc(t.end)}</div>
+        <div class="d" style="margin-top:4px;">${t.duration} 分钟</div>
         ${actRail}
       </div>
       <div class="step-body">
@@ -764,9 +791,10 @@ function updateVpTime(){
 /* ---------------- 导播栏 ---------------- */
 function renderSide(){
   const s = stepByNo(S.activeStep) || D.script[0];
+  const t = stepTimes(s);
   $('#nowNo').textContent = `环节 ${s.no} · ${s.tag}`;
   $('#nowName').textContent = s.name;
-  $('#nowMeta').textContent = `${s.start} - ${s.end}　共 ${s.duration} 分钟`;
+  $('#nowMeta').textContent = `${t.start} - ${t.end}　共 ${t.duration} 分钟`;
   $('#sideStage').textContent = (stageById(s.stage)||{}).name || '';
 
   const sel = $('#selStage');
@@ -831,13 +859,14 @@ function tick(){
   updateRuler();          /* P2：刻度尺播放头每秒同步 */
 
   const s = stepByNo(S.activeStep) || D.script[0];
-  const end = hm2m(s.end);
+  const t = stepTimes(s);
+  const end = hm2m(t.end);
   const now = nowMinutes();
   let left = end - now;
   const over = now > end;
   if(over){
     const next = stepByNo(s.no+1);
-    if(next) left = hm2m(next.end) - now;
+    if(next) left = hm2m(stepTimes(next).end) - now;
   }
   const leftMin = Math.max(left, 0);
   /* P1 修复（显示层）：原代码 mm=floor(左)/60、ss=floor(左%60) 把「分钟」当「秒」算，
@@ -852,16 +881,16 @@ function tick(){
   const inCourse = now >= hm2m(D.course.startTime) && now <= hm2m(D.course.endTime);
 
   /* 仪表盘：环形进度 = 本环节剩余比例 */
-  const stepTotal = Math.max(hm2m(s.end) - hm2m(s.start), 0.0001);
+  const stepTotal = Math.max(hm2m(t.end) - hm2m(t.start), 0.0001);
   const frac = inCourse ? Math.min(leftMin/stepTotal, 1) : 1;
   $('#cdFill').style.strokeDashoffset = (RING_C * (1 - frac)).toFixed(1);
 
   if(!inCourse){
     // 非课程时段（彩排/待开课）：显示本环节全长，不以真实钟点判定超时
-    el.textContent = `${pad(s.duration)}:${pad(0)}`;
+    el.textContent = `${pad(t.duration)}:${pad(0)}`;
     el.className = 'num';
     cdBox.className = 'countdown';
-    $('#cdSub').textContent = `本环节全长 ${s.duration} 分钟　${s.start}—${s.end}　· 点击「从 09:00 起演」进入演练`;
+    $('#cdSub').textContent = `本环节全长 ${t.duration} 分钟　${t.start}—${t.end}　· 点击「从 09:00 起演」进入演练`;
     updateVpTime();
     return;
   }
@@ -872,7 +901,7 @@ function tick(){
   cdBox.className = 'countdown' + lvl;
   $('#cdSub').textContent = over && stepByNo(s.no+1)
     ? `本环节已超时 ${pad(Math.floor((now-end)/60))} 分钟`
-    : `${s.start} — ${s.end}　总时长 ${s.duration} 分钟`;
+    : `${t.start} — ${t.end}　总时长 ${t.duration} 分钟`;
 
   announceCountdown(s, leftSec);
   updateVpTime();
@@ -981,11 +1010,12 @@ function printHTML(){
   const s = stepByNo(S.activeStep) || D.script[0];
   const order = speakerSessions();
   const rows = D.script.map(x=>{
+    const t = stepTimes(x);
     const dl = S.deadlines[x.no];
     return `<tr>
       <td style="width:8%;">${x.no}</td>
-      <td style="width:11%;">${esc(x.start)}<br>${esc(x.end)}</td>
-      <td style="width:8%;">${x.duration}′</td>
+      <td style="width:11%;">${esc(t.start)}<br>${esc(t.end)}</td>
+      <td style="width:8%;">${t.duration}′</td>
       <td style="width:16%;"><b>${esc(x.name)}</b>${x.docFlag?`<br><span style="color:#8F5406;">〔${esc(x.docFlag)}〕原文：${esc(x.docName)}</span>`:''}</td>
       <td>${esc(x.task)}${(x.process&&x.process.length)?`<br><span style="color:#555;">${x.process.map(esc).join('<br>')}</span>`:''}</td>
       <td style="width:12%;">${x.staff.map(esc).join('、')}</td>
@@ -1040,7 +1070,7 @@ function printHTML(){
       <div class="pr-two">
         <table><tbody>
           <tr><th style="width:30%;">当前环节</th><td>环节 ${s.no} · ${esc(s.name)}</td></tr>
-          <tr><th>时段</th><td>${esc(s.start)} — ${esc(s.end)}（${s.duration} 分钟）</td></tr>
+          <tr><th>时段</th><td>${esc(stepTimes(s).start)} — ${esc(stepTimes(s).end)}（${stepTimes(s).duration} 分钟）</td></tr>
           <tr><th>所属阶段</th><td>${esc((stageById(s.stage)||{}).name||'')}</td></tr>
           <tr><th>教学任务</th><td>${esc(s.task)}</td></tr>
           <tr><th>人员配备</th><td>${s.staff.map(esc).join('、')}</td></tr>
@@ -1368,7 +1398,8 @@ function renderRuler(){
   D.stages.forEach((s,i)=>{
     if(i===0) return;
     const a = actOfStage(s.id);
-    html += `<div class="rl-act" style="left:${rulerPct(hm2m(s.from),t0,span).toFixed(3)}%">${a?`<span>${ROMAN[a]}</span>`:''}</div>`;
+    const rg = stageRange(s);
+    html += `<div class="rl-act" style="left:${rulerPct(hm2m(rg.from),t0,span).toFixed(3)}%">${a?`<span>${ROMAN[a]}</span>`:''}</div>`;
   });
   html += '<div class="rl-now idle" id="rlNow" style="left:0">待开演</div>';
   html += '<div class="rl-head rl-head-idle" id="rlHead" style="left:0"></div>';
@@ -1410,8 +1441,9 @@ function updateRuler(){
   /* 当前环节在全天刻度上的区间高亮 */
   const s = stepByNo(S.activeStep) || D.script[0];
   if(s){
-    const a = Math.min(Math.max(hm2m(s.start), t0), t1);
-    const b = Math.min(Math.max(hm2m(s.end),   t0), t1);
+    const t = stepTimes(s);
+    const a = Math.min(Math.max(hm2m(t.start), t0), t1);
+    const b = Math.min(Math.max(hm2m(t.end),   t0), t1);
     const l = Math.min(Math.max(rulerPct(a,t0,span),0),100);
     const r = Math.min(Math.max(rulerPct(b,t0,span),0),100);
     $('#rlFill').style.left  = l.toFixed(3) + '%';
@@ -1526,6 +1558,25 @@ function openSettings(){
           <button class="btn btn-sm ${S.cueOn?'btn-o':'btn-g'}" id="setCue">${S.cueOn?'已开启':'已关闭'}</button>
         </div>
       </div>
+      <div class="set-row" style="align-items:flex-start;">
+        <div class="sl"><b>环节时间（可改）</b><span>按手册排的 7 段，可逐段改；改完立即生效并存本机。「关键截止」在右侧单独改，「整体顺延」会把环节与截止一起平移。</span></div>
+        <div id="setTimeline" style="display:flex;flex-direction:column;gap:5px;min-width:300px;">
+          ${D.script.map(s=>{const t=stepTimes(s);return `<div style="display:flex;align-items:center;gap:6px;font-size:12px;">
+            <span style="width:52px;color:var(--ink-3);">环节 ${s.no}</span>
+            <input type="time" data-step="${s.no}" data-affix="start" value="${t.start}" style="width:86px;">
+            <span>—</span>
+            <input type="time" data-step="${s.no}" data-affix="end" value="${t.end}" style="width:86px;">
+            <span data-dur="${s.no}" style="color:var(--ink-4);">${t.duration}′</span>
+          </div>`;}).join('')}
+          <div style="display:flex;align-items:center;gap:6px;margin-top:6px;flex-wrap:wrap;">
+            <span style="color:var(--ink-3);font-size:12px;">整体顺延</span>
+            <input type="number" id="inpShift" value="0" min="-180" max="180" step="1" style="width:64px;">
+            <span style="font-size:12px;color:var(--ink-4);">分钟</span>
+            <button class="btn btn-g btn-sm" id="btnShiftAll">应用</button>
+            <button class="btn btn-g btn-sm" id="btnResetTimeline">恢复手册时间</button>
+          </div>
+        </div>
+      </div>
       <div class="set-row">
         <div class="sl"><b>深色指挥室模式</b><span>暗光现场/投影环境使用；打印导播单恒为浅色</span></div>
         <button class="btn btn-sm ${S.theme==='dark'?'btn-o':'btn-g'}" id="setTheme">${S.theme==='dark'?'已开启':'已关闭'}</button>
@@ -1577,6 +1628,57 @@ function openSettings(){
   };
   if($('#setCue')) $('#setCue').onclick = ()=>{ toggleCue(); syncCueBtn(); };
   if($('#setCueTest')) $('#setCueTest').onclick = testCue;
+
+  /* 环节时间编辑：逐段改 / 整体顺延 / 恢复手册默认 */
+  const tl = $('#setTimeline');
+  if(tl){
+    tl.querySelectorAll('input[type="time"]').forEach(inp=>{
+      inp.onchange = ()=>{
+        const no = Number(inp.dataset.step);
+        const s = D.script.find(x=>x.no===no);
+        if(!s) return;
+        const cur = stepTimes(s);
+        const affix = inp.dataset.affix;
+        const val = inp.value;
+        if(!/^\d{2}:\d{2}$/.test(val)){ inp.value = affix==='start' ? cur.start : cur.end; return; }
+        const next = { start: affix==='start' ? val : cur.start, end: affix==='end' ? val : cur.end };
+        if(hm2m(next.end) <= hm2m(next.start)){
+          toast('结束时间需晚于开始时间');
+          inp.value = affix==='start' ? cur.start : cur.end;
+          return;
+        }
+        S.timeline[String(no)] = next;
+        saveState(); renderAll();
+        const dEl = tl.querySelector(`[data-dur="${no}"]`);
+        if(dEl) dEl.textContent = Math.round(hm2m(next.end) - hm2m(next.start)) + '′';
+        toast(`环节 ${no} 改为 ${next.start}—${next.end}`);
+      };
+    });
+    const shiftHM = (hm, mins)=>{
+      const m = ((hm2m(hm) + mins) % 1440 + 1440) % 1440;
+      return pad(Math.floor(m/60)) + ':' + pad(m%60);
+    };
+    $('#btnShiftAll').onclick = ()=>{
+      const mins = Number($('#inpShift').value || 0);
+      if(!mins){ toast('请输入顺延分钟数（可为负数）'); return; }
+      D.script.forEach(s=>{
+        const t = stepTimes(s);
+        S.timeline[String(s.no)] = { start: shiftHM(t.start, mins), end: shiftHM(t.end, mins) };
+      });
+      Object.keys(S.deadlines || {}).forEach(k=>{
+        const v = S.deadlines[k];
+        if(/^\d{1,2}:\d{2}$/.test(v)) S.deadlines[k] = shiftHM(v, mins);
+      });
+      saveState(); renderAll(); closeConfirm(); setTimeout(openSettings, 120);
+      toast(`已整体顺延 ${mins} 分钟（含关键截止）`);
+    };
+    $('#btnResetTimeline').onclick = ()=>{
+      S.timeline = {};
+      S.deadlines = Object.assign({}, D.initialState.deadlines);   /* 截止一并还原成手册值 */
+      saveState(); renderAll(); closeConfirm(); setTimeout(openSettings, 120);
+      toast('已恢复手册默认时间与截止');
+    };
+  }
   $('#setReset').onclick = ()=>{ closeConfirm(); setTimeout(askReset, 80); };
   $('#setExport').onclick = exportData;
   const gl = $('#setGroupLink');
@@ -1695,7 +1797,8 @@ function syncMediaToStep(){
       v.removeAttribute('src'); v.load();
       $('#miniVideo').removeAttribute('src'); $('#miniVideo').load();
       $('#vpBadge').textContent = `环节 ${cur.no} · 本环节无视频素材`;
-      $('#vpNote').textContent = `「${cur.name}」为 ${cur.start}—${cur.end} 的 ${cur.duration} 分钟环节，无配套视频。请按流程脚本推进。`;
+      const ct = stepTimes(cur);
+  $('#vpNote').textContent = `「${cur.name}」为 ${ct.start}—${ct.end} 的 ${ct.duration} 分钟环节，无配套视频。请按流程脚本推进。`;
       $('#vpTime').textContent = '00:00 / 00:00';
     }
     return;
