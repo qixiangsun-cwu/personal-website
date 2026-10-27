@@ -75,6 +75,8 @@ function loadState(){
   S.deadlines   = Object.assign({}, D.initialState.deadlines, (saved&&saved.deadlines)||{});
   S.submissions = Object.assign({}, JSON.parse(JSON.stringify(D.initialState.submissions||{})), (saved&&saved.submissions)||{});
   S.voiceOn     = (saved && typeof saved.voiceOn==='boolean') ? saved.voiceOn : true;
+  /* 提示音：默认关闭（现场大多用不到声音），需要时在设置里手动打开 */
+  S.cueOn       = (saved && typeof saved.cueOn==='boolean') ? saved.cueOn : false;
   /* P2 新增：主题偏好（'light' | 'dark'） */
   S.theme       = (saved && (saved.theme==='dark'||saved.theme==='light')) ? saved.theme : 'light';
   /* P3 新增：离线缓存开关（默认关闭，避免破坏「改完刷新生效」的开发体验） */
@@ -92,7 +94,7 @@ function saveState(){
     localStorage.setItem(STORE_KEY, JSON.stringify({
       activeStep:S.activeStep, activeStage:S.activeStage, activeSession:S.activeSession,
       speakerOrder:S.speakerOrder, deadlines:S.deadlines, warningId:S.warningId,
-      lock:S.lock, voiceOn:S.voiceOn, submissions:S.submissions, theme:S.theme,
+      lock:S.lock, voiceOn:S.voiceOn, cueOn:S.cueOn, submissions:S.submissions, theme:S.theme,
       drill:S.drill, offlineOn:S.offlineOn
     }));
   }catch(e){}
@@ -278,6 +280,7 @@ async function fetchProposals(){
         usage: j.usage || null,
         offsetMs: j.serverTime ? (Date.parse(j.serverTime) - Date.now()) : 0
       };
+      noteSubmitted();
       /* 中继给第二屏（第二屏零后端，只读 localStorage） */
       try{
         localStorage.setItem(PROPOSAL_CACHE, JSON.stringify({
@@ -328,6 +331,35 @@ function startProposalPolling(){
     if(e.key === PROPOSAL_CACHE) refreshProposals();     /* 第二屏 / 多标签页互相拉齐 */
   });
 }
+/* 有组从「草稿」变成「已提交」时响一声（提示音开关打开才响）。
+   首次拉取只记基线，不补响历史上已提交的组。 */
+let submittedSeen = null;
+function noteSubmitted(){
+  const map = {};
+  const ps = (PROPOSALS && PROPOSALS.proposals) || {};
+  for(const g of Object.keys(ps)){
+    const acts = ps[g] || {};
+    map[g] = {};
+    for(const a of [1,2]){
+      const p = acts['act' + a];
+      map[g][a] = !!(p && p.submitted);
+    }
+  }
+  if(submittedSeen){
+    const newly = [];
+    for(const g of Object.keys(map)){
+      for(const a of [1,2]){
+        if(map[g][a] && !(submittedSeen[g] && submittedSeen[g][a])) newly.push(`${g} · 第${a}幕`);
+      }
+    }
+    if(newly.length){
+      playCue('submit');
+      toast('新提交：' + newly.join('、'));
+    }
+  }
+  submittedSeen = map;
+}
+
 function renderProposalStatus(){
   const el = $('#seatTag');
   if(!el) return;
@@ -768,6 +800,7 @@ const RING_C = 326.726;   /* 2π × r(52)，倒计时仪表盘周长 */
 function tick(){
   $('#clockNow').textContent = nowClockText();
   $('#clockDate').textContent = dateText();
+  announceDeadlineCues();
   updateRuler();          /* P2：刻度尺播放头每秒同步 */
 
   const s = stepByNo(S.activeStep) || D.script[0];
@@ -836,6 +869,83 @@ function announceCountdown(s, leftSec){
   if(leftSec <= 0)      speak(`环节 ${s.no} 结束，进入下一环节`);
   else if(leftSec % 10 === 0) speak(`还剩 ${leftSec} 秒`);
 }
+
+/* ---------------- 提示音（默认关闭，设置里手动打开） ----------------
+   用途：① 有组提交提案时「叮」一声；② 本幕截止前 5 分钟、1 分钟各提醒一次。
+   用 WebAudio 合成，不加载任何音频文件，断网也能响。
+   浏览器要求先有用户手势才能出声 —— 打开开关/点「试听」就是手势，之后即可正常响。 */
+let cueCtx = null;
+function cueContext(){
+  const AC = window.AudioContext || window.webkitAudioContext;
+  if(!AC) return null;
+  if(!cueCtx) cueCtx = new AC();
+  if(cueCtx.state === 'suspended') cueCtx.resume().catch(()=>{});
+  return cueCtx;
+}
+function playCue(type){
+  if(type !== 'test' && !S.cueOn) return;
+  const ctx = cueContext();
+  if(!ctx) return;
+  const seqs = {
+    submit: [[880, 0, 0.09], [1320, 0.12, 0.10]],
+    five:   [[660, 0, 0.14], [880, 0.18, 0.14], [1046, 0.36, 0.22]],
+    one:    [[1046, 0, 0.11], [1046, 0.17, 0.11], [1046, 0.34, 0.20]],
+    test:   [[880, 0, 0.09], [1320, 0.12, 0.10]],
+  };
+  const seq = seqs[type] || seqs.test;
+  const t0 = ctx.currentTime + 0.02;
+  for(const [freq, off, dur] of seq){
+    const osc = ctx.createOscillator();
+    const g = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.value = freq;
+    g.gain.setValueAtTime(0.0001, t0 + off);
+    g.gain.exponentialRampToValueAtTime(0.22, t0 + off + 0.012);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + off + dur);
+    osc.connect(g);
+    g.connect(ctx.destination);
+    osc.start(t0 + off);
+    osc.stop(t0 + off + dur + 0.03);
+  }
+}
+
+/* 提案截止提醒：第一幕/第二幕截止前 5 分钟、1 分钟各响一次
+   （用 S.deadlines 里导演可改的「关键截止」，不是环节结束时间） */
+let cueDlBucket = {};   // act -> 0(>5min) | 5(<=5min) | 1(<=1min)
+function announceDeadlineCues(){
+  if(!S.cueOn){ cueDlBucket = {}; return; }
+  for(const act of [1, 2]){
+    const hm = S.deadlines[act === 1 ? '3' : '4'];
+    if(!hm) continue;
+    const t = /^(\d{1,2}):(\d{2})$/.exec(String(hm).trim());
+    if(!t) continue;
+    const targetMin = Number(t[1]) * 60 + Number(t[2]);
+    const leftSec = Math.round((targetMin - nowMinutes()) * 60);
+    const bucket = leftSec <= 60 ? 1 : leftSec <= 300 ? 5 : 0;
+    const prev = cueDlBucket[act];
+    if(prev === undefined){ cueDlBucket[act] = bucket; continue; }   // 刚打开/刚改时间：只记基线，不补响
+    if(bucket === prev) continue;
+    cueDlBucket[act] = bucket;
+    if(bucket === 5) playCue('five');
+    else if(bucket === 1) playCue('one');
+  }
+}
+
+function syncCueBtn(){
+  const b = $('#setCue');
+  if(!b) return;
+  b.textContent = S.cueOn ? '已开启' : '已关闭';
+  b.className = 'btn btn-sm ' + (S.cueOn ? 'btn-o' : 'btn-g');
+  b.setAttribute('aria-pressed', String(!!S.cueOn));
+}
+function toggleCue(){
+  S.cueOn = !S.cueOn;
+  cueDlBucket = {};
+  saveState(); syncCueBtn();
+  if(S.cueOn){ playCue('test'); toast('提示音已开启：组提交 / 截止前 5、1 分钟提醒'); }
+  else toast('提示音已关闭');
+}
+function testCue(){ playCue('test'); }
 
 /* ---------------- 打印导播单 ----------------
    P3 重构：把正文拆成 printHTML()，打印（#printArea）与导出 Word 共用同一份 HTML，
@@ -1383,6 +1493,13 @@ function openSettings(){
         <button class="btn btn-sm ${S.voiceOn?'btn-o':'btn-g'}" id="setVoice">${S.voiceOn?'已开启':'已关闭'}</button>
       </div>
       <div class="set-row">
+        <div class="sl"><b>提示音</b><span>默认关闭。开启后：有组提交提案时响一声；本幕截止前 5 分钟、1 分钟各提醒一次</span></div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+          <button class="btn btn-g btn-sm" id="setCueTest">试听</button>
+          <button class="btn btn-sm ${S.cueOn?'btn-o':'btn-g'}" id="setCue">${S.cueOn?'已开启':'已关闭'}</button>
+        </div>
+      </div>
+      <div class="set-row">
         <div class="sl"><b>深色指挥室模式</b><span>暗光现场/投影环境使用；打印导播单恒为浅色</span></div>
         <button class="btn btn-sm ${S.theme==='dark'?'btn-o':'btn-g'}" id="setTheme">${S.theme==='dark'?'已开启':'已关闭'}</button>
       </div>
@@ -1441,6 +1558,8 @@ function openSettings(){
     b.textContent = S.voiceOn ? '已开启' : '已关闭';
     b.className = 'btn btn-sm ' + (S.voiceOn ? 'btn-o' : 'btn-g');
   };
+  if($('#setCue')) $('#setCue').onclick = ()=>{ toggleCue(); syncCueBtn(); };
+  if($('#setCueTest')) $('#setCueTest').onclick = testCue;
   $('#setReset').onclick = ()=>{ closeConfirm(); setTimeout(askReset, 80); };
   $('#setExport').onclick = exportData;
   const gl = $('#setGroupLink');
