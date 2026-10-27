@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 8 次课 · 开场演示（8 分钟）｜老师先做一遍，你们再动手</title>
+<meta name="description" content="2026-10-28 · 虚拟现实技术第 8 次课 646 机房开场演示（8 分钟）：教师用 3 个在线页面（01 交互实验室 / 03 模型转换器 / 02 模型工作台）演示 A 组交互验证与 B 组模型管线的完整流程，随后学生按一页版作业动手（90′）。含每步应看到的画面与截图说明。">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#191c2c; --ink2:#3c4259; --line:#cfcbe2; --accent:#5a52c8; --accent-d:#241f5e;
+  --accent-bg:#eeebfa; --amber:#8a4d02; --amber-bg:#fdf1dc; --green:#2c6e31; --green-bg:#e9f5ea;
+  --paper:#f4f2fa;
+}
+html,body{height:100%;overflow:hidden}
+body{font-family:"Microsoft YaHei","PingFang SC","Hiragino Sans GB",system-ui,sans-serif;
+  font-size:16px;line-height:1.5;color:var(--ink);background:var(--paper)}
+.page{display:flex;flex-direction:column;gap:8px;height:100vh;padding:10px 12px}
+
+/* ===== 顶部 ===== */
+.top{display:flex;align-items:center;gap:14px;padding:7px 14px;border-radius:10px;
+  background:linear-gradient(100deg,#241f5e 0%,#3a338f 60%,#5a52c8 100%);color:#fff}
+.top .tt{flex:1 1 auto;min-width:0}
+.top h1{font-size:30px;line-height:1.2;letter-spacing:.3px}
+.top h1 em{font-style:normal;color:#ffe08a}
+.top .sub{font-size:16px;color:#e0dcf8;margin-top:3px}
+.top .sub b{color:#ffe08a}
+.top .marks{flex:0 0 auto;display:flex;gap:6px}
+.mark{font-size:14px;padding:5px 12px;border-radius:999px;background:rgba(255,255,255,.14);
+  border:1px solid rgba(255,255,255,.28);white-space:nowrap}
+
+/* ===== 两栏 ===== */
+.cols{flex:1 1 auto;display:grid;grid-template-columns:1fr 1fr;gap:10px;min-height:0}
+.card{display:flex;flex-direction:column;min-height:0;background:#fff;border:1px solid var(--line);
+  border-radius:10px;overflow:hidden}
+.card-h{display:flex;align-items:center;gap:10px;padding:8px 14px;background:var(--accent-d);color:#fff}
+.card-h .k{font-size:15px;font-weight:700;background:#ffe08a;color:#2b2766;border-radius:6px;padding:1px 8px}
+.card-h .t{font-size:18px;font-weight:700}
+.card-h .p{margin-left:auto;font-size:14px;color:#d9d4f6}
+.card-b{display:flex;flex-direction:column;gap:7px;padding:9px 13px 10px;flex:1 1 auto;min-height:0}
+.steps{display:flex;flex-direction:column;gap:5px}
+.step{display:flex;gap:9px;align-items:flex-start;border:1px solid var(--line);border-radius:8px;
+  padding:5px 9px;background:#fcfbff}
+.step .n{flex:0 0 auto;width:24px;height:24px;border-radius:50%;background:var(--accent);color:#fff;
+  font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center;margin-top:2px}
+.step .txt{font-size:16px;line-height:1.45}
+.step .txt b{color:var(--accent-d)}
+.step .txt .see{color:var(--ink2)}
+.step .txt .see b{color:#2c6e31}
+.step.must{border-color:#e3c98f;background:#fffdf6}
+.step.must .n{background:var(--amber)}
+code{font-family:Consolas,"Courier New",monospace;font-size:14px;background:#f1eefb;
+  border:1px solid #e0d9f3;border-radius:4px;padding:0 4px;color:#37306b}
+
+/* ===== 截图 ===== */
+.shots{display:flex;gap:8px;align-items:stretch;flex:1 1 auto;min-height:0}
+.shot{position:relative;flex:1 1 auto;min-width:0;border:1px solid var(--line);border-radius:8px;
+  overflow:hidden;background:#0f1420}
+.shot img{display:block;width:100%;height:100%;object-fit:cover;object-position:top left}
+.shot .cap{position:absolute;left:0;right:0;bottom:0;color:#fff;font-size:13.5px;line-height:1.35;
+  background:linear-gradient(transparent,rgba(8,10,22,.94));padding:16px 8px 5px}
+.shot .cap b{color:#ffe08a}
+.shots.A{flex:0 0 235px}
+.shots.B{flex:0 0 186px}
+.tip{font-size:14px;color:var(--ink2);background:var(--accent-bg);border:1px solid #dcd6f3;
+  border-radius:8px;padding:5px 10px;margin-top:auto}
+.tip b{color:var(--accent-d)}
+
+/* ===== 底部 ===== */
+.bottom{display:flex;align-items:center;gap:12px;padding:8px 14px;background:#fff;
+  border:1px solid var(--line);border-radius:10px}
+.bottom .msg{flex:1 1 auto;font-size:16px;line-height:1.45;color:var(--ink2)}
+.bottom .msg b{color:var(--accent-d)}
+.bottom .msg .hl{background:#fff2cc;padding:0 4px;border-radius:4px;color:#7a4505;font-weight:700}
+.btns{flex:0 0 auto;display:flex;flex-wrap:wrap;gap:7px;justify-content:flex-end;max-width:52%}
+.btn{display:inline-block;text-decoration:none;font-size:15px;font-weight:700;line-height:1.2;
+  padding:9px 14px;border-radius:9px;border:1px solid transparent;white-space:nowrap}
+.btn.go{background:var(--accent);color:#fff}
+.btn.go:hover{background:var(--accent-d)}
+.btn.ghost{background:#fff;color:var(--accent-d);border-color:#cfc9ea}
+.btn.ghost:hover{background:var(--accent-bg)}
+.btn.wall{background:var(--amber-bg);color:var(--amber);border-color:#efd8b0}
+
+/* ===== 打印（A4 横向一页，备用）===== */
+@media print{
+  @page{size:A4 landscape;margin:8mm}
+  html,body{height:auto;overflow:visible;background:#fff}
+  .page{height:auto;padding:0;gap:4px;zoom:.8}
+  .top{background:#241f5e !important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .card-h{background:#241f5e !important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  a{color:#000;text-decoration:none}
+  .card,tr{page-break-inside:avoid}
+}
+/* ===== 窄屏 ===== */
+@media (max-width:900px){
+  html,body{height:auto;overflow:auto}
+  .page{height:auto;padding:8px}
+  .top{flex-direction:column;align-items:flex-start;gap:8px}
+  .top h1{font-size:23px}
+  .cols{grid-template-columns:1fr;gap:10px}
+  .shots.A,.shots.B{flex:0 0 auto;height:190px}
+  .bottom{flex-direction:column;align-items:flex-start}
+  .btns{max-width:100%;justify-content:flex-start}
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ===== 顶部 ===== -->
+  <div class="top">
+    <div class="tt">
+      <h1>第 8 次课 · 开场演示（8 分钟）｜<em>老师先做一遍，你们再动手</em></h1>
+      <div class="sub">演示只用 <b>3 个在线页面</b>：<b>01 交互实验室</b> · <b>03 模型转换器</b> · <b>02 模型工作台</b>；演示完打开<b>一页版作业</b>开始做（90′）</div>
+    </div>
+    <div class="marks">
+      <span class="mark">2026-10-28 · 646 机房</span>
+      <span class="mark">开场 8′</span>
+      <span class="mark">随后 90′ 学生做</span>
+    </div>
+  </div>
+
+  <!-- ===== 两栏 ===== -->
+  <div class="cols">
+
+    <!-- A 演示 -->
+    <div class="card">
+      <div class="card-h">
+        <span class="k">A 演示</span><span class="t">01 交互实验室 · 约 3′</span>
+        <span class="p">4 步 · PC 键盘</span>
+      </div>
+      <div class="card-b">
+        <div class="steps">
+          <div class="step">
+            <div class="n">1</div>
+            <div class="txt"><b>拖动方块</b>靠近插槽（吸附）<br>
+              <span class="see">应看到：HUD <b>idle → hover → grab → snap</b>，目标 <b>+1</b></span></div>
+          </div>
+          <div class="step">
+            <div class="n">2</div>
+            <div class="txt">按 <code>T</code>，用 <code>[</code> <code>]</code> 或滚轮把能量球缩放到 <b>2×</b><br>
+              <span class="see">应看到：<b>scale 1 → 2</b>，HUD 显示倍数</span></div>
+          </div>
+          <div class="step">
+            <div class="n">3</div>
+            <div class="txt">按 <code>P</code>，手柄/手靠近大按钮 → <b>Poke 直触</b><br>
+              <span class="see">应看到：状态变 <b>active</b>（对比远处用射线）</span></div>
+          </div>
+          <div class="step must">
+            <div class="n">4</div>
+            <div class="txt">按 <code>H</code> 切触觉；按 <code>1</code>/<code>2</code>/<code>3</code> 听短/长/节奏；读右上<b>输入源三字段</b><br>
+              <span class="see">应看到：<b>handedness / profiles / gamepad</b> 三行（PC 显示模拟源）</span></div>
+          </div>
+        </div>
+        <div class="shots A">
+          <div class="shot">
+            <img src="assets/vr-2026/lesson8/interaction.png" alt="01 交互实验室：左侧状态机 HUD 与三个目标，右上输入源检查器，场景中有方块、能量球与按钮">
+            <div class="cap"><b>对照这张截图</b>：左边状态机 HUD 与目标 3/3、右上输入源检查器 —— S1 就拍这里</div>
+          </div>
+        </div>
+        <div class="tip"><b>演示提示</b>：先做一遍“慢动作”，边做边念 HUD 上的状态名——学生只要<b>看到状态在变</b>，就抓住了 A 组的重点。</div>
+      </div>
+    </div>
+
+    <!-- B 演示 -->
+    <div class="card">
+      <div class="card-h">
+        <span class="k">B 演示</span><span class="t">03 转换器 → 02 工作台 · 约 4′</span>
+        <span class="p">5 步 · 先转再摆</span>
+      </div>
+      <div class="card-b">
+        <div class="steps">
+          <div class="step">
+            <div class="n">1</div>
+            <div class="txt"><b>03</b> 拖入 <code>Fox.glb</code>（<b>162,852 B</b>）→ 点「导出 GLB」<br>
+              <span class="see">应看到：源 B / 输出 B / <b>变化 %</b>（通常输出更大）</span></div>
+          </div>
+          <div class="step">
+            <div class="n">2</div>
+            <div class="txt"><b>02</b>「导入本机 GLB」→ 选 Fox.glb → <b>选中</b>模型<br>
+              <span class="see">应看到：模型贴地居中、约 <b>1.2 m</b> 高，右侧卡片有许可角标</span></div>
+          </div>
+          <div class="step">
+            <div class="n">3</div>
+            <div class="txt"><b>旋转 45°</b>、<b>缩放 1.5×</b>、<b>换色</b>、<b>播放 / 暂停动画</b><br>
+              <span class="see">应看到：HUD 的 rot / scale / 三角面跟着变 —— S2 拍这一步</span></div>
+          </div>
+          <div class="step">
+            <div class="n">4</div>
+            <div class="txt">点「<b>导出场景 JSON</b>」，打开看字段<br>
+              <span class="see">应看到：<code>id</code> <code>name</code> <code>pos</code> <code>rot</code> <code>scale</code> <code>color</code> <code>anim</code></span></div>
+          </div>
+          <div class="step must">
+            <div class="n">5</div>
+            <div class="txt">写<b>许可卡</b>：模型名 / 来源 / 许可 / 能否商用 / 是否署名<br>
+              <span class="see">Fox 答案：<b>CC0 模型 ＋ CC-BY 4.0 动画 → 需署名</b></span></div>
+          </div>
+        </div>
+        <div class="shots B">
+          <div class="shot">
+            <img src="assets/vr-2026/lesson8/converter.png" alt="03 模型转换器：拖入 Fox.glb 后的统计面板与导出 GLB 按钮">
+            <div class="cap"><b>03</b> 记源 / 输出 / 变化 %</div>
+          </div>
+          <div class="shot">
+            <img src="assets/vr-2026/lesson8/workbench.png" alt="02 模型工作台：导入模型后的场景、模型卡片与统计 HUD">
+            <div class="cap"><b>02</b> 旋 / 缩 / 换色 / 动画 → S2</div>
+          </div>
+        </div>
+        <div class="tip"><b>演示提示</b>：转换时讲“<b>转换 ≠ 优化</b>”（输出常更大）；导入后角标写「请自行确认」——<b>那只是提醒，不是许可</b>。</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 底部 ===== -->
+  <div class="bottom">
+    <div class="msg"><b>演示完 → 打开一页版作业（90′）</b>｜交 <span class="hl">S2＋一句话＋许可</span>｜<b>全部提交作品都上作品墙</b></div>
+    <div class="btns">
+      <a class="btn go" href="vr-2026-lesson8-hw.html">打开一页版作业 →</a>
+      <a class="btn wall" href="vr-2026-lesson8-works.html">作品墙 →</a>
+      <a class="btn ghost" href="assets/vr-2026/lesson8/01_交互实验室_WebXR.html" target="_blank" rel="noopener">01 交互实验室</a>
+      <a class="btn ghost" href="assets/vr-2026/lesson8/03_模型转换器.html" target="_blank" rel="noopener">03 转换器</a>
+      <a class="btn ghost" href="assets/vr-2026/lesson8/02_模型工作台_WebXR.html" target="_blank" rel="noopener">02 工作台</a>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
