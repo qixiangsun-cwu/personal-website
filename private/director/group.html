@@ -116,6 +116,56 @@ button{font-family:inherit;}
 .cd-lb{font-size:var(--fs-xs);color:var(--ink-3);white-space:nowrap;}
 .cd-num{font-family:var(--mono);font-size:21px;font-weight:700;color:var(--brand);letter-spacing:.6px;margin-top:2px;white-space:nowrap;}
 .cd.urgent .cd-num{color:var(--danger);}
+/* 深色圆环倒计时（与导演台导播栏同款） */
+.gcountdown{
+  --gc-bg:#16202B; --gc-mute:#93A4B8; --gc-ring:#3B8FE0; --gc-warn:#F5A623; --gc-danger:#FF5C5C;
+  background:var(--gc-bg);color:#fff;border-radius:10px;padding:12px 16px 10px;text-align:center;
+  min-width:210px;border:1px solid rgba(255,255,255,.08);
+}
+.gc-lb{font-size:var(--fs-xs);color:var(--gc-mute);letter-spacing:.5px;}
+.gc-dial{position:relative;width:116px;height:116px;margin:6px auto 2px;}
+.gc-ring{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg);overflow:visible;}
+.gc-track{fill:none;stroke:rgba(255,255,255,.13);stroke-width:9;}
+.gc-fill{
+  fill:none;stroke:var(--gc-ring);stroke-width:9;stroke-linecap:round;
+  stroke-dasharray:326.726;stroke-dashoffset:0;
+  transition:stroke-dashoffset .3s linear,stroke .3s;
+}
+.gcountdown.warn .gc-fill{stroke:var(--gc-warn);}
+.gcountdown.danger .gc-fill{stroke:var(--gc-danger);}
+.gc-num{
+  position:absolute;inset:0;display:grid;place-items:center;
+  font-family:var(--mono);font-size:24px;font-weight:700;letter-spacing:.5px;
+  font-variant-numeric:tabular-nums;
+}
+.gc-num.long{font-size:18px;letter-spacing:0;}
+.gc-sub{margin-top:6px;font-size:var(--fs-xs);color:var(--gc-mute);line-height:1.5;}
+@media(max-width:560px){
+  .gcountdown{min-width:0;padding:10px 12px 8px;}
+  .gc-dial{width:96px;height:96px;}
+  .gc-num{font-size:20px;}
+  .gc-num.long{font-size:16px;}
+}
+/* 滚动填写时的吸顶倒计时条：页头滚出视野后出现 */
+.cdock{
+  position:fixed;top:0;left:0;right:0;z-index:36;display:flex;align-items:center;gap:10px;
+  padding:8px 20px;background:var(--card);border-bottom:1px solid var(--line);
+  box-shadow:0 6px 18px rgba(16,42,72,.10);
+}
+.cdock[hidden]{display:none;}
+.cdock-grp{font-weight:700;font-size:var(--fs-s);color:var(--ink-1);white-space:nowrap;}
+.cdock-lb{font-size:var(--fs-xs);color:var(--ink-3);white-space:nowrap;}
+.cdock-num{font-family:var(--mono);font-size:18px;font-weight:700;color:var(--brand);letter-spacing:.4px;white-space:nowrap;}
+.cdock.urgent .cdock-num{color:var(--danger);}
+.cdock.warn .cdock-num{color:var(--warn-ink);}
+.cdock-st{font-size:var(--fs-xs);color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:38vw;}
+.cdock-st.err{color:var(--warn-ink);}
+.cdock .sp{flex:1 1 auto;}
+.cdock-top{
+  flex:0 0 auto;padding:4px 10px;border:1px solid var(--line);border-radius:6px;background:transparent;
+  color:var(--ink-3);font-size:var(--fs-xs);cursor:pointer;font-family:inherit;
+}
+.cdock-top:hover{color:var(--ink-1);border-color:var(--ink-4);}
 .badge{
   display:inline-flex;align-items:center;height:24px;padding:0 10px;
   border-radius:var(--r-m);font-size:12px;font-weight:600;white-space:nowrap;border:1px solid transparent;
@@ -277,6 +327,16 @@ textarea:disabled{background:var(--surf-2);color:var(--ink-3);border-color:var(-
   </div>
 </header>
 
+<!-- 滚动填写时吸顶的倒计时条（页头滚出视野后出现） -->
+<div class="cdock" id="cdock" hidden>
+  <span class="cdock-grp" id="dockGroup"></span>
+  <span class="cdock-lb" id="dockLb">本幕倒计时</span>
+  <b class="cdock-num" id="dockNum">--:--</b>
+  <span class="cdock-st" id="dockSaved"></span>
+  <span class="sp"></span>
+  <button type="button" class="cdock-top" id="dockTop">回到顶部 ↑</button>
+</div>
+
 <!-- ================= 服务状态提示（503 / 未授权 / 网络异常） ================= -->
 <div class="svc" id="svcBanner" role="status" hidden>
   <div class="svc-in">
@@ -287,15 +347,22 @@ textarea:disabled{background:var(--surf-2);color:var(--ink-3);border-color:var(-
 </div>
 
 <main class="wrap">
-  <div class="pagehead">
+  <div class="pagehead" id="pagehead">
     <div class="ph-l">
       <h1 id="groupTitle">请选择本组</h1>
       <p class="ph-sub" id="groupSub">在页面右上角选择本组（B101—B110）后即可填写两幕方案。</p>
     </div>
     <div class="ph-r">
-      <div class="cd" id="cdBox">
-        <span class="cd-lb" id="cdLabel">本幕倒计时</span>
-        <b class="cd-num" id="cdNum">--:--</b>
+      <div class="gcountdown" id="cdBox">
+        <div class="gc-lb" id="cdLabel">本幕倒计时</div>
+        <div class="gc-dial">
+          <svg class="gc-ring" viewBox="0 0 120 120" aria-hidden="true">
+            <circle class="gc-track" cx="60" cy="60" r="52"></circle>
+            <circle class="gc-fill" id="cdFill" cx="60" cy="60" r="52"></circle>
+          </svg>
+          <div class="gc-num" id="cdNum">--:--</div>
+        </div>
+        <div class="gc-sub" id="cdSub">—</div>
       </div>
       <span class="badge badge-draft" id="statusBadge" hidden>草稿</span>
     </div>
@@ -477,6 +544,15 @@ var ui = {
   cdBox: byId('cdBox'),
   cdLabel: byId('cdLabel'),
   cdNum: byId('cdNum'),
+  cdFill: byId('cdFill'),
+  cdSub: byId('cdSub'),
+  dock: byId('cdock'),
+  dockGroup: byId('dockGroup'),
+  dockLb: byId('dockLb'),
+  dockNum: byId('dockNum'),
+  dockSaved: byId('dockSaved'),
+  dockTop: byId('dockTop'),
+  pagehead: byId('pagehead'),
   badge: byId('statusBadge'),
   lockbar: byId('lockBar'),
   empty: byId('emptyState'),
@@ -527,6 +603,27 @@ function fmtRemain(ms){
   var sec = s % 60;
   if (h > 0) return h + ':' + pad2(m) + ':' + pad2(sec);
   return pad2(m) + ':' + pad2(sec);
+}
+function hm2m(s){
+  var p = String(s || '').split(':');
+  return (Number(p[0]) || 0) * 60 + (Number(p[1]) || 0);
+}
+var RING_C = 326.726;
+/* 本幕时长：按手册环节 3 / 4 的起止（第一幕 50 分钟、第二幕 60 分钟） */
+function actWindow(act){
+  var stepNo = act === '1' ? 3 : 4;
+  var step = (DATA.script || []).find(function(s){ return s.no === stepNo; });
+  var total = act === '1' ? 50 : 60;
+  if (step) {
+    var d = hm2m(step.end) - hm2m(step.start);
+    if (d > 0) total = d;
+  }
+  return total;
+}
+function setRing(frac){
+  if (!ui.cdFill) return;
+  var f = Math.max(0, Math.min(1, frac || 0));
+  ui.cdFill.style.strokeDashoffset = (RING_C * (1 - f)).toFixed(1);
 }
 function now(){ return Date.now() + state.serverOffset; }
 
@@ -596,6 +693,10 @@ function toast(msg){
 function setSavedHint(text, isErr){
   ui.saved.textContent = text;
   ui.saved.classList.toggle('err', !!isErr);
+  if (ui.dockSaved) {
+    ui.dockSaved.textContent = text;
+    ui.dockSaved.classList.toggle('err', !!isErr);
+  }
 }
 function setMsg(act, text){
   var n = act === '1' ? ui.msg1 : ui.msg2;
@@ -736,38 +837,78 @@ function renderDeadlineLabels(){
   ui.dl2.textContent = ACT_META['2'].name + '截止 ' + (DEADLINES[ACT_META['2'].deadlineKey] || '—');
 }
 
+/* 吸顶倒计时条：内容与页头倒计时保持一致；页头滚出视野时才显示 */
+var pageheadVisible = true;
+function updateDockVisibility(){
+  if (!ui.dock) return;
+  ui.dock.hidden = !(state.group && !pageheadVisible);
+}
+function syncDock(){
+  if (!ui.dock) return;
+  ui.dockLb.textContent = ui.cdLabel.textContent;
+  ui.dockNum.textContent = ui.cdNum.textContent;
+  var danger = ui.cdBox.classList.contains('danger');
+  var warn = ui.cdBox.classList.contains('warn');
+  ui.dock.classList.toggle('urgent', danger);
+  ui.dock.classList.toggle('warn', warn && !danger);
+  var s = state.group ? findSession(state.group) : null;
+  ui.dockGroup.textContent = s ? (s.code || '') : '';
+  updateDockVisibility();
+}
+
 function renderCountdown(){
   var act = state.activeAct;
+  var total = actWindow(act);
+  var key = ACT_META[act].deadlineKey;
+  var deadlineText = DEADLINES[key] ? ((COURSE.deadlinePrefix ? COURSE.deadlinePrefix + ' ' : '') + DEADLINES[key]) : '';
+  function setSub(txt){ if (ui.cdSub) ui.cdSub.textContent = txt; }
+
   if (!state.group) {
     ui.cdLabel.textContent = '本幕倒计时';
     ui.cdNum.textContent = '--:--';
-    ui.cdBox.classList.remove('urgent');
+    ui.cdBox.classList.remove('urgent', 'warn', 'danger');
+    setSub('—');
+    setRing(0);
+    syncDock();
     return;
   }
   var end = deadlineMs(act);
   if (end == null) {
     ui.cdLabel.textContent = ACT_META[act].name + '无截止时间';
     ui.cdNum.textContent = '--:--';
-    ui.cdBox.classList.remove('urgent');
+    ui.cdBox.classList.remove('urgent', 'warn', 'danger');
+    setSub('未设置截止时间');
+    setRing(0);
+    syncDock();
     return;
   }
   var t = now();
   if (t > end && forcedOpen(act)) {
     ui.cdLabel.textContent = '导演组已重新开放本幕';
     ui.cdNum.textContent = '已重开';
-    ui.cdBox.classList.remove('urgent');
+    ui.cdBox.classList.remove('urgent', 'warn', 'danger');
+    setSub('截止 ' + deadlineText + ' · 可继续修改');
+    setRing(1);
+    syncDock();
     return;
   }
   var rem = end - t;
   if (rem > 0) {
     ui.cdLabel.textContent = '距' + ACT_META[act].name + '截止' + (state.timeSynced ? '' : '（本机时间）');
     ui.cdNum.textContent = fmtRemain(rem);
-    ui.cdBox.classList.toggle('urgent', rem <= 300000);
+    ui.cdNum.classList.toggle('long', (ui.cdNum.textContent.match(/:/g)||[]).length > 1);
+    setSub('本幕时长 ' + total + ' 分钟 · 截止 ' + deadlineText);
+    setRing(rem / (total * 60000));
+    ui.cdBox.classList.toggle('warn', rem <= 300000);
+    ui.cdBox.classList.toggle('danger', rem <= 60000);
   } else {
     ui.cdLabel.textContent = ACT_META[act].name + '已截止' + (state.timeSynced ? '' : '（本机时间）');
     ui.cdNum.textContent = '00:00';
-    ui.cdBox.classList.remove('urgent');
+    setSub('本幕已截止 · 截止 ' + deadlineText);
+    setRing(0);
+    ui.cdBox.classList.remove('warn', 'danger');
   }
+  syncDock();
 }
 
 function renderStatus(){
@@ -1268,6 +1409,22 @@ function init(){
       state.videoPlayed = true;
     });
   }
+
+  /* 吸顶倒计时条：页头可见时隐藏，滚出视野后出现 */
+  if (ui.pagehead && 'IntersectionObserver' in window) {
+    pageheadVisible = true;
+    var io = new IntersectionObserver(function(entries){
+      pageheadVisible = entries[0].isIntersecting;
+      updateDockVisibility();
+    }, { threshold: 0 });
+    io.observe(ui.pagehead);
+  } else {
+    pageheadVisible = false;
+  }
+  ui.dockTop.addEventListener('click', function(){
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+  syncDock();
 
   function onTabKey(e){
     if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
