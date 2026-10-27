@@ -1518,8 +1518,8 @@ function openSettings(){
       <div class="set-row">
         <div class="sl"><b>各组提案</b><span>${
           PROPOSALS && PROPOSALS.ok
-            ? '已接入 · 各组在组端页面提交，控制台每 5 秒同步'
-            : '未接入：需在 Cloudflare Pages 绑定 KV 变量 PROPOSALS（之后刷新本页）'
+            ? '已接入 · 各组在组端页面提交，控制台每 30 秒同步'
+            : '未接入：需在 Cloudflare 绑定 D1（DB）或 KV（PROPOSALS），之后刷新本页'
         }</span></div>
         <div style="display:flex;gap:6px;flex-wrap:wrap;">
           <a class="btn btn-g btn-sm" id="setGroupLink" target="_blank" rel="noopener">组端页</a>
