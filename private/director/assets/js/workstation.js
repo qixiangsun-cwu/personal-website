@@ -282,6 +282,7 @@ async function fetchProposals(){
       };
       noteSubmitted();
       syncSettingsState();
+      renderProposalStatus();   /* 首次拉取完成前标签显示「—」，这里刷新状态与额度 */
       /* 中继给第二屏（第二屏零后端，只读 localStorage） */
       try{
         localStorage.setItem(PROPOSAL_CACHE, JSON.stringify({
@@ -295,6 +296,7 @@ async function fetchProposals(){
     PROPOSALS = { ok:false, error:'network' };
   }finally{
     proposalBusy = false;
+    renderProposalStatus();
   }
   return false;
 }
