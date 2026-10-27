@@ -323,9 +323,10 @@ async function refreshProposals(){
 function startProposalPolling(){
   refreshProposals();
   clearInterval(proposalTimer);
-  /* KV 免费版每天只有 10 万次读；20 个 key × 每 30 秒一次 ≈ 0.85 万读/场，留足余量。
+  /* KV 免费版每天只有 10 万次读；20 个 key × 每 60 秒一次 ≈ 0.42 万读/场。
+     ⚠ 控制台整天开着（哪怕 30~60 秒一次）也会把 10 万读慢慢烧完 —— 迁 D1 后无此问题。
      需要立刻看最新状态时，点「刷新提案」或切回本页即可。 */
-  proposalTimer = setInterval(()=>{ if(document.visibilityState === 'visible') refreshProposals(); }, 30000);
+  proposalTimer = setInterval(()=>{ if(document.visibilityState === 'visible') refreshProposals(); }, 60000);
   document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) refreshProposals(); });
   window.addEventListener('focus', ()=>refreshProposals());
   window.addEventListener('storage', e=>{
@@ -363,7 +364,7 @@ function noteSubmitted(){
 
 function propStateText(){
   return (PROPOSALS && PROPOSALS.ok)
-    ? '已接入 · 各组在组端页面提交，控制台每 30 秒同步'
+    ? '已接入 · 各组在组端页面提交，控制台每 60 秒同步'
     : '未接入：需在 Cloudflare 绑定 D1（DB）或 KV（PROPOSALS）';
 }
 function quotaStateText(){
@@ -372,7 +373,7 @@ function quotaStateText(){
         ? 'D1 模式（免费：读 500 万行/日、写 10 万行/日；北京 08:00 重置）'
         : 'KV 模式（免费：读 10 万/日、写 1,000/日）—— 绑定 D1 后自动切换')
     : '未接入提案服务';
-  return base + '。本页每 30 秒刷新一次、组端输入停 30 秒保存一次';
+  return base + '。本页每 60 秒刷新一次、组端输入停 30 秒保存一次';
 }
 /* 设置面板打开后，提案状态可能在后续轮询里才就绪：这里保持文案同步 */
 function syncSettingsState(){
@@ -387,7 +388,7 @@ function renderProposalStatus(){
   const ok = !!(PROPOSALS && PROPOSALS.ok);
   el.textContent = `${S.speakerOrder.length} 方参演 · ${ok ? '提案实时同步' : '提案未接入'}`;
   el.title = ok
-    ? '各组在 group.html 填写，控制台每 30 秒自动刷新'
+    ? '各组在 group.html 填写，控制台每 60 秒自动刷新'
     : '未检测到提案服务（需在 Cloudflare 绑定 D1/KV）；当前仅本机演示数据可用';
   renderQuotaTag();
 }
@@ -401,9 +402,12 @@ function renderQuotaTag(){
   const u = PROPOSALS && PROPOSALS.usage;
 
   if(!ok){
-    el.textContent = '额度 —';
-    el.title = '提案服务未接入，暂无额度数据';
-    el.classList.remove('warn');
+    const err = (PROPOSALS && PROPOSALS.error) || '';
+    el.textContent = err ? '额度：读取失败' : '额度 —';
+    el.title = err
+      ? `读取提案数据失败：${err}\n如果是 KV 免费额度（读 10 万/日）用完：等次日北京时间 08:00 重置，或绑定 D1（额度独立且大得多）`
+      : '提案服务未接入，暂无额度数据';
+    el.classList.toggle('warn', !!err);
     return;
   }
   if(storage === 'd1' && u && u.limits){
