@@ -281,6 +281,7 @@ async function fetchProposals(){
         offsetMs: j.serverTime ? (Date.parse(j.serverTime) - Date.now()) : 0
       };
       noteSubmitted();
+      syncSettingsState();
       /* 中继给第二屏（第二屏零后端，只读 localStorage） */
       try{
         localStorage.setItem(PROPOSAL_CACHE, JSON.stringify({
@@ -358,6 +359,26 @@ function noteSubmitted(){
     }
   }
   submittedSeen = map;
+}
+
+function propStateText(){
+  return (PROPOSALS && PROPOSALS.ok)
+    ? '已接入 · 各组在组端页面提交，控制台每 30 秒同步'
+    : '未接入：需在 Cloudflare 绑定 D1（DB）或 KV（PROPOSALS）';
+}
+function quotaStateText(){
+  const base = (PROPOSALS && PROPOSALS.ok)
+    ? (PROPOSALS.storage === 'd1'
+        ? 'D1 模式（免费：读 500 万行/日、写 10 万行/日；北京 08:00 重置）'
+        : 'KV 模式（免费：读 10 万/日、写 1,000/日）—— 绑定 D1 后自动切换')
+    : '未接入提案服务';
+  return base + '。本页每 30 秒刷新一次、组端输入停 30 秒保存一次';
+}
+/* 设置面板打开后，提案状态可能在后续轮询里才就绪：这里保持文案同步 */
+function syncSettingsState(){
+  const a = $('#setPropState'), b = $('#setQuotaState');
+  if(a) a.textContent = propStateText();
+  if(b) b.textContent = quotaStateText();
 }
 
 function renderProposalStatus(){
@@ -1516,11 +1537,7 @@ function openSettings(){
         }
       </div>
       <div class="set-row">
-        <div class="sl"><b>各组提案</b><span>${
-          PROPOSALS && PROPOSALS.ok
-            ? '已接入 · 各组在组端页面提交，控制台每 30 秒同步'
-            : '未接入：需在 Cloudflare 绑定 D1（DB）或 KV（PROPOSALS），之后刷新本页'
-        }</span></div>
+        <div class="sl"><b>各组提案</b><span id="setPropState">${propStateText()}</span></div>
         <div style="display:flex;gap:6px;flex-wrap:wrap;">
           <a class="btn btn-g btn-sm" id="setGroupLink" target="_blank" rel="noopener">组端页</a>
           <button class="btn btn-g btn-sm" id="setOpen1">重开第一幕</button>
@@ -1540,13 +1557,7 @@ function openSettings(){
         <button class="btn btn-g btn-sm" id="setExport">导出</button>
       </div>
       <div class="set-row">
-        <div class="sl"><b>存储与今日额度</b><span>${
-          PROPOSALS && PROPOSALS.ok
-            ? (PROPOSALS.storage === 'd1'
-                ? 'D1 模式（免费：读 500 万行/日、写 10 万行/日；北京 08:00 重置）'
-                : 'KV 模式（免费：读 10 万/日、写 1,000/日）—— 绑定 D1 后自动切换')
-            : '未接入提案服务'
-        }。本页每 30 秒刷新一次、组端输入停 30 秒保存一次</span></div>
+        <div class="sl"><b>存储与今日额度</b><span id="setQuotaState">${quotaStateText()}</span></div>
       </div>
       <div class="set-row">
         <div class="sl"><b>数据源</b><span>${esc(D.meta.docSource)} · ${esc(D.meta.revision)} · 纯静态 + 提案服务（Cloudflare Functions/KV）</span></div>
