@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>04 头显自检页 · WebXR 30 秒自检</title>
+<link rel="icon" href="data:,">
+<style>
+  :root{--bg:#0b1020;--panel:rgba(13,22,42,.92);--line:#2b3a5e;--txt:#dce6f5;--dim:#8fa1c0;--ok:#5dd6a3;--bad:#ff7a6a;--warn:#ffd479;--blue:#7fb2ff}
+  *{box-sizing:border-box}
+  html,body{margin:0;min-height:100%;background:radial-gradient(1200px 700px at 70% -10%,#16234a 0%,var(--bg) 55%);color:var(--txt);
+    font-family:"Microsoft YaHei","PingFang SC","Segoe UI",sans-serif}
+  .wrap{max-width:1100px;margin:0 auto;padding:22px 20px 40px}
+  h1{font-size:22px;margin:0 0 4px;color:var(--blue)}
+  .sub{color:var(--dim);font-size:13px;line-height:1.7}
+  .hint{margin:14px 0 18px;padding:10px 14px;border:1px solid #3b4d78;border-radius:9px;background:rgba(31,48,88,.5);font-size:13px;line-height:1.75}
+  .hint b{color:var(--warn);font-weight:normal}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:13px 15px}
+  .card h2{font-size:14px;margin:0 0 9px;color:var(--blue);font-weight:normal}
+  .row{display:flex;justify-content:space-between;gap:12px;font-size:13px;line-height:1.9;border-bottom:1px dashed #22304a;padding:3px 0}
+  .row:last-child{border-bottom:0}
+  .row .k{color:var(--dim)}
+  .row .v{text-align:right;word-break:break-all}
+  .ok{color:var(--ok)} .bad{color:var(--bad)} .warn{color:var(--warn)} .dim{color:var(--dim)}
+  #verdict{margin-top:14px;padding:14px 16px;border-radius:11px;border:1px solid var(--line);background:var(--panel);font-size:15px;line-height:1.8}
+  #verdict b{font-size:17px}
+  #log{margin-top:12px;height:190px;overflow:auto;background:#080d1a;border:1px solid var(--line);border-radius:9px;
+    padding:10px 12px;font:12px/1.7 Consolas,"Courier New",monospace;color:#9fb3d1;white-space:pre-wrap}
+  .bar{position:sticky;bottom:0;margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;background:rgba(11,16,32,.92);padding:10px 0}
+  button{padding:10px 18px;font-size:14px;border-radius:8px;border:1px solid #35507f;background:#1b2a48;color:#bcd0ee;cursor:pointer;font-family:inherit}
+  button:hover{background:#24375c}
+  button.primary{background:#2f6fed;border-color:#2f6fed;color:#fff}
+  button:disabled{opacity:.45;cursor:default}
+  button.stop{background:#5a2230;border-color:#8a3346;color:#ffd8de}
+  @media (max-width:860px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>04 头显自检页 · WebXR 30 秒自检</h1>
+  <div class="sub">430 教室讲课前，用它确认「这台头显 + 这个浏览器 + 这个地址」能进 VR。**不检测内容**，只检测能力。</div>
+
+  <div class="hint">
+    <b>必须用 http:// 或 https:// 打开</b>（WebXR 要求安全上下文）。本机服务：<code>powershell -ExecutionPolicy Bypass -File serve.ps1</code>
+    → 头显浏览器打开 <code>http://127.0.0.1:8038/04_头显自检页.html</code>（USB + adb reverse）或 <code>http://&lt;教师机IP&gt;:8038/...</code>（局域网）。<br>
+    <b>file:// 双击只能看这个页面，不能进 VR</b>——这是浏览器安全策略，不是页面坏了。
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <h2>① 环境能力</h2>
+      <div class="row"><span class="k">页面地址</span><span class="v" id="v-url">—</span></div>
+      <div class="row"><span class="k">安全上下文（https/localhost）</span><span class="v" id="v-secure">—</span></div>
+      <div class="row"><span class="k">navigator.xr 存在</span><span class="v" id="v-xr">—</span></div>
+      <div class="row"><span class="k">immersive-vr 支持</span><span class="v" id="v-immersive">—</span></div>
+      <div class="row"><span class="k">参考空间 local-floor</span><span class="v" id="v-floor">—</span></div>
+      <div class="row"><span class="k">用户代理</span><span class="v dim" id="v-ua">—</span></div>
+    </div>
+    <div class="card">
+      <h2>② 会话内实时（进入 VR 后）</h2>
+      <div class="row"><span class="k">会话状态</span><span class="v" id="v-state">未开始</span></div>
+      <div class="row"><span class="k">帧率（rAF）</span><span class="v" id="v-fps">—</span></div>
+      <div class="row"><span class="k">已连接输入源</span><span class="v" id="v-src">0</span></div>
+      <div class="row"><span class="k">手柄/手：左右手</span><span class="v" id="v-hand">—</span></div>
+      <div class="row"><span class="k">按键数 / 轴数</span><span class="v" id="v-btn">—</span></div>
+      <div class="row"><span class="k">触觉执行器</span><span class="v" id="v-hap">—</span></div>
+      <div class="row"><span class="k">头显位姿（tracked）</span><span class="v" id="v-pose">—</span></div>
+    </div>
+  </div>
+
+  <div id="verdict">开始检测中…</div>
+
+  <div class="bar">
+    <button id="btn-enter" class="primary" disabled>进入 VR 自检会话</button>
+    <button id="btn-haptic" disabled>触发一次手柄震动</button>
+    <button id="btn-exit" class="stop" disabled>结束会话</button>
+    <button id="btn-copy">复制自检结果</button>
+  </div>
+
+  <div id="log"></div>
+</div>
+
+<script>
+(function(){
+'use strict';
+var $ = function(id){ return document.getElementById(id); };
+var logLines = [], fpsHist = [], lastT = 0, session = null, refSpace = null, rafId = 0;
+var result = { env:false, xr:false, immersive:false, session:false, sources:0, fps:0, pose:false, haptic:'—' };
+
+function log(msg){ var t=new Date().toLocaleTimeString(); var line='['+t+'] '+msg; logLines.push(line); $('log').textContent = logLines.join('\n'); $('log').scrollTop = $('log').scrollHeight; }
+function setV(id, text, cls){ var el=$(id); el.textContent=text; el.className='v'+(cls?(' '+cls):''); }
+function pad(n){ return (n<10?'0':'')+n; }
+
+/* ---------- ① 环境能力 ---------- */
+function checkEnv(){
+  var isFile = location.protocol === 'file:';
+  var secure = window.isSecureContext === true && !isFile;
+  setV('v-url', location.href.length>70? location.href.slice(0,70)+'…': location.href, secure?'ok':'bad');
+  setV('v-secure', secure
+    ? '是（http/https，可以进 VR）'
+    : (isFile ? '否（file:// 不能进 VR，请用 http://127.0.0.1 或 https）'
+              : '否（需要 https 或 localhost）'), secure?'ok':'bad');
+  result.env = secure;
+
+  var hasXR = !!navigator.xr;
+  setV('v-xr', hasXR? '有' : '没有（这个浏览器不支持 WebXR）', hasXR?'ok':'bad');
+  result.xr = hasXR;
+
+  setV('v-floor', '随会话检测', 'dim');
+  setV('v-ua', navigator.userAgent, 'dim');
+
+  if (!hasXR){ updateVerdict(); return; }
+  navigator.xr.isSessionSupported('immersive-vr').then(function(ok){
+    setV('v-immersive', ok? '支持' : '不支持（浏览器/设备未启用 WebXR）', ok?'ok':'bad');
+    result.immersive = ok;
+    $('btn-enter').disabled = !ok || !secure;
+    updateVerdict();
+  }).catch(function(e){
+    setV('v-immersive','检测失败：'+e.message,'bad');
+    updateVerdict();
+  });
+}
+
+/* ---------- ② 会话 ---------- */
+function enterVR(){
+  if (!navigator.xr){ log('没有 navigator.xr，无法进入'); return; }
+  $('btn-enter').disabled = true;
+  navigator.xr.requestSession('immersive-vr', {
+    optionalFeatures: ['local-floor','bounded-floor','hand-tracking','layers']
+  }).then(function(s){
+    session = s;
+    result.session = true;
+    $('btn-exit').disabled = false;
+    $('btn-haptic').disabled = false;
+    setV('v-state','已进入 immersive-vr','ok');
+    log('会话已创建：immersive-vr');
+    s.addEventListener('end', function(){ onSessionEnd(); });
+    s.addEventListener('inputsourceschange', function(){ refreshSources(); });
+    return s.requestReferenceSpace('local-floor').then(function(rs){
+      refSpace = rs;
+      setV('v-floor','可用（local-floor）','ok');
+      log('参考空间 local-floor 就绪');
+    }).catch(function(){
+      log('local-floor 不可用，回退 local');
+      setV('v-floor','不可用，回退 local','warn');
+      return s.requestReferenceSpace('local').then(function(rs){ refSpace = rs; });
+    }).then(function(){
+      refreshSources();
+      lastT = performance.now();
+      rafId = requestAnimationFrame(tick);
+    });
+  }).catch(function(e){
+    setV('v-state','进入失败：'+e.message,'bad');
+    log('requestSession 失败：'+e.name+' / '+e.message);
+    $('btn-enter').disabled = false;
+    updateVerdict();
+  });
+}
+
+function onSessionEnd(){
+  cancelAnimationFrame(rafId);
+  session = null; refSpace = null;
+  $('btn-exit').disabled = true;
+  $('btn-haptic').disabled = true;
+  $('btn-enter').disabled = result.immersive && result.env ? false : true;
+  setV('v-state','已结束','dim');
+  setV('v-fps','—','dim');
+  log('会话已结束');
+  updateVerdict();
+}
+
+function refreshSources(){
+  if (!session){ setV('v-src','0'); return; }
+  var srcs = session.inputSources || [];
+  result.sources = srcs.length;
+  setV('v-src', String(srcs.length), srcs.length? 'ok':'warn');
+  var hands=[], btns=[], axes=[];
+  for (var i=0;i<srcs.length;i++){
+    var s=srcs[i];
+    hands.push((s.handedness||'?') + (s.profiles&&s.profiles.length?(' ['+s.profiles[0]+']'):''));
+    if (s.gamepad){ btns.push((s.gamepad.buttons||[]).length); axes.push((s.gamepad.axes||[]).length); }
+    var hap = s.gamepad && s.gamepad.hapticActuators;
+    result.haptic = (hap && hap.length) ? ('有（'+hap.length+'）') : (result.haptic==='—'? '无' : result.haptic);
+  }
+  setV('v-hand', hands.length? hands.join(' / ') : '未检测到（会话开始后戴上头显/拿起手柄）', hands.length?'ok':'warn');
+  setV('v-btn', btns.length? ('buttons '+btns.join('/')+' · axes '+axes.join('/')) : '—', 'dim');
+  setV('v-hap', result.haptic, result.haptic.indexOf('有')===0?'ok':'dim');
+}
+
+function tick(t){
+  rafId = requestAnimationFrame(tick);
+  var dt = t - lastT; lastT = t;
+  if (dt > 0){ fpsHist.push(1000/dt); if (fpsHist.length>60) fpsHist.shift(); }
+  var sum=0; for (var i=0;i<fpsHist.length;i++) sum+=fpsHist[i];
+  var fps = fpsHist.length? Math.round(sum/fpsHist.length) : 0;
+  result.fps = fps;
+  setV('v-fps', fps+' FPS', fps>=60?'ok':(fps>=45?'warn':'bad'));
+  if (refSpace && session){
+    var pose = null;
+    try { pose = framePose(t); } catch(e){}
+    if (pose){ result.pose = true; setV('v-pose','tracked','ok'); } else { setV('v-pose','丢失（未戴上/被遮挡）','warn'); }
+  }
+  refreshSources();
+}
+
+var lastPoseLogged = false;
+function framePose(t){
+  // 用 XRFrame 的话需要 session.requestAnimationFrame；这里用 rAF 时间戳做近似：
+  // 真正姿态有效性由 XRSession 的 visibilityState 反映，见下。
+  return session && session.visibilityState === 'visible';
+}
+
+function triggerHaptic(){
+  if (!session) return;
+  var srcs = session.inputSources || [], hit=false;
+  for (var i=0;i<srcs.length;i++){
+    var h = srcs[i].gamepad && srcs[i].gamepad.hapticActuators;
+    if (h && h[0] && h[0].pulse){ try{ h[0].pulse(0.8, 120); hit=true; log('触觉：'+srcs[i].handedness+' pulse(0.8,120)'); }catch(e){ log('触觉失败：'+e.message); } }
+  }
+  if (!hit) log('没有可用 hapticActuators（PC 或该头显不支持）');
+}
+
+function updateVerdict(){
+  var el = $('verdict');
+  var items = [
+    ['安全上下文', result.env],
+    ['WebXR 可用', result.xr],
+    ['immersive-vr 支持', result.immersive],
+    ['已进入会话', result.session],
+    ['输入源 ≥1', result.sources>=1]
+  ];
+  var okN = items.filter(function(x){return x[1];}).length;
+  var head;
+  if (result.session){ head = okN>=4? '<b class="ok">PASS</b> · 可以开始演示' : '<b class="warn">部分通过</b> · 看下面哪一项标红'; }
+  else if (!result.env){ head = '<b class="bad">不能进 VR</b> · 请用 http://127.0.0.1 或 https 打开（file:// 不行）'; }
+  else if (!result.xr){ head = '<b class="bad">不支持 WebXR</b> · 换头显内置浏览器（PICO/Quest 浏览器）'; }
+  else if (!result.immersive){ head = '<b class="bad">设备不支持 immersive-vr</b> · 确认用的是头显浏览器、且没有在 PC 的 Chrome 里打开'; }
+  else { head = '<b class="warn">环境 OK</b> · 点「进入 VR 自检会话」完成最后一步'; }
+  el.innerHTML = head + '<br><span class="dim">' + items.map(function(x){ return (x[1]?'<span class="ok">✓</span> ':'<span class="bad">✗</span> ') + x[0]; }).join('　') + '</span>';
+}
+
+function copyReport(){
+  var lines = [
+    '=== 04 头显自检 ===',
+    'url: '+location.href,
+    'secure: '+result.env,
+    'xr: '+result.xr,
+    'immersive-vr: '+result.immersive,
+    'session: '+result.session,
+    'sources: '+result.sources,
+    'fps: '+result.fps,
+    'haptic: '+result.haptic,
+    'ua: '+navigator.userAgent
+  ].join('\n');
+  if (navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(lines).then(function(){ log('自检结果已复制到剪贴板'); }).catch(function(){ log('复制失败，请手动截图'); }); }
+  else { log('浏览器不支持剪贴板，请手动截图'); }
+  console.log(lines);
+}
+
+$('btn-enter').addEventListener('click', enterVR);
+$('btn-exit').addEventListener('click', function(){ if (session) session.end(); });
+$('btn-haptic').addEventListener('click', triggerHaptic);
+$('btn-copy').addEventListener('click', copyReport);
+setInterval(updateVerdict, 1200);
+
+log('页面加载完成，开始检测…');
+checkEnv();
+updateVerdict();
+setTimeout(updateVerdict, 1500);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>第 8 次课 · 学生课堂练习单（646 机房 · 90′ 自主作业）（打印版）</title>
+<style>
+@page { size: A4 portrait; margin: 16mm 15mm 14mm 15mm; }
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: "Microsoft YaHei", "PingFang SC", "Source Han Sans SC", "Noto Sans CJK SC", serif;
+  font-size: 10.5pt; line-height: 1.6; color: #111; background: #fff;
+}
+.screen-only { background: #eef4ff; border: 1px solid #9cbcff; border-radius: 6px;
+  padding: 8px 12px; margin: 10px 0; font-size: 9.5pt; color: #1b3a6b; }
+h1 { font-size: 17pt; margin: 0 0 8pt; line-height: 1.35; }
+h2 { font-size: 13pt; margin: 15pt 0 6pt; padding-bottom: 3pt; border-bottom: 1.2pt solid #333;
+  page-break-after: avoid; break-after: avoid; }
+h3 { font-size: 11.5pt; margin: 11pt 0 4pt; page-break-after: avoid; break-after: avoid; }
+h4 { font-size: 10.5pt; margin: 9pt 0 3pt; page-break-after: avoid; break-after: avoid; }
+p { margin: 4pt 0; }
+blockquote { margin: 5pt 0; padding: 4pt 7pt; border-left: 2.5pt solid #999; background: #f6f6f6;
+  font-size: 9.8pt; page-break-inside: avoid; break-inside: avoid; }
+blockquote p { margin: 2pt 0; }
+ul, ol { margin: 4pt 0 7pt; padding-left: 17pt; }
+li { margin: 1.5pt 0; }
+ul.check { list-style: none; padding-left: 2pt; }
+ul.check > li { margin: 2pt 0 2pt 0; text-indent: -13pt; padding-left: 13pt; }
+ul.check > li::before { content: "\2610  "; font-size: 11.5pt; }
+table { width: 100%; border-collapse: collapse; margin: 5pt 0 9pt; font-size: 9.3pt;
+  page-break-inside: avoid; break-inside: avoid; }
+th, td { border: 0.6pt solid #666; padding: 2.5pt 4pt; vertical-align: top; text-align: left; }
+th { background: #ececec; font-weight: 600; }
+tr { page-break-inside: avoid; break-inside: avoid; }
+code { font-family: Consolas, "Courier New", monospace; font-size: 9.2pt;
+  background: #f1f1f1; padding: 0 1.5pt; border-radius: 2pt; }
+pre { background: #f4f4f4; border: 0.6pt solid #ccc; border-radius: 3pt; padding: 5pt 7pt;
+  font-family: Consolas, "Courier New", monospace; font-size: 8.8pt; line-height: 1.45;
+  overflow-x: auto; page-break-inside: avoid; break-inside: avoid; white-space: pre-wrap; }
+pre code { background: none; padding: 0; }
+hr { border: none; border-top: 0.7pt dashed #999; margin: 9pt 0; }
+a { color: #1144aa; text-decoration: none; }
+strong { font-weight: 700; }
+
+/* 每页页眉：position:fixed 在 Chrome 打印时会在每一页重复 */
+.phead { display: none; }
+@media print {
+  .screen-only { display: none !important; }
+  .phead {
+    display: block; position: fixed; top: -11mm; left: 0; right: 0; height: 9mm;
+    font-size: 8.6pt; color: #333; border-bottom: 0.5pt solid #999; padding-bottom: 1mm;
+    background: #fff;
+  }
+  .phead .l { float: left; }
+  .phead .r { float: right; }
+  .phead .fill { letter-spacing: 0.5pt; }
+  a { color: #111; }
+  h1, h2, h3, h4 { color: #000; }
+}
+@media screen {
+  body { max-width: 190mm; margin: 8mm auto; padding: 0 4mm; }
+  .phead { display: none; }
+}
+</style>
+</head>
+<body>
+<div class="phead"><span class="l">第 8 次课 · 虚拟现实技术 · 646 机房 · 90′ 自主作业（2026-10-28）</span><span class="r fill">姓名：__________　学号：____________　机位：______</span></div>
+<div class="screen-only"><b>打印说明（此提示不会被打印）</b>：浏览器 Ctrl+P → 纸张 <b>A4</b> → 边距<b>默认</b> → 勾选<b>双面打印（短边翻页）</b> → 缩放 100%。本页已内置打印样式：正文 10.5pt、页边距 15–16mm、表格不拆页、每页页眉带姓名学号栏。</div>
+<h1>第 8 次课 · 学生课堂练习单（646 机房 · 90′ 自主作业）</h1>
+<blockquote><p><strong>课程</strong>：虚拟现实技术（1050080280）｜ 2026 秋 ｜ 2023 级数字媒体技术 1 班<br><strong>课次</strong>：第 8 次课（第 9 周）｜ <strong>日期</strong>：2026-10-28（周三）｜ <strong>646 机房</strong>｜ <strong>第 1–2 节 90 分钟</strong><br><strong>本单定位</strong>：<strong>两段式的前半场</strong>——学生在机房<strong>自主完成课堂作业</strong>，教师只做开场说明与巡场答疑，<strong>不讲课</strong>；后半场（430 教室、头显讲课）另见 <a href="第8次课_430教室_头显讲课与演示方案.md">430 方案</a>。<br><strong>课堂练习 90′</strong>：开场说明 5′ ＋ 三页跑通 5′ ＋ 练习 1「交互改造」<strong>35′</strong> ＋ 答疑休息 5′ ＋ 练习 2「模型管线」<strong>35′</strong> ＋ 提交自检 5′<br><strong>满分 20 分</strong>（练习 1 满分 10 分 ＋ 练习 2 满分 10 分），646 <strong>当堂交</strong>，计入课堂作业（30%）<br><strong>学生材料</strong>：<code>学生课堂作业包\</code>（先读 <code>00_先读我_作业包说明.md</code>）｜三页在 <code>学生课堂作业包\pages\</code> ｜离线模型在 <code>学生课堂作业包\offline_models\</code><br><strong>同内容的两份</strong>：作业包内 <code>01_作业单_90分钟_机房版.md</code>（与本单同源）与 <code>01_作业单_打印版.html</code>（<strong>打印优先用它</strong>，浏览器打开 Ctrl+P）；两份若有细微版本差，<strong>以作业包内那份为准</strong>。<br><strong>本单用法</strong>：<strong>直接打印</strong>（A4 纵向，建议双面；页边距 15mm，正文字号 10.5pt）。<strong>打钩要手写，表格当场填</strong>，下课交纸质/拍照。</p></blockquote>
+<table>
+<thead><tr>
+<th>姓名</th>
+<th></th>
+<th>学号</th>
+<th></th>
+</tr></thead><tbody>
+<tr><td><strong>班级/组</strong></td><td></td><td><strong>机位号</strong></td><td></td></tr>
+<tr><td><strong>练习 1 得分</strong></td><td>／10</td><td><strong>练习 2 得分</strong></td><td>／10</td></tr>
+<tr><td><strong>合计</strong></td><td>／20</td><td><strong>教师签字</strong></td><td></td></tr>
+</tbody></table>
+<hr>
+<h2>〇、一分钟看懂今天练什么</h2>
+<blockquote><p><strong>两段式提醒</strong>：前两节（本单）<strong>在 646 自己动手</strong>；后两节换到 430，老师戴头显讲"你们刚才做的事到底发生了什么"。<strong>带着问题做，等会儿听得进去。</strong></p></blockquote>
+<table>
+<thead><tr>
+<th></th>
+<th>练习 1 · 交互改造（35′）</th>
+<th>练习 2 · 模型管线（35′）</th>
+</tr></thead><tbody>
+<tr><td><strong>主练什么</strong></td><td>把第 7 次课的"零件"装成系统：双手变换 / 吸附插槽 / poke / 状态机 / 输入源</td><td>把"别人做的模型"变成"你能用的资产"：下载 → 转换 → 导入 → 操作 → 导出</td></tr>
+<tr><td><strong>用什么</strong></td><td><code>学生课堂作业包\pages\01_交互实验室_学生版.html</code>（<strong>直接改末尾「学生练习区」→ 保存 → 刷新，无需构建</strong>）</td><td><code>pages\03_模型转换器.html</code> ＋ <code>pages\02_模型工作台_WebXR.html</code> ＋ 开源模型站/<code>offline_models\</code></td></tr>
+<tr><td><strong>必做产出</strong></td><td>改后的学生版 HTML ＋ 改动记录表 ＋ 2 张截图</td><td>转换后的 GLB ＋ 场景 JSON ＋ 许可卡 ＋ 1 张截图</td></tr>
+<tr><td><strong>分数线</strong></td><td>基础 <strong>7 分</strong>（A 必做，达标线）｜B 进阶 +2｜C 挑战 +1（<strong>每个练习上限 10 分</strong>）</td><td>基础 <strong>7 分</strong>（A 必做，达标线）｜B 进阶 +2｜C 挑战 +1（<strong>每个练习上限 10 分</strong>）</td></tr>
+</tbody></table>
+<p><strong>三条铁律（先读，别用错时间）</strong></p>
+<ol>
+<li><strong>只改作业包里的"学生版"，不碰 <code>demos\</code> 原件。</strong> 你改的是 <code>学生课堂作业包\pages\</code> 下的文件；改坏了重新拷一份，不扣分。</li>
+<li><strong>改了要"保存 + 刷新"才算数。</strong> 编辑器里 <strong>Ctrl+S 保存</strong> → 回到浏览器 <strong>F5 / Ctrl+F5 刷新</strong> → 看变化。<strong>没刷新 = 白改</strong>（这是今天第一大坑）。</li>
+<li><strong>每个钩子都要能当场演示。</strong> 打钩不算数，教师/同桌随机抽查一项，你要能在 30 秒内点出来给大家看。</li>
+</ol>
+<blockquote><p><strong>本机提示</strong>：本课<strong>不需要 Python / Node / 服务器</strong>——三页都是单文件，双击（<code>file://</code>）就能用；<strong>只有"进 VR"才需要 http</strong>（那是 430 教室的事）。<br>机房机器没装编辑器也能做：<strong>记事本</strong>（右键 → 打开方式 → 记事本）或 VS Code 都行，<strong>Ctrl+F 搜关键词</strong>。</p></blockquote>
+<hr>
+<h2>一、练习 1 · 交互改造（35 分钟 · 10 分）</h2>
+<h3>1.0 打开学生版，先看清"系统"长什么样（5′）</h3>
+<p><strong>双击</strong> <code>学生课堂作业包\pages\01_交互实验室_学生版.html</code> → 进入 <strong>PC 模式</strong>（页面左上 HUD 里有完整按键表；下面这张就是它的摘要）。</p>
+<p><strong>PC 键位速查（本页真实按键，页面 HUD 里也能看到；12/12 已核对）</strong></p>
+<table>
+<thead><tr>
+<th>操作</th>
+<th>按键</th>
+<th>操作</th>
+<th>按键</th>
+</tr></thead><tbody>
+<tr><td>瞄准</td><td>移动鼠标</td><td>转头</td><td>鼠标拖拽</td></tr>
+<tr><td>选择 / 抓取 / 释放</td><td><strong>鼠标单击</strong></td><td>抓取 / 释放（键）</td><td><strong>G</strong></td></tr>
+<tr><td>走动</td><td><strong>W A S D</strong>（Shift 快走）</td><td><strong>双手变换演示</strong></td><td><strong>T</strong></td></tr>
+<tr><td>两手间距（模拟双手缩放）</td><td><strong>[</strong> / <strong>]</strong> / 滚轮</td><td><strong>Poke 直触</strong></td><td><strong>P</strong></td></tr>
+<tr><td>触觉模式循环</td><td><strong>H</strong></td><td>短 / 长 / 节奏</td><td><strong>1</strong> / <strong>2</strong> / <strong>3</strong></td></tr>
+<tr><td>重置</td><td><strong>R</strong></td><td>检查器详略</td><td><strong>V</strong></td></tr>
+</tbody></table>
+<blockquote><p>彩蛋（HUD 没写但可用）：<code>Space</code> = 抓取当前悬停的物体。</p></blockquote>
+<p><strong>场景里的五个"角色"（后面改代码要认名字）</strong>：<code>cubeA</code>（吸附方块）、<code>socket</code>（吸附插槽）、<code>orb</code>（能量球，双手缩放用）、<code>btnRay</code>（射线按钮）、<code>btnPoke</code>（Poke 直触按钮）。</p>
+<table>
+<thead><tr>
+<th>#</th>
+<th>看什么</th>
+<th>在哪看</th>
+<th>应该看到</th>
+</tr></thead><tbody>
+<tr><td>1</td><td>三个目标</td><td>页面目标清单</td><td>① 把方块吸进插槽 ② 双手把能量球缩放到 2 倍 ③ 用 Poke 直触按下按钮（各带完成勾）</td></tr>
+<tr><td>2</td><td>状态机 HUD</td><td>页面实时面板</td><td><code>idle → hover → grab → snap</code>（还有 <code>active</code> / <code>disabled</code>）随操作变化</td></tr>
+<tr><td>3</td><td>输入源检查器</td><td>页面实时面板</td><td><code>handedness</code> / <code>profiles</code> / <code>gamepad</code> 的 buttons、axes；PC 下会标"PC 模拟源"（正常）</td></tr>
+<tr><td>4</td><td>吸附插槽</td><td>场景里的线框插槽 <code>socket</code></td><td>方块靠近后自动对齐 + 成功反馈（音效/震动日志）</td></tr>
+<tr><td>5</td><td>poke 与射线两种通道</td><td>场景里的 <code>btnPoke</code> 与 <code>btnRay</code></td><td>近处 <code>P</code> 直触、远处射线点 <code>btnRay</code>，两个按钮都能亮</td></tr>
+</tbody></table>
+<p><strong>跑通检查点（4 个全打钩才进入 1.1）</strong></p>
+<ul class="check">
+<li>页面打开<strong>无白屏</strong>，控制台（F12）<strong>无红色报错</strong></li>
+<li>目标清单显示 3 个目标，完成计数会随操作增加</li>
+<li>状态机 HUD 能随操作从 <code>idle</code> 变到 <code>hover</code> / <code>grab</code> / <code>snap</code></li>
+<li>输入源检查器有内容（PC 模式显示模拟输入源，属正常）</li>
+</ul>
+<blockquote><p><strong>卡住怎么办</strong>：白屏 → 确认打开的是<strong>学生版单文件</strong>（不是"网页另存为完整"）；没反应 → 先在页面里点一下再按键（浏览器要求先有用户手势）；还是不行 → 举手，用同桌机器继续做记录，<strong>不要卡在这里超过 5 分钟</strong>。</p></blockquote>
+<h3>1.1 找到「学生练习区」，学会"改一处"（3′）</h3>
+<p><strong>今天不构建、不装环境</strong>——直接在学生版 HTML 里改：</p>
+<ol>
+<li>右键 <code>pages\01_交互实验室_学生版.html</code> → <strong>打开方式 → 记事本</strong>（或 VS Code）；</li>
+<li><strong>Ctrl+F 搜 <code>学生练习区</code></strong> → 跳到文件<strong>末尾附近</strong>的那段注释（里面有 1-A/1-B/1-C/1-D 四个练习说明）；</li>
+<li>从注释往下读十几行，就是<strong>真正的代码</strong>（<code>SNAP_DIST</code> / <code>makePokeButton</code> / <code>pulse</code> / <code>TRANS</code> 都在这一带）；</li>
+<li><strong>改一个数字 → Ctrl+S 保存 → 回浏览器 F5 刷新</strong> → 看变化。</li>
+</ol>
+<blockquote><p><strong>先做一个 30 秒的小实验</strong>：把 <code>var SNAP_DIST = 0.30;</code> 改成 <code>0.60</code>，保存、刷新，看吸附是不是"隔空老远就吸上"——<strong>看到变化，说明你的改法对了</strong>，再改回来。<br>（这条链路已由教师实测：0.30 → 0.45 → <code>file://</code> 读回 0.45，<code>RESULT: PASS</code>；见 <code>学生课堂作业包\_verify\student_edit_check.txt</code>。）</p></blockquote>
+<p><strong>改法检查点</strong></p>
+<ul class="check">
+<li>我能用 Ctrl+F 找到 <code>学生练习区</code>，并读到它下面的代码</li>
+<li>我做了一次"改数字 → 保存 → 刷新 → 看到变化 → 改回来"</li>
+</ul>
+<h3>1.2 A 必做：四个改造里<strong>任选 2 个</strong>做完（22′，共 7 分）</h3>
+<blockquote><p>每个改造都按同一个套路：<strong>Ctrl+F 搜关键词 → 读到那 5–10 行 → 只改数字/阈值/一句话 → Ctrl+S → F5 刷新 → 用记录表记下前后差异</strong>。<br>下表给的是<strong>真实变量名/函数名</strong>（改之前先搜到它在哪，别盲改）。</p></blockquote>
+<table>
+<thead><tr>
+<th>编号</th>
+<th>改造</th>
+<th>搜索关键词（真实名字）</th>
+<th>要做到什么</th>
+<th>约用时</th>
+</tr></thead><tbody>
+<tr><td><strong>A1</strong></td><td>改<strong>吸附规则</strong></td><td><code>var SNAP_DIST</code>（默认 <strong>0.30 m</strong>）；<code>function checkSnap(o)</code>（每帧判定）；<code>function doSnap(o)</code>（真正对齐写位姿）；<code>snapTargetId: &#x27;socket&#x27;</code>；<code>reason: &#x27;too_far&#x27;</code></td><td>把吸附触发距离改成 <strong>0.15 / 0.25 / 0.40 m</strong> 三档，各试 3 次；记录"吸附成功率"和"有没有误吸附"；<strong>改完在控制台执行 <code>__lab.limits().snapDist</code> 确认生效值</strong></td><td>10′</td></tr>
+<tr><td><strong>A2</strong></td><td><strong>加一个 poke 按钮</strong></td><td><code>function makePokeButton(id, x, y, r)</code>；现有调用 <code>makePokeButton(&#x27;btnPoke&#x27;, 2.06, 1.10, 0.090)</code>（<strong>下一行就有一行注释掉的 <code>btnPoke2</code> 示例，取消注释即多一个按钮</strong>）；<code>POKE_DIST</code>（默认 <strong>0.14 m</strong>）；<code>BTN_Z</code>（按钮平面 z）</td><td>用 <code>makePokeButton(&#x27;btnPoke2&#x27;, x, y, r)</code> 加一个按钮（控制台面板可用范围：<strong>x 1.52~2.38 / y 1.02~1.30</strong>）；验证<strong>近处 <code>P</code> 直触</strong>与<strong>远处射线</strong>都能触发它</td><td>10′</td></tr>
+<tr><td><strong>A3</strong></td><td>改<strong>触觉强度/模式</strong></td><td><code>var HAPTIC</code>（<code>short</code> / <code>long</code> / <code>pattern</code> 三档：强度/毫秒、<code>freq</code>、<code>wave</code>）；<strong>物理层 <code>function pulse(intensity, ms, src)</code></strong>；语义层 <code>function haptic(modeId)</code>；<code>setHapticMode</code>；<code>S.hapticMode</code>；按键 <code>H</code> / <code>1</code> / <code>2</code> / <code>3</code></td><td>改一档的<strong>时长或强度</strong>（如 <code>short</code> 的 <code>25 ms</code> → <code>60 ms</code>），或加一档新的（同步改 <code>HAPTIC</code> 与 <code>HAPTIC_ORDER</code>）；PC 端看 <code>S.hapticLog</code> 与音效，真机手感留到 430 有头显时验证</td><td>10′</td></tr>
+<tr><td><strong>A4</strong></td><td>给<strong>状态机 HUD 加一个字段</strong></td><td><code>function refreshHud()</code>（DOM 面板 <code>#hudGoals</code> / <code>#inspBody</code> / <code>#inspHaptic</code> / <code>#stats</code>）；<code>S.lastAction</code>；<code>S.snapCount</code> / <code>S.grabCount</code> / <code>S.pokeFired</code></td><td>面板上多显示一项信息（如"最近一次动作""吸附次数""poke 命中率"），要求真实变化、不是写死</td><td>10′</td></tr>
+</tbody></table>
+<blockquote><p><strong>只做 2 个</strong>，做 3 个不加分（把时间留给 B 或练习 2）。</p></blockquote>
+<h4>A 改造记录表（<strong>必填</strong>，一行一个改造）</h4>
+<table>
+<thead><tr>
+<th>改造编号</th>
+<th>改在哪个文件 / 哪个函数或变量</th>
+<th>原值</th>
+<th>改成的新值</th>
+<th>现象：改之前什么样 → 改之后什么样</th>
+<th>截图编号</th>
+</tr></thead><tbody>
+<tr><td>A＿</td><td></td><td></td><td></td><td></td><td>S1</td></tr>
+<tr><td>A＿</td><td></td><td></td><td></td><td></td><td>S2</td></tr>
+</tbody></table>
+<p><strong>截图要求（2 张，缺一扣 1 分）</strong></p>
+<ul>
+<li><strong>S1</strong>：改后页面<strong>全景</strong>，能看清 HUD/目标清单；</li>
+<li><strong>S2</strong>：能证明"改动真的生效"的特写（如吸附对齐那一刻、新按钮被戳亮、HUD 新字段有值）。</li>
+<li>命名：<code>学号_姓名_练习1_S1.png</code>；放在自己的提交文件夹里（见 §五）。</li>
+</ul>
+<h4>A 吸附参数对照表（做了 A1 才填；没做 A1 就填你改的那一项的三组取值）</h4>
+<table>
+<thead><tr>
+<th>档</th>
+<th>参数值</th>
+<th>试了几次</th>
+<th>吸附成功几次</th>
+<th>失败时发生了什么（穿过去 / 停在旁边 / 抖）</th>
+<th>结论（自然 / 太难 / 太黏）</th>
+</tr></thead><tbody>
+<tr><td>小</td><td>0.15 m</td><td>3</td><td></td><td></td><td></td></tr>
+<tr><td>中</td><td>0.25 m</td><td>3</td><td></td><td></td><td></td></tr>
+<tr><td>大</td><td>0.40 m</td><td>3</td><td></td><td></td><td></td></tr>
+</tbody></table>
+<p><strong>一句话结论（必须写自己的判断，不许抄）</strong>：我选定的值是 ＿＿＿＿＿＿，因为 ＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿。</p>
+<h3>1.3 B 进阶：<strong>任选 1 个</strong>（4′，＋2 分）</h3>
+<ul>
+<li><strong>B1 双手变换加"吸附对齐"</strong>：双手缩放/旋转松开后，把<strong>角度归到 15° 步进</strong>（15/30/45…），像"咔哒"一下。搜索 <code>var two = null;</code>（双手状态 <code>{obj,d0,s0,a0,…}</code>）、<code>function updateTwoHand()</code>、<code>function endTwoHand()</code>；数学就是 <code>scale = s0 * (当前间距 / d0)</code>、<code>rotY = baseRotY + (当前相对角 − a0)</code>。</li>
+<li><strong>B2 吸附成功补三通道反馈</strong>：视觉（变色/闪一下）＋ 听觉（<code>beep(freq, dur, type)</code> 合成短音，不引音频文件）＋ 触觉（<code>pulse(intensity, ms)</code>，如 <code>pulse(0.6, 60)</code>）。搜索 <code>doSnap</code>、<code>pulse</code>。</li>
+<li><strong>B3 给目标清单加第 4 个目标</strong>：自己定义目标（如"把两个物体叠起来""连续 3 次吸附"），并让计数/完成判定真的生效。搜索 <code>goals</code> 数组、<code>goalDone</code>。</li>
+</ul>
+<p><strong>B 记录（一句话 + 证据）</strong>：我做了 B＿；改在 ＿＿＿＿＿＿；怎么验证它生效：＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿</p>
+<h3>1.4 C 挑战：有把握再做（3′，＋1 分）</h3>
+<ul>
+<li><strong>C1 改状态机规则</strong>：改 <code>var TRANS</code> 转移表——比如<strong>删掉 <code>idle.grab</code></strong>（必须先 hover 才能抓），或给 <code>grab</code> 加新条件。观察：哪些操作被拒、<code>S.lastReject</code> 记了什么、<code>__lab.state().transitions</code> 的转移链变没变。（想看代码里怎么拒绝的：<code>function setState(o, next, why)</code>。）</li>
+<li><strong>C2 输入源检查器显示数值</strong>：改 <code>function inspectSources()</code>、模拟源 <code>function simButtons()</code>、DOM 容器 <code>#inspBody</code> / <code>#inspHaptic</code>（或按 <code>V</code> 切换详略）——把 <code>gamepad.axes</code> 的<strong>实时数值</strong>显示出来（不只显示有没有），证明你看得懂输入源。</li>
+</ul>
+<p><strong>C 记录</strong>：我做了 C＿；证据（截图号/一句话）：＿＿＿＿＿＿＿＿＿＿＿＿</p>
+<h3>1.5 练习 1 可勾选检查点（<strong>6 项，全钩 = 拿满基础 7 分/达标线</strong>；B/C 另计）</h3>
+<ul class="check">
+<li><strong>① 改的是学生版</strong>：我改的是 <code>学生课堂作业包\pages\01_交互实验室_学生版.html</code>，<strong>没动 <code>demos\</code> 原件</strong></li>
+<li><strong>② 保存 + 刷新生效</strong>：Ctrl+S 保存后刷新，页面真的变了（不是"改了但没生效"）</li>
+<li><strong>③ A 必做完成 2 项</strong>：记录表里两行都填了"原值 → 新值 → 前后现象"</li>
+<li><strong>④ 改动可复现</strong>：当着教师/同桌的面，30 秒内重演其中一项改动</li>
+<li><strong>⑤ 截图 2 张在位</strong>：S1 全景 + S2 特写，命名规范，能看清差异</li>
+<li><strong>⑥ 结论不是抄的</strong>：填写了"我选定的值 + 理由"（抄 HUD 原话不给分）</li>
+</ul>
+<h3>1.6 练习 1 评分量规（教师用，10 分）</h3>
+<table>
+<thead><tr>
+<th>维度</th>
+<th>分</th>
+<th>达标线（拿满长什么样）</th>
+<th>得分</th>
+</tr></thead><tbody>
+<tr><td><strong>A 必做完成度</strong></td><td>4</td><td>2 项改造都真实生效，不是只改注释/只换颜色</td><td></td></tr>
+<tr><td><strong>改动可复现</strong></td><td>2</td><td>抽查时能当场重演，且能指出改在哪一行/哪个变量</td><td></td></tr>
+<tr><td><strong>工程与记录</strong></td><td>1</td><td>单文件仍可双击打开、控制台零报错、文件名带学号姓名、记录表两行 + S1/S2 截图齐全</td><td></td></tr>
+<tr><td><strong>基础合计（达标线）</strong></td><td><strong>7</strong></td><td>以上三项 = A 必做达标线</td><td></td></tr>
+<tr><td><strong>B 进阶（可选）</strong></td><td>+2</td><td>B1/B2/B3 任一完成并给出验证方式</td><td></td></tr>
+<tr><td><strong>C 挑战（可选）</strong></td><td>+1</td><td>C1/C2 完成且证据可查</td><td></td></tr>
+<tr><td><strong>合计</strong></td><td><strong>／10</strong></td><td>基础 7 ＋ 加分最多 3，<strong>封顶 10</strong></td><td></td></tr>
+</tbody></table>
+<h3>1.7 常见坑（先看再举手）</h3>
+<table>
+<thead><tr>
+<th>现象</th>
+<th>原因</th>
+<th>怎么修</th>
+</tr></thead><tbody>
+<tr><td>双击白屏</td><td>拷成了"网页另存为（完整）"或文件不完整</td><td>回作业包重新拷<strong>单文件原件</strong></td></tr>
+<tr><td><strong>改了却看不到变化</strong></td><td><strong>没保存</strong>，或保存了<strong>没刷新</strong>（或改的是 <code>demos\</code> 原件、打开的是另一份）</td><td><strong>Ctrl+S 保存 → F5/Ctrl+F5 刷新</strong>；确认地址栏文件名是<strong>你改的那份</strong></td></tr>
+<tr><td>记事本里找不到代码</td><td>搜的关键词不对 / 没跳到练习区</td><td>先搜 <code>学生练习区</code>；再搜 <code>SNAP_DIST</code>、<code>makePokeButton</code>、<code>TRANS</code></td></tr>
+<tr><td>保存后文件打不开</td><td>记事本另存成了别的编码/扩展名</td><td>另存为时选<strong>所有文件</strong>、文件名保持 <code>.html</code>、编码 <strong>UTF-8</strong></td></tr>
+<tr><td>按键盘没反应</td><td>浏览器要求先有用户手势 / 焦点不在页面</td><td>先在页面里点一下再按键；点一下画布再按</td></tr>
+<tr><td>按 <code>T</code> 没看到"双手变换"</td><td><code>T</code> 是 <strong>PC 演示用</strong>：它让两只虚拟手都抓住能量球，<strong>还要用 <code>[</code> / <code>]</code> 或滚轮改间距</strong>才看得到缩放</td><td>按 <code>T</code> → 再按 <code>]</code> 拉开或 <code>[</code> 收拢 → 看 <code>orb</code> 的 scale</td></tr>
+<tr><td>按 <code>P</code> 没戳到按钮</td><td>虚拟手离 <code>btnPoke</code> 超过 <code>POKE_DIST</code>（默认 0.14 m）</td><td>先靠近按钮（<code>W/A/S/D</code> 走过去），再按 <code>P</code></td></tr>
+<tr><td>吸附怎么都不触发</td><td><code>SNAP_DIST</code> 改太小 / 方块没进入插槽范围</td><td>先恢复 0.30 确认能吸附，再一档一档改</td></tr>
+<tr><td>加了按钮但点不到</td><td>新按钮没 <code>addTarget</code> 注册 / 位置在射线打不到的地方</td><td>照 <code>btnPoke</code> 的写法补 <code>addTarget</code>；放近一点</td></tr>
+<tr><td>状态机 HUD 不更新</td><td>新字段只在初始化时写了一次</td><td>把更新写进 <code>refreshHud</code>（每帧/事件刷新处）</td></tr>
+</tbody></table>
+<p><strong>练习 1 交什么</strong>：<strong>改后的学生版 HTML</strong> ＋ 本单（含记录表、勾选、结论）＋ S1/S2 截图。</p>
+<hr>
+<h2>二、练习 2 · 开源模型 → WebXR 资产管线（35 分钟 · 10 分）</h2>
+<blockquote><p><strong>任务一句话</strong>：从开源模型站<strong>下一个</strong>模型 → <strong>转成</strong> GLB → <strong>导入</strong>模型工作台 → 完成 <strong>3 个操作</strong> → <strong>导出场景 JSON</strong> ＋ 写一张<strong>许可卡</strong>。<br><strong>离线兜底</strong>：<code>学生课堂作业包\offline_models\</code>（4 个 .glb ＋ 许可说明）——<strong>没网也能拿满分</strong>，记录表"来源"写"教师离线包"。<br><strong>本包内对应材料</strong>：离线模型的来源/作者/许可/真实数字看 <code>offline_models\00_离线模型_来源与许可.md</code>；许可原文摘要看 <code>offline_models\LICENSES\</code>（你不需要访问教师机的 <code>demos\</code> 目录）。</p></blockquote>
+<h3>2.0 先决定"用哪个来源"（1′，五选一，课堂主推前三个）</h3>
+<table>
+<thead><tr>
+<th>来源</th>
+<th>适合谁</th>
+<th>许可基调</th>
+<th>课堂提示</th>
+</tr></thead><tbody>
+<tr><td><strong>Poly Haven</strong>（polyhaven.com）</td><td>想要<strong>真实感家具/道具</strong></td><td><strong>全站 CC0</strong>（免署名、可商用）</td><td>官方 API 可拿 <code>gltf + 纹理</code> 多文件（正好练多文件转换）；<strong>资产 id 大小写敏感</strong>（<code>ArmChair_01</code> 不是 <code>armchair_01</code>）</td></tr>
+<tr><td><strong>Poly Pizza</strong>（poly.pizza）</td><td>想要<strong>低多边形/卡通</strong></td><td><strong>CC0 / CC-BY 3.0</strong>（逐模型标注）</td><td><strong>网页下载，无需登录</strong>（网页 Download 选 GLB 即可）；<code>api.poly.pizza</code> 要 API key，课堂不做批量 API</td></tr>
+<tr><td><strong>Khronos glTF 示例仓库</strong>（GitHub）</td><td>想要<strong>标准测试模型</strong></td><td><strong>混合</strong>：CC0 / CC-BY / CC-BY-NC / 自定义</td><td>raw 直链下载最稳；<strong>必须逐模型读许可</strong>（同一个仓库里就混着 NC）</td></tr>
+<tr><td><strong>Kenney</strong>（kenney.nl）</td><td>想要<strong>一整套同风格道具</strong></td><td>全站 CC0</td><td>zip 资源包，下完解压再转</td></tr>
+<tr><td><strong>Sketchfab</strong></td><td>只想<strong>看看/讲许可陷阱</strong></td><td>CC / 标准许可（逐模型）</td><td><strong>下载必须登录</strong>，课堂不现场演示</td></tr>
+<tr><td><strong>教师离线包</strong>（<code>offline_models\</code>）</td><td><strong>网络不通 / 下载失败</strong></td><td>见包内许可说明（与 <code>models\</code> 一致）</td><td>记录表"来源"写"教师离线包"，照常给分</td></tr>
+</tbody></table>
+<h3>2.1 下载：把"来源 + 许可 + 数字"记下来（8′）</h3>
+<p><strong>在 <code>offline_models\00_离线模型_来源与许可.md</code> 里核对你要用的模型</strong>（作者、许可证、是否可商用、是否需署名）。下载后立刻填下表——<strong>许可信息当场记，别靠记忆</strong>。</p>
+<h4>下载记录表（<strong>必填</strong>）</h4>
+<table>
+<thead><tr>
+<th>项目</th>
+<th>你填</th>
+</tr></thead><tbody>
+<tr><td>模型名</td><td></td></tr>
+<tr><td>来源站点</td><td>Poly Haven / Khronos / Poly Pizza / 教师离线包</td></tr>
+<tr><td>来源 URL（完整可复制）</td><td></td></tr>
+<tr><td>作者（Author）</td><td></td></tr>
+<tr><td>许可证（License）</td><td>CC0 / CC-BY 4.0 / CC-BY-NC / SCEA / 其他：＿＿</td></tr>
+<tr><td>能否商用（能 / 不能 / 不确定）</td><td></td></tr>
+<tr><td>是否必须署名（是 / 否）</td><td></td></tr>
+<tr><td>原始文件格式与大小（字节）</td><td>＿＿＿ 格式：glb / gltf+bin+纹理 / obj / fbx</td></tr>
+<tr><td>原始三角面数（估算或工具读数）</td><td></td></tr>
+</tbody></table>
+<blockquote><p>⚠️ <strong>许可陷阱（本课必讲）</strong>：教师机 <code>demos\assets\sources\DamagedHelmet.glb</code>（你手上没有这个文件，课上只看教师演示）是 <strong>CC-BY-NC</strong>（禁止商用）。它<strong>只能当教学案例</strong>，<strong>不得进入你的作品或期末大作业</strong>。你如果把它转换了，请在记录里写明"仅作许可判断练习，未进作品"。</p></blockquote>
+<p><strong>模型库参考（工作台内嵌的 4 个模型，真实数据；离线包与它们一致）</strong></p>
+<table>
+<thead><tr>
+<th>模型</th>
+<th>字节</th>
+<th>三角面</th>
+<th>动画</th>
+<th>许可 / 作者</th>
+<th>备注</th>
+</tr></thead><tbody>
+<tr><td>Fox</td><td>162,852</td><td>576</td><td>3 段（Survey 3.42s / Walk 0.71s / Run 1.16s）</td><td>模型 <strong>CC0</strong>（PixelMannen）＋ 绑定动画 <strong>CC-BY 4.0</strong>（@tomkranis）→ <strong>必须署名</strong></td><td>带动画，适合试"播放/切换动画"</td></tr>
+<tr><td>CesiumMan</td><td>490,956</td><td>4,672</td><td>1 段</td><td><strong>CC-BY 4.0</strong>（另有 Cesium 商标条款，不得暗示背书）→ 需署名</td><td>网络差时用它（下载见下方"旧仓库"提醒）</td></tr>
+<tr><td>Duck</td><td>120,484</td><td>4,212</td><td>无</td><td><strong>SCEA Shared Source License 1.0</strong>（<strong>不是 CC</strong>；可商用、Object Form 免署名）</td><td>体积最小，网络差时用它</td></tr>
+<tr><td>ArmChair_01</td><td>768,568</td><td>5,626</td><td>无（3 纹理）</td><td>Poly Haven <strong>CC0</strong>（作者 Kirill Sannikov）</td><td>免署名；gltf+纹理→GLB 的示例</td></tr>
+</tbody></table>
+<blockquote><p>数据来源：教师机 <code>demos\assets\models\_manifest.json</code>（由 <code>glb_stats.py</code> 真实解析，非估算）；<br>你手上能直接看的等价材料是本包的 <code>offline_models\00_离线模型_来源与许可.md</code>（数字一致）。<br>⚠️ <strong>CesiumMan 下载链接必须用旧仓库</strong>：<code>KhronosGroup/glTF-Sample-Models/main/2.0/CesiumMan/glTF-Binary/CesiumMan.glb</code>（<strong>490,956 B</strong>）；新仓库 <code>glTF-Sample-Assets</code> 的同名模型是 <strong>438,044 B（已重导出）</strong>，按新链接下会对不上字节数。Fox / Duck / DamagedHelmet 新旧仓库字节相同。<br>⚠️ <code>WaltHead.obj</code> / <code>SambaDancing.fbx</code> 来自 three.js 示例仓库，<strong>仓库里没有许可声明 → 许可栏写「待核实」，不要写 CC0</strong>。</p></blockquote>
+<h3>2.2 转换：把模型变成 <strong>一个 .glb</strong>（7′）</h3>
+<p>打开 <code>学生课堂作业包\pages\03_模型转换器.html</code>（双击即可，单文件、零外部请求）：</p>
+<ol>
+<li>点「<strong>选择文件</strong>」或把下载到的文件<strong>拖进窗口</strong>（支持多选：<code>x.gltf + x.bin + textures\*.jpg</code> 一起拖）；</li>
+<li>看统计：<strong>网格数 / 三角面 / 材质 / 纹理 / 动画 / 源大小</strong>；输入是 <code>.glb</code> 时还会多一栏「<strong>体积变化 <code>sizeDeltaPct</code></strong>」（转换≠优化的证据）；</li>
+<li>点「<strong>导出 GLB</strong>」，得到 <code>&lt;你的模型&gt;.glb</code>；</li>
+<li>看页面「<strong>③ 输出 GLB 头校验</strong>」一栏：<code>magic</code> 应为 <code>glTF</code>、<code>version</code> 应为 <code>2</code>、声明长度应等于文件字节数——<strong>这是"转换真的成功"的最硬证据</strong>；</li>
+<li>把 GLB 也放进自己的提交文件夹（见 §五）。</li>
+</ol>
+<blockquote><p><strong>转换失败排查</strong>：<code>.gltf</code> 单独拖会缺 <code>.bin</code>/纹理 → <strong>多文件一起拖</strong>（且保留相对路径）；<code>.fbx</code> 版本太老 → 换 Poly Haven 的模型重下；页面无反应 → 确认拖的是文件不是文件夹；<code>.obj</code> 通常不带贴图（本页不解析 <code>.mtl</code>）。</p></blockquote>
+<h4>转换前后对比表（<strong>必填</strong>）</h4>
+<table>
+<thead><tr>
+<th>项目</th>
+<th>转换前（源文件）</th>
+<th>转换后（.glb）</th>
+<th>变化说明</th>
+</tr></thead><tbody>
+<tr><td>文件大小（字节）</td><td></td><td></td><td>变大/变小？为什么</td></tr>
+<tr><td>格式</td><td>gltf+bin+纹理 / obj / fbx</td><td>glb（单文件）</td><td></td></tr>
+<tr><td>网格数</td><td></td><td></td><td></td></tr>
+<tr><td>三角面</td><td></td><td></td><td></td></tr>
+<tr><td>纹理数</td><td></td><td></td><td></td></tr>
+<tr><td>动画（有/无）</td><td></td><td></td><td></td></tr>
+<tr><td>转换耗时（秒，估读）</td><td>—</td><td></td><td></td></tr>
+</tbody></table>
+<p><strong>一句话结论</strong>：为什么 WebXR 优先用 GLB？＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿ <strong>第二句结论（本课重点）</strong>：转换 ≠ 优化。若你的输入本来就是 <code>.glb</code>，转换器会显示「体积变化 <code>sizeDeltaPct</code>」——<strong>可能是变大</strong>（例：<code>Duck.glb</code> 120,484 B → 152,408 B，<strong>+26.5%</strong>，因为贴图重编码/缓冲重排）。要更小得做<strong>减面 / 贴图降采样 / Draco / meshopt</strong>，不是"再转一次"。</p>
+<h3>2.3 导入模型工作台，完成 <strong>3 个操作</strong>（8′）</h3>
+<p>打开 <code>学生课堂作业包\pages\02_模型工作台_WebXR.html</code>：</p>
+<ol>
+<li>点「<strong>选择 .glb 文件</strong>」选你刚转好的 <code>.glb</code>（或直接拖进页面）；</li>
+<li>模型会按包围盒<strong>归一化到约 1.2 m 高、贴地、居中</strong>（代码里是 <code>NORM_HEIGHT = 1.2</code>）——记下"导入后它有多大"；</li>
+</ol>
+<blockquote><p>⚠️ 导入后卡片上的许可角标会自动写「<strong>本地导入 · 请自行确认模型许可</strong>」——<strong>这不是许可</strong>，是提醒你自己去补 2.4 的许可卡。</p></blockquote>
+<ol>
+<li>从下面<strong>至少选 3 个操作</strong>做完（PC 操作全在页面顶部 HUD 里）：</li>
+</ol>
+<p><strong>工作台 PC 键位速查</strong>：左键点模型=选中 · 按住拖动=移动 · <code>Q</code>/<code>E</code>=旋转（±15°） · 滚轮=缩放 · 空格=播放/暂停 · <code>Delete</code>/<code>Backspace</code>=删除 · <code>R</code>=重置视角 · <code>F</code>=拉近选中模型 · 左键拖空白处=环视。</p>
+<table>
+<thead><tr>
+<th>#</th>
+<th>操作</th>
+<th>怎么做（PC 模式，真实控件名）</th>
+<th>记录：参数 → 结果</th>
+</tr></thead><tbody>
+<tr><td>①</td><td><strong>移动/摆放</strong></td><td>选中后<strong>按住拖动</strong>；或点工具栏按钮微调</td><td>从 ＿＿ 移到 ＿＿</td></tr>
+<tr><td>②</td><td><strong>旋转</strong></td><td><strong><code>Q</code> / <code>E</code></strong></td><td>转了 ＿＿ 度，朝向变化</td></tr>
+<tr><td>③</td><td><strong>缩放</strong></td><td><strong>滚轮</strong></td><td>从 ＿＿ 到 ＿＿ 倍</td></tr>
+<tr><td>④</td><td><strong>换色</strong></td><td>点模型卡片/工具栏里的<strong>色板色块</strong>（<code>PALETTE</code> 预设 6 色）</td><td>从 ＿＿ 色改成 ＿＿ 色</td></tr>
+<tr><td>⑤</td><td><strong>播放/切换动画</strong></td><td>仅带骨骼动画的模型（Fox / CesiumMan）：<strong>空格</strong>或「<strong>播放/暂停</strong>」「<strong>下一段动画</strong>」</td><td>动画名：＿＿，播放后 mixer 时间在走</td></tr>
+<tr><td>⑥</td><td><strong>复制一个</strong></td><td>工具栏「<strong>复制</strong>」</td><td>场景里现在有 ＿＿ 个</td></tr>
+</tbody></table>
+<blockquote><p><strong>只做 3 个</strong>，第 4 个不加分；带动画的模型请一定试一下第 ⑤ 项（这是"下载的模型能不能动"的关键验证）。<br><strong>工具栏其他按钮</strong>：「删除」「清空」「重置」（整体复位）「导出场景 JSON」——后面 2.4 要用最后一个。<br><strong>HUD 两个三角面数别搞混</strong>：<code>模型合计三角面</code>（4 个内嵌模型 = <strong>15,086</strong>；与你导入的模型相加）vs <code>本帧渲染</code>（含环境，约 <strong>15,870</strong> 起）——练习单填"模型合计"。</p></blockquote>
+<p><strong>截图要求（1 张）</strong>：<strong>S3</strong> —— 你的模型出现在工作台场景里，且 HUD 统计（模型数 / 三角面 / DrawCall / 纹理数）可读。命名 <code>学号_姓名_练习2_S3.png</code>。</p>
+<h3>2.4 导出场景 JSON ＋ 写许可卡（5′）</h3>
+<ol>
+<li>点「<strong>导出场景 JSON</strong>」→ 浏览器下载 <strong><code>workbench_scene.json</code></strong>，重命名为 <code>&lt;你的名字&gt;_scene.json</code> 存到提交文件夹；</li>
+<li>打开看一眼：里面每个模型都有 <code>id / name / file / license / author / pos / rot / scale / color / anim / triangles</code>，顶层还有 <code>format: &quot;workbench-scene&quot;</code> 与 <code>unit: &quot;meter&quot;</code>——<strong>这就是"把你在 VR 里摆的东西存下来"的最小数据格式</strong>；</li>
+<li>照下面模板写<strong>许可卡</strong>（写在练习单上，或另起一页；<strong>430 会被当众"判卷"，期末说明文档里要贴这一张</strong>）：</li>
+</ol>
+<pre><code>┌─────────────────────────────────────────────┐
+│ 资产许可卡（Asset License Card）             │
+├─────────────────────────────────────────────┤
+│ 模型名：___________________________          │
+│ 作者：_____________________________          │
+│ 来源：_____________________________          │
+│ 许可：CC0 / CC-BY 4.0 / CC-BY-NC / 其他       │
+│ 是否可商用：能 / 不能 / 不确定                │
+│ 是否需署名：是（署名文字：________）/ 否       │
+│ 我做了什么改动：转换格式 / 换色 / 缩放 / 其他   │
+│ 我的使用范围：课堂练习 / 期末作品（打钩）       │
+└─────────────────────────────────────────────┘</code></pre>
+<h3>2.5 练习 2 可勾选检查点（<strong>6 项，全钩 = 拿满基础 7 分/达标线</strong>）</h3>
+<ul class="check">
+<li><strong>① 来源可查</strong>：记录表里 URL、作者、许可证三项都填了，不是"网上找的"（用离线包就写"教师离线包"）</li>
+<li><strong>② 转换成功</strong>：得到了一个 <code>.glb</code>，转换前后对比表两列都填了</li>
+<li><strong>③ 导入成功</strong>：模型在工作台里出现，归一化到约 1.2 m 高、不在空中/地下</li>
+<li><strong>④ 三操作</strong>：3 个操作都做了并记了参数，S3 截图可读</li>
+<li><strong>⑤ 场景 JSON 已导出</strong>，打开后字段齐全（不是空文件）</li>
+<li><strong>⑥ 许可卡填写完整</strong>，且<strong>没有把 CC-BY-NC 模型放进作品</strong></li>
+</ul>
+<h3>2.6 练习 2 评分量规（教师用，10 分）</h3>
+<table>
+<thead><tr>
+<th>维度</th>
+<th>分</th>
+<th>达标线（拿满长什么样）</th>
+<th>得分</th>
+</tr></thead><tbody>
+<tr><td><strong>管线完整</strong></td><td>3</td><td>下载 → 转换 → 导入三步都真的走通，不是直接拿教师给的 GLB 交差</td><td></td></tr>
+<tr><td><strong>模型可用</strong></td><td>2</td><td>导入后比例正常、贴地、无破面/无全黑；HUD 统计与模型相符</td><td></td></tr>
+<tr><td><strong>操作与导出</strong></td><td>1</td><td>3 个操作有参数记录；场景 JSON 字段齐全、能对上画面</td><td></td></tr>
+<tr><td><strong>许可与记录</strong></td><td>1</td><td>下载记录表 + 许可卡完整；NC 模型未进作品；结论写得清</td><td></td></tr>
+<tr><td><strong>基础合计（达标线）</strong></td><td><strong>7</strong></td><td>以上四项 = A 必做达标线</td><td></td></tr>
+<tr><td><strong>B 进阶（可选）</strong></td><td>+2</td><td>见 2.7</td><td></td></tr>
+<tr><td><strong>C 挑战（可选）</strong></td><td>+1</td><td>见 2.7</td><td></td></tr>
+<tr><td><strong>合计</strong></td><td><strong>／10</strong></td><td>基础 7 ＋ 加分最多 3，<strong>封顶 10</strong></td><td></td></tr>
+</tbody></table>
+<h3>2.7 B 进阶 / C 挑战（练习 2，选做）</h3>
+<p><strong>B（＋2，选 1）</strong></p>
+<ul>
+<li><strong>B1 换色板 + 动画切换</strong>：在工作台里给你的模型换 <strong>2 个颜色</strong>、带动画的模型切一次动画，然后导出场景 JSON——证明这些状态<strong>真的进了文件</strong>（JSON 里 <code>color</code> / <code>anim</code> 变了）。</li>
+<li><strong>B2 场景 JSON 讲解</strong>：打开 JSON，用 3 行话说明每个字段是干什么的（<code>pos</code> / <code>rot</code> / <code>scale</code> / <code>anim</code> / <code>triangles</code> / <code>license</code>）。</li>
+<li><strong>B3 二次转换探索（机房就能做，不用命令行）</strong>：把同一个 <code>.glb</code> 再丢进 <code>pages\03_模型转换器.html</code> <strong>再转一次</strong>（GLB→GLB），记下前后字节（例：<code>Duck.glb</code> 120,484 → 152,408 B，<strong>+26.5%</strong>），回答：<strong>为什么“转换”反而变大？</strong>（提示：贴图被重新编码）——这正是“转换 ≠ 优化”。</li>
+</ul>
+<p><strong>C（＋1，选 1）</strong></p>
+<ul>
+<li><strong>C1 多文件一次转换</strong>：用 Poly Haven 的 <code>x.gltf + x.bin + textures\*.jpg</code> <strong>一次</strong>转成单个 GLB（这就是真实工作流），并说明"为什么单独拖 .gltf 会失败"。</li>
+<li><strong>C2 许可判断</strong>：把 <code>DamagedHelmet.glb</code> 也转换一次，<strong>判断它能不能进你的期末作品</strong>，写出理由（引用许可名 + 原文要点）。</li>
+<li><strong>C3 改工作台参数（机房可直接做，</strong>不用重建<strong>）</strong>：用记事本打开 <code>pages\02_模型工作台_WebXR.html</code>，Ctrl+F 搜「学生练习区」，改 <code>var NORM_HEIGHT = 1.2;</code>（归一化高度）或 <code>var PALETTE = [...]</code>（色板），<strong>Ctrl+S 保存 → 浏览器 F5 刷新</strong> 即生效（模型重新加载后可见）。<strong>交：改前/改后截图 + 一行“改的是哪个常量、为什么”。</strong></li>
+</ul>
+<h3>2.8 常见坑（练习 2）</h3>
+<table>
+<thead><tr>
+<th>现象</th>
+<th>原因</th>
+<th>怎么修</th>
+</tr></thead><tbody>
+<tr><td>模型导进来巨大/极小</td><td>源模型单位不是米</td><td>用工作台的归一化（<code>NORM_HEIGHT=1.2</code>）或手动缩放；或在转换前统一单位</td></tr>
+<tr><td>模型悬空/陷地</td><td>原点不在脚底</td><td>导入后手动下移，记录你移动的数值</td></tr>
+<tr><td>模型全黑</td><td>缺贴图 / 法线问题</td><td>多文件一起拖；或换 GLB 直链重下</td></tr>
+<tr><td>导出 GLB 失败</td><td>缺 <code>.bin</code> 或纹理 → 相对路径断了</td><td>按 2.2 的多文件拖法；C1 就是练这个</td></tr>
+<tr><td>场景 JSON 是空的</td><td>没选中模型就导出</td><td>先在场景里选中/加入模型再导出</td></tr>
+<tr><td>许可写着"不确定"</td><td>站点没写清</td><td><strong>写"不确定"比编一个强</strong>，并注明"待核实"（如 <code>WaltHead.obj</code> / <code>SambaDancing.fbx</code>）</td></tr>
+<tr><td>按 Khronos <strong>新仓库</strong>链接下 CesiumMan，字节对不上</td><td>新仓库已重导出（<strong>438,044 B</strong>），与本地/课堂用的 <strong>490,956 B</strong> 不同</td><td>用<strong>旧仓库</strong>链接：<code>glTF-Sample-Models/main/2.0/CesiumMan/glTF-Binary/CesiumMan.glb</code></td></tr>
+<tr><td>Poly Haven 取资产返回 <strong>404</strong></td><td>资产 id <strong>大小写敏感</strong>（<code>ArmChair_01</code>，不是 <code>armchair_01</code>）</td><td>按站点上的 id 原样写；先 <code>api.polyhaven.com/info/&lt;slug&gt;</code> 验证</td></tr>
+<tr><td><strong>转换后反而更大</strong>（如 Duck 120,484 → 152,408 B，+26.5%）</td><td><strong>转换 ≠ 优化</strong>：贴图重编码、缓冲重排</td><td>要更小得做<strong>减面 / 贴图降采样 / Draco / meshopt</strong>；这条正是 B3 的题目</td></tr>
+<tr><td>把 <code>.gltf</code> 直接拖进工作台没反应</td><td>工作台只收 <code>.glb</code>（<code>accept=&quot;.glb&quot;</code>，拖非 <code>.glb</code> 只弹中文提示）</td><td>先用 03 转换器转成 <code>.glb</code>；这正是"管线要串起来"的原因</td></tr>
+<tr><td><code>.fbx</code> 转不动 / 特别慢</td><td><code>.fbx</code> 可能是压缩数组，页面靠内联 <code>fflate</code> 解压；大文件（SambaDancing 3.68 MB → 9.9 MB GLB）很吃内存</td><td>换小模型；或直接用 Poly Haven 的 <code>.gltf</code> 多文件</td></tr>
+<tr><td>网络不通、下载失败</td><td>教室网络/站点问题</td><td><strong>改用 <code>学生课堂作业包\offline_models\</code></strong>，记录写"教师离线包"，照常给分</td></tr>
+</tbody></table>
+<p><strong>练习 2 交什么</strong>：<code>.glb</code> ＋ <code>&lt;名字&gt;_scene.json</code> ＋ 许可卡 ＋ S3 截图 ＋ 本单（记录表、勾选）。</p>
+<hr>
+<h2>三、90 分钟时间轴（646 机房，贴在桌角自己卡点）</h2>
+<table>
+<thead><tr>
+<th>时间</th>
+<th>做什么</th>
+<th>检查点</th>
+</tr></thead><tbody>
+<tr><td><strong>0′–5′</strong></td><td>听开场：两段式安排、做什么/交什么、文件在哪</td><td>能打开 <code>00_先读我_作业包说明.md</code></td></tr>
+<tr><td><strong>5′–10′</strong></td><td>三页跑通热身（4 钩）</td><td>4 个跑通钩子</td></tr>
+<tr><td><strong>10′–45′</strong></td><td><strong>练习 1 · 交互改造</strong>（含 A 必做 2 项、B/C 选做、S1/S2 截图）</td><td><strong>T+45′：6 个检查点</strong></td></tr>
+<tr><td><strong>45′–50′</strong></td><td>答疑与休息（教师统一广播共性问题）</td><td>补齐练习 1 的勾选</td></tr>
+<tr><td><strong>50′–85′</strong></td><td><strong>练习 2 · 模型管线</strong>（下载/离线 → 转换 → 导入 → 导出 → 许可卡）</td><td><strong>T+85′：6 个检查点</strong></td></tr>
+<tr><td><strong>85′–90′</strong></td><td>提交与自检：按命名交文件、练习单交纸质</td><td>提交清单全钩</td></tr>
+</tbody></table>
+<blockquote><p><strong>练习 1 内部节奏（35′）</strong>：0–5 打开+跑通 / 5–27 A 必做 2 项+记录表 / 27–33 B 或 C / 33–35 保存刷新+截图+勾选。<br><strong>练习 2 内部节奏（35′）</strong>：0–8 下载/离线+记录表 / 8–15 转换+对比表 / 15–25 导入+3 操作 / 25–30 JSON+许可卡 / 30–35 勾选+提交。<br><strong>超时自救</strong>：到 T+45′ 练习 1 还没做完 A → <strong>立刻收尾、先交</strong>，把没做完的写进"课后补交"栏；到 T+80′ 练习 2 还没有 .glb → 用 <code>offline_models\</code> 里的 GLB 走 2.3–2.4，<strong>保证产出完整比"从零做完美"重要</strong>。</p></blockquote>
+<hr>
+<h2>四、通关 / 卡点 / 课后补交（如实填）</h2>
+<table>
+<thead><tr>
+<th>项</th>
+<th>内容</th>
+</tr></thead><tbody>
+<tr><td><strong>我卡住的地方（哪一步、什么现象）</strong></td><td></td></tr>
+<tr><td><strong>我怎么绕过去的（自己 / 同学 / 教师 / 放弃）</strong></td><td></td></tr>
+<tr><td><strong>课后补交（没做完的，写清补什么）</strong></td><td></td></tr>
+<tr><td><strong>我还想继续做的（一句话）</strong></td><td></td></tr>
+<tr><td><strong>带到 430 的问题（想问老师的 1 个问题）</strong></td><td></td></tr>
+</tbody></table>
+<blockquote><p><strong>注意</strong>：卡住不扣分，<strong>编造"已完成"才扣分</strong>。教师看的是"你真的动手改过、能说清为什么"。最后一个格子请认真填——<strong>430 开场会挑几个问题现场答</strong>。</p></blockquote>
+<hr>
+<h2>五、提交清单（下课铃响前逐项打钩）</h2>
+<p><strong>提交文件夹</strong>：<code>学号_姓名_第8次课\</code>（自建；或按教师指定的共享盘目录）</p>
+<ul class="check">
+<li>改后的学生版 HTML：<code>01_交互实验室_学生版_学号姓名.html</code>（<strong>必须带学号/姓名</strong>）</li>
+<li>转换后的 GLB：<code>&lt;模型名&gt;.glb</code></li>
+<li>场景 JSON：<code>&lt;名字&gt;_scene.json</code></li>
+<li>截图 S1 / S2 / S3（命名规范，能看清）</li>
+<li>本练习单：记录表填完、勾选完、许可卡写完（<strong>交纸质/拍照</strong>）</li>
+<li>文件已拷贝到教师指定位置（共享盘 / U 盘 / 教师机目录）</li>
+</ul>
+<p><strong>提交渠道（教师现场指定，二选一打钩）</strong></p>
+<ul class="check">
+<li>共享盘 <code>第8次课_提交\学号_姓名\</code>（推荐：机房统一）</li>
+<li>U 盘交教师机，文件名前缀 <code>第8次课_学号_姓名</code></li>
+</ul>
+<hr>
+<h2>六、教师汇总页（可撕下）</h2>
+<table>
+<thead><tr>
+<th>学号</th>
+<th>姓名</th>
+<th>机位</th>
+<th>练习 1（／10）</th>
+<th>练习 2（／10）</th>
+<th>合计（／20）</th>
+<th>抽查项</th>
+<th>备注（补交/加分）</th>
+</tr></thead><tbody>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+</tbody></table>
+<blockquote><p><strong>计分口径</strong>：本单 20 分计入"课堂作业 30%"的当次部分；A 必做部分（两练习各 7 分）为<strong>达标线</strong>，B/C 为加分项。<strong>具体折算比例以教师最终通知为准（<code>【待确认】</code>）</strong>。<br><strong>学术规范</strong>：下载的模型必须写清来源与许可；<strong>CC-BY-NC 模型不得进入期末作品</strong>；直接提交课内案例原页不算完成。</p></blockquote>
+</body>
+</html>

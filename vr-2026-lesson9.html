@@ -14,7 +14,7 @@
   <div class="hero-inner">
     <span class="kicker">虚拟现实技术 · 第 9 次课 · 实现与验证</span>
     <h1>路要通、退得出、谁都点得到</h1>
-    <p class="sub">第 9 次课 · 案例 02「密室逃脱 · 敦煌寻宝」（二）——上周你交的两张图证明<span>你想清楚了</span>；这一周要证明它真的能用，而且不是你能用，是一个陌生人戴上头显也能用</p>
+    <p class="sub">第 9 次课 · 案例 02「密室逃脱 · 敦煌寻宝」（二）——上周（10-28）交的是<strong>课堂作业 3</strong>（交互改造 + 模型管线 + 许可卡）；M2 动线图/状态机图<span>并入本课、口径待教师确认</span>；这一周要证明作品真的能用，而且不是你能用，是一个陌生人戴上头显也能用</p>
     <div class="meta">
       <span>中华女子学院</span><span>4 学时 · 180 分钟</span><span>授课人：孙琪翔</span><span>2026-11-11（周三）</span><span>数字媒体技术 2023 级 · 40 人</span>
     </div>
@@ -54,7 +54,7 @@
     </div>
   </div>
 
-  <p>上周（10-28）每人交了 <strong>M2：动线图 + 状态机图 + 可玩入口</strong>。那两张图证明的是<strong>"你想清楚了"</strong>。这一周要证明的是<strong>"它真的能用"</strong>——而且不是"你能用"，是<strong>一个不熟悉你作品的人，戴上头显也能用</strong>。</p>
+  <p>上周（10-28）交的是<strong>课堂作业 3：交互改造 + 模型管线 + 许可卡</strong>。旧口径的 <strong>M2（动线图 + 状态机图 + 可玩入口）并入本课</strong>，<strong>最终交付口径待教师确认</strong>。这一周要证明的是<strong>"它真的能用"</strong>——而且不是"你能用"，是<strong>一个不熟悉你作品的人，戴上头显也能用</strong>。</p>
 
   <div class="key"><strong>本课命题</strong>：交互的难点不在"能不能点"，<strong>在"点不到时怎么办"</strong>。<br>
     <strong>今天的产出 = 三样东西</strong>：① 主流程可玩（入口 → 通关，能连走两遍、控制台无报错）；② 一条<strong>"免手柄也能走完"</strong>的通路说明（含<strong>它覆盖不到哪一步</strong>）；③ 真机验证记录（<strong>用时 / 卡点 / 退出路</strong>，三样缺一不可）。</div>
@@ -79,7 +79,7 @@
     <table>
       <thead><tr><th>时段</th><th>时长</th><th>段</th><th>内容</th><th>产出</th></tr></thead>
       <tbody>
-        <tr><td>0:00—0:10</td><td><strong>10′</strong></td><td>① 开场</td><td>M2 点评 + 卡点统计（<strong>只讲优点；问题一律说"有同学的作品"</strong>）</td><td>"画图时才发现想不清楚"的问题清单</td></tr>
+        <tr><td>0:00—0:10</td><td><strong>10′</strong></td><td>① 开场</td><td>课堂作业 3 点评 + 卡点统计；<strong>M2 动线图/状态机图并入本课（口径待确认）</strong>（<strong>只讲优点；问题一律说"有同学的作品"</strong>）</td><td>"做的时候才发现想不清楚"的问题清单</td></tr>
         <tr><td>0:10—0:55</td><td><strong>45′</strong></td><td>② 讲授</td><td>抓取 / 放置 / 顺序校验 + 谜题与失败代价设计（★ 四处现场改码）</td><td>五条实现口径</td></tr>
         <tr><td>0:55—1:05</td><td><strong>10′</strong></td><td>③ 课间</td><td>——（<strong>若本次课需换场，这 10′ 就是换场时间</strong>）</td><td>——</td></tr>
         <tr><td>1:05—1:40</td><td><strong>35′</strong></td><td>④ 讲授+实操</td><td>人因与可访问性三件套（<code class="inline">Shift+P</code> / <code class="inline">Shift+H</code> / <code class="inline">Shift+G</code>）+ 边界讨论</td><td>每人当堂按过一次三件套</td></tr>
@@ -552,7 +552,7 @@ XRCore.uiHit(function(rc){   /* 把"我的面板有没有被打中"委托给内�
   <ol>
     <li>打开控制台（F12），<strong>清空一次</strong>，然后完整走一遍，看有没有红色报错；</li>
     <li><strong>再走第二遍</strong>——重点看"<strong>状态有没有残留</strong>"（第一遍通关后，第二遍能不能从头开始？）；</li>
-    <li>对照你上周交的<strong>状态机图</strong>，检查每一步是不是真的按图走了。</li>
+    <li>对照你上周/本课补的<strong>状态机图（M2 并入本课）</strong>，检查每一步是不是真的按图走了。</li>
   </ol>
   <div class="warn"><strong>⚠️ 常见的三个"看起来通了"</strong>：<br>
     ① <strong>第一遍能过、第二遍过不去</strong> → 你的状态没归零（去找你的"重置"函数）；<br>
@@ -844,7 +844,7 @@ XRCore.uiHit(function(rc){   /* 把"我的面板有没有被打中"委托给内�
         <tr><td>④</td><td>三条通路已选定一条，<strong>课堂上只教走通的那一条</strong></td></tr>
         <tr><td>⑤</td><td>四个演示已在教师机上预演：<code class="inline">bd</code> · <code class="inline">1.6</code> · <code class="inline">clickStar()</code> 错序复位 · <code class="inline">Shift+G</code> 注视点键盘</td></tr>
         <tr><td>⑥</td><td>控制台调试入口确认可用：<code class="inline">Dunhuang.keypadPress('OK')</code>、<code class="inline">Dunhuang.clickStar(Dunhuang.stars[2])</code></td></tr>
-        <tr><td>⑦</td><td>M2 收件情况已排序、可投屏（开场点评用；<strong>点名只讲优点</strong>）</td></tr>
+        <tr><td>⑦</td><td>课堂作业 3（交互改造 + 模型管线 + 许可卡）收件情况已排序、可投屏；<strong>M2 动线图/状态机图并入本课，收件口径待确认</strong>（开场点评用；<strong>点名只讲优点</strong>）</td></tr>
         <tr><td>⑧</td><td>学生任务卡已打印 <strong>40 份</strong>（含表 A / B / C / D）</td></tr>
         <tr><td>⑨</td><td>头显电量 ≥ 70%、手柄挂绳已装、面罩与镜片已擦、一次性眼罩 ≥ 40 片；<strong>2 名学生管理员已指定并拿到操作卡</strong></td></tr>
         <tr><td>⑩</td><td><strong>设备数量与场地已确认</strong>（<code class="inline">【待确认】</code> → 确认后写下实际数）：头显型号 ＿＿＿ ｜ 数量 ＿＿ 台 ｜ 上机地点 ＿＿＿；据此选定 <strong>预案 A 一人一台</strong> 或 <strong>预案 B 10 台轮转</strong></td></tr>
@@ -970,7 +970,7 @@ XRCore.uiHit(function(rc){   /* 把"我的面板有没有被打中"委托给内�
       <thead><tr><th>时间</th><th>里程碑</th><th>交付物</th></tr></thead>
       <tbody>
         <tr><td>10-21 第 7 次课</td><td>M1 选题定稿</td><td>一页纸（主题 / 为什么必须 VR / 用户 / 核心交互 / 技术点 / 降级方案）</td></tr>
-        <tr><td>10-28 第 8 次课</td><td>M2 设计定稿</td><td>动线图 + 状态机图 + 可玩入口</td></tr>
+        <tr><td>10-28 第 8 次课</td><td>课堂作业 3</td><td>交互改造 + 模型管线 + 许可卡（<strong>M2 并入第 9 次课，口径待确认</strong>）</td></tr>
         <tr><td><strong>11-11 第 9 次课</strong></td><td><strong>M3 可玩（硬门槛）</strong></td><td><strong>主流程可玩 + 免手柄通路 + 真机记录</strong>——<strong>不过此关，作品不算完成</strong></td></tr>
         <tr><td>11-18 第 10 次课</td><td>M4 性能达标</td><td>优化前后对照 + 读数与 HUD 一致</td></tr>
         <tr><td>11-25 第 11 次课</td><td>M5 功能封版</td><td>智能模块 + 降级方案 + 体验数据 JSON</td></tr>
