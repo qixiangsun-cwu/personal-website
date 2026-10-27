@@ -307,6 +307,29 @@ a{color:var(--blue-700);}
 /* ---------------- 视频播放台 ---------------- */
 .stage-box{background:#0C1622;position:relative;}
 .stage-box video{display:block;width:100%;max-height:62vh;background:#000;}
+/* 全屏（大屏模式 / 快捷键 F）：铺满整屏，视频按比例居中，其余区域纯黑 */
+.stage-box:fullscreen,
+.stage-box:-webkit-full-screen,
+.stage-box.theater{
+  width:100vw;height:100vh;max-width:none;max-height:none;padding:0;margin:0;
+  display:flex;align-items:center;justify-content:center;background:#000;border-radius:0;
+}
+.stage-box.theater{position:fixed;inset:0;z-index:200;}
+.stage-box:fullscreen video,
+.stage-box:-webkit-full-screen video,
+.stage-box.theater video{
+  width:100%!important;height:100%!important;max-width:none!important;max-height:none!important;
+  object-fit:contain;background:#000;
+}
+.stage-box:fullscreen .vp-badge,
+.stage-box:-webkit-full-screen .vp-badge,
+.stage-box.theater .vp-badge{top:18px;left:20px;font-size:13px;padding:5px 12px;}
+.stage-box:fullscreen .vp-warn,
+.stage-box:-webkit-full-screen .vp-warn,
+.stage-box.theater .vp-warn{top:18px;right:20px;font-size:13px;}
+.stage-box:fullscreen .vp-overlay,
+.stage-box:-webkit-full-screen .vp-overlay,
+.stage-box.theater .vp-overlay{padding-bottom:18px;}
 .vp-empty{
   aspect-ratio:16/9;display:grid;place-items:center;color:#5D7288;font-size:var(--fs-base);
   background:repeating-linear-gradient(45deg,#0C1622,#0C1622 12px,#0E1926 12px,#0E1926 24px);

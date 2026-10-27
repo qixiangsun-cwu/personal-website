@@ -1738,9 +1738,29 @@ function togglePlay(){
   if(v.paused) v.play().catch(()=>{}); else v.pause();
 }
 function toggleFullscreen(){
-  const b = $('#video').closest('.stage-box');
-  if(document.fullscreenElement) document.exitFullscreen();
-  else if(b && b.requestFullscreen) b.requestFullscreen().catch(()=>{});
+  const stage = $('#video') && $('#video').closest('.stage-box');
+  if(!stage) return;
+  const fsEl = document.fullscreenElement || document.webkitFullscreenElement;
+  if(fsEl){
+    const exit = document.exitFullscreen || document.webkitExitFullscreen;
+    if(exit) exit.call(document);
+    return;
+  }
+  if(stage.classList.contains('theater')){
+    stage.classList.remove('theater');
+    document.dispatchEvent(new Event('fullscreenchange'));
+    return;
+  }
+  const fallback = ()=>{
+    stage.classList.add('theater');
+    document.dispatchEvent(new Event('fullscreenchange'));
+  };
+  const req = stage.requestFullscreen || stage.webkitRequestFullscreen;
+  if(!req){ fallback(); return; }
+  try{
+    const p = req.call(stage);
+    if(p && p.catch) p.catch(fallback);
+  }catch(e){ fallback(); }
 }
 
 /* ---------------- 统一渲染 ---------------- */
@@ -1912,9 +1932,31 @@ function bind(){
   $('#modeExitBtn').onclick = ()=>setDirector(false);
   $('#modeExitHint').textContent = '已收起提交进度表与页头';
   applyTheme();
-  document.addEventListener('fullscreenchange', ()=>{
-    if(!document.fullscreenElement && document.body.classList.contains('director')) setDirector(false);
+  document.addEventListener('fullscreenchange', onFsChange);
+  document.addEventListener('webkitfullscreenchange', onFsChange);
+  document.addEventListener('keydown', function(e){
+    if(e.key !== 'Escape') return;
+    var st = document.querySelector('.stage-box.theater');
+    if(st){ st.classList.remove('theater'); document.dispatchEvent(new Event('fullscreenchange')); }
   });
+  function onFsChange(){
+    const stage = $('#video') && $('#video').closest('.stage-box');
+    const badge = $('#vpBadge');
+    const v = $('#video');
+    const fsEl = document.fullscreenElement || document.webkitFullscreenElement;
+    const inFs = !!(fsEl && stage && fsEl === stage) || (stage && stage.classList.contains('theater'));
+    if(inFs){
+      if(badge && badge.dataset.prev === undefined){
+        badge.dataset.prev = badge.textContent;
+        badge.textContent = '全屏中 · 按 Esc 退出';
+      }
+      if(v) v.controls = true;      /* 全屏时给原生控制条：暂停 / 进度 / 音量 */
+    }else{
+      if(badge && badge.dataset.prev !== undefined){ badge.textContent = badge.dataset.prev; delete badge.dataset.prev; }
+      if(v) v.controls = false;
+      if(!fsEl && document.body.classList.contains('director')) setDirector(false);
+    }
+  }
 
   /* ---- P3 新增：第二屏 / 离线缓存 / 网络状态 ---- */
   applyOffline();
