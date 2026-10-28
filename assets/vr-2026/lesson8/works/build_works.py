@@ -270,7 +270,8 @@ def main():
         entry['img'] = thumb
         entry['detail'] = sid + '.html'
         with open(os.path.join(out, sid + '.html'), 'w', encoding='utf-8') as f:
-            f.write(detail_html(entry, images, scene_text, license_text))
+            detail_imgs = {k: sid + '/' + v for k, v in images.items()}
+            f.write(detail_html(entry, detail_imgs, scene_text, license_text))
         entries.append(entry)
         rows.append([sid, display, thumb, caption, model, lic, 'ok'])
 
