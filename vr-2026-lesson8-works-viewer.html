@@ -3881,15 +3881,22 @@ vrBtn.addEventListener('click', function(){
     return;
   }
   if (!navigator.xr) return;
-  navigator.xr.requestSession('immersive-vr', {optionalFeatures: ['local-floor', 'bounded-floor']}).then(function(session){
+  navigator.xr.requestSession('immersive-vr', {optionalFeatures: ['local-floor']}).then(function(session){
     try { renderer.xr.setReferenceSpaceType('local-floor'); } catch (e) { try { renderer.xr.setReferenceSpaceType('local'); } catch (_) {} }
     world.position.set(0, 0, 0);
+    try { renderer.xr.setFramebufferScaleFactor(0.8); } catch (err) {}
+    renderer.setPixelRatio(1);
+    renderer.shadowMap.enabled = false;
     return renderer.xr.setSession(session);
   }).catch(function(e){ alert('无法进入 VR：' + (e && e.message ? e.message : e)); });
 });
 if (renderer.xr && renderer.xr.addEventListener) {
   renderer.xr.addEventListener('sessionstart', function(){ vrBtn.textContent = '退出 VR'; });
-  renderer.xr.addEventListener('sessionend', function(){ vrBtn.textContent = '进入 VR'; });
+  renderer.xr.addEventListener('sessionend', function(){
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.shadowMap.enabled = true;
+    vrBtn.textContent = '进入 VR';
+  });
 }
 })();
 </script>

@@ -1399,13 +1399,18 @@ function ctrlRay(ctrl){
 function enterVR(){
   resumeAudio();
   navigator.xr.requestSession('immersive-vr', {
-    optionalFeatures: ['local-floor', 'bounded-floor', 'hand-tracking', 'layers']
+    optionalFeatures: ['local-floor']
   }).then(function(session){
     xrSession = session;
+    try { renderer.xr.setFramebufferScaleFactor(0.8); } catch (err) {}
+    renderer.setPixelRatio(1);
+    renderer.shadowMap.enabled = false;
     renderer.xr.setSession(session);
     document.body.classList.add('XR');
     session.addEventListener('end', function(){
       xrSession = null;
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+      renderer.shadowMap.enabled = true;
       document.body.classList.remove('XR');
       refreshHud();
     });

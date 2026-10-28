@@ -11119,14 +11119,21 @@ function initPreviewVR(){
   btn.addEventListener('click', function(){
     if (btn.disabled || !previewRenderer) return;
     if (session) { session.end(); return; }
-    navigator.xr.requestSession('immersive-vr', { optionalFeatures: ['local-floor', 'bounded-floor'] }).then(function(s){
+    navigator.xr.requestSession('immersive-vr', { optionalFeatures: ['local-floor'] }).then(function(s){
       session = s;
       try { previewRenderer.xr.setReferenceSpaceType('local-floor'); } catch (e) { try { previewRenderer.xr.setReferenceSpaceType('local'); } catch (_) {} }
       if (previewRoot) previewRoot.position.set(0, 0.7, -1.6);
+      try { previewRenderer.xr.setFramebufferScaleFactor(0.8); } catch (err) {}
+      previewRenderer.setPixelRatio(1);
       return previewRenderer.xr.setSession(s);
     }).then(function(){
       btn.textContent = '退出 VR';
-      session.addEventListener('end', function(){ session = null; btn.textContent = '进入 VR'; if (previewRoot) previewRoot.position.set(0, 0, 0); });
+      session.addEventListener('end', function(){
+        session = null;
+        previewRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        btn.textContent = '进入 VR';
+        if (previewRoot) previewRoot.position.set(0, 0, 0);
+      });
     }).catch(function(e){ btn.textContent = '进入 VR 失败：' + (e && e.message ? e.message : e); });
   });
 }

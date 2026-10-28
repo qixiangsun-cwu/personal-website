@@ -4725,9 +4725,17 @@ function initVRButton(){
     if (session && session.isPresenting) { session.end(); return; }
     navigator.xr.requestSession('immersive-vr', { optionalFeatures: ['local-floor'] }).then(function(s){
       session = s;
+      try { renderer.xr.setFramebufferScaleFactor(0.8); } catch (err) {}
+      renderer.setPixelRatio(1);
+      renderer.shadowMap.enabled = false;
       renderer.xr.setSession(s);
       btn.textContent = '退出 VR';
-      s.addEventListener('end', function(){ session = null; btn.textContent = '进入 VR'; });
+      s.addEventListener('end', function(){
+        session = null;
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.shadowMap.enabled = true;
+        btn.textContent = '进入 VR';
+      });
     }).catch(function(e){ toast('进入 VR 失败：' + e.message); });
   });
 
