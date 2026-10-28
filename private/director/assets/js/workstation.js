@@ -2190,7 +2190,7 @@ function lawEnsureIndex(){
   if(location.protocol === 'file:'){
     $('#lawList').innerHTML =
       '<div class="law-err" style="margin:12px">' +
-      '法规库需要通过本地服务器打开（直接双击 index.html 时浏览器禁止读取本地 JSON）。<br>' +
+      '政策法规库需要通过本地服务器打开（直接双击 index.html 时浏览器禁止读取本地 JSON）。<br>' +
       '请运行同目录下的「启动本机服务器.ps1」，再访问提示的地址。</div>';
     $('#lawCats').innerHTML = '';
     $('#lawCount').textContent = '';
