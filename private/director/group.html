@@ -391,15 +391,15 @@ textarea:disabled{background:var(--surf-2);color:var(--ink-3);border-color:var(-
   <!-- 未选组时的引导 -->
   <section class="empty" id="emptyState">
     <b>10 个组共用本链接</b>
-    <p>请在页面右上角下拉选择本组（B101—B110）。选组后按顺序填写：<b>第一幕四点方案 → 观看情景二短片 → 第二幕三点方案</b>；内容输入停止 30 秒后自动保存，截止后自动锁定。</p>
+    <p>请在页面右上角下拉选择本组（B101—B110）。选组后按顺序填写：<b>第一幕四点方案 → 观看情景二短片 →（导演组发放后可查看其他组方案）→ 第二幕三点方案</b>；内容输入停止 30 秒后自动保存，截止后自动锁定。</p>
   </section>
 
   <!-- 幕次切换 -->
   <div class="tabs" id="tabsBar" role="tablist" aria-label="选择幕次" hidden>
     <button type="button" class="tab" id="tab1" role="tab" aria-selected="true" aria-controls="pane1" data-act="1">第一幕 · 四点方案<span class="tab-st" id="tabSt1"></span></button>
     <button type="button" class="tab tab-video" id="tabV" role="tab" aria-selected="false" aria-controls="paneV" data-view="scene2"><span class="dot"></span>情景二 · 看片<span class="tab-st">02:43</span></button>
-    <button type="button" class="tab" id="tab2" role="tab" aria-selected="false" aria-controls="pane2" data-act="2">第二幕 · 三点方案<span class="tab-st" id="tabSt2"></span></button>
     <button type="button" class="tab tab-shared" id="tabS" role="tab" aria-selected="false" aria-controls="paneS" data-view="shared" hidden><span class="dot"></span>其他组方案<span class="tab-st" id="tabStS"></span></button>
+    <button type="button" class="tab" id="tab2" role="tab" aria-selected="false" aria-controls="pane2" data-act="2">第二幕 · 三点方案<span class="tab-st" id="tabSt2"></span></button>
     <div class="sp"></div>
     <span class="saved" id="savedHint" aria-live="polite">输入停止 30 秒后自动保存</span>
   </div>
@@ -1550,8 +1550,10 @@ function init(){
   function onTabKey(e){
     if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
     e.preventDefault();
-    var order = ['1', 'scene2', '2'];
-    if (state.release && state.release.act1 === true) order.push('shared');
+    /* 顺序与 tab 一致：第一幕 → 情景二 → 其他组方案（发放后）→ 第二幕 */
+    var order = (state.release && state.release.act1 === true)
+      ? ['1', 'scene2', 'shared', '2']
+      : ['1', 'scene2', '2'];
     var i = order.indexOf(state.activeView);
     var next = order[(i + (e.key === 'ArrowRight' ? 1 : -1) + order.length) % order.length];
     switchView(next);
