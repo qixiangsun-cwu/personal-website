@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>230812008 严玉 · 第8次课课堂作业 | 2026年虚拟现实技术</title>
+<style>
+  body{margin:0;background:#f6f3ec;color:#2b2820;font-family:"Times New Roman","宋体",SimSun,serif}
+  .wrap{max-width:1080px;margin:0 auto;padding:24px 20px 60px}
+  a{color:#1f3864}
+  .top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+  .back{font-size:14px;text-decoration:none;color:#306998}
+  h1{font-size:30px;margin:14px 0 6px;color:#1f3864}
+  .cap{font-size:19px;line-height:1.7;margin:8px 0 4px}
+  .tags span{display:inline-block;background:#eaf1f8;color:#306998;border-radius:999px;padding:3px 11px;font-size:13px;margin:6px 8px 0 0}
+  .tags .lic{background:#f3efe3;color:#8a6d1f}
+  h2{font-size:19px;margin:26px 0 10px;color:#1f3864;border-left:4px solid #306998;padding-left:10px}
+  .shots{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+  .shot{margin:0;background:#fffdf8;border:1px solid #e4ddcc;border-radius:10px;overflow:hidden}
+  .shot img{display:block;width:100%;height:auto}
+  .shot figcaption{font-size:13px;color:#5d594c;padding:8px 10px;line-height:1.5}
+  .json{background:#101a2c;color:#dfe8f5;border-radius:8px;padding:12px 14px;font-size:12.5px;line-height:1.5;overflow:auto;max-height:360px;white-space:pre-wrap;word-break:break-all}
+  .licbox{background:#fffdf8;border:1px solid #e4ddcc;border-radius:10px;padding:12px 16px;font-size:14px;line-height:1.9;white-space:pre-wrap}
+  .downloads{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+  .downloads a{background:#306998;color:#fff;text-decoration:none;border-radius:7px;padding:8px 13px;font-size:14px}
+  .note{font-size:13px;color:#7a7568;margin-top:26px;line-height:1.8}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <a class="back" href="../../../../vr-2026-lesson8-works.html">← 返回第 8 次课作品墙</a>
+    <a class="back" href="../../../../vr-2026-lesson8.html">本课主页 →</a>
+  </div>
+  <h1>230812008 严玉</h1>
+  <p class="cap">Fox 旋转45°、放大1.56倍、染橙色、暂停动画</p>
+  <div class="tags"><span>模型：Fox.glb（4 模型场景）</span><span class="lic">CC0 1.0（模型）+ CC-BY 4.0（绑定动画）· 需署名</span></div>
+  <figure class="shot"><a href="S1.png" target="_blank" rel="noopener"><img src="S1.png" alt="S1 · 01 交互实验室（状态机 / HUD）"></a><figcaption>S1 · 01 交互实验室（状态机 / HUD）</figcaption></figure>
+<figure class="shot"><a href="S2.jpg" target="_blank" rel="noopener"><img src="S2.jpg" alt="S2 · 03 模型工作台（旋转 / 缩放 / 换色 / 动画，上墙图）"></a><figcaption>S2 · 03 模型工作台（旋转 / 缩放 / 换色 / 动画，上墙图）</figcaption></figure>
+<figure class="shot"><a href="S3.png" target="_blank" rel="noopener"><img src="S3.png" alt="S3 · 02 模型转换器（源 / 输出 / 变化%）"></a><figcaption>S3 · 02 模型转换器（源 / 输出 / 变化%）</figcaption></figure>
+  <h2>场景 JSON（节选）</h2><pre class="json">{
+  &quot;format&quot;: &quot;workbench-scene&quot;,
+  &quot;version&quot;: 1,
+  &quot;generator&quot;: &quot;02_模型工作台_WebXR.html&quot;,
+  &quot;normalizedHeight&quot;: 1.2,
+  &quot;unit&quot;: &quot;meter&quot;,
+  &quot;modelCount&quot;: 4,
+  &quot;models&quot;: [
+    {
+      &quot;id&quot;: &quot;fox&quot;,
+      &quot;name&quot;: &quot;Fox&quot;,
+      &quot;file&quot;: &quot;Fox.glb&quot;,
+      &quot;license&quot;: &quot;CC0 1.0（模型）+ CC-BY 4.0（绑定动画）· 需署名&quot;,
+      &quot;author&quot;: &quot;PixelMannen / @tomkranis / @AsoboStudio / @scurest&quot;,
+      &quot;pos&quot;: [
+        -1.547,
+        0,
+        0.117
+      ],
+      &quot;rot&quot;: 45,
+      &quot;scale&quot;: 1.557,
+      &quot;color&quot;: &quot;#ffb84d&quot;,
+      &quot;anim&quot;: &quot;Walk:paused&quot;,
+      &quot;triangles&quot;: 576
+    },
+    {
+      &quot;id&quot;: &quot;cesiumman&quot;,
+      &quot;name&quot;: &quot;CesiumMan&quot;,
+      &quot;file&quot;: &quot;CesiumMan.glb&quot;,
+      &quot;license&quot;: &quot;CC-BY 4.0 · 需署名（含 Cesium logo 商标条款）&quot;,
+      &quot;author&quot;: &quot;Cesium（捐赠给 Khronos glTF 测试）&quot;,
+      &quot;pos&quot;: [
+        1.25,
+        0,
+        0.9
+      ],
+      &quot;rot&quot;: 0,
+      &quot;scale&quot;: 1,
+      &quot;color&quot;: &quot;#ffffff&quot;,
+      &quot;anim&quot;: &quot;animation_0:playing&quot;,
+      &quot;triangles&quot;: 4672
+    },
+    {
+      &quot;id&quot;: &quot;duck&quot;,
+      &quot;name&quot;: &quot;Duck&quot;,
+      &quot;file&quot;: &quot;Duck.glb&quot;,
+      &quot;license&quot;: &quot;SCEA Shared Source License 1.0（不是 CC 许可）&quot;,
+      &quot;author&quot;: &quot;Sony Computer Entertainment Inc. © 2006&quot;,
+      &quot;pos&quot;: [
+        -0.55,
+        0,
+        -1.5
+      ],
+      &quot;rot&quot;: 0,
+      &quot;scale&quot;: 1,
+      &quot;color&quot;: &quot;#ffffff&quot;,
+      &quot;anim&quot;: null,
+      &quot;triangles&quot;: 4212
+    },
+    {
+      &quot;id&quot;: &quot;armchair&quot;,
+      &quot;name&quot;: &quot;ArmChair_01&quot;,
+      &quot;file&quot;: &quot;ArmChair_01.glb&quot;,
+      &quot;license&quot;: &quot;CC0 1.0 · 免署名（Poly Haven）&quot;,
+      &quot;author&quot;: &quot;Kirill Sannikov / Poly Haven&quot;,
+      &quot;pos&quot;: [
+        1.25,
+        0,
+        -1.5
+      ],
+      &quot;rot&quot;: 0,
+      &quot;scale&quot;: 1,
+      &quot;color&quot;: &quot;#ffffff&quot;,
+      &quot;anim&quot;: null,
+      &quot;triangles&quot;: 5626
+    }
+  ]
+}</pre>
+  <h2>许可卡</h2>
+  <div class="licbox">模型：Fox.glb（4 模型场景）
+许可：CC0 1.0（模型）+ CC-BY 4.0（绑定动画）· 需署名
+能否商用：是
+是否署名：是
+来源：Khronos glTF-Sample-Models</div>
+  <div class="downloads">
+    <a href="S2.jpg" download>下载上墙图 S2</a>
+    <a href="S1.png" download>下载 S1</a><a href="S3.png" download>下载 S3</a>
+  </div>
+  <p class="note">本页由第 8 次课作品墙生成；全部提交作品都会公开展示。如作者要求更正一句话、署名或许可信息，请联系教师修改。</p>
+</div>
+</body>
+</html>

@@ -1,0 +1,5 @@
+模型：Fox.glb（4 模型场景）
+许可：CC0 1.0（模型）+ CC-BY 4.0（绑定动画）· 需署名
+能否商用：是
+是否署名：是
+来源：Khronos glTF-Sample-Models

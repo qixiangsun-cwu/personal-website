@@ -32,6 +32,9 @@
   .work-card .tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:2px}
   .work-card .tag{font-size:11px;border-radius:999px;padding:2px 9px;background:#eaf1f8;color:#306998}
   .work-card .tag.lic{background:#f3efe3;color:#8a6d1f}
+  .work-card .open{margin-top:8px;font-size:12.5px;font-weight:700;color:#306998;border-top:1px dashed #e4ddcc;padding-top:7px}
+  a.work-card{text-decoration:none;color:inherit;transition:box-shadow .15s,transform .15s}
+  a.work-card:hover{box-shadow:0 8px 22px rgba(43,40,32,.16);transform:translateY(-2px)}
   .empty{border:2px dashed #d8cfbc;border-radius:12px;padding:34px 24px;text-align:center;color:#6b6657;background:#fbf8f0;line-height:1.9}
   .empty b{color:#1f3864}
   details.how{margin-top:26px;background:#f6f3ec;border:1px solid #e4ddcc;border-radius:10px;padding:10px 16px}
@@ -102,8 +105,10 @@
 
   function card(w, i){
     var img = w.img ? 'assets/vr-2026/lesson8/works/' + w.img : '';
-    var el = document.createElement('article');
+    var detail = w.detail ? 'assets/vr-2026/lesson8/works/' + w.detail : '';
+    var el = document.createElement(detail ? 'a' : 'article');
     el.className = 'work-card';
+    if (detail) { el.href = detail; el.title = '打开' + (w.name || '') + '的作业'; }
     el.innerHTML =
       '<div class="shot">' +
         (img ? '<img loading="lazy" src="' + esc(img) + '" alt="' + esc(w.name || '') + ' 的课堂作业截图">' : '') +
@@ -116,6 +121,7 @@
           (w.model ? '<span class="tag">模型：' + esc(w.model) + '</span>' : '') +
           (w.license ? '<span class="tag lic">' + esc(w.license) + '</span>' : '') +
         '</div>' +
+        (detail ? '<div class="open">打开作业（三张截图 + 场景 JSON + 许可）→</div>' : '') +
       '</div>';
     return el;
   }
