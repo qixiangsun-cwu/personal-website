@@ -197,6 +197,12 @@ button{font-family:inherit;}
 .tab[aria-selected="true"] .tab-st{color:var(--brand);}
 /* 两幕之间：情景二视频 */
 .tab-video .dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--brand);margin-right:6px;vertical-align:1px;}
+/* 其他组方案：常驻占位；未发放时变灰，发放后亮起 */
+.tab-shared .dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--brand);margin-right:6px;vertical-align:1px;}
+.tab-shared.pending{color:var(--ink-4);}
+.tab-shared.pending .dot{background:var(--ink-4);opacity:.55;}
+.tab-shared.pending[aria-selected="true"]{color:var(--ink-2);border-bottom-color:var(--ink-4);}
+.tab-shared.pending[aria-selected="true"] .tab-st{color:var(--ink-4);}
 .vwrap{margin:0;}
 .vwrap video{display:block;width:100%;max-height:62vh;background:#000;border-radius:8px;border:1px solid var(--line);}
 .vtip{margin:10px 0 0;font-size:var(--fs-xs);color:var(--ink-3);line-height:1.75;}
@@ -398,7 +404,7 @@ textarea:disabled{background:var(--surf-2);color:var(--ink-3);border-color:var(-
   <div class="tabs" id="tabsBar" role="tablist" aria-label="选择幕次" hidden>
     <button type="button" class="tab" id="tab1" role="tab" aria-selected="true" aria-controls="pane1" data-act="1">第一幕 · 四点方案<span class="tab-st" id="tabSt1"></span></button>
     <button type="button" class="tab tab-video" id="tabV" role="tab" aria-selected="false" aria-controls="paneV" data-view="scene2"><span class="dot"></span>情景二 · 看片<span class="tab-st">02:43</span></button>
-    <button type="button" class="tab tab-shared" id="tabS" role="tab" aria-selected="false" aria-controls="paneS" data-view="shared" hidden><span class="dot"></span>其他组方案<span class="tab-st" id="tabStS"></span></button>
+    <button type="button" class="tab tab-shared pending" id="tabS" role="tab" aria-selected="false" aria-controls="paneS" data-view="shared"><span class="dot"></span>其他组方案<span class="tab-st" id="tabStS">未发放</span></button>
     <button type="button" class="tab" id="tab2" role="tab" aria-selected="false" aria-controls="pane2" data-act="2">第二幕 · 三点方案<span class="tab-st" id="tabSt2"></span></button>
     <div class="sp"></div>
     <span class="saved" id="savedHint" aria-live="polite">输入停止 30 秒后自动保存</span>
@@ -989,12 +995,20 @@ function renderRefCard(){
   ui.refSt.textContent = st ? ('第一幕 · ' + st.text) : '';
 }
 
-/* 导演组发放后：展示各组第一幕方案（未提交的组只显示占位） */
+/* 导演组发放后：展示各组第一幕方案；未发放时保留 tab 占位，内容区给出提示 */
 function renderShared(){
   var rel = !!(state.release && state.release.act1 === true) && !!state.group;
-  if (ui.tabS) ui.tabS.hidden = !rel;
+  if (ui.tabS) {
+    ui.tabS.classList.toggle('pending', !rel);
+    ui.tabS.disabled = !state.group;
+  }
   if (!ui.sharedList) return;
-  if (!rel) { ui.sharedList.innerHTML = ''; return; }
+  if (!rel) {
+    if (ui.tabStS) ui.tabStS.textContent = '未发放';
+    if (ui.sharedMeta) ui.sharedMeta.textContent = '等待导演组发放';
+    ui.sharedList.innerHTML = '<div class="shared-empty">导演组尚未发放各组方案。<br>发放后，本页会显示各组第一幕的四段内容；先完成本组填写即可。</div>';
+    return;
+  }
   var shared = state.shared || {};
   var defs = FIELD_DEFS['1'] || [];
   var mine = state.group;
@@ -1031,10 +1045,8 @@ function renderShared(){
 
 function renderTabs(){
   var v = state.activeView;
-  var rel = !!(state.release && state.release.act1 === true) && !!state.group;
-  if (v === 'shared' && !rel) v = state.activeView = (state.group ? '1' : '');
-  var views = [['1', ui.tab1, ui.pane1], ['scene2', ui.tabV, ui.paneV], ['2', ui.tab2, ui.pane2]];
-  if (rel) views.push(['shared', ui.tabS, ui.paneS]);
+  /* 「其他组方案」始终占位（未发放时显示等待提示），与其它 tab 同序 */
+  var views = [['1', ui.tab1, ui.pane1], ['scene2', ui.tabV, ui.paneV], ['shared', ui.tabS, ui.paneS], ['2', ui.tab2, ui.pane2]];
   views.forEach(function(x){
     var sel = (x[0] === v);
     x[1].setAttribute('aria-selected', sel ? 'true' : 'false');
@@ -1134,7 +1146,6 @@ function applyServer(data, groupId){
   if (state.release.act1 && !wasReleased) {
     toast('导演组已发放各组第一幕方案，可在「其他组方案」查看');
   }
-  if (!state.release.act1 && state.activeView === 'shared') switchView('1');
   renderAll();
 }
 
@@ -1474,7 +1485,6 @@ function copyPlanText(){
 
 function switchView(view){
   if (!state.group || state.activeView === view) return;
-  if (view === 'shared' && !(state.release && state.release.act1 === true)) return;
   state.activeView = view;
   /* 情景二/其他组方案期间，倒计时/状态按第二幕算（10:15—11:15 同一时间窗） */
   state.activeAct = (view === '1') ? '1' : '2';
@@ -1551,9 +1561,7 @@ function init(){
     if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
     e.preventDefault();
     /* 顺序与 tab 一致：第一幕 → 情景二 → 其他组方案（发放后）→ 第二幕 */
-    var order = (state.release && state.release.act1 === true)
-      ? ['1', 'scene2', 'shared', '2']
-      : ['1', 'scene2', '2'];
+    var order = ['1', 'scene2', 'shared', '2'];
     var i = order.indexOf(state.activeView);
     var next = order[(i + (e.key === 'ArrowRight' ? 1 : -1) + order.length) % order.length];
     switchView(next);
