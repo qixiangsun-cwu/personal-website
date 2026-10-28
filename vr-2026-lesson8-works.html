@@ -106,9 +106,11 @@
   function card(w, i){
     var img = w.img ? 'assets/vr-2026/lesson8/works/' + w.img : '';
     var detail = w.detail ? 'assets/vr-2026/lesson8/works/' + w.detail : '';
-    var el = document.createElement(detail ? 'a' : 'article');
+    var view = w.view || '';
+    var link = view || detail;
+    var el = document.createElement(link ? 'a' : 'article');
     el.className = 'work-card';
-    if (detail) { el.href = detail; el.title = '打开' + (w.name || '') + '的作业'; }
+    if (link) { el.href = link; el.title = '进入' + (w.name || '') + '的作品'; }
     el.innerHTML =
       '<div class="shot">' +
         (img ? '<img loading="lazy" src="' + esc(img) + '" alt="' + esc(w.name || '') + ' 的课堂作业截图">' : '') +
@@ -121,7 +123,7 @@
           (w.model ? '<span class="tag">模型：' + esc(w.model) + '</span>' : '') +
           (w.license ? '<span class="tag lic">' + esc(w.license) + '</span>' : '') +
         '</div>' +
-        (detail ? '<div class="open">打开作业（三张截图 + 场景 JSON + 许可）→</div>' : '') +
+        (link ? '<div class="open">' + (view ? '▶ 进入作品（3D）→' : '打开作业 →') + '</div>' : '') +
       '</div>';
     return el;
   }

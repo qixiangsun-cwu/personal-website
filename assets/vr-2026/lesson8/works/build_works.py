@@ -129,6 +129,7 @@ def detail_html(entry, images, scene_text, license_text):
   a{color:#1f3864}
   .top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
   .back{font-size:14px;text-decoration:none;color:#306998}
+  .back3d{display:inline-block;background:#2f7d3a;color:#fff;text-decoration:none;border-radius:8px;padding:8px 14px;font-size:15px;font-weight:700}
   h1{font-size:30px;margin:14px 0 6px;color:#1f3864}
   .cap{font-size:19px;line-height:1.7;margin:8px 0 4px}
   .tags span{display:inline-block;background:#eaf1f8;color:#306998;border-radius:999px;padding:3px 11px;font-size:13px;margin:6px 8px 0 0}
@@ -148,6 +149,7 @@ def detail_html(entry, images, scene_text, license_text):
 <body>
 <div class="wrap">
   <div class="top">
+    <a class="back3d" href="../../../../vr-2026-lesson8-works-viewer.html?work=%(id)s">▶ 进入作品（3D）</a>
     <a class="back" href="../../../../vr-2026-lesson8-works.html">← 返回第 8 次课作品墙</a>
     <a class="back" href="../../../../vr-2026-lesson8.html">本课主页 →</a>
   </div>
@@ -167,6 +169,7 @@ def detail_html(entry, images, scene_text, license_text):
 </body>
 </html>
 """ % {
+        'id': e(entry['id']),
         'name': e(entry['name']),
         'caption': e(entry['caption']),
         'model': e(entry['model']),
@@ -269,6 +272,7 @@ def main():
                 f.write(license_text)
         entry['img'] = thumb
         entry['detail'] = sid + '.html'
+        entry['view'] = 'vr-2026-lesson8-works-viewer.html?work=' + sid
         with open(os.path.join(out, sid + '.html'), 'w', encoding='utf-8') as f:
             detail_imgs = {k: sid + '/' + v for k, v in images.items()}
             f.write(detail_html(entry, detail_imgs, scene_text, license_text))
@@ -285,7 +289,11 @@ def main():
         'window.LESSON8_WORKS = [',
     ]
     for e in entries:
-        extra = (", detail: %s" % _js(e['detail'])) if e.get('detail') else ''
+        extra = ''
+        if e.get('detail'):
+            extra += ", detail: %s" % _js(e['detail'])
+        if e.get('view'):
+            extra += ", view: %s" % _js(e['view'])
         js_lines.append('  { id: %s, name: %s, caption: %s, img: %s, model: %s, license: %s%s },' % (
             _js(e['id']), _js(e['name']), _js(e['caption']), _js(e['img']), _js(e['model']), _js(e['license']), extra))
     js_lines.append('];')
