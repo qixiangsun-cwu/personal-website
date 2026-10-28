@@ -149,7 +149,7 @@ def detail_html(entry, images, scene_text, license_text):
 <body>
 <div class="wrap">
   <div class="top">
-    <a class="back3d" href="../../../../vr-2026-lesson8-works-viewer.html?work=%(id)s">▶ 进入作品（3D）</a>
+    <a class="back3d" href="../../../../vr-2026-lesson8-works-viewer?work=%(id)s">▶ 进入作品（3D）</a>
     <a class="back" href="../../../../vr-2026-lesson8-works.html">← 返回第 8 次课作品墙</a>
     <a class="back" href="../../../../vr-2026-lesson8.html">本课主页 →</a>
   </div>
@@ -272,7 +272,7 @@ def main():
                 f.write(license_text)
         entry['img'] = thumb
         entry['detail'] = sid + '.html'
-        entry['view'] = 'vr-2026-lesson8-works-viewer.html?work=' + sid
+        entry['view'] = 'vr-2026-lesson8-works-viewer?work=' + sid
         with open(os.path.join(out, sid + '.html'), 'w', encoding='utf-8') as f:
             detail_imgs = {k: sid + '/' + v for k, v in images.items()}
             f.write(detail_html(entry, detail_imgs, scene_text, license_text))
