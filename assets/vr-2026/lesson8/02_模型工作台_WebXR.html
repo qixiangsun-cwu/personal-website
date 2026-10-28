@@ -3775,7 +3775,7 @@ VR：扳机射线抓取/移动 · 右摇杆旋转 · 左摇杆推拉缩放</div>
 var BUILD_INFO = {
  "generated_by": "tools/build_workbench.py",
  "template": "src/02_模型工作台_template.html",
- "output": "02_模型工作台_WebXR.html",
+ "output": "02-workbench.html",
  "libs": [
   {
    "file": "lib/three.min.js",
@@ -3928,6 +3928,7 @@ function init(){
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   renderer.xr.enabled = true;
+  try { renderer.xr.setReferenceSpaceType('local-floor'); } catch (e) { try { renderer.xr.setReferenceSpaceType('local'); } catch (_) {} }
   $('app').appendChild(renderer.domElement);
 
   scene = new THREE.Scene();
@@ -4381,7 +4382,7 @@ function exportScene(){
   return {
     format: 'workbench-scene',
     version: 1,
-    generator: '02_模型工作台_WebXR.html',
+    generator: '02-workbench.html',
     normalizedHeight: NORM_HEIGHT,
     unit: 'meter',
     modelCount: models.length,

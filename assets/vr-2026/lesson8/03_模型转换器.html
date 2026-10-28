@@ -149,6 +149,7 @@
   <button id="btnPick" class="primary">选择文件</button>
   <button id="btnConvert">重新转换</button>
   <button id="btnDownload" disabled>导出 GLB</button>
+  <button id="btnVR" disabled>进入 VR</button>
   <button id="btnClear">清空</button>
 </div>
 
@@ -10731,7 +10732,7 @@
 var BUILD_INFO = {
  "generated_by": "tools/build_workbench.py",
  "template": "src/03_模型转换器_template.html",
- "output": "03_模型转换器.html",
+ "output": "03-converter.html",
  "libs": [
   {
    "file": "lib/three.min.js",
@@ -11091,6 +11092,7 @@ function initPreview(){
     return;
   }
   previewRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  try { previewRenderer.xr.enabled = true; previewRenderer.xr.setReferenceSpaceType('local-floor'); } catch (e) { try { previewRenderer.xr.setReferenceSpaceType('local'); } catch (_) {} }
   host.appendChild(previewRenderer.domElement);
   previewScene = new THREE.Scene();
   previewCamera = new THREE.PerspectiveCamera(42, 1, 0.01, 100);
@@ -11104,6 +11106,28 @@ function initPreview(){
   previewRenderer.setAnimationLoop(function(){
     if (previewRoot) previewRoot.rotation.y += 0.006;
     previewRenderer.render(previewScene, previewCamera);
+  });
+}
+function initPreviewVR(){
+  var btn = $('btnVR'); if (!btn) return;
+  if (!('xr' in navigator)) { btn.textContent = '本浏览器不支持 WebXR'; return; }
+  navigator.xr.isSessionSupported('immersive-vr').then(function(ok){
+    btn.disabled = !ok;
+    btn.textContent = ok ? '进入 VR' : '本设备不支持 VR';
+  }).catch(function(){ btn.disabled = true; btn.textContent = 'VR 检测失败'; });
+  var session = null;
+  btn.addEventListener('click', function(){
+    if (btn.disabled || !previewRenderer) return;
+    if (session) { session.end(); return; }
+    navigator.xr.requestSession('immersive-vr', { optionalFeatures: ['local-floor', 'bounded-floor'] }).then(function(s){
+      session = s;
+      try { previewRenderer.xr.setReferenceSpaceType('local-floor'); } catch (e) { try { previewRenderer.xr.setReferenceSpaceType('local'); } catch (_) {} }
+      if (previewRoot) previewRoot.position.set(0, 0.7, -1.6);
+      return previewRenderer.xr.setSession(s);
+    }).then(function(){
+      btn.textContent = '退出 VR';
+      session.addEventListener('end', function(){ session = null; btn.textContent = '进入 VR'; if (previewRoot) previewRoot.position.set(0, 0, 0); });
+    }).catch(function(e){ btn.textContent = '进入 VR 失败：' + (e && e.message ? e.message : e); });
   });
 }
 function resizePreview(){
@@ -11176,6 +11200,7 @@ async function handleFiles(fileObjs){
 // ---------- 初始化 ----------
 function init(){
   initPreview();
+  initPreviewVR();
   var fi = $('fileinput');
   $('btnPick').addEventListener('click', function(){ fi.click(); });
   fi.addEventListener('change', function(){

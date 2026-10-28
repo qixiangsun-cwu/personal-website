@@ -3882,7 +3882,7 @@ vrBtn.addEventListener('click', function(){
   }
   if (!navigator.xr) return;
   navigator.xr.requestSession('immersive-vr', {optionalFeatures: ['local-floor', 'bounded-floor']}).then(function(session){
-    renderer.xr.setReferenceSpaceType('local-floor');
+    try { renderer.xr.setReferenceSpaceType('local-floor'); } catch (e) { try { renderer.xr.setReferenceSpaceType('local'); } catch (_) {} }
     world.position.set(0, 0, 0);
     return renderer.xr.setSession(session);
   }).catch(function(e){ alert('无法进入 VR：' + (e && e.message ? e.message : e)); });

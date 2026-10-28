@@ -146,7 +146,7 @@ window.addEventListener('unhandledrejection', function(ev){
  * ===== 学生练习区 · 从这里开始改 =====
  * 本文件是「开发版模板」（库用外部引用 ../lib/three.min.js，约 68 KB，好改好定位）。
  * 改完 → 在 demos 目录运行  python tools\build_interaction.py
- *      → 重新生成单文件成品 demos\01_交互实验室_WebXR.html（约 670 KB，零外部请求，双击可看）
+ *      → 重新生成单文件成品 demos\01-interaction.html（约 670 KB，零外部请求，双击可看）
  *
  * 练习 1-A：改吸附判定半径 —— 找到 SNAP_DIST（默认 0.30 m）
  *           先试 0.12（几乎吸不上）再试 0.60（隔空就吸上），对比手感与误吸附。
@@ -1600,7 +1600,7 @@ function apiReset(){
 }
 function apiInfo(){
   return {
-    page: '01_交互实验室_WebXR.html',
+    page: '01-interaction.html',
     ready: !!S.ready,
     fps: Math.round(fps),
     calls: renderer ? renderer.info.render.calls : 0,
@@ -1659,7 +1659,7 @@ function boot(){
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   renderer.xr.enabled = true;
-  renderer.xr.setReferenceSpaceType('local-floor');
+  try { renderer.xr.setReferenceSpaceType('local-floor'); } catch (e) { try { renderer.xr.setReferenceSpaceType('local'); } catch (_) {} }
 
   scene = new THREE.Scene();
   camera = new THREE.PerspectiveCamera(68, innerWidth / innerHeight, 0.05, 60);
