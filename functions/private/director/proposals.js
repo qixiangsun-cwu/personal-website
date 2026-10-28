@@ -32,6 +32,7 @@ const FIELDS = {
 
 const MAX_LEN = 5000;          // 单字段最大长度（超长截断即可，不报错）
 const OPEN_KEY = 'meta:open';
+const RELEASE_KEY = 'meta:release';   // 发放给各组查看的方案（{act1:bool, act2:bool}）
 const PROPOSAL_PREFIX = 'p:';
 
 /* ---------------- 通用工具 ---------------- */
@@ -68,6 +69,7 @@ function normalizeValue(value) {
   return String(value).trim().slice(0, MAX_LEN);
 }
 function emptyOpen() { return { act1: false, act2: false }; }
+function emptyRelease() { return { act1: false, act2: false }; }
 function dayKey() { return new Date().toISOString().slice(0, 10); }
 
 /* ================================================================
@@ -128,9 +130,22 @@ function d1Store(db) {
       await db.prepare('INSERT INTO meta (k, v) VALUES (?,?) ON CONFLICT(k) DO UPDATE SET v=excluded.v')
         .bind(OPEN_KEY, JSON.stringify(open)).run();
     },
+    async getRelease() {
+      const row = await db.prepare('SELECT v FROM meta WHERE k=?').bind(RELEASE_KEY).first();
+      if (!row) return emptyRelease();
+      try {
+        const v = JSON.parse(row.v || '{}');
+        return { act1: v.act1 === true, act2: v.act2 === true };
+      } catch { return emptyRelease(); }
+    },
+    async setRelease(rel) {
+      await db.prepare('INSERT INTO meta (k, v) VALUES (?,?) ON CONFLICT(k) DO UPDATE SET v=excluded.v')
+        .bind(RELEASE_KEY, JSON.stringify(rel)).run();
+    },
     async clear() {
       await db.prepare('DELETE FROM proposals').run();
       await this.setOpen(emptyOpen());
+      await this.setRelease(emptyRelease());
     },
     async getUsage() {
       const day = dayKey();
@@ -176,11 +191,17 @@ function kvStore(kv) {
       return { act1: Boolean(v && v.act1 === true), act2: Boolean(v && v.act2 === true) };
     },
     async setOpen(open) { await kv.put(OPEN_KEY, JSON.stringify(open)); },
+    async getRelease() {
+      const v = await readJSON(kv, RELEASE_KEY, null);
+      return { act1: Boolean(v && v.act1 === true), act2: Boolean(v && v.act2 === true) };
+    },
+    async setRelease(rel) { await kv.put(RELEASE_KEY, JSON.stringify(rel)); },
     async clear() {
       const keys = [];
       for (const g of GROUP_IDS) for (const act of [1, 2]) keys.push(key(g, act));
       await Promise.all(keys.map((k) => kv.delete(k)));
       await this.setOpen(emptyOpen());
+      await this.setRelease(emptyRelease());
     },
     async getUsage() { return null; },   // KV 读不到自己的每日用量（没有公开 API）
     async bump() { return null; },
@@ -197,6 +218,7 @@ async function handleGet(store, url) {
   if (group !== null && !GROUPS.has(group)) return badRequest();
 
   const open = await store.getOpen();
+  const release = await store.getRelease();
   const proposals = {};
   const targets = group ? [group] : GROUP_IDS;
   for (const g of targets) {
@@ -207,8 +229,28 @@ async function handleGet(store, url) {
       proposals[g][`act${act}`] = p;
     }
   }
-  const usage = await store.bump(targets.length * 2 + 1, 0);
-  return json({ ok: true, serverTime: new Date().toISOString(), open, proposals, storage: store.kind, usage }, 200);
+
+  /* 发放：仅组端单组读时返回「其他组已提交的第一幕方案」。
+     未提交的组只保留占位（前端显示未提交），不泄露草稿。 */
+  let shared = null;
+  let extraReads = 0;
+  if (group && release.act1) {
+    shared = {};
+    for (const g of GROUP_IDS) {
+      const p = await store.getProposal(g, 1);
+      extraReads += 1;
+      if (!p || p.submitted !== true) continue;
+      shared[g] = { group: g, act: 1, submitted: true, updatedAt: p.updatedAt, fields: p.fields };
+    }
+  }
+
+  const usage = await store.bump(targets.length * 2 + 1 + extraReads, 0);
+  return json({
+    ok: true,
+    serverTime: new Date().toISOString(),
+    open, release, shared, proposals,
+    storage: store.kind, usage,
+  }, 200);
 }
 
 // POST ?key=KEY（保存/提交）
@@ -281,6 +323,23 @@ async function handleOpen(store, request) {
   return json({ ok: true, open, storage: store.kind, usage }, 200);
 }
 
+// POST ?key=KEY&action=release（导演把各组第一幕方案发放给所有组查看 / 收回）
+async function handleRelease(store, request) {
+  let body;
+  try { body = await request.json(); } catch { return badRequest(); }
+  if (!body || typeof body !== 'object' || Array.isArray(body)) return badRequest();
+
+  const act = normalizeAct(body.act);
+  if (act === 0) return badRequest();
+  if (typeof body.released !== 'boolean') return badRequest();
+
+  const release = await store.getRelease();
+  release[`act${act}`] = body.released;
+  await store.setRelease(release);
+  const usage = await store.bump(1, 1);
+  return json({ ok: true, release, storage: store.kind, usage }, 200);
+}
+
 // POST ?key=KEY&action=reset（清空本场数据）
 async function handleReset(store) {
   await store.clear();
@@ -320,6 +379,7 @@ export async function onRequest(context) {
       if (request.method === 'GET') return await handleGet(store, url);
       if (request.method === 'POST') {
         if (action === 'open') return await handleOpen(store, request);
+        if (action === 'release') return await handleRelease(store, request);
         if (action === 'reset') return await handleReset(store);
         if (action !== null) return badRequest();
         return await handleSave(store, request);
@@ -332,6 +392,7 @@ export async function onRequest(context) {
     if (request.method === 'GET') return await handleGet(store, url);
     if (request.method === 'POST') {
       if (action === 'open') return await handleOpen(store, request);
+        if (action === 'release') return await handleRelease(store, request);
       if (action === 'reset') return await handleReset(store);
       if (action !== null) return badRequest();
       return await handleSave(store, request);

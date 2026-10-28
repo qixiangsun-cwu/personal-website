@@ -306,6 +306,8 @@ async function fetchProposals(){
     if(res.ok && j && j.ok){
       PROPOSALS = {
         ok:true, proposals:j.proposals || {}, open:j.open || {},
+        release: j.release || { act1:false, act2:false },
+        shared: j.shared || null,
         storage: j.storage || 'kv',
         usage: j.usage || null,
         offsetMs: j.serverTime ? (Date.parse(j.serverTime) - Date.now()) : 0
@@ -423,6 +425,32 @@ function renderProposalStatus(){
     ? '各组在 group.html 填写，控制台每 60 秒自动刷新'
     : '未检测到提案服务（需在 Cloudflare 绑定 D1/KV）；当前仅本机演示数据可用';
   renderQuotaTag();
+  renderReleaseState();
+}
+
+/* 导演发放状态：第一幕方案是否已发放给各组查看 */
+function renderReleaseState(){
+  const btn = $('#btnRelease'), tag = $('#releaseTag');
+  const rel = !!(PROPOSALS && PROPOSALS.ok && PROPOSALS.release && PROPOSALS.release.act1);
+  if(btn){
+    btn.textContent = rel ? '收回第一幕方案' : '发放第一幕方案';
+    btn.title = rel
+      ? '各组端不再显示其他组的第一幕方案（数据仍保留）'
+      : '把各组已提交的第一幕方案发放给所有组查看';
+    btn.disabled = !(PROPOSALS && PROPOSALS.ok);
+  }
+  if(tag) tag.hidden = !rel;
+}
+
+async function toggleRelease(){
+  if(!(PROPOSALS && PROPOSALS.ok)){ toast('提案服务未接入，无法发放'); return; }
+  const rel = !!(PROPOSALS.release && PROPOSALS.release.act1);
+  const j = await proposalPost({ act: 1, released: !rel }, 'release');
+  if(!j){ return; }
+  PROPOSALS.release = j.release || { act1: !rel, act2: false };
+  renderReleaseState();
+  await refreshProposals();
+  toast(!rel ? '已发放：各组端现在能看到其他组的第一幕方案' : '已收回：各组端不再显示其他组方案');
 }
 
 /* 今日额度提示：D1 模式显示实际读/写行数与剩余额度；KV 模式只提示模式 */
@@ -1925,6 +1953,7 @@ function bind(){
   };
   $('#btnExport').onclick = exportData;
   if($('#btnPropHit')) $('#btnPropHit').onclick = ()=>{ refreshProposals(); toast('已刷新各组提案'); };
+  if($('#btnRelease')) $('#btnRelease').onclick = toggleRelease;
   if($('#btnClearAll')) $('#btnClearAll').onclick = askClearProposals;
   $('#btnReset').onclick = askReset;
   $('#btnResetOrder').onclick = askResetOrder;

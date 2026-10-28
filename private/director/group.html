@@ -201,6 +201,22 @@ button{font-family:inherit;}
 .vwrap video{display:block;width:100%;max-height:62vh;background:#000;border-radius:8px;border:1px solid var(--line);}
 .vtip{margin:10px 0 0;font-size:var(--fs-xs);color:var(--ink-3);line-height:1.75;}
 .vtip b{color:var(--ink-2);}
+/* 导演组发放：其他组方案 */
+.shared-list{display:flex;flex-direction:column;gap:12px;}
+.shared-item{border:1px solid var(--line);border-radius:10px;background:var(--surf);padding:12px 14px;}
+.shared-item.mine{border-color:var(--brand);box-shadow:inset 3px 0 0 var(--brand);}
+.shared-h{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap;}
+.shared-h b{font-size:14px;}
+.shared-h .code{font-family:var(--mono);font-size:12px;color:var(--ink-3);background:var(--bg-2);border:1px solid var(--line);border-radius:4px;padding:1px 6px;}
+.shared-h .mine-tag{font-size:11px;color:var(--brand);border:1px solid var(--brand);border-radius:10px;padding:0 6px;}
+.shared-h .empty-tag{font-size:11px;color:var(--ink-3);border:1px solid var(--line);border-radius:10px;padding:0 6px;}
+.shared-body{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 14px;}
+.shared-fld{min-width:0;}
+.shared-fld dt{font-size:12px;color:var(--ink-3);margin-bottom:2px;}
+.shared-fld dd{margin:0;font-size:13px;line-height:1.7;color:var(--ink-1);white-space:pre-wrap;word-break:break-word;}
+.shared-empty{color:var(--ink-3);font-size:13px;padding:18px;text-align:center;border:1px dashed var(--line);border-radius:10px;}
+.shared-note{margin:0 0 10px;font-size:12px;color:var(--ink-3);}
+@media(max-width:720px){.shared-body{grid-template-columns:1fr;}}
 .tabs .sp{flex:1 1 auto;}
 .saved{font-size:var(--fs-xs);color:var(--ink-3);white-space:nowrap;padding-bottom:2px;}
 .saved.err{color:var(--warn-ink);}
@@ -383,6 +399,7 @@ textarea:disabled{background:var(--surf-2);color:var(--ink-3);border-color:var(-
     <button type="button" class="tab" id="tab1" role="tab" aria-selected="true" aria-controls="pane1" data-act="1">第一幕 · 四点方案<span class="tab-st" id="tabSt1"></span></button>
     <button type="button" class="tab tab-video" id="tabV" role="tab" aria-selected="false" aria-controls="paneV" data-view="scene2"><span class="dot"></span>情景二 · 看片<span class="tab-st">02:43</span></button>
     <button type="button" class="tab" id="tab2" role="tab" aria-selected="false" aria-controls="pane2" data-act="2">第二幕 · 三点方案<span class="tab-st" id="tabSt2"></span></button>
+    <button type="button" class="tab tab-shared" id="tabS" role="tab" aria-selected="false" aria-controls="paneS" data-view="shared" hidden><span class="dot"></span>其他组方案<span class="tab-st" id="tabStS"></span></button>
     <div class="sp"></div>
     <span class="saved" id="savedHint" aria-live="polite">输入停止 30 秒后自动保存</span>
   </div>
@@ -447,6 +464,15 @@ textarea:disabled{background:var(--surf-2);color:var(--ink-3);border-color:var(-
       <button type="button" class="btn btn-o" id="btnDraft2">保存草稿</button>
       <button type="button" class="btn btn-p" id="btnSubmit2">提交本幕</button>
     </div>
+  </section>
+
+  <!-- ============ 导演组发放：其他组第一幕方案 ============ -->
+  <section class="pane" id="paneS" role="tabpanel" aria-labelledby="tabS" hidden>
+    <div class="pane-h">
+      <h2>各组第一幕方案</h2>
+      <span class="dl" id="sharedMeta">导演组已发放 · 可参考其他组的研判与处置</span>
+    </div>
+    <div class="shared-list" id="sharedList"></div>
   </section>
 
   <p class="foot">截止前可反复修改；「保存草稿」立即存云端（也可停 30 秒自动保存，或按 Ctrl+S）；「提交本幕」后导演台显示「已提交」，本页仍可继续修改。截止后自动锁定。</p>
@@ -528,7 +554,10 @@ var state = {
   lastSnap: {'1':null, '2':null},    /* 上次已写云端的快照，用于跳过无变化写入 */
   lastWrite: {'1':null, '2':null},   /* 上次写云端的时间，限制 3.5 秒一次（KV 同 key 1 次/秒） */
   limitHit: false,                   /* 是否触发了每日写入额度 */
-  lockCache: {'1':null, '2':null}
+  lockCache: {'1':null, '2':null},
+  release: {act1:false, act2:false},  /* 导演组已发放的方案（{act1:true} 时各组可看其他组第一幕） */
+  shared: null,                       /* 发放后服务端返回的各组第一幕方案 */
+  prevRelease: false                  /* 上一次的发放状态，用于弹提示 */
 };
 
 /* ============================================================
@@ -562,6 +591,11 @@ var ui = {
   tab1: byId('tab1'),
   tab2: byId('tab2'),
   tabV: byId('tabV'),
+  tabS: byId('tabS'),
+  tabStS: byId('tabStS'),
+  paneS: byId('paneS'),
+  sharedList: byId('sharedList'),
+  sharedMeta: byId('sharedMeta'),
   tabSt1: byId('tabSt1'),
   tabSt2: byId('tabSt2'),
   saved: byId('savedHint'),
@@ -596,6 +630,11 @@ var ui = {
    3. 工具
    ============================================================ */
 function pad2(n){ return (n < 10 ? '0' : '') + n; }
+function escHtml(s){
+  return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+  });
+}
 function hhmmss(ms){
   var d = new Date(ms);
   return pad2(d.getHours()) + ':' + pad2(d.getMinutes()) + ':' + pad2(d.getSeconds());
@@ -950,9 +989,53 @@ function renderRefCard(){
   ui.refSt.textContent = st ? ('第一幕 · ' + st.text) : '';
 }
 
+/* 导演组发放后：展示各组第一幕方案（未提交的组只显示占位） */
+function renderShared(){
+  var rel = !!(state.release && state.release.act1 === true) && !!state.group;
+  if (ui.tabS) ui.tabS.hidden = !rel;
+  if (!ui.sharedList) return;
+  if (!rel) { ui.sharedList.innerHTML = ''; return; }
+  var shared = state.shared || {};
+  var defs = FIELD_DEFS['1'] || [];
+  var mine = state.group;
+  var cnt = Object.keys(shared).length;
+  if (ui.sharedMeta) {
+    ui.sharedMeta.textContent = '导演组已发放 · 共 ' + cnt + ' 组已提交（未提交的组不展示内容）';
+  }
+  if (ui.tabStS) ui.tabStS.textContent = cnt ? (cnt + ' 组') : '—';
+  var html = '';
+  SESSIONS.forEach(function(s){
+    var rec = shared[s.id];
+    var isMine = (s.id === mine);
+    html += '<div class="shared-item' + (isMine ? ' mine' : '') + '">'
+      + '<div class="shared-h"><span class="code">' + escHtml(s.code || '') + '</span>'
+      + '<b>' + escHtml(s.name || s.id) + '</b>'
+      + (isMine ? '<span class="mine-tag">本组</span>' : '')
+      + (rec ? '' : '<span class="empty-tag">未提交</span>')
+      + '</div>';
+    if (rec) {
+      html += '<dl class="shared-body">';
+      defs.forEach(function(f){
+        var v = String(((rec.fields || {})[f.key]) || '').trim();
+        html += '<div class="shared-fld"><dt>' + escHtml(f.name) + '</dt><dd>'
+          + (v ? escHtml(v) : '（未填）') + '</dd></div>';
+      });
+      html += '</dl>';
+    } else {
+      html += '<div class="shared-empty">该组尚未提交第一幕方案</div>';
+    }
+    html += '</div>';
+  });
+  ui.sharedList.innerHTML = html || '<div class="shared-empty">暂无可查看的方案</div>';
+}
+
 function renderTabs(){
   var v = state.activeView;
-  [['1', ui.tab1, ui.pane1], ['scene2', ui.tabV, ui.paneV], ['2', ui.tab2, ui.pane2]].forEach(function(x){
+  var rel = !!(state.release && state.release.act1 === true) && !!state.group;
+  if (v === 'shared' && !rel) v = state.activeView = (state.group ? '1' : '');
+  var views = [['1', ui.tab1, ui.pane1], ['scene2', ui.tabV, ui.paneV], ['2', ui.tab2, ui.pane2]];
+  if (rel) views.push(['shared', ui.tabS, ui.paneS]);
+  views.forEach(function(x){
     var sel = (x[0] === v);
     x[1].setAttribute('aria-selected', sel ? 'true' : 'false');
     x[1].tabIndex = sel ? 0 : -1;
@@ -963,6 +1046,7 @@ function renderTabs(){
     var node = a === '1' ? ui.tabSt1 : ui.tabSt2;
     node.textContent = st ? st.text : '';
   });
+  renderShared();
   ui.tabs.hidden = !state.group;
   ui.empty.hidden = !!state.group;
   renderRefCard();
@@ -1033,6 +1117,12 @@ function applyServer(data, groupId){
   if (data.open && typeof data.open === 'object') {
     state.open = {act1: data.open.act1 === true, act2: data.open.act2 === true};
   }
+  /* 导演组发放状态：第一幕发放后，各组可看其他组方案 */
+  var wasReleased = state.release.act1 === true;
+  if (data.release && typeof data.release === 'object') {
+    state.release = {act1: data.release.act1 === true, act2: data.release.act2 === true};
+  }
+  state.shared = (data.shared && typeof data.shared === 'object') ? data.shared : null;
   var all = (data.proposals && typeof data.proposals === 'object') ? data.proposals : {};
   var target = groupId || state.group;
   if (target && all[target] && typeof all[target] === 'object') {
@@ -1041,6 +1131,10 @@ function applyServer(data, groupId){
       if (p && typeof p === 'object') applyServerRecord(act, p);
     });
   }
+  if (state.release.act1 && !wasReleased) {
+    toast('导演组已发放各组第一幕方案，可在「其他组方案」查看');
+  }
+  if (!state.release.act1 && state.activeView === 'shared') switchView('1');
   renderAll();
 }
 
@@ -1380,8 +1474,9 @@ function copyPlanText(){
 
 function switchView(view){
   if (!state.group || state.activeView === view) return;
+  if (view === 'shared' && !(state.release && state.release.act1 === true)) return;
   state.activeView = view;
-  /* 情景二看片期间，倒计时/状态按第二幕算（10:15—11:15 同一时间窗） */
+  /* 情景二/其他组方案期间，倒计时/状态按第二幕算（10:15—11:15 同一时间窗） */
   state.activeAct = (view === '1') ? '1' : '2';
   renderTabs();
   renderStatus();
@@ -1401,6 +1496,7 @@ function init(){
   });
   ui.tab1.addEventListener('click', function(){ switchAct('1'); });
   ui.tab2.addEventListener('click', function(){ switchAct('2'); });
+  ui.tabS.addEventListener('click', function(){ switchView('shared'); });
   ui.btn1.addEventListener('click', function(){ submitAct('1'); });
   ui.btn2.addEventListener('click', function(){ submitAct('2'); });
   ui.btnDraft1.addEventListener('click', function(){ saveDraft('1'); });
@@ -1455,15 +1551,17 @@ function init(){
     if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
     e.preventDefault();
     var order = ['1', 'scene2', '2'];
+    if (state.release && state.release.act1 === true) order.push('shared');
     var i = order.indexOf(state.activeView);
     var next = order[(i + (e.key === 'ArrowRight' ? 1 : -1) + order.length) % order.length];
     switchView(next);
-    var tab = next === '1' ? ui.tab1 : next === 'scene2' ? ui.tabV : ui.tab2;
+    var tab = next === '1' ? ui.tab1 : next === 'scene2' ? ui.tabV : next === 'shared' ? ui.tabS : ui.tab2;
     tab.focus();
   }
   ui.tab1.addEventListener('keydown', onTabKey);
   ui.tabV.addEventListener('keydown', onTabKey);
   ui.tab2.addEventListener('keydown', onTabKey);
+  ui.tabS.addEventListener('keydown', onTabKey);
 
   renderAll();
 

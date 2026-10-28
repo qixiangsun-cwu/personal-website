@@ -195,7 +195,9 @@ function sha256Hex(str) {
         <h2>席位提交进度</h2>
         <span class="tag" id="seatTag">10 方参演</span>
         <span class="tag" id="quotaTag" title="今日存储操作与剩余额度">额度 —</span>
+        <span class="tag" id="releaseTag" title="各组端已可查看其他组的第一幕方案" hidden>第一幕已发放</span>
         <div class="sp"></div>
+        <button class="btn btn-o btn-sm" id="btnRelease" title="把各组已提交的第一幕方案发放给所有组查看（可收回）">发放第一幕方案</button>
         <button class="btn btn-o btn-sm" id="btnPropHit" title="立即刷新各组提案（平时每 60 秒自动刷新一次）">刷新提案</button>
         <button class="btn btn-o btn-sm" id="btnClearAll" title="一键清空全部组方案与重开状态（正式场开始前使用）">清空本场</button>
         <button class="btn btn-g btn-sm" id="btnExport">导出演示数据</button>
