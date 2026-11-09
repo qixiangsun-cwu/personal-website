@@ -1,0 +1,1028 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>专题 · Agent 通过 MCP 指挥 Blender（第 9 次课）| 2026年虚拟现实技术</title>
+<meta name="description" content="《虚拟现实技术》第 9 次课（2026-11-11 · 4 学时 / 180 分钟）专题：以中华女子学院建筑为例，讲清 Blender / MCP / Agent 三个角色、MCP 的 stdio 与 JSON-RPC 协议细节（initialize / tools/list / tools/call，实测协商版本 2024-11-05）、10 个真实工具的工具面、一条命令从 Agent 到 bpy 主线程的四层链路与四个工程细节（线程模型 / 协议污染 / 有状态会话 / 安全边界）。前两节 90 分钟是四个课堂练习（10 + 25 + 35 + 20）；后两节讲真实决策过程：Maya→Blender、六个关键决策、三次翻车与修正、多 Agent 写作用域分工、真实成果数据（260 对象 / 109,793 三角面 / GLB 8.36 MB）与验收三件套，收尾给出照片重建的三档路线与边界。">
+<link rel="stylesheet" href="assets/vr-2026/course.css">
+</head>
+<body>
+
+<!-- ===== 顶部 ===== -->
+<header class="hero">
+  <div class="hero-inner">
+    <span class="kicker">虚拟现实技术 · 第 9 次课 · MCP × Blender 专题</span>
+    <h1>Agent 通过 MCP 指挥 Blender</h1>
+    <p class="sub">2026-11-11 · 4 学时 · 180 分钟 —— 这一课不讨论「AI 能不能生成 3D」，只回答一个问题：Agent 怎么把一条命令真正送到 Blender 的 bpy 主线程上，并且每一步都有返回值可以验证。前两节 90 分钟全是练，后两节 90 分钟才讲。</p>
+    <div class="meta">
+      <span>中华女子学院</span>
+      <span>第 9 次课 · 2026-11-11（周三）· 4 学时</span>
+      <span>主楼 646 · 36 机位</span>
+      <span>数字媒体技术 2023 级 · 40 人</span>
+      <span>授课人：孙琪翔</span>
+      <span>前两节练习 90′ + 后两节讲授 90′</span>
+    </div>
+  </div>
+</header>
+
+<!-- ===== 目录导航 ===== -->
+<nav class="nav" id="nav">
+  <div class="nav-inner" id="navInner">
+    <a href="vr-2026.html" class="nav-back">← 课程主页</a>
+    <a href="#guide" data-sec="guide" class="on">本课导览</a>
+    <a href="#ex" data-sec="ex">前两节 · 练习</a>
+    <a href="#c1" data-sec="c1">一、三个角色</a>
+    <a href="#c2" data-sec="c2">二、为什么不直接生成</a>
+    <a href="#c3" data-sec="c3">三、一根旗杆</a>
+    <a href="#c4" data-sec="c4">四、一条命令</a>
+    <a href="#c5" data-sec="c5">五、真实过程</a>
+    <a href="#c6" data-sec="c6">六、多 Agent 分工</a>
+    <a href="#c7" data-sec="c7">七、成果与验收</a>
+    <a href="#c8" data-sec="c8">八、照片重建</a>
+    <a href="#hw" data-sec="hw">作业 · 评价</a>
+    <a href="#next" data-sec="next">下次课</a>
+  </div>
+</nav>
+
+<main>
+
+<!-- ===== 导览 ===== -->
+<section id="guide">
+  <div class="sec-head">
+    <div class="sec-num">导</div>
+    <div>
+      <h2>本课导览</h2>
+      <p class="sec-sub">上一轮（第 8 次课 · 10-28）证明「这条链能通」；这一轮要证明「它真能干活」</p>
+    </div>
+  </div>
+
+  <p>第 8 次课已经讲过 MCP 的概念，也搭通了一条 Maya 链路——但那条链路是 <strong>commandPort 同构的仿真命令层</strong>：协议、工具面、调用链都能演示，唯独证明不了「它真能干活」。这一节把同一套架构搬到本机真实安装的 <strong>Blender 5.4.0 Alpha</strong> 上：bpy 真执行、EEVEE 真渲染、原生 GLB 真导出。上一节证明「这条链能通」，这一节证明「它能干活」。</p>
+
+  <div class="key"><strong>本课命题</strong>：MCP 不是「让 AI 画画」，是<strong>让 AI 在别人的软件里按规则动手</strong>。<br>
+    <strong>今天的产出是四样东西</strong>：① 每组的「调用序列」纸面答案（练习 B）；② 每组的对比表 + 一句话结论（练习 D）；③ 学生笔记（三个角色 + 一条命令怎么走完）；④ 课后思考题。</div>
+
+  <h3>一、180 分钟怎么分（硬性）</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>节次</th><th>时长</th><th>内容</th><th>产出</th></tr></thead>
+      <tbody>
+        <tr><td>第 1 节</td><td><strong>45 min</strong></td><td>课堂练习 A+B（概念热身 + 人肉 MCP）</td><td>每组的「调用序列」纸面答案</td></tr>
+        <tr><td>第 2 节</td><td><strong>45 min</strong></td><td>课堂练习 C+D（参数化改造 + 生成式对比）</td><td>每组的对比表 + 一句话结论</td></tr>
+        <tr><td>第 3 节</td><td><strong>45 min</strong></td><td><strong>讲授 1</strong>：三个角色 + 为什么不是「直接生成」 + 一条命令怎么走完</td><td>学生笔记</td></tr>
+        <tr><td>第 4 节</td><td><strong>45 min</strong></td><td><strong>讲授 2</strong>：我的真实过程（决策分析）+ 多 Agent 分工 + 照片重建路线</td><td>课后思考题</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="note"><strong>核对行</strong>：45 + 45 + 45 + 45 = <strong>180 分钟</strong>。<br>
+    讲授部分全部放在后两节，前两节一节不留——<strong>先做后讲</strong>是本课程一贯做法（第 8 次课同样如此）。</div>
+
+  <h3>二、这一节课问五个问题</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>#</th><th>问题</th><th>一句话判据</th><th>本页在哪</th></tr></thead>
+      <tbody>
+        <tr><td>①</td><td><strong>三个角色分别是谁</strong></td><td>MCP 不是模型、不是插件，它<strong>不产生 3D</strong></td><td><a href="#c1">一、三个角色</a></td></tr>
+        <tr><td>②</td><td><strong>为什么不用文生 3D</strong></td><td>生成式是<strong>抽卡</strong>，MCP 是<strong>下指令</strong></td><td><a href="#c2">二、为什么不直接生成</a></td></tr>
+        <tr><td>③</td><td><strong>一条命令怎么走到 bpy</strong></td><td>中间隔着 <strong>4 层进程</strong>和 <strong>1 条线程边界</strong></td><td><a href="#c3">三、一根旗杆</a> / <a href="#c4">四、一条命令</a></td></tr>
+        <tr><td>④</td><td><strong>实战里会翻什么车</strong></td><td>「超时」和「被拒绝」要分开查；「看不到」不等于「没做出来」</td><td><a href="#c5">五、真实过程</a></td></tr>
+        <tr><td>⑤</td><td><strong>怎么验收</strong></td><td><strong>数字 + 图像 + 断言</strong>，三样缺一不可</td><td><a href="#c7">七、成果与验收</a></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>三、本页的素材全部来自这次真实构建</h3>
+  <p>页面里的截图、数字、报错文本都不是示意，是这次构建过程中真实产生的：Blender 界面截图、教图楼渲染、OSM 轮廓叠卫星影像、线上 WebXR 页面截图、湖边的「I❤CWU」标识。凡是<strong>查不到确切依据</strong>的部分，一律在正文里标注为「示意」或「估算」，不装作是真的——这条规矩在第五章会反复出现。</p>
+
+  <div class="btn-row">
+    <a class="btn" href="vr-2026.html">← 返回课程主页</a>
+    <a class="btn ghost" href="assets/vr-2026/webxr/campus_cwu_v2_webxr.html" target="_blank" rel="noopener">打开本课成果 · 校园沙盘 WebXR →</a>
+  </div>
+  <p style="font-size:14px;color:var(--ink-soft);">该成果页是<strong>单文件 11.9 MB、零外部请求</strong>的 WebXR 页面，首次打开会稍慢；three.js 与模型都已内联，离线可跑。</p>
+</section>
+
+<!-- ===== 前两节 · 课堂练习 ===== -->
+<section id="ex">
+  <div class="sec-head">
+    <div class="sec-num">练</div>
+    <div>
+      <h2>前两节 · 课堂练习（90 分钟）</h2>
+      <p class="sec-sub">10 + 25 + 35 + 20 = 90 分钟，四个练习，先纸面后上机</p>
+    </div>
+  </div>
+
+  <p>前两节一节讲授都不留。理由很简单：<strong>你没亲手排过一遍调用顺序，就听不懂后面为什么要讲线程模型。</strong>四个练习的难度是递增的——A 只连概念，B 只写序列不动手，C 真的要跑通并把包围盒量出来，D 要你亲口说出「为什么不用文生 3D」。</p>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>练习</th><th>时长</th><th>名称</th><th>形式</th><th>产出</th></tr></thead>
+      <tbody>
+        <tr><td><strong>A</strong></td><td>10 min</td><td>概念热身：给三个角色连线</td><td>个人纸面</td><td>一张连线图</td></tr>
+        <tr><td><strong>B</strong></td><td>25 min</td><td><strong>人肉 MCP</strong>：写出调用序列</td><td>4 人一组</td><td>调用序列表</td></tr>
+        <tr><td><strong>C</strong></td><td>35 min</td><td><strong>参数化改造</strong>：岗亭建模</td><td>4 人一组，1 台机器</td><td>参数表 + 执行记录 + 包围盒数据</td></tr>
+        <tr><td><strong>D</strong></td><td>20 min</td><td><strong>生成式对比</strong>：文生 3D vs 参数建模</td><td>同上</td><td>对比表 + 一句话结论</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="note"><strong>核对行</strong>：10 + 25 + 35 + 20 = <strong>90 分钟</strong>，正好填满第 1、2 节。若某一节超时，砍练习 D 的对比表为口头讨论，<strong>不要砍练习 C</strong>——C 是课后作业 4 的预演。</div>
+
+  <h3 id="exA">练习 A（10 min）· 概念热身：给三个角色连线</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>项</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td>时长 / 形式</td><td>10 min · 个人纸面完成，不讨论、不开电脑</td></tr>
+        <tr><td>给定材料</td><td>一张 A4 纸。左栏三个名字：<strong>Blender</strong>、<strong>MCP</strong>、<strong>Agent 工具</strong>；右栏若干条描述（含干扰项），要求把每个名字连到正确的描述上；末尾留 2 个填空。</td></tr>
+        <tr><td>步骤</td><td>① 独立连线（3 min）；② 同桌互查，圈出对方连错的那一条（2 min）；③ 教师抽 2 人念答案，全班当场判（3 min）；④ 补完 2 个填空（2 min）。</td></tr>
+        <tr><td>2 个填空</td><td>填空 1：MCP 规定「怎么问、怎么答」用的协议是 <code class="inline">JSON-RPC 2.0</code>。<br>填空 2：本课的 MCP Server 是一个 <code class="inline">Node</code> 进程，与 Agent 之间走 <code class="inline">stdio</code>。</td></tr>
+        <tr><td>产出</td><td>一张连线图</td></tr>
+        <tr><td>验收口径</td><td>三个角色能各用一句话说清，并且必须说出<strong>「MCP 不产生 3D」</strong>这句话。把 MCP 说成「AI 插件」或「模型」，判错。</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 id="exB">练习 B（25 min）· 人肉 MCP：写出调用序列</h3>
+  <p>这个练习的关键是<strong>先写不做</strong>。脑袋里排一遍顺序，比手上去乱点十次有用得多——因为 MCP 的价值正是「下一步做什么」由 Agent 决定，而决定的质量取决于你有没有想清楚顺序。</p>
+
+  <h4>给定工具表（只有这 5 个）</h4>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>工具名</th><th>干什么</th><th>关键参数</th></tr></thead>
+      <tbody>
+        <tr><td><code class="inline">blender_exec</code></td><td>在真实 Blender 主线程执行一段受限的 bpy 片段，返回捕获的 stdout 与最后一行的表达式值</td><td><code class="inline">code</code>（Python 片段）；可选 <code class="inline">timeout_ms</code>，默认 5000，上限 60000</td></tr>
+        <tr><td><code class="inline">blender_scene_stats</code></td><td>读当前场景统计：对象数、网格数、顶点数、三角面数、材质数、集合数与世界包围盒（单位米）</td><td>无参数</td></tr>
+        <tr><td><code class="inline">blender_set_color</code></td><td>按对象名上色；name 可传具体对象名、集合名、通配符（如 <code class="inline">column_*</code>）或 <code class="inline">all</code></td><td><code class="inline">name</code> + <code class="inline">color</code>，color 是 <code class="inline">[r,g,b]</code> 三个 0~1 的浮点数</td></tr>
+        <tr><td><code class="inline">blender_render_preview</code></td><td>用 EEVEE 渲染一张 PNG 预览；场景没有相机或灯光时会自动补一个</td><td><code class="inline">path</code>；可选 <code class="inline">width</code>（默认 960）、<code class="inline">height</code>（默认 720）、<code class="inline">setup_scene</code>（默认 true）</td></tr>
+        <tr><td><code class="inline">blender_export_glb</code></td><td>导出 glTF 2.0 二进制 <code class="inline">.glb</code>，可直接给 three.js / WebXR / Unity 用</td><td><code class="inline">path</code>；可选 <code class="inline">apply_modifiers</code>（默认 true）、<code class="inline">use_selection</code>（默认 false）、<code class="inline">draco</code>（默认 false）</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h4>目标</h4>
+  <div class="key">建一个 <strong>2 m × 2 m × 2 m</strong> 的方块，染成校徽红 <code class="inline">#C90916</code>，渲染一张图，导出 GLB。</div>
+
+  <h4>步骤（25 min）</h4>
+  <ol>
+    <li><strong>先只写调用序列，不执行</strong>（8 min）：写清每一步的参数，包括单位、坐标、颜色怎么写。</li>
+    <li><strong>教师抽 2 组上来念</strong>（7 min）：全班判断「顺序对不对、参数够不够」，不对的地方当场改。</li>
+    <li><strong>教师用真实 MCP 执行验证</strong>（7 min）：把纸面答案真的跑一遍，看哪一步真的会失败。</li>
+    <li><strong>陷阱题</strong>（3 min）：见下。</li>
+  </ol>
+
+  <h4>产出</h4>
+  <p>调用序列表，四列：<strong>步骤 / 工具名 / 参数 / 预期结果</strong>。</p>
+
+  <h4>验收口径</h4>
+  <ul>
+    <li>序列能跑通，且每一步的参数齐全：尺寸写米、颜色写 <code class="inline">[r,g,b]</code>。</li>
+    <li>能解释清楚颜色为什么不能用十六进制直接填——<code class="inline">blender_set_color</code> 的 <code class="inline">color</code> 只收 0~1 的浮点数，<code class="inline">#C90916</code> 要先换算成 <code class="inline">[0.788, 0.035, 0.086]</code>（201、9、22 各除以 255）。这是真机上最常见的第一个卡点。</li>
+    <li>能回答陷阱题。</li>
+  </ul>
+
+  <div class="warn"><strong>陷阱题（考察状态顺序）</strong>：如果先 <code class="inline">blender_export_glb</code> 再 <code class="inline">blender_set_color</code>，导出的那个 GLB 里，方块是什么颜色？<br>
+    <details>
+      <summary>先自己想，再看答案</summary>
+      <p>是<strong>上色之前</strong>的颜色（默认材质）。因为 MCP 是有状态的：导出动作读的是<strong>那一刻</strong>的场景状态，而那一刻颜色还没改。这也正是练习 B 全程强调「顺序」的原因——同一组工具，顺序错了，结果是错的，但每一步都「没有报错」。</p>
+    </details>
+  </div>
+
+  <h3 id="exC">练习 C（35 min）· 参数化改造：岗亭建模</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>项</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td>时长 / 形式</td><td>35 min · 4 人一组，1 台机器，组内分工：1 人写指令、1 人执行、1 人记数据、1 人复核</td></tr>
+        <tr><td>给定材料</td><td>一张<strong>岗亭照片</strong>（现场发）+ 下面这张尺寸表</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h4>岗亭尺寸表（完整）</h4>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>构件</th><th>尺寸</th></tr></thead>
+      <tbody>
+        <tr><td>主体</td><td>3.2 × 3.2 × 3.4 m（宽×深×高）</td></tr>
+        <tr><td>门洞</td><td>1.0 × 2.1 m，居中，朝南</td></tr>
+        <tr><td>窗</td><td>0.9 × 1.2 m，两扇，窗台高 1.1 m</td></tr>
+        <tr><td>女儿墙</td><td>高出屋面 0.45 m</td></tr>
+        <tr><td>屋顶挑檐</td><td>外扩 0.35 m</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h4>步骤（35 min）</h4>
+  <ol>
+    <li><strong>翻译</strong>（10 min）：把尺寸表翻成<strong>自然语言指令序列 + 每步调用的工具</strong>。要求写清「哪一步建主体、哪一步开洞、哪一步加女儿墙、哪一步加挑檐」。</li>
+    <li><strong>执行</strong>（15 min）：交给 Agent 一步一步执行，每步执行完立刻看一眼返回值。</li>
+    <li><strong>量</strong>（5 min）：用 <code class="inline">blender_scene_stats</code> 读包围盒，填进下面的验收栏。</li>
+    <li><strong>记录</strong>（5 min）：调了几次才达标、错在哪一步、错的是参数、顺序还是理解。</li>
+  </ol>
+
+  <h4>产出</h4>
+  <p>参数表 + 执行记录 + 包围盒数据。</p>
+
+  <h4>验收口径</h4>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>指标</th><th>标称值</th><th>实测值（本组填）</th><th>误差</th><th>是否 ≤ ±5 cm</th></tr></thead>
+      <tbody>
+        <tr><td>包围盒 X（宽）</td><td>3.2 m</td><td></td><td></td><td>☐ 是　☐ 否</td></tr>
+        <tr><td>包围盒 Y（深）</td><td>3.2 m</td><td></td><td></td><td>☐ 是　☐ 否</td></tr>
+        <tr><td>包围盒 Z（高）</td><td><strong>3.85 m</strong></td><td></td><td></td><td>☐ 是　☐ 否</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="note"><strong>最容易错的一处</strong>：Z 方向标称值是 <strong>3.85 m</strong>，不是 3.4 m。3.4 m 是主体高，<strong>3.4 + 0.45（女儿墙）= 3.85</strong>——包围盒量的是含女儿墙的总高。另外挑檐外扩 0.35 m 会让 X、Y 两个方向的包围盒<strong>不等于</strong> 3.2 m；先把挑檐算进去再断言，否则永远差 0.7 m 以上。这一条是 4 人组最容易集体翻车的地方。</div>
+
+  <h3 id="exD">练习 D（20 min）· 生成式对比：文生 3D vs 参数建模</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>项</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td>时长 / 形式</td><td>20 min · 4 人一组，1 台机器</td></tr>
+        <tr><td>给定材料</td><td>同一个目标：<strong>校门的一根门柱</strong> = <strong>0.9 × 0.9 × 0.8 m</strong> 柱帽 + <strong>3.4 × 3.4 × 9 m</strong> 柱身。两条路径：路径一，文生 3D 网页版，输入「中式校门门柱」；路径二，MCP 参数建模。</td></tr>
+        <tr><td>步骤</td><td>① 两条路径各做一次（12 min）；② 填对比表（5 min）；③ 每组写一句话结论（3 min）。</td></tr>
+        <tr><td>产出</td><td>对比表 + 一句话结论</td></tr>
+        <tr><td>验收口径</td><td>五个维度<strong>全部填完</strong>、不写「都挺好」「各有优劣」这类废话；一句话结论必须回答「如果这是工程任务，我选哪条路，为什么」。</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h4>对比表（空表模板，照抄填写）</h4>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>维度</th><th>路径一：文生 3D</th><th>路径二：MCP 参数建模</th></tr></thead>
+      <tbody>
+        <tr><td><strong>可控性</strong></td><td></td><td></td></tr>
+        <tr><td><strong>尺寸精度</strong></td><td></td><td></td></tr>
+        <tr><td><strong>耗时</strong></td><td></td><td></td></tr>
+        <tr><td><strong>可修改性</strong></td><td></td><td></td></tr>
+        <tr><td><strong>能否批量</strong></td><td></td><td></td></tr>
+        <tr><td><strong>一句话结论</strong></td><td colspan="2">如果这是工程任务，我选＿＿＿＿，因为＿＿＿＿＿＿＿＿＿＿＿＿</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <details>
+    <summary><strong>教师用 · 预期结论</strong>（先别展开，等学生自己得出）</summary>
+    <p>生成式赢在<strong>「像」</strong>，参数化赢在<strong>「准」</strong>。工程上要的是「准 + 可批量」，所以选 MCP。这个结论<strong>不要直接给</strong>——让学生自己在两条路径上各做一次，看到文生 3D 出的门柱尺寸完全不受控，这句结论才有分量。</p>
+  </details>
+</section>
+
+<!-- ===== 一、三个角色 ===== -->
+<section id="c1">
+  <div class="sec-head">
+    <div class="sec-num">一</div>
+    <div>
+      <h2>三个角色：Blender 会做、MCP 会送、Agent 会想</h2>
+      <p class="sec-sub">MCP 不是模型、不是插件、不产生 3D——它只规定「怎么问、怎么答」</p>
+    </div>
+  </div>
+
+  <p>这一节先把三个名字钉死。三个角色一旦混在一起，后面所有讨论都会滑向「AI 好厉害」这类空话；而混在一起最典型的症状，就是有人把 MCP 说成「能生成模型的 AI 插件」。</p>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>角色</th><th>是什么</th><th>关键点</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Blender</strong></td><td>开源三维 DCC 软件</td><td>它有 <strong>Python API（bpy）</strong>——这一点决定了它可以被程序指挥。没有可编程接口的软件，Agent 只能「看图说话」</td></tr>
+        <tr><td><strong>MCP</strong><br>（Model Context Protocol）</td><td>模型与外部工具之间的<strong>通信协议</strong>（JSON-RPC 2.0）</td><td>它<strong>不是模型、不是插件、不产生 3D</strong>。它只规定「怎么问、怎么答」。类比：USB-C 规定了接口形状，但不决定插上去的是硬盘还是显示器</td></tr>
+        <tr><td><strong>Agent 工具</strong></td><td>能读写文件、跑命令、调工具的智能体（DeepSeek Harness / Claude Code / Cursor 等）</td><td>Agent 负责「决定下一步做什么」；MCP 负责「把决定送到工具」；Blender 负责「真的做」</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>一、Blender：它凭什么能被程序指挥</h3>
+  <p>Blender 是开源三维 DCC 软件。它和别的建模软件最大的区别不是免费，是它有 <strong>Python API（bpy）</strong>。这一点决定了它可以被程序指挥：Agent 写一段 bpy 片段，<code class="inline">bpy.ops.mesh.primitive_cylinder_add(radius=0.22, depth=18)</code> 一执行，场景里就真的多一根柱子。</p>
+  <p>反过来看：<strong>没有可编程接口的软件，Agent 只能「看图说话」</strong>——截一张图，猜按钮在哪个位置，点一下，再截一张图看有没有点错。这条路能走，但又慢又不可靠，而且每次都要重新猜。</p>
+  <div class="note">本机装的是 <strong>Blender 5.4.0 Alpha</strong>。选它的另一个硬理由是成本：商业授权在机房 40 台上不现实，而它免费、有 Python API、原生支持 GLB 导出。</div>
+
+  <h3>二、MCP：一个只管「接口形状」的协议</h3>
+  <p>MCP（Model Context Protocol）是模型与外部工具之间的通信协议，底层是 <strong>JSON-RPC 2.0</strong>。它有三个「不是」必须先背下来：<strong>不是模型、不是插件、不产生 3D</strong>。</p>
+  <p>这个类比值得反复用：<strong>USB-C 规定了接口形状，但不决定插上去的是硬盘还是显示器。</strong>MCP 规定了握手怎么握、工具怎么列、调用怎么发，但不决定工具背后是 Blender、是数据库，还是一台数控机床。所以「MCP 好厉害，能建模」这句话从头就是错的——建模的是 Blender，MCP 只是把「建一根直径 0.22 m 的柱子」这句话完整、无损地送到了 Blender 手上。</p>
+
+  <h3>三、Agent 工具：负责决定下一步做什么</h3>
+  <p>Agent 工具是能读写文件、跑命令、调工具的智能体。它的价值不在「会写代码」，在<strong>会看返回值再决定下一步</strong>：调完 <code class="inline">blender_scene_stats</code> 发现对象数没变，它就知道上一步没成功，换个参数重来。</p>
+  <div class="key"><strong>三者分工，一句话</strong>：Agent 决定<strong>做什么</strong>；MCP 负责<strong>怎么送</strong>；Blender 负责<strong>真的做</strong>。三者里任何一个缺席，这条链就断——而且断在哪一层，现象完全不一样，第四章讲怎么查。</div>
+
+  <h3>四、MCP 的协议细节（讲清楚，不糊）</h3>
+  <p>协议层面的东西不背下来，就只能停留在「大概是这样」。下面五条是本课要求掌握的：</p>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>环节</th><th>方法 / 机制</th><th>本课实际发生什么</th></tr></thead>
+      <tbody>
+        <tr><td><strong>传输</strong></td><td><strong>stdio</strong>（本课）或 HTTP</td><td>本课 MCP Server 是一个 <strong>Node 进程</strong>，stdin / stdout 走 JSON-RPC；stdio 上是<strong>换行分隔</strong>的 JSON-RPC，每行一条消息</td></tr>
+        <tr><td><strong>三个核心概念</strong></td><td><strong>tools</strong>（可调用的动作）、<strong>resources</strong>（可读的资源）、<strong>prompts</strong>（预设提示）</td><td>本课<strong>只用到 tools</strong>；服务端对 <code class="inline">resources/list</code> 与 <code class="inline">prompts/list</code> 都返回空数组</td></tr>
+        <tr><td><strong>握手</strong></td><td><code class="inline">initialize</code> → 协商协议版本 → <code class="inline">notifications/initialized</code></td><td>本课实测协商出 <strong>2024-11-05</strong>（服务端支持的版本里有它，客户端要的就是它）</td></tr>
+        <tr><td><strong>发现</strong></td><td><code class="inline">tools/list</code></td><td>返回每个工具的<strong>名字 + JSON Schema 参数</strong>，Agent 靠这个知道每个参数该填什么类型</td></tr>
+        <tr><td><strong>调用</strong></td><td><code class="inline">tools/call</code>，带 <code class="inline">name</code> + <code class="inline">arguments</code></td><td>返回 <code class="inline">content[]</code> 与 <code class="inline">isError</code>；失败时 <code class="inline">isError</code> 为 true，并给中文可读错误，不静默失败</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>握手这一步的真实消息长这样（请求是客户端发的，响应是服务端回的）：</p>
+<pre>// 请求
+{"jsonrpc":"2.0","id":1,"method":"initialize",
+ "params":{"protocolVersion":"2024-11-05","capabilities":{}}}
+
+// 响应（服务端 blender-course-mcp 1.0.0）
+{"jsonrpc":"2.0","id":1,"result":{
+  "protocolVersion":"2024-11-05",
+  "capabilities":{"tools":{"listChanged":false}},
+  "serverInfo":{"name":"blender-course-mcp","version":"1.0.0"},
+  "instructions":"Blender 课堂演示 MCP 服务器：10 个工具可查询/建模/上色/导出/渲染。"
+}}</pre>
+
+  <p>响应里还有一条 <code class="inline">instructions</code> 字段，服务端用它自报情况：<strong>后端是真 Blender（命令端口 127.0.0.1:7003，bpy 真实执行）；命令端口未启动时 <code class="inline">tools/call</code> 会返回中文提示，可调用 <code class="inline">blender_autostart</code> 自动拉起</strong>。这段话不是给人看的花边——它明确告诉 Agent「出问题该往哪查」，等于把排错手册塞进了握手包里。</p>
+
+  <p>调用一次工具的消息更短，只有三个字段有意义：</p>
+<pre>{"jsonrpc":"2.0","id":7,"method":"tools/call",
+ "params":{"name":"blender_set_color",
+           "arguments":{"name":"flagpole","color":[0.788,0.035,0.086]}}}</pre>
+
+  <div class="warn"><strong>这一条是真踩过的坑：stdout 只能输出协议内容。</strong>MCP Server 的 stdout 是协议通道，日志必须走 stderr。有人在 stdout 上打了一行 <code class="inline">console.log('server started')</code>，客户端解析协议时直接报「JSON 解析失败」——服务本身没错，是<strong>协议被污染了</strong>。这类问题最难受的地方是：日志越热心，故障越严重。</div>
+
+  <h3>五、本课实际用到的 10 个工具（真实存在）</h3>
+  <p>下面这 10 个名字全部是真实的工具名，不是示意。它们按用途可以分三组：<strong>查状态</strong>、<strong>改状态</strong>、<strong>出文件</strong>。</p>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>工具名</th><th>用途</th><th>关键参数</th></tr></thead>
+      <tbody>
+        <tr><td><code class="inline">blender_ping</code></td><td>测试与命令端口的连接，返回 pong、Blender 版本、协议、场景对象数与 PID</td><td>无</td></tr>
+        <tr><td><code class="inline">blender_autostart</code></td><td>若 7003 端口未监听，后台拉起 blender.exe（无头 + 命令端口）并等待就绪</td><td>可选 <code class="inline">blender_exe</code>、<code class="inline">timeout_ms</code>（默认 90000）</td></tr>
+        <tr><td><code class="inline">blender_scene_stats</code></td><td>读场景统计：对象数、网格数、顶点数、三角面数、材质数、集合数与世界包围盒（米）</td><td>无</td></tr>
+        <tr><td><code class="inline">blender_list_objects</code></td><td>列出全部对象（名称、类型、所在集合、位置、顶点数、三角面数、材质）与集合列表</td><td>无</td></tr>
+        <tr><td><code class="inline">blender_exec</code></td><td>在真实 Blender 主线程执行受限制的 bpy 片段，返回捕获的 stdout 与最后一行的表达式值</td><td><code class="inline">code</code>；可选 <code class="inline">timeout_ms</code>（默认 5000，上限 60000）</td></tr>
+        <tr><td><code class="inline">blender_set_color</code></td><td>按对象名 / 集合名 / 通配符 / <code class="inline">all</code> 上色，自动创建并以材质名 <code class="inline">bl_color_rrggbb</code> 复用材质</td><td><code class="inline">name</code>、<code class="inline">color</code>（<code class="inline">[r,g,b]</code>，0~1）</td></tr>
+        <tr><td><code class="inline">blender_clear_scene</code></td><td>清空全部对象与孤立数据块（保留渲染 / 世界设置，GUI 里不重置界面）</td><td>无</td></tr>
+        <tr><td><code class="inline">blender_export_glb</code></td><td>只导出 glTF 2.0 二进制 <code class="inline">.glb</code>，返回路径、字节数、magic、glTF 版本与网格统计</td><td><code class="inline">path</code>；可选 <code class="inline">apply_modifiers</code>、<code class="inline">use_selection</code>、<code class="inline">draco</code></td></tr>
+        <tr><td><code class="inline">blender_export_scene</code></td><td>一次导出三个文件：glb + obj + blend（<code class="inline">copy=True</code>，不改变当前文件）</td><td><code class="inline">path</code>（基础路径，不带扩展名）</td></tr>
+        <tr><td><code class="inline">blender_render_preview</code></td><td>用 EEVEE 渲染一张 PNG；没有相机或灯光时自动补一个，按包围盒自动构图</td><td><code class="inline">path</code>；可选 <code class="inline">width</code>、<code class="inline">height</code>、<code class="inline">setup_scene</code>、<code class="inline">transparent</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="note">注意 <code class="inline">blender_clear_scene</code> 是<strong>无参数</strong>的。一个「清空整个场景」的工具没有任何参数、没有任何确认步骤——这不是设计偷懒，是刻意留给课堂讨论用的：<strong>权限边界靠什么保证？</strong>答案在第四章第四个工程细节。</div>
+</section>
+
+<!-- ===== 二、为什么不是直接生成 ===== -->
+<section id="c2">
+  <div class="sec-head">
+    <div class="sec-num">二</div>
+    <div>
+      <h2>为什么不是「直接让 AI 生成 3D」</h2>
+      <p class="sec-sub">生成式是抽卡，MCP 是下指令——这两件事解决的不是同一个问题</p>
+    </div>
+  </div>
+
+  <p>上课前最常被问的一句是：「现在文生 3D 这么强，为什么还要费劲搭 MCP？」这句话值得认真回答，因为<strong>答案不是「生成式不行」，而是「它解决的不是这个问题」</strong>。</p>
+
+  <h3>一、四条路径，摆在一起看</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>路径</th><th>代表</th><th>本质</th><th>可控性</th><th>尺寸精度</th><th>可修改</th></tr></thead>
+      <tbody>
+        <tr><td><strong>A 生成式文生 3D</strong></td><td>Tripo / Hunyuan3D / Meshy</td><td>神经网络一次出 mesh</td><td>低</td><td>不可控</td><td>只能重抽</td></tr>
+        <tr><td><strong>B Agent 写脚本离线跑</strong></td><td>让 Agent 写 <code class="inline">.py</code>，<code class="inline">blender -b -P</code></td><td>程序化</td><td>高</td><td>精确</td><td>改脚本重跑</td></tr>
+        <tr><td><strong>C Agent 通过 MCP 实时操作（本课）</strong></td><td><code class="inline">mcp__blender__*</code></td><td><strong>有状态会话</strong></td><td>高</td><td>精确</td><td>改一个参数再调一次</td></tr>
+        <tr><td><strong>D 人工建模</strong></td><td>人点鼠标</td><td>——</td><td>最高</td><td>最高</td><td>慢</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>二、一句话区分：抽卡 vs 下指令</h3>
+  <p>生成式是<strong>抽卡</strong>：你给一句描述，它给你一个结果；不满意就再抽一次，抽到什么全靠运气。它没有「把柱高从 18 m 改成 17.4 m」这个动作，只有「重新生成一个差不多的东西」。</p>
+  <p>MCP 是<strong>下指令</strong>：你说「建一根半径 0.22 m、高 18 m 的圆柱」，它就建这根；下次要改高度，你说「改成 17.4 m」，它就只改高度，其它什么都不动。</p>
+
+  <h3>三、MCP 相对生成式的三个独有价值</h3>
+  <div class="grid3">
+    <div class="cell">
+      <h4>有状态</h4>
+      <p>场景一直在，能连续做 20 步。第一步建的柱子还在，第三步就能接着给它上色。生成式每次从零开始，上一步的结果留不下来。</p>
+    </div>
+    <div class="cell">
+      <h4>可观测</h4>
+      <p>每一步都有返回值（对象数、三角面数、包围盒），能断言、能回归测试。这是「验收」这件事能成立的前提。</p>
+    </div>
+    <div class="cell">
+      <h4>可纠正</h4>
+      <p>错一个参数就改一个参数，不用推倒重来。18 m 写成 1.8 m，改一个数就行，前面已经做完的步骤都不用重做。</p>
+    </div>
+  </div>
+
+  <h3>四、那 B 和 D 为什么不用？</h3>
+  <p>B 路径（让 Agent 写脚本、<code class="inline">blender -b -P</code> 离线跑）其实也很好：程序化、精确、改脚本重跑，本质上和 C 一样准。它和 C 的唯一区别是<strong>C 有状态会话、B 是一次性跑完</strong>。课堂上选 C 而不是 B，理由很实际：<strong>C 能录屏、能看见每一步</strong>，学生能亲眼看着柱子一根一根长出来；B 跑完只给一个最终结果，中间发生了什么看不到。</p>
+  <p>D 人工建模可控性最高、精度最高，但它慢——而且慢在「改一遍要重画一遍」。所以 D 不是被淘汰的选项，是<strong>精度要求到顶、或审美判断必须由人做</strong>时才用的选项。</p>
+  <div class="warn"><strong>不要把生成式说成「没用」。</strong>它在「快速出概念图」上仍然是最快的手段。本课否定的不是生成式，是<strong>「用生成式去交付一个需要精确尺寸的工程件」</strong>。搞错这一点，讨论就变成了站队。</div>
+</section>
+
+<!-- ===== 三、小例子：一根旗杆 ===== -->
+<section id="c3">
+  <div class="sec-head">
+    <div class="sec-num">三</div>
+    <div>
+      <h2>小例子：一根旗杆（现场跑，8 分钟）</h2>
+      <p class="sec-sub">六步走完「建、改、看、出」——这是整节课最短的一次完整闭环</p>
+    </div>
+  </div>
+
+  <div class="key"><strong>目标</strong>：做一根 <strong>18 m 高</strong>的旗杆，直径 <strong>0.22 m</strong>，红旗下挂，导出 GLB。整个过程 <strong>8 分钟</strong>，全部在课堂投影上现场跑。</div>
+
+  <h3>一、六步调用序列表</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>步骤</th><th>工具调用</th><th>会看到什么</th><th>教学点</th></tr></thead>
+      <tbody>
+        <tr><td><strong>1</strong></td><td><code class="inline">blender_ping</code></td><td><code class="inline">{"pong":true,"blender_version_string":"5.4.0 Alpha","background":false}</code></td><td>链路活着；<code class="inline">background:false</code> 说明是<strong>图形界面实例</strong></td></tr>
+        <tr><td><strong>2</strong></td><td><code class="inline">blender_scene_stats</code></td><td><code class="inline">objects=95, triangles=11843, bounds=320×265×32.8 m</code></td><td>工具能<strong>读到真实场景</strong></td></tr>
+        <tr><td><strong>3</strong></td><td><code class="inline">blender_exec</code> 建圆柱 r=0.22 h=18</td><td>场景里出现柱子</td><td>Agent 直接写 bpy</td></tr>
+        <tr><td><strong>4</strong></td><td><code class="inline">blender_set_color</code> 给柱子上色</td><td>颜色变了</td><td>参数化改材质</td></tr>
+        <tr><td><strong>5</strong></td><td><code class="inline">blender_render_preview</code></td><td>弹出一张 PNG</td><td>渲染也是工具</td></tr>
+        <tr><td><strong>6</strong></td><td><code class="inline">blender_export_glb</code></td><td>生成 <code class="inline">.glb</code></td><td>glTF 是 WebXR 的通用货币</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>二、前两步的真实返回值（投影上照这段念）</h3>
+  <p>第一步的意义在于确认「对面那个 Blender 是活的，而且是哪个 Blender」：</p>
+<pre>{"pong":true,"blender_version_string":"5.4.0 Alpha","background":false}</pre>
+  <p>第二步的意义在于确认「它真的能看到场景」，而不是一台空壳子进程：</p>
+<pre>objects=95, triangles=11843, bounds=320×265×32.8 m</pre>
+  <div class="note">这两个数是<strong>课堂现场那一次调用的即时快照</strong>，不是最终成果。最终成果的规模在第七章（260 对象 / 109,793 三角面），两者不是同一时刻的场景，不要拿它们互相对数。</div>
+
+  <h3>三、六步其实只有三种动作</h3>
+  <p>把六个工具按「动了什么」归类，只剩三种：</p>
+  <div class="grid3">
+    <div class="cell">
+      <h4>查状态</h4>
+      <p><code class="inline">blender_ping</code>、<code class="inline">blender_scene_stats</code>、<code class="inline">blender_list_objects</code>。<strong>只读</strong>，随便调，不会把场景弄坏。</p>
+    </div>
+    <div class="cell">
+      <h4>改状态</h4>
+      <p><code class="inline">blender_exec</code>、<code class="inline">blender_set_color</code>、<code class="inline">blender_clear_scene</code>。<strong>有副作用</strong>，顺序错了结果就错。</p>
+    </div>
+    <div class="cell">
+      <h4>出文件</h4>
+      <p><code class="inline">blender_render_preview</code>、<code class="inline">blender_export_glb</code>、<code class="inline">blender_export_scene</code>。<strong>只读场景、写文件</strong>，但写的是「此刻」的状态。</p>
+    </div>
+  </div>
+  <p>这个分类解释了两件事：为什么练习 B 的陷阱题成立（先导出再上色，导出的是上色前的状态），以及为什么「改状态」的工具要慎用——<code class="inline">blender_clear_scene</code> 一步就能把前面所有工作清掉，而它没有参数、不会二次确认。</p>
+
+  <h3>四、反例演示：`import os` 被白名单拦截</h3>
+  <p>这一步故意让学生自己写。请一位同学在 <code class="inline">blender_exec</code> 的 <code class="inline">code</code> 参数里输入 <code class="inline">import os</code>，然后执行。投影上会看到：</p>
+<pre>exec 白名单拦截：出现 内置函数调用</pre>
+  <p>现场一定会有人问：「为什么不让我 import？我就想看看文件。」答案是——<strong>给 AI 的权限要有边界</strong>。<code class="inline">exec</code> 放行的范围是：bpy.ops 的 mesh / object / curve / text / surface / gpencil / transform 模块、bpy.data 常用集合、mathutils、print / len / range 等；屏蔽的是 import、文件读写、脚本执行、渲染 / 导入导出与双下划线反射。换句话说：<strong>能让它建模，不让它碰你的硬盘。</strong></p>
+  <div class="warn">这个拦截是<strong>静态词法白名单 + 代理对象 + 5 秒执行预算</strong>，能挡住课堂上的误操作，<strong>但它不是 OS 级沙箱</strong>。所以它不能用来跑不可信代码——这句话在第四章第四个工程细节里还会再说一遍，因为它是本课最重要的一条安全结论。</div>
+</section>
+
+<!-- ===== 四、一条命令怎么走完 ===== -->
+<section id="c4">
+  <div class="sec-head">
+    <div class="sec-num">四</div>
+    <div>
+      <h2>一条命令怎么走完</h2>
+      <p class="sec-sub">从 Agent 的一个决定，到 bpy 主线程上真正执行，中间隔着四层进程和一条线程边界</p>
+    </div>
+  </div>
+
+  <p>这是讲授 1 的技术核心。前面三章讲「是什么」，这一章讲「怎么走」——一条 <code class="inline">blender_scene_stats</code> 命令从 Agent 决定调用，到 Blender 里算出结果，中间到底经过了哪些进程、哪几次序列化。</p>
+
+  <h3>一、链路图</h3>
+  <div class="figure-row">
+    <figure class="fig">
+      <svg viewBox="0 0 900 690" style="width:100%;height:auto;display:block" role="img" aria-labelledby="chainTitle chainDesc" font-family="Times New Roman, 宋体, SimSun, serif">
+        <title id="chainTitle">一条 MCP 命令从 Agent 到 bpy 主线程的完整链路</title>
+        <desc id="chainDesc">七层链路：Agent（LLM）决定调用工具，交给 MCP Client，经 stdio 换行分隔 JSON-RPC 送到 Node 写的 MCP Server，再由 TCP 127.0.0.1:7003 以 NUL 分隔 JSON 送到跑在 Blender 进程内的命令端口，最后交回 Blender 主线程用 bpy 执行。</desc>
+        <defs>
+          <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+            <path d="M0,0 L10,5 L0,10 Z" fill="#5a52c8"></path>
+          </marker>
+        </defs>
+
+        <!-- 第 1 层 -->
+        <rect x="80" y="30" width="520" height="54" rx="10" fill="#eeeafb" stroke="#c9c3e4"></rect>
+        <text x="340" y="52" text-anchor="middle" font-size="15" font-weight="bold" fill="#272436">Agent（LLM）</text>
+        <text x="340" y="71" text-anchor="middle" font-size="12" fill="#5a5670">决定下一步调哪个工具</text>
+
+        <!-- 第 2 层 -->
+        <rect x="80" y="118" width="520" height="54" rx="10" fill="#eeeafb" stroke="#c9c3e4"></rect>
+        <text x="340" y="140" text-anchor="middle" font-size="15" font-weight="bold" fill="#272436">MCP Client</text>
+        <text x="340" y="159" text-anchor="middle" font-size="12" fill="#5a5670">Agent 工具内置，负责发 JSON-RPC</text>
+
+        <!-- 第 3 层 -->
+        <rect x="80" y="206" width="520" height="54" rx="10" fill="#ffffff" stroke="#ddd7f2"></rect>
+        <text x="340" y="228" text-anchor="middle" font-size="15" font-weight="bold" fill="#272436">stdio（stdin / stdout）</text>
+        <text x="340" y="247" text-anchor="middle" font-size="12" fill="#5a5670">换行分隔的 JSON-RPC 2.0，一行一条消息</text>
+
+        <!-- 第 4 层 -->
+        <rect x="80" y="294" width="520" height="54" rx="10" fill="#fdf3e3" stroke="#f0dcb8"></rect>
+        <text x="340" y="316" text-anchor="middle" font-size="15" font-weight="bold" fill="#272436" font-family="Consolas,monospace">blender_course_mcp_server.js</text>
+        <text x="340" y="335" text-anchor="middle" font-size="12" fill="#5a5670">Node 进程，零第三方依赖</text>
+
+        <!-- 第 5 层 -->
+        <rect x="80" y="382" width="520" height="54" rx="10" fill="#ffffff" stroke="#ddd7f2"></rect>
+        <text x="340" y="404" text-anchor="middle" font-size="15" font-weight="bold" fill="#272436" font-family="Consolas,monospace">TCP 127.0.0.1:7003</text>
+        <text x="340" y="423" text-anchor="middle" font-size="12" fill="#5a5670">NUL 分隔 JSON</text>
+
+        <!-- 第 6 层 -->
+        <rect x="80" y="470" width="520" height="54" rx="10" fill="#eaf5eb" stroke="#cfe6d1"></rect>
+        <text x="340" y="492" text-anchor="middle" font-size="15" font-weight="bold" fill="#272436" font-family="Consolas,monospace">blender_commandport.py</text>
+        <text x="340" y="511" text-anchor="middle" font-size="12" fill="#5a5670">跑在 Blender 进程内的命令端口</text>
+
+        <!-- 第 7 层 -->
+        <rect x="80" y="558" width="520" height="54" rx="10" fill="#2e2a6f" stroke="#2e2a6f"></rect>
+        <text x="340" y="580" text-anchor="middle" font-size="15" font-weight="bold" fill="#ffffff" font-family="Consolas,monospace">bpy</text>
+        <text x="340" y="599" text-anchor="middle" font-size="12" fill="#dfdbf7">Blender 主线程执行（不是 socket 线程）</text>
+
+        <!-- 箭头与标注 -->
+        <line x1="340" y1="86" x2="340" y2="114" stroke="#5a52c8" stroke-width="1.6" marker-end="url(#ar)"></line>
+        <text x="352" y="104" font-size="11.5" fill="#8b879e">tools/call（name + arguments）</text>
+
+        <line x1="340" y1="174" x2="340" y2="202" stroke="#5a52c8" stroke-width="1.6" marker-end="url(#ar)"></line>
+        <text x="352" y="192" font-size="11.5" fill="#8b879e">序列化成一个 JSON 行</text>
+
+        <line x1="340" y1="262" x2="340" y2="290" stroke="#5a52c8" stroke-width="1.6" marker-end="url(#ar)"></line>
+        <text x="352" y="280" font-size="11.5" fill="#8b879e">逐行读、逐行解析</text>
+
+        <line x1="340" y1="350" x2="340" y2="378" stroke="#5a52c8" stroke-width="1.6" marker-end="url(#ar)"></line>
+        <text x="352" y="368" font-size="11.5" fill="#8b879e">建立 TCP 连接，发命令</text>
+
+        <line x1="340" y1="438" x2="340" y2="466" stroke="#5a52c8" stroke-width="1.6" marker-end="url(#ar)"></line>
+        <text x="352" y="456" font-size="11.5" fill="#8b879e">按 NUL 切分，解析成命令</text>
+
+        <line x1="340" y1="526" x2="340" y2="554" stroke="#5a52c8" stroke-width="1.6" marker-end="url(#ar)"></line>
+        <text x="352" y="544" font-size="11.5" fill="#8b879e">交回主线程，不在工作线程里调</text>
+
+        <!-- 进程边界 -->
+        <path d="M630 30 L626 30 L626 172 L630 172" fill="none" stroke="#b9b2d8" stroke-width="1.4" stroke-dasharray="4 3"></path>
+        <text x="642" y="94" font-size="12" fill="#5a5670">Agent 工具进程</text>
+        <text x="642" y="112" font-size="11" fill="#8b879e">MCP Client 在其内部</text>
+
+        <text x="642" y="230" font-size="11.5" fill="#8b879e" font-style="italic">传输（stdio）</text>
+
+        <path d="M630 294 L626 294 L626 348 L630 348" fill="none" stroke="#b9b2d8" stroke-width="1.4" stroke-dasharray="4 3"></path>
+        <text x="642" y="316" font-size="12" fill="#5a5670">Node 进程</text>
+        <text x="642" y="334" font-size="11" fill="#8b879e">MCP Server 在这里</text>
+
+        <text x="642" y="406" font-size="11.5" fill="#8b879e" font-style="italic">传输（TCP）</text>
+
+        <path d="M630 470 L626 470 L626 612 L630 612" fill="none" stroke="#b9b2d8" stroke-width="1.4" stroke-dasharray="4 3"></path>
+        <text x="642" y="534" font-size="12" fill="#5a5670">Blender 进程</text>
+        <text x="642" y="552" font-size="11" fill="#8b879e">bpy 在这里执行</text>
+      </svg>
+      <figcaption><strong>图 1</strong>｜一条 <code class="inline">blender_scene_stats</code> 命令的完整路径。返回值沿<strong>原路径</strong>回传，最终进入 <code class="inline">tools/call</code> 响应的 <code class="inline">content[]</code> 里；失败时 <code class="inline">isError</code> 为 true，Agent 拿到的是中文错误而不是崩溃。</figcaption>
+    </figure>
+  </div>
+  <p>看这张图要注意两处<strong>分隔符不一样</strong>：stdio 那一段是<strong>换行分隔</strong>（一行一条 JSON-RPC 消息），TCP 那一段是 <strong>NUL 分隔</strong>（用 <code class="inline">\0</code> 断句，与 Maya 的 commandPort 约定一致）。这两处不统一是故意的——它们本来就属于两个不同的协议层。</p>
+
+  <h3>二、四个必须讲清的工程细节</h3>
+  <p>下面四条全部是真实踩过的，不是「一般要注意」。它们合起来回答一个问题：<strong>为什么这条链看起来简单，写起来处处是坑。</strong></p>
+
+  <h4>细节 1｜线程模型：socket 工作线程不能碰 bpy</h4>
+  <p>Blender 的 bpy 不是线程安全的。命令端口的工作线程只负责收发字节，<strong>bpy 调用必须全部回主线程</strong>：</p>
+  <ul>
+    <li>无头模式（<code class="inline">-b</code>）：用<strong>阻塞泵</strong>——主线程自己循环取任务、执行、回结果。</li>
+    <li>GUI 模式：用 <code class="inline">bpy.app.timers</code> <strong>轮询</strong>——Blender 的界面事件循环每隔一小段调用一次回调，在回调里把排队好的命令取出来执行。</li>
+  </ul>
+  <p>为什么非要这么绕？因为一旦让工作线程直接调 <code class="inline">bpy.ops.*</code>，轻则结果错乱，重则整个 Blender 直接崩掉——而且崩的时候没有任何可读报错，你只能在日志里看到进程没了。这就是为什么「<strong>bpy 在主线程执行</strong>」这句话要写进链路图的最后一层。</p>
+
+  <h4>细节 2｜协议污染：stdout 只能出 JSON-RPC</h4>
+  <p>MCP Server 走 stdio，stdout 就是协议通道。任何一行非协议内容出现在 stdout 上，客户端解析就会失败。所以<strong>所有日志一律走 stderr</strong>。</p>
+  <div class="warn">这是本课最典型的「好心办坏事」：加一句 <code class="inline">console.log('server started')</code> 方便调试，结果客户端直接报 JSON 解析失败。现象看起来是「MCP 连不上」，真因是协议被自己污染了。<strong>调这条链的顺序永远是：先怀疑自己的日志，再怀疑对端。</strong></div>
+
+  <h4>细节 3｜有状态会话：7003 同时只能开一个实例</h4>
+  <p>命令端口是一个常驻的 TCP 服务，<code class="inline">127.0.0.1:7003</code> 只有一个。这带来一个课堂上的直接纪律：<strong>课堂上演示时，不要再跑会自起无头实例的 e2e 脚本</strong>——它会抢端口，或者把正在演示的那个 Blender 顶掉。</p>
+  <p>「有状态」是 C 路径最大的价值，也是最大的约束：场景一直在，所以能连续迭代、能录屏看过程；但也因为场景一直在，<strong>两个会话同时操作同一份状态就会互相打架</strong>。</p>
+
+  <h4>细节 4｜安全边界：白名单不是沙箱</h4>
+  <p><code class="inline">blender_exec</code> 的 <code class="inline">code</code> 参数可以写任意 Python，这是最危险的一个工具。它的防护是三件事叠加：</p>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>防护</th><th>做法</th><th>挡什么</th></tr></thead>
+      <tbody>
+        <tr><td><strong>静态词法白名单</strong></td><td>先扫一遍代码文本，只放行白名单内的名字</td><td><code class="inline">import os</code>、文件读写、脚本执行、双下划线反射</td></tr>
+        <tr><td><strong>代理对象</strong></td><td>bpy 与 mathutils 都经过一层代理，只暴露允许的属性和方法</td><td>绕过白名单去够到危险对象</td></tr>
+        <tr><td><strong>5 秒执行预算</strong></td><td>超过预算强制中断</td><td>死循环、以及写坏循环的课堂误操作</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="warn"><strong>但它不是 OS 级沙箱。</strong>这句话必须原样讲给学生：它能挡<strong>课堂上的误操作</strong>，挡不住<strong>真正想搞事的人</strong>。所以它不能用来跑不可信代码。真实工程里的做法是把这个服务放在受限账户、受限网络环境里运行，而不是指望白名单。</div>
+</section>
+
+<!-- ===== 五、我的真实过程与决策 ===== -->
+<section id="c5">
+  <div class="sec-head">
+    <div class="sec-num">五</div>
+    <div>
+      <h2>我的真实过程与决策分析</h2>
+      <p class="sec-sub">这一章讲的全部是踩过的坑，不是设计出来的经验——讲授 2 最核心的一节</p>
+    </div>
+  </div>
+
+  <h3>一、起点：为什么从 Maya 换到 Blender</h3>
+  <p>第 8 次课讲 Maya。这台机器上其实没有 Maya，所以那一轮写的是 commandPort 同构的<strong>仿真命令层</strong>。仿真是有价值的，但它有一个天花板：<strong>证明不了「它真能干活」</strong>。</p>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>对比项</th><th>Maya</th><th>Blender</th></tr></thead>
+      <tbody>
+        <tr><td><strong>本机是否有</strong></td><td>没有</td><td>5.4.0 Alpha 已装</td></tr>
+        <tr><td><strong>上一轮怎么讲</strong></td><td>写了 commandPort 同构的<strong>仿真命令层</strong></td><td>——</td></tr>
+        <tr><td><strong>仿真能讲什么</strong></td><td>架构可以仿真（协议、工具面、调用链）</td><td>——</td></tr>
+        <tr><td><strong>仿真不能讲什么</strong></td><td><strong>证明不了「它真能干活」</strong></td><td>真实 bpy 执行 + 真实渲染</td></tr>
+        <tr><td><strong>成本</strong></td><td>商业授权（机房 40 台不现实）</td><td>免费、Python API、原生 GLB 导出</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="key"><strong>决策结论</strong>：Maya 那节证明「这条链能通」；Blender 这节证明「它能干活」。两句话不冲突，但分量完全不同——第二句话才经得起「你把它渲染出来我看看」。</div>
+
+  <h3>二、六个关键决策（按发生顺序）</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>#</th><th>决策点</th><th>选项</th><th>选择与理由</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>DCC 选谁</td><td>Maya 仿真 / Blender 真机</td><td><strong>Blender</strong>：本机有、免费、可复现</td></tr>
+        <tr><td>2</td><td>MCP 服务器怎么写</td><td>用现成 BlenderMCP / 自己写</td><td><strong>自己写</strong>：零依赖、工具面可控、能配合课堂演示</td></tr>
+        <tr><td>3</td><td>模型怎么连</td><td>每次调用起一个新 Blender / 常驻命令端口</td><td><strong>常驻命令端口</strong>：有状态会话，能连续迭代、能录屏看过程</td></tr>
+        <tr><td>4</td><td>建筑怎么建</td><td>手工点 / 程序化 bpy</td><td><strong>程序化</strong>：可复现、可参数化、可断言</td></tr>
+        <tr><td>5</td><td>数据从哪来</td><td>凭感觉摆 / 查真实资料</td><td><strong>查</strong>：OSM 实测轮廓 + 卫星影像量测</td></tr>
+        <tr><td>6</td><td>拿不到的数据怎么办</td><td>编一个 / 标注示意</td><td><strong>显式标注为示意</strong>，写进文档与页面 HUD</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>这六个决策里，第 6 个最难做到。前五个都是「选对就行」，第 6 个是<strong>持续的自律</strong>：每写一个数字，都要问一句「这个数我是查到的，还是编的？」</p>
+
+  <h3>三、三次真实的「翻车—修正」（课堂必讲）</h3>
+
+  <h4>翻车 1｜第一版被指出「不够真实」</h4>
+  <ul>
+    <li><strong>现象</strong>：第一版做出来，被指出「不够真实」。</li>
+    <li><strong>原因</strong>：布局是凭常识摆的——当时只查了校训和地址这两样。</li>
+    <li><strong>修正</strong>：用 Overpass 拿到 <strong>9 栋楼</strong>的真实轮廓；再用卫星影像叠图核对；发现「主教学楼其实是八角放射形 + 圆形中庭」，和凭常识摆的完全不一样。</li>
+    <li><strong>教训</strong>：真实感不是靠「做得精致」，是靠<strong>真实数据</strong>。凭常识摆出来的校园，一眼假。</li>
+  </ul>
+  <div class="note">关于那个八角形，要说清楚<strong>证据的边界</strong>：它只有 <strong>OSM 轮廓 + 卫星影像</strong>两样支持，<strong>没有照片佐证</strong>。所以页面上写的是「依据 OSM 轮廓与卫星影像判断」，不是「已由照片证实」。这两句话差别很大——前者可复核，后者是吹牛。</div>
+
+  <div class="figure-row">
+    <figure class="fig">
+      <img src="assets/vr-2026/agent-mcp/osm-overlay.jpg" alt="OSM 实测建筑轮廓叠加在卫星影像上" loading="lazy">
+      <figcaption><strong>OSM 轮廓叠卫星影像</strong>：轮廓是查来的，底图是卫星影像；两者对上，才能说明「几何是真的」。这一张是翻车 1 的修正证据，也是全课最重要的一张图——它把「像」和「准」分开了。</figcaption>
+    </figure>
+  </div>
+
+  <h4>翻车 2｜Overpass 全部「超时」</h4>
+  <ul>
+    <li><strong>现象</strong>：所有 Overpass 请求全部超时，一个都没回来。</li>
+    <li><strong>真相</strong>：根本不是超时，是返回了 <strong>406</strong>——请求缺 <code class="inline">User-Agent</code>，被服务端直接拒绝了。</li>
+    <li><strong>教训</strong>：「超时」要和「被拒绝」<strong>分开查</strong>。超时是网络或服务端慢，被拒绝是你的请求格式不对——两者的排查方向完全相反。把所有失败都叫「超时」，会往完全错误的方向找半天。</li>
+  </ul>
+
+  <h4>翻车 3｜工程文件打开「什么都没有」</h4>
+  <ul>
+    <li><strong>现象</strong>：打开工程文件，3D 视口里一片空，看起来像什么都没做出来。</li>
+    <li><strong>真相</strong>：文件是好的，<strong>260 个对象都在</strong>——是 3D 视口停在墙角了。</li>
+    <li><strong>修正</strong>：加 <code class="inline">frame_view</code> 命令，把视口摆成全校俯瞰，并保存进 <code class="inline">.blend</code>。这样下一个人打开就是对的视角。</li>
+    <li><strong>教训</strong>：<strong>「看不到」不等于「没做出来」</strong>，先分清是数据问题还是视图问题。</li>
+  </ul>
+
+  <div class="figure-row">
+    <figure class="fig">
+      <img src="assets/vr-2026/agent-mcp/blender-gui.jpg" alt="Blender 图形界面里的校园场景，全校俯瞰视角" loading="lazy">
+      <figcaption><strong>Blender 图形界面 · 全校俯瞰</strong>：这张图是翻车 3 的修正结果——用 <code class="inline">frame_view</code> 把视口摆成全校俯瞰后保存进 <code class="inline">.blend</code>。它同时证明一件事：<strong>这是真的 Blender 界面，不是渲染出来的示意图</strong>。左边是场景对象列表，右边是 3D 视口，中间是真实的 bpy 数据。</figcaption>
+    </figure>
+  </div>
+
+  <h3>四、提炼成四句话（板书）</h3>
+  <div class="key">
+    <strong>一</strong>、能查证的锚点优先（名字 / 校训 / 地址 / 轮廓）。<br>
+    <strong>二</strong>、查不到的部分<strong>显式标注为示意</strong>，不装作是真的。<br>
+    <strong>三</strong>、每个「看起来对」的判断都要有<strong>可复核的证据</strong>（叠图、断言、截图）。<br>
+    <strong>四</strong>、<strong>AI 不替你做判断</strong>，它只加速执行。
+  </div>
+  <p>第四句是整节课的落点。前面六章讲的都是「怎么让 AI 更快地把事做完」，但这四句话说的是「怎么保证它做的是对的事」。<strong>判断和验收是人做的</strong>，这句话不能省。</p>
+</section>
+
+<!-- ===== 六、多 Agent 怎么分工 ===== -->
+<section id="c6">
+  <div class="sec-head">
+    <div class="sec-num">六</div>
+    <div>
+      <h2>多 Agent 怎么分工</h2>
+      <p class="sec-sub">不是「人多就快」，是把串行依赖压平</p>
+    </div>
+  </div>
+
+  <p>这次构建真的用了多 Agent 并行。但要说清楚一件事：<strong>并行的收益不来自「人多」，来自「把本来必须一件一件做的事拆成能同时做的几件」</strong>。如果拆错了，并行等于返工——而且返工的成本比串行做完还高。</p>
+
+  <h3>一、真实的分工表</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>角色</th><th>负责</th><th>写作用域</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Lead（主控）</strong></td><td>定接口契约、数据加工、模型主体、最终验收</td><td>建模脚本、数据</td></tr>
+        <tr><td><strong>MCP 链路工程师</strong></td><td>命令端口 + MCP Server + 注册脚本 + e2e</td><td><code class="inline">mcp\</code>、<code class="inline">blender\engine\</code></td></tr>
+        <tr><td><strong>WebXR 前端</strong></td><td>单文件页面 + 断言脚本</td><td><code class="inline">webxr\</code></td></tr>
+        <tr><td><strong>资料考据员</strong></td><td>真实建筑特征查证 + 参考图</td><td><code class="inline">_research\ref_parts\</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>看这张表要注意：「负责」那一列描述的是<strong>产出</strong>，「写作用域」那一列描述的是<strong>边界</strong>。真正起作用的其实是第二列——第一列写得再清楚，如果两个 Agent 都能改同一个文件，迟早互相覆盖。</p>
+
+  <h3>二、三条协作纪律</h3>
+  <div class="step-grid">
+    <div class="step-card">
+      <div class="sc-no">纪律 1</div>
+      <div class="sc-title">写作用域不重叠</div>
+      <div class="sc-desc">文件边界先划好，否则互相覆盖。上表里每一行的最后那列，就是这个 Agent 可以写的地方；不在里面的地方，一行都不动。</div>
+    </div>
+    <div class="step-card">
+      <div class="sc-no">纪律 2</div>
+      <div class="sc-title">依赖排序</div>
+      <div class="sc-desc">模型 → GLB → 页面，这一串是串行的，用任务依赖表达。前后的顺序不能靠口头约定，要写成「A 完成才能开始 B」。</div>
+    </div>
+    <div class="step-card">
+      <div class="sc-no">纪律 3</div>
+      <div class="sc-title">接口先定死</div>
+      <div class="sc-desc">对象命名、坐标约定、单位，这三样开工前就要定死，否则并行等于返工。这次定的是：<strong>1 单位 = 1 m</strong>，Blender Z-up → glTF Y-up。</div>
+    </div>
+  </div>
+
+  <div class="note">三条纪律里，第三条最容易漏。命名、坐标、单位看起来都是「小事」，但它们一旦不一致，前端拿到模型要重新对一遍坐标，模型端要改名再导一次——<strong>所有并行的收益会被一次返工吃光</strong>。</div>
+</section>
+
+<!-- ===== 七、成果与验收 ===== -->
+<section id="c7">
+  <div class="sec-head">
+    <div class="sec-num">七</div>
+    <div>
+      <h2>成果与验收（真实数据）</h2>
+      <p class="sec-sub">数字全部是工具返回值，不是目测——这一章同时是学生作业的验收口径</p>
+    </div>
+  </div>
+
+  <h3>一、成果数据</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>指标</th><th>值</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Blender 场景</strong></td><td>260 对象 / <strong>109,793 三角面</strong> / 66 材质 / 20 贴图</td></tr>
+        <tr><td><strong>坐标约定</strong></td><td>1 单位 = 1 m；Blender Z-up → glTF Y-up</td></tr>
+        <tr><td><strong>GLB</strong></td><td>8.36 MB</td></tr>
+        <tr><td><strong>单文件 WebXR 页</strong></td><td>11.9 MB，零外部请求</td></tr>
+        <tr><td><strong>页面验证</strong></td><td>12/12 信息点命中、<strong>0 console error</strong>、DrawCall 380 / 三角面 110,657</td></tr>
+        <tr><td><strong>数据真实性</strong></td><td>校区 77,260 m²（OSM 实测）/ 9 栋建筑真实轮廓；楼高为估算</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>这些数没有一个是量出来写进去的，全部是 <code class="inline">blender_scene_stats</code> 和页面断言脚本的返回值。注意最后一行特意写了「楼高为估算」——<strong>能查到的写实、查不到的写清楚是估算</strong>，这就是第五章第 6 个决策的执行结果。</p>
+
+  <h3>二、验收三件套（学生也要照这个验）</h3>
+  <div class="grid3">
+    <div class="cell">
+      <h4>1 · 数字</h4>
+      <p><code class="inline">scene_stats</code> 的<strong>对象数 / 三角面数 / 包围盒</strong>。这是唯一能拿来和标称尺寸对账的东西。</p>
+    </div>
+    <div class="cell">
+      <h4>2 · 图像</h4>
+      <p><code class="inline">render_preview</code> 或界面截图。图不能证明尺寸对，但它能证明<strong>东西真的长出来了</strong>。</p>
+    </div>
+    <div class="cell">
+      <h4>3 · 断言</h4>
+      <p>脚本自动检查，例如「包围盒必须落在 <strong>±5 cm</strong>」。断言把「我觉得差不多」变成「过或不过」。</p>
+    </div>
+  </div>
+  <div class="warn"><strong>三件套缺一不可</strong>：只有数字，可能是伪造的；只有图，尺寸对不对说不清；只有断言，不知道断言是不是写松了。三样一起交，才是可复核的验收。</div>
+
+  <h3>三、成果图</h3>
+  <div class="figure-row">
+    <figure class="fig">
+      <img src="assets/vr-2026/agent-mcp/library.jpg" alt="教图楼渲染图" loading="lazy">
+      <figcaption><strong>教图楼渲染</strong>：这一张是用来讲「照照片改」的——建完看一眼渲染，和真实建筑对照，哪里不像就回去改参数。渲染不是终点，是<strong>比对工具</strong>。</figcaption>
+    </figure>
+    <figure class="fig">
+      <img src="assets/vr-2026/agent-mcp/webxr-live.jpg" alt="线上 WebXR 页面截图" loading="lazy">
+      <figcaption><strong>线上 WebXR 页面</strong>：GLB 导出之后进单文件页面，能在浏览器里直接走。单文件 11.9 MB、零外部请求，链路最后一步的产出就在这张图里。</figcaption>
+    </figure>
+  </div>
+  <p>从「命令行里跑 <code class="inline">blender_scene_stats</code>」到「浏览器里看到一个能走进去的校园」，中间隔着的就是这一节的全部内容：<strong>260 个对象、109,793 个三角面、8.36 MB 的 GLB、11.9 MB 的单文件页面</strong>。这条链上一环断了，最后那张图就不存在。</p>
+</section>
+
+<!-- ===== 八、照片重建 ===== -->
+<section id="c8">
+  <div class="sec-head">
+    <div class="sec-num">八</div>
+    <div>
+      <h2>未来：用真实照片重建中华女子学院</h2>
+      <p class="sec-sub">按投入从低到高分三档，每档都要回答同一个问题：尺寸从哪来</p>
+    </div>
+  </div>
+
+  <p>现在的校园是按 OSM 轮廓 + 卫星影像 + 估算楼高做的。要再往上走一步，就得让<strong>照片</strong>参与进来说话。但照片不是万能的，三档路线的差别，本质上就是<strong>「你愿意为尺寸精度付出多少采集成本」</strong>。</p>
+
+  <h3>档 1｜照片对标（1—2 天，成本最低）</h3>
+  <p><strong>采集</strong>：拍<strong>正交立面照</strong>——正对建筑、尽量无透视变形；或者直接用现有官网照片。<br>
+    <strong>基准</strong>：选一条<strong>已知长度</strong>做基准，三选一：门宽 <strong>2.4 m</strong> / 层高 <strong>3.3 m</strong> / 台阶宽 <strong>1.5 m</strong>。<br>
+    <strong>参数化</strong>：算像素比 → 把关键尺寸填进参数表 → 改脚本参数 → 重新渲染。<br>
+    <strong>比对</strong>：渲染图与原照并排比对，不像就回去调参数。</p>
+  <p>这一档的核心是<strong>像素比</strong>：图上量出「门高 120 像素」，而门真高 2.4 m，那么 1 像素 = 0.02 m，其它尺寸按这个比例换算。<strong>没有基准，照片上的任何长度都只是像素。</strong></p>
+
+  <h3>档 2｜照片测量 + 参数化重建（3—5 天）</h3>
+  <p><strong>采集</strong>：拍摄时放<strong>标尺</strong>或已知参照物——人、一张 A4 纸、砖缝，都行。<br>
+    <strong>基准</strong>：单视图用<strong>消失点</strong>求透视校正，反推高度与进深。<br>
+    <strong>参数化</strong>：每栋楼做成一张<strong>参数表</strong>：层数、开间数、进深、窗高窗宽、檐口挑出。<br>
+    <strong>比对</strong>：脚本批量生成 → 渲染 → 与照片<strong>逐栋</strong>比对 → 迭代。</p>
+  <p>从档 1 到档 2 的变化是<strong>从「一条基准」到「一张参数表」</strong>：档 1 只能定一两个尺寸，档 2 能把整栋楼的规律写下来，所以能批量。</p>
+
+  <h3>档 3｜摄影测量 / SfM（1—2 周，精度最高）</h3>
+  <p><strong>采集</strong>：绕建筑拍 <strong>50—200 张</strong>，相邻照片<strong>重叠 60% 以上</strong>。<br>
+    <strong>重建</strong>：Meshroom / COLMAP / RealityCapture → 稠密点云 → 网格。<br>
+    <strong>后处理</strong>：减面（<strong>≤10 万面</strong>）→ 烘焙贴图（<strong>2K</strong>）→ 进 Blender 清理破面。<br>
+    <strong>交付</strong>：导出 GLB → WebXR → 头显验收。<br>
+    <strong>补充采集手段</strong>：手机 LiDAR、无人机航拍、全景相机。</p>
+  <p>档 3 是唯一能拿到「表面纹理 + 真实凹凸」的路线，代价是采集工作量大、后处理链条长。它和档 1、档 2 不是替代关系，是<strong>精度的三个档位</strong>。</p>
+
+  <div class="figure-row">
+    <figure class="fig">
+      <img src="assets/vr-2026/agent-mcp/lake-sign.jpg" alt="湖边 I❤CWU 标识" loading="lazy">
+      <figcaption><strong>湖 I❤CWU 标识</strong>：这类构件最适合当档 1 的练手对象——尺度小、正面对着好拍、旁边就有台阶和栏杆可以当已知基准。真想练「像素比换算」，从它开始比从主楼开始容易得多。</figcaption>
+    </figure>
+  </div>
+
+  <h3>边界（必须讲）</h3>
+  <div class="warn">
+    <ul>
+      <li><strong>单张照片只能定比例，不能定深度。</strong>被遮挡的部分必须补拍，否则只能标「推断」。</li>
+      <li>照片有<strong>透视畸变</strong>，正对拍摄或用长焦能减轻。</li>
+      <li>AI 多视图重建（Hunyuan3D 等）可以做<strong>辅助初稿</strong>，但结构与尺寸仍需人工校正。</li>
+    </ul>
+  </div>
+  <div class="key"><strong>第一句话是这三档路线的总边界</strong>：单张照片只能定比例，不能定深度。所以档 1 的天花板很低——它能让你「看起来像」，但撑不起「量出来准」。想要准，往档 2、档 3 走；不想付采集成本，就得接受「示意」这两个字。</div>
+</section>
+
+<!-- ===== 作业与评价 ===== -->
+<section id="hw">
+  <div class="sec-head">
+    <div class="sec-num">作</div>
+    <div>
+      <h2>作业与评价</h2>
+      <p class="sec-sub">课堂作业 4：用今天这套链路做一个校园构件，交四样东西</p>
+    </div>
+  </div>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>项</th><th>内容</th></tr></thead>
+      <tbody>
+        <tr><td><strong>课堂作业 4</strong></td><td>用 Agent + MCP 做<strong>一个校园构件</strong>（<strong>岗亭 / 门柱 / 花坛 / 路灯任选</strong>），交：<strong>调用记录截图 + <code class="inline">scene_stats</code> 数据 + GLB + 一张渲染图</strong></td></tr>
+        <tr><td><strong>达标线</strong></td><td>包围盒与标称尺寸误差 <strong>≤ ±5 cm</strong>；控制台 <strong>0 报错</strong>；GLB 能被 <strong>three.js 加载</strong></td></tr>
+        <tr><td><strong>加分</strong></td><td>用照片做尺寸基准（<strong>档 1</strong> 做法）并写出<strong>像素比换算过程</strong></td></tr>
+        <tr><td><strong>提交</strong></td><td>下次课（<strong>11-18</strong>）前，<strong>微信发给教师</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>一、四样提交物，各自证明什么</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>提交物</th><th>证明什么</th><th>常见问题</th></tr></thead>
+      <tbody>
+        <tr><td><strong>调用记录截图</strong></td><td>这东西是<strong>Agent 通过 MCP 做的</strong>，不是手工点的</td><td>只截最终结果，不截调用过程——那就证明不了链路</td></tr>
+        <tr><td><code class="inline">scene_stats</code> 数据</td><td>尺寸<strong>真的是</strong>那个数（对象数、三角面数、包围盒）</td><td>只截图不抄数字，或者抄了但不写标称值，无法对账</td></tr>
+        <tr><td><strong>GLB 文件</strong></td><td>产物能被别的软件消费</td><td>导出了但没验证能不能加载</td></tr>
+        <tr><td><strong>一张渲染图</strong></td><td>东西真的长出来了、能被看见</td><td>渲染时相机没对上，图里只有半面墙</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="note">这四样就是第七章「验收三件套」的学生版：<strong>截图 + 数字 + 断言</strong>，再加一个可交付的文件。作业评分不看「好不好看」，看<strong>这四样能不能互相印证</strong>。</div>
+
+  <h3>二、达标线三条，一条都不能少</h3>
+  <div class="step-grid">
+    <div class="step-card">
+      <div class="sc-no">达标 1</div>
+      <div class="sc-title">误差 ≤ ±5 cm</div>
+      <div class="sc-desc">包围盒与标称尺寸的误差不超过 ±5 cm。练习 C 的岗亭验收就是这个口径：标称 <strong>3.2 × 3.2 × 3.85 m</strong>。</div>
+    </div>
+    <div class="step-card">
+      <div class="sc-no">达标 2</div>
+      <div class="sc-title">控制台 0 报错</div>
+      <div class="sc-desc">页面或控制台<strong>一条报错都不能有</strong>。有红色报错就是没达标，不管模型多好看。</div>
+    </div>
+    <div class="step-card">
+      <div class="sc-no">达标 3</div>
+      <div class="sc-title">GLB 能被 three.js 加载</div>
+      <div class="sc-desc">GLB 必须真的能被 three.js 加载进来。导出了但打不开，等于没导出。</div>
+    </div>
+  </div>
+
+  <h3>三、加分项：把照片变成尺寸基准</h3>
+  <p>加分项只有一条，就是第八章的<strong>档 1 做法</strong>：用照片做尺寸基准，并写出<strong>像素比换算过程</strong>。</p>
+  <p>具体要交的是换算本身，不是「我用了照片」。格式大致是：<strong>「照片上某构件量得 N 像素，实际已知长度 L 米，故 1 像素 = L / N 米；另一构件量得 M 像素，换算得 M × (L / N) 米，与我建模时设的 X 米相差多少」</strong>。有这一步，才说明你的尺寸是<strong>推出来的</strong>，不是<strong>试出来的</strong>。</p>
+  <div class="warn">加分项<strong>不接受</strong>「我参考了照片」这种说法。基准必须是<strong>已知长度</strong>（门宽 2.4 m / 层高 3.3 m / 台阶宽 1.5 m 三选一），换算必须写出来，结论必须能复核。</div>
+
+  <h3>四、评分口径</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>档位</th><th>判定</th></tr></thead>
+      <tbody>
+        <tr><td><strong>达标</strong></td><td>四样提交物齐全，三条达标线全过</td></tr>
+        <tr><td><strong>不达标</strong></td><td>四样缺任意一样，或三条达标线任意一条不过</td></tr>
+        <tr><td><strong>加分</strong></td><td>在达标基础上，额外交了可复核的像素比换算过程</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>这个口径刻意写得硬：<strong>「四样齐全 + 三条全过」才算达标</strong>，没有「做得挺认真但差一点」的中间档。原因是工程件的验收本来就是二值的——尺寸超了 6 cm 就是超了，不能靠态度补。</p>
+</section>
+
+<!-- ===== 下次课 ===== -->
+<section id="next">
+  <div class="sec-head">
+    <div class="sec-num">预</div>
+    <div>
+      <h2>下次课</h2>
+      <p class="sec-sub">2026-11-18 · 第 10 次课 · 课堂作业 4 的截止点</p>
+    </div>
+  </div>
+
+  <p>下一次课在 <strong>2026-11-18</strong>，是第 10 次课。这一节没有缓冲：上课一上来就是课堂作业 4 的验收，所以<strong>作业必须在 11-18 之前交掉</strong>，不能指望上课再补。</p>
+
+  <h3>一、11-18 之前要完成的事</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>#</th><th>要完成的事</th><th>怎么算完成</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>选一个校园构件做完（岗亭 / 门柱 / 花坛 / 路灯任选）</td><td>四样提交物齐全：调用记录截图 + <code class="inline">scene_stats</code> 数据 + GLB + 一张渲染图</td></tr>
+        <tr><td>2</td><td>自查尺寸误差</td><td>包围盒与标称尺寸误差 <strong>≤ ±5 cm</strong></td></tr>
+        <tr><td>3</td><td>自查控制台与加载</td><td>控制台 <strong>0 报错</strong>；GLB 能被 <strong>three.js 加载</strong></td></tr>
+        <tr><td>4</td><td>（加分）写像素比换算</td><td>用照片做尺寸基准，并写出完整的换算过程</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>二、今天没跑通的同学</h3>
+  <p>今天没跑通不奇怪——这条链上有四个不同的失败位置（Agent 侧、MCP Server 侧、命令端口侧、Blender 侧），第一次做必然会在某处卡住。回去补的时候按这个顺序查，别乱试：</p>
+  <ol>
+    <li><strong>先看 <code class="inline">blender_ping</code> 通不通</strong>。不通，是命令端口没起，问题在最后一层。</li>
+    <li><strong>再看 <code class="inline">tools/list</code> 有没有出 10 个工具</strong>。出不来，问题在 MCP Server 这一层。</li>
+    <li><strong>最后看单步参数的报错文本</strong>。走到这一步还失败，多半是参数类型错了（比如颜色填了十六进制）。</li>
+  </ol>
+  <div class="note">这套排查顺序就是第四章那张链路图从右往左读一遍：<strong>越靠后越先查</strong>。因为越靠后的层，失败现象越像「整个链路都不通」，越容易被误判成最前面那一层的问题。</div>
+
+  <h3>三、带着这四个问题来</h3>
+  <ul>
+    <li>你选的构件，<strong>尺寸是从哪来的</strong>？查到的，还是估的？</li>
+    <li>你一共调了几次才达标？<strong>错在哪一步</strong>——参数、顺序，还是理解？</li>
+    <li>如果现在让你把它<strong>批量做 20 个</strong>，你要改几处？</li>
+    <li>第八章的三档路线，<strong>你的构件适合哪一档</strong>？为什么不是另外两档？</li>
+  </ul>
+
+  <div class="btn-row">
+    <a class="btn" href="vr-2026.html">← 返回课程主页</a>
+    <a class="btn ghost" href="assets/vr-2026/webxr/campus_cwu_v2_webxr.html" target="_blank" rel="noopener">再看一次本课成果 · 校园沙盘 WebXR →</a>
+  </div>
+  <p style="font-size:14px;color:var(--ink-soft);">下次课的具体内容以教师当堂通知为准；本页只写已经确定的时间点与提交要求。</p>
+</section>
+</main>
+
+<footer>
+  <div class="f-main">中华女子学院 · 2026年虚拟现实技术 · 第 9 次课专题</div>
+  <div>数据科学与信息技术学院 · 授课教师：孙琪翔 · 2026-11-11 · Agent 通过 MCP 指挥 Blender</div>
+  <div style="margin-top:6px;font-size:12px;opacity:.75;">本页数字、时间与结论全部来自本次课内容规格与真实构建记录；Maya 那一轮是 commandPort 同构的仿真命令层，不是真调用；主教学楼的八角放射形 + 圆形中庭仅依据 OSM 轮廓与卫星影像叠图判断，无照片佐证；楼高为估算。</div>
+  <div style="margin-top:12px;font-size:14px;"><a href="vr-2026.html">← 返回课程主页</a></div>
+</footer>
+
+<button id="toTop" title="回到顶部">↑</button>
+
+<script>
+(function(){
+  var navInner = document.getElementById('navInner');
+  var navLinks = {};
+  navInner.querySelectorAll('a[data-sec]').forEach(function(a){
+    navLinks[a.getAttribute('data-sec')] = a;
+  });
+  var sections = ['guide','ex','c1','c2','c3','c4','c5','c6','c7','c8','hw','next'];
+  if ('IntersectionObserver' in window) {
+    var obs = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        if (en.isIntersecting) {
+          document.querySelectorAll('#nav a').forEach(function(a){ a.classList.remove('on'); });
+          var a = navLinks[en.target.id];
+          if (a) a.classList.add('on');
+        }
+      });
+    }, {rootMargin:'-15% 0px -70% 0px'});
+    sections.forEach(function(s){
+      var el = document.getElementById(s);
+      if (el) obs.observe(el);
+    });
+  }
+  var toTop = document.getElementById('toTop');
+  if (toTop) {
+    window.addEventListener('scroll', function(){
+      toTop.classList.toggle('show', window.pageYOffset > 400);
+    }, {passive:true});
+    toTop.addEventListener('click', function(){ window.scrollTo({top:0, behavior:'smooth'}); });
+  }
+})();
+</script>
+
+</body>
+</html>
