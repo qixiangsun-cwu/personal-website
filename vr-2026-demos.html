@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>演示中心 · 36 个可运行演示 | 2026年虚拟现实技术</title>
+<meta name="description" content="《虚拟现实技术》演示中心总入口：汇总第 2 次课立体显示演示 18 个、第 3—4 次课硬件与软件演示 7 个、第 7 次课交互零件演示 11 个（9 个零件 + 2 个示范案例），共 36 个可直接打开的演示页面；卡片标题与说明逐条抄自三个原始索引，全部演示离线可用，本页零外部请求。">
+<link rel="stylesheet" href="assets/vr-2026/course.css">
+</head>
+<body>
+
+<!-- ===== 顶部 ===== -->
+<header class="hero">
+  <div class="hero-inner">
+    <span class="kicker">虚拟现实技术 · 演示中心 · 18 + 7 + 11 = 36</span>
+    <h1>三套演示，一个入口</h1>
+    <p class="sub">这里汇总三门课的演示资源；课上跟着老师点，课后自己重跑。三组按课次排：第 2 次课的立体显示（18）、第 3—4 次课的硬件与软件（7）、第 7 次课的交互零件（11）——每张卡片都直接打开一个具体页面，不是目录。</p>
+    <div class="meta">
+      <span>中华女子学院</span><span>3 组 · 36 个可运行演示</span><span>标题与说明抄自 3 个原始索引</span><span>全部离线可用</span>
+    </div>
+  </div>
+</header>
+
+<!-- ===== 目录导航 ===== -->
+<nav class="nav" id="nav">
+  <div class="nav-inner" id="navInner">
+    <a href="vr-2026.html" class="nav-back">← 课程主页</a>
+    <a href="#guide" data-sec="guide" class="on">总览 · 怎么用</a>
+    <a href="#stereo" data-sec="stereo">立体显示 · 18</a>
+    <a href="#xr" data-sec="xr">硬件 + 软件 · 7</a>
+    <a href="#lab" data-sec="lab">交互零件 · 11</a>
+  </div>
+</nav>
+
+<main>
+
+<!-- ===== 导览 ===== -->
+<section id="guide">
+  <div class="sec-head">
+    <div class="sec-num">导</div>
+    <div>
+      <h2>总览：三套演示都在这一页</h2>
+      <p class="sec-sub">18 + 7 + 11 = 36 个页面；这一页只负责“找得到”，内容还在各演示自己的页面里</p>
+    </div>
+  </div>
+
+  <p>演示原来分散在三个目录：<code class="inline">assets/vr-2026/demos/</code>、<code class="inline">assets/vr-2026/demos-xr/</code>、<code class="inline">assets/vr-2026/lab/</code>，每套各有自己的 <code class="inline">index.html</code>。这一页把它们并排放好，按课次顺序排；<strong>卡片上的标题、技术关键词与说明文字，逐条抄自对应目录的 index.html</strong>，没有改写、没有新增演示。</p>
+
+  <div class="tbl-wrap">
+    <table style="min-width:760px;">
+      <thead><tr><th>组（目录）</th><th>对应课次</th><th>数量</th><th>由什么组成</th><th>原文索引</th></tr></thead>
+      <tbody>
+        <tr>
+          <td style="white-space:nowrap;"><strong>立体显示技术</strong><br><span class="res-sub">demos/</span></td>
+          <td style="white-space:nowrap;">第 2 次课<br><span class="res-sub">2026-09-09</span><span class="res-sub">第 2 章 关键技术</span></td>
+          <td style="white-space:nowrap;"><strong>18</strong></td>
+          <td>深度线索 · 双目视差 · 分色 / 分时 / 偏振 · 视差屏障 / 柱状透镜 · 体三维 / 全息 / 光场 · HMD 模拟 · VAC / PPD / HRTF</td>
+          <td style="white-space:nowrap;"><a href="assets/vr-2026/demos/index.html" target="_blank" rel="noopener">demos/index.html</a></td>
+        </tr>
+        <tr>
+          <td style="white-space:nowrap;"><strong>硬件 + 软件</strong><br><span class="res-sub">demos-xr/</span></td>
+          <td style="white-space:nowrap;">第 3—4 次课共用<br><span class="res-sub">2026-09-16 / 09-23</span></td>
+          <td style="white-space:nowrap;"><strong>7</strong></td>
+          <td>PPD 与设备参数 · 定位方式 · 6DoF · 手部追踪 · MR 透视 · WebXR 能力检测 · 软件生态与管线决策</td>
+          <td style="white-space:nowrap;"><a href="assets/vr-2026/demos-xr/index.html" target="_blank" rel="noopener">demos-xr/index.html</a></td>
+        </tr>
+        <tr>
+          <td style="white-space:nowrap;"><strong>交互零件</strong><br><span class="res-sub">lab/</span></td>
+          <td style="white-space:nowrap;">第 7 次课<br><span class="res-sub">2026-10-21</span><span class="res-sub">交互零件库</span></td>
+          <td style="white-space:nowrap;"><strong>11</strong><br><span class="res-sub">9 零件<br>+ 2 示范</span></td>
+          <td>射线 / 悬停 · 抓取 · 投掷 · 重力 · 远距拉取 · Diegetic UI · 舒适度 · Fitts 定律 · 触觉；另加投篮擂台与作业样板</td>
+          <td style="white-space:nowrap;"><a href="assets/vr-2026/lab/index.html" target="_blank" rel="noopener">lab/index.html</a></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="res-sub">手机屏幕上这一行的表格可以左右滑动，查看“由什么组成”与“原文索引”两列。</p>
+
+  <h3>怎么用这一页</h3>
+  <ul>
+    <li><strong>点卡片 = 打开演示</strong>：整张卡片就是链接，直接指向那个演示的 <code class="inline">.html</code> 文件（新标签页打开），不经过目录页。</li>
+    <li><strong>离线可跑</strong>：三套演示都不依赖网络；本页本身也没有 CDN、网络字体与外部 JS。</li>
+    <li><strong>进头显的前提</strong>：第 7 次课的 11 个是 WebXR 页面，头显浏览器打开必须 <strong>https 或 127.0.0.1</strong>（<code class="inline">file://</code> 不是安全上下文）。</li>
+    <li><strong>别把示意图当实机</strong>：除分色立体（需红青眼镜）与 WebXR 能力检测（需真实 XR 设备）外，其余是原理示意与计算工具；真实效果以 PICO 4 Ultra 实机为准。</li>
+    <li><strong>手机上也能读</strong>：卡片网格按屏幕宽度自动换行，窄屏单列；演示页面各自的适配与操作说明写在其页面内的 HUD 里。</li>
+  </ul>
+
+  <div class="note"><strong>原文出处与核对</strong>：<a href="assets/vr-2026/demos/index.html" target="_blank" rel="noopener">demos/index.html</a> · <a href="assets/vr-2026/demos-xr/index.html" target="_blank" rel="noopener">demos-xr/index.html</a> · <a href="assets/vr-2026/lab/index.html" target="_blank" rel="noopener">lab/index.html</a>。三份索引里 36 张卡片全部自带标题与说明，<strong>本页未补写任何演示说明</strong>；只把索引里的“技术关键词 / 什么时候放 / 标签”原样搬进卡片。36 条演示链接已逐个核对过文件存在，无缺失。</div>
+
+  <div class="btn-row">
+    <a class="btn ghost" href="vr-2026-lesson2.html">第 2 次课 · 立体显示 →</a>
+    <a class="btn ghost" href="vr-2026-lesson3.html">第 3 次课 · 硬件设备 →</a>
+    <a class="btn ghost" href="vr-2026-lesson4.html">第 4 次课 · 开发软件 →</a>
+    <a class="btn ghost" href="vr-2026-lesson7.html">第 7 次课 · 交互零件 →</a>
+  </div>
+</section>
+
+<!-- ===== 一、立体显示 18 ===== -->
+<section id="stereo">
+  <div class="sec-head">
+    <div class="sec-num">一</div>
+    <div>
+      <h2>第 2 次课 · 立体显示技术（18 个）</h2>
+      <p class="sec-sub">第2次课「虚拟现实的关键技术」配套 · 18 个页面全部离线可用、无外部依赖</p>
+    </div>
+  </div>
+
+  <p><strong>原索引原话</strong>：所有演示离线可用，无外部依赖；除「03 分色立体」需红青眼镜才能真实体验立体外，其余均为<strong>原理示意/模拟</strong>。</p>
+
+  <div class="demo-grid">
+    <a class="demo-card" href="assets/vr-2026/demos/d01-depth-cues.html" target="_blank" rel="noopener">
+      <div class="dc-no">01</div>
+      <div class="dc-title">深度线索</div>
+      <div class="dc-desc">开关遮挡/相对大小/线性透视/纹理梯度/相对高度/空气透视，拖动视点感受运动视差。</div>
+      <div class="dc-meta">单眼线索 + 运动视差</div>
+      <div class="dc-links"><span>打开 →</span></div>
+    </a>
+    <a class="demo-card" href="assets/vr-2026/demos/d02-binocular-parallax.html" target="_blank" rel="noopener">
+      <div class="dc-no">02</div>
+      <div class="dc-title">双目视差</div>
+      <div class="dc-desc">左右眼两幅图，调节瞳距与物体距离，观察近/远物体的视差变化，切换合像模式。</div>
+      <div class="dc-meta">瞳距 IPD + 合像</div>
+      <div class="dc-links"><span>打开 →</span></div>
+    </a>
+    <a class="demo-card" href="assets/vr-2026/demos/d03-anaglyph.html" target="_blank" rel="noopener">
+      <div class="dc-no">03</div>
+      <div class="dc-title">分色立体（红青）</div>
+      <div class="dc-desc">红青重影渲染，调视差强度体会出屏/入屏；配红青眼镜可看真实立体。</div>
+      <div class="dc-meta">Anaglyph</div>
+      <div class="dc-links"><span>打开 →</span></div>
+    </a>
+    <a class="demo-card" href="assets/vr-2026/demos/d04-active-shutter.html" target="_blank" rel="noopener">
+      <div class="dc-no">04</div>
+      <div class="dc-title">主动快门（分时）</div>
+      <div class="dc-desc">左/右帧交替模拟，调频率观察闪烁融合；原理示意，非真实快门眼镜。</div>
+      <div class="dc-meta">Active Shutter</div>
+      <div class="dc-links"><span>打开 →</span></div>
+    </a>
+    <a class="demo-card" href="assets/vr-2026/demos/d05-polarization.html" target="_blank" rel="noopener">
+      <div class="dc-no">05</div>
+      <div class="dc-title">偏振立体（分光）</div>
+      <div class="dc-desc">正交偏振光 + 左右偏振片，切换戴/不戴眼镜看每只眼各收到哪束光。</div>
+      <div class="dc-meta">Polarization</div>
+      <div class="dc-links"><span>打开 →</span></div>
+    </a>
+    <a class="demo-card" href="assets/vr-2026/demos/d06-parallax-barrier.html" target="_blank" rel="noopener">
+      <div class="dc-no">06</div>
+      <div class="dc-title">视差屏障</div>
+      <div class="dc-desc">俯视光线图：狭缝如何把左右子像素分别送给左右眼，调宽度/位置看串扰。</div>
+      <div class="dc-meta">Parallax Barrier</div>
+      <div class="dc-links"><span>打开 →</span></div>
+    </a>
+    <a class="demo-card" href="assets/vr-2026/demos/d07-lenticular.html" target="_blank" rel="noopener">
+      <div class="dc-no">07</div>
+      <div class="dc-title">柱状透镜</div>
+      <div class="dc-desc">俯视光线图：微透镜折射分光，与屏障做亮度对比。</div>
+      <div class="dc-meta">Lenticular Lens</div>
+      <div class="dc-links"><span>打开 →</span></div>
+    </a>
+    <a class="demo-card" href="assets/vr-2026/demos/d08-volumetric.html" target="_blank" rel="noopener">
+      <div class="dc-no">08</div>
+      <div class="dc-title">体三维显示</div>
+      <div class="dc-desc">旋转屏 + 视觉暂留，用 2D 截面示意空间体素如何被“扫”出来。</div>
+      <div class="dc-meta">Volumetric</div>
+      <div class="dc-links"><span>打开 →</span></div>
+    </a>
+    <a class="demo-card" href="assets/vr-2026/demos/d09-hologram.html" target="_blank" rel="noopener">
+      <div class="dc-no">09</div>
+      <div class="dc-title">全息显示</div>
+      <div class="dc-desc">物光 + 参考光干涉条纹，参考光重建像；调参考光角度看条纹疏密变化。</div>
+      <div class="dc-meta">Holography / CGH</div>
+      <div class="dc-links"><span>打开 →</span></div>
+    </a>
+    <a class="demo-card" href="assets/vr-2026/demos/d10-light-field.html" target="_blank" rel="noopener">
+      <div class="dc-no">10</div>
+      <div class="dc-title">光场 / 集成成像</div>
+      <div class="dc-desc">微透镜阵列把物点光线按方向分开，调视点数观察光线密度。</div>
+      <div class="dc-meta">Light Field</div>
+      <div class="dc-links"><span>打开 →</span></div>
+    </a>
+    <a class="demo-card" href="assets/vr-2026/demos/d11-hmd-simulator.html" target="_blank" rel="noopener">
+      <div class="dc-no">11</div>
+      <div class="dc-title">头显模拟器</div>
+      <div class="dc-desc">左右眼双屏渲染房间，调瞳距/视场角/畸变，附 Pancake 折返光路图。</div>
+      <div class="dc-meta">HMD 双屏 + 畸变</div>
+      <div class="dc-links"><span>打开 →</span></div>
+    </a>
+    <a class="demo-card" href="assets/vr-2026/demos/d12-vac.html" target="_blank" rel="noopener">
+      <div class="dc-no">12</div>
+      <div class="dc-title">调节-辐辏冲突</div>
+      <div class="dc-desc">对焦距离 vs 会聚距离，拖动物体距离观察冲突变化。</div>
+      <div class="dc-meta">VAC</div>
+      <div class="dc-links"><span>打开 →</span></div>
+    </a>
+    <a class="demo-card" href="assets/vr-2026/demos/d13-ppd-calculator.html" target="_blank" rel="noopener">
+      <div class="dc-no">13</div>
+      <div class="dc-title">PPD 计算器</div>
+      <div class="dc-desc">输入分辨率与视场角算 PPD，与 20 / 60 两条经验阈值对比。</div>
+      <div class="dc-meta">Pixels Per Degree</div>
+      <div class="dc-links"><span>打开 →</span></div>
+    </a>
+    <a class="demo-card" href="assets/vr-2026/demos/d14-hrtf-audio.html" target="_blank" rel="noopener">
+      <div class="dc-no">14</div>
+      <div class="dc-title">三维虚拟声音（HRTF）</div>
+      <div class="dc-desc">拖声源绕头一周，看双耳时间差与声级差变化；点播放用浏览器 HRTF 真实听方位（戴耳机）。</div>
+      <div class="dc-meta">ITD / ILD / 空间音频</div>
+      <div class="dc-links"><span>打开 →</span></div>
+    </a>
+    <a class="demo-card" href="assets/vr-2026/demos/d15-hci.html" target="_blank" rel="noopener">
+      <div class="dc-no">15</div>
+      <div class="dc-title">人机交互实验室</div>
+      <div class="dc-desc">用鼠标模拟手柄射线选择、眼动驻留选择、手部手势，以及语音链路与 TTS 反馈。</div>
+      <div class="dc-meta">射线 / 凝视 / 手势 / 语音</div>
+      <div class="dc-links"><span>打开 →</span></div>
+    </a>
+    <a class="demo-card" href="assets/vr-2026/demos/d16-stereo-taxonomy.html" target="_blank" rel="noopener">
+      <div class="dc-no">16</div>
+      <div class="dc-title">立体显示技术分类交互图</div>
+      <div class="dc-desc">助视式 / 裸眼式 / 真三维三大分支的交互式分类图，点节点看每项技术的分光思路与局限。</div>
+      <div class="dc-meta">技术全景地图</div>
+      <div class="dc-links"><span>打开 →</span></div>
+    </a>
+    <a class="demo-card" href="assets/vr-2026/demos/d17-ppd-calculator-plus.html" target="_blank" rel="noopener">
+      <div class="dc-no">17</div>
+      <div class="dc-title">PPD 计算器 · 增强版</div>
+      <div class="dc-desc">在基础版之上增加主流设备预设与阈值说明，可直接对比 PICO 4 Ultra / Quest 3 / Vision Pro。</div>
+      <div class="dc-meta">Pixels Per Degree</div>
+      <div class="dc-links"><span>打开 →</span></div>
+    </a>
+    <a class="demo-card" href="assets/vr-2026/demos/d18-vac-plus.html" target="_blank" rel="noopener">
+      <div class="dc-no">18</div>
+      <div class="dc-title">VAC 交互演示 · 增强版</div>
+      <div class="dc-desc">在基础版之上增加缓解方案对照（多焦面 / 光场 / 软件缓解），观察不同方案的冲突变化。</div>
+      <div class="dc-meta">调节-辐辏冲突</div>
+      <div class="dc-links"><span>打开 →</span></div>
+    </a>
+  </div>
+
+  <div class="warn"><strong>演示边界（原索引原话）</strong>：普通电脑屏幕无法真实复现偏振、快门、全息、光场等效果，这些页面仅作原理示意。分色（红青）是唯一可直接体验立体感的例外，但需要红青 3D 眼镜。</div>
+</section>
+
+<!-- ===== 二、硬件 + 软件 7 ===== -->
+<section id="xr">
+  <div class="sec-head">
+    <div class="sec-num">二</div>
+    <div>
+      <h2>第 3—4 次课 · 硬件与软件（7 个）</h2>
+      <p class="sec-sub">第 3、4 次课共用 · 01—06 硬件设备（第 3 章），07 软件主题（第 4 章）</p>
+    </div>
+  </div>
+
+  <p><strong>原索引原话</strong>：<strong>全部离线可用，无外部依赖</strong>。01—06 为<strong>硬件设备</strong>主题（第 3 章，第 3 次课主用）；<strong>07 为软件主题</strong>（第 4 章，第 4 次课主线）。除 06 需真实 XR 设备才能返回"支持"外，其余均为<strong>原理示意与计算工具</strong>——真实效果请以 PICO 4 Ultra 实机为准。</p>
+
+  <div class="demo-grid">
+    <a class="demo-card" href="assets/vr-2026/demos-xr/xr01-ppd-compare.html" target="_blank" rel="noopener">
+      <div class="dc-no">01</div>
+      <div class="dc-title">PPD 与设备参数对比计算器</div>
+      <div class="dc-desc">输入像素数与视场角算 PPD，内置 6 款设备预设；附"三套口径"对照表，训练参数口径意识。</div>
+      <div class="dc-meta">清晰度 = PPD，不是分辨率</div>
+      <div class="dc-links"><span>打开 →</span></div>
+    </a>
+    <a class="demo-card" href="assets/vr-2026/demos-xr/xr02-tracking-compare.html" target="_blank" rel="noopener">
+      <div class="dc-no">02</div>
+      <div class="dc-title">定位方式对比</div>
+      <div class="dc-desc">切换三种定位方案 × 六种环境场景（弱光、白墙、遮挡、快速运动…），实时显示追踪状态。</div>
+      <div class="dc-meta">Outside-In / Inside-Out / SLAM</div>
+      <div class="dc-links"><span>打开 →</span></div>
+    </a>
+    <a class="demo-card" href="assets/vr-2026/demos-xr/xr03-6dof.html" target="_blank" rel="noopener">
+      <div class="dc-no">03</div>
+      <div class="dc-title">6DoF 自由度演示</div>
+      <div class="dc-desc">3DoF 下平移被锁死——你只能转头，走不近目标。切到 6DoF 体会运动视差与"走近看细节"。</div>
+      <div class="dc-meta">3 旋转 + 3 平移</div>
+      <div class="dc-links"><span>打开 →</span></div>
+    </a>
+    <a class="demo-card" href="assets/vr-2026/demos-xr/xr04-hand-tracking.html" target="_blank" rel="noopener">
+      <div class="dc-no">04</div>
+      <div class="dc-title">手部追踪与交互方式</div>
+      <div class="dc-desc">五类输入的原理、延迟、优劣对比；含 22 关节点手骨图与六种手势失效场景模拟。</div>
+      <div class="dc-meta">手柄 / 手势 / 眼动 / 语音 / 动捕</div>
+      <div class="dc-links"><span>打开 →</span></div>
+    </a>
+    <a class="demo-card" href="assets/vr-2026/demos-xr/xr05-mr-passthrough.html" target="_blank" rel="noopener">
+      <div class="dc-no">05</div>
+      <div class="dc-title">MR 透视与空间网格</div>
+      <div class="dc-desc">叠加开关：透视画质、空间网格、AI 语义标签、虚实遮挡、深度图；拖 PPD 滑块看画质劣化。</div>
+      <div class="dc-meta">彩色透视 / iToF / 语义分割</div>
+      <div class="dc-links"><span>打开 →</span></div>
+    </a>
+    <a class="demo-card" href="assets/vr-2026/demos-xr/xr06-webxr-capability.html" target="_blank" rel="noopener">
+      <div class="dc-no">06</div>
+      <div class="dc-title">WebXR 能力检测</div>
+      <div class="dc-desc">检测当前设备的 WebXR 会话与特性支持。<strong>机房 PC 与 PICO 浏览器结果对比</strong>，是 A7/B4 任务。</div>
+      <div class="dc-meta">浏览器即平台</div>
+      <div class="dc-links"><span>打开 →</span></div>
+    </a>
+    <a class="demo-card" href="assets/vr-2026/demos-xr/xr07-software-pipeline.html" target="_blank" rel="noopener">
+      <div class="dc-no">07</div>
+      <div class="dc-title">软件生态与管线决策台</div>
+      <div class="dc-desc">五个标签：<strong>软件生态地图</strong>、<strong>硬件↔软件对照</strong>（第3章与第4章的接口）、<strong>资产管线五道关</strong>、<strong>选题决策助手</strong>、<strong>今晚必须装的东西</strong>。软件主题课的主线演示。</div>
+      <div class="dc-meta">建模 / 引擎 / 资产 / 验证 · 五道关</div>
+      <div class="dc-links"><span>打开 →</span></div>
+    </a>
+  </div>
+
+  <div class="warn"><strong>口径提醒（原索引原话）</strong>：所有参数为 2026 年 9 月公开口径，厂商会更新；跨品牌比较必须统一口径（官方标称 / 按 FOV 计算 / 第三方实测）。<br>
+  <strong>演示边界</strong>：这些页面是原理示意，不是真实设备效果。真机体验请完成《应用操作手册》A 类九项任务。</div>
+
+  <div class="note"><strong>建议节奏（原索引原话）</strong>：01 配合第三节讲 HMD 指标；02/03 配合第二节讲输入设备；04 配合 A4 任务；05 配合 A3/A8；06 用于 A7 与 B4 的对照实验。</div>
+</section>
+
+<!-- ===== 三、交互零件 11 ===== -->
+<section id="lab">
+  <div class="sec-head">
+    <div class="sec-num">三</div>
+    <div>
+      <h2>第 7 次课 · 交互零件（11 个）</h2>
+      <p class="sec-sub">9 个零件演示 + 2 个示范案例 · 全部是单文件 WebXR，PC 与头显都能开</p>
+    </div>
+  </div>
+
+  <p><strong>原索引原话</strong>：9 个零件演示 + 2 个示范案例，<strong>全部是单文件 WebXR</strong>：PC 上点开就能用鼠标键盘玩；头显浏览器打开就能进 VR（必须 https 或 127.0.0.1，<code class="inline">file://</code> 不是安全上下文）。每个演示的左上角 HUD 都写着 <strong>PC 操作 / 头显操作 / 课堂要点</strong>；控制台输入 <code class="inline">LAB.api.selfTest()</code> 可跑内置自测。<strong>点开哪个，就按顺序从 01 开始。</strong></p>
+
+  <div class="lab-group">A · 讲授段演示 <span>按课堂顺序：射线 → 抓取 → 投掷 → 状态层 → 大作用例 → UI → 舒适度 → 距离 → 触觉</span></div>
+  <div class="demo-grid">
+    <a class="demo-card" href="assets/vr-2026/lab/lab01-ray-hover.html" target="_blank" rel="noopener">
+      <img class="dc-shot" src="assets/vr-2026/lab/lab01-ray-hover.jpg" alt="LAB 01 射线 · 悬停 · 三通道反馈 截图" loading="lazy">
+      <div class="dc-no">LAB 01</div>
+      <div class="dc-title">射线 · 悬停 · 三通道反馈</div>
+      <div class="dc-desc">单级（Midas，一碰就触发、误触计数狂跳）vs 两级（悬停只高亮 + 0.2 轻震，确认才 0.5）。看“视觉/听觉/触觉”三个灯。</div>
+      <div class="dc-meta"><strong>什么时候放</strong>：讲授 B 第 1—2 项；模块 A1/A4</div>
+      <div class="dc-links"><span>打开 →</span><span class="tag">PC + VR</span><span class="tag">对应练习 E1</span></div>
+    </a>
+    <a class="demo-card" href="assets/vr-2026/lab/lab02-grab-attach.html" target="_blank" rel="noopener">
+      <img class="dc-shot" src="assets/vr-2026/lab/lab02-grab-attach.jpg" alt="LAB 02 attach 与 add 抓取校准 截图" loading="lazy">
+      <div class="dc-no">LAB 02</div>
+      <div class="dc-title">attach 与 add：抓取校准</div>
+      <div class="dc-desc">同一物体：attach 抓起来位姿正确，add 会“跳”；屏幕直接给跳变距离（毫米）。抓取距离可切 0.20 / 0.35 / 0.80 m。</div>
+      <div class="dc-meta"><strong>什么时候放</strong>：讲授 B 第 3 项；模块 A2</div>
+      <div class="dc-links"><span>打开 →</span><span class="tag">PC + VR</span><span class="tag">对应练习 E3</span></div>
+    </a>
+    <a class="demo-card" href="assets/vr-2026/lab/lab03-throw-physics.html" target="_blank" rel="noopener">
+      <img class="dc-shot" src="assets/vr-2026/lab/lab03-throw-physics.jpg" alt="LAB 03 投掷 力度 × 平滑 × 重力 截图" loading="lazy">
+      <div class="dc-no">LAB 03</div>
+      <div class="dc-title">投掷：力度 × 平滑 × 重力</div>
+      <div class="dc-desc">力度 0.6/1.15/2.0、EMA 0.05/0.35、重力 9.8/3/25，每次投掷进“命中记录表”——手感是可复现的三个数字。</div>
+      <div class="dc-meta"><strong>什么时候放</strong>：讲授 B 第 9 项；对应练习 E4</div>
+      <div class="dc-links"><span>打开 →</span><span class="tag">PC + VR</span><span class="tag">对应练习 E4</span></div>
+    </a>
+    <a class="demo-card" href="assets/vr-2026/lab/lab04-gravity-lab.html" target="_blank" rel="noopener">
+      <img class="dc-shot" src="assets/vr-2026/lab/lab04-gravity-lab.jpg" alt="LAB 04 重力实验室：同一颗球，三种世界 截图" loading="lazy">
+      <div class="dc-no">LAB 04</div>
+      <div class="dc-title">重力实验室：同一颗球，三种世界</div>
+      <div class="dc-desc">地球/月球/木星三档 + 弹性切换；实测落地时间、弹起高度、弹跳次数，与理论比值 √(g₁/g₂) 对照。</div>
+      <div class="dc-meta"><strong>什么时候放</strong>：讲授 A 第 3 层“一个 S”；对应练习 E2</div>
+      <div class="dc-links"><span>打开 →</span><span class="tag">PC + VR</span><span class="tag">对应练习 E2</span></div>
+    </a>
+    <a class="demo-card" href="assets/vr-2026/lab/lab05-force-pull.html" target="_blank" rel="noopener">
+      <img class="dc-shot" src="assets/vr-2026/lab/lab05-force-pull.jpg" alt="LAB 05 重力手套：简化版 vs 三段式 截图" loading="lazy">
+      <div class="dc-no">LAB 05</div>
+      <div class="dc-title">重力手套：简化版 vs 三段式</div>
+      <div class="dc-desc">简化版“飞向手 + 自动吸附” vs Alyx 式“选中 → 确认 → 弧线飞行 → ±0.25 s 甩腕接住”。功能 vs 体验。</div>
+      <div class="dc-meta"><strong>什么时候放</strong>：模块 B1 · 大作拆解</div>
+      <div class="dc-links"><span>打开 →</span><span class="tag">PC + VR</span><span class="tag">高阶交互</span></div>
+    </a>
+    <a class="demo-card" href="assets/vr-2026/lab/lab06-diegetic-ui.html" target="_blank" rel="noopener">
+      <img class="dc-shot" src="assets/vr-2026/lab/lab06-diegetic-ui.jpg" alt="LAB 06 Diegetic UI 四分类对照 截图" loading="lazy">
+      <div class="dc-no">LAB 06</div>
+      <div class="dc-title">Diegetic UI 四分类</div>
+      <div class="dc-desc">同一组信息四种放法：世界内腕表 / 空间面板 / 跟随头部 / 网页浮层。按 4 切到浮层再进 VR，当场看它消失。</div>
+      <div class="dc-meta"><strong>什么时候放</strong>：模块 B3 · 衔接第 8 次课状态提示</div>
+      <div class="dc-links"><span>打开 →</span><span class="tag">PC + VR</span><span class="tag">对应 H5 加分</span></div>
+    </a>
+    <a class="demo-card" href="assets/vr-2026/lab/lab07-comfort-locomotion.html" target="_blank" rel="noopener">
+      <img class="dc-shot" src="assets/vr-2026/lab/lab07-comfort-locomotion.jpg" alt="LAB 07 舒适度：瞬移 / 平滑 / 隧道遮罩 截图" loading="lazy">
+      <div class="dc-no">LAB 07</div>
+      <div class="dc-title">舒适度：瞬移 / 平滑 / 隧道遮罩</div>
+      <div class="dc-desc">四种移动 + Snap 45° + 遮罩强度 0/0.5/1，还有一个“强制转相机”的反例开关；自己走 30 秒、自己打 1—5 分。</div>
+      <div class="dc-meta"><strong>什么时候放</strong>：模块 C1/C2 · 工作室 CP2 前</div>
+      <div class="dc-links"><span>打开 →</span><span class="tag">PC + VR</span><span class="tag">舒适度</span></div>
+    </a>
+    <a class="demo-card" href="assets/vr-2026/lab/lab08-fitts-goldilocks.html" target="_blank" rel="noopener">
+      <img class="dc-shot" src="assets/vr-2026/lab/lab08-fitts-goldilocks.jpg" alt="LAB 08 Fitts 定律 × Goldilocks 舒适区 截图" loading="lazy">
+      <div class="dc-no">LAB 08</div>
+      <div class="dc-title">Fitts 定律 × Goldilocks 舒适区</div>
+      <div class="dc-desc">目标按距离/大小出现并计时，ID=log₂(A/W+1) 与 MT 画散点；面板高度 1.0/1.3/1.7/2.0 m 判定弯腰/舒适/抬手。</div>
+      <div class="dc-meta"><strong>什么时候放</strong>：模块 A3 · 讲“面板放多高”</div>
+      <div class="dc-links"><span>打开 →</span><span class="tag">PC + VR</span><span class="tag">交互距离</span></div>
+    </a>
+    <a class="demo-card" href="assets/vr-2026/lab/lab09-haptics-hand.html" target="_blank" rel="noopener">
+      <img class="dc-shot" src="assets/vr-2026/lab/lab09-haptics-hand.jpg" alt="LAB 09 触觉语义分级 × pinch 确认 截图" loading="lazy">
+      <div class="dc-no">LAB 09</div>
+      <div class="dc-title">触觉语义分级 × pinch 确认</div>
+      <div class="dc-desc">悬停 0.2 / 抓取 0.5 / 命中 0.8 / 错误 1.0 四档强度与时长；手部追踪可用读 pinch，不可用按 P 模拟。</div>
+      <div class="dc-meta"><strong>什么时候放</strong>：模块 D1/D2 · 第 9 次课免手柄通路</div>
+      <div class="dc-links"><span>打开 →</span><span class="tag">PC + VR</span><span class="tag">未真机验证项已标注</span></div>
+    </a>
+  </div>
+
+  <div class="lab-group">B · 示范案例 <span>学生作业与 E5 擂台的标准答案：先玩、再拆、再改</span></div>
+  <div class="demo-grid">
+    <a class="demo-card" href="assets/vr-2026/lab/demo01-basketball.html" target="_blank" rel="noopener">
+      <img class="dc-shot" src="assets/vr-2026/lab/demo01-basketball.jpg" alt="DEMO 01 投篮擂台 截图" loading="lazy">
+      <div class="dc-no">DEMO 01 · 示范作品</div>
+      <div class="dc-title">投篮擂台：一个能评分的小玩法</div>
+      <div class="dc-desc">罚球线抓球投篮；计分板在 3D 里；命中三通道反馈；60 秒限时；最高分持久化；<strong>ready / playing / over</strong> 三阶段状态机（第 8 次课的开刀对象）。</div>
+      <div class="dc-meta"><strong>怎么用</strong>：走完一局 → 找四个东西（计分变量 / 命中判定 / 三通道反馈 / 重置）→ 换主题换规则</div>
+      <div class="dc-links"><span>打开 →</span><span class="tag">PC + VR</span><span class="tag">E5 标准答案</span></div>
+    </a>
+    <a class="demo-card" href="assets/vr-2026/lab/demo02-homework-sample.html" target="_blank" rel="noopener">
+      <img class="dc-shot" src="assets/vr-2026/lab/demo02-homework-sample.jpg" alt="DEMO 02 作业样板 截图" loading="lazy">
+      <div class="dc-no">DEMO 02 · 作业样板</div>
+      <div class="dc-title">三项交互 + 自动《交互清单》</div>
+      <div class="dc-desc">面板改灯光 / 抓台灯归位 / 投球入篮计数；PC 端侧栏自动生成《交互清单》与三条达标线自检；按 <code class="inline">A</code> 看 ①②③ 注释。</div>
+      <div class="dc-meta"><strong>怎么用</strong>：照抄“交付结构”——一个能跑的文件 + 一张清单 + 三条自检</div>
+      <div class="dc-links"><span>打开 →</span><span class="tag">PC + VR</span><span class="tag">H2/H5 交付参照</span></div>
+    </a>
+  </div>
+
+  <div class="warn"><strong>使用边界（原索引原话，课上要一起说）</strong>：这 11 个页面都通过了无头 Chrome 自动检查（无 JS 报错 + 内置自测全过 + 渲染调用数 &gt; 0），但那只证明<strong>代码逻辑自洽</strong>。手柄握持键、触觉马达、手部追踪三项<strong>未在真机验证</strong>，PICO 固件存在版本差异 —— 课前用一台头显实测 5 分钟；握持键无响应就改用扳机抓取。<br>
+  <strong>改代码前先备份</strong>：每个演示都是单文件，复制一份再改；改坏了重新下载原文件即可。所有演示共用同目录的 <code class="inline">three.min.js</code>，不要删。</div>
+</section>
+
+</main>
+
+<footer>
+  <div class="f-main">中华女子学院 · 2026 年虚拟现实技术 · 演示中心</div>
+  <div>数据科学与信息技术学院 · 授课教师：孙琪翔 · 3 组共 36 个演示（18 + 7 + 11）</div>
+  <div style="margin-top:6px;font-size:12px;opacity:.75;">卡片标题与说明原文来自 assets/vr-2026/demos/index.html、assets/vr-2026/demos-xr/index.html、assets/vr-2026/lab/index.html；本页只做入口，不复制演示内容。演示均为原理示意或教学工具，不代表真实设备效果。</div>
+  <div style="margin-top:12px;font-size:14px;"><a href="vr-2026.html">← 返回课程主页</a></div>
+</footer>
+
+<button id="toTop" title="回到顶部">↑</button>
+
+<script>
+(function(){
+  var navInner = document.getElementById('navInner');
+  var navLinks = {};
+  navInner.querySelectorAll('a[data-sec]').forEach(function(a){
+    navLinks[a.getAttribute('data-sec')] = a;
+  });
+  var sections = ['guide','stereo','xr','lab'];
+  if ('IntersectionObserver' in window) {
+    var obs = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        if (en.isIntersecting) {
+          document.querySelectorAll('#nav a').forEach(function(a){ a.classList.remove('on'); });
+          var a = navLinks[en.target.id];
+          if (a) a.classList.add('on');
+        }
+      });
+    }, {rootMargin:'-15% 0px -70% 0px'});
+    sections.forEach(function(s){
+      var el = document.getElementById(s);
+      if (el) obs.observe(el);
+    });
+  }
+  var toTop = document.getElementById('toTop');
+  if (toTop) {
+    window.addEventListener('scroll', function(){
+      toTop.classList.toggle('show', window.pageYOffset > 400);
+    }, {passive:true});
+    toTop.addEventListener('click', function(){ window.scrollTo({top:0, behavior:'smooth'}); });
+  }
+})();
+</script>
+
+</body>
+</html>

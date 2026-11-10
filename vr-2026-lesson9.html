@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>第9次课 · 路要通、退得出、谁都点得到 | 2026年虚拟现实技术</title>
-<meta name="description" content="《虚拟现实技术》第 9 次课（2026-11-11 · 4 学时）：以案例 02 密室逃脱·敦煌寻宝（二）拆解交互实现与可访问性——attach() 抓取与距离阈值 0.45、release() 放置判定 1.6 与吸附槽、UV 命中 3D 密码键盘、S.step 顺序校验与"失败有代价但不惩罚"；人因与可访问性三件套 Shift+P 坐姿 / Shift+H 惯用手 / Shift+G 注视停留，并现场让学生自己得出"面板可免手柄、场景实体仍需手部输入"这条边界；三条退出路与 M3 主流程可玩硬门槛的判定口径。">
+<meta name="description" content="《虚拟现实技术》第 9 次课（2026-11-11 · 4 学时）：以演示案例 02 密室逃脱·敦煌寻宝（二）拆解交互实现与可访问性——attach() 抓取与距离阈值 0.45、release() 放置判定 1.6 与吸附槽、UV 命中 3D 密码键盘、S.step 顺序校验与"失败有代价但不惩罚"；人因与可访问性三件套 Shift+P 坐姿 / Shift+H 惯用手 / Shift+G 注视停留，并现场让学生自己得出"面板可免手柄、场景实体仍需手部输入"这条边界；三条退出路与 M3 主流程可玩硬门槛的判定口径。">
 <link rel="stylesheet" href="assets/vr-2026/course.css">
 </head>
 <body>
@@ -14,7 +14,7 @@
   <div class="hero-inner">
     <span class="kicker">虚拟现实技术 · 第 9 次课 · 实现与验证</span>
     <h1>路要通、退得出、谁都点得到</h1>
-    <p class="sub">第 9 次课 · 案例 02「密室逃脱 · 敦煌寻宝」（二）——上周（10-28）交的是<strong>课堂作业 3</strong>（交互验证 + 模型管线 + 许可卡，一页版）；M2 动线图/状态机图<span>并入本课、口径待教师确认</span>；这一周要证明作品真的能用，而且不是你能用，是一个陌生人戴上头显也能用</p>
+    <p class="sub">第 9 次课 · 演示案例 02「密室逃脱 · 敦煌寻宝」（二）——上周（10-28）交的是<strong>课堂作业 3</strong>（交互验证 + 模型管线 + 许可卡，一页版）；M2 动线图/状态机图<span>并入本课、口径待教师确认</span>；这一周要证明作品真的能用，而且不是你能用，是一个陌生人戴上头显也能用</p>
     <div class="meta">
       <span>中华女子学院</span><span>4 学时 · 180 分钟</span><span>授课人：孙琪翔</span><span>2026-11-11（周三）</span><span>数字媒体技术 2023 级 · 40 人</span>
     </div>
@@ -54,7 +54,7 @@
     </div>
   </div>
 
-  <div class="note"><strong>本课关联专题（2026-11-11 上午 4 节主线）</strong>：本次课以「<a href="vr-2026-agent-mcp-blender.html"><strong>Agent 通过 MCP 指挥 Blender 建模</strong></a>」为主线——前两节课全部是课堂练习（人肉 MCP / 参数化改造 / 生成式对比），后两节课讲技术细节、真实决策过程与照片重建路线。本页内容（交互实现与可访问性）作为配套阅读保留。</div>
+  <div class="note"><strong>本页已并入第 9 次课专题页（2026-11-11）</strong>：第 9 次课以「<a href="vr-2026-agent-mcp-blender.html"><strong>Agent 通过 MCP 指挥 Blender 建模</strong></a>」为主线（前两节课堂练习、后两节讲授），本页的<strong>交互实现与可访问性</strong>内容已并入该专题页作为<strong>附录</strong>；本页保留全文，供查阅与回看。</div>
 
   <p>上周（10-28）交的是<strong>课堂作业 3：交互验证 + 模型管线 + 许可卡（一页版）</strong>。旧口径的 <strong>M2（动线图 + 状态机图 + 可玩入口）并入本课</strong>，<strong>最终交付口径待教师确认</strong>。这一周要证明的是<strong>"它真的能用"</strong>——而且不是"你能用"，是<strong>一个不熟悉你作品的人，戴上头显也能用</strong>。</p>
 
@@ -118,7 +118,7 @@
     <div class="sec-num">一</div>
     <div>
       <h2>抓得住吗：<code class="inline">attach()</code> 与"最近的那一个"</h2>
-      <p class="sec-sub">案例 02 的抓取规则：<strong>0.45 m 内，挑最近的那一块碎片</strong>——"最近"是规则，不是"我想要"</p>
+      <p class="sec-sub">演示案例 02 的抓取规则：<strong>0.45 m 内，挑最近的那一块碎片</strong>——"最近"是规则，不是"我想要"</p>
     </div>
   </div>
 
@@ -128,7 +128,7 @@
   <ul>
     <li>动作在 <code class="inline">grab(obj, holder)</code> 里，核心一行是 <strong><code class="inline">holder.attach(obj)</code></strong>——把物体挂到控制器上；</li>
     <li>触发它的是 <strong><code class="inline">squeezestart</code></strong>（<strong>握持键</strong>被按下）——<strong>不是扳机</strong>；</li>
-    <li>案例 02 的规则：<strong>在 0.45 m 内挑最近的那一块碎片</strong>。</li>
+    <li>演示案例 02 的规则：<strong>在 0.45 m 内挑最近的那一块碎片</strong>。</li>
   </ul>
 <pre>var best = null, bd = 0.45;          // ← 抓取距离
 for (每块碎片 o) {
@@ -149,7 +149,7 @@ if (best) grab(best, c);</pre>
       </tbody>
     </table>
   </div>
-  <div class="note"><strong>太小抓不到，太大乱抓。</strong>这个数不是你"想"出来的，是你<strong>"调"</strong>出来的。案例 02 选 0.45，是它的选择，<strong>不是标准答案</strong>。</div>
+  <div class="note"><strong>太小抓不到，太大乱抓。</strong>这个数不是你"想"出来的，是你<strong>"调"</strong>出来的。演示案例 02 选 0.45，是它的选择，<strong>不是标准答案</strong>。</div>
 </section>
 
 <!-- ===== 二、放得对吗 ===== -->
@@ -185,15 +185,15 @@ if (p.distanceTo(fp) &lt; 1.6 &amp;&amp; !f.placed) {
   </div>
 
   <h3>二、吸附槽：为什么"放对了"还要再看一次代码</h3>
-  <p>案例 02 的槽位是<strong>按碎片索引固定</strong>的：<code class="inline">slotX = -0.95 + f.idx * 0.95</code>——第 0 块 → <code class="inline">−0.95</code>，第 1 块 → <code class="inline">0</code>，第 2 块 → <code class="inline">0.95</code>。也就是说：<strong>无论你先捡到哪一块，它都只会去自己固定的那个位置。</strong></p>
+  <p>演示案例 02 的槽位是<strong>按碎片索引固定</strong>的：<code class="inline">slotX = -0.95 + f.idx * 0.95</code>——第 0 块 → <code class="inline">−0.95</code>，第 1 块 → <code class="inline">0</code>，第 2 块 → <code class="inline">0.95</code>。也就是说：<strong>无论你先捡到哪一块，它都只会去自己固定的那个位置。</strong></p>
   <div class="grid2">
     <div class="cell">
-      <h4>写法 ① · 按索引固定（案例 02）</h4>
+      <h4>写法 ① · 按索引固定（演示案例 02）</h4>
       <p>好处是<strong>不会抢位置</strong>；代价是<strong>顺序感弱</strong>——你随便捡哪块都行，顺序不对也能拼对。</p>
     </div>
     <div class="cell">
       <h4>写法 ② · 自动找最近的空槽</h4>
-      <p>听起来更聪明，但你要多想一件事：<strong>两块碎片同时靠近同一个空槽的时候，谁赢？</strong>（这是案例 02 布置的作业方向）</p>
+      <p>听起来更聪明，但你要多想一件事：<strong>两块碎片同时靠近同一个空槽的时候，谁赢？</strong>（这是演示案例 02 布置的作业方向）</p>
     </div>
   </div>
   <div class="key"><strong>实现口径 2 与 3</strong>：<strong>放置判定 = 距离阈值</strong>，不是一个"放对了"的 flag；<strong>只要落在阈值内，就自动吸到槽位</strong>。两种写法都对，<strong>但你得知道你选了哪一种，以及代价是什么</strong>。</div>
@@ -254,7 +254,7 @@ kp.keys.push({ id: labels[i], x: 24 + col*116, y: 150 + row*90, w:100, h:76 });<
     </div>
   </div>
 
-  <p>案例 02 用一个对象 <strong><code class="inline">S</code></strong> 装着全部状态，其中 <strong><code class="inline">step</code> 是唯一的裁判</strong>：</p>
+  <p>演示案例 02 用一个对象 <strong><code class="inline">S</code></strong> 装着全部状态，其中 <strong><code class="inline">step</code> 是唯一的裁判</strong>：</p>
   <div class="tbl-wrap">
     <table>
       <thead><tr><th><code class="inline">S.step</code></th><th>状态</th><th>谁能推进它</th></tr></thead>
@@ -295,7 +295,7 @@ kp.keys.push({ id: labels[i], x: 24 + col*116, y: 150 + row*90, w:100, h:76 });<
       <p><strong>不扣时间 · 不锁死 · 不用刷新页面</strong>——立刻可以重来。<strong>这保证他不会放弃你的作品。</strong></p>
     </div>
   </div>
-  <p>正确顺序（案例 02）：<strong><code class="inline">STAR_ORDER = [2, 0, 3, 1]</code></strong>，星名见 <code class="inline">names = ['角','亢','氐','房']</code> → 也就是 <strong>氐 → 角 → 房 → 亢</strong>。</p>
+  <p>正确顺序（演示案例 02）：<strong><code class="inline">STAR_ORDER = [2, 0, 3, 1]</code></strong>，星名见 <code class="inline">names = ['角','亢','氐','房']</code> → 也就是 <strong>氐 → 角 → 房 → 亢</strong>。</p>
 
   <h3>二、★ 演示：错序 → 复位 → 接着玩</h3>
   <p>用控制台直接调 <code class="inline">Dunhuang.clickStar(Dunhuang.stars[0])</code>，<strong>故意点错一颗</strong>，观察三件事：</p>
@@ -402,7 +402,7 @@ XRCore.uiHit(function(rc){   /* 把"我的面板有没有被打中"委托给内�
 
   <h3>四、本段的当堂动手（10 分钟）</h3>
   <ol>
-    <li>打开案例 02，<strong>依次按 <code class="inline">Shift+P</code> → <code class="inline">Shift+H</code>（循环到"仅左手"）→ <code class="inline">Shift+G</code></strong>；</li>
+    <li>打开演示案例 02，<strong>依次按 <code class="inline">Shift+P</code> → <code class="inline">Shift+H</code>（循环到"仅左手"）→ <code class="inline">Shift+G</code></strong>；</li>
     <li>在【表 B · 免手柄通路验证表】上<strong>边按边填</strong>：这一步能不能不用手柄完成？卡在哪？</li>
   </ol>
   <div class="warn"><strong>⚠️ 这是今天下午你自己作品的选题依据</strong>——三件套里你打算支持哪几条，<strong>今天下午就要定</strong>。而"你的场景实体怎么支持"，是你要自己决定的事。</div>
@@ -500,15 +500,15 @@ XRCore.uiHit(function(rc){   /* 把"我的面板有没有被打中"委托给内�
     </table>
   </div>
 
-  <div class="warn"><strong>⚠️ 诚实交底（必须说）</strong>：<strong>"这个案例从来没有在任何头显上跑过。"</strong>六个案例的全部结论来自 <strong>headless Chrome + SwiftShader 软件渲染</strong>；<strong>帧率、眩晕感、手柄映射、会话进出，均未实测</strong>。所以它们的帧率、手感、手柄映射——<strong>要等你们今天戴上去，才第一次被真的验证</strong>。</div>
+  <div class="warn"><strong>⚠️ 诚实交底（必须说）</strong>：<strong>"这个案例从来没有在任何头显上跑过。"</strong>6 个演示案例的全部结论来自 <strong>headless Chrome + SwiftShader 软件渲染</strong>；<strong>帧率、眩晕感、手柄映射、会话进出，均未实测</strong>。所以它们的帧率、手感、手柄映射——<strong>要等你们今天戴上去，才第一次被真的验证</strong>。</div>
 
   <h3>一、课前两条必须做的实测</h3>
   <div class="tbl-wrap">
     <table>
       <thead><tr><th>项</th><th>事实</th><th>怎么处理</th></tr></thead>
       <tbody>
-        <tr><td><strong>手柄 <code class="inline">squeeze</code> 与触觉</strong></td><td>在 PICO 固件上的表现<strong>未验证</strong>（案例 02 README「六、性能与验证」明确写入）</td><td><strong>课前 5 分钟实测</strong>：握持键能否触发抓取、触觉是否有反馈；不通过就把抓取改成<strong>"扳机就近抓取"</strong>，并当堂说明这是<strong>已知简化</strong>——<strong>不要装作没这回事</strong></td></tr>
-        <tr><td><strong>案例 02 真机跑通一遍</strong></td><td>含进入与退出<strong>从未在头显上验证</strong></td><td>课前 30 分钟用当次要用的案例 02 在头显里<strong>真机跑通一遍（含进入与退出）</strong>，并确认 <code class="inline">Shift+P</code> / <code class="inline">Shift+H</code> / <code class="inline">Shift+G</code> 按键真的生效</td></tr>
+        <tr><td><strong>手柄 <code class="inline">squeeze</code> 与触觉</strong></td><td>在 PICO 固件上的表现<strong>未验证</strong>（演示案例 02 README「六、性能与验证」明确写入）</td><td><strong>课前 5 分钟实测</strong>：握持键能否触发抓取、触觉是否有反馈；不通过就把抓取改成<strong>"扳机就近抓取"</strong>，并当堂说明这是<strong>已知简化</strong>——<strong>不要装作没这回事</strong></td></tr>
+        <tr><td><strong>演示案例 02 真机跑通一遍</strong></td><td>含进入与退出<strong>从未在头显上验证</strong></td><td>课前 30 分钟用当次要用的演示案例 02 在头显里<strong>真机跑通一遍（含进入与退出）</strong>，并确认 <code class="inline">Shift+P</code> / <code class="inline">Shift+H</code> / <code class="inline">Shift+G</code> 按键真的生效</td></tr>
       </tbody>
     </table>
   </div>
@@ -518,7 +518,7 @@ XRCore.uiHit(function(rc){   /* 把"我的面板有没有被打中"委托给内�
     <table>
       <thead><tr><th>来源</th><th>DrawCall</th><th>三角面</th></tr></thead>
       <tbody>
-        <tr><td>案例 02 <code class="inline">README_教学说明.md</code> 第六节</td><td><strong>42</strong></td><td><strong>1.2k</strong></td></tr>
+        <tr><td>演示案例 02 <code class="inline">README_教学说明.md</code> 第六节</td><td><strong>42</strong></td><td><strong>1.2k</strong></td></tr>
         <tr><td><code class="inline">标准_大四课程标准.md</code> 的 <code class="inline">verify.py</code> 复核</td><td><strong>44</strong></td><td><strong>1240</strong></td></tr>
       </tbody>
     </table>
@@ -778,7 +778,7 @@ XRCore.uiHit(function(rc){   /* 把"我的面板有没有被打中"委托给内�
       <thead><tr><th>表</th><th>填什么</th><th>对应</th></tr></thead>
       <tbody>
         <tr><td><strong>表 A</strong> 主流程走向记录表</td><td>一行一步：这一步做什么 / 我是怎么触发的（手柄／鼠标／键盘／注视）/ 推进到哪个 step / 有无卡顿 / 控制台有无报错；最后三行填<strong>抓取距离、放置距离、顺序校验做错时的处理</strong></td><td>判据 A</td></tr>
-        <tr><td><strong>表 B</strong> 免手柄通路验证表</td><td>B-1 案例 02 四项（数字键 / <code class="inline">OK</code> / 星星 / 碎片）；B-2 自己作品的 1—3 条通路 + <strong>"可访问性覆盖范围"声明原文</strong></td><td>判据 B</td></tr>
+        <tr><td><strong>表 B</strong> 免手柄通路验证表</td><td>B-1 演示案例 02 四项（数字键 / <code class="inline">OK</code> / 星星 / 碎片）；B-2 自己作品的 1—3 条通路 + <strong>"可访问性覆盖范围"声明原文</strong></td><td>判据 B</td></tr>
         <tr><td><strong>表 C</strong> 真机验证记录卡</td><td>走的哪条通路 / 自检六项 / <strong>主流程总用时</strong> / 退出第几路 / <strong>退出用时</strong> / FPS / DrawCall / 三角面 / <strong>卡点（至少一条，写"没卡"视为未通过）</strong> / 只有戴上头显才知道的事</td><td>判据 C</td></tr>
         <tr><td><strong>表 D</strong> M3 自查清单</td><td>A—C 三项 + D-1 说到判据数值 / D-2 不锁死 / D-3 报了退出用时 / D-4 按过三件套 / D-5 知道已知简化 / D-6 没有编造真实信息</td><td>M3 结论</td></tr>
       </tbody>
@@ -841,7 +841,7 @@ XRCore.uiHit(function(rc){   /* 把"我的面板有没有被打中"委托给内�
       <thead><tr><th>#</th><th>要打勾的</th></tr></thead>
       <tbody>
         <tr><td>①</td><td><strong>白板五行已写好</strong>：本课命题 / 三件套参数 / 达标五条 / M3 硬门槛 / 三条退出路</td></tr>
-        <tr><td>②</td><td>案例 02 <strong>在头显里跑通了一遍</strong>（含进入与退出）；三件套各按过一次，按键<strong>真的生效</strong></td></tr>
+        <tr><td>②</td><td>演示案例 02 <strong>在头显里跑通了一遍</strong>（含进入与退出）；三件套各按过一次，按键<strong>真的生效</strong></td></tr>
         <tr><td>③</td><td><strong>课前 5 分钟实测手柄 <code class="inline">squeeze</code></strong>：握持键能否触发抓取、触觉是否有反馈；不通过就准备好"改成扳机抓取"的说法</td></tr>
         <tr><td>④</td><td>三条通路已选定一条，<strong>课堂上只教走通的那一条</strong></td></tr>
         <tr><td>⑤</td><td>四个演示已在教师机上预演：<code class="inline">bd</code> · <code class="inline">1.6</code> · <code class="inline">clickStar()</code> 错序复位 · <code class="inline">Shift+G</code> 注视点键盘</td></tr>
@@ -986,8 +986,8 @@ XRCore.uiHit(function(rc){   /* 把"我的面板有没有被打中"委托给内�
 
 <footer>
   <div class="f-main">中华女子学院 · 2026年虚拟现实技术 · 第 9 次课</div>
-  <div>数据科学与信息技术学院 · 授课教师：孙琪翔 · 2026-11-11 · 路要通、退得出、谁都点得到（教学案例 02 密室逃脱 · 敦煌寻宝（二））</div>
-  <div style="margin-top:6px;font-size:12px;opacity:.75;">本页内容依据本次课资料包与教学案例 02 源码整理；案例全部结论来自 headless Chrome + SwiftShader 软件渲染，从未在任何头显上验证过。头显型号、数量、上课地点待教师确认，一律标【待确认】；涉及壁画与洞窟、校史的真实信息一律标【待补充】。</div>
+  <div>数据科学与信息技术学院 · 授课教师：孙琪翔 · 2026-11-11 · 路要通、退得出、谁都点得到（教学演示案例 02 密室逃脱 · 敦煌寻宝（二））</div>
+  <div style="margin-top:6px;font-size:12px;opacity:.75;">本页内容依据本次课资料包与教学演示案例 02 源码整理；案例全部结论来自 headless Chrome + SwiftShader 软件渲染，从未在任何头显上验证过。头显型号、数量、上课地点待教师确认，一律标【待确认】；涉及壁画与洞窟、校史的真实信息一律标【待补充】。</div>
   <div style="margin-top:12px;font-size:14px;"><a href="vr-2026.html">← 返回课程主页</a></div>
 </footer>
 

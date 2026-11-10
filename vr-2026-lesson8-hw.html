@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>第 8 次课 · 课堂作业（20 分）｜交互验证 + 模型管线（一页版）</title>
 <meta name="description" content="2026-10-28 · 虚拟现实技术第 8 次课课堂作业（一页版，20 分）：A 组交互验证 10 分（01 交互实验室五项操作：吸附 / 双手缩放 2× / Poke 直触 / 触觉模式 / 输入源三字段，S1 截图，一句话 squeeze vs select）；B 组模型管线 10 分（下载 Fox.glb → 03 转换器对比体积 → 02 工作台导入并旋转 45°/缩放 1.5×/换色/动画 → S2 展示图 → 导出 scene.json → 许可卡）。全部提交作品上「第 8 次课作品墙」；全程线上页面，无需安装/登录；646 机房 90′ 本场下课交。">
+<link rel="stylesheet" href="assets/vr-2026/course.css">
 <style>
 /* ===== 基础（1280×800 单屏不滚动，投影优先）===== */
 *{box-sizing:border-box;margin:0;padding:0}
@@ -14,12 +15,12 @@
   --green:#2c6e31; --green-bg:#e9f5ea; --amber:#8f5204; --amber-bg:#fdf1dd;
   --paper:#f5f3fa;
 }
-html,body{height:100%;overflow:hidden}
+html,body{height:auto;overflow:auto}
 body{
   font-family:"Microsoft YaHei","PingFang SC","Hiragino Sans GB",system-ui,sans-serif;
   font-size:15px;line-height:1.5;color:var(--ink);background:var(--paper);
 }
-.page{display:flex;flex-direction:column;gap:8px;height:100vh;padding:10px 12px}
+.page{display:flex;flex-direction:column;gap:8px;height:auto;min-height:0;padding:10px 12px}
 /* ===== 顶部 ===== */
 .top{display:flex;align-items:center;gap:12px;padding:5px 12px 6px;background:#fff;
   border:1px solid var(--line);border-radius:9px}
@@ -89,6 +90,7 @@ code{font-family:Consolas,"Courier New",monospace;font-size:13px;background:#f2e
 @media print{
   @page{size:A4 landscape;margin:8mm}
   html,body{height:auto;overflow:visible;background:#fff;font-size:9pt}
+  .hero,.nav,footer{display:none}   /* 打印只保留一页版作业本体 */
   .page{height:auto;padding:0;gap:3px;zoom:.72}
   .shots{display:none}          /* 打印版省掉“看效果”截图，保证 A4 横向一页 */
   .check{margin-top:2px}
@@ -115,6 +117,29 @@ code{font-family:Consolas,"Courier New",monospace;font-size:13px;background:#f2e
 </style>
 </head>
 <body>
+
+<!-- ===== 站点外壳：Hero + 导航（照抄 vr-2026-lesson8.html 的结构） ===== -->
+<header class="hero">
+  <div class="hero-inner">
+    <span class="kicker">虚拟现实技术 · 第 8 次课 · 2026-10-28 · 646 机房</span>
+    <h1>课堂作业（一页版）：交互验证 ＋ 模型管线</h1>
+    <p class="sub">90′ 学生自主完成、教师只巡场——本场下课交，满分 20 分（A 组交互验证 10 分 ＋ B 组模型管线 10 分）；全部提交作品都会进入「第 8 次课作品墙」。</p>
+    <div class="meta">
+      <span>中华女子学院</span><span>第 8 次课 · 2026-10-28（周三）</span><span>646 机房 90′</span><span>授课人：孙琪翔</span><span>数字媒体技术实验室</span>
+    </div>
+  </div>
+</header>
+
+<nav class="nav" id="nav">
+  <div class="nav-inner" id="navInner">
+    <a href="vr-2026.html" class="nav-back">← 课程主页</a>
+    <a href="vr-2026-lesson8.html">← 第 8 次课</a>
+    <a href="vr-2026-lesson8-demo.html">开场演示</a>
+    <a href="vr-2026-lesson8-works.html">作品墙</a>
+    <a href="vr-2026-lesson8-works-viewer.html">3D 作品查看器</a>
+  </div>
+</nav>
+
 <div class="page">
 
   <!-- ===== 顶部 ===== -->
@@ -133,10 +158,10 @@ code{font-family:Consolas,"Courier New",monospace;font-size:13px;background:#f2e
   <div class="prep">
     <span><b>准备</b>：全程用线上页面（无需安装 / 无需登录）</span>
     <span>课程页 <a href="vr-2026-lesson8.html">vr-2026-lesson8</a></span>
-    <span>工具 <a href="assets/vr-2026/lesson8/01-interaction" target="_blank" rel="noopener">01 交互实验室</a> ·
-      <a href="assets/vr-2026/lesson8/03-converter" target="_blank" rel="noopener">03 模型转换器</a> ·
-      <a href="assets/vr-2026/lesson8/02-workbench" target="_blank" rel="noopener">02 模型工作台</a> ·
-      <a href="assets/vr-2026/lesson8/04-check" target="_blank" rel="noopener">04 头显自检</a></span>
+    <span>工具 <a href="assets/vr-2026/lesson8/01-interaction.html" target="_blank" rel="noopener">01 交互实验室</a> ·
+      <a href="assets/vr-2026/lesson8/03-converter.html" target="_blank" rel="noopener">03 模型转换器</a> ·
+      <a href="assets/vr-2026/lesson8/02-workbench.html" target="_blank" rel="noopener">02 模型工作台</a> ·
+      <a href="assets/vr-2026/lesson8/04-check.html" target="_blank" rel="noopener">04 头显自检</a></span>
     <span>模型 <a href="assets/vr-2026/lesson8/models/Fox.glb" download>Fox.glb</a> ·
       <a href="assets/vr-2026/lesson8/models/Duck.glb" download>Duck.glb</a> ·
       <a href="assets/vr-2026/lesson8/models/ArmChair_01.glb" download>ArmChair_01.glb</a></span>
@@ -274,5 +299,12 @@ code{font-family:Consolas,"Courier New",monospace;font-size:13px;background:#f2e
   </div>
 
 </div>
+
+<!-- ===== 结尾出口 ===== -->
+<footer>
+  <div class="f-main">中华女子学院 · 2026年虚拟现实技术 · 第 8 次课 · 课堂作业（一页版）</div>
+  <div>数据科学与信息技术学院 · 授课教师：孙琪翔 · 2026-10-28 · 646 机房 90′ · 本场下课交</div>
+  <div style="margin-top:12px;font-size:14px;"><a href="vr-2026-lesson8.html">← 返回第 8 次课</a> · <a href="vr-2026.html">← 返回课程主页</a> · <a href="index.html">返回个人网站</a></div>
+</footer>
 </body>
 </html>

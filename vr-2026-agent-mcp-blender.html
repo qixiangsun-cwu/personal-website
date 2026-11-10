@@ -40,6 +40,7 @@
     <a href="#c6" data-sec="c6">六、多 Agent 分工</a>
     <a href="#c7" data-sec="c7">七、成果与验收</a>
     <a href="#c8" data-sec="c8">八、照片重建</a>
+    <a href="#appendix9" data-sec="appendix9">附录 · 交互</a>
     <a href="#hw" data-sec="hw">作业 · 评价</a>
     <a href="#next" data-sec="next">下次课</a>
   </div>
@@ -126,7 +127,7 @@
   </div>
   <div class="note"><strong>核对行</strong>：10 + 25 + 10 + 25 + 20 = <strong>90 分钟</strong>，正好填满第 1、2 节。<br>
     <strong>练习 C 为什么跨节</strong>：C 一共 35 分钟，若整块放进第 2 节，第 2 节就是 C+D = 55 分钟，超了 10 分钟。所以把 C 拆成两段——<strong>第 1 节最后 10 分钟只做纸面部分</strong>（发照片、读尺寸表、写指令序列，不碰机器），<strong>第 2 节前 25 分钟上机</strong>（执行、量包围盒、填验收栏）。第 1 节 0:35 必须停练习 B，否则整条链会崩。<br>
-    若某一节仍超时：砍练习 D 的对比表为口头讨论，<strong>不要砍练习 C</strong>——C 是课后作业 4 的预演。</div>
+    若某一节仍超时：砍练习 D 的对比表为口头讨论，<strong>不要砍练习 C</strong>——C 是本次课作业的预演。</div>
 
   <h3 id="exA">练习 A（10 min）· 概念热身：给三个角色连线</h3>
   <div class="tbl-wrap">
@@ -860,13 +861,47 @@
   <div class="key"><strong>第一句话是这三档路线的总边界</strong>：单张照片只能定比例，不能定深度。所以档 1 的天花板很低——它能让你「看起来像」，但撑不起「量出来准」。想要准，往档 2、档 3 走；不想付采集成本，就得接受「示意」这两个字。</div>
 </section>
 
-<!-- ===== 作业与评价 ===== -->
+<!-- ===== 附录：并入的第 9 次课交互内容 ===== -->
+<section id="appendix9">
+  <div class="sec-head">
+    <div class="sec-num">附</div>
+    <div>
+      <h2>附录：交互实现与可访问性（原第 9 次课内容，已并入本页）</h2>
+      <p class="sec-sub">模型做出来 ≠ 能用；这一节回答「戴上头显之后，好不好用」</p>
+    </div>
+  </div>
+
+  <p>本课主线是<strong>把模型做出来</strong>（Agent → MCP → Blender → GLB → WebXR）。模型进头显之后还有另一半问题：<strong>它好不好用</strong>。这部分原来单独占一次课，现并入本页作为附录，六个要点如下。</p>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>#</th><th>要点</th><th>判据（可直接验收）</th></tr></thead>
+      <tbody>
+        <tr><td>①</td><td><strong>抓得住吗</strong>：attach 的触发距离</td><td>距离阈值 <strong>0.45 m</strong>；太远抓不到、太近会误抓</td></tr>
+        <tr><td>②</td><td><strong>放得对吗</strong>：松手那刻凭什么算「放对了」</td><td>释放判定 <strong>1.6 m</strong> + <strong>吸附槽</strong>，不是随便一丢就算</td></tr>
+        <tr><td>③</td><td><strong>点得到吗</strong>：UV 命中 3D 密码键盘</td><td>射线命中 UV 坐标 → 映射到键盘按键</td></tr>
+        <tr><td>④</td><td><strong>顺序对不对</strong>：<code class="inline">S.step</code> 状态机</td><td>顺序错要报错，但<strong>失败有代价、不惩罚</strong>：能重来，不锁死</td></tr>
+        <tr><td>⑤</td><td><strong>谁都点得到</strong>：人因与可访问性三件套</td><td><strong>Shift+P</strong> 坐姿（界面下沉 0.45 m）· <strong>Shift+H</strong> 惯用手与单手 · <strong>Shift+G</strong> 注视停留 1.2 秒</td></tr>
+        <tr><td>⑥</td><td><strong>退得出吗</strong>：三条退出路 + M3 硬门槛</td><td>路子不通、或退不出去，<strong>不算完成</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="key"><strong>为什么是并入而不是删掉</strong>：模型与交互是同一条交付链的两段——<strong>本课解决「模型从哪来」</strong>（Agent + MCP + Blender），<strong>附录解决「模型进头显之后好不好用」</strong>（抓取 / 放置 / 命中 / 顺序 / 可访问性 / 退出）。两段都过，作品才算完成。</div>
+
+  <div class="note"><strong>输入通道的现实边界</strong>：面板类交互可以做到<strong>免手柄</strong>（注视停留即可），但<strong>抓取、点星等场景实体仍然需要手柄</strong>。这条边界会在第 10 次课的验收里再考一次。</div>
+
+  <div class="btn-row">
+    <a class="btn" href="vr-2026-lesson9.html">打开原页：交互实现与可访问性（附录全文）→</a>
+    <a class="btn ghost" href="vr-2026.html">← 回课程主页</a>
+  </div>
+</section>
 <section id="hw">
   <div class="sec-head">
     <div class="sec-num">作</div>
     <div>
       <h2>作业与评价</h2>
-      <p class="sec-sub">课堂作业 4：用今天这套链路做一个校园构件，交四样东西</p>
+      <p class="sec-sub">本次课作业（不计入课堂作业编号）：用今天这套链路做一个校园构件，交四样东西</p>
     </div>
   </div>
 
@@ -874,7 +909,7 @@
     <table>
       <thead><tr><th>项</th><th>内容</th></tr></thead>
       <tbody>
-        <tr><td><strong>课堂作业 4</strong></td><td>用 Agent + MCP 做<strong>一个校园构件</strong>（<strong>岗亭 / 门柱 / 花坛 / 路灯任选</strong>），交：<strong>调用记录截图 + <code class="inline">scene_stats</code> 数据 + GLB + 一张渲染图</strong></td></tr>
+        <tr><td><strong>本次课作业</strong></td><td>用 Agent + MCP 做<strong>一个校园构件</strong>（<strong>岗亭 / 门柱 / 花坛 / 路灯任选</strong>），交：<strong>调用记录截图 + <code class="inline">scene_stats</code> 数据 + GLB + 一张渲染图</strong></td></tr>
         <tr><td><strong>达标线</strong></td><td>包围盒与标称尺寸误差 <strong>≤ ±5 cm</strong>；控制台 <strong>0 报错</strong>；GLB 能被 <strong>three.js 加载</strong></td></tr>
         <tr><td><strong>加分</strong></td><td>用照片做尺寸基准（<strong>档 1</strong> 做法）并写出<strong>像素比换算过程</strong></td></tr>
         <tr><td><strong>提交</strong></td><td>下次课（<strong>11-18</strong>）前，<strong>微信发给教师</strong></td></tr>
@@ -940,11 +975,11 @@
     <div class="sec-num">预</div>
     <div>
       <h2>下次课</h2>
-      <p class="sec-sub">2026-11-18 · 第 10 次课 · 课堂作业 4 的截止点</p>
+      <p class="sec-sub">2026-11-18 · 第 10 次课 · 本次课作业的截止点</p>
     </div>
   </div>
 
-  <p>下一次课在 <strong>2026-11-18</strong>，是第 10 次课。这一节没有缓冲：上课一上来就是课堂作业 4 的验收，所以<strong>作业必须在 11-18 之前交掉</strong>，不能指望上课再补。</p>
+  <p>下一次课在 <strong>2026-11-18</strong>，是第 10 次课。这一节没有缓冲：上课一上来就是本次课作业的验收，所以<strong>作业必须在 11-18 之前交掉</strong>，不能指望上课再补。</p>
 
   <h3>一、11-18 之前要完成的事</h3>
   <div class="tbl-wrap">
