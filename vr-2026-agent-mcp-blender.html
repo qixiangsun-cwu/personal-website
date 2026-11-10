@@ -39,7 +39,9 @@
     <a href="#c5" data-sec="c5">五、真实过程</a>
     <a href="#c6" data-sec="c6">六、多 Agent 分工</a>
     <a href="#c7" data-sec="c7">七、成果与验收</a>
+    <a href="#video" data-sec="video">建造过程视频</a>
     <a href="#c8" data-sec="c8">八、照片重建</a>
+    <a href="#ai" data-sec="ai">AI×VR 进展</a>
     <a href="#appendix9" data-sec="appendix9">附录 · 交互</a>
     <a href="#hw" data-sec="hw">作业 · 评价</a>
     <a href="#next" data-sec="next">下次课</a>
@@ -61,15 +63,15 @@
   <p>第 8 次课已经讲过 MCP 的概念，也搭通了一条 Maya 链路——但那条链路是 <strong>commandPort 同构的仿真命令层</strong>：协议、工具面、调用链都能演示，唯独证明不了「它真能干活」。这一节把同一套架构搬到本机真实安装的 <strong>Blender 5.4.0 Alpha</strong> 上：bpy 真执行、EEVEE 真渲染、原生 GLB 真导出。上一节证明「这条链能通」，这一节证明「它能干活」。</p>
 
   <div class="key"><strong>本课命题</strong>：MCP 不是「让 AI 画画」，是<strong>让 AI 在别人的软件里按规则动手</strong>。<br>
-    <strong>今天的产出是四样东西</strong>：① 每组的「调用序列」纸面答案（练习 B）；② 每组的对比表 + 一句话结论（练习 D）；③ 学生笔记（三个角色 + 一条命令怎么走完）；④ 课后思考题。</div>
+    <strong>今天的产出是六样东西</strong>：① 每组的<strong>调用记录 JSON</strong>；② 构件 <strong>GLB</strong>；③ <strong>渲染图 PNG</strong>；④ 包围盒数据；⑤ 一句话复盘；⑥ 学生笔记（三个角色 + 一条命令怎么走完）＋ 课后思考题。</div>
 
   <h3>一、180 分钟怎么分（硬性）</h3>
   <div class="tbl-wrap">
     <table>
       <thead><tr><th>节次</th><th>时长</th><th>内容</th><th>产出</th></tr></thead>
       <tbody>
-        <tr><td>第 1 节</td><td><strong>45 min</strong></td><td>练习 A + B + 练习 C 的<strong>纸面段</strong>（10 + 25 + 10）</td><td>每组的「调用序列」+ C 的指令表</td></tr>
-        <tr><td>第 2 节</td><td><strong>45 min</strong></td><td>练习 C 的<strong>机器段</strong> + 练习 D（25 + 20）</td><td>包围盒验收数据 + 对比表</td></tr>
+        <tr><td>第 1 节</td><td><strong>45 min</strong></td><td>教师演示 10′ + 分组 5′ + <strong>各组执行</strong> 30′</td><td>场景里出现各组构件</td></tr>
+        <tr><td>第 2 节</td><td><strong>45 min</strong></td><td>执行 30′ + <strong>合景</strong> 10′ + 提交 5′</td><td>全景图 + 四样提交物</td></tr>
         <tr><td>第 3 节</td><td><strong>45 min</strong></td><td><strong>讲授 1</strong>：三个角色 + 为什么不是「直接生成」 + 一条命令怎么走完</td><td>学生笔记</td></tr>
         <tr><td>第 4 节</td><td><strong>45 min</strong></td><td><strong>讲授 2</strong>：我的真实过程（决策分析）+ 多 Agent 分工 + 照片重建路线</td><td>课后思考题</td></tr>
       </tbody>
@@ -107,170 +109,127 @@
   <div class="sec-head">
     <div class="sec-num">练</div>
     <div>
-      <h2>前两节 · 课堂练习（90 分钟）</h2>
-      <p class="sec-sub">10 + 25 + 35 + 20 = 90 分钟，四个练习，先纸面后上机</p>
+      <h2>前两节 · 课堂练习（90 分钟）：全班用 MCP 共建一个广场</h2>
+      <p class="sec-sub">不是纸上谈兵——每组亲手把 tools/call 打到真 Blender 上，交四样东西</p>
     </div>
   </div>
 
-  <p>前两节一节讲授都不留。理由很简单：<strong>你没亲手排过一遍调用顺序，就听不懂后面为什么要讲线程模型。</strong>四个练习的难度是递增的——A 只连概念，B 只写序列不动手，C 真的要跑通并把包围盒量出来，D 要你亲口说出「为什么不用文生 3D」。</p>
+  <div class="key"><strong>任务一句话</strong>：10 个组、每组 4 人，用<strong>大模型当 Agent、网页控制台当 MCP 客户端</strong>，
+    在<strong>同一个 Blender 场景</strong>里，各建一个校园构件，最后合成一个「校前广场」。<br>
+    <strong>每组必须交</strong>：① 调用记录 JSON ② 构件 GLB ③ 渲染图 PNG ④ 包围盒数据 ＋ ⑤ 一句话复盘。</div>
 
+  <h3>为什么这么设计（三个理由）</h3>
+  <div class="grid3">
+    <div class="cell"><h4>① 零安装</h4><p>学生不需要装 Blender、不需要装 DSH。打开浏览器访问教师机上的控制台即可。
+      机房 36 个机位、40 个人，靠「每台装一套环境」是不现实的——这是唯一能落地的形态。</p></div>
+    <div class="cell"><h4>② 全链路真实</h4><p>学生粘贴的每一条 JSON，都会真的打到 <code class="inline">127.0.0.1:7003</code>，
+      由 Blender 主线程执行 bpy。不是模拟、不是动画，<strong>出错就是真的出错</strong>。</p></div>
+    <div class="cell"><h4>③ 有交付物</h4><p>四样东西都能被机器检查：包围盒量得出来、GLB 打得开、调用记录可复核。
+      「我做了」和「我做完了并且达标」是两件事。</p></div>
+  </div>
+
+  <h3>课堂链路：学生这一侧只有两个标签页</h3>
   <div class="tbl-wrap">
     <table>
-      <thead><tr><th>练习</th><th>时长</th><th>名称</th><th>形式</th><th>产出</th></tr></thead>
+      <thead><tr><th>角色</th><th>谁来扮演</th><th>具体做什么</th></tr></thead>
       <tbody>
-        <tr><td><strong>A</strong></td><td>10 min</td><td>概念热身：给三个角色连线</td><td>个人纸面</td><td>一张连线图</td></tr>
-        <tr><td><strong>B</strong></td><td>25 min</td><td><strong>人肉 MCP</strong>：写出调用序列</td><td>4 人一组</td><td>调用序列表</td></tr>
-        <tr><td><strong>C</strong></td><td>35 min</td><td><strong>参数化改造</strong>：岗亭建模</td><td>4 人一组，1 台机器</td><td>参数表 + 执行记录 + 包围盒数据</td></tr>
-        <tr><td><strong>D</strong></td><td>20 min</td><td><strong>生成式对比</strong>：文生 3D vs 参数建模</td><td>同上</td><td>对比表 + 一句话结论</td></tr>
+        <tr><td><strong>Agent（决策）</strong></td><td>任意网页版大模型</td><td>学生把工具清单粘给它，它输出下一步该调的 <code class="inline">tools/call</code> JSON</td></tr>
+        <tr><td><strong>MCP 客户端（执行）</strong></td><td>教师机上的网页控制台</td><td>学生把 JSON 粘进来点执行；控制台负责翻译成命令端口的协议</td></tr>
+        <tr><td><strong>工具（干活）</strong></td><td>真 Blender</td><td>在 <code class="inline">127.0.0.1:7003</code> 上收命令、执行 bpy、返回场景数据</td></tr>
       </tbody>
     </table>
   </div>
-  <div class="note"><strong>核对行</strong>：10 + 25 + 10 + 25 + 20 = <strong>90 分钟</strong>，正好填满第 1、2 节。<br>
-    <strong>练习 C 为什么跨节</strong>：C 一共 35 分钟，若整块放进第 2 节，第 2 节就是 C+D = 55 分钟，超了 10 分钟。所以把 C 拆成两段——<strong>第 1 节最后 10 分钟只做纸面部分</strong>（发照片、读尺寸表、写指令序列，不碰机器），<strong>第 2 节前 25 分钟上机</strong>（执行、量包围盒、填验收栏）。第 1 节 0:35 必须停练习 B，否则整条链会崩。<br>
-    若某一节仍超时：砍练习 D 的对比表为口头讨论，<strong>不要砍练习 C</strong>——C 是本次课作业的预演。</div>
+  <div class="note"><strong>为什么让学生自己扮演 MCP 客户端</strong>：Agent 只负责「决定调什么」，把决定变成真实调用的是客户端。
+    手动粘一次 JSON，学生就再也不会把「AI 说了」当成「事情办了」——<strong>中间那一步是要有人接住的</strong>。</div>
 
-  <h3 id="exA">练习 A（10 min）· 概念热身：给三个角色连线</h3>
+  <h3>90 分钟怎么走</h3>
   <div class="tbl-wrap">
     <table>
-      <thead><tr><th>项</th><th>说明</th></tr></thead>
+      <thead><tr><th style="width:96px">时间</th><th>做什么</th><th>产出</th></tr></thead>
       <tbody>
-        <tr><td>时长 / 形式</td><td>10 min · 个人纸面完成，不讨论、不开电脑</td></tr>
-        <tr><td>给定材料</td><td>一张 A4 纸。左栏三个名字：<strong>Blender</strong>、<strong>MCP</strong>、<strong>Agent 工具</strong>；右栏若干条描述（含干扰项），要求把每个名字连到正确的描述上；末尾留 2 个填空。</td></tr>
-        <tr><td>步骤</td><td>① 独立连线（3 min）；② 同桌互查，圈出对方连错的那一条（2 min）；③ 教师抽 2 人念答案，全班当场判（3 min）；④ 补完 2 个填空（2 min）。</td></tr>
-        <tr><td>2 个填空</td><td>填空 1：MCP 规定「怎么问、怎么答」用的协议是 <code class="inline">JSON-RPC 2.0</code>。<br>填空 2：本课的 MCP Server 是一个 <code class="inline">Node</code> 进程，与 Agent 之间走 <code class="inline">stdio</code>。</td></tr>
-        <tr><td>产出</td><td>一张连线图</td></tr>
-        <tr><td>验收口径</td><td>三个角色能各用一句话说清，并且必须说出<strong>「MCP 不产生 3D」</strong>这句话。把 MCP 说成「AI 插件」或「模型」，判错。</td></tr>
+        <tr><td><strong>0—10′</strong></td><td>教师投屏演示一遍完整链路：给大模型 → 拿到 JSON → 粘进控制台 → 场景里出现方块 → 渲染</td><td>学生看懂「三步」</td></tr>
+        <tr><td><strong>10—15′</strong></td><td>分 10 组、发任务卡，确认各组的构件、尺寸与坐标</td><td>任务卡填好组号</td></tr>
+        <tr><td><strong>15—60′</strong></td><td>各组执行：写提示词 → 大模型出 JSON → 控制台执行 → 看返回到达标（<strong>允许反复迭代</strong>）</td><td>构件进场景</td></tr>
+        <tr><td><strong>60—75′</strong></td><td>合景：教师渲染一张广场全景投屏；各组报包围盒数据，当场对表</td><td>全景图 + 验收表</td></tr>
+        <tr><td><strong>75—90′</strong></td><td>导出四样提交物；抽 3 组讲「Agent 哪里做错了、我怎么改的」</td><td>提交包 + 复盘</td></tr>
       </tbody>
     </table>
   </div>
+  <div class="note"><strong>核对行</strong>：10 + 5 + 45 + 15 + 15 = <strong>90 分钟</strong>。执行段给足 45 分钟——第一次用大模型指挥 3D 软件，一定会卡在参数上，卡住才是教学发生的地方。</div>
 
-  <h3 id="exB">练习 B（25 min）· 人肉 MCP：写出调用序列</h3>
-  <p>这个练习的关键是<strong>先写不做</strong>。脑袋里排一遍顺序，比手上去乱点十次有用得多——因为 MCP 的价值正是「下一步做什么」由 Agent 决定，而决定的质量取决于你有没有想清楚顺序。</p>
-
-  <h4>给定工具表（只有这 5 个）</h4>
+  <h3>10 组的任务分配（同一场景，各占一块地）</h3>
+  <p>教师课前把场景清空，只留地面和 10 个分组标记（<code class="inline">G1</code>—<code class="inline">G10</code>）。
+    每组只动自己那块地，最后能拼成一个完整广场。</p>
   <div class="tbl-wrap">
     <table>
-      <thead><tr><th>工具名</th><th>干什么</th><th>关键参数</th></tr></thead>
+      <thead><tr><th style="width:52px">组</th><th>构件</th><th>标称尺寸（米）</th><th>坐标 X, Y</th><th>要点</th></tr></thead>
       <tbody>
-        <tr><td><code class="inline">blender_exec</code></td><td>在真实 Blender 主线程执行一段受限的 bpy 片段，返回捕获的 stdout 与最后一行的表达式值</td><td><code class="inline">code</code>（Python 片段）；可选 <code class="inline">timeout_ms</code>，默认 5000，上限 60000</td></tr>
-        <tr><td><code class="inline">blender_scene_stats</code></td><td>读当前场景统计：对象数、网格数、顶点数、三角面数、材质数、集合数与世界包围盒（单位米）</td><td>无参数</td></tr>
-        <tr><td><code class="inline">blender_set_color</code></td><td>按对象名上色；name 可传具体对象名、集合名、通配符（如 <code class="inline">column_*</code>）或 <code class="inline">all</code></td><td><code class="inline">name</code> + <code class="inline">color</code>，color 是 <code class="inline">[r,g,b]</code> 三个 0~1 的浮点数</td></tr>
-        <tr><td><code class="inline">blender_render_preview</code></td><td>用 EEVEE 渲染一张 PNG 预览；场景没有相机或灯光时会自动补一个</td><td><code class="inline">path</code>；可选 <code class="inline">width</code>（默认 960）、<code class="inline">height</code>（默认 720）、<code class="inline">setup_scene</code>（默认 true）</td></tr>
-        <tr><td><code class="inline">blender_export_glb</code></td><td>导出 glTF 2.0 二进制 <code class="inline">.glb</code>，可直接给 three.js / WebXR / Unity 用</td><td><code class="inline">path</code>；可选 <code class="inline">apply_modifiers</code>（默认 true）、<code class="inline">use_selection</code>（默认 false）、<code class="inline">draco</code>（默认 false）</td></tr>
+        <tr><td>G1</td><td>旗杆</td><td>直径 0.22 · 高 18</td><td>−27, 0</td><td>细长体，注意别把直径当半径</td></tr>
+        <tr><td>G2</td><td>圆花坛</td><td>直径 4 · 高 0.6</td><td>−18, 6</td><td>圆柱 + 内部下凹</td></tr>
+        <tr><td>G3</td><td>长椅 ×2</td><td>1.8 × 0.5 × 0.9</td><td>−9, −6</td><td>座面 + 靠背，练「组合体」</td></tr>
+        <tr><td>G4</td><td>路灯 ×2</td><td>高 6 · 杆径 0.12</td><td>0, 8</td><td>细杆 + 灯头，练「两件一组」</td></tr>
+        <tr><td>G5</td><td>门柱 ×2</td><td>0.9 × 0.9 × 3.4</td><td>9, −6</td><td>方柱 + 柱帽</td></tr>
+        <tr><td>G6</td><td>树 ×3</td><td>高 6—8</td><td>18, 6</td><td>树干 + 树冠，练「循环批量」</td></tr>
+        <tr><td>G7</td><td>垃圾桶 ×2</td><td>0.5 × 0.5 × 0.9</td><td>27, 0</td><td>简单几何，适合上手</td></tr>
+        <tr><td>G8</td><td>指示牌</td><td>0.6 × 0.06 × 2.4</td><td>0, −14</td><td>薄板，注意厚度方向</td></tr>
+        <tr><td>G9</td><td>台阶</td><td>6 × 1.2 × 0.45</td><td>−14, 14</td><td>三级台阶，练「循环 + 位移」</td></tr>
+        <tr><td>G10</td><td>水池</td><td>3 × 2 × 0.5</td><td>14, 14</td><td>外框 + 水面，练「材质分组」</td></tr>
       </tbody>
     </table>
   </div>
+  <div class="warn"><strong>命名硬规则</strong>：所有对象名必须以 <code class="inline">gN_</code> 开头（如 <code class="inline">g05_pillar</code>）。
+    合景时教师靠这个前缀判断「谁建了谁没建」——不加前缀，场景里 260 个对象你根本认不出自己的。</div>
 
-  <h4>目标</h4>
-  <div class="key">建一个 <strong>2 m × 2 m × 2 m</strong> 的方块，染成校徽红 <code class="inline">#C90916</code>，渲染一张图，导出 GLB。</div>
-
-  <h4>步骤（25 min）</h4>
-  <ol>
-    <li><strong>先只写调用序列，不执行</strong>（8 min）：写清每一步的参数，包括单位、坐标、颜色怎么写。</li>
-    <li><strong>教师抽 2 组上来念</strong>（7 min）：全班判断「顺序对不对、参数够不够」，不对的地方当场改。</li>
-    <li><strong>教师用真实 MCP 执行验证</strong>（7 min）：把纸面答案真的跑一遍，看哪一步真的会失败。</li>
-    <li><strong>陷阱题</strong>（3 min）：见下。</li>
-  </ol>
-
-  <h4>产出</h4>
-  <p>调用序列表，四列：<strong>步骤 / 工具名 / 参数 / 预期结果</strong>。</p>
-
-  <h4>验收口径</h4>
-  <ul>
-    <li>序列能跑通，且每一步的参数齐全：尺寸写米、颜色写 <code class="inline">[r,g,b]</code>。</li>
-    <li>能解释清楚颜色为什么不能用十六进制直接填——<code class="inline">blender_set_color</code> 的 <code class="inline">color</code> 只收 0~1 的浮点数，<code class="inline">#C90916</code> 要先换算成 <code class="inline">[0.788, 0.035, 0.086]</code>（201、9、22 各除以 255）。这是真机上最常见的第一个卡点。</li>
-    <li>能回答陷阱题。</li>
-  </ul>
-
-  <div class="warn"><strong>陷阱题（考察状态顺序）</strong>：如果先 <code class="inline">blender_export_glb</code> 再 <code class="inline">blender_set_color</code>，导出的那个 GLB 里，方块是什么颜色？<br>
-    <details>
-      <summary>先自己想，再看答案</summary>
-      <p>是<strong>上色之前</strong>的颜色（默认材质）。因为 MCP 是有状态的：导出动作读的是<strong>那一刻</strong>的场景状态，而那一刻颜色还没改。这也正是练习 B 全程强调「顺序」的原因——同一组工具，顺序错了，结果是错的，但每一步都「没有报错」。</p>
-    </details>
-  </div>
-
-  <h3 id="exC">练习 C（35 min）· 参数化改造：岗亭建模</h3>
+  <h3>提交物：4 样 + 1 句话</h3>
   <div class="tbl-wrap">
     <table>
-      <thead><tr><th>项</th><th>说明</th></tr></thead>
+      <thead><tr><th style="width:60px">#</th><th>交什么</th><th>怎么来</th><th>为什么收</th></tr></thead>
       <tbody>
-        <tr><td>时长 / 形式</td><td>35 min · 4 人一组，1 台机器，组内分工：1 人写指令、1 人执行、1 人记数据、1 人复核</td></tr>
-        <tr><td>给定材料</td><td>一张<strong>岗亭照片</strong>（现场发）+ 下面这张尺寸表</td></tr>
+        <tr><td>①</td><td><strong>调用记录 JSON</strong></td><td>控制台「导出调用记录」按钮</td><td>能看出你调了几步、错了几次、错在哪——<strong>过程比结果重要</strong></td></tr>
+        <tr><td>②</td><td><strong>构件 GLB</strong></td><td><code class="inline">blender_export_glb</code></td><td>证明几何真的产出了，物 1 单位 = 1 米</td></tr>
+        <tr><td>③</td><td><strong>渲染图 PNG</strong></td><td><code class="inline">blender_render_preview</code></td><td>证明材质与光照对，肉眼可验</td></tr>
+        <tr><td>④</td><td><strong>包围盒数据</strong></td><td><code class="inline">blender_scene_stats</code> 的 bounds</td><td>尺寸是<strong>量</strong>出来的，不是「看着差不多」</td></tr>
+        <tr><td>⑤</td><td><strong>一句话复盘</strong></td><td>手写，≤30 字</td><td>Agent 错在哪、你改了什么</td></tr>
       </tbody>
     </table>
   </div>
 
-  <h4>岗亭尺寸表（完整）</h4>
+  <h3>验收判据（可机器检查，不看情怀）</h3>
   <div class="tbl-wrap">
     <table>
-      <thead><tr><th>构件</th><th>尺寸</th></tr></thead>
+      <thead><tr><th>判据</th><th>口径</th><th>不过怎么办</th></tr></thead>
       <tbody>
-        <tr><td>主体</td><td>3.2 × 3.2 × 3.4 m（宽×深×高）</td></tr>
-        <tr><td>门洞</td><td>1.0 × 2.1 m，居中，朝南</td></tr>
-        <tr><td>窗</td><td>0.9 × 1.2 m，两扇，窗台高 1.1 m</td></tr>
-        <tr><td>女儿墙</td><td>高出屋面 0.45 m</td></tr>
-        <tr><td>屋顶挑檐</td><td>外扩 0.35 m</td></tr>
+        <tr><td><strong>尺寸</strong></td><td>包围盒与任务卡标称值误差 <strong>≤ ±5 cm</strong></td><td>回去改参数重跑，不是改任务卡</td></tr>
+        <tr><td><strong>命名</strong></td><td>对象名以 <code class="inline">gN_</code> 开头</td><td>用 <code class="inline">blender_exec</code> 改名</td></tr>
+        <tr><td><strong>体量</strong></td><td>单组三角面 &lt; 3000</td><td>减细分；一个构件不该比一栋楼还重</td></tr>
+        <tr><td><strong>过程</strong></td><td>调用记录 ≥ 3 步且<strong>无 ERR</strong></td><td>把错的步骤重跑一遍，记录要干净</td></tr>
       </tbody>
     </table>
   </div>
 
-  <h4>步骤（35 min）</h4>
-  <ol>
-    <li><strong>翻译</strong>（10 min）：把尺寸表翻成<strong>自然语言指令序列 + 每步调用的工具</strong>。要求写清「哪一步建主体、哪一步开洞、哪一步加女儿墙、哪一步加挑檐」。</li>
-    <li><strong>执行</strong>（15 min）：交给 Agent 一步一步执行，每步执行完立刻看一眼返回值。</li>
-    <li><strong>量</strong>（5 min）：用 <code class="inline">blender_scene_stats</code> 读包围盒，填进下面的验收栏。</li>
-    <li><strong>记录</strong>（5 min）：调了几次才达标、错在哪一步、错的是参数、顺序还是理解。</li>
-  </ol>
+  <h3>五个必踩的坑（先知道，少走弯路）</h3>
+  <div class="warn">
+    <ul>
+      <li><strong>大模型编工具名</strong>：它会凭空造出 <code class="inline">blender_add_cube</code>。控制台会直接报「未知工具」——这正是要讲的：<strong>Agent 会幻觉工具，人的职责是核对契约</strong>。</li>
+      <li><strong>单位混用</strong>：Blender 里 1 单位 = 1 米。有人按厘米写 180，做出一根 180 米高的旗杆。用包围盒当场抓。</li>
+      <li><strong>先导出后上色</strong>：<code class="inline">export_glb</code> 之后再调 <code class="inline">set_color</code>，导出的文件还是旧颜色——状态是有顺序的。</li>
+      <li><strong>忘加组号前缀</strong>：10 个组各建一个「cube」，合景时谁也分不清。</li>
+      <li><strong>一次给多步</strong>：大模型一次返回 3 个 JSON 时，控制台只能执行一个。必须<strong>一步一收</strong>，把返回结果喂回去再问下一步。</li>
+    </ul>
+  </div>
 
-  <h4>产出</h4>
-  <p>参数表 + 执行记录 + 包围盒数据。</p>
-
-  <h4>验收口径</h4>
+  <h3>如果设备出问题（兜底，不要现场硬扛）</h3>
   <div class="tbl-wrap">
     <table>
-      <thead><tr><th>指标</th><th>标称值</th><th>实测值（本组填）</th><th>误差</th><th>是否 ≤ ±5 cm</th></tr></thead>
+      <thead><tr><th style="width:200px">故障</th><th>处置</th></tr></thead>
       <tbody>
-        <tr><td>包围盒 X（宽）</td><td>3.2 m</td><td></td><td></td><td>☐ 是　☐ 否</td></tr>
-        <tr><td>包围盒 Y（深）</td><td>3.2 m</td><td></td><td></td><td>☐ 是　☐ 否</td></tr>
-        <tr><td>包围盒 Z（高）</td><td><strong>3.85 m</strong></td><td></td><td></td><td>☐ 是　☐ 否</td></tr>
+        <tr><td>控制台连不上 Blender</td><td>教师重启命令端口；学生改交「指令单」（手写每步的工具名 + 参数），课后补跑</td></tr>
+        <tr><td>大模型不可用</td><td>用控制台自带的工具清单，<strong>手写</strong> JSON 调工具——反而更能体会协议长什么样</td></tr>
+        <tr><td>并发太慢</td><td>教师限流：每组一次只执行一条；排队时组内先写好下一条 JSON</td></tr>
+        <tr><td>场景被清空</td><td>教师提前存好 <code class="inline">classroom_stage.blend</code>，重开即可，不用重建</td></tr>
       </tbody>
     </table>
   </div>
-  <div class="note"><strong>最容易错的一处</strong>：Z 方向标称值是 <strong>3.85 m</strong>，不是 3.4 m。3.4 m 是主体高，<strong>3.4 + 0.45（女儿墙）= 3.85</strong>——包围盒量的是含女儿墙的总高。另外挑檐外扩 0.35 m 会让 X、Y 两个方向的包围盒<strong>不等于</strong> 3.2 m；先把挑檐算进去再断言，否则永远差 0.7 m 以上。这一条是 4 人组最容易集体翻车的地方。</div>
-
-  <h3 id="exD">练习 D（20 min）· 生成式对比：文生 3D vs 参数建模</h3>
-  <div class="tbl-wrap">
-    <table>
-      <thead><tr><th>项</th><th>说明</th></tr></thead>
-      <tbody>
-        <tr><td>时长 / 形式</td><td>20 min · 4 人一组，1 台机器</td></tr>
-        <tr><td>给定材料</td><td>同一个目标：<strong>校门的一根门柱</strong> = <strong>0.9 × 0.9 × 0.8 m</strong> 柱帽 + <strong>3.4 × 3.4 × 9 m</strong> 柱身。两条路径：路径一，文生 3D 网页版，输入「中式校门门柱」；路径二，MCP 参数建模。</td></tr>
-        <tr><td>步骤</td><td>① 两条路径各做一次（12 min）；② 填对比表（5 min）；③ 每组写一句话结论（3 min）。</td></tr>
-        <tr><td>产出</td><td>对比表 + 一句话结论</td></tr>
-        <tr><td>验收口径</td><td>五个维度<strong>全部填完</strong>、不写「都挺好」「各有优劣」这类废话；一句话结论必须回答「如果这是工程任务，我选哪条路，为什么」。</td></tr>
-      </tbody>
-    </table>
-  </div>
-
-  <h4>对比表（空表模板，照抄填写）</h4>
-  <div class="tbl-wrap">
-    <table>
-      <thead><tr><th>维度</th><th>路径一：文生 3D</th><th>路径二：MCP 参数建模</th></tr></thead>
-      <tbody>
-        <tr><td><strong>可控性</strong></td><td></td><td></td></tr>
-        <tr><td><strong>尺寸精度</strong></td><td></td><td></td></tr>
-        <tr><td><strong>耗时</strong></td><td></td><td></td></tr>
-        <tr><td><strong>可修改性</strong></td><td></td><td></td></tr>
-        <tr><td><strong>能否批量</strong></td><td></td><td></td></tr>
-        <tr><td><strong>一句话结论</strong></td><td colspan="2">如果这是工程任务，我选＿＿＿＿，因为＿＿＿＿＿＿＿＿＿＿＿＿</td></tr>
-      </tbody>
-    </table>
-  </div>
-
-  <details>
-    <summary><strong>教师用 · 预期结论</strong>（先别展开，等学生自己得出）</summary>
-    <p>生成式赢在<strong>「像」</strong>，参数化赢在<strong>「准」</strong>。工程上要的是「准 + 可批量」，所以选 MCP。这个结论<strong>不要直接给</strong>——让学生自己在两条路径上各做一次，看到文生 3D 出的门柱尺寸完全不受控，这句结论才有分量。</p>
-  </details>
 </section>
 
 <!-- ===== 一、三个角色 ===== -->
@@ -469,7 +428,7 @@
       <p><code class="inline">blender_render_preview</code>、<code class="inline">blender_export_glb</code>、<code class="inline">blender_export_scene</code>。<strong>只读场景、写文件</strong>，但写的是「此刻」的状态。</p>
     </div>
   </div>
-  <p>这个分类解释了两件事：为什么练习 B 的陷阱题成立（先导出再上色，导出的是上色前的状态），以及为什么「改状态」的工具要慎用——<code class="inline">blender_clear_scene</code> 一步就能把前面所有工作清掉，而它没有参数、不会二次确认。</p>
+  <p>这个分类解释了两件事：为什么"先导出后上色"这个坑成立（导出的是上色前的状态），以及为什么「改状态」的工具要慎用——<code class="inline">blender_clear_scene</code> 一步就能把前面所有工作清掉，而它没有参数、不会二次确认。</p>
 
   <h3>四、反例演示：`import os` 被白名单拦截</h3>
   <p>这一步故意让学生自己写。请一位同学在 <code class="inline">blender_exec</code> 的 <code class="inline">code</code> 参数里输入 <code class="inline">import os</code>，然后执行。投影上会看到：</p>
@@ -810,6 +769,53 @@
 </section>
 
 <!-- ===== 八、照片重建 ===== -->
+<section id="video">
+  <div class="sec-head">
+    <div class="sec-num">影</div>
+    <div>
+      <h2>建造过程：两段视频</h2>
+      <p class="sec-sub">模型不是「生成」出来的，是 260 个构件按建模脚本一个个摆出来的</p>
+    </div>
+  </div>
+
+  <p>下面两段都是 <strong>Blender EEVEE 离线渲染的帧序列</strong>，不是录屏、不是后期合成：脚本把相机挂在一个空物体上转一圈，
+    或者把每个构件按体量从大到小依次「长出来」，逐帧渲染 288 张 PNG，再用 ffmpeg 合成 12 秒的 MP4。</p>
+
+  <div class="grid2">
+    <figure>
+      <video controls preload="metadata" playsinline poster="assets/vr-2026/agent-mcp/turntable-poster.jpg" style="width:100%;border-radius:10px">
+        <source src="assets/vr-2026/agent-mcp/campus-turntable.mp4" type="video/mp4">
+        你的浏览器不支持 video 标签，<a href="assets/vr-2026/agent-mcp/campus-turntable.mp4">点此下载</a>。
+      </video>
+      <figcaption><strong>360° 环绕</strong>：相机绕场景一圈（288 帧 / 24 fps / 12 秒）。
+        看清主教学楼的八角放射形、体育场、湖面与 9 栋楼的相对位置——这些都来自 OSM 实测轮廓。</figcaption>
+    </figure>
+    <figure>
+      <video controls preload="metadata" playsinline poster="assets/vr-2026/agent-mcp/buildup-poster.jpg" style="width:100%;border-radius:10px">
+        <source src="assets/vr-2026/agent-mcp/campus-buildup.mp4" type="video/mp4">
+        你的浏览器不支持 video 标签，<a href="assets/vr-2026/agent-mcp/campus-buildup.mp4">点此下载</a>。
+      </video>
+      <figcaption><strong>建造生长</strong>：260 个构件从大到小依次出现——先是地面与场地，再是主体建筑，
+        最后是树木、标识、旗杆。这就是建模脚本的执行顺序。</figcaption>
+    </figure>
+  </div>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>参数</th><th>值</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td>分辨率 / 帧率</td><td>1280 × 720 · 24 fps</td><td>投影够用，压完 12 秒 3.7 MB</td></tr>
+        <tr><td>帧数</td><td>288 帧</td><td>环绕视频导演机转 360°，生长视频 260 个对象错开出现</td></tr>
+        <tr><td>渲染引擎</td><td>EEVEE</td><td>采样 16；本机 5.4.0 Alpha 只有 EEVEE，没有 Cycles</td></tr>
+        <tr><td>渲染耗时</td><td>约 56 秒／段</td><td>288 帧合计，不是实拍</td></tr>
+        <tr><td>旋转实现</td><td>驱动器表达式</td><td>Blender 5.4 的 Action API 改为分层槽位，<code class="inline">action.fcurves</code> 已不存在，故用 driver 做匀速旋转</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="note"><strong>这两段视频能说明什么</strong>：它把「260 个对象 / 109,793 个三角面」这个抽象数字变成了可看的东西。
+    但要注意——<strong>视频只能证明模型存在，证明不了尺寸对</strong>；尺寸要靠 <code class="inline">scene_stats</code> 的包围盒。</div>
+</section>
+
 <section id="c8">
   <div class="sec-head">
     <div class="sec-num">八</div>
@@ -862,6 +868,154 @@
 </section>
 
 <!-- ===== 附录：并入的第 9 次课交互内容 ===== -->
+<section id="ai">
+  <div class="sec-head">
+    <div class="sec-num">新</div>
+    <div>
+      <h2>AI × VR 最新进展（2025-11 → 2026-11）</h2>
+      <p class="sec-sub">不是"AI 很厉害"，而是逐条给出版本、能力边界与来源；查不到的写"查不到"</p>
+    </div>
+  </div>
+
+  <div class="key"><strong>这一节的读法</strong>：每条都标了**年份**（事件发生年，不是文章发布年）和**证据级别**——
+    <strong>A</strong> = 官方博客 / 文档 / arXiv；<strong>B</strong> = 主流媒体；<strong>C</strong> = 二手报道（仅作线索，数字不复用）。
+    <strong>凡是查不到可靠来源的，本节直接留白</strong>（见最后一张表），不估算、不补齐。<br><strong>完整来源清单</strong>（每条一个网址）在配套文档 <code class="inline">内容规格.md</code> 同目录的 <code class="inline">AI×VR_最新进展_2026-11.md</code>；下面每节末尾给出该节的关键官方出处。</div>
+
+  <h3>一、文生 3D / 图生 3D：从"能出图"到"能进管线"</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th style="width:150px">模型</th><th style="width:120px">版本 / 时间</th><th>关键能力（2026 年状态）</th><th style="width:150px">面数 / 贴图</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Tripo H3.1</strong></td><td>v3.1 · 2026-02</td><td>文本 / 单图 / 多视图；约 40 秒出网格、120 秒出带贴图；可选四边面 FBX 与智能低模</td><td>150 万面（detailed 200 万）；quad 15 万；8K</td></tr>
+        <tr><td><strong>腾讯混元 3.0 / 3.5</strong></td><td>2026-09 官方说明</td><td><strong>几何与纹理解耦</strong>，法线 / 金属度 / 粗糙度分通道，可直接进 UE / Unity 材质</td><td>150 万面；8K PBR；约 60 秒</td></tr>
+        <tr><td><strong>Meshy 6</strong></td><td>2026-01-09</td><td>重点在几何：结构更规整、硬表面锐边更准、新增低模模式</td><td><strong>官方未公布</strong></td></tr>
+        <tr><td><strong>Rodin Gen-2.5</strong></td><td>2026 在售</td><td>拓扑直接做成参数：<code class="inline">mesh_mode</code> 选 Quad / Raw；定位"给管线用"</td><td>200 万面；Quad 20 万；12K</td></tr>
+        <tr><td><strong>TRELLIS.2</strong></td><td>CVPR 2026</td><td>改的是 3D 表征层（原生紧凑结构化 latent），开源，代表"表征决定上限"这条路线</td><td>见论文</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="note">关键出处：Tripo 开发者文档 <code class="inline">developers.tripo3d.com/zh/models/v3-1</code>｜腾讯云 3D 技术说明 <code class="inline">tencentcloud.com/techpedia/148305</code></div>
+  <div class="note"><strong>课堂一句话</strong>：2026 年"面数上限"已经不是问题——<strong>问题变成你怎么把 200 万面减到 10 万面还不塌</strong>。
+    我们自己那套校园是 <strong>109,793 三角面 / 380 DrawCall</strong>，这已经接近一体机的舒适上限。</div>
+
+  <h3>二、世界模型：能不能"真的走进去玩"</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th style="width:140px">产品</th><th style="width:100px">时间</th><th>能走进去吗</th><th>能编辑 / 量尺寸吗</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Genie 4</strong>（DeepMind）</td><td>2026-10-27</td><td><strong>能玩约 2 分钟</strong>（一致性时长是 Genie 3 的两倍），可实时改天气与视角，首次带原生音频</td><td>不能；研究预览，普通账号进不去</td></tr>
+        <tr><td><strong>Marble 1.1</strong>（World Labs）</td><td>2025-11 起 · 2026-04 升 1.1</td><td><strong>能</strong>：输出 3DGS（.spz / .ply），浏览器、手机、<strong>头显</strong>都能自由漫游，<strong>无时间限制</strong></td><td>只能换视角，不能量尺寸</td></tr>
+        <tr><td><strong>Atlas</strong>（World Labs）</td><td>2026-09-01</td><td>部分：相机路径驱动，1 分钟 1440p；1–100+ 张图稀疏重建</td><td>输出点云 / 3DGS，可二次处理</td></tr>
+        <tr><td><strong>Cosmos 3</strong>（NVIDIA）</td><td>2026-06-01</td><td>面向机器人仿真的物理 AI 基础模型，权重开放</td><td>不适用消费级"走进去"</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="note">关键出处：DeepMind Genie 4 官方博客 <code class="inline">deepmind.google/blog/genie-4-a-new-generation-of-world-simulation</code>｜World Labs <code class="inline">worldlabs.ai/blog/atlas</code></div>
+  <div class="note"><strong>别把"能看"当"能交付"</strong>：Marble / Atlas 能走进去，但输出是<strong>不可编辑、不可量尺寸</strong>的 splat。
+    要交给工程、要对齐尺寸、要能改一根柱子的直径——这条路上它们帮不上，还是得参数化建模。</div>
+
+  <h3>三、3D 高斯泼溅（3DGS）：静态已经成熟，网页能跑</h3>
+  <div class="grid3">
+    <div class="cell"><h4>网页可用已成事实</h4><p>World Labs 开源的 <strong>Spark</strong> 把 3DGS 直接塞进 Three.js，桌面 / 手机 / <strong>VR 头显</strong>都能跑——
+      这正是 Marble 的世界能在头显里漫游的原因。<strong>3DGS 是 WebXR 拿到"真实场景"最快的路</strong>。</p></div>
+    <div class="cell"><h4>工具链分四段</h4><p>采集（Polycam / Scaniverse / KIRI）→ 训练（<strong>PostShot</strong> / LichtFeld Studio / Brush）→ 编辑（SuperSplat）→ 发布（Splat Labs）。
+      课堂上按这四段讲，学生就知道自己卡在哪一段。</p></div>
+    <div class="cell"><h4>动态还在会议里</h4><p>AAAI 2026 有 4D 高斯、CGF 2026 的 SD-4DGS 用单目视频做动态重建。
+      方向是从"扫一个静态房间"走向"拍段视频就重建运动"，但<strong>实时大场景仍不成熟</strong>。</p></div>
+  </div>
+
+  <h3>四、Agent 与 DCC 软件的连接：MCP 已从玩具变基础设施</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th style="width:190px">事件</th><th style="width:110px">时间</th><th>意义</th></tr></thead>
+      <tbody>
+        <tr><td><strong>BlenderMCP</strong>（社区）</td><td>2025 起</td><td>第一批"让 LLM 有手"的样板：Agent 调工具 → Blender 内 addon 执行 bpy → 场景真的变。<strong>本课自研服务器的参照系</strong></td></tr>
+        <tr><td><strong>Claude for CAD · MCP Connectors</strong>（Anthropic × Autodesk / Blender / Adobe）</td><td>2026-04-29</td><td>官方把 Blender 接进 MCP：连接器通过 Python API 往 Blender 加工具，能分析整个场景、批量改对象。Anthropic 同时成为 <strong>Blender Development Fund patron</strong></td></tr>
+        <tr><td><strong>Python 包生态</strong></td><td>2026</td><td><code class="inline">mcp-for-blender</code>、<code class="inline">dcc-mcp-maya</code>、<code class="inline">dcc-mcp-core</code> 把"连接 / 工具注册 / 会话"抽成通用层</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="key"><strong>这条对我们最重要</strong>：MCP 服务器不必从零写了，但<strong>"工具契约怎么设计"仍然是人的工作</strong>——
+    工具叫什么、参数是米还是厘米、返回什么才算可验收。这正是本课练习在练的东西。</div>
+
+  <h3>五、硬件：一体机进入"稳存量"期</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th style="width:130px">厂商</th><th>2026 年的状态</th><th style="width:200px">对课程的影响</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Meta</strong></td><td>Connect 2026（9/23–24）<strong>没有发 Quest 4</strong>，现役仍是 Quest 3 / 3S；新品类 <strong>Meta VR Glasses</strong>（约 100 g 眼镜 + 计算 puck，5K micro-OLED，$1,299.99）<strong>2027 年春</strong>上市</td><td>Quest 3 仍是主流教学机</td></tr>
+        <tr><td><strong>PICO</strong></td><td>Project Swan → 定名 <strong>PICO Space Pro</strong>（双 4K micro-OLED、约 40 PPD、PICO OS 6），目标 2026 年底上市。<strong>PICO 5 早在 2023 年就取消了</strong></td><td><strong>OS 6 只跑新硬件</strong>，我们的 Neo 3（OS 5.9.5）不会被升级，课程仍按 OS 5 + 浏览器验证</td></tr>
+        <tr><td><strong>Apple</strong></td><td>分析师（郭明錤 2026-06 / Gurman）判断 Vision Pro 线"冰封"：Vision Air 已砍、Vision Pro 2 移出路线图，2026 年仅升级 M5。<strong>注意：这是分析师报告，不是苹果官方公告</strong></td><td>不影响本课；但别把课程押在单一高端硬件上</td></tr>
+        <tr><td><strong>智能眼镜</strong></td><td>Meta Ray-Ban Display 2026-10 进欧洲（€899），配 Neural Band 手势；Ray-Ban Meta Gen 3 支持 3K 视频与空间音频</td><td>眼镜是"轻 VR"，不替代头显做沉浸式建模</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>六、视频生成：给的是"素材"，不是"空间"</h3>
+  <div class="warn">
+    <ul>
+      <li><strong>Sora 停服</strong>（2026-03-25 宣布）：网页 / App 2026-04-26 停，API 2026-09-24 停。教训：<strong>把管线押在单一闭源模型上有断供风险，课堂素材必须本地留档</strong>。</li>
+      <li><strong>Veo 3.1</strong>（2026-04，Vertex AI 上线 Lite 与超分）：擅长镜头语言，输出仍是 <strong>2D 单目</strong>，不产生 VR 需要的双目视差。</li>
+      <li><strong>Kling 3.0</strong>（2026-02-05）：最长 15 秒连续生成、统一多模态输入，适合分镜预演，<strong>同样不是空间视频</strong>。</li>
+      <li><strong>真 6DoF 走的是另一条链</strong>：全景 / 多视角采集 → 重建（3DGS / NeRF）→ WebXR 或引擎渲染。<strong>不是视频模型直接吐出来的</strong>。</li>
+    </ul>
+  </div>
+
+  <h3>七、对本课程的三条启示</h3>
+  <div class="grid3">
+    <div class="cell"><h4>① 今天就能用</h4><p>生成式做<strong>"像"</strong>，MCP 做<strong>"准"</strong>。把文生 3D 放在"素材 / 初审"位置，交付仍走 MCP 参数化。
+      硬步骤是<strong>减面 + 重拓扑 + 贴图降到 1–2K</strong>——不是可选项。</p></div>
+    <div class="cell"><h4>② 还只是 PPT</h4><p>Genie 4 只有约 2 分钟一致性且是研究预览；Marble / Atlas 能走进去但不可编辑不可量；Apple 头显线被分析师判定"冰封"、PICO OS 6 只跑未上市硬件。<strong>课程交付不要押这三样</strong>。</p></div>
+    <div class="cell"><h4>③ 教"可验证的链路"</h4><p>工具会一直换（Claude for CAD 已经把 Blender 官方化了）。学生可迁移的只有四件事：<strong>定接口契约、量包围盒、留证据、划权限边界</strong>。</p></div>
+  </div>
+
+  <h3>八、课堂上可以直接点开的三个素材</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th style="width:190px">素材</th><th>看点</th><th style="width:110px">类型</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Marble 交互世界</strong></td><td>真的点进去走一圈（含头显），比放视频更有冲击力；用来对比"生成式场景 vs 参数化校园"</td><td>可交互网页</td></tr>
+        <tr><td><strong>Tripo / 混元 3D 网页版</strong></td><td>用"中式校门门柱"跑一遍文生 3D，与 MCP 参数建模做同题对比</td><td>网页工具</td></tr>
+        <tr><td><strong>Genie 4 / Marble 官方演示视频</strong></td><td>各剪 60–90 秒：Genie 4 看"实时改世界 + 2 分钟漂移"，Marble 看"一张图 → 走进去"</td><td>官方视频</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="note"><strong>课前务必自己点一遍</strong>：这一节里的外部链接都是 2026-11-10 的状态，产品会下线（Sora 就是例子）。
+    如果某条打不开，按"查不到"处理，<strong>不要用二手说法替代</strong>。</div>
+
+  <h3>九、一页速览（可直接当课件首页）</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th style="width:130px">领域</th><th>2026 年最强状态</th><th style="width:230px">一条判断</th></tr></thead>
+      <tbody>
+        <tr><td>文生 3D</td><td>200 万面 + 8K PBR + 四边面可选</td><td><strong>面数不再是瓶颈，减面才是</strong></td></tr>
+        <tr><td>世界模型</td><td>Genie 4 能实时玩 2 分钟；Marble / Atlas 能真走进去</td><td><strong>能看 ≠ 能交付</strong></td></tr>
+        <tr><td>3DGS</td><td>静态成熟、动态进会议、网页可跑</td><td><strong>WebXR 最快的"真实场景"方案</strong></td></tr>
+        <tr><td>Agent + DCC</td><td>Claude for CAD 官方接 Blender</td><td><strong>MCP 已从玩具变基础设施</strong></td></tr>
+        <tr><td>硬件</td><td>Meta 转眼镜、PICO 换平台、Apple 冰封头显</td><td><strong>一体机进入"稳存量"期</strong></td></tr>
+        <tr><td>视频生成</td><td>Veo 3.1 / Kling 3.0，Sora 停服</td><td><strong>视频给素材，不给空间</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>十、明确留白（查不到就说查不到）</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th style="width:250px">项</th><th>状态</th></tr></thead>
+      <tbody>
+        <tr><td>Rodin Gen-2.5 发布日</td><td>查不到：官方 API 文档只标"当前档位"，无发布日</td></tr>
+        <tr><td>Meshy 6 的面数上限 / PBR 分辨率</td><td>查不到：官方发布说明未给统一数值</td></tr>
+        <tr><td>Veo 4</td><td>查不到官方发布；商用主线仍是 Veo 3.1</td></tr>
+        <tr><td>Meta Quest 4</td><td>查不到官方发布；Connect 2026 明确未发，2027 仅为分析师预期</td></tr>
+        <tr><td>Sora 停服后的替代路线</td><td>查不到：OpenAI 未公布后续视频生成路线</td></tr>
+        <tr><td>中国 AI 眼镜"2026 占全球 45%"</td><td>未核到原始机构报告，只见二手报道</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="key"><strong>这一节的真正教学点不是"AI 多厉害"，是"谁来负责核实"</strong>：上面每一条都能点回来源，
+    查不到的项被单列出来而不是含糊过去。<strong>做研究是这样，做工程也是这样。</strong></div>
+</section>
+
 <section id="appendix9">
   <div class="sec-head">
     <div class="sec-num">附</div>
@@ -936,7 +1090,7 @@
     <div class="step-card">
       <div class="sc-no">达标 1</div>
       <div class="sc-title">误差 ≤ ±5 cm</div>
-      <div class="sc-desc">包围盒与标称尺寸的误差不超过 ±5 cm。练习 C 的岗亭验收就是这个口径：标称 <strong>3.2 × 3.2 × 3.85 m</strong>。</div>
+      <div class="sc-desc">包围盒与标称尺寸的误差不超过 ±5 cm。课堂练习里的构件验收就是这个口径（比如水池标称 <strong>3 × 2 × 0.5 m</strong>，误差不得超过 5 cm）。</div>
     </div>
     <div class="step-card">
       <div class="sc-no">达标 2</div>
