@@ -29,8 +29,9 @@
 <!-- ===== 目录导航 ===== -->
 <nav class="nav" id="nav">
   <div class="nav-inner" id="navInner">
+    <a href="#ai" data-sec="ai" class="on">AI×VR 进展</a>
     <a href="vr-2026.html" class="nav-back">← 课程主页</a>
-    <a href="#guide" data-sec="guide" class="on">本课导览</a>
+    <a href="#guide" data-sec="guide">本课导览</a>
     <a href="#ex" data-sec="ex">前两节 · 练习</a>
     <a href="#c1" data-sec="c1">一、三个角色</a>
     <a href="#c2" data-sec="c2">二、为什么不直接生成</a>
@@ -41,7 +42,6 @@
     <a href="#c7" data-sec="c7">七、成果与验收</a>
     <a href="#video" data-sec="video">建造过程视频</a>
     <a href="#c8" data-sec="c8">八、照片重建</a>
-    <a href="#ai" data-sec="ai">AI×VR 进展</a>
     <a href="#appendix9" data-sec="appendix9">附录 · 交互</a>
     <a href="#hw" data-sec="hw">作业 · 评价</a>
     <a href="#next" data-sec="next">下次课</a>
@@ -51,6 +51,188 @@
 <main>
 
 <!-- ===== 导览 ===== -->
+<section id="ai">
+  <div class="sec-head">
+    <div class="sec-num">新</div>
+    <div>
+      <h2>AI × VR 最新进展（2025-11 → 2026-11）</h2>
+      <p class="sec-sub">不是"AI 很厉害"，而是逐条给出版本、能力边界与来源；查不到的写"查不到"</p>
+    </div>
+  </div>
+
+  <div class="key"><strong>这一节的读法</strong>：每条都标了**年份**（事件发生年，不是文章发布年）和**证据级别**——
+    <strong>A</strong> = 官方博客 / 文档 / arXiv；<strong>B</strong> = 主流媒体；<strong>C</strong> = 二手报道（仅作线索，数字不复用）。
+    <strong>凡是查不到可靠来源的，本节直接留白</strong>（见最后一张表），不估算、不补齐。<br><strong>完整来源清单</strong>（每条一个网址）在配套文档 <code class="inline">内容规格.md</code> 同目录的 <code class="inline">AI×VR_最新进展_2026-11.md</code>；下面每节末尾给出该节的关键官方出处。</div>
+
+    <h3>〇、课堂视频清单（全部 ≤ 10 分钟，播放量已核实）</h3>
+  <p>下面 8 条是 B 站上**能当堂放、也能课后自己看**的短片。时长与播放量是 <strong>2026-11-10 抓取</strong>的真实数据，
+    播放量会变，但量级不会。<strong>选片标准</strong>：① 单条 ≤ 10 分钟；② 播放量 ≥ 1 万（在这个垂类里算头部）；
+    ③ 能直接对上本节某一条结论。</p>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th style="width:52px">#</th><th>标题（点开即播）</th><th style="width:88px">时长</th><th style="width:96px">播放量</th><th style="width:210px">对应本节哪个结论</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td><a href="https://www.bilibili.com/video/BV1GskwBAENF/" target="_blank" rel="noopener">【测评】AI 拓补竞争加剧，Rodin AI 拓补惊艳登场</a></td><td>2 分 38 秒</td><td><strong>4.1 万</strong></td><td>「面数不是瓶颈，减面才是」—— 拓补就是减面</td></tr>
+        <tr><td>2</td><td><a href="https://www.bilibili.com/video/BV1GNSqBEELs/" target="_blank" rel="noopener">【测评】腾讯 AI3D 拓补功能再进化，混元 3D Studio 1.1</a></td><td>2 分 54 秒</td><td><strong>3.9 万</strong></td><td>同上；对比国产两家拓补路线</td></tr>
+        <tr><td>3</td><td><a href="https://www.bilibili.com/video/BV1JCnqz3Ebq/" target="_blank" rel="noopener">【测评】AI 一键模型分件，Rodin Gen2 拆件神器</a></td><td>5 分 00 秒</td><td><strong>3.5 万</strong></td><td>生成式出来的东西怎么进管线（拆件 = 可编辑）</td></tr>
+        <tr><td>4</td><td><a href="https://www.bilibili.com/video/BV16XhXz1Ehg/" target="_blank" rel="noopener">无需魔法，国内免费用 nanobanana 网站 + Rodin</a></td><td>0 分 43 秒</td><td><strong>2.3 万</strong></td><td><strong>课堂练习 D 的路径一</strong>：现场就能跑</td></tr>
+        <tr><td>5</td><td><a href="https://www.bilibili.com/video/BV1DexYzbEY1/" target="_blank" rel="noopener">【测评】AI3D 制作一条龙服务？混元 3D Studio 到底如何</a></td><td>3 分 56 秒</td><td><strong>1.9 万</strong></td><td>「能出图」到「能进管线」差在哪</td></tr>
+        <tr><td>6</td><td><a href="https://www.bilibili.com/video/BV1uob8zZETB/" target="_blank" rel="noopener">AI3D + UE5 来制作你的第一款战机游戏</a></td><td>1 分 39 秒</td><td><strong>1.7 万</strong></td><td>生成式资产接到引擎里的完整链路</td></tr>
+        <tr><td>7</td><td><a href="https://www.bilibili.com/video/BV1RG1TB4EUd/" target="_blank" rel="noopener">【测评】AI3D 局部微调时代来到！</a></td><td>2 分 07 秒</td><td><strong>1.6 万</strong></td><td>「可修改性」——生成式最被诟病的那一环</td></tr>
+        <tr><td>8</td><td><a href="https://www.bilibili.com/video/BV1UbBEBfENr/" target="_blank" rel="noopener">【测评】微软 Trellis 2 AI3D 开源王者降临？</a></td><td>4 分 17 秒</td><td><strong>1.1 万</strong></td><td>开源路线 vs 闭源商业，对应 TRELLIS.2 那条</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th style="width:150px">官方演示（英文）</th><th>看什么</th><th style="width:190px">入口</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Genie 4</strong>（DeepMind）</td><td>键盘实时改世界、原生音频、约 2 分钟一致性就漂移</td><td><a href="https://www.youtube.com/@GoogleDeepMind" target="_blank" rel="noopener">DeepMind 官方频道</a>（找 Genie 4 那条）</td></tr>
+        <tr><td><strong>Marble / Atlas</strong>（World Labs）</td><td>一张图生成可漫游房间、「走进去」而不是「看视频」</td><td><a href="https://www.youtube.com/@worldlabsai" target="_blank" rel="noopener">World Labs 官方频道</a></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="note"><strong>为什么没有「Blender MCP 那类」视频</strong>：确实有，但一盘点是 <strong>33 分钟</strong>（BV1dgTT6PEui，播放 798）——
+    时长与播放量都不达标，所以不进主表。<strong>选片本身就是取舍</strong>，这条也讲给学生听：不是"有就用"，要按课堂约束筛。</div>
+  <div class="note"><strong>播放量数据口径</strong>：均为 B 站 2026-11-10 抓取时的<strong>累计播放</strong>，会随时间变化。
+    若某条已下架，按"查不到"处理，不要用二手说法替代。</div>
+
+<h3>一、文生 3D / 图生 3D：从"能出图"到"能进管线"</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th style="width:150px">模型</th><th style="width:120px">版本 / 时间</th><th>关键能力（2026 年状态）</th><th style="width:150px">面数 / 贴图</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Tripo H3.1</strong></td><td>v3.1 · 2026-02</td><td>文本 / 单图 / 多视图；约 40 秒出网格、120 秒出带贴图；可选四边面 FBX 与智能低模</td><td>150 万面（detailed 200 万）；quad 15 万；8K</td></tr>
+        <tr><td><strong>腾讯混元 3.0 / 3.5</strong></td><td>2026-09 官方说明</td><td><strong>几何与纹理解耦</strong>，法线 / 金属度 / 粗糙度分通道，可直接进 UE / Unity 材质</td><td>150 万面；8K PBR；约 60 秒</td></tr>
+        <tr><td><strong>Meshy 6</strong></td><td>2026-01-09</td><td>重点在几何：结构更规整、硬表面锐边更准、新增低模模式</td><td><strong>官方未公布</strong></td></tr>
+        <tr><td><strong>Rodin Gen-2.5</strong></td><td>2026 在售</td><td>拓扑直接做成参数：<code class="inline">mesh_mode</code> 选 Quad / Raw；定位"给管线用"</td><td>200 万面；Quad 20 万；12K</td></tr>
+        <tr><td><strong>TRELLIS.2</strong></td><td>CVPR 2026</td><td>改的是 3D 表征层（原生紧凑结构化 latent），开源，代表"表征决定上限"这条路线</td><td>见论文</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="note">关键出处：Tripo 开发者文档 <code class="inline">developers.tripo3d.com/zh/models/v3-1</code>｜腾讯云 3D 技术说明 <code class="inline">tencentcloud.com/techpedia/148305</code></div>
+  <div class="note"><strong>课堂一句话</strong>：2026 年"面数上限"已经不是问题——<strong>问题变成你怎么把 200 万面减到 10 万面还不塌</strong>。
+    我们自己那套校园是 <strong>109,793 三角面 / 380 DrawCall</strong>，这已经接近一体机的舒适上限。</div>
+
+  <h3>二、世界模型：能不能"真的走进去玩"</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th style="width:140px">产品</th><th style="width:100px">时间</th><th>能走进去吗</th><th>能编辑 / 量尺寸吗</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Genie 4</strong>（DeepMind）</td><td>2026-10-27</td><td><strong>能玩约 2 分钟</strong>（一致性时长是 Genie 3 的两倍），可实时改天气与视角，首次带原生音频</td><td>不能；研究预览，普通账号进不去</td></tr>
+        <tr><td><strong>Marble 1.1</strong>（World Labs）</td><td>2025-11 起 · 2026-04 升 1.1</td><td><strong>能</strong>：输出 3DGS（.spz / .ply），浏览器、手机、<strong>头显</strong>都能自由漫游，<strong>无时间限制</strong></td><td>只能换视角，不能量尺寸</td></tr>
+        <tr><td><strong>Atlas</strong>（World Labs）</td><td>2026-09-01</td><td>部分：相机路径驱动，1 分钟 1440p；1–100+ 张图稀疏重建</td><td>输出点云 / 3DGS，可二次处理</td></tr>
+        <tr><td><strong>Cosmos 3</strong>（NVIDIA）</td><td>2026-06-01</td><td>面向机器人仿真的物理 AI 基础模型，权重开放</td><td>不适用消费级"走进去"</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="note">关键出处：DeepMind Genie 4 官方博客 <code class="inline">deepmind.google/blog/genie-4-a-new-generation-of-world-simulation</code>｜World Labs <code class="inline">worldlabs.ai/blog/atlas</code></div>
+  <div class="note"><strong>别把"能看"当"能交付"</strong>：Marble / Atlas 能走进去，但输出是<strong>不可编辑、不可量尺寸</strong>的 splat。
+    要交给工程、要对齐尺寸、要能改一根柱子的直径——这条路上它们帮不上，还是得参数化建模。</div>
+
+  <h3>三、3D 高斯泼溅（3DGS）：静态已经成熟，网页能跑</h3>
+  <div class="grid3">
+    <div class="cell"><h4>网页可用已成事实</h4><p>World Labs 开源的 <strong>Spark</strong> 把 3DGS 直接塞进 Three.js，桌面 / 手机 / <strong>VR 头显</strong>都能跑——
+      这正是 Marble 的世界能在头显里漫游的原因。<strong>3DGS 是 WebXR 拿到"真实场景"最快的路</strong>。</p></div>
+    <div class="cell"><h4>工具链分四段</h4><p>采集（Polycam / Scaniverse / KIRI）→ 训练（<strong>PostShot</strong> / LichtFeld Studio / Brush）→ 编辑（SuperSplat）→ 发布（Splat Labs）。
+      课堂上按这四段讲，学生就知道自己卡在哪一段。</p></div>
+    <div class="cell"><h4>动态还在会议里</h4><p>AAAI 2026 有 4D 高斯、CGF 2026 的 SD-4DGS 用单目视频做动态重建。
+      方向是从"扫一个静态房间"走向"拍段视频就重建运动"，但<strong>实时大场景仍不成熟</strong>。</p></div>
+  </div>
+
+  <h3>四、Agent 与 DCC 软件的连接：MCP 已从玩具变基础设施</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th style="width:190px">事件</th><th style="width:110px">时间</th><th>意义</th></tr></thead>
+      <tbody>
+        <tr><td><strong>BlenderMCP</strong>（社区）</td><td>2025 起</td><td>第一批"让 LLM 有手"的样板：Agent 调工具 → Blender 内 addon 执行 bpy → 场景真的变。<strong>本课自研服务器的参照系</strong></td></tr>
+        <tr><td><strong>Claude for CAD · MCP Connectors</strong>（Anthropic × Autodesk / Blender / Adobe）</td><td>2026-04-29</td><td>官方把 Blender 接进 MCP：连接器通过 Python API 往 Blender 加工具，能分析整个场景、批量改对象。Anthropic 同时成为 <strong>Blender Development Fund patron</strong></td></tr>
+        <tr><td><strong>Python 包生态</strong></td><td>2026</td><td><code class="inline">mcp-for-blender</code>、<code class="inline">dcc-mcp-maya</code>、<code class="inline">dcc-mcp-core</code> 把"连接 / 工具注册 / 会话"抽成通用层</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="key"><strong>这条对我们最重要</strong>：MCP 服务器不必从零写了，但<strong>"工具契约怎么设计"仍然是人的工作</strong>——
+    工具叫什么、参数是米还是厘米、返回什么才算可验收。这正是本课练习在练的东西。</div>
+
+  <h3>五、硬件：一体机进入"稳存量"期</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th style="width:130px">厂商</th><th>2026 年的状态</th><th style="width:200px">对课程的影响</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Meta</strong></td><td>Connect 2026（9/23–24）<strong>没有发 Quest 4</strong>，现役仍是 Quest 3 / 3S；新品类 <strong>Meta VR Glasses</strong>（约 100 g 眼镜 + 计算 puck，5K micro-OLED，$1,299.99）<strong>2027 年春</strong>上市</td><td>Quest 3 仍是主流教学机</td></tr>
+        <tr><td><strong>PICO</strong></td><td>Project Swan → 定名 <strong>PICO Space Pro</strong>（双 4K micro-OLED、约 40 PPD、PICO OS 6），目标 2026 年底上市。<strong>PICO 5 早在 2023 年就取消了</strong></td><td><strong>OS 6 只跑新硬件</strong>，我们的 Neo 3（OS 5.9.5）不会被升级，课程仍按 OS 5 + 浏览器验证</td></tr>
+        <tr><td><strong>Apple</strong></td><td>分析师（郭明錤 2026-06 / Gurman）判断 Vision Pro 线"冰封"：Vision Air 已砍、Vision Pro 2 移出路线图，2026 年仅升级 M5。<strong>注意：这是分析师报告，不是苹果官方公告</strong></td><td>不影响本课；但别把课程押在单一高端硬件上</td></tr>
+        <tr><td><strong>智能眼镜</strong></td><td>Meta Ray-Ban Display 2026-10 进欧洲（€899），配 Neural Band 手势；Ray-Ban Meta Gen 3 支持 3K 视频与空间音频</td><td>眼镜是"轻 VR"，不替代头显做沉浸式建模</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>六、视频生成：给的是"素材"，不是"空间"</h3>
+  <div class="warn">
+    <ul>
+      <li><strong>Sora 停服</strong>（2026-03-25 宣布）：网页 / App 2026-04-26 停，API 2026-09-24 停。教训：<strong>把管线押在单一闭源模型上有断供风险，课堂素材必须本地留档</strong>。</li>
+      <li><strong>Veo 3.1</strong>（2026-04，Vertex AI 上线 Lite 与超分）：擅长镜头语言，输出仍是 <strong>2D 单目</strong>，不产生 VR 需要的双目视差。</li>
+      <li><strong>Kling 3.0</strong>（2026-02-05）：最长 15 秒连续生成、统一多模态输入，适合分镜预演，<strong>同样不是空间视频</strong>。</li>
+      <li><strong>真 6DoF 走的是另一条链</strong>：全景 / 多视角采集 → 重建（3DGS / NeRF）→ WebXR 或引擎渲染。<strong>不是视频模型直接吐出来的</strong>。</li>
+    </ul>
+  </div>
+
+  <h3>七、对本课程的三条启示</h3>
+  <div class="grid3">
+    <div class="cell"><h4>① 今天就能用</h4><p>生成式做<strong>"像"</strong>，MCP 做<strong>"准"</strong>。把文生 3D 放在"素材 / 初审"位置，交付仍走 MCP 参数化。
+      硬步骤是<strong>减面 + 重拓扑 + 贴图降到 1–2K</strong>——不是可选项。</p></div>
+    <div class="cell"><h4>② 还只是 PPT</h4><p>Genie 4 只有约 2 分钟一致性且是研究预览；Marble / Atlas 能走进去但不可编辑不可量；Apple 头显线被分析师判定"冰封"、PICO OS 6 只跑未上市硬件。<strong>课程交付不要押这三样</strong>。</p></div>
+    <div class="cell"><h4>③ 教"可验证的链路"</h4><p>工具会一直换（Claude for CAD 已经把 Blender 官方化了）。学生可迁移的只有四件事：<strong>定接口契约、量包围盒、留证据、划权限边界</strong>。</p></div>
+  </div>
+
+  <h3>八、课堂上可以直接点开的三个素材</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th style="width:190px">素材</th><th>看点</th><th style="width:110px">类型</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Marble 交互世界</strong></td><td>真的点进去走一圈（含头显），比放视频更有冲击力；用来对比"生成式场景 vs 参数化校园"</td><td>可交互网页</td></tr>
+        <tr><td><strong>Tripo / 混元 3D 网页版</strong></td><td>用"中式校门门柱"跑一遍文生 3D，与 MCP 参数建模做同题对比</td><td>网页工具</td></tr>
+        <tr><td><strong>Genie 4 / Marble 官方演示视频</strong></td><td>各剪 60–90 秒：Genie 4 看"实时改世界 + 2 分钟漂移"，Marble 看"一张图 → 走进去"</td><td>官方视频</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="note"><strong>课前务必自己点一遍</strong>：这一节里的外部链接都是 2026-11-10 的状态，产品会下线（Sora 就是例子）。
+    如果某条打不开，按"查不到"处理，<strong>不要用二手说法替代</strong>。</div>
+
+  <h3>九、一页速览（可直接当课件首页）</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th style="width:130px">领域</th><th>2026 年最强状态</th><th style="width:230px">一条判断</th></tr></thead>
+      <tbody>
+        <tr><td>文生 3D</td><td>200 万面 + 8K PBR + 四边面可选</td><td><strong>面数不再是瓶颈，减面才是</strong></td></tr>
+        <tr><td>世界模型</td><td>Genie 4 能实时玩 2 分钟；Marble / Atlas 能真走进去</td><td><strong>能看 ≠ 能交付</strong></td></tr>
+        <tr><td>3DGS</td><td>静态成熟、动态进会议、网页可跑</td><td><strong>WebXR 最快的"真实场景"方案</strong></td></tr>
+        <tr><td>Agent + DCC</td><td>Claude for CAD 官方接 Blender</td><td><strong>MCP 已从玩具变基础设施</strong></td></tr>
+        <tr><td>硬件</td><td>Meta 转眼镜、PICO 换平台、Apple 冰封头显</td><td><strong>一体机进入"稳存量"期</strong></td></tr>
+        <tr><td>视频生成</td><td>Veo 3.1 / Kling 3.0，Sora 停服</td><td><strong>视频给素材，不给空间</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>十、明确留白（查不到就说查不到）</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th style="width:250px">项</th><th>状态</th></tr></thead>
+      <tbody>
+        <tr><td>Rodin Gen-2.5 发布日</td><td>查不到：官方 API 文档只标"当前档位"，无发布日</td></tr>
+        <tr><td>Meshy 6 的面数上限 / PBR 分辨率</td><td>查不到：官方发布说明未给统一数值</td></tr>
+        <tr><td>Veo 4</td><td>查不到官方发布；商用主线仍是 Veo 3.1</td></tr>
+        <tr><td>Meta Quest 4</td><td>查不到官方发布；Connect 2026 明确未发，2027 仅为分析师预期</td></tr>
+        <tr><td>Sora 停服后的替代路线</td><td>查不到：OpenAI 未公布后续视频生成路线</td></tr>
+        <tr><td>中国 AI 眼镜"2026 占全球 45%"</td><td>未核到原始机构报告，只见二手报道</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="key"><strong>这一节的真正教学点不是"AI 多厉害"，是"谁来负责核实"</strong>：上面每一条都能点回来源，
+    查不到的项被单列出来而不是含糊过去。<strong>做研究是这样，做工程也是这样。</strong></div>
+</section>
+
 <section id="guide">
   <div class="sec-head">
     <div class="sec-num">导</div>
@@ -868,153 +1050,7 @@
 </section>
 
 <!-- ===== 附录：并入的第 9 次课交互内容 ===== -->
-<section id="ai">
-  <div class="sec-head">
-    <div class="sec-num">新</div>
-    <div>
-      <h2>AI × VR 最新进展（2025-11 → 2026-11）</h2>
-      <p class="sec-sub">不是"AI 很厉害"，而是逐条给出版本、能力边界与来源；查不到的写"查不到"</p>
-    </div>
-  </div>
 
-  <div class="key"><strong>这一节的读法</strong>：每条都标了**年份**（事件发生年，不是文章发布年）和**证据级别**——
-    <strong>A</strong> = 官方博客 / 文档 / arXiv；<strong>B</strong> = 主流媒体；<strong>C</strong> = 二手报道（仅作线索，数字不复用）。
-    <strong>凡是查不到可靠来源的，本节直接留白</strong>（见最后一张表），不估算、不补齐。<br><strong>完整来源清单</strong>（每条一个网址）在配套文档 <code class="inline">内容规格.md</code> 同目录的 <code class="inline">AI×VR_最新进展_2026-11.md</code>；下面每节末尾给出该节的关键官方出处。</div>
-
-  <h3>一、文生 3D / 图生 3D：从"能出图"到"能进管线"</h3>
-  <div class="tbl-wrap">
-    <table>
-      <thead><tr><th style="width:150px">模型</th><th style="width:120px">版本 / 时间</th><th>关键能力（2026 年状态）</th><th style="width:150px">面数 / 贴图</th></tr></thead>
-      <tbody>
-        <tr><td><strong>Tripo H3.1</strong></td><td>v3.1 · 2026-02</td><td>文本 / 单图 / 多视图；约 40 秒出网格、120 秒出带贴图；可选四边面 FBX 与智能低模</td><td>150 万面（detailed 200 万）；quad 15 万；8K</td></tr>
-        <tr><td><strong>腾讯混元 3.0 / 3.5</strong></td><td>2026-09 官方说明</td><td><strong>几何与纹理解耦</strong>，法线 / 金属度 / 粗糙度分通道，可直接进 UE / Unity 材质</td><td>150 万面；8K PBR；约 60 秒</td></tr>
-        <tr><td><strong>Meshy 6</strong></td><td>2026-01-09</td><td>重点在几何：结构更规整、硬表面锐边更准、新增低模模式</td><td><strong>官方未公布</strong></td></tr>
-        <tr><td><strong>Rodin Gen-2.5</strong></td><td>2026 在售</td><td>拓扑直接做成参数：<code class="inline">mesh_mode</code> 选 Quad / Raw；定位"给管线用"</td><td>200 万面；Quad 20 万；12K</td></tr>
-        <tr><td><strong>TRELLIS.2</strong></td><td>CVPR 2026</td><td>改的是 3D 表征层（原生紧凑结构化 latent），开源，代表"表征决定上限"这条路线</td><td>见论文</td></tr>
-      </tbody>
-    </table>
-  </div>
-  <div class="note">关键出处：Tripo 开发者文档 <code class="inline">developers.tripo3d.com/zh/models/v3-1</code>｜腾讯云 3D 技术说明 <code class="inline">tencentcloud.com/techpedia/148305</code></div>
-  <div class="note"><strong>课堂一句话</strong>：2026 年"面数上限"已经不是问题——<strong>问题变成你怎么把 200 万面减到 10 万面还不塌</strong>。
-    我们自己那套校园是 <strong>109,793 三角面 / 380 DrawCall</strong>，这已经接近一体机的舒适上限。</div>
-
-  <h3>二、世界模型：能不能"真的走进去玩"</h3>
-  <div class="tbl-wrap">
-    <table>
-      <thead><tr><th style="width:140px">产品</th><th style="width:100px">时间</th><th>能走进去吗</th><th>能编辑 / 量尺寸吗</th></tr></thead>
-      <tbody>
-        <tr><td><strong>Genie 4</strong>（DeepMind）</td><td>2026-10-27</td><td><strong>能玩约 2 分钟</strong>（一致性时长是 Genie 3 的两倍），可实时改天气与视角，首次带原生音频</td><td>不能；研究预览，普通账号进不去</td></tr>
-        <tr><td><strong>Marble 1.1</strong>（World Labs）</td><td>2025-11 起 · 2026-04 升 1.1</td><td><strong>能</strong>：输出 3DGS（.spz / .ply），浏览器、手机、<strong>头显</strong>都能自由漫游，<strong>无时间限制</strong></td><td>只能换视角，不能量尺寸</td></tr>
-        <tr><td><strong>Atlas</strong>（World Labs）</td><td>2026-09-01</td><td>部分：相机路径驱动，1 分钟 1440p；1–100+ 张图稀疏重建</td><td>输出点云 / 3DGS，可二次处理</td></tr>
-        <tr><td><strong>Cosmos 3</strong>（NVIDIA）</td><td>2026-06-01</td><td>面向机器人仿真的物理 AI 基础模型，权重开放</td><td>不适用消费级"走进去"</td></tr>
-      </tbody>
-    </table>
-  </div>
-  <div class="note">关键出处：DeepMind Genie 4 官方博客 <code class="inline">deepmind.google/blog/genie-4-a-new-generation-of-world-simulation</code>｜World Labs <code class="inline">worldlabs.ai/blog/atlas</code></div>
-  <div class="note"><strong>别把"能看"当"能交付"</strong>：Marble / Atlas 能走进去，但输出是<strong>不可编辑、不可量尺寸</strong>的 splat。
-    要交给工程、要对齐尺寸、要能改一根柱子的直径——这条路上它们帮不上，还是得参数化建模。</div>
-
-  <h3>三、3D 高斯泼溅（3DGS）：静态已经成熟，网页能跑</h3>
-  <div class="grid3">
-    <div class="cell"><h4>网页可用已成事实</h4><p>World Labs 开源的 <strong>Spark</strong> 把 3DGS 直接塞进 Three.js，桌面 / 手机 / <strong>VR 头显</strong>都能跑——
-      这正是 Marble 的世界能在头显里漫游的原因。<strong>3DGS 是 WebXR 拿到"真实场景"最快的路</strong>。</p></div>
-    <div class="cell"><h4>工具链分四段</h4><p>采集（Polycam / Scaniverse / KIRI）→ 训练（<strong>PostShot</strong> / LichtFeld Studio / Brush）→ 编辑（SuperSplat）→ 发布（Splat Labs）。
-      课堂上按这四段讲，学生就知道自己卡在哪一段。</p></div>
-    <div class="cell"><h4>动态还在会议里</h4><p>AAAI 2026 有 4D 高斯、CGF 2026 的 SD-4DGS 用单目视频做动态重建。
-      方向是从"扫一个静态房间"走向"拍段视频就重建运动"，但<strong>实时大场景仍不成熟</strong>。</p></div>
-  </div>
-
-  <h3>四、Agent 与 DCC 软件的连接：MCP 已从玩具变基础设施</h3>
-  <div class="tbl-wrap">
-    <table>
-      <thead><tr><th style="width:190px">事件</th><th style="width:110px">时间</th><th>意义</th></tr></thead>
-      <tbody>
-        <tr><td><strong>BlenderMCP</strong>（社区）</td><td>2025 起</td><td>第一批"让 LLM 有手"的样板：Agent 调工具 → Blender 内 addon 执行 bpy → 场景真的变。<strong>本课自研服务器的参照系</strong></td></tr>
-        <tr><td><strong>Claude for CAD · MCP Connectors</strong>（Anthropic × Autodesk / Blender / Adobe）</td><td>2026-04-29</td><td>官方把 Blender 接进 MCP：连接器通过 Python API 往 Blender 加工具，能分析整个场景、批量改对象。Anthropic 同时成为 <strong>Blender Development Fund patron</strong></td></tr>
-        <tr><td><strong>Python 包生态</strong></td><td>2026</td><td><code class="inline">mcp-for-blender</code>、<code class="inline">dcc-mcp-maya</code>、<code class="inline">dcc-mcp-core</code> 把"连接 / 工具注册 / 会话"抽成通用层</td></tr>
-      </tbody>
-    </table>
-  </div>
-  <div class="key"><strong>这条对我们最重要</strong>：MCP 服务器不必从零写了，但<strong>"工具契约怎么设计"仍然是人的工作</strong>——
-    工具叫什么、参数是米还是厘米、返回什么才算可验收。这正是本课练习在练的东西。</div>
-
-  <h3>五、硬件：一体机进入"稳存量"期</h3>
-  <div class="tbl-wrap">
-    <table>
-      <thead><tr><th style="width:130px">厂商</th><th>2026 年的状态</th><th style="width:200px">对课程的影响</th></tr></thead>
-      <tbody>
-        <tr><td><strong>Meta</strong></td><td>Connect 2026（9/23–24）<strong>没有发 Quest 4</strong>，现役仍是 Quest 3 / 3S；新品类 <strong>Meta VR Glasses</strong>（约 100 g 眼镜 + 计算 puck，5K micro-OLED，$1,299.99）<strong>2027 年春</strong>上市</td><td>Quest 3 仍是主流教学机</td></tr>
-        <tr><td><strong>PICO</strong></td><td>Project Swan → 定名 <strong>PICO Space Pro</strong>（双 4K micro-OLED、约 40 PPD、PICO OS 6），目标 2026 年底上市。<strong>PICO 5 早在 2023 年就取消了</strong></td><td><strong>OS 6 只跑新硬件</strong>，我们的 Neo 3（OS 5.9.5）不会被升级，课程仍按 OS 5 + 浏览器验证</td></tr>
-        <tr><td><strong>Apple</strong></td><td>分析师（郭明錤 2026-06 / Gurman）判断 Vision Pro 线"冰封"：Vision Air 已砍、Vision Pro 2 移出路线图，2026 年仅升级 M5。<strong>注意：这是分析师报告，不是苹果官方公告</strong></td><td>不影响本课；但别把课程押在单一高端硬件上</td></tr>
-        <tr><td><strong>智能眼镜</strong></td><td>Meta Ray-Ban Display 2026-10 进欧洲（€899），配 Neural Band 手势；Ray-Ban Meta Gen 3 支持 3K 视频与空间音频</td><td>眼镜是"轻 VR"，不替代头显做沉浸式建模</td></tr>
-      </tbody>
-    </table>
-  </div>
-
-  <h3>六、视频生成：给的是"素材"，不是"空间"</h3>
-  <div class="warn">
-    <ul>
-      <li><strong>Sora 停服</strong>（2026-03-25 宣布）：网页 / App 2026-04-26 停，API 2026-09-24 停。教训：<strong>把管线押在单一闭源模型上有断供风险，课堂素材必须本地留档</strong>。</li>
-      <li><strong>Veo 3.1</strong>（2026-04，Vertex AI 上线 Lite 与超分）：擅长镜头语言，输出仍是 <strong>2D 单目</strong>，不产生 VR 需要的双目视差。</li>
-      <li><strong>Kling 3.0</strong>（2026-02-05）：最长 15 秒连续生成、统一多模态输入，适合分镜预演，<strong>同样不是空间视频</strong>。</li>
-      <li><strong>真 6DoF 走的是另一条链</strong>：全景 / 多视角采集 → 重建（3DGS / NeRF）→ WebXR 或引擎渲染。<strong>不是视频模型直接吐出来的</strong>。</li>
-    </ul>
-  </div>
-
-  <h3>七、对本课程的三条启示</h3>
-  <div class="grid3">
-    <div class="cell"><h4>① 今天就能用</h4><p>生成式做<strong>"像"</strong>，MCP 做<strong>"准"</strong>。把文生 3D 放在"素材 / 初审"位置，交付仍走 MCP 参数化。
-      硬步骤是<strong>减面 + 重拓扑 + 贴图降到 1–2K</strong>——不是可选项。</p></div>
-    <div class="cell"><h4>② 还只是 PPT</h4><p>Genie 4 只有约 2 分钟一致性且是研究预览；Marble / Atlas 能走进去但不可编辑不可量；Apple 头显线被分析师判定"冰封"、PICO OS 6 只跑未上市硬件。<strong>课程交付不要押这三样</strong>。</p></div>
-    <div class="cell"><h4>③ 教"可验证的链路"</h4><p>工具会一直换（Claude for CAD 已经把 Blender 官方化了）。学生可迁移的只有四件事：<strong>定接口契约、量包围盒、留证据、划权限边界</strong>。</p></div>
-  </div>
-
-  <h3>八、课堂上可以直接点开的三个素材</h3>
-  <div class="tbl-wrap">
-    <table>
-      <thead><tr><th style="width:190px">素材</th><th>看点</th><th style="width:110px">类型</th></tr></thead>
-      <tbody>
-        <tr><td><strong>Marble 交互世界</strong></td><td>真的点进去走一圈（含头显），比放视频更有冲击力；用来对比"生成式场景 vs 参数化校园"</td><td>可交互网页</td></tr>
-        <tr><td><strong>Tripo / 混元 3D 网页版</strong></td><td>用"中式校门门柱"跑一遍文生 3D，与 MCP 参数建模做同题对比</td><td>网页工具</td></tr>
-        <tr><td><strong>Genie 4 / Marble 官方演示视频</strong></td><td>各剪 60–90 秒：Genie 4 看"实时改世界 + 2 分钟漂移"，Marble 看"一张图 → 走进去"</td><td>官方视频</td></tr>
-      </tbody>
-    </table>
-  </div>
-  <div class="note"><strong>课前务必自己点一遍</strong>：这一节里的外部链接都是 2026-11-10 的状态，产品会下线（Sora 就是例子）。
-    如果某条打不开，按"查不到"处理，<strong>不要用二手说法替代</strong>。</div>
-
-  <h3>九、一页速览（可直接当课件首页）</h3>
-  <div class="tbl-wrap">
-    <table>
-      <thead><tr><th style="width:130px">领域</th><th>2026 年最强状态</th><th style="width:230px">一条判断</th></tr></thead>
-      <tbody>
-        <tr><td>文生 3D</td><td>200 万面 + 8K PBR + 四边面可选</td><td><strong>面数不再是瓶颈，减面才是</strong></td></tr>
-        <tr><td>世界模型</td><td>Genie 4 能实时玩 2 分钟；Marble / Atlas 能真走进去</td><td><strong>能看 ≠ 能交付</strong></td></tr>
-        <tr><td>3DGS</td><td>静态成熟、动态进会议、网页可跑</td><td><strong>WebXR 最快的"真实场景"方案</strong></td></tr>
-        <tr><td>Agent + DCC</td><td>Claude for CAD 官方接 Blender</td><td><strong>MCP 已从玩具变基础设施</strong></td></tr>
-        <tr><td>硬件</td><td>Meta 转眼镜、PICO 换平台、Apple 冰封头显</td><td><strong>一体机进入"稳存量"期</strong></td></tr>
-        <tr><td>视频生成</td><td>Veo 3.1 / Kling 3.0，Sora 停服</td><td><strong>视频给素材，不给空间</strong></td></tr>
-      </tbody>
-    </table>
-  </div>
-
-  <h3>十、明确留白（查不到就说查不到）</h3>
-  <div class="tbl-wrap">
-    <table>
-      <thead><tr><th style="width:250px">项</th><th>状态</th></tr></thead>
-      <tbody>
-        <tr><td>Rodin Gen-2.5 发布日</td><td>查不到：官方 API 文档只标"当前档位"，无发布日</td></tr>
-        <tr><td>Meshy 6 的面数上限 / PBR 分辨率</td><td>查不到：官方发布说明未给统一数值</td></tr>
-        <tr><td>Veo 4</td><td>查不到官方发布；商用主线仍是 Veo 3.1</td></tr>
-        <tr><td>Meta Quest 4</td><td>查不到官方发布；Connect 2026 明确未发，2027 仅为分析师预期</td></tr>
-        <tr><td>Sora 停服后的替代路线</td><td>查不到：OpenAI 未公布后续视频生成路线</td></tr>
-        <tr><td>中国 AI 眼镜"2026 占全球 45%"</td><td>未核到原始机构报告，只见二手报道</td></tr>
-      </tbody>
-    </table>
-  </div>
-  <div class="key"><strong>这一节的真正教学点不是"AI 多厉害"，是"谁来负责核实"</strong>：上面每一条都能点回来源，
-    查不到的项被单列出来而不是含糊过去。<strong>做研究是这样，做工程也是这样。</strong></div>
-</section>
 
 <section id="appendix9">
   <div class="sec-head">
