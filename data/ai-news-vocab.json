@@ -1,0 +1,62 @@
+{
+  "meta": {
+    "name": "ai-news-vocab",
+    "version": 1,
+    "updated": "2026-11-10",
+    "description": "AI 动态可视化底座词表：停用词 + 实体词 + 来源映射 + 主题分类。词云、实体榜、来源占比均读本文件。",
+    "notes": "entities 中英文词均可；英文词大小写敏感，按整词匹配。sourceMap 按 URL 域名包含匹配。categories 为关键词规则的优先顺序（首命中优先）。人工维护：直接编辑本文件，随每日发布一起 commit+push。"
+  },
+  "stopwords": [
+    "AI", "AIGC", "LLM", "模型", "发布", "推出", "上线", "宣布", "公司", "消息",
+    "报道", "用户", "企业", "平台", "系统", "产品", "服务", "功能", "使用", "支持",
+    "提供", "全球", "首次", "正式", "新闻", "近日", "今天", "昨天", "即将", "正在",
+    "已经", "可能", "以及", "通过", "如何", "可以", "这个", "什么", "没有", "我们",
+    "他们", "现在", "目前", "显示", "表示",
+    "the", "a", "an", "of", "to", "in", "for", "on", "with", "at", "by", "from",
+    "is", "are", "be", "was", "were", "it", "its", "as", "and", "or", "not", "no",
+    "you", "your", "we", "they", "this", "that", "will", "new", "now", "more",
+    "can", "has", "have", "had", "up", "out", "about", "into", "over", "after",
+    "before", "what", "when", "how", "why", "who", "all", "one", "two"
+  ],
+  "entities": [
+    "OpenAI", "ChatGPT", "GPT", "Codex", "Sora", "Anthropic", "Claude",
+    "Gemini", "DeepMind", "谷歌", "Google", "微软", "Microsoft", "Meta",
+    "苹果", "Apple", "英伟达", "NVIDIA", "黄仁勋", "TPU", "Dynamo",
+    "特斯拉", "Tesla", "马斯克", "xAI", "Grok", "Mistral", "Cohere",
+    "DeepSeek", "梁文锋", "阿里", "阿里巴巴", "Qwen", "千问", "通义",
+    "百度", "文心", "李彦宏", "腾讯", "混元", "元宝", "字节", "豆包",
+    "火山引擎", "智谱", "GLM", "Kimi", "月之暗面", "MiniMax", "阶跃星辰",
+    "零一万物", "百川智能", "快手", "可灵", "华为", "昇腾", "京东", "商汤",
+    "科大讯飞", "讯飞", "Llama", "Hugging Face", "Midjourney", "Runway",
+    "Suno", "ElevenLabs", "Stable Diffusion", "Muse", "WorkBuddy",
+    "Copilot", "GitHub", "Cursor", "Windsurf", "CodeRabbit", "Devin",
+    "LangChain", "AMD", "台积电", "博通", "高通", "寒武纪", "波士顿动力",
+    "Figure", "宇树", "人形机器人", "具身智能", "奥特曼"
+  ],
+  "sourceMap": {
+    "ithome.com": "IT之家",
+    "qbitai.com": "量子位",
+    "infoq.cn": "InfoQ 中文站",
+    "techcrunch.com": "TechCrunch",
+    "wired.com": "WIRED",
+    "technologyreview.com": "MIT 科技评论",
+    "blogs.nvidia.com": "NVIDIA 官方博客",
+    "nvidia.com": "NVIDIA",
+    "openai.com": "OpenAI 官网",
+    "theverge.com": "The Verge",
+    "arxiv.org": "arXiv"
+  },
+  "categories": [
+    "监管与政策",
+    "安全与漏洞",
+    "融资与资本",
+    "机器人与物理 AI",
+    "算力与电力",
+    "Agent 与编程",
+    "多模态与创作",
+    "端侧与消费硬件",
+    "研究与学术",
+    "大模型与测评",
+    "其他"
+  ]
+}

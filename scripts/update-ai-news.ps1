@@ -282,4 +282,12 @@ if ($Headless -or $isCI) {
     Write-Host "============================================================"
     Write-Log "请到 Codex 对话框中审批（回复「批准今天的 AI 动态」）"
 }
+
+# ---------- 每日快照（可视化底座，脚本内部自兜底，失败不影响主流程） ----------
+try {
+    & powershell -NoProfile -ExecutionPolicy Bypass -File (Join-Path $PSScriptRoot 'news-snapshot.ps1') -Trigger daily
+} catch {
+    Write-Log ("快照调用异常（已忽略）: {0}" -f $_.Exception.Message)
+}
+
 Write-Log "===== 抓取结束 ====="

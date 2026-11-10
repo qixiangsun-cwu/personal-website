@@ -62,6 +62,13 @@ if ($DryRun) {
 [System.IO.File]::Copy($pendingPath, $jsonPath, $true)
 Write-Host ("已更新 ai-news.json（最新 {0} 条 / 归档 {1} 条）" -f $curCount, $arcCount)
 
+# ---------- 更新每日快照与词表（可视化底座，脚本内部自兜底，失败不阻断发布） ----------
+try {
+    & powershell -NoProfile -ExecutionPolicy Bypass -File (Join-Path $PSScriptRoot 'news-snapshot.ps1') -Trigger approve
+} catch {
+    Write-Log ("快照调用异常（已忽略）: {0}" -f $_.Exception.Message)
+}
+
 # ---------- 定位 git ----------
 $git = (Get-Command git -ErrorAction SilentlyContinue).Source
 if (-not $git) {
@@ -91,7 +98,10 @@ $ErrorActionPreference = 'Continue'
 $script:pubOk = $false
 $script:pubMsg = ''
 try {
-    & $git add ai-news.json
+    # ai-news.json + 词表 + 累计快照一起入库（词表/快照首次入库后常驻仓库，故先过滤确保存在）
+    $newsAddPaths = @('ai-news.json', 'data/ai-news-vocab.json', 'news-snapshots/all-items.jsonl') |
+        Where-Object { Test-Path -LiteralPath (Join-Path $siteDir $_) }
+    & $git add @newsAddPaths
     & $git -c user.name="Qi-Xiang Sun" -c user.email="qixiangsun@126.com" commit -F $msgFile
     if ($LASTEXITCODE -ne 0) { throw "git commit 失败" }
 
