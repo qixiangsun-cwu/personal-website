@@ -2031,6 +2031,16 @@ body {
   font-weight: 500;
 }
 
+.news-auto-note a {
+  color: var(--color-accent);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.news-auto-note a:hover { text-decoration: underline; }
+
+.news-auto-note a i { font-size: 1em; vertical-align: -0.08em; margin-left: .15em; }
+
 @media (max-width: 640px) {
   .news-today-header {
     flex-direction: column;

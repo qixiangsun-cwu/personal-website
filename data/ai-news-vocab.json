@@ -1,10 +1,10 @@
 {
   "meta": {
     "name": "ai-news-vocab",
-    "version": 1,
-    "updated": "2026-11-10",
-    "description": "AI 动态可视化底座词表：停用词 + 实体词 + 来源映射 + 主题分类。词云、实体榜、来源占比均读本文件。",
-    "notes": "entities 中英文词均可；英文词大小写敏感，按整词匹配。sourceMap 按 URL 域名包含匹配。categories 为关键词规则的优先顺序（首命中优先）。人工维护：直接编辑本文件，随每日发布一起 commit+push。"
+    "version": 2,
+    "updated": "2026-11-11",
+    "description": "AI 动态可视化底座词表：停用词 + 实体词 + 来源映射 + 主题分类（含关键词规则）。词云、实体榜、来源占比、主题占比均读本文件。",
+    "notes": "entities 中英文词均可；英文词大小写敏感，按整词匹配。sourceMap 按 URL 域名包含匹配（长域名优先）。categories 顺序即主题分类优先级（首命中优先），排序原则：特异类在前、宽泛类靠后，对应关键词见 categoryRules（大小写不敏感的包含匹配）；「其他」无关键词，作兜底。人工维护：直接编辑本文件，随每日发布一起 commit+push。"
   },
   "stopwords": [
     "AI", "AIGC", "LLM", "模型", "发布", "推出", "上线", "宣布", "公司", "消息",
@@ -49,14 +49,72 @@
   "categories": [
     "监管与政策",
     "安全与漏洞",
-    "融资与资本",
     "机器人与物理 AI",
     "算力与电力",
+    "融资与资本",
     "Agent 与编程",
     "多模态与创作",
     "端侧与消费硬件",
     "研究与学术",
     "大模型与测评",
     "其他"
-  ]
+  ],
+  "categoryRules": {
+    "监管与政策": [
+      "监管", "政策", "法规", "立法", "备案", "合规", "反垄断", "版权", "著作权",
+      "诉讼", "起诉", "禁令", "征求意见", "白宫", "国会", "欧盟", "商务部",
+      "网信办", "行政命令", "regulation", "antitrust", "lawsuit", "sues", "sued",
+      "copyright", "banned", "executive order", "EU AI Act"
+    ],
+    "安全与漏洞": [
+      "安全", "漏洞", "攻击", "泄露", "恶意", "钓鱼", "诈骗", "越狱", "对抗样本",
+      "深度伪造", "深伪", "换脸", "security", "vulnerability", "CVE", "hack",
+      "hacking", "breach", "malware", "phishing", "jailbreak", "deepfake", "scam", "fraud"
+    ],
+    "机器人与物理 AI": [
+      "机器人", "人形", "具身", "机械臂", "自动驾驶", "无人驾驶", "Robotaxi",
+      "智驾", "辅助驾驶", "无人机", "robot", "humanoid", "embodied",
+      "self-driving", "autonomous", "Waymo", "Boston Dynamics", "Figure AI", "宇树", "智元"
+    ],
+    "算力与电力": [
+      "算力", "芯片", "GPU", "HBM", "晶圆", "代工", "台积电", "数据中心", "电力",
+      "电网", "核电", "核能", "能源", "出口管制", "制程", "流片", "gigawatt",
+      "semiconductor", "data center", "TSMC"
+    ],
+    "融资与资本": [
+      "融资", "估值", "投资", "领投", "跟投", "筹资", "募资", "上市", "IPO",
+      "收购", "并购", "风投", "资本", "资金", "A轮", "B轮", "C轮", "种子轮",
+      "funding", "raises", "raised", "valuation", "acquisition", "acquires",
+      "merger", "invests", "Series A", "Series B", "Series C"
+    ],
+    "Agent 与编程": [
+      "智能体", "Agent", "编程", "代码", "编码", "写代码", "Copilot", "Cursor",
+      "Claude Code", "Windsurf", "Devin", "IDE", "软件开发", "软件工程",
+      "程序员", "agentic", "coding", "programmer", "CLI"
+    ],
+    "多模态与创作": [
+      "多模态", "文生图", "文生视频", "图生视频", "图像生成", "视频生成", "生图",
+      "绘画", "AIGC", "数字人", "语音", "音频", "音乐", "歌曲", "配音", "TTS",
+      "语音识别", "播客", "字幕", "翻译", "视频", "图像", "图片", "相机",
+      "Sora", "Midjourney", "可灵", "即梦", "Runway", "Suno", "ElevenLabs",
+      "HeyGen", "image", "video", "audio", "voice"
+    ],
+    "端侧与消费硬件": [
+      "端侧", "手机", "眼镜", "耳机", "手表", "穿戴", "智能家居", "消费级",
+      "旗舰机", "AI PC", "on-device", "smartphone", "smart glasses",
+      "wearable", "Rabbit R1", "AI Pin", "硬件"
+    ],
+    "研究与学术": [
+      "论文", "arXiv", "arxiv", "预印本", "期刊", "学术", "学者", "NeurIPS",
+      "ICLR", "ICML", "诺贝尔", "大学", "研究院", "paper", "researchers",
+      "scientists"
+    ],
+    "大模型与测评": [
+      "大模型", "模型", "开源", "权重", "参数", "上下文", "推理模型", "旗舰",
+      "token", "Token", "API", "降价", "定价", "免费", "评测", "榜单", "跑分",
+      "benchmark", "LLM", "基座", "Qwen", "Llama", "GPT", "Claude", "Gemini",
+      "DeepSeek", "GLM", "Kimi", "混元", "豆包"
+    ],
+    "其他": []
+  }
 }

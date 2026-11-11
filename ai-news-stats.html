@@ -73,11 +73,17 @@
         @media (max-width: 860px) { .chart-duo { grid-template-columns: 1fr; } }
 
         #calChart { width: 100%; height: 220px; }
+        #wcChart  { width: 100%; height: 420px; }
+        #catChart { width: 100%; height: 380px; }
         #srcChart { width: 100%; height: 380px; }
+        #weekChart { width: 100%; height: 340px; }
         #entChart { width: 100%; height: 640px; }
         @media (max-width: 860px) {
             #calChart { height: 200px; }
+            #wcChart { height: 380px; }
+            #catChart { height: 340px; }
             #srcChart { height: 340px; }
+            #weekChart { height: 300px; }
             #entChart { height: 560px; }
         }
 
@@ -170,7 +176,25 @@
             <div id="calChart" role="img" aria-label="AI 动态每日收录条数日历热力图"></div>
         </section>
 
+        <!-- 加权词云 -->
+        <section class="glass-card card-lg chart-block">
+            <div class="chart-head">
+                <h2><i class="ph ph-cloud" aria-hidden="true"></i>加权词云</h2>
+                <span class="chart-hint">词表实体 · 越新的条目权重越高 · 面积 ∝ 加权提及度</span>
+            </div>
+            <div id="wcChart" role="img" aria-label="AI 动态加权实体词云"></div>
+        </section>
+
         <div class="chart-duo">
+            <!-- 主题占比 -->
+            <section class="glass-card chart-block">
+                <div class="chart-head">
+                    <h2><i class="ph ph-tags" aria-hidden="true"></i>主题占比</h2>
+                    <span class="chart-hint">关键词规则 · 首命中优先</span>
+                </div>
+                <div id="catChart" role="img" aria-label="AI 动态主题占比环形图"></div>
+            </section>
+
             <!-- 来源分布 -->
             <section class="glass-card chart-block">
                 <div class="chart-head">
@@ -179,16 +203,25 @@
                 </div>
                 <div id="srcChart" role="img" aria-label="AI 动态来源分布环形图"></div>
             </section>
-
-            <!-- 实体榜 -->
-            <section class="glass-card chart-block">
-                <div class="chart-head">
-                    <h2><i class="ph ph-medal" aria-hidden="true"></i>高频实体榜</h2>
-                    <span class="chart-hint">词条出现的条目数 · Top 20</span>
-                </div>
-                <div id="entChart" role="img" aria-label="AI 动态高频实体榜横向条形图"></div>
-            </section>
         </div>
+
+        <!-- 每周主题演变 -->
+        <section class="glass-card card-lg chart-block">
+            <div class="chart-head">
+                <h2><i class="ph ph-trend-up" aria-hidden="true"></i>主题每周演变</h2>
+                <span class="chart-hint">按周堆叠 · 同色即同主题（与左侧占比图一致）</span>
+            </div>
+            <div id="weekChart" role="img" aria-label="AI 动态主题每周演变堆叠柱状图"></div>
+        </section>
+
+        <!-- 实体榜 -->
+        <section class="glass-card chart-block">
+            <div class="chart-head">
+                <h2><i class="ph ph-medal" aria-hidden="true"></i>高频实体榜</h2>
+                <span class="chart-hint">词条出现的条目数 · Top 20</span>
+            </div>
+            <div id="entChart" role="img" aria-label="AI 动态高频实体榜横向条形图"></div>
+        </section>
 
         <!-- 数据说明 -->
         <section class="glass-card data-notes">
@@ -197,6 +230,8 @@
                 <li>数据取自站点 <code>ai-news.json</code>（最新 + 归档）与累计快照 <code>news-snapshots/all-items.jsonl</code>（只增不删），按 URL 合并去重，历史条目不随归档滚动消失。</li>
                 <li>来源映射按 <code>data/ai-news-vocab.json</code> 的 <code>sourceMap</code> 域名匹配（长域名优先）；未命中的显示原始域名。</li>
                 <li>实体榜统计词表 <code>entities</code> 中每个词条「出现在多少条目的标题 + 摘要里」：英文按整词匹配、大小写敏感，中文按包含匹配。词表为人工维护，直接编辑该文件即可。</li>
+                <li>词云仅统计词表 <code>entities</code>，面积 ∝ 加权提及度：每条提及的权重随条目日期按 <code>e^(-天数/45)</code> 衰减，越新越重；悬浮可见累计条数与近 30 天条数。</li>
+                <li>主题占比与每周演变按 <code>categoryRules</code> 关键词匹配（大小写不敏感的包含匹配），<code>categories</code> 顺序即优先级、首命中，「其他」为未命中兜底。</li>
                 <li>更新机制：每天 08:00 抓取 → 审批发布 → 发布脚本自动追加当日快照，本页数据随之更新。</li>
             </ul>
         </section>
@@ -204,6 +239,8 @@
 
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js"></script>
     <script>window.echarts || document.write('<script src="https://unpkg.com/echarts@5.6.0/dist/echarts.min.js"><\/script>');</script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts-wordcloud@2.1.0/dist/wordcloud.min.js" onload="window.__wcOk=true"></script>
+    <script>window.__wcOk || document.write('<script src="https://unpkg.com/echarts-wordcloud@2.1.0/dist/wordcloud.min.js" onload="window.__wcOk=true"><\/script>');</script>
     <script>
     (function () {
         'use strict';
@@ -223,7 +260,9 @@
             heatRamp: ['#EDEFF8', '#CBD2F1', '#98A5E6', '#6476D8', '#3E55C8'],
             emptyCell: '#EFEBE4',
             donut: ['#3E55C8', '#6476D8', '#98A5E6', '#C6CDF4', '#4E9A6F', '#C9A227',
-                    '#C46577', '#4C8FB8', '#8471CE', '#A3875C', '#8E8B8D']
+                    '#C46577', '#4C8FB8', '#8471CE', '#A3875C', '#8E8B8D'],
+            cat: ['#C46577', '#C9A227', '#4C8FB8', '#6476D8', '#4E9A6F', '#3E55C8',
+                  '#8471CE', '#5EA79E', '#8E8B8D', '#98A5E6', '#B9B5AE']
         };
         var DARK = {
             ink: '#EFEDEA', ink2: '#B5B2AD', muted: '#A3A09B', rule: '#454340',
@@ -232,7 +271,9 @@
             heatRamp: ['#2B2A28', '#3B3D52', '#565B86', '#767EC2', '#8D9BEC'],
             emptyCell: '#211F1D',
             donut: ['#8D9BEC', '#A9B4F4', '#C3C9F8', '#E2E4FB', '#7CC79A', '#E3C25C',
-                    '#E0889B', '#7FB3D8', '#A99BE8', '#C9B084', '#A3A09B']
+                    '#E0889B', '#7FB3D8', '#A99BE8', '#C9B084', '#A3A09B'],
+            cat: ['#E0889B', '#E3C25C', '#7FB3D8', '#A9B4F4', '#7CC79A', '#8D9BEC',
+                  '#A99BE8', '#7FC8BF', '#A3A09B', '#C3C9F8', '#55524E']
         };
         var mq = window.matchMedia('(prefers-color-scheme: dark)');
         function palette() { return mq.matches ? DARK : LIGHT; }
@@ -349,6 +390,85 @@
             }
             pairs.sort(function (a, b) { return b.count - a.count; });
             return pairs;
+        }
+
+        /* ---------- 主题分类：categoryRules 首命中，大小写不敏感 ---------- */
+        function computeItemCats(d) {
+            var vocab = d.vocab || {};
+            var cats = Array.isArray(vocab.categories) ? vocab.categories : [];
+            var rules = vocab.categoryRules || {};
+            var lowered = cats.map(function (c) {
+                var kws = rules[c];
+                return (kws && kws.length) ? kws.map(function (s) { return String(s).toLowerCase(); }) : null;
+            });
+            for (var i = 0; i < d.items.length; i++) {
+                var hay = ((d.items[i].title || '') + '\n' + (d.items[i].summary || '')).toLowerCase();
+                var cat = '';
+                for (var c = 0; c < cats.length && !cat; c++) {
+                    var kws = lowered[c];
+                    if (!kws) { continue; }
+                    for (var k = 0; k < kws.length; k++) {
+                        if (hay.indexOf(kws[k]) !== -1) { cat = cats[c]; break; }
+                    }
+                }
+                d.items[i]._cat = cat || '其他';
+            }
+        }
+
+        function catColor(name, vocab, P) {
+            var cats = (vocab && Array.isArray(vocab.categories)) ? vocab.categories : [];
+            var i = cats.indexOf(name);
+            if (i === -1) { i = cats.indexOf('其他'); }
+            if (i === -1) { i = P.cat.length - 1; }
+            return P.cat[Math.max(0, Math.min(i, P.cat.length - 1))];
+        }
+
+        /* ---------- 词云权重：每条提及 Σ e^(-天数/45)，越新越重 ---------- */
+        function wordcloudData(items, vocab) {
+            var asOf = '';
+            for (var i = 0; i < items.length; i++) {
+                if (items[i].date && items[i].date > asOf) { asOf = items[i].date; }
+            }
+            if (!asOf) { return []; }
+            var asOfMs = Date.parse(asOf + 'T00:00:00Z');
+            var stop = {};
+            var sw = vocab.stopwords || [];
+            for (var s = 0; s < sw.length; s++) { stop[sw[s]] = 1; }
+            var terms = vocab.entities.filter(function (t) { return !stop[t]; });
+            var matchers = entityMatchers({ entities: terms });
+            var score = terms.map(function () { return 0; });
+            var total = terms.map(function () { return 0; });
+            var recent = terms.map(function () { return 0; });
+            for (var j = 0; j < items.length; j++) {
+                var dt = items[j].date ? Date.parse(items[j].date + 'T00:00:00Z') : NaN;
+                var ageDays = isNaN(dt) ? 0 : Math.max(0, (asOfMs - dt) / 86400000);
+                var w = Math.exp(-ageDays / 45);
+                var hay = (items[j].title || '') + '\n' + (items[j].summary || '');
+                for (var k = 0; k < matchers.length; k++) {
+                    if (matchers[k](hay)) {
+                        score[k] += w;
+                        total[k]++;
+                        if (ageDays <= 30) { recent[k]++; }
+                    }
+                }
+            }
+            var data = [];
+            for (var n = 0; n < terms.length; n++) {
+                if (total[n] > 0) {
+                    data.push({ name: terms[n], value: Math.round(score[n] * 10) / 10, total: total[n], recent: recent[n] });
+                }
+            }
+            data.sort(function (a, b) { return b.value - a.value; });
+            return data;
+        }
+
+        /* ---------- 周键（周一为一周起点，UTC 口径） ---------- */
+        function mondayOf(dateStr) {
+            var d = new Date(dateStr + 'T00:00:00Z');
+            if (isNaN(d.getTime())) { return null; }
+            var dow = (d.getUTCDay() + 6) % 7;
+            d.setUTCDate(d.getUTCDate() - dow);
+            return d.toISOString().slice(0, 10);
         }
 
         /* ---------- KPI ---------- */
@@ -501,12 +621,160 @@
             });
         }
 
+        function renderWordCloud(items, vocab, vocabOk) {
+            var el = $('wcChart');
+            if (!window.echarts) { el.innerHTML = '<div class="chart-fallback">ECharts 加载失败，图表不可用。</div>'; return; }
+            if (!vocabOk) { el.innerHTML = '<div class="chart-fallback">词表（data/ai-news-vocab.json）加载失败，词云暂不可用。</div>'; return; }
+            if (!window.__wcOk) { el.innerHTML = '<div class="chart-fallback">词云组件（echarts-wordcloud）加载失败，其余图表不受影响。</div>'; return; }
+            var data = wordcloudData(items, vocab);
+            if (!data.length) { el.innerHTML = '<div class="chart-fallback">暂无命中的实体。</div>'; return; }
+            var P = palette();
+            makeChart('wcChart').setOption({
+                tooltip: {
+                    formatter: function (p) {
+                        var d = p.data || {};
+                        return d.name + '<br/>累计 ' + d.total + ' 条 · 近 30 天 ' + d.recent + ' 条<br/>加权提及度 ' + d.value;
+                    }
+                },
+                series: [{
+                    type: 'wordCloud',
+                    sizeRange: [13, 54],
+                    rotationRange: [0, 0],
+                    gridSize: 6,
+                    drawOutOfBound: false,
+                    layoutAnimation: true,
+                    textStyle: {
+                        color: P.accent,
+                        fontFamily: "'Noto Sans SC', 'Microsoft YaHei', sans-serif"
+                    },
+                    emphasis: { textStyle: { color: P.ink } },
+                    data: data
+                }]
+            });
+        }
+
+        function renderCategories(items, vocab, vocabOk) {
+            var el = $('catChart');
+            if (!window.echarts) { el.innerHTML = '<div class="chart-fallback">ECharts 加载失败，图表不可用。</div>'; return; }
+            if (!vocabOk) { el.innerHTML = '<div class="chart-fallback">词表加载失败，主题占比暂不可用。</div>'; return; }
+            var counter = {};
+            for (var i = 0; i < items.length; i++) {
+                var c = items[i]._cat || '其他';
+                counter[c] = (counter[c] || 0) + 1;
+            }
+            var cats = vocab.categories || [];
+            var P = palette();
+            var data = cats.filter(function (name) { return counter[name]; }).map(function (name) {
+                return { name: name, value: counter[name], itemStyle: { color: catColor(name, vocab, P) } };
+            });
+            if (!data.length) { el.innerHTML = '<div class="chart-fallback">暂无主题数据。</div>'; return; }
+            makeChart('catChart').setOption({
+                tooltip: { trigger: 'item', formatter: '{b}<br/>{c} 条（{d}%）' },
+                legend: {
+                    bottom: 0, icon: 'circle',
+                    itemWidth: 9, itemHeight: 9, itemGap: 10,
+                    textStyle: { color: P.ink2, fontSize: 11 }
+                },
+                series: [{
+                    type: 'pie',
+                    radius: ['44%', '68%'],
+                    center: ['50%', '44%'],
+                    avoidLabelOverlap: true,
+                    itemStyle: { borderColor: P.paper, borderWidth: 2 },
+                    label: { show: false },
+                    emphasis: {
+                        label: { show: true, formatter: '{b}\n{c} 条 · {d}%', color: P.ink, fontSize: 12 }
+                    },
+                    data: data
+                }]
+            });
+        }
+
+        function renderWeekly(items, vocab, vocabOk) {
+            var el = $('weekChart');
+            if (!window.echarts) { el.innerHTML = '<div class="chart-fallback">ECharts 加载失败，图表不可用。</div>'; return; }
+            if (!vocabOk) { el.innerHTML = '<div class="chart-fallback">词表加载失败，主题演变暂不可用。</div>'; return; }
+            var cats = vocab.categories || [];
+            var weeks = {};
+            var minW = null, maxW = null;
+            for (var i = 0; i < items.length; i++) {
+                if (!items[i].date) { continue; }
+                var wk = mondayOf(items[i].date);
+                if (!wk) { continue; }
+                if (!weeks[wk]) { weeks[wk] = {}; }
+                var c = items[i]._cat || '其他';
+                weeks[wk][c] = (weeks[wk][c] || 0) + 1;
+                if (minW === null || wk < minW) { minW = wk; }
+                if (maxW === null || wk > maxW) { maxW = wk; }
+            }
+            if (!minW) { el.innerHTML = '<div class="chart-fallback">暂无日期数据。</div>'; return; }
+            var axis = [];
+            var cur = new Date(minW + 'T00:00:00Z');
+            var end = new Date(maxW + 'T00:00:00Z');
+            while (cur <= end) {
+                axis.push(cur.toISOString().slice(0, 10));
+                cur.setUTCDate(cur.getUTCDate() + 7);
+            }
+            var P = palette();
+            var series = [];
+            for (var s = 0; s < cats.length; s++) {
+                var catName = cats[s];
+                var counts = axis.map(function (wk) {
+                    return (weeks[wk] && weeks[wk][catName]) || 0;
+                });
+                var any = counts.some(function (v) { return v > 0; });
+                if (!any) { continue; }
+                series.push({
+                    name: catName, type: 'bar', stack: 'total',
+                    itemStyle: { color: catColor(catName, vocab, P) },
+                    barMaxWidth: 22,
+                    data: counts
+                });
+            }
+            makeChart('weekChart').setOption({
+                tooltip: {
+                    trigger: 'axis',
+                    formatter: function (ps) {
+                        var lines = [ps[0].axisValue + '（周）'];
+                        var sum = 0;
+                        ps.forEach(function (p) {
+                            if (p.value > 0) { lines.push(p.marker + p.seriesName + '：' + p.value); sum += p.value; }
+                        });
+                        lines.push('合计 ' + sum + ' 条');
+                        return lines.join('<br/>');
+                    }
+                },
+                legend: {
+                    bottom: 0, icon: 'circle',
+                    itemWidth: 9, itemHeight: 9, itemGap: 10,
+                    textStyle: { color: P.ink2, fontSize: 11 }
+                },
+                grid: { left: 34, right: 16, top: 14, bottom: 64 },
+                xAxis: {
+                    type: 'category', data: axis,
+                    axisLabel: { color: P.muted, fontSize: 10, formatter: function (v) { return v.slice(5); } },
+                    axisLine: { lineStyle: { color: P.rule } },
+                    axisTick: { show: false }
+                },
+                yAxis: {
+                    type: 'value', minInterval: 1,
+                    axisLabel: { color: P.muted, fontSize: 10 },
+                    splitLine: { lineStyle: { color: P.rule } }
+                },
+                series: series
+            });
+        }
+
         function renderAll() {
             if (!DATA) { return; }
             disposeCharts();
+            computeItemCats(DATA);
             renderKpis(DATA);
             renderCalendar(DATA.items);
+            renderWordCloud(DATA.items, DATA.vocab, DATA.vocabOk);
+            renderCategories(DATA.items, DATA.vocab, DATA.vocabOk);
             renderSources(DATA.items, DATA.vocab);
+            renderWeekly(DATA.items, DATA.vocab, DATA.vocabOk);
             renderEntities(DATA.items, DATA.vocab, DATA.vocabOk);
         }
 
