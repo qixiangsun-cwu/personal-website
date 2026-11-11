@@ -78,6 +78,8 @@
         #srcChart { width: 100%; height: 380px; }
         #weekChart { width: 100%; height: 340px; }
         #entChart { width: 100%; height: 640px; }
+        #coChart { width: 100%; height: 560px; }
+        #cmpChart { width: 100%; height: 420px; }
         @media (max-width: 860px) {
             #calChart { height: 200px; }
             #wcChart { height: 380px; }
@@ -85,6 +87,8 @@
             #srcChart { height: 340px; }
             #weekChart { height: 300px; }
             #entChart { height: 560px; }
+            #coChart { height: 480px; }
+            #cmpChart { height: 360px; }
         }
 
         .chart-fallback {
@@ -223,6 +227,24 @@
             <div id="entChart" role="img" aria-label="AI 动态高频实体榜横向条形图"></div>
         </section>
 
+        <!-- 共现网络 -->
+        <section class="glass-card card-lg chart-block">
+            <div class="chart-head">
+                <h2><i class="ph ph-graph" aria-hidden="true"></i>实体共现网络</h2>
+                <span class="chart-hint">标题与摘要开头同时出现的实体对 · 共现 ≥2 才连线 · 可拖拽缩放</span>
+            </div>
+            <div id="coChart" role="img" aria-label="AI 动态实体共现网络图"></div>
+        </section>
+
+        <!-- 对比词云 -->
+        <section class="glass-card card-lg chart-block">
+            <div class="chart-head">
+                <h2><i class="ph ph-arrows-left-right" aria-hidden="true"></i>升温 / 降温词云</h2>
+                <span class="chart-hint">条目按日期对半分 · 后半段 vs 前半段每百条提及率 · 蓝=升温 暖=降温 灰=持平</span>
+            </div>
+            <div id="cmpChart" role="img" aria-label="AI 动态升温与降温实体对比词云"></div>
+        </section>
+
         <!-- 数据说明 -->
         <section class="glass-card data-notes">
             <h2><i class="ph ph-info" aria-hidden="true"></i>口径与维护说明</h2>
@@ -232,6 +254,8 @@
                 <li>实体榜统计词表 <code>entities</code> 中每个词条「出现在多少条目的标题 + 摘要里」：英文按整词匹配、大小写敏感，中文按包含匹配。词表为人工维护，直接编辑该文件即可。</li>
                 <li>词云仅统计词表 <code>entities</code>，面积 ∝ 加权提及度：每条提及的权重随条目日期按 <code>e^(-天数/45)</code> 衰减，越新越重；悬浮可见累计条数与近 30 天条数。</li>
                 <li>主题占比与每周演变按 <code>categoryRules</code> 关键词匹配（大小写不敏感的包含匹配），<code>categories</code> 顺序即优先级、首命中，「其他」为未命中兜底。</li>
+                <li>共现网络统计「标题 + 摘要开头（前 60 字）」中同时出现的实体对：共现 ≥2 次才连线（边越宽共现越多）。纯标题口径下过半条目仅含一个实体、网络过稀，摘要开头用于补足主语；节点颜色 = 提及该实体条目的主流主题色，大小 = 共现强度；图可拖拽、缩放，悬停看邻居。</li>
+                <li>升温 / 降温词云把全部条目按日期排序后对半分成前、后两半，对比两半的「每百条提及率」：后半段显著升高为蓝、降低为暖、接近为灰；面积 ∝ 两侧较大一侧的提及率（提及少于 5 条的实体不参与）。</li>
                 <li>更新机制：每天 08:00 抓取 → 审批发布 → 发布脚本自动追加当日快照，本页数据随之更新。</li>
             </ul>
         </section>
@@ -262,7 +286,8 @@
             donut: ['#3E55C8', '#6476D8', '#98A5E6', '#C6CDF4', '#4E9A6F', '#C9A227',
                     '#C46577', '#4C8FB8', '#8471CE', '#A3875C', '#8E8B8D'],
             cat: ['#C46577', '#C9A227', '#4C8FB8', '#6476D8', '#4E9A6F', '#3E55C8',
-                  '#8471CE', '#5EA79E', '#8E8B8D', '#98A5E6', '#B9B5AE']
+                  '#8471CE', '#5EA79E', '#8E8B8D', '#98A5E6', '#B9B5AE'],
+            down: '#C9A227'
         };
         var DARK = {
             ink: '#EFEDEA', ink2: '#B5B2AD', muted: '#A3A09B', rule: '#454340',
@@ -273,7 +298,8 @@
             donut: ['#8D9BEC', '#A9B4F4', '#C3C9F8', '#E2E4FB', '#7CC79A', '#E3C25C',
                     '#E0889B', '#7FB3D8', '#A99BE8', '#C9B084', '#A3A09B'],
             cat: ['#E0889B', '#E3C25C', '#7FB3D8', '#A9B4F4', '#7CC79A', '#8D9BEC',
-                  '#A99BE8', '#7FC8BF', '#A3A09B', '#C3C9F8', '#55524E']
+                  '#A99BE8', '#7FC8BF', '#A3A09B', '#C3C9F8', '#55524E'],
+            down: '#E3C25C'
         };
         var mq = window.matchMedia('(prefers-color-scheme: dark)');
         function palette() { return mq.matches ? DARK : LIGHT; }
@@ -469,6 +495,149 @@
             var dow = (d.getUTCDay() + 6) % 7;
             d.setUTCDate(d.getUTCDate() - dow);
             return d.toISOString().slice(0, 10);
+        }
+
+        /* ---------- 共现网络：标题 + 摘要开头实体对，共现 ≥2 才连线（防「一词连一切」星图） ---------- */
+        function cooccurrenceData(items, vocab) {
+            var stop = {};
+            var sw = vocab.stopwords || [];
+            for (var s = 0; s < sw.length; s++) { stop[sw[s]] = 1; }
+            var terms = vocab.entities.filter(function (t) { return !stop[t]; });
+            var matchers = entityMatchers({ entities: terms });
+            var T = terms.length;
+
+            var pairPresent = [];
+            var catCounter = terms.map(function () { return {}; });
+            for (var i = 0; i < items.length; i++) {
+                var titleHay = items[i].title || '';
+                var summary = items[i].summary || '';
+                var fullHay = titleHay + '\n' + summary;
+                var pairHay = titleHay + '\n' + summary.slice(0, 60);
+                var pres = [];
+                for (var k = 0; k < T; k++) {
+                    if (matchers[k](pairHay)) { pres.push(k); }
+                    if (matchers[k](fullHay)) {
+                        var c = items[i]._cat || '其他';
+                        catCounter[k][c] = (catCounter[k][c] || 0) + 1;
+                    }
+                }
+                pairPresent.push(pres);
+            }
+
+            var pairKey = function (a, b) { return a < b ? a + '\u0000' + b : b + '\u0000' + a; };
+            var pairs = {};
+            for (var j = 0; j < pairPresent.length; j++) {
+                var arr = pairPresent[j];
+                for (var x = 0; x < arr.length; x++) {
+                    for (var y = x + 1; y < arr.length; y++) {
+                        var key = pairKey(arr[x], arr[y]);
+                        pairs[key] = (pairs[key] || 0) + 1;
+                    }
+                }
+            }
+
+            // 自适应阈值：从 2 起，边数过多则逐步抬高（上限 140 条边）
+            var allKeys = Object.keys(pairs);
+            var thr = 2;
+            var kept = allKeys.filter(function (k) { return pairs[k] >= thr; });
+            while (kept.length > 140 && thr < 8) {
+                thr++;
+                kept = allKeys.filter(function (k) { return pairs[k] >= thr; });
+            }
+
+            var degree = {};
+            var strength = {};
+            kept.forEach(function (k) {
+                var ij = k.split('\u0000');
+                degree[ij[0]] = (degree[ij[0]] || 0) + 1;
+                degree[ij[1]] = (degree[ij[1]] || 0) + 1;
+                strength[ij[0]] = (strength[ij[0]] || 0) + pairs[k];
+                strength[ij[1]] = (strength[ij[1]] || 0) + pairs[k];
+            });
+
+            var maxS = 1, minS = Infinity;
+            Object.keys(strength).forEach(function (k) {
+                maxS = Math.max(maxS, strength[k]);
+                minS = Math.min(minS, strength[k]);
+            });
+            if (!isFinite(minS)) { minS = 1; }
+
+            var nodes = Object.keys(degree).map(function (idx) {
+                var t = terms[+idx];
+                var best = '', bestN = -1;
+                var cc = catCounter[+idx];
+                Object.keys(cc).forEach(function (c) {
+                    if (cc[c] > bestN) { bestN = cc[c]; best = c; }
+                });
+                var rel = (strength[idx] - minS) / ((maxS - minS) || 1);
+                return {
+                    name: t, degree: degree[idx], cat: best || '其他',
+                    size: Math.round(10 + 30 * Math.sqrt(rel))
+                };
+            });
+
+            var edges = kept.map(function (k) {
+                var ij = k.split('\u0000');
+                return { a: terms[+ij[0]], b: terms[+ij[1]], w: pairs[k] };
+            });
+
+            return { nodes: nodes, edges: edges, threshold: thr };
+        }
+
+        /* ---------- 对比数据：条目按日期对半分，后半段 vs 前半段每百条提及率 ---------- */
+        function compareData(items, vocab) {
+            var mss = [];
+            for (var i = 0; i < items.length; i++) {
+                var ms = items[i].date ? Date.parse(items[i].date + 'T00:00:00Z') : NaN;
+                mss.push(ms);
+            }
+            var sorted = mss.filter(function (v) { return !isNaN(v); }).sort(function (a, b) { return a - b; });
+            if (!sorted.length) { return []; }
+            var midMs = sorted[Math.floor(sorted.length / 2)];
+            var recentN = 0, earlyN = 0;
+            for (var j = 0; j < items.length; j++) {
+                if (!isNaN(mss[j])) {
+                    if (mss[j] >= midMs) { recentN++; } else { earlyN++; }
+                }
+            }
+            if (!recentN || !earlyN) { return []; }
+
+            var stop = {};
+            var sw = vocab.stopwords || [];
+            for (var s = 0; s < sw.length; s++) { stop[sw[s]] = 1; }
+            var terms = vocab.entities.filter(function (t) { return !stop[t]; });
+            var matchers = entityMatchers({ entities: terms });
+
+            var recent = terms.map(function () { return 0; });
+            var early = terms.map(function () { return 0; });
+            for (var m = 0; m < items.length; m++) {
+                if (isNaN(mss[m])) { continue; }
+                var hay = (items[m].title || '') + '\n' + (items[m].summary || '');
+                var isRecent = mss[m] >= midMs;
+                for (var k = 0; k < matchers.length; k++) {
+                    if (matchers[k](hay)) {
+                        if (isRecent) { recent[k]++; } else { early[k]++; }
+                    }
+                }
+            }
+
+            var out = [];
+            for (var n = 0; n < terms.length; n++) {
+                var total = recent[n] + early[n];
+                if (total < 5) { continue; }
+                var rateA = recent[n] / recentN * 100;
+                var rateB = early[n] / earlyN * 100;
+                var status = 'flat';
+                if (rateA >= rateB * 1.25 + 0.6) { status = 'up'; }
+                else if (rateB >= rateA * 1.25 + 0.6) { status = 'down'; }
+                out.push({
+                    name: terms[n], value: Math.round(Math.max(rateA, rateB) * 10) / 10,
+                    rateA: Math.round(rateA * 10) / 10, rateB: Math.round(rateB * 10) / 10,
+                    status: status
+                });
+            }
+            out.sort(function (a, b) { return b.value - a.value; });
+            return out;
         }
 
         /* ---------- KPI ---------- */
@@ -765,6 +934,88 @@
             });
         }
 
+        function renderCooccurrence(items, vocab, vocabOk) {
+            var el = $('coChart');
+            if (!window.echarts) { el.innerHTML = '<div class="chart-fallback">ECharts 加载失败，图表不可用。</div>'; return; }
+            if (!vocabOk) { el.innerHTML = '<div class="chart-fallback">词表加载失败，共现网络暂不可用。</div>'; return; }
+            var d = cooccurrenceData(items, vocab);
+            if (!d.nodes.length) { el.innerHTML = '<div class="chart-fallback">共现不足（暂无 ≥2 次的实体对），网络图待数据积累。</div>'; return; }
+            var P = palette();
+            var showLabel = d.nodes.length <= 24;
+            makeChart('coChart').setOption({
+                tooltip: {
+                    formatter: function (p) {
+                        if (p.dataType === 'edge') {
+                            return p.data.source + ' × ' + p.data.target + '<br/>共现 ' + p.data.weight + ' 次';
+                        }
+                        return p.name + '<br/>共现伙伴 ' + (p.data.degree || 0) + ' 个<br/>主流主题：' + (p.data.cat || '其他');
+                    }
+                },
+                series: [{
+                    type: 'graph',
+                    layout: 'force',
+                    roam: true,
+                    draggable: true,
+                    force: { repulsion: 240, edgeLength: [50, 130], gravity: 0.12 },
+                    label: { show: false, color: P.ink2, fontSize: 11 },
+                    emphasis: { focus: 'adjacency', label: { show: true } },
+                    lineStyle: { color: P.rule, opacity: 0.65, curveness: 0 },
+                    data: d.nodes.map(function (n) {
+                        return {
+                            name: n.name,
+                            symbolSize: n.size,
+                            itemStyle: { color: catColor(n.cat, vocab, P) },
+                            label: { show: showLabel || n.degree >= 5 },
+                            degree: n.degree,
+                            cat: n.cat
+                        };
+                    }),
+                    links: d.edges.map(function (e) {
+                        return {
+                            source: e.a, target: e.b, weight: e.w,
+                            lineStyle: { width: 1 + Math.min(e.w, 8) * 0.5 }
+                        };
+                    })
+                }]
+            });
+        }
+
+        function renderCompareCloud(items, vocab, vocabOk) {
+            var el = $('cmpChart');
+            if (!window.echarts) { el.innerHTML = '<div class="chart-fallback">ECharts 加载失败，图表不可用。</div>'; return; }
+            if (!vocabOk) { el.innerHTML = '<div class="chart-fallback">词表加载失败，对比词云暂不可用。</div>'; return; }
+            if (!window.__wcOk) { el.innerHTML = '<div class="chart-fallback">词云组件（echarts-wordcloud）加载失败，其余图表不受影响。</div>'; return; }
+            var data = compareData(items, vocab);
+            if (!data.length) { el.innerHTML = '<div class="chart-fallback">对比样本不足，待数据积累。</div>'; return; }
+            var P = palette();
+            var statusColor = { up: P.accent, down: P.down, flat: P.muted };
+            var statusMark = { up: '↑ 升温', down: '↓ 降温', flat: '– 持平' };
+            makeChart('cmpChart').setOption({
+                tooltip: {
+                    formatter: function (p) {
+                        var d = p.data || {};
+                        return d.name + '：' + (statusMark[d.status] || '') + '<br/>后半段 ' + d.rateA + ' /百条 · 前半段 ' + d.rateB + ' /百条';
+                    }
+                },
+                series: [{
+                    type: 'wordCloud',
+                    sizeRange: [13, 50],
+                    rotationRange: [0, 0],
+                    gridSize: 6,
+                    drawOutOfBound: false,
+                    layoutAnimation: true,
+                    textStyle: { fontFamily: "'Noto Sans SC', 'Microsoft YaHei', sans-serif" },
+                    data: data.map(function (w) {
+                        return {
+                            name: w.name, value: w.value,
+                            rateA: w.rateA, rateB: w.rateB, status: w.status,
+                            textStyle: { color: statusColor[w.status] }
+                        };
+                    })
+                }]
+            });
+        }
+
         function renderAll() {
             if (!DATA) { return; }
             disposeCharts();
@@ -776,6 +1027,8 @@
             renderSources(DATA.items, DATA.vocab);
             renderWeekly(DATA.items, DATA.vocab, DATA.vocabOk);
             renderEntities(DATA.items, DATA.vocab, DATA.vocabOk);
+            renderCooccurrence(DATA.items, DATA.vocab, DATA.vocabOk);
+            renderCompareCloud(DATA.items, DATA.vocab, DATA.vocabOk);
         }
 
         /* ---------- 错误态 ---------- */
