@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="个人网站 AI 动态板块的数据统计页：收录量、日历热力图、来源分布与实体榜。">
+    <title>AI 动态 · 数据统计 | 孙琪翔</title>
+    <link rel="icon" href="favicon.svg">
+    <link rel="stylesheet" href="styles.css?v=20261017a">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600&family=Noto+Serif+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/regular/style.css">
+    <style>
+        /* ---------- 页面骨架（配色全部走 styles.css 的 OKLCH 令牌） ---------- */
+        .stats-wrap { max-width: 1120px; margin: 0 auto; padding: 0 var(--space-xl) var(--space-2xl); }
+
+        .stats-topbar {
+            display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-sm) var(--space-lg);
+            max-width: 1120px; margin: 0 auto; padding: var(--space-lg) var(--space-xl) 0;
+        }
+        .stats-back {
+            display: inline-flex; align-items: center; gap: .35em;
+            color: var(--color-accent); text-decoration: none; font-size: var(--text-sm);
+        }
+        .stats-back:hover { text-decoration: underline; }
+        .stats-title {
+            font-family: var(--font-display); color: var(--color-ink);
+            font-size: var(--text-lg); line-height: var(--leading-tight);
+        }
+        .stats-asof {
+            margin-left: auto; font-size: var(--text-xs); color: var(--color-ink-2);
+            font-family: var(--font-outlier);
+        }
+
+        .kpi-row {
+            display: grid; grid-template-columns: repeat(5, 1fr);
+            gap: var(--space-md); margin: var(--space-lg) 0;
+        }
+        @media (max-width: 1080px) { .kpi-row { grid-template-columns: repeat(3, 1fr); } }
+        @media (max-width: 640px) {
+            .kpi-row { grid-template-columns: repeat(2, 1fr); }
+            .kpi-row .kpi:last-child { grid-column: 1 / -1; }
+        }
+        .kpi { padding: var(--space-lg) var(--space-md); }
+        .kpi-icon {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 2.4rem; height: 2.4rem; border-radius: 10px;
+            background: var(--color-accent-well); color: var(--color-accent);
+            font-size: 1.35rem; margin-bottom: var(--space-sm);
+        }
+        .kpi-num {
+            font-family: var(--font-outlier); font-size: var(--text-xl);
+            color: var(--color-ink); line-height: var(--leading-tight);
+        }
+        .kpi-num small { font-size: var(--text-sm); color: var(--color-ink-2); font-family: var(--font-body); }
+        .kpi-label { font-size: var(--text-xs); color: var(--color-ink-2); margin-top: .35em; }
+        .kpi-sub { font-size: var(--text-xs); color: var(--color-ink-2); font-family: var(--font-outlier); margin-top: .2em; }
+
+        .chart-block { padding: var(--space-xl); margin-bottom: var(--space-md); }
+        .chart-head { display: flex; align-items: baseline; gap: var(--space-md); margin-bottom: var(--space-md); }
+        .chart-head h2 {
+            font-family: var(--font-display); font-size: var(--text-md);
+            color: var(--color-ink); display: inline-flex; align-items: center; gap: .4em;
+        }
+        .chart-head h2 i { color: var(--color-accent); font-size: 1.15rem; }
+        .chart-hint { font-size: var(--text-xs); color: var(--color-ink-2); }
+
+        .chart-duo {
+            display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+            gap: var(--space-md); margin-bottom: var(--space-md);
+        }
+        @media (max-width: 860px) { .chart-duo { grid-template-columns: 1fr; } }
+
+        #calChart { width: 100%; height: 220px; }
+        #srcChart { width: 100%; height: 380px; }
+        #entChart { width: 100%; height: 640px; }
+        @media (max-width: 860px) {
+            #calChart { height: 200px; }
+            #srcChart { height: 340px; }
+            #entChart { height: 560px; }
+        }
+
+        .chart-fallback {
+            height: 100%; display: flex; align-items: center; justify-content: center;
+            color: var(--color-muted); font-size: var(--text-sm); text-align: center; padding: var(--space-lg);
+        }
+
+        .data-notes { padding: var(--space-xl); }
+        .data-notes h2 {
+            font-family: var(--font-display); font-size: var(--text-md);
+            display: inline-flex; align-items: center; gap: .4em; margin-bottom: var(--space-md);
+        }
+        .data-notes h2 i { color: var(--color-accent); }
+        .data-notes ul { list-style: none; }
+        .data-notes li {
+            font-size: var(--text-sm); color: var(--color-ink-2); line-height: var(--leading-snug);
+            padding-left: 1.3em; position: relative; margin-bottom: .55em;
+        }
+        .data-notes li::before {
+            content: ''; position: absolute; left: 0; top: .62em;
+            width: .45em; height: .45em; border-radius: 50%; background: var(--color-accent-bright);
+        }
+        .data-notes code {
+            font-family: var(--font-outlier); font-size: 0.92em;
+            background: var(--color-accent-soft); color: var(--color-accent);
+            padding: .05em .4em; border-radius: 5px;
+        }
+
+        .stats-error { padding: var(--space-xl); text-align: center; margin: var(--space-lg) 0; }
+        .stats-error i { font-size: 2rem; color: var(--tone-rose-fg); }
+        .stats-error p { color: var(--color-ink-2); margin: var(--space-sm) 0; }
+        .stats-error button {
+            border: none; cursor: pointer; padding: .5em 1.2em; border-radius: 999px;
+            background: var(--color-accent); color: var(--color-accent-ink); font-size: var(--text-sm);
+        }
+    </style>
+</head>
+<body>
+    <header class="stats-topbar">
+        <a class="stats-back" href="index.html"><i class="ph ph-arrow-left" aria-hidden="true"></i>返回首页</a>
+        <h1 class="stats-title"><i class="ph ph-chart-bar" aria-hidden="true"></i> AI 动态 · 数据统计</h1>
+        <span class="stats-asof" id="statsAsof">数据加载中…</span>
+    </header>
+
+    <main class="stats-wrap">
+        <section class="glass-card stats-error" id="statsError" hidden>
+            <i class="ph ph-warning" aria-hidden="true"></i>
+            <p id="statsErrorMsg">数据加载失败。</p>
+            <button type="button" id="statsRetry">重试</button>
+        </section>
+
+        <!-- KPI -->
+        <section class="kpi-row" id="kpiRow">
+            <div class="glass-card kpi">
+                <span class="kpi-icon"><i class="ph ph-stack" aria-hidden="true"></i></span>
+                <div class="kpi-num" id="kpiTotal">–</div>
+                <div class="kpi-label">累计收录（条）</div>
+            </div>
+            <div class="glass-card kpi">
+                <span class="kpi-icon"><i class="ph ph-calendar-blank" aria-hidden="true"></i></span>
+                <div class="kpi-num" id="kpiDays">–</div>
+                <div class="kpi-label">覆盖天数（天）</div>
+                <div class="kpi-sub" id="kpiSpan"></div>
+            </div>
+            <div class="glass-card kpi">
+                <span class="kpi-icon"><i class="ph ph-chart-line-up" aria-hidden="true"></i></span>
+                <div class="kpi-num" id="kpiDaily">–</div>
+                <div class="kpi-label">日均条数（条 / 天）</div>
+            </div>
+            <div class="glass-card kpi">
+                <span class="kpi-icon"><i class="ph ph-plugs-connected" aria-hidden="true"></i></span>
+                <div class="kpi-num" id="kpiSources">–</div>
+                <div class="kpi-label">数据来源（个）</div>
+            </div>
+            <div class="glass-card kpi">
+                <span class="kpi-icon"><i class="ph ph-fire" aria-hidden="true"></i></span>
+                <div class="kpi-num" id="kpiEntity">–</div>
+                <div class="kpi-label">最高频实体（条）</div>
+                <div class="kpi-sub" id="kpiEntitySub"></div>
+            </div>
+        </section>
+
+        <!-- 日历热力图 -->
+        <section class="glass-card card-lg chart-block">
+            <div class="chart-head">
+                <h2><i class="ph ph-calendar-check" aria-hidden="true"></i>收录日历热力图</h2>
+                <span class="chart-hint">每天收录条数 · 越深越多</span>
+            </div>
+            <div id="calChart" role="img" aria-label="AI 动态每日收录条数日历热力图"></div>
+        </section>
+
+        <div class="chart-duo">
+            <!-- 来源分布 -->
+            <section class="glass-card chart-block">
+                <div class="chart-head">
+                    <h2><i class="ph ph-pie-chart" aria-hidden="true"></i>来源分布</h2>
+                    <span class="chart-hint">按条目来源域名统计</span>
+                </div>
+                <div id="srcChart" role="img" aria-label="AI 动态来源分布环形图"></div>
+            </section>
+
+            <!-- 实体榜 -->
+            <section class="glass-card chart-block">
+                <div class="chart-head">
+                    <h2><i class="ph ph-medal" aria-hidden="true"></i>高频实体榜</h2>
+                    <span class="chart-hint">词条出现的条目数 · Top 20</span>
+                </div>
+                <div id="entChart" role="img" aria-label="AI 动态高频实体榜横向条形图"></div>
+            </section>
+        </div>
+
+        <!-- 数据说明 -->
+        <section class="glass-card data-notes">
+            <h2><i class="ph ph-info" aria-hidden="true"></i>口径与维护说明</h2>
+            <ul>
+                <li>数据取自站点 <code>ai-news.json</code>（最新 + 归档）与累计快照 <code>news-snapshots/all-items.jsonl</code>（只增不删），按 URL 合并去重，历史条目不随归档滚动消失。</li>
+                <li>来源映射按 <code>data/ai-news-vocab.json</code> 的 <code>sourceMap</code> 域名匹配（长域名优先）；未命中的显示原始域名。</li>
+                <li>实体榜统计词表 <code>entities</code> 中每个词条「出现在多少条目的标题 + 摘要里」：英文按整词匹配、大小写敏感，中文按包含匹配。词表为人工维护，直接编辑该文件即可。</li>
+                <li>更新机制：每天 08:00 抓取 → 审批发布 → 发布脚本自动追加当日快照，本页数据随之更新。</li>
+            </ul>
+        </section>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js"></script>
+    <script>window.echarts || document.write('<script src="https://unpkg.com/echarts@5.6.0/dist/echarts.min.js"><\/script>');</script>
+    <script>
+    (function () {
+        'use strict';
+
+        var RES = {
+            snap:  'news-snapshots/all-items.jsonl',   // 累计快照（只增不删）
+            news:  'ai-news.json',                     // 站点已发布数据（最新+归档）
+            vocab: 'data/ai-news-vocab.json'           // 词表：sourceMap + entities
+        };
+
+        /* ---------- 配色：styles.css OKLCH 令牌换算的 hex
+           （ECharts/zrender 不解析 oklch() 字符串，visualMap 插值必须用 rgb/hex） ---------- */
+        var LIGHT = {
+            ink: '#333136', ink2: '#6E6A70', muted: '#8E8B8D', rule: '#E4E1DC',
+            paper: '#F8F6F1', surface: '#FFFFFF',
+            accent: '#3E55C8',
+            heatRamp: ['#EDEFF8', '#CBD2F1', '#98A5E6', '#6476D8', '#3E55C8'],
+            emptyCell: '#EFEBE4',
+            donut: ['#3E55C8', '#6476D8', '#98A5E6', '#C6CDF4', '#4E9A6F', '#C9A227',
+                    '#C46577', '#4C8FB8', '#8471CE', '#A3875C', '#8E8B8D']
+        };
+        var DARK = {
+            ink: '#EFEDEA', ink2: '#B5B2AD', muted: '#A3A09B', rule: '#454340',
+            paper: '#161514', surface: '#1E1D1B',
+            accent: '#8D9BEC',
+            heatRamp: ['#2B2A28', '#3B3D52', '#565B86', '#767EC2', '#8D9BEC'],
+            emptyCell: '#211F1D',
+            donut: ['#8D9BEC', '#A9B4F4', '#C3C9F8', '#E2E4FB', '#7CC79A', '#E3C25C',
+                    '#E0889B', '#7FB3D8', '#A99BE8', '#C9B084', '#A3A09B']
+        };
+        var mq = window.matchMedia('(prefers-color-scheme: dark)');
+        function palette() { return mq.matches ? DARK : LIGHT; }
+
+        var charts = [];        // 已建 ECharts 实例
+        var DATA = null;        // { items, vocab, vocabOk }
+        var loadError = false;
+
+        function $(id) { return document.getElementById(id); }
+
+        function fetchText(url) {
+            return fetch(url).then(function (r) {
+                if (!r.ok) { throw new Error(url + ' → HTTP ' + r.status); }
+                return r.text();
+            });
+        }
+
+        /* ---------- 数据加载与合并 ---------- */
+        function loadData() {
+            return Promise.allSettled([
+                fetchText(RES.snap),
+                fetchText(RES.news),
+                fetchText(RES.vocab)
+            ]).then(function (rs) {
+                var snapR = rs[0], newsR = rs[1], vocabR = rs[2];
+                var byUrl = {};
+
+                if (snapR.status === 'fulfilled') {
+                    var lines = snapR.value.split(/\r?\n/);
+                    for (var i = 0; i < lines.length; i++) {
+                        var t = lines[i].trim();
+                        if (!t) { continue; }
+                        try {
+                            var o = JSON.parse(t);
+                            if (o.url) { byUrl[o.url] = o; }
+                        } catch (e) { /* 坏行忽略 */ }
+                    }
+                }
+
+                if (newsR.status === 'fulfilled') {
+                    try {
+                        var news = JSON.parse(newsR.value);
+                        var pool = [].concat(news.current || [], news.archive || []);
+                        for (var j = 0; j < pool.length; j++) {
+                            var it = pool[j];
+                            if (it.url && !byUrl[it.url]) {
+                                byUrl[it.url] = {
+                                    url: it.url, title: it.title || '', summary: it.summary || '',
+                                    date: it.date || '', source: it.source || '', title_en: it.title_en || ''
+                                };
+                            }
+                        }
+                    } catch (e) { /* ai-news.json 解析失败则仅用快照 */ }
+                }
+
+                var items = Object.keys(byUrl).map(function (k) { return byUrl[k]; });
+                if (!items.length) {
+                    throw new Error('快照与站点数据都不可用（' + (snapR.reason || newsR.reason || '未知') + '）');
+                }
+
+                var vocab = null, vocabOk = false;
+                if (vocabR.status === 'fulfilled') {
+                    try { vocab = JSON.parse(vocabR.value); vocabOk = !!vocab; } catch (e) {}
+                }
+
+                return { items: items, vocab: vocab, vocabOk: vocabOk };
+            });
+        }
+
+        /* ---------- 来源映射（长域名优先，未命中退回原始域名） ---------- */
+        function sourceMapper(vocab) {
+            var keys = vocab && vocab.sourceMap
+                ? Object.keys(vocab.sourceMap).sort(function (a, b) { return b.length - a.length; })
+                : [];
+            return function (it) {
+                var raw = String(it.source || '').toLowerCase();
+                var host = '';
+                try { host = new URL(it.url).hostname.toLowerCase(); } catch (e) {}
+                for (var i = 0; i < keys.length; i++) {
+                    if (raw.indexOf(keys[i]) !== -1 || host.indexOf(keys[i]) !== -1) {
+                        return vocab.sourceMap[keys[i]];
+                    }
+                }
+                return host.replace(/^www\./, '') || raw || '未知来源';
+            };
+        }
+
+        /* ---------- 实体匹配：英文整词大小写敏感，中文包含 ---------- */
+        function entityMatchers(vocab) {
+            if (!vocab || !Array.isArray(vocab.entities)) { return []; }
+            function esc(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+            return vocab.entities.map(function (term) {
+                if (/^[\x20-\x7e]+$/.test(term)) {
+                    var re = new RegExp('\\b' + esc(term) + '\\b');
+                    return function (hay) { return re.test(hay); };
+                }
+                return function (hay) { return hay.indexOf(term) !== -1; };
+            });
+        }
+
+        function entityCounters(items, vocab) {
+            var terms = (vocab && Array.isArray(vocab.entities)) ? vocab.entities : [];
+            var matchers = entityMatchers(vocab);
+            var counts = terms.map(function () { return 0; });
+            for (var i = 0; i < items.length; i++) {
+                var hay = (items[i].title || '') + '\n' + (items[i].summary || '');
+                for (var k = 0; k < matchers.length; k++) {
+                    if (matchers[k](hay)) { counts[k]++; }
+                }
+            }
+            var pairs = [];
+            for (var n = 0; n < terms.length; n++) {
+                if (counts[n] > 0) { pairs.push({ name: terms[n], count: counts[n] }); }
+            }
+            pairs.sort(function (a, b) { return b.count - a.count; });
+            return pairs;
+        }
+
+        /* ---------- KPI ---------- */
+        function renderKpis(d) {
+            var items = d.items;
+            var dateSet = {};
+            for (var i = 0; i < items.length; i++) { if (items[i].date) { dateSet[items[i].date] = 1; } }
+            var dates = Object.keys(dateSet).sort();
+            var span = dates.length ? dates[0].slice(5).replace('-', '/') + ' – ' + dates[dates.length - 1].slice(5).replace('-', '/') : '';
+
+            $('kpiTotal').innerHTML = String(items.length) + ' <small>条</small>';
+            $('kpiDays').innerHTML = String(dates.length) + ' <small>天</small>';
+            $('kpiSpan').textContent = span;
+            var daily = dates.length ? (items.length / dates.length) : 0;
+            $('kpiDaily').innerHTML = (daily % 1 ? daily.toFixed(1) : String(daily)) + ' <small>条/天</small>';
+
+            var mapper = sourceMapper(d.vocab);
+            var srcSet = {};
+            for (var s = 0; s < items.length; s++) { srcSet[mapper(items[s])] = 1; }
+            $('kpiSources').innerHTML = String(Object.keys(srcSet).length) + ' <small>个</small>';
+
+            var pairs = entityCounters(items, d.vocab);
+            if (pairs.length) {
+                $('kpiEntity').innerHTML = String(pairs[0].count) + ' <small>条</small>';
+                $('kpiEntitySub').textContent = pairs[0].name;
+            } else {
+                $('kpiEntity').textContent = '–';
+                $('kpiEntitySub').textContent = d.vocabOk ? '' : '词表未加载';
+            }
+
+            var maxDate = dates.length ? dates[dates.length - 1] : '';
+            $('statsAsof').textContent = maxDate ? ('数据截至 ' + maxDate + ' · ' + items.length + ' 条') : '数据加载中…';
+        }
+
+        /* ---------- 图表 ---------- */
+        function disposeCharts() {
+            for (var i = 0; i < charts.length; i++) { charts[i].dispose(); }
+            charts = [];
+        }
+
+        function makeChart(id) {
+            var el = $(id);
+            el.innerHTML = '';
+            var inst = echarts.init(el, null, { renderer: 'canvas' });
+            charts.push(inst);
+            return inst;
+        }
+
+        function renderCalendar(items) {
+            var el = $('calChart');
+            if (!window.echarts) { el.innerHTML = '<div class="chart-fallback">ECharts 加载失败，图表不可用。</div>'; return; }
+            var perDay = {};
+            for (var i = 0; i < items.length; i++) {
+                if (!items[i].date) { continue; }
+                perDay[items[i].date] = (perDay[items[i].date] || 0) + 1;
+            }
+            var dates = Object.keys(perDay).sort();
+            if (!dates.length) { el.innerHTML = '<div class="chart-fallback">暂无日期数据</div>'; return; }
+            var min = dates[0], max = dates[dates.length - 1];
+            var maxCount = 1;
+            var data = dates.map(function (d) {
+                maxCount = Math.max(maxCount, perDay[d]);
+                return [d, perDay[d]];
+            });
+            var P = palette();
+            makeChart('calChart').setOption({
+                tooltip: { formatter: function (p) { return p.value[0] + ' · ' + p.value[1] + ' 条'; } },
+                visualMap: {
+                    show: false, min: 0, max: maxCount,
+                    inRange: { color: P.heatRamp }
+                },
+                calendar: {
+                    range: [min, max],
+                    cellSize: [18, 18],
+                    left: 36, right: 24, top: 24,
+                    itemStyle: { color: P.emptyCell, borderColor: P.paper, borderWidth: 3 },
+                    splitLine: { show: false },
+                    dayLabel: { firstDay: 1, nameMap: 'cn', color: P.muted, fontSize: 11 },
+                    monthLabel: { nameMap: 'cn', color: P.ink2, fontSize: 12 },
+                    yearLabel: { show: false }
+                },
+                series: [{
+                    type: 'heatmap', coordinateSystem: 'calendar', data: data
+                }]
+            });
+        }
+
+        function renderSources(items, vocab) {
+            var el = $('srcChart');
+            if (!window.echarts) { el.innerHTML = '<div class="chart-fallback">ECharts 加载失败，图表不可用。</div>'; return; }
+            var mapper = sourceMapper(vocab);
+            var counter = {};
+            for (var i = 0; i < items.length; i++) {
+                var name = mapper(items[i]);
+                counter[name] = (counter[name] || 0) + 1;
+            }
+            var data = Object.keys(counter).map(function (k) { return { name: k, value: counter[k] }; });
+            data.sort(function (a, b) { return b.value - a.value; });
+            var P = palette();
+            makeChart('srcChart').setOption({
+                color: P.donut,
+                tooltip: { trigger: 'item', formatter: '{b}<br/>{c} 条（{d}%）' },
+                legend: {
+                    bottom: 0, icon: 'circle',
+                    itemWidth: 9, itemHeight: 9, itemGap: 10,
+                    textStyle: { color: P.ink2, fontSize: 11 }
+                },
+                series: [{
+                    type: 'pie',
+                    radius: ['44%', '68%'],
+                    center: ['50%', '44%'],
+                    avoidLabelOverlap: true,
+                    itemStyle: { borderColor: P.paper, borderWidth: 2 },
+                    label: { show: false },
+                    emphasis: {
+                        label: { show: true, formatter: '{b}\n{c} 条 · {d}%', color: P.ink, fontSize: 12 }
+                    },
+                    data: data
+                }]
+            });
+        }
+
+        function renderEntities(items, vocab, vocabOk) {
+            var el = $('entChart');
+            if (!window.echarts) { el.innerHTML = '<div class="chart-fallback">ECharts 加载失败，图表不可用。</div>'; return; }
+            if (!vocabOk) { el.innerHTML = '<div class="chart-fallback">词表（data/ai-news-vocab.json）加载失败，实体榜暂不可用。</div>'; return; }
+            var pairs = entityCounters(items, vocab).slice(0, 20);
+            if (!pairs.length) { el.innerHTML = '<div class="chart-fallback">词表中暂无命中的实体。</div>'; return; }
+            var P = palette();
+            makeChart('entChart').setOption({
+                grid: { left: 6, right: 52, top: 6, bottom: 6, containLabel: true },
+                tooltip: { trigger: 'item', formatter: '{b}：{c} 条' },
+                xAxis: { type: 'value', show: false },
+                yAxis: {
+                    type: 'category', inverse: true,
+                    data: pairs.map(function (p) { return p.name; }),
+                    axisLine: { show: false }, axisTick: { show: false },
+                    axisLabel: { color: P.ink2, fontSize: 12 }
+                },
+                series: [{
+                    type: 'bar',
+                    data: pairs.map(function (p) { return p.count; }),
+                    barMaxWidth: 14,
+                    itemStyle: { color: P.accent, borderRadius: [0, 7, 7, 0] },
+                    label: {
+                        show: true, position: 'right', color: P.muted, fontSize: 11,
+                        formatter: '{c} 条'
+                    }
+                }]
+            });
+        }
+
+        function renderAll() {
+            if (!DATA) { return; }
+            disposeCharts();
+            renderKpis(DATA);
+            renderCalendar(DATA.items);
+            renderSources(DATA.items, DATA.vocab);
+            renderEntities(DATA.items, DATA.vocab, DATA.vocabOk);
+        }
+
+        /* ---------- 错误态 ---------- */
+        function showError(msg) {
+            loadError = true;
+            $('statsError').hidden = false;
+            $('statsErrorMsg').textContent = msg || '数据加载失败。';
+            $('statsAsof').textContent = '数据不可用';
+        }
+
+        function boot() {
+            loadError = false;
+            $('statsError').hidden = true;
+            $('statsAsof').textContent = '数据加载中…';
+            loadData().then(function (d) {
+                DATA = d;
+                renderAll();
+            }).catch(function (err) {
+                showError((err && err.message) ? err.message : '数据加载失败。');
+            });
+        }
+
+        /* ---------- 事件 ---------- */
+        $('statsRetry').addEventListener('click', boot);
+        window.addEventListener('resize', function () {
+            for (var i = 0; i < charts.length; i++) { charts[i].resize(); }
+        });
+        if (mq.addEventListener) {
+            mq.addEventListener('change', function () { renderAll(); });
+        }
+
+        boot();
+    })();
+    </script>
+</body>
+</html>
