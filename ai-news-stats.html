@@ -31,9 +31,12 @@
 
         /* ---------- hero ---------- */
         .stats-hero {
-            display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+            display: grid; grid-template-columns: minmax(0, 0.88fr) minmax(0, 1.12fr);
             gap: var(--space-2xl) var(--space-xl); align-items: center;
             padding: var(--space-2xl) 0 var(--space-lg);
+        }
+        @media (min-width: 1280px) {
+            .stats-hero { grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); }
         }
         .stats-hero-copy { max-width: 34em; }
         .stats-hero-eyebrow {
@@ -97,6 +100,35 @@
         .stats-hero-play.is-playing i { opacity: 0; }
         .stats-hero-play.is-playing:hover i { opacity: 0.9; }
         .no-js .stats-hero-play { display: none; }
+        .stats-hero-fs {
+            position: absolute; top: 0.7rem; right: 0.7rem; z-index: 2;
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            background: rgba(20,19,18,0.5);
+            border: 1px solid rgba(255,255,255,0.28);
+            color: #FFFFFF; font-size: 1.1rem;
+            display: inline-flex; align-items: center; justify-content: center;
+            cursor: pointer; padding: 0;
+            backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+            opacity: 0; transform: translateY(-4px);
+            transition: opacity var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-out), background var(--dur-fast) var(--ease-out);
+        }
+        .stats-hero-media:hover .stats-hero-fs,
+        .stats-hero-fs:focus-visible { opacity: 1; transform: none; }
+        .stats-hero-fs:hover { background: rgba(20,19,18,0.78); }
+        .no-js .stats-hero-fs { display: none; }
+        @media (hover: none) {
+            .stats-hero-fs { opacity: 1; transform: none; }
+        }
+        /* 全屏态：整卡进入 Fullscreen，视频 contain 适配任意屏幕比例 */
+        .stats-hero-media.is-fullscreen {
+            border-radius: 0; border: none; box-shadow: none;
+            background: #000;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .stats-hero-media.is-fullscreen video { width: 100%; height: 100%; object-fit: contain; }
+        .stats-hero-media.is-fullscreen .stats-hero-play { display: none; }
+        .stats-hero-media.is-fullscreen .stats-hero-media-cap { display: none; }
         .stats-hero-media-cap {
             position: absolute; left: 0; right: 0; bottom: 0;
             padding: 1.4rem 0.9rem 0.55rem;
@@ -282,13 +314,16 @@
                     <span class="stats-hero-chip"><b id="heroChipTop">–</b> 最热实体</span>
                 </div>
             </div>
-            <figure class="stats-hero-media">
+            <figure class="stats-hero-media" id="introMedia">
                 <video id="introVideo" poster="assets/ai-news/ai-news-intro-poster.jpg" preload="none" playsinline muted>
                     <source src="assets/ai-news/ai-news-intro.mp4" type="video/mp4">
                     <a href="assets/ai-news/ai-news-intro.mp4">下载片头视频（MP4）</a>
                 </video>
                 <button class="stats-hero-play" id="introPlayBtn" type="button" aria-label="播放数据片头">
                     <i class="ph ph-play" aria-hidden="true"></i>
+                </button>
+                <button class="stats-hero-fs" id="introFsBtn" type="button" aria-label="全屏播放片头" title="全屏播放">
+                    <i class="ph ph-arrows-out" aria-hidden="true"></i>
                 </button>
                 <figcaption class="stats-hero-media-cap"><i class="ph ph-film-slate" aria-hidden="true"></i>片头 · 用站点真实数据程序化生成 · 15 秒</figcaption>
             </figure>
@@ -1386,6 +1421,8 @@
         function initIntroVideo() {
             var v = document.getElementById('introVideo');
             var btn = document.getElementById('introPlayBtn');
+            var fsBtn = document.getElementById('introFsBtn');
+            var media = document.getElementById('introMedia');
             if (!v || !btn || !v.addEventListener || !v.play) { return; }
             btn.addEventListener('click', function () {
                 if (v.paused) {
@@ -1398,6 +1435,28 @@
             v.addEventListener('play', function () { if (btn.classList) { btn.classList.add('is-playing'); } });
             v.addEventListener('pause', function () { if (btn.classList) { btn.classList.remove('is-playing'); } });
             v.addEventListener('ended', function () { if (btn.classList) { btn.classList.remove('is-playing'); } });
+            if (!fsBtn || !media) { return; }
+            var reqFs = media.requestFullscreen || media.webkitRequestFullscreen
+                || (v.webkitEnterFullscreen ? function () { return v.webkitEnterFullscreen(); } : null);
+            if (!reqFs || !document.addEventListener) {
+                if (fsBtn.style) { fsBtn.style.display = 'none'; }
+                return;
+            }
+            fsBtn.addEventListener('click', function () {
+                var isFs = document.fullscreenElement || document.webkitFullscreenElement;
+                if (isFs) {
+                    var x = document.exitFullscreen || document.webkitExitFullscreen;
+                    if (x) { x.call(document); }
+                    return;
+                }
+                var r = reqFs.call(media);
+                if (r && r.catch) { r.catch(function () {}); }
+            });
+            document.addEventListener('fullscreenchange', function () {
+                var on = document.fullscreenElement === media || document.webkitFullscreenElement === media;
+                if (media.classList) { media.classList.toggle('is-fullscreen', !!on); }
+                v.controls = !!on;
+            });
         }
 
         /* ---------- 事件 ---------- */
