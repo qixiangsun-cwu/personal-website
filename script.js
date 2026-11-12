@@ -243,6 +243,26 @@ function initNavHighlight() {
 }
 
 // ---------- 加载AI新闻 ----------
+// 数字滚动：rAF + easeOutExpo（尊重 reduced-motion，无 rAF 时直接落值）
+function animateCount(el, target) {
+    if (!el) return;
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduce || typeof requestAnimationFrame !== 'function') {
+        el.textContent = String(target);
+        return;
+    }
+    var dur = 1100;
+    var start = null;
+    function tick(ts) {
+        if (start === null) start = ts;
+        var t = Math.min(1, (ts - start) / dur);
+        var v = t === 1 ? 1 : 1 - Math.pow(2, -10 * t);
+        el.textContent = String(Math.round(target * v));
+        if (t < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+}
+
 async function loadNews() {
     try {
         var response = await fetch('ai-news.json');
@@ -259,7 +279,7 @@ async function loadNews() {
         });
 
         var totalEl = document.getElementById('newsTotalCount');
-        if (totalEl) totalEl.textContent = allItems.length;
+        if (totalEl) animateCount(totalEl, allItems.length);
 
         var moreSub = document.getElementById('newsMoreSub');
         if (moreSub && allItems.length > 0) {
@@ -267,7 +287,7 @@ async function loadNews() {
                 allItems[allItems.length - 1].date + ' 至 ' + allItems[0].date;
         }
 
-        renderNews(allItems);
+        renderNews(allItems, String(data.updated || '').trim());
     } catch (e) {
         var currentList = document.getElementById('newsCurrentList');
         if (currentList) {
@@ -291,8 +311,8 @@ function dedupeNews(items) {
 
 var NEWS_PAGE_SIZE = 8;
 
-// 单一列表：默认展示最新 8 条，可展开全部
-function renderNews(items) {
+// 单一列表：默认展示最新 8 条，可展开全部（展开/收起带 FLIP 高度补间）
+function renderNews(items, today) {
     var listEl = document.getElementById('newsCurrentList');
     var btn = document.getElementById('newsMoreBtn');
     if (!listEl) return;
@@ -305,9 +325,25 @@ function renderNews(items) {
 
     var expanded = false;
 
-    function paint() {
+    function paint(animate) {
         var shown = expanded ? items : items.slice(0, NEWS_PAGE_SIZE);
-        listEl.innerHTML = shown.map(createNewsItem).join('');
+        var h0 = 0;
+        var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if (animate && !reduce && typeof listEl.animate === 'function') {
+            h0 = listEl.getBoundingClientRect().height;
+        }
+        listEl.innerHTML = shown.map(function(item, i) {
+            return createNewsItem(item, i, today);
+        }).join('');
+        if (h0) {
+            var h1 = listEl.getBoundingClientRect().height;
+            if (Math.abs(h1 - h0) > 1) {
+                listEl.animate(
+                    [{ height: h0 + 'px', overflow: 'hidden' }, { height: h1 + 'px', overflow: 'hidden' }],
+                    { duration: 420, easing: 'cubic-bezier(0.16, 1, 0.3, 1)' }
+                );
+            }
+        }
 
         if (items.length <= NEWS_PAGE_SIZE) {
             if (btn) btn.style.display = 'none';
@@ -332,7 +368,7 @@ function renderNews(items) {
         btn.dataset.bound = '1';
         btn.addEventListener('click', function() {
             expanded = !expanded;
-            paint();
+            paint(true);
             if (!expanded) {
                 listEl.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
             }
@@ -340,13 +376,17 @@ function renderNews(items) {
     }
 }
 
-function createNewsItem(item) {
+function createNewsItem(item, i, today) {
     var url = item.url || '#';
     var title = escapeHtml(item.title || '');
     var summary = escapeHtml(item.summary || '');
     var source = escapeHtml(item.source || '');
     var date = escapeHtml(item.date || '');
-    return '\n        <a href="' + url + '" target="_blank" rel="noopener" class="news-item">\n            <div class="news-item-content">\n                <h4 class="news-item-title">' + title + '</h4>\n                <p class="news-item-summary">' + summary + '</p>\n            </div>\n            <div class="news-item-meta">\n                <span class="news-item-date">' + date + '</span>\n                <span class="news-item-source">' + source + '</span>\n            </div>\n        </a>\n    ';
+    var idx = String(i + 1).padStart(2, '0');
+    var stagger = Math.min(i, 12);
+    var isNew = today && date === today;
+    var badge = isNew ? '<span class="news-item-badge">NEW</span>' : '';
+    return '\n        <a href="' + url + '" target="_blank" rel="noopener" class="news-item" style="--stagger-i:' + stagger + '">\n            <span class="news-item-idx" aria-hidden="true">' + idx + '</span>\n            <div class="news-item-content">\n                <h4 class="news-item-title">' + title + badge + '</h4>\n                <p class="news-item-summary">' + summary + '</p>\n            </div>\n            <div class="news-item-meta">\n                <span class="news-item-date">' + date + '</span>\n                <span class="news-item-source">' + source + '</span>\n            </div>\n            <span class="news-item-go" aria-hidden="true"><i class="ph ph-arrow-up-right"></i></span>\n        </a>\n    ';
 }
 
 function escapeHtml(str) {

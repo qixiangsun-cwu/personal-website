@@ -8,7 +8,7 @@
     <meta name="baidu-site-verification" content="codeva-BTw7o3XKce" />
     <meta name="google-site-verification" content="VBjH1DqNMvsK41dZAJkg5wBZMJST0NkId0D9NvoWZR0" />
     <link rel="icon" type="image/svg+xml" href="favicon.svg?v=3">
-    <link rel="stylesheet" href="styles.css?v=20261111a">
+    <link rel="stylesheet" href="styles.css?v=20261112a">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600&family=Noto+Serif+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -92,7 +92,7 @@
     <!-- AI 最新动态 -->
     <section class="section" id="news">
         <div class="section-header section-header--center">
-            <span class="section-tag">AI NEWS</span>
+            <span class="section-tag"><span class="live-dot" aria-hidden="true"></span>AI NEWS</span>
             <h2 class="section-title">AI 最新动态</h2>
             <p class="section-desc">每日精选 AI 领域重要资讯，保持对前沿技术的关注。</p>
         </div>
@@ -115,8 +115,12 @@
                 </button>
             </div>
             <div class="news-list" id="newsCurrentList">
-                <!-- 由 JS 动态加载 -->
-                <div class="news-loading">正在加载新闻...</div>
+                <!-- 由 JS 动态加载（加载中显示骨架屏） -->
+                <div class="news-skeleton" aria-hidden="true">
+                    <div class="news-skeleton-item"><span class="sk sk-title"></span><span class="sk sk-line"></span><span class="sk sk-line sk-line-short"></span></div>
+                    <div class="news-skeleton-item"><span class="sk sk-title"></span><span class="sk sk-line"></span><span class="sk sk-line sk-line-short"></span></div>
+                    <div class="news-skeleton-item"><span class="sk sk-title"></span><span class="sk sk-line"></span><span class="sk sk-line sk-line-short"></span></div>
+                </div>
             </div>
         </div>
 
@@ -1413,6 +1417,6 @@
         <p class="footer-sub">用技术服务"她" · Glassmorphism × Apple Design</p>
     </footer>
 
-    <script src="script.js?v=20261017a"></script>
+    <script src="script.js?v=20261112a"></script>
 </body>
 </html>

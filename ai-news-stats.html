@@ -1,12 +1,13 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" class="no-js">
 <head>
     <meta charset="UTF-8">
+    <script>document.documentElement.classList.replace('no-js', 'js');</script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="个人网站 AI 动态板块的数据统计页：收录量、日历热力图、来源分布与实体榜。">
     <title>AI 动态 · 数据统计 | 孙琪翔</title>
     <link rel="icon" href="favicon.svg">
-    <link rel="stylesheet" href="styles.css?v=20261017a">
+    <link rel="stylesheet" href="styles.css?v=20261112a">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600&family=Noto+Serif+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -14,6 +15,72 @@
     <style>
         /* ---------- 页面骨架（配色全部走 styles.css 的 OKLCH 令牌） ---------- */
         .stats-wrap { max-width: 1120px; margin: 0 auto; padding: 0 var(--space-xl) var(--space-2xl); }
+
+        /* ---------- sticky 顶栏 ---------- */
+        .stats-topbar-wrap {
+            position: sticky; top: 0; z-index: 60;
+            background: color-mix(in srgb, var(--color-paper) 88%, transparent);
+            backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+            border-bottom: 1px solid transparent;
+            transition: border-color var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out);
+        }
+        .stats-topbar-wrap.is-stuck {
+            border-bottom-color: var(--color-rule);
+            box-shadow: 0 12px 32px oklch(22% 0.008 80 / 0.07);
+        }
+
+        /* ---------- hero ---------- */
+        .stats-hero { padding: var(--space-2xl) 0 var(--space-sm); max-width: 46em; }
+        .stats-hero-eyebrow {
+            display: inline-flex; align-items: center;
+            font-family: var(--font-outlier); font-size: 0.78rem; font-weight: 600;
+            letter-spacing: 0.28em; color: var(--color-muted);
+            margin: 0 0 var(--space-md);
+        }
+        .stats-hero-eyebrow .live-dot { margin-right: 0.6em; }
+        .stats-hero-title {
+            font-family: var(--font-display); font-weight: 700;
+            font-size: clamp(2.2rem, 5.2vw, 3.4rem);
+            line-height: var(--leading-tight); letter-spacing: 0.01em;
+            color: var(--color-ink); margin: 0 0 var(--space-md);
+            text-wrap: balance;
+        }
+        .stats-hero-sub {
+            font-size: var(--text-base); color: var(--color-ink-2);
+            line-height: var(--leading-normal); margin: 0;
+        }
+        .stats-hero-chips { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: var(--space-lg); }
+        .stats-hero-chip {
+            display: inline-flex; align-items: baseline; gap: 0.4em;
+            padding: 0.5rem 1.05rem; border-radius: var(--radius-pill);
+            background: var(--color-accent-soft); border: 1px solid var(--color-accent-border);
+            color: var(--color-ink-2); font-size: var(--text-xs);
+        }
+        .stats-hero-chip b {
+            font-family: var(--font-outlier); font-weight: 700; font-size: 1.05rem;
+            color: var(--color-accent); font-variant-numeric: tabular-nums;
+        }
+
+        /* ---------- 图表块编号 ---------- */
+        .stats-wrap { counter-reset: chartno; }
+        .chart-block .chart-head h2::before {
+            counter-increment: chartno;
+            content: counter(chartno, decimal-leading-zero);
+            font-family: var(--font-outlier); font-size: 0.72rem; font-weight: 600;
+            color: var(--color-accent); letter-spacing: 0.08em;
+            margin-right: 0.25em; vertical-align: 0.12em;
+        }
+
+        /* ---------- 进场揭示 ---------- */
+        .js [data-reveal] {
+            opacity: 0; transform: translateY(18px);
+            transition: opacity 0.7s var(--ease-out), transform 0.7s var(--ease-out);
+        }
+        .js [data-reveal].is-revealed { opacity: 1; transform: none; }
+        .no-js [data-reveal] { opacity: 1; transform: none; }
+        @media (prefers-reduced-motion: reduce) {
+            .js [data-reveal] { opacity: 1; transform: none; transition: none; }
+        }
 
         .stats-topbar {
             display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-sm) var(--space-lg);
@@ -26,7 +93,7 @@
         .stats-back:hover { text-decoration: underline; }
         .stats-title {
             font-family: var(--font-display); color: var(--color-ink);
-            font-size: var(--text-lg); line-height: var(--leading-tight);
+            font-size: var(--text-lg); line-height: var(--leading-tight); margin: 0;
         }
         .stats-asof {
             margin-left: auto; font-size: var(--text-xs); color: var(--color-ink-2);
@@ -56,6 +123,13 @@
         .kpi-num small { font-size: var(--text-sm); color: var(--color-ink-2); font-family: var(--font-body); }
         .kpi-label { font-size: var(--text-xs); color: var(--color-ink-2); margin-top: .35em; }
         .kpi-sub { font-size: var(--text-xs); color: var(--color-ink-2); font-family: var(--font-outlier); margin-top: .2em; }
+        .kpi { position: relative; }
+        .kpi-idx {
+            position: absolute; top: var(--space-md); right: var(--space-md);
+            font-family: var(--font-outlier); font-size: 0.72rem; font-weight: 600;
+            color: var(--color-muted); opacity: .75; letter-spacing: .08em;
+        }
+        .kpi-num-v { font-variant-numeric: tabular-nums; }
 
         .chart-block { padding: var(--space-xl); margin-bottom: var(--space-md); }
         .chart-head { display: flex; align-items: baseline; gap: var(--space-md); margin-bottom: var(--space-md); }
@@ -102,14 +176,17 @@
             display: inline-flex; align-items: center; gap: .4em; margin-bottom: var(--space-md);
         }
         .data-notes h2 i { color: var(--color-accent); }
-        .data-notes ul { list-style: none; }
+        .data-notes ul { list-style: none; counter-reset: note; }
         .data-notes li {
             font-size: var(--text-sm); color: var(--color-ink-2); line-height: var(--leading-snug);
-            padding-left: 1.3em; position: relative; margin-bottom: .55em;
+            padding-left: 2em; position: relative; margin-bottom: .55em;
+            counter-increment: note;
         }
         .data-notes li::before {
-            content: ''; position: absolute; left: 0; top: .62em;
-            width: .45em; height: .45em; border-radius: 50%; background: var(--color-accent-bright);
+            content: counter(note, decimal-leading-zero);
+            position: absolute; left: 0; top: .18em;
+            font-family: var(--font-outlier); font-size: .85em; font-weight: 600;
+            color: var(--color-accent); letter-spacing: .04em;
         }
         .data-notes code {
             font-family: var(--font-outlier); font-size: 0.92em;
@@ -127,13 +204,27 @@
     </style>
 </head>
 <body>
-    <header class="stats-topbar">
-        <a class="stats-back" href="index.html"><i class="ph ph-arrow-left" aria-hidden="true"></i>返回首页</a>
-        <h1 class="stats-title"><i class="ph ph-chart-bar" aria-hidden="true"></i> AI 动态 · 数据统计</h1>
-        <span class="stats-asof" id="statsAsof">数据加载中…</span>
-    </header>
+    <div class="stats-topbar-wrap" id="statsTopbarWrap">
+        <header class="stats-topbar">
+            <a class="stats-back" href="index.html"><i class="ph ph-arrow-left" aria-hidden="true"></i>返回首页</a>
+            <p class="stats-title"><i class="ph ph-chart-bar" aria-hidden="true"></i> AI 动态 · 数据统计</p>
+            <span class="stats-asof" id="statsAsof">数据加载中…</span>
+        </header>
+    </div>
 
     <main class="stats-wrap">
+        <!-- hero -->
+        <section class="stats-hero" data-reveal>
+            <p class="stats-hero-eyebrow"><span class="live-dot" aria-hidden="true"></span>AI NEWS OBSERVATORY</p>
+            <h1 class="stats-hero-title">一个仍在生长的<br>AI 观察数据全景</h1>
+            <p class="stats-hero-sub">每天 08:00 抓取、翻译并审批发布 AI 领域重要动态——快照只增不删。这一页是它的全部数据：收录节奏、来源版图、实体热度与主题演变。</p>
+            <div class="stats-hero-chips">
+                <span class="stats-hero-chip"><b id="heroChipTotal">–</b> 条收录</span>
+                <span class="stats-hero-chip"><b id="heroChipDays">–</b> 天有记录</span>
+                <span class="stats-hero-chip"><b id="heroChipTop">–</b> 最热实体</span>
+            </div>
+        </section>
+
         <section class="glass-card stats-error" id="statsError" hidden>
             <i class="ph ph-warning" aria-hidden="true"></i>
             <p id="statsErrorMsg">数据加载失败。</p>
@@ -142,28 +233,33 @@
 
         <!-- KPI -->
         <section class="kpi-row" id="kpiRow">
-            <div class="glass-card kpi">
+            <div class="glass-card kpi" data-reveal>
+                <span class="kpi-idx" aria-hidden="true">01</span>
                 <span class="kpi-icon"><i class="ph ph-stack" aria-hidden="true"></i></span>
                 <div class="kpi-num" id="kpiTotal">–</div>
                 <div class="kpi-label">累计收录（条）</div>
             </div>
-            <div class="glass-card kpi">
+            <div class="glass-card kpi" data-reveal>
+                <span class="kpi-idx" aria-hidden="true">02</span>
                 <span class="kpi-icon"><i class="ph ph-calendar-blank" aria-hidden="true"></i></span>
                 <div class="kpi-num" id="kpiDays">–</div>
                 <div class="kpi-label">覆盖天数（天）</div>
                 <div class="kpi-sub" id="kpiSpan"></div>
             </div>
-            <div class="glass-card kpi">
+            <div class="glass-card kpi" data-reveal>
+                <span class="kpi-idx" aria-hidden="true">03</span>
                 <span class="kpi-icon"><i class="ph ph-chart-line-up" aria-hidden="true"></i></span>
                 <div class="kpi-num" id="kpiDaily">–</div>
                 <div class="kpi-label">日均条数（条 / 天）</div>
             </div>
-            <div class="glass-card kpi">
+            <div class="glass-card kpi" data-reveal>
+                <span class="kpi-idx" aria-hidden="true">04</span>
                 <span class="kpi-icon"><i class="ph ph-plugs-connected" aria-hidden="true"></i></span>
                 <div class="kpi-num" id="kpiSources">–</div>
                 <div class="kpi-label">数据来源（个）</div>
             </div>
-            <div class="glass-card kpi">
+            <div class="glass-card kpi" data-reveal>
+                <span class="kpi-idx" aria-hidden="true">05</span>
                 <span class="kpi-icon"><i class="ph ph-fire" aria-hidden="true"></i></span>
                 <div class="kpi-num" id="kpiEntity">–</div>
                 <div class="kpi-label">最高频实体（条）</div>
@@ -172,7 +268,7 @@
         </section>
 
         <!-- 日历热力图 -->
-        <section class="glass-card card-lg chart-block">
+        <section class="glass-card card-lg chart-block" data-reveal>
             <div class="chart-head">
                 <h2><i class="ph ph-calendar-check" aria-hidden="true"></i>收录日历热力图</h2>
                 <span class="chart-hint">每天收录条数 · 越深越多</span>
@@ -181,7 +277,7 @@
         </section>
 
         <!-- 加权词云 -->
-        <section class="glass-card card-lg chart-block">
+        <section class="glass-card card-lg chart-block" data-reveal>
             <div class="chart-head">
                 <h2><i class="ph ph-cloud" aria-hidden="true"></i>加权词云</h2>
                 <span class="chart-hint">词表实体 · 越新的条目权重越高 · 面积 ∝ 加权提及度</span>
@@ -191,7 +287,7 @@
 
         <div class="chart-duo">
             <!-- 主题占比 -->
-            <section class="glass-card chart-block">
+            <section class="glass-card chart-block" data-reveal>
                 <div class="chart-head">
                     <h2><i class="ph ph-tags" aria-hidden="true"></i>主题占比</h2>
                     <span class="chart-hint">关键词规则 · 首命中优先</span>
@@ -200,7 +296,7 @@
             </section>
 
             <!-- 来源分布 -->
-            <section class="glass-card chart-block">
+            <section class="glass-card chart-block" data-reveal>
                 <div class="chart-head">
                     <h2><i class="ph ph-pie-chart" aria-hidden="true"></i>来源分布</h2>
                     <span class="chart-hint">按条目来源域名统计</span>
@@ -210,7 +306,7 @@
         </div>
 
         <!-- 每周主题演变 -->
-        <section class="glass-card card-lg chart-block">
+        <section class="glass-card card-lg chart-block" data-reveal>
             <div class="chart-head">
                 <h2><i class="ph ph-trend-up" aria-hidden="true"></i>主题每周演变</h2>
                 <span class="chart-hint">按周堆叠 · 同色即同主题（与左侧占比图一致）</span>
@@ -219,7 +315,7 @@
         </section>
 
         <!-- 实体榜 -->
-        <section class="glass-card chart-block">
+        <section class="glass-card chart-block" data-reveal>
             <div class="chart-head">
                 <h2><i class="ph ph-medal" aria-hidden="true"></i>高频实体榜</h2>
                 <span class="chart-hint">词条出现的条目数 · Top 20</span>
@@ -228,7 +324,7 @@
         </section>
 
         <!-- 共现网络 -->
-        <section class="glass-card card-lg chart-block">
+        <section class="glass-card card-lg chart-block" data-reveal>
             <div class="chart-head">
                 <h2><i class="ph ph-graph" aria-hidden="true"></i>实体共现网络</h2>
                 <span class="chart-hint">标题与摘要开头同时出现的实体对 · 共现 ≥2 才连线 · 可拖拽缩放</span>
@@ -237,7 +333,7 @@
         </section>
 
         <!-- 对比词云 -->
-        <section class="glass-card card-lg chart-block">
+        <section class="glass-card card-lg chart-block" data-reveal>
             <div class="chart-head">
                 <h2><i class="ph ph-arrows-left-right" aria-hidden="true"></i>升温 / 降温词云</h2>
                 <span class="chart-hint">条目按日期对半分 · 后半段 vs 前半段每百条提及率 · 蓝=升温 暖=降温 灰=持平</span>
@@ -246,7 +342,7 @@
         </section>
 
         <!-- 数据说明 -->
-        <section class="glass-card data-notes">
+        <section class="glass-card data-notes" data-reveal>
             <h2><i class="ph ph-info" aria-hidden="true"></i>口径与维护说明</h2>
             <ul>
                 <li>数据取自站点 <code>ai-news.json</code>（最新 + 归档）与累计快照 <code>news-snapshots/all-items.jsonl</code>（只增不删），按 URL 合并去重，历史条目不随归档滚动消失。</li>
@@ -287,7 +383,12 @@
                     '#C46577', '#4C8FB8', '#8471CE', '#A3875C', '#8E8B8D'],
             cat: ['#C46577', '#C9A227', '#4C8FB8', '#6476D8', '#4E9A6F', '#3E55C8',
                   '#8471CE', '#5EA79E', '#8E8B8D', '#98A5E6', '#B9B5AE'],
-            down: '#C9A227'
+            down: '#C9A227',
+            surfaceAlpha: 'rgba(255,255,255,0.92)',
+            tipInk: '#333136', tipBorder: 'rgba(51,49,54,0.16)',
+            barFrom: '#6476D8', barTo: '#3E55C8',
+            accentGlow: 'rgba(62,85,200,0.35)',
+            wc: ['#3E55C8', '#4A5BC0', '#6476D8', '#8A97E2', '#B9C1F0']
         };
         var DARK = {
             ink: '#EFEDEA', ink2: '#B5B2AD', muted: '#A3A09B', rule: '#454340',
@@ -299,10 +400,27 @@
                     '#E0889B', '#7FB3D8', '#A99BE8', '#C9B084', '#A3A09B'],
             cat: ['#E0889B', '#E3C25C', '#7FB3D8', '#A9B4F4', '#7CC79A', '#8D9BEC',
                   '#A99BE8', '#7FC8BF', '#A3A09B', '#C3C9F8', '#55524E'],
-            down: '#E3C25C'
+            down: '#E3C25C',
+            surfaceAlpha: 'rgba(30,29,27,0.92)',
+            tipInk: '#EFEDEA', tipBorder: 'rgba(239,237,234,0.16)',
+            barFrom: '#A9B4F4', barTo: '#8D9BEC',
+            accentGlow: 'rgba(141,155,236,0.4)',
+            wc: ['#8D9BEC', '#A9B4F4', '#7C88D8', '#6A78B8', '#55628F']
         };
         var mq = window.matchMedia('(prefers-color-scheme: dark)');
         function palette() { return mq.matches ? DARK : LIGHT; }
+
+        /* 统一 tooltip 主题（毛玻璃质感，跟随明暗色板） */
+        function tip(P) {
+            return {
+                backgroundColor: P.surfaceAlpha,
+                borderColor: P.tipBorder,
+                borderWidth: 1,
+                padding: [8, 12],
+                textStyle: { color: P.tipInk, fontSize: 12 },
+                extraCssText: 'border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.18);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);'
+            };
+        }
 
         var charts = [];        // 已建 ECharts 实例
         var DATA = null;        // { items, vocab, vocabOk }
@@ -641,6 +759,25 @@
         }
 
         /* ---------- KPI ---------- */
+        function animateKpi(el, target, unit, decimals) {
+            if (!el) { return; }
+            function html(v) {
+                var num = decimals ? Number(v).toFixed(decimals) : String(Math.round(v));
+                return '<span class="kpi-num-v">' + num + '</span><small>' + unit + '</small>';
+            }
+            var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            if (reduce || typeof requestAnimationFrame !== 'function') { el.innerHTML = html(target); return; }
+            var dur = 900, start = null;
+            function tick(ts) {
+                if (start === null) { start = ts; }
+                var t = Math.min(1, (ts - start) / dur);
+                var v = t === 1 ? 1 : 1 - Math.pow(2, -10 * t);
+                el.innerHTML = html(t === 1 ? target : target * v);
+                if (t < 1) { requestAnimationFrame(tick); }
+            }
+            requestAnimationFrame(tick);
+        }
+
         function renderKpis(d) {
             var items = d.items;
             var dateSet = {};
@@ -648,25 +785,29 @@
             var dates = Object.keys(dateSet).sort();
             var span = dates.length ? dates[0].slice(5).replace('-', '/') + ' – ' + dates[dates.length - 1].slice(5).replace('-', '/') : '';
 
-            $('kpiTotal').innerHTML = String(items.length) + ' <small>条</small>';
-            $('kpiDays').innerHTML = String(dates.length) + ' <small>天</small>';
+            animateKpi($('kpiTotal'), items.length, '条');
+            animateKpi($('kpiDays'), dates.length, '天');
             $('kpiSpan').textContent = span;
             var daily = dates.length ? (items.length / dates.length) : 0;
-            $('kpiDaily').innerHTML = (daily % 1 ? daily.toFixed(1) : String(daily)) + ' <small>条/天</small>';
+            animateKpi($('kpiDaily'), daily, '条/天', daily % 1 ? 1 : 0);
 
             var mapper = sourceMapper(d.vocab);
             var srcSet = {};
             for (var s = 0; s < items.length; s++) { srcSet[mapper(items[s])] = 1; }
-            $('kpiSources').innerHTML = String(Object.keys(srcSet).length) + ' <small>个</small>';
+            animateKpi($('kpiSources'), Object.keys(srcSet).length, '个');
 
             var pairs = entityCounters(items, d.vocab);
             if (pairs.length) {
-                $('kpiEntity').innerHTML = String(pairs[0].count) + ' <small>条</small>';
+                animateKpi($('kpiEntity'), pairs[0].count, '条');
                 $('kpiEntitySub').textContent = pairs[0].name;
             } else {
                 $('kpiEntity').textContent = '–';
                 $('kpiEntitySub').textContent = d.vocabOk ? '' : '词表未加载';
             }
+
+            var heroTotal = $('heroChipTotal'); if (heroTotal) { heroTotal.textContent = String(items.length); }
+            var heroDays = $('heroChipDays'); if (heroDays) { heroDays.textContent = String(dates.length); }
+            var heroTop = $('heroChipTop'); if (heroTop) { heroTop.textContent = pairs.length ? pairs[0].name : '–'; }
 
             var maxDate = dates.length ? dates[dates.length - 1] : '';
             $('statsAsof').textContent = maxDate ? ('数据截至 ' + maxDate + ' · ' + items.length + ' 条') : '数据加载中…';
@@ -704,7 +845,9 @@
             });
             var P = palette();
             makeChart('calChart').setOption({
-                tooltip: { formatter: function (p) { return p.value[0] + ' · ' + p.value[1] + ' 条'; } },
+                tooltip: Object.assign(tip(P), {
+                    formatter: function (p) { return p.value[0] + ' · ' + p.value[1] + ' 条'; }
+                }),
                 visualMap: {
                     show: false, min: 0, max: maxCount,
                     inRange: { color: P.heatRamp }
@@ -713,14 +856,15 @@
                     range: [min, max],
                     cellSize: [18, 18],
                     left: 36, right: 24, top: 24,
-                    itemStyle: { color: P.emptyCell, borderColor: P.paper, borderWidth: 3 },
+                    itemStyle: { color: P.emptyCell, borderColor: P.paper, borderWidth: 3, borderRadius: 5 },
                     splitLine: { show: false },
                     dayLabel: { firstDay: 1, nameMap: 'cn', color: P.muted, fontSize: 11 },
                     monthLabel: { nameMap: 'cn', color: P.ink2, fontSize: 12 },
                     yearLabel: { show: false }
                 },
                 series: [{
-                    type: 'heatmap', coordinateSystem: 'calendar', data: data
+                    type: 'heatmap', coordinateSystem: 'calendar', data: data,
+                    itemStyle: { borderRadius: 4 }
                 }]
             });
         }
@@ -739,7 +883,7 @@
             var P = palette();
             makeChart('srcChart').setOption({
                 color: P.donut,
-                tooltip: { trigger: 'item', formatter: '{b}<br/>{c} 条（{d}%）' },
+                tooltip: Object.assign(tip(P), { trigger: 'item', formatter: '{b}<br/>{c} 条（{d}%）' }),
                 legend: {
                     bottom: 0, icon: 'circle',
                     itemWidth: 9, itemHeight: 9, itemGap: 10,
@@ -749,12 +893,16 @@
                     type: 'pie',
                     radius: ['44%', '68%'],
                     center: ['50%', '44%'],
+                    padAngle: 2,
                     avoidLabelOverlap: true,
-                    itemStyle: { borderColor: P.paper, borderWidth: 2 },
+                    itemStyle: { borderColor: P.paper, borderWidth: 2, borderRadius: 6 },
                     label: { show: false },
                     emphasis: {
                         label: { show: true, formatter: '{b}\n{c} 条 · {d}%', color: P.ink, fontSize: 12 }
                     },
+                    animationDuration: 700,
+                    animationEasing: 'cubicOut',
+                    animationDelay: function (idx) { return idx * 45; },
                     data: data
                 }]
             });
@@ -769,7 +917,7 @@
             var P = palette();
             makeChart('entChart').setOption({
                 grid: { left: 6, right: 52, top: 6, bottom: 6, containLabel: true },
-                tooltip: { trigger: 'item', formatter: '{b}：{c} 条' },
+                tooltip: Object.assign(tip(P), { trigger: 'item', formatter: '{b}：{c} 条' }),
                 xAxis: { type: 'value', show: false },
                 yAxis: {
                     type: 'category', inverse: true,
@@ -781,11 +929,18 @@
                     type: 'bar',
                     data: pairs.map(function (p) { return p.count; }),
                     barMaxWidth: 14,
-                    itemStyle: { color: P.accent, borderRadius: [0, 7, 7, 0] },
+                    itemStyle: {
+                        color: { type: 'linear', x: 0, y: 0, x2: 1, y2: 0,
+                                 colorStops: [{ offset: 0, color: P.barFrom }, { offset: 1, color: P.barTo }] },
+                        borderRadius: [0, 7, 7, 0]
+                    },
                     label: {
                         show: true, position: 'right', color: P.muted, fontSize: 11,
                         formatter: '{c} 条'
-                    }
+                    },
+                    animationDuration: 700,
+                    animationEasing: 'cubicOut',
+                    animationDelay: function (idx) { return idx * 35; }
                 }]
             });
         }
@@ -799,12 +954,12 @@
             if (!data.length) { el.innerHTML = '<div class="chart-fallback">暂无命中的实体。</div>'; return; }
             var P = palette();
             makeChart('wcChart').setOption({
-                tooltip: {
+                tooltip: Object.assign(tip(P), {
                     formatter: function (p) {
                         var d = p.data || {};
                         return d.name + '<br/>累计 ' + d.total + ' 条 · 近 30 天 ' + d.recent + ' 条<br/>加权提及度 ' + d.value;
                     }
-                },
+                }),
                 series: [{
                     type: 'wordCloud',
                     sizeRange: [13, 54],
@@ -813,7 +968,11 @@
                     drawOutOfBound: false,
                     layoutAnimation: true,
                     textStyle: {
-                        color: P.accent,
+                        color: function (params) {
+                            var n = (params && params.dataIndex != null) ? params.dataIndex : 0;
+                            var step = Math.max(1, Math.ceil((data.length || 1) / P.wc.length));
+                            return P.wc[Math.min(P.wc.length - 1, Math.floor(n / step))];
+                        },
                         fontFamily: "'Noto Sans SC', 'Microsoft YaHei', sans-serif"
                     },
                     emphasis: { textStyle: { color: P.ink } },
@@ -838,7 +997,7 @@
             });
             if (!data.length) { el.innerHTML = '<div class="chart-fallback">暂无主题数据。</div>'; return; }
             makeChart('catChart').setOption({
-                tooltip: { trigger: 'item', formatter: '{b}<br/>{c} 条（{d}%）' },
+                tooltip: Object.assign(tip(P), { trigger: 'item', formatter: '{b}<br/>{c} 条（{d}%）' }),
                 legend: {
                     bottom: 0, icon: 'circle',
                     itemWidth: 9, itemHeight: 9, itemGap: 10,
@@ -848,12 +1007,16 @@
                     type: 'pie',
                     radius: ['44%', '68%'],
                     center: ['50%', '44%'],
+                    padAngle: 2,
                     avoidLabelOverlap: true,
-                    itemStyle: { borderColor: P.paper, borderWidth: 2 },
+                    itemStyle: { borderColor: P.paper, borderWidth: 2, borderRadius: 6 },
                     label: { show: false },
                     emphasis: {
                         label: { show: true, formatter: '{b}\n{c} 条 · {d}%', color: P.ink, fontSize: 12 }
                     },
+                    animationDuration: 700,
+                    animationEasing: 'cubicOut',
+                    animationDelay: function (idx) { return idx * 45; },
                     data: data
                 }]
             });
@@ -901,7 +1064,10 @@
                 });
             }
             makeChart('weekChart').setOption({
-                tooltip: {
+                animationDuration: 700,
+                animationEasing: 'cubicOut',
+                animationDelay: function (idx) { return idx * 30; },
+                tooltip: Object.assign(tip(P), {
                     trigger: 'axis',
                     formatter: function (ps) {
                         var lines = [ps[0].axisValue + '（周）'];
@@ -912,7 +1078,7 @@
                         lines.push('合计 ' + sum + ' 条');
                         return lines.join('<br/>');
                     }
-                },
+                }),
                 legend: {
                     bottom: 0, icon: 'circle',
                     itemWidth: 9, itemHeight: 9, itemGap: 10,
@@ -943,14 +1109,14 @@
             var P = palette();
             var showLabel = d.nodes.length <= 24;
             makeChart('coChart').setOption({
-                tooltip: {
+                tooltip: Object.assign(tip(P), {
                     formatter: function (p) {
                         if (p.dataType === 'edge') {
                             return p.data.source + ' × ' + p.data.target + '<br/>共现 ' + p.data.weight + ' 次';
                         }
                         return p.name + '<br/>共现伙伴 ' + (p.data.degree || 0) + ' 个<br/>主流主题：' + (p.data.cat || '其他');
                     }
-                },
+                }),
                 series: [{
                     type: 'graph',
                     layout: 'force',
@@ -959,12 +1125,16 @@
                     force: { repulsion: 240, edgeLength: [50, 130], gravity: 0.12 },
                     label: { show: false, color: P.ink2, fontSize: 11 },
                     emphasis: { focus: 'adjacency', label: { show: true } },
-                    lineStyle: { color: P.rule, opacity: 0.65, curveness: 0 },
+                    lineStyle: { color: P.accent, opacity: 0.22, curveness: 0.18 },
                     data: d.nodes.map(function (n) {
                         return {
                             name: n.name,
                             symbolSize: n.size,
-                            itemStyle: { color: catColor(n.cat, vocab, P) },
+                            itemStyle: {
+                                color: catColor(n.cat, vocab, P),
+                                shadowBlur: 14,
+                                shadowColor: P.accentGlow
+                            },
                             label: { show: showLabel || n.degree >= 5 },
                             degree: n.degree,
                             cat: n.cat
@@ -973,7 +1143,7 @@
                     links: d.edges.map(function (e) {
                         return {
                             source: e.a, target: e.b, weight: e.w,
-                            lineStyle: { width: 1 + Math.min(e.w, 8) * 0.5 }
+                            lineStyle: { width: 1 + Math.min(e.w, 8) * 0.5, opacity: 0.22 }
                         };
                     })
                 }]
@@ -991,12 +1161,12 @@
             var statusColor = { up: P.accent, down: P.down, flat: P.muted };
             var statusMark = { up: '↑ 升温', down: '↓ 降温', flat: '– 持平' };
             makeChart('cmpChart').setOption({
-                tooltip: {
+                tooltip: Object.assign(tip(P), {
                     formatter: function (p) {
                         var d = p.data || {};
                         return d.name + '：' + (statusMark[d.status] || '') + '<br/>后半段 ' + d.rateA + ' /百条 · 前半段 ' + d.rateB + ' /百条';
                     }
-                },
+                }),
                 series: [{
                     type: 'wordCloud',
                     sizeRange: [13, 50],
@@ -1051,8 +1221,41 @@
             });
         }
 
+        /* ---------- 滚动微交互 ---------- */
+        function revealNow(el) { if (el.classList) { el.classList.add('is-revealed'); } }
+
+        function initReveal() {
+            var els = document.querySelectorAll ? document.querySelectorAll('[data-reveal]') : [];
+            var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            if (!('IntersectionObserver' in window) || reduce) {
+                for (var i = 0; i < els.length; i++) { revealNow(els[i]); }
+                return;
+            }
+            var io = new IntersectionObserver(function (entries) {
+                entries.forEach(function (en) {
+                    if (en.isIntersecting) { revealNow(en.target); io.unobserve(en.target); }
+                });
+            }, { rootMargin: '0px 0px -8% 0px', threshold: 0.06 });
+            for (var j = 0; j < els.length; j++) { io.observe(els[j]); }
+        }
+
+        function initTopbar() {
+            var wrap = document.getElementById('statsTopbarWrap');
+            if (!wrap || !('IntersectionObserver' in window) || !document.body) { return; }
+            var sent = document.createElement('div');
+            sent.style.cssText = 'position:absolute;top:0;left:0;width:1px;height:1px;pointer-events:none;';
+            document.body.insertBefore(sent, document.body.firstChild);
+            new IntersectionObserver(function (entries) {
+                entries.forEach(function (en) {
+                    if (wrap.classList) { wrap.classList.toggle('is-stuck', !en.isIntersecting); }
+                });
+            }).observe(sent);
+        }
+
         /* ---------- 事件 ---------- */
         $('statsRetry').addEventListener('click', boot);
+        initReveal();
+        initTopbar();
         window.addEventListener('resize', function () {
             for (var i = 0; i < charts.length; i++) { charts[i].resize(); }
         });
