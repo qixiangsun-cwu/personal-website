@@ -492,6 +492,16 @@ tr.grp td{background:var(--green-soft) !important;color:#215c26;}
 /* 网格子项允许收缩，避免长内容把 1fr 列撑宽（移动端/窄屏防溢出） */
 .grid2>.cell,.grid3>.cell{min-width:0;}
 .cell code.inline{white-space:normal;overflow-wrap:anywhere;}
+
+/* 手机端（≤720px）：长行内代码允许换行、宽表格/动画舞台内部滚动，避免整页横向溢出 */
+@media(max-width:720px){
+  code.inline{white-space:normal;overflow-wrap:anywhere;}
+  .mat-wrap{overflow-x:auto;}
+  .anim-stage{overflow-x:auto;}
+  .inter-row label{max-width:100%;min-width:0;}
+  .inter-row select,.inter-row input{max-width:100%;}
+  .kpi-grid{grid-template-columns:1fr 1fr;}
+}
 </style>
 </head>
 <body>
@@ -535,15 +545,15 @@ tr.grp td{background:var(--green-soft) !important;color:#215c26;}
     <div class="sec-num">导</div>
     <div>
       <h2>本讲导览</h2>
-      <p class="sec-sub">Lesson Overview · 从"一个一个算"到"一张表一起处理"</p>
+      <p class="sec-sub">Lesson Overview · 从“一个一个算”到“一张表一起处理”</p>
     </div>
   </div>
 
-  <p>上一章 NumPy 教我们把<strong>一整批数</strong>当成一个对象来算，可它有一个前提：数据得是<strong>整齐的同类型数组</strong>。现实里的数据却是一张张<strong>表</strong>——一行是一条订单、一名学生、一次访问，每一列是名字、日期、单价、数量，<strong>每列类型还不一样</strong>。用 NumPy 处理这种表，你得自己记住"第 0 列是订单号、第 3 列是商品名"，代码里全是 <code class="inline">a[:, 3]</code> 这种天书。</p>
+  <p>上一章 NumPy 教我们把<strong>一整批数</strong>当成一个对象来算，可它有一个前提：数据得是<strong>整齐的同类型数组</strong>。现实里的数据却是一张张<strong>表</strong>——一行是一条订单、一名学生、一次访问，每一列是名字、日期、单价、数量，<strong>每列类型还不一样</strong>。用 NumPy 处理这种表，你得自己记住“第 0 列是订单号、第 3 列是商品名”，代码里全是 <code class="inline">a[:, 3]</code> 这种天书。</p>
 
-  <p>这一章的主角 <strong>Pandas</strong> 就是为"表"而生的。它有两个核心对象：<code class="inline">Series</code>（带标签的一列）和 <code class="inline">DataFrame</code>（带标签的二维表）。有了标签，你写的是 <code class="inline">df['金额'].sum()</code>、<code class="inline">df[df.商品名称 == '围巾']</code>——<strong>说的是业务含义，不是第几列</strong>。Excel 能做的筛选、排序、分组、透视、合并，Pandas 都能用几行代码完成；而且步骤可复现、可批量、可自动化，数据量从 300 行涨到 300 万行也不用换方法。</p>
+  <p>这一章的主角 <strong>Pandas</strong> 就是为“表”而生的。它有两个核心对象：<code class="inline">Series</code>（带标签的一列）和 <code class="inline">DataFrame</code>（带标签的二维表）。有了标签，你写的是 <code class="inline">df['金额'].sum()</code>、<code class="inline">df[df.商品名称 == '围巾']</code>——<strong>说的是业务含义，不是第几列</strong>。Excel 能做的筛选、排序、分组、透视、合并，Pandas 都能用几行代码完成；而且步骤可复现、可批量、可自动化，数据量从 300 行涨到 300 万行也不用换方法。</p>
 
-  <p>这一章是整门课<strong>分量最重</strong>的一章（12 学时：讲授 2 + 上机 10），课件 92 页、例 8-1 到例 8-40。页面按"数据结构 → 导入导出 → 预处理 → 查询 → 聚合 → 透视 → 合并"的主线展开，最后用订单数据把全流程串一遍。<strong>示例和演示比前几章都多</strong>：每段代码都在本机真实运行、结果自动回填；每个抽象概念都配手绘插图、可单步播放的动画和可动手改参数的交互面板。</p>
+  <p>这一章是整门课<strong>分量最重</strong>的一章（12 学时：讲授 2 + 上机 10），课件 92 页、例 8-1 到例 8-40。页面按“数据结构 → 导入导出 → 预处理 → 查询 → 聚合 → 透视 → 合并”的主线展开，最后用订单数据把全流程串一遍。<strong>示例和演示比前几章都多</strong>：每段代码都在本机真实运行、结果自动回填；每个抽象概念都配手绘插图、可单步播放的动画和可动手改参数的交互面板。</p>
 
   <div class="figsvg">
     <svg viewBox="0 0 900 340" width="900" height="340" role="img" aria-label="本课主线：原始表格数据经 Pandas 六步处理得到分析结论并导出">
@@ -599,7 +609,7 @@ tr.grp td{background:var(--green-soft) !important;color:#215c26;}
       </g>
       <text x="450" y="305" text-anchor="middle" font-size="12" fill="#5d594c">数据量越大、步骤越多，代码的优势越明显；而且每一版都能原样复现</text>
     </svg>
-    <div class="figcap">本课主线：真实数据几乎都是"表"，Pandas 把导入、清洗、查询、聚合、透视、合并串成一条可复现的流水线</div>
+    <div class="figcap">本课主线：真实数据几乎都是“表”，Pandas 把导入、清洗、查询、聚合、透视、合并串成一条可复现的流水线</div>
   </div>
 
   <h3>十二学时怎么排</h3>
@@ -627,7 +637,7 @@ tr.grp td{background:var(--green-soft) !important;color:#215c26;}
   </div>
 
   <div class="note">
-    <strong>学习目标</strong>：① 说清 Series 和 DataFrame 的"三部分"（index / columns / values），会用列表、字典、数组创建 Series 和 DataFrame；② 会用 <code class="inline">shape / index / columns / dtypes / info() / describe()</code> 看清一张表；③ 分得清 <code class="inline">loc</code>（按标签）和 <code class="inline">iloc</code>（按位置），会用 <code class="inline">at / iat / df[ ]</code> 和布尔索引取值；④ 会修改、增删列，会 <code class="inline">sort_index / sort_values</code> 排序；⑤ 会 <code class="inline">read_excel / read_csv / read_table</code> 导入、<code class="inline">to_excel / to_csv</code> 导出，知道 <code class="inline">index=False</code> 和编码参数的意义；⑥ 会用 <code class="inline">isnull / dropna / fillna / duplicated / drop_duplicates</code> 处理缺失、重复、异常值；⑦ 会用条件查询、<code class="inline">between / isin / nlargest</code> 和排序做数据查询；⑧ 会用 <code class="inline">groupby + agg</code>、<code class="inline">pd.cut</code>、<code class="inline">resample</code> 做统计汇总；⑨ 会用 <code class="inline">pivot_table</code> 建透视表；⑩ 会用 <code class="inline">concat / merge</code> 合并连接两张表，并能独立完成订单数据的全流程分析。
+    <strong>学习目标</strong>：① 说清 Series 和 DataFrame 的“三部分”（index / columns / values），会用列表、字典、数组创建 Series 和 DataFrame；② 会用 <code class="inline">shape / index / columns / dtypes / info() / describe()</code> 看清一张表；③ 分得清 <code class="inline">loc</code>（按标签）和 <code class="inline">iloc</code>（按位置），会用 <code class="inline">at / iat / df[ ]</code> 和布尔索引取值；④ 会修改、增删列，会 <code class="inline">sort_index / sort_values</code> 排序；⑤ 会 <code class="inline">read_excel / read_csv / read_table</code> 导入、<code class="inline">to_excel / to_csv</code> 导出，知道 <code class="inline">index=False</code> 和编码参数的意义；⑥ 会用 <code class="inline">isnull / dropna / fillna / duplicated / drop_duplicates</code> 处理缺失、重复、异常值；⑦ 会用条件查询、<code class="inline">between / isin / nlargest</code> 和排序做数据查询；⑧ 会用 <code class="inline">groupby + agg</code>、<code class="inline">pd.cut</code>、<code class="inline">resample</code> 做统计汇总；⑨ 会用 <code class="inline">pivot_table</code> 建透视表；⑩ 会用 <code class="inline">concat / merge</code> 合并连接两张表，并能独立完成订单数据的全流程分析。
   </div>
 
   <h3>本课地图</h3>
@@ -715,10 +725,10 @@ tr.grp td{background:var(--green-soft) !important;color:#215c26;}
         </div>
       </div>
     </div>
-    <div class="legend">说明：本章依据课程课件《8-Pandas 数据处理与分析新》（92 页，例 8-1—例 8-40）与教学进度表「CH8 Pandas数据处理与分析：Pandas基本数据结构（Series、DataFrame）· 数据导入与导出 · 数据预处理 · 数据查询、汇总、数据透视表 · 数据的连接与合并（讲授 2 + 上机 10 ＝ 12 学时）」整理并扩充。课件完整数据 310 行（<code class="inline">data\订单.xlsx</code>），页面为便于阅读统一使用 <b>12 行精简订单数据</b>（保留了缺失值、重复值、异常值三类问题），课后练习请用完整数据。页面每段代码都在本机真实运行后回填（Python 3.14 / pandas 3.0.5），运行结果默认隐藏，点"运行"才显示。</div>
+    <div class="legend">说明：本章依据课程课件《8-Pandas 数据处理与分析新》（92 页，例 8-1—例 8-40）与教学进度表「CH8 Pandas数据处理与分析：Pandas基本数据结构（Series、DataFrame）· 数据导入与导出 · 数据预处理 · 数据查询、汇总、数据透视表 · 数据的连接与合并（讲授 2 + 上机 10 ＝ 12 学时）」整理并扩充。课件完整数据 310 行（<code class="inline">data\订单.xlsx</code>），页面为便于阅读统一使用 <b>12 行精简订单数据</b>（保留了缺失值、重复值、异常值三类问题），课后练习请用完整数据。页面每段代码都在本机真实运行后回填（Python 3.14 / pandas 3.0.5），运行结果默认隐藏，点“运行”才显示。</div>
   </div>
 
-  <div class="warn"><strong>先记住四句话</strong>：① 一切从"带标签"开始——<code class="inline">Series</code> 是带标签的一列，<code class="inline">DataFrame</code> 是带标签的表（<code class="inline">index</code> 行标签 + <code class="inline">columns</code> 列标签）；② 取数据先想清楚"<strong>按标签还是按位置</strong>"——<code class="inline">loc</code> 看名字、<code class="inline">iloc</code> 看座号，条件筛选用布尔索引；③ 分析四板斧：<strong>筛选 → 分组（groupby）→ 汇总（agg）→ 透视（pivot_table）</strong>；④ 数据不干净、分析全白搭：缺失 / 重复 / 异常值先处理，导出时记得 <code class="inline">index=False</code>。</div>
+  <div class="warn"><strong>先记住四句话</strong>：① 一切从“带标签”开始——<code class="inline">Series</code> 是带标签的一列，<code class="inline">DataFrame</code> 是带标签的表（<code class="inline">index</code> 行标签 + <code class="inline">columns</code> 列标签）；② 取数据先想清楚“<strong>按标签还是按位置</strong>”——<code class="inline">loc</code> 看名字、<code class="inline">iloc</code> 看座号，条件筛选用布尔索引；③ 分析四板斧：<strong>筛选 → 分组（groupby）→ 汇总（agg）→ 透视（pivot_table）</strong>；④ 数据不干净、分析全白搭：缺失 / 重复 / 异常值先处理，导出时记得 <code class="inline">index=False</code>。</div>
 
   <div class="danger"><strong>最容易栽的六个坑</strong>：① pandas 3 里 <code class="inline">freq='M'</code> 已被删除（改 <code class="inline">'ME'</code> 月末 / <code class="inline">'MS'</code> 月初），照抄旧教材会直接报 <code class="inline">ValueError</code>；② 多条件查询 <strong>每个条件都要加括号</strong>，<code class="inline">df[(a &gt; 1) &amp; (b &lt; 2)]</code>，少括号会报错；③ <code class="inline">dropna(inplace=True)</code> 的返回值是 <code class="inline">None</code>，别写 <code class="inline">df = df.dropna(inplace=True)</code>；④ 链式赋值 <code class="inline">df[df.x &gt; 1]['y'] = 0</code> 在 pandas 3 的写时复制下<strong>不生效</strong>，要用 <code class="inline">df.loc[条件, 'y'] = 0</code>；⑤ <code class="inline">pivot_table</code> 默认聚合是 <strong>mean 不是 sum</strong>，要 <code class="inline">aggfunc='sum'</code> 就写明；⑥ <code class="inline">merge</code> 时右表连接键有重复会让行数<strong>膨胀</strong>，连接后一定核对行数。</div>
 </section>
@@ -1181,7 +1191,7 @@ drop 之后还在不在： False | True
 
   <h3 id="c1-5">1.5 运算与统计</h3>
 
-  <p>Series 的运算和 NumPy 数组一样是“逐元素”的：<code class="inline">s + 5</code> 是每个分数加 5，<code class="inline">s * 1.1</code> 是每个分数乘 1.1，循环不用写。统计更省事，求和、平均、最大、最小、计数各有一个方法，直接点在 Series 后面就行。注意 <code class="inline">mean()</code> 算出来常常是 81.66666666666667 这样的长尾巴，展示时用 <code class="inline">round(x, 1)</code> 收一下。</p>
+  <p>Series 的运算和 NumPy 数组一样是“逐元素”的：<code class="inline">s + 5</code> 是每个分数加 5，<code class="inline">s * 1.1</code> 是每个分数乘 1.1，循环不用写。统计更省事，求和、平均、最大、最小、计数各有一个方法，直接点在 Series 后面就行。注意 <code class="inline">mean()</code> 有时会算出 81.66666666666667 这样的长尾巴（比如 245 ÷ 3），展示时用 <code class="inline">round(x, 1)</code> 收一下；本页的成绩表均值正好是 88.5，不用收。</p>
 
   <div class="demo" data-demo="k1-stat">
     <div class="demo-head">
@@ -1240,7 +1250,7 @@ dtype: float64
 </pre></div>
   </div>
 
-  <div class="note"><strong>对齐是 Pandas 的招牌能力</strong>：两个 Series 做运算时，Pandas 会先把两边的 index 取并集，再按标签逐个配对；只有一边有的标签，另一边的值当作缺失（NaN）。所以你看到 <code class="inline">a + b</code> 的结果索引顺序可能和你写的不一样——那是合并后的标签顺序，不影响结果对不对。<strong>先对齐、再计算</strong>这个思路，到了 DataFrame 的列运算、数据合并（第 8.5 节）还会反复出现。</div>
+  <div class="note"><strong>对齐是 Pandas 的招牌能力</strong>：两个 Series 做运算时，Pandas 会先把两边的 index 取并集，再按标签逐个配对；只有一边有的标签，另一边的值当作缺失（NaN）。所以你看到 <code class="inline">a + b</code> 的结果索引顺序可能和你写的不一样——那是合并后的标签顺序，不影响结果对不对。<strong>先对齐、再计算</strong>这个思路，到了 DataFrame 的列运算、数据合并（第 8.8 节）还会反复出现。</div>
 
   <div class="sumline">✅ <b>本节小结</b>：Series 与标量运算逐元素生效；<code class="inline">sum/mean/max/min/count</code> 一行出统计，长小数用 <code class="inline">round()</code> 收；两个 Series 运算会<strong>按标签自动对齐</strong>，只有一边有的标签结果补 NaN。</div>
 
@@ -1453,7 +1463,7 @@ ValueError: Invalid frequency: M. Failed to parse with error message: ValueError
     </div>
   </div>
 
-  <p>Series 是“一列”，而真实的数据表是“多列”：既有姓名、班级这样的文字列，又有成绩、金额这样的数值列，列与列的类型还不一样。能装下这种二维表格的对象就是 <strong>DataFrame</strong>——本课、本章、乃至整个 Pandas 最重要的数据结构。后面第 8.4 节的数据预处理、第 8.6 节的查询筛选、第 8.7 节的分组透视，全部是在 DataFrame 上操作。</p>
+  <p>Series 是“一列”，而真实的数据表是“多列”：既有姓名、班级这样的文字列，又有成绩、金额这样的数值列，列与列的类型还不一样。能装下这种二维表格的对象就是 <strong>DataFrame</strong>——本课、本章、乃至整个 Pandas 最重要的数据结构。后面第 8.4 节的数据预处理、第 8.5 节的查询筛选、第 8.6 节的分组汇总、第 8.7 节的透视表，全部是在 DataFrame 上操作。</p>
 
   <p>这一模块解决两个问题：<strong>表怎么造出来</strong>（2.1—2.4），<strong>造出来之后怎么快速看清它</strong>（2.5—2.6）。造表有两种常用方式：嵌套列表适合“手上已经有一堆数”，字典适合“知道每一列叫什么”。看清一个表只需要五个属性加四个方法，记住之后任何陌生数据拿到手都不慌。</p>
 
@@ -2092,7 +2102,7 @@ Name: 班级, dtype: object
 </pre></div>
   </div>
 
-  <p>字符串列的 <code class="inline">describe()</code> 统计的是“个数、去重个数、出现最多的值、它出现了几次”，也就是 <code class="inline">count / unique / top / freq</code> 四行——这其实就是频数统计的雏形，第 8.7 节会正式讲 <code class="inline">value_counts()</code>。</p>
+  <p>字符串列的 <code class="inline">describe()</code> 统计的是“个数、去重个数、出现最多的值、它出现了几次”，也就是 <code class="inline">count / unique / top / freq</code> 四行——这其实就是频数统计的雏形，第 8.6 节会正式讲 <code class="inline">value_counts()</code>。</p>
 
   <div class="figsvg">
     <svg viewBox="0 0 900 450" width="900" height="450" role="img" aria-label="df.info() 的输出面板示意：首行是类型，RangeIndex 是行数，Non-Null Count 是非空个数，Dtype 是列类型并出现 str、float64、datetime64[us] 三种值">
@@ -2188,7 +2198,7 @@ df.iloc[0:2, 1]
     </div>
   </div>
 
-  <p>口诀：<strong>loc 看名字，iloc 看座号</strong>。名字是建表时你起的，座号是数据排队的顺序，两者在默认情况下恰好重合（0、1、2…），所以新手容易混。下图把同一张表的“名字坐标”和“座位坐标”叠在一起画了一遍，同一个 89 分，两种坐标写法不同。</p>
+  <p>口诀：<strong>loc 看名字，iloc 看座号</strong>。名字是建表时你起的，座号是数据排队的顺序，两者在默认情况下恰好重合（0、1、2…），所以新手容易混。下图把同一张表的“名字坐标”和“座位坐标”叠在一起画了一遍，同一个 80 分，两种坐标写法不同。</p>
 
   <div class="figsvg">
     <svg viewBox="0 0 900 420" width="900" height="420" role="img" aria-label="loc 按标签、iloc 按位置访问同一张 DataFrame 的对照图，以及切片是否含终点的差别">
@@ -2660,6 +2670,8 @@ Python    92    75
 
   <div class="sumline">✅ <b>本节小结</b>：布尔索引两步——先 <code class="inline">df['列'] &gt;= 值</code> 造出一排 True/False，再 <code class="inline">df[掩码]</code> 挑出 True 的行；区间用 <code class="inline">between(下限, 上限)</code>；多条件用 <code class="inline">&amp; | ~</code> 且<strong>每个条件都要加括号</strong>；<code class="inline">df.loc[掩码, 列]</code> 可以只保留指定列。</div>
 
+  <div class="note"><strong>课件例 8-2 对照</strong>：课件用同一张学生成绩表完成 5 个查询——① 查询 wang 的语文成绩 <code class="inline">df.loc['语文', 'wang']</code>（等价 <code class="inline">df.iloc[0, 1]</code>）；② 查询 zhao 和 wang 的语文、数学成绩 <code class="inline">df.iloc[0:2, :]</code>；③ 查询 zhao 的所有成绩 <code class="inline">df.loc[:, 'zhao']</code>（也可写 <code class="inline">df['zhao']</code>）；④ 查询 zhao 的数学和 Python 成绩 <code class="inline">df.loc[['数学', 'Python'], 'zhao']</code>；⑤ 查询 wang 成绩 ≥80 的课程和成绩 <code class="inline">df.loc[df['wang'] &gt;= 80, 'wang']</code>。这 5 问分别对应 3.1—3.4 的写法，可以拿上面的数据进行逐条验证。</div>
+
   <h3 id="c3-5">3.5 修改数据：改值/加列/转置/drop</h3>
 
   <p>取数之外，另一类高频操作是改数。改单个值用 <code class="inline">loc</code> 定位后赋值；加一列直接给一个不存在的列名赋值；想整体换个方向看用转置 <code class="inline">.T</code>；想删列删行用 <code class="inline">drop()</code>。</p>
@@ -2748,7 +2760,7 @@ Python    92    75
 </pre></div>
   </div>
 
-  <div class="warn"><strong>改数据的三个坑</strong>：① 加列时 <code class="inline">df['li'] = [...]</code> 的列表<strong>长度必须等于行数</strong>，否则报错；② <code class="inline">drop()</code> 默认<strong>返回新表</strong>，原表不会少一列——想真正删掉要写 <code class="inline">df = df.drop(...)</code>（它也有 <code class="inline">inplace</code> 参数，但本课统一用重新赋值，少用 inplace，避免“忘了返回值”的坑）；③ <strong>不要用链式赋值</strong>，例如 <code class="inline">df[df['wang'] &gt; 80]['zhao'] = 0</code>，在 pandas 3 的写时复制（CoW）机制下这种写法不会生效，正确写法是 <code class="inline">df.loc[df['wang'] &gt; 80, 'zhao'] = 0</code>（第 8.6 节细讲）。</div>
+  <div class="warn"><strong>改数据的三个坑</strong>：① 加列时 <code class="inline">df['li'] = [...]</code> 的列表<strong>长度必须等于行数</strong>，否则报错；② <code class="inline">drop()</code> 默认<strong>返回新表</strong>，原表不会少一列——想真正删掉要写 <code class="inline">df = df.drop(...)</code>（它也有 <code class="inline">inplace</code> 参数，但本课统一用重新赋值，少用 inplace，避免“忘了返回值”的坑）；③ <strong>不要用链式赋值</strong>，例如 <code class="inline">df[df['wang'] &gt; 80]['zhao'] = 0</code>，在 pandas 3 的写时复制（CoW）机制下这种写法不会生效，正确写法是 <code class="inline">df.loc[df['wang'] &gt; 80, 'zhao'] = 0</code>（第 8.5 节细讲）。</div>
 
   <div class="sumline">✅ <b>本节小结</b>：改值用 <code class="inline">df.loc[行, 列] = 新值</code>；加列用 <code class="inline">df['新列名'] = 列表</code>（长度必须一致）；<code class="inline">df.T</code> 转置、行列互换；<code class="inline">df.drop(columns=[...])</code> 删列、<code class="inline">df.drop(index=[...])</code> 删行，<strong>默认返回新表</strong>。</div>
 
@@ -2862,6 +2874,8 @@ print(df.sort_values(by='赵敏', axis=1, ascending=False))</pre>
   <div class="warn"><strong>排序的四个注意点</strong>：① 排序方法默认<strong>返回新表</strong>，原表不变，要看结果就 <code class="inline">print(df.sort_values(...))</code> 或重新赋值（它们也有 <code class="inline">inplace</code> 参数，但本课统一用重新赋值）；② 缺失值默认排在最后（升序时），可用 <code class="inline">na_position='first'</code> 挪到最前；③ 多列排序时 <code class="inline">ascending</code> 传列表，<strong>长度要和 by 的列数一致</strong>；④ 值相同的行，排序后默认保持它们原来的相对顺序（稳定排序），所以“值相等但顺序看起来没变”是正常的。</div>
 
   <div class="sumline">✅ <b>本节小结</b>：<code class="inline">sort_index()</code> 按行列标签排、<code class="inline">sort_values(by=...)</code> 按某一列的值排；<code class="inline">ascending</code> 控制升降，多列排序传列表；<code class="inline">axis=1</code> 时按列排；缺失值位置用 <code class="inline">na_position</code> 控制，排序默认<strong>返回新表</strong>。</div>
+
+  <div class="note"><strong>课件例 8-3 对照</strong>：课件例 8-3 的 6 个操作正好覆盖本模块——① 增加一列 li：<code class="inline">df['li'] = [87, 79, 67, 75]</code>；② 转置：<code class="inline">df = df.T</code>；③ 把 wang 的 Python 成绩改成 80：<code class="inline">df.loc['wang', 'Python'] = 80</code>；④ 删除 Python 一列：<code class="inline">df.drop(columns='Python', inplace=True)</code>；⑤ 按学生姓名排序：<code class="inline">df.sort_index(axis=0)</code>；⑥ 按数学成绩降序：<code class="inline">df.sort_values(by='数学', axis=0, ascending=False)</code>。注意 ③—⑥ 是在<strong>转置之后</strong>的 df 上做的（此时行是学生、列是课程），顺序不要乱。</div>
 </section>
 
 <!-- ===== 模块四：数据分析流程与数据导入导出 ===== -->
@@ -2887,7 +2901,7 @@ print(df.sort_values(by='赵敏', axis=1, ascending=False))</pre>
     <li><strong>数据准备</strong>：按照字段清单去收集数据——从数据库、Excel/CSV 文件、网络接口里把数据取回来。本课的做法是 <code class="inline">read_excel()</code> / <code class="inline">read_csv()</code> 读进 DataFrame，也就是 8.3 节。</li>
     <li><strong>数据预处理</strong>：提高数据质量。包括<strong>数据清洗</strong>（缺失值、重复值、异常值、无意义数据）和<strong>数据加工</strong>（类型转换、字段拆分、计算新列），也就是 8.4 节。</li>
     <li><strong>数据分析</strong>：用适当的方法和工具，对干净的数据做查询、排序、分组、聚合、透视，提取有价值的信息，也就是 8.5—8.7 节。</li>
-    <li><strong>数据展示与报告</strong>：把结论讲清楚——图表 + 分析报告，必要时把清洗后的数据导出成 Excel/CSV 交给别人，也就是 8.6—8.8 节的收尾。</li>
+    <li><strong>数据展示与报告</strong>：把结论讲清楚——图表 + 分析报告，必要时把清洗后的数据导出成 Excel/CSV 交给别人，也就是 8.5—8.8 节的收尾。</li>
   </ol>
 
   <p>这五步是<strong>有先后、也要能回头</strong>的。课件特别强调第 3 步：“如果数据本身存在异常或者不符合分析的要求，那么即使采用最先进的数据分析方法，所得到的结果也是错误的。”这就是数据分析里的“垃圾进，垃圾出”（Garbage In, Garbage Out）。下图把五步和本课的小节对应关系一次画清楚：</p>
@@ -2979,19 +2993,21 @@ csv = """订单编号,订单日期,用户ID,商品名称,单价,数量,金额
 302011,2021-02-25,149590,运动服,178.5,0,0.0
 302012,2021-02-28,137401,围巾,21.6,25,540.0
 """
-df = pd.read_csv(StringIO(csv), parse_dates=['订单日期'])
+raw = pd.read_csv(StringIO(csv), parse_dates=['订单日期'])
 
-print('① 数据准备：表', df.shape)
-print('② 先检查：缺失格', int(df.isnull().sum().sum()), '个')
-print('③ 清洗后：', df.dropna().drop_duplicates().shape[0], '行')
+print('① 数据准备：表', raw.shape)
+print('② 先检查：缺失格', int(raw.isnull().sum().sum()), '个')
+df = raw.dropna().drop_duplicates()                                # 去缺失、去重
+df = df[(df['金额'] != 0) & ~((df['单价'] &gt; 150) & (df['数量'] &gt; 25))]  # 去异常
+print('③ 清洗后：', df.shape[0], '行')
 print('④ 分析：金额合计', round(df['金额'].sum(), 2), '元')
 print('⑤ 结论：最大单笔', df['金额'].max(), '元')</pre>
     <div class="demo-out"><div class="out-label">运行结果（实测）</div><pre class="out">
 ① 数据准备：表 (12, 7)
 ② 先检查：缺失格 3 个
-③ 清洗后： 10 行
-④ 分析：金额合计 18340.72 元
-⑤ 结论：最大单笔 4860.0 元
+③ 清洗后： 8 行
+④ 分析：金额合计 11043.22 元
+⑤ 结论：最大单笔 4284.0 元
 </pre></div>
   </div>
 
@@ -3153,7 +3169,7 @@ with tempfile.TemporaryDirectory() as td:
     <div class="figcap">图 8-10　三种文件格式对应三个 read_* 函数：选错函数比写错参数更常见，先看扩展名，再看分隔符</div>
   </div>
 
-  <p>先拿标准商品表（第七节的 7 行商品数据）走一个“写出去 → 读回来”的来回。注意导出时写了 <code class="inline">index=False</code>，读回来才有 5 列而不是 6 列：</p>
+  <p>先拿标准商品表（4.3 节那张 7 行商品表）走一个“写出去 → 读回来”的来回。注意导出时写了 <code class="inline">index=False</code>，读回来才有 5 列而不是 6 列：</p>
 
   <div class="demo" data-demo="k4-csv">
     <div class="demo-head">
@@ -3592,10 +3608,10 @@ with tempfile.TemporaryDirectory() as td:
 
   <h3 id="c5-1">5.1 为什么要预处理</h3>
 
-  <p>把 12 行订单数据摊开看，它并不是一张“干净”的表。课件完整数据 310 行里，问题类型和下面这张精简表完全一样：</p>
+  <p>把 12 行订单数据摊开看，它并不是一张“干净”的表。课件完整数据 310 行里，字段和问题类型与这张精简表相近（以缺失值、异常值为主；完整数据里没有完全重复的行，重复值用这张精简表来演示）：</p>
 
   <div class="datacard">
-    <div class="dc-name">订单.csv<span class="dc-tag">CSV · 12 行 × 7 列（精简版，完整数据 310 行）</span></div>
+    <div class="dc-name">精简订单数据.csv<span class="dc-tag">CSV · 12 行 × 7 列（完整数据 310 行）</span></div>
     <div class="dc-body">
       <div class="mat-wrap"><div class="mat"><table>
         <tr><th></th><th>订单编号</th><th>订单日期</th><th>用户ID</th><th>商品名称</th><th>单价</th><th>数量</th><th>金额</th></tr>
@@ -5153,9 +5169,9 @@ TypeError: ufunc 'bitwise_or' not supported for the input types, and the inputs 
       <rect x="40" y="320" width="820" height="30" rx="6" fill="#eaf7ea" stroke="#2e7d32"/>
       <text x="56" y="340" font-size="13" fill="#215c26">A &amp; B（两个都 True）→ 302004（运动服、4284 元）</text>
       <rect x="40" y="356" width="820" height="30" rx="6" fill="#fff7e6" stroke="#b8860b"/>
-      <text x="56" y="376" font-size="13" fill="#7a4a0a">A | B（有一个 True 就行）→ 302002、302004、302010</text>
+      <text x="56" y="376" font-size="13" fill="#7a4a0a">A | B（有一个 True 就行）→ 302002、302004、302010、302011（共 4 行）</text>
       <rect x="40" y="392" width="820" height="30" rx="6" fill="#fbeceb" stroke="#b3392f"/>
-      <text x="56" y="412" font-size="13" fill="#8c2f28">~A（把 True/False 翻过来）→ 302001、302002（金额不超过 2000 的）</text>
+      <text x="56" y="412" font-size="13" fill="#8c2f28">~A（把 True/False 翻过来）→ 302001、302002、302003、302005、302006、302006、302008、302009、302011、302012（共 10 行）</text>
 
       <text x="40" y="452" font-size="12.5" fill="#5d594c">口诀：&amp; 两个都要、| 一个就够、~ 全部翻转——但每个条件都必须先用小括号括起来。</text>
     </svg>
@@ -5496,7 +5512,7 @@ print('其余行标记为 NaN：', df['标记'].isnull().sum(), '行')</pre>
       <tr><td><code class="inline">mean()</code></td><td>算术平均</td><td>单个数值</td><td><code class="inline">df['金额'].mean()</code></td></tr>
       <tr><td><code class="inline">max() / min()</code></td><td>最大 / 最小</td><td>单列→标量；多列→Series</td><td><code class="inline">df[['数量','金额']].max()</code></td></tr>
       <tr><td><code class="inline">std()</code></td><td>标准差（越大越分散）</td><td>单个数值</td><td><code class="inline">df['金额'].std()</code></td></tr>
-      <tr><td><code class="inline">describe()</code></td><td>一次给出 count / mean / std / min / 四分位 / max</td><td>9 行的 Series（多列时是表）</td><td><code class="inline">df[['单价','数量','金额']].describe()</code></td></tr>
+      <tr><td><code class="inline">describe()</code></td><td>一次给出 count / mean / std / min / 四分位 / max</td><td>8 行的 Series（多列时是表）</td><td><code class="inline">df[['单价','数量','金额']].describe()</code></td></tr>
     </tbody>
   </table></div>
 
@@ -5723,7 +5739,7 @@ print('订单编号去重后有几个：', df['订单编号'].nunique())</pre>
 </pre></div>
   </div>
 
-  <p><code class="inline">nunique</code> 的结果比行数更能说明“数据有多少信息量”：12 行记录里只有 11 个不同订单号（302006 重复了）、9 个用户、8 个日期。这三个数字是后面分组、透视的基础——<strong>分组的组数 = 分组键的 nunique</strong>，8 个日期做透视的行就是 8 行（清洗掉异常后会更少）。</p>
+  <p><code class="inline">nunique</code> 的结果比行数更能说明“数据有多少信息量”：12 行记录里只有 11 个不同订单号（302006 重复了）、9 个用户、8 个日期。这三个数字是后面分组、透视的基础——<strong>分组的组数 = 分组键的 nunique</strong>；而 8 个日期做透视默认只得到 7 行：2021-02-15 那天只有一条商品名称为空的订单，整行被 <code class="inline">dropna=True</code> 丢弃（写 <code class="inline">dropna=False</code> 才会保留 8 行）。</p>
 
   <div class="sumline">✅ <b>本节小结</b>：<code class="inline">value_counts()</code> 数每个取值出现几次、默认降序、不统计 NaN，<code class="inline">normalize=True</code> 变占比；<code class="inline">mode()</code> 只给出现最多的取值，<strong>并列时返回多行</strong>；<code class="inline">nunique()</code> 数有几个不同值，是“分组会有多少组”的预告。</div>
 
@@ -5790,7 +5806,7 @@ print('订单编号去重后有几个：', df['订单编号'].nunique())</pre>
       <text x="328" y="226" font-size="11.5" font-weight="700" fill="#1f3864">T恤</text>
       <rect x="378" y="212" width="64" height="22" rx="5" fill="#fff" stroke="#b8860b" stroke-width="1"/>
       <text x="410" y="227" text-anchor="middle" font-size="10.5" fill="#2b2820">1342.32</text>
-      <text x="452" y="227" font-size="10.5" fill="#5d594c">（本例只有 1 行）</text>
+      <text x="452" y="227" font-size="10.5" fill="#5d594c">（实际 3 行，合计 2592.52）</text>
 
       <rect x="316" y="264" width="290" height="52" rx="8" fill="#fff7e6" stroke="#b8860b" stroke-width="1.4"/>
       <text x="328" y="286" font-size="11.5" font-weight="700" fill="#1f3864">卫衣</text>
@@ -6422,30 +6438,36 @@ Freq: ME, dtype: int64
       <text x="450" y="26" text-anchor="middle" font-size="16.5" font-weight="700" fill="#1f3864">pivot_table：长表 → 行 × 列 × 值 的矩阵（例 8-37 原样）</text>
 
       <text x="24" y="60" font-size="12.5" font-weight="700" fill="#1f3864">① 长表（值要按两个字段交叉汇总）</text>
-      <rect x="20" y="70" width="318" height="212" rx="10" fill="#fdfbf6" stroke="#e4ddcc" stroke-width="1.5"/>
+      <rect x="20" y="70" width="318" height="262" rx="10" fill="#fdfbf6" stroke="#e4ddcc" stroke-width="1.5"/>
       <text x="36" y="94" font-size="11.5" font-weight="700" fill="#1f3864">周次</text>
       <text x="126" y="94" font-size="11.5" font-weight="700" fill="#1f3864">商品名称</text>
       <text x="256" y="94" font-size="11.5" font-weight="700" fill="#1f3864">金额</text>
       <line x1="34" y1="102" x2="324" y2="102" stroke="#e4ddcc" stroke-width="1.2"/>
       <text x="36" y="126" font-size="11" fill="#2b2820">5</text>
-      <text x="126" y="126" font-size="11" fill="#2b2820">围巾</text>
-      <text x="256" y="126" font-size="11" fill="#2b2820">259.20</text>
+      <text x="126" y="126" font-size="11" fill="#2b2820">T恤</text>
+      <text x="256" y="126" font-size="11" fill="#2b2820">2263.52</text>
       <text x="36" y="150" font-size="11" fill="#2b2820">5</text>
-      <text x="126" y="150" font-size="11" fill="#2b2820">运动服</text>
-      <text x="256" y="150" font-size="11" fill="#2b2820">5754.00</text>
-      <text x="36" y="174" font-size="11" fill="#2b2820">6</text>
-      <text x="126" y="174" font-size="11" fill="#2b2820">T恤</text>
-      <text x="256" y="174" font-size="11" fill="#2b2820">329.00</text>
+      <text x="126" y="150" font-size="11" fill="#2b2820">围巾</text>
+      <text x="256" y="150" font-size="11" fill="#2b2820">259.20</text>
+      <text x="36" y="174" font-size="11" fill="#2b2820">5</text>
+      <text x="126" y="174" font-size="11" fill="#2b2820">运动服</text>
+      <text x="256" y="174" font-size="11" fill="#2b2820">5754.00</text>
       <text x="36" y="198" font-size="11" fill="#2b2820">6</text>
-      <text x="126" y="198" font-size="11" fill="#2b2820">卫衣</text>
-      <text x="256" y="198" font-size="11" fill="#2b2820">3795.00</text>
-      <text x="36" y="222" font-size="11" fill="#2b2820">7</text>
-      <text x="126" y="222" font-size="11" fill="#2b2820">休闲鞋</text>
-      <text x="256" y="222" font-size="11" fill="#2b2820">4860.00</text>
-      <text x="36" y="246" font-size="11" fill="#2b2820">8</text>
-      <text x="126" y="246" font-size="11" fill="#2b2820">围巾</text>
-      <text x="256" y="246" font-size="11" fill="#2b2820">540.00</text>
-      <text x="36" y="272" font-size="10.5" fill="#5d594c">一行一个（周, 商品）组合</text>
+      <text x="126" y="198" font-size="11" fill="#2b2820">T恤</text>
+      <text x="256" y="198" font-size="11" fill="#2b2820">329.00</text>
+      <text x="36" y="222" font-size="11" fill="#2b2820">6</text>
+      <text x="126" y="222" font-size="11" fill="#2b2820">卫衣</text>
+      <text x="256" y="222" font-size="11" fill="#2b2820">3795.00</text>
+      <text x="36" y="246" font-size="11" fill="#2b2820">7</text>
+      <text x="126" y="246" font-size="11" fill="#2b2820">休闲鞋</text>
+      <text x="256" y="246" font-size="11" fill="#2b2820">4860.00</text>
+      <text x="36" y="270" font-size="11" fill="#2b2820">8</text>
+      <text x="126" y="270" font-size="11" fill="#2b2820">运动服</text>
+      <text x="256" y="270" font-size="11" fill="#2b2820">0.00</text>
+      <text x="36" y="294" font-size="11" fill="#2b2820">8</text>
+      <text x="126" y="294" font-size="11" fill="#2b2820">围巾</text>
+      <text x="256" y="294" font-size="11" fill="#2b2820">540.00</text>
+      <text x="36" y="320" font-size="10.5" fill="#5d594c">一行一个（周, 商品）组合，共 8 行（例 8-37 原样）</text>
 
       <text x="362" y="60" font-size="12.5" font-weight="700" fill="#b8860b">② 三个角色各就各位</text>
       <rect x="360" y="70" width="206" height="44" rx="8" fill="#eaf1f8" stroke="#306998" stroke-width="1.4"/>
@@ -7620,7 +7642,7 @@ one-hot 之后：一件商品一列，是它填 1、不是填 0
 
   <div class="sumline">✅ <b>本节小结</b>：本章三条主线——<strong>数据结构</strong>（Series / DataFrame 的三部分）、<strong>预处理与查询</strong>（清洗脏数据后再筛行选列）、<strong>分析与整合</strong>（groupby 分组、pivot_table 透视、concat / merge 拼表）；八个高频坑集中在 inplace、索引、aggfunc 默认值、括号、bins 边界、重复键和 pandas 3 的 <code class="inline">'ME'</code> 上。<strong>数据分析是 AI 的前置工序</strong>，这一章练的就是那道工序。</div>
 
-  <div class="vid"><span class="vtag">配套视频</span><a href="https://www.bilibili.com/video/BV1qW4y1a7fU/?p=126" target="_blank" rel="noopener">黑马程序员 · 第 126 讲 数据分析案例步骤3-可视化开发</a><span class="vmeta">B站 · 课程配套案例的可视化收尾，本课综合案例的下一步就是它：把透视出来的结果画成图，写进报告</span></div>
+  <div class="vid"><span class="vtag">配套视频</span><a href="https://www.bilibili.com/video/BV1qW4y1a7fU/?p=126" target="_blank" rel="noopener">黑马程序员 · 第 126 集 数据分析案例步骤3-可视化开发</a><span class="vmeta">B站 · 课程配套案例的可视化收尾，本课综合案例的下一步就是它：把透视出来的结果画成图，写进报告</span></div>
 </section>
 
 <section id="lab">
@@ -7682,7 +7704,7 @@ one-hot 之后：一件商品一列，是它填 1、不是填 0
 
   <div class="inter">
     <h4>演示四：多条件筛选器（&amp; / |）</h4>
-    <p>对应 6.2—6.3 节。12 行订单表固定（含 1 处缺失、1 组重复）。每一行写一个条件，格式是「列名 运算符 值」，运算符支持 <code class="inline">&gt;= &lt;= &gt; &lt; == !=</code>；再选 <b>&amp; 全部满足</b> 或 <b>| 满足任一</b>。点按钮看每一行的布尔掩码、命中行数和筛选后的结果表。<b>在代码里写多条件时，每个条件都要用小括号括起来再和 &amp; / | 组合</b>（<code class="inline">df[(df.金额 &gt; 2000) &amp; (df.商品名称 == '运动服')]</code>）；面板里一行写一个条件，不用自己加括号。比较时遇到 NaN 一律判 False，只有 <code class="inline">!=</code> 是例外：<code class="inline">NaN != 值</code> 在 pandas 里是 True。字符串直接写（<code class="inline">商品名称 = 运动服</code>），日期写 <code class="inline">2021-02-15</code> 这种格式。</p>
+    <p>对应 6.2—6.3 节。12 行订单表固定（含 1 条记录缺 3 格、1 组重复）。每一行写一个条件，格式是「列名 运算符 值」，运算符支持 <code class="inline">&gt;= &lt;= &gt; &lt; == !=</code>；再选 <b>&amp; 全部满足</b> 或 <b>| 满足任一</b>。点按钮看每一行的布尔掩码、命中行数和筛选后的结果表。<b>在代码里写多条件时，每个条件都要用小括号括起来再和 &amp; / | 组合</b>（<code class="inline">df[(df.金额 &gt; 2000) &amp; (df.商品名称 == '运动服')]</code>）；面板里一行写一个条件，不用自己加括号。比较时遇到 NaN 一律判 False，只有 <code class="inline">!=</code> 是例外：<code class="inline">NaN != 值</code> 在 pandas 里是 True。字符串直接写（<code class="inline">商品名称 = 运动服</code>），日期写 <code class="inline">2021-02-15</code> 这种格式。</p>
     <div class="inter-row">
       <label>逻辑：<select id="flt-logic">
         <option value="and" selected>&amp; 全部满足（与）</option>
@@ -7811,7 +7833,7 @@ one-hot 之后：一件商品一列，是它填 1、不是填 0
       <tbody>
         <tr>
           <td><a class="dl-link" href="assets/python-bigdata-2026/lesson8/%E8%AE%A2%E5%8D%95.xlsx" download>订单<span class="nb">.xlsx</span></a></td>
-          <td>原始订单数据（310 行 × 7 列），含缺失值 / 重复值 / 异常值，课件例 8-4—8-11 都用它。</td>
+          <td>原始订单数据（310 行 × 7 列），含缺失值、异常值（含金额为 0 / 数量为 0 的订单）；完整数据里没有完全重复的行，重复值问题用 12 行精简数据演示。课件例 8-4—8-11 都用它。</td>
           <td class="dl-size">90.0 KB</td>
         </tr>
         <tr>
@@ -7896,7 +7918,7 @@ one-hot 之后：一件商品一列，是它填 1、不是填 0
         <tr>
           <td><a class="dl-link" href="assets/python-bigdata-2026/lesson8/%E7%A4%BA%E4%BE%8B%E4%BB%A3%E7%A0%81_%E6%A8%A1%E5%9D%974_%E6%95%B0%E6%8D%AE%E5%AF%BC%E5%85%A5%E4%B8%8E%E5%AF%BC%E5%87%BA.py" download>示例代码_模块4_数据导入与导出<span class="nb">.py</span></a></td>
           <td>模块 4「数据导入与导出」的全部示例代码（11 段）：数据分析流程 · read_excel / read_csv / read_table · 导入参数 · to_excel / to_csv。</td>
-          <td class="dl-size">9.2 KB</td>
+          <td class="dl-size">9.3 KB</td>
         </tr>
         <tr>
           <td><a class="dl-link" href="assets/python-bigdata-2026/lesson8/%E7%A4%BA%E4%BE%8B%E4%BB%A3%E7%A0%81_%E6%A8%A1%E5%9D%975_%E6%95%B0%E6%8D%AE%E9%A2%84%E5%A4%84%E7%90%86.py" download>示例代码_模块5_数据预处理<span class="nb">.py</span></a></td>
@@ -7938,10 +7960,10 @@ one-hot 之后：一件商品一列，是它填 1、不是填 0
 
   <h3>四、一次打包下载</h3>
   <div class="datacard">
-    <div class="dc-name">第8章_代码与数据_资料包.zip<span class="dc-tag">202.1 KB · 全部文件</span></div>
+    <div class="dc-name">第8章_代码与数据_资料包.zip<span class="dc-tag">202.3 KB · 全部文件</span></div>
     <div class="dc-body" style="padding:16px 18px;">
       <p style="margin:0 0 10px;">把上面的数据、示例代码、作业答案和说明文档打成一个 zip，解压后直接可用。</p>
-      <p style="margin:0;"><a class="dl-zip" href="assets/python-bigdata-2026/lesson8/%E7%AC%AC8%E7%AB%A0_%E4%BB%A3%E7%A0%81%E4%B8%8E%E6%95%B0%E6%8D%AE_%E8%B5%84%E6%96%99%E5%8C%85.zip" download>⬇ 下载 第8章_代码与数据_资料包.zip（202.1 KB）</a></p>
+      <p style="margin:0;"><a class="dl-zip" href="assets/python-bigdata-2026/lesson8/%E7%AC%AC8%E7%AB%A0_%E4%BB%A3%E7%A0%81%E4%B8%8E%E6%95%B0%E6%8D%AE_%E8%B5%84%E6%96%99%E5%8C%85.zip" download>⬇ 下载 第8章_代码与数据_资料包.zip（202.3 KB）</a></p>
     </div>
     <div class="dc-meta">解压后建议先看 <code class="inline">README_使用说明.md</code>；运行示例前确认已安装 pandas / openpyxl。</div>
   </div>
@@ -7970,7 +7992,7 @@ one-hot 之后：一件商品一列，是它填 1、不是填 0
         <li>两大对象：<code class="inline">Series</code>（带标签一维）、<code class="inline">DataFrame</code>（带标签二维）</li>
         <li><code class="inline">Series</code> = <code class="inline">index</code>（标签）+ <code class="inline">values</code>（值）</li>
         <li>默认索引 0..n-1；可用列表 / 字典指定标签</li>
-        <li>访问：<code class="inline">s[标签]</code>、<code class="inline">s[位置]</code>、切片、<code class="inline">s[[标签1,标签2]]</code>、<code class="inline">s[s&gt;=80]</code></li>
+        <li>访问：<code class="inline">s[标签]</code>、<code class="inline">s.iloc[位置]</code>、切片、<code class="inline">s[[标签1,标签2]]</code>、<code class="inline">s[s&gt;=80]</code></li>
         <li>时间索引：<code class="inline">pd.date_range(start, end, periods, freq)</code>，三选二；<code class="inline">freq='ME'</code> 月末</li>
       </ul>
     </div>
@@ -8012,7 +8034,7 @@ one-hot 之后：一件商品一列，是它填 1、不是填 0
       <ul>
         <li>查找缺失：<code class="inline">isnull() / isna() / notna()</code>，<code class="inline">.any()</code> 看哪些列</li>
         <li>删除缺失：<code class="inline">dropna(axis, how, thresh, subset, inplace)</code>，默认 <code class="inline">how='any'</code></li>
-        <li>填充缺失：<code class="inline">fillna(value, method, limit, inplace)</code>；均值 / 前向 <code class="inline">'ffill'</code></li>
+        <li>填充缺失：<code class="inline">fillna(value, axis, inplace, limit)</code>；均值 / 前向 <code class="inline">df.ffill()</code>（pandas 3 已删 <code class="inline">fillna(method=…)</code>）</li>
         <li>异常值：条件 + <code class="inline">&amp;</code> 查找，<code class="inline">drop(index=…)</code> 删除，<code class="inline">clip</code> / <code class="inline">loc</code> 替换</li>
         <li>重复值：<code class="inline">duplicated(subset, keep)</code>、<code class="inline">drop_duplicates(subset, keep, inplace)</code></li>
         <li>其它：<code class="inline">astype</code> 转类型、<code class="inline">str[0:2]</code> 抽字段、<code class="inline">dt.isocalendar().week</code> 提周次</li>
@@ -8048,7 +8070,7 @@ one-hot 之后：一件商品一列，是它填 1、不是填 0
         <li>how：<code class="inline">inner</code>（默认，交集）、<code class="inline">left</code>、<code class="inline">right</code>、<code class="inline">outer</code></li>
         <li>连接前查连接键是否唯一；连接后核对行数</li>
         <li>全流程：导入 → 查看 → 清洗 → 查询 → 分组 / 透视 → 合并 → 导出</li>
-        <li>DataFrame 是 AI 数据管线里"清洗与特征"的标准容器</li>
+        <li>DataFrame 是 AI 数据管线里“清洗与特征”的标准容器</li>
       </ul>
     </div>
   </div>
@@ -8095,7 +8117,7 @@ one-hot 之后：一件商品一列，是它填 1、不是填 0
         </tr>
         <tr>
           <td><code class="inline">df[0]</code> 报 <code class="inline">KeyError: 0</code></td>
-          <td><code class="inline">df[整数]</code> 被当成"列标签"查找</td>
+          <td><code class="inline">df[整数]</code> 被当成“列标签”查找</td>
           <td>选行用切片 <code class="inline">df[0:1]</code> 或 <code class="inline">df.iloc[0]</code>；选列用列名</td>
         </tr>
         <tr>
@@ -8126,9 +8148,9 @@ one-hot 之后：一件商品一列，是它填 1、不是填 0
   <div class="homework">
     <h4>本章作业</h4>
     <ol>
-      <li><strong>销售表基本功</strong>（课件课后练习 1）：模拟某商场 2025 年 12 个月的服装、化妆品、日用品销量表，建立名为 <code class="inline">sales</code> 的数据框对象。要求：① 销量用随机数生成（每种商品都不超过 50，固定随机种子）；② 用 <code class="inline">pd.date_range</code> 生成 2025 年 1—12 月的时间序列作为行索引；③ 查询 6 月份"化妆品"销售量；④ 查询 5 月和 10 月的销售记录；⑤ 查询"服装"销量 20～35 的记录；⑥ 查询"服装"和"化妆品"销量都超过 30（含）的记录；⑦ 按"日用品"销量降序排序；⑧ 统计 2025 年各商品销售总量；⑨ 统计每个月销售总量。</li>
+      <li><strong>销售表基本功</strong>（课件课后练习 1）：模拟某商场 2025 年 12 个月的服装、化妆品、日用品销量表，建立名为 <code class="inline">sales</code> 的数据框对象。要求：① 销量用随机数生成（每种商品都不超过 50，固定随机种子）；② 用 <code class="inline">pd.date_range</code> 生成 2025 年 1—12 月的时间序列作为行索引；③ 查询 6 月份“化妆品”销售量；④ 查询 5 月和 10 月的销售记录；⑤ 查询“服装”销量 20～35 的记录；⑥ 查询“服装”和“化妆品”销量都超过 30（含）的记录；⑦ 按“日用品”销量降序排序；⑧ 统计 2025 年各商品销售总量；⑨ 统计每个月销售总量。</li>
       <li><strong>订单统计分析</strong>（课件课后练习 2，用完整 <code class="inline">data\订单.xlsx</code> 或 <code class="inline">订单_new.xlsx</code>）：① 每天的订单记录数量；② 每周的订购总数量和总金额，并保存成 CSV；③ 每周各商品的订单记录数量（<code class="inline">pivot_table</code> + <code class="inline">aggfunc='count'</code> + <code class="inline">margins</code>）；④ 第 5 周的订购总数量；⑤ 自选两个分析目标并说明结论。</li>
-      <li><strong>综合实战</strong>：自己造一份不少于 20 行、带缺失值 / 重复值 / 异常值的"脏"订单数据（字段：订单编号、日期、用户ID、商品、单价、数量、金额），完成：导入 → <code class="inline">info</code> 检查 → 删缺失 / 去重 / 删异常 → 按商品分组统计 → 建透视表 → 导出 Excel（不带索引）。每一步输出处理前后的 <code class="inline">shape</code>，并在报告里解释为什么行数这样变化。</li>
+      <li><strong>综合实战</strong>：自己造一份不少于 20 行、带缺失值 / 重复值 / 异常值的“脏”订单数据（字段：订单编号、日期、用户ID、商品、单价、数量、金额），完成：导入 → <code class="inline">info</code> 检查 → 删缺失 / 去重 / 删异常 → 按商品分组统计 → 建透视表 → 导出 Excel（不带索引）。每一步输出处理前后的 <code class="inline">shape</code>，并在报告里解释为什么行数这样变化。</li>
     </ol>
     <p style="margin-top:8px;"><strong>提交要求</strong>：每题给出代码 + 运行结果；第 3 题的输出文件一并提交；变量名要能读懂，关键步骤写注释。</p>
   </div>
@@ -8150,7 +8172,7 @@ one-hot 之后：一件商品一列，是它填 1、不是填 0
       <li><code class="inline">pd.date_range(start='2025-01-01', periods=12, freq='ME')</code> 生成几个时间点？第一个和最后一个分别是哪天？</li>
       <li><code class="inline">read_csv</code> 的 <code class="inline">index_col=0</code>、<code class="inline">header=None</code>、<code class="inline">usecols</code> 各解决什么问题？</li>
       <li><code class="inline">dropna(how='any')</code> 和 <code class="inline">dropna(how='all')</code> 的区别？<code class="inline">inplace=True</code> 的坑是什么？</li>
-      <li><code class="inline">df[df.金额 &gt; 3000]</code> 里那个布尔表达式返回什么？为什么能用来"挑行"？</li>
+      <li><code class="inline">df[df.金额 &gt; 3000]</code> 里那个布尔表达式返回什么？为什么能用来“挑行”？</li>
       <li><code class="inline">groupby('商品名称').agg({'金额': 'sum'})</code> 和 <code class="inline">pivot_table(values='金额', index='商品名称', aggfunc='sum')</code> 结果有什么关系？</li>
       <li><code class="inline">merge</code> 的 <code class="inline">how='inner'</code> 与 <code class="inline">how='outer'</code> 保留哪些记录？为什么连接后要核对行数？</li>
     </ol>
@@ -8162,7 +8184,7 @@ one-hot 之后：一件商品一列，是它填 1、不是填 0
 <footer>
   <div class="f-main">中华女子学院 · Python大数据分析基础</div>
   <div>第 8 次课 · 第 8 章 Pandas 数据处理与分析 · 12 学时（讲授 2 + 上机 10）· 授课人：孙琪翔</div>
-  <div style="margin-top:6px;font-size:12px;opacity:.7;">本页依据课程课件《8-Pandas 数据处理与分析新》（92 页，例 8-1—例 8-40）与《Python 编程与数据分析基础》（陈洁、刘姝，清华大学出版社）第 8 章整理；页面中每段示例代码都实际运行后回填结果（Python 3.14 / pandas 3.0.5），运行结果默认隐藏、点"运行"查看。页面统一使用 12 行精简订单数据（完整 310 行见课程数据文件）。</div>
+  <div style="margin-top:6px;font-size:12px;opacity:.7;">本页依据课程课件《8-Pandas 数据处理与分析新》（92 页，例 8-1—例 8-40）与《Python 编程与数据分析基础》（陈洁、刘姝，清华大学出版社）第 8 章整理；页面中每段示例代码都实际运行后回填结果（Python 3.14 / pandas 3.0.5），运行结果默认隐藏、点“运行”查看。页面统一使用 12 行精简订单数据（完整 310 行见课程数据文件）。</div>
   <div style="margin-top:12px;font-size:14px;">
     <a href="python-bigdata-2026.html">课程主页</a>
     <span style="opacity:.45;margin:0 8px;">|</span>
@@ -8500,7 +8522,7 @@ var ANIMS = {
       if (st === 6) {
         h += row('每个列表', '<div class=\'chips\'>' + chip('4 个值', 'va') + '</div>');
         h += row('index', '<div class=\'chips\'>' + chip('4 个标签', 'va') + '</div>');
-        h += row('对不上', '<div class=\'chips\'>' + chip('ValueError: Length mismatch', 'no') + '</div>');
+        h += row('对不上', '<div class=\'chips\'>' + chip('ValueError: All arrays must be of the same length', 'no') + '</div>');
         h += '<div class=\'anote\'>字典里每个列表长度必须一致；给了 index 时标签个数必须等于行数，否则列长短不齐，建表直接失败。</div>';
       }
       if (st === 7) {
@@ -8902,7 +8924,7 @@ var ANIMS = {
         }
         for (var j = 0; j < 3; j++) hl['8,' + j] = 'no';
         h += mat(['商品名称', '单价', '数量', '金额'], rows, { hl: hl });
-        h += note('12 行 × 4 列 = 48 个 True / False，只有 3 个 True，全部落在第 9 行；金额列全是 False，说明金额没有缺失。');
+        h += note('这里只画了 4 列：12 行 × 4 列 = 48 个 True / False（7 列全画是 84 格），只有 3 个 True，全部落在第 9 行；金额列全是 False，说明金额没有缺失。');
       }
       if (st === 3) {
         h += row('any()', chips(['订单编号 False', '订单日期 False', '用户ID False', '商品名称 True', '单价 True', '数量 True', '金额 False'], 'ph'));
@@ -8945,7 +8967,7 @@ var ANIMS = {
         { cap: '第 3 帧 · 策略二 均值：用这一列非空值的平均数 171 ÷ 11 ≈ 15.55 来填。', s: { step: 3 } },
         { cap: '第 4 帧 · 策略三 前向填充：ffill 用上一行的值来补，商品名称补成 T恤、数量补成 5.0。', s: { step: 4 } },
         { cap: '第 5 帧 · 同一行（302009）三种策略的结果对照：填什么取决于业务含义，不是挑代码短的。', s: { step: 5 } },
-        { cap: '第 6 帧 · 四个坑：默认返回新表、整表 fillna(0)、inplace 返回 None、填充后列变浮点。', s: { step: 6 } },
+        { cap: '第 6 帧 · 四个坑：默认返回新表、整表 fillna(0)、inplace 的返回值、填充后列变浮点。', s: { step: 6 } },
         { cap: '第 7 帧 · 结论：固定值最直接、均值保住列平均、ffill 适合有顺序的数据；填之前先想清楚这个缺失代表什么。', s: { step: 7 } }
       ];
     },
@@ -9016,7 +9038,7 @@ var ANIMS = {
       }
       if (st === 6) {
         h += row('返回值', chips(['不写 inplace 时返回新表，原表不动'], 'ph'));
-        h += row('inplace', chips(['inplace=True 返回 None，别写 df = df.fillna(..., inplace=True)'], 'no'));
+        h += row('inplace', chips(['inplace=True 直接改原表：dropna / sort / drop 返回 None，fillna / replace 在 pandas 3 返回对象本身；别写 df = df.fillna(..., inplace=True)'], 'no'));
         h += row('整表', chips(['df.fillna(0) 会把所有列都填 0，通常不是你想要的'], 'no'));
         h += row('dtype', chips(['填充后数量列是 float64：原来有 NaN 的列本来就是浮点'], 'ph'));
         h += note('要原地生效就重新赋值：df[&#39;数量&#39;] = df[&#39;数量&#39;].fillna(0)；均值受异常值影响时改用中位数。');

@@ -28,11 +28,13 @@ csv = """订单编号,订单日期,用户ID,商品名称,单价,数量,金额
 302011,2021-02-25,149590,运动服,178.5,0,0.0
 302012,2021-02-28,137401,围巾,21.6,25,540.0
 """
-df = pd.read_csv(StringIO(csv), parse_dates=['订单日期'])
+raw = pd.read_csv(StringIO(csv), parse_dates=['订单日期'])
 
-print('① 数据准备：表', df.shape)
-print('② 先检查：缺失格', int(df.isnull().sum().sum()), '个')
-print('③ 清洗后：', df.dropna().drop_duplicates().shape[0], '行')
+print('① 数据准备：表', raw.shape)
+print('② 先检查：缺失格', int(raw.isnull().sum().sum()), '个')
+df = raw.dropna().drop_duplicates()                                # 去缺失、去重
+df = df[(df['金额'] != 0) & ~((df['单价'] > 150) & (df['数量'] > 25))]  # 去异常
+print('③ 清洗后：', df.shape[0], '行')
 print('④ 分析：金额合计', round(df['金额'].sum(), 2), '元')
 print('⑤ 结论：最大单笔', df['金额'].max(), '元')
 
