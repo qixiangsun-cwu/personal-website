@@ -48,11 +48,15 @@
         .stats-hero-eyebrow .live-dot { margin-right: 0.6em; }
         .stats-hero-title {
             font-family: var(--font-display); font-weight: 700;
-            font-size: clamp(2.2rem, 5.2vw, 3.4rem);
+            /* 上限从 3.4rem 收敛到 3rem：两栏布局下左栏仅 ~408px，
+               54px 字号的「AI 观察数据全景」(≈430px) 放不下会把「全景」劈开留孤字 */
+            font-size: clamp(2.1rem, 4.6vw, 3rem);
             line-height: var(--leading-tight); letter-spacing: 0.01em;
             color: var(--color-ink); margin: 0 0 var(--space-md);
-            text-wrap: balance;
         }
+        /* 两行各自成块：每行独立 text-wrap:balance，
+           极窄屏放不下时均衡断行（如「AI 观察/数据全景」），绝不出现单字孤行 */
+        .stats-hero-line { display: block; text-wrap: balance; }
         .stats-hero-sub {
             font-size: var(--text-base); color: var(--color-ink-2);
             line-height: var(--leading-normal); margin: 0;
@@ -306,7 +310,7 @@
         <section class="stats-hero" data-reveal>
             <div class="stats-hero-copy">
                 <p class="stats-hero-eyebrow"><span class="live-dot" aria-hidden="true"></span>AI NEWS OBSERVATORY</p>
-                <h1 class="stats-hero-title">一个仍在生长的<br>AI 观察数据全景</h1>
+                <h1 class="stats-hero-title"><span class="stats-hero-line">一个仍在生长的</span><span class="stats-hero-line">AI 观察数据全景</span></h1>
                 <p class="stats-hero-sub">每天 08:00 抓取、翻译并审批发布 AI 领域重要动态——快照只增不删。这一页是它的全部数据：收录节奏、来源版图、实体热度与主题演变。</p>
                 <div class="stats-hero-chips">
                     <span class="stats-hero-chip"><b id="heroChipTotal">–</b> 条收录</span>
