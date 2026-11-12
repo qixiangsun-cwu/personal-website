@@ -426,10 +426,54 @@
         </section>
     </main>
 
-    <script src="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js"></script>
-    <script>window.echarts || document.write('<script src="https://unpkg.com/echarts@5.6.0/dist/echarts.min.js"><\/script>');</script>
-    <script src="https://cdn.jsdelivr.net/npm/echarts-wordcloud@2.1.0/dist/wordcloud.min.js" onload="window.__wcOk=true"></script>
-    <script>window.__wcOk || document.write('<script src="https://unpkg.com/echarts-wordcloud@2.1.0/dist/wordcloud.min.js" onload="window.__wcOk=true"><\/script>');</script>
+    <script src="https://registry.npmmirror.com/echarts/5.6.0/files/dist/echarts.min.js"></script>
+    <script src="https://registry.npmmirror.com/echarts-wordcloud/2.1.0/files/dist/echarts-wordcloud.min.js"></script>
+    <script>
+    /* 图表引擎多 CDN 回退：npmmirror（首选，国内直连）失败时按序切 jsdelivr → unpkg → cdnjs。
+       词云组件正确文件名为 echarts-wordcloud.min.js（dist 下无 wordcloud.min.js，旧路径已 404）。
+       三态约定：window.__wcOk = true 就绪 / undefined 加载中 / false 全链失败；
+       任一资源迟到就绪时调用 window.__chartsNotify 通知主脚本整体重渲。 */
+    (function () {
+        'use strict';
+        var E = [
+            'https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js',
+            'https://unpkg.com/echarts@5.6.0/dist/echarts.min.js',
+            'https://cdnjs.cloudflare.com/ajax/libs/echarts/5.6.0/echarts.min.js'
+        ];
+        var W = [
+            'https://cdn.jsdelivr.net/npm/echarts-wordcloud@2.1.0/dist/echarts-wordcloud.min.js',
+            'https://unpkg.com/echarts-wordcloud@2.1.0/dist/echarts-wordcloud.min.js'
+        ];
+        function chain(list, i, done) {
+            if (i >= list.length) { done(false); return; }
+            var s = document.createElement('script');
+            s.src = list[i];
+            s.async = false;
+            s.onload = function () { done(true); };
+            s.onerror = function () { chain(list, i + 1, done); };
+            (document.head || document.documentElement).appendChild(s);
+        }
+        function notify() {
+            if (typeof window.__chartsNotify === 'function') { window.__chartsNotify(); }
+        }
+        function wcStart() {
+            if (window.__wcOk) { return; }
+            chain(W, 0, function (ok) {
+                window.__wcOk = ok ? true : false;
+                notify();
+            });
+        }
+        if (!document.createElement) { return; } /* 环境不支持动态加载（如无头测试）则跳过回退 */
+        if (!window.echarts) {
+            chain(E, 0, function (ok) {
+                if (ok) { notify(); wcStart(); }
+                else { window.__ecFail = true; notify(); }
+            });
+        } else {
+            wcStart();
+        }
+    })();
+    </script>
     <script>
     (function () {
         'use strict';
@@ -1018,7 +1062,12 @@
             var el = $('wcChart');
             if (!window.echarts) { el.innerHTML = '<div class="chart-fallback">ECharts 加载失败，图表不可用。</div>'; return; }
             if (!vocabOk) { el.innerHTML = '<div class="chart-fallback">词表（data/ai-news-vocab.json）加载失败，词云暂不可用。</div>'; return; }
-            if (!window.__wcOk) { el.innerHTML = '<div class="chart-fallback">词云组件（echarts-wordcloud）加载失败，其余图表不受影响。</div>'; return; }
+            if (window.__wcOk === false) { el.innerHTML = '<div class="chart-fallback">词云组件（echarts-wordcloud）加载失败，其余图表不受影响。</div>'; return; }
+            if (!window.__wcOk) {
+                el.innerHTML = '<div class="chart-fallback">词云组件加载中…</div>';
+                window.__chartsNotify = function () { if (DATA) { renderAll(); } };
+                return;
+            }
             var data = wordcloudData(items, vocab);
             if (!data.length) { el.innerHTML = '<div class="chart-fallback">暂无命中的实体。</div>'; return; }
             var P = palette();
@@ -1223,7 +1272,12 @@
             var el = $('cmpChart');
             if (!window.echarts) { el.innerHTML = '<div class="chart-fallback">ECharts 加载失败，图表不可用。</div>'; return; }
             if (!vocabOk) { el.innerHTML = '<div class="chart-fallback">词表加载失败，对比词云暂不可用。</div>'; return; }
-            if (!window.__wcOk) { el.innerHTML = '<div class="chart-fallback">词云组件（echarts-wordcloud）加载失败，其余图表不受影响。</div>'; return; }
+            if (window.__wcOk === false) { el.innerHTML = '<div class="chart-fallback">词云组件（echarts-wordcloud）加载失败，其余图表不受影响。</div>'; return; }
+            if (!window.__wcOk) {
+                el.innerHTML = '<div class="chart-fallback">词云组件加载中…</div>';
+                window.__chartsNotify = function () { if (DATA) { renderAll(); } };
+                return;
+            }
             var data = compareData(items, vocab);
             if (!data.length) { el.innerHTML = '<div class="chart-fallback">对比样本不足，待数据积累。</div>'; return; }
             var P = palette();
@@ -1257,6 +1311,10 @@
 
         function renderAll() {
             if (!DATA) { return; }
+            if (!window.echarts && !window.__ecFail) {
+                /* 图表引擎回退加载中：就绪后整体重渲 */
+                window.__chartsNotify = function () { renderAll(); };
+            }
             disposeCharts();
             computeItemCats(DATA);
             renderKpis(DATA);
