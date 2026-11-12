@@ -30,7 +30,12 @@
         }
 
         /* ---------- hero ---------- */
-        .stats-hero { padding: var(--space-2xl) 0 var(--space-sm); max-width: 46em; }
+        .stats-hero {
+            display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+            gap: var(--space-2xl) var(--space-xl); align-items: center;
+            padding: var(--space-2xl) 0 var(--space-lg);
+        }
+        .stats-hero-copy { max-width: 34em; }
         .stats-hero-eyebrow {
             display: inline-flex; align-items: center;
             font-family: var(--font-outlier); font-size: 0.78rem; font-weight: 600;
@@ -59,6 +64,50 @@
         .stats-hero-chip b {
             font-family: var(--font-outlier); font-weight: 700; font-size: 1.05rem;
             color: var(--color-accent); font-variant-numeric: tabular-nums;
+        }
+
+        /* ---------- hero 视频卡 ---------- */
+        .stats-hero-media {
+            margin: 0; position: relative;
+            border-radius: var(--radius-lg); overflow: hidden;
+            border: 1px solid var(--color-rule);
+            box-shadow: 0 24px 60px oklch(22% 0.008 80 / 0.14);
+            background: #141312;
+        }
+        .stats-hero-media video {
+            display: block; width: 100%; height: auto;
+            aspect-ratio: 16 / 9; object-fit: cover;
+        }
+        .stats-hero-play {
+            position: absolute; inset: 0; width: 100%;
+            background: transparent; border: none; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            padding: 0;
+        }
+        .stats-hero-play i {
+            width: 72px; height: 72px; border-radius: 50%;
+            display: inline-flex; align-items: center; justify-content: center;
+            font-size: 2rem; color: #FFFFFF;
+            background: rgba(20,19,18,0.55);
+            border: 1px solid rgba(255,255,255,0.35);
+            backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+            transition: opacity var(--dur-base) var(--ease-out), transform var(--dur-base) var(--ease-out);
+        }
+        .stats-hero-play:hover i { transform: scale(1.08); }
+        .stats-hero-play.is-playing i { opacity: 0; }
+        .stats-hero-play.is-playing:hover i { opacity: 0.9; }
+        .no-js .stats-hero-play { display: none; }
+        .stats-hero-media-cap {
+            position: absolute; left: 0; right: 0; bottom: 0;
+            padding: 1.4rem 0.9rem 0.55rem;
+            font-family: var(--font-outlier); font-size: 0.72rem; letter-spacing: 0.06em;
+            color: rgba(239,237,234,0.82);
+            background: linear-gradient(transparent, rgba(20,19,18,0.72));
+            display: flex; align-items: center; gap: 0.4em;
+            pointer-events: none;
+        }
+        @media (max-width: 860px) {
+            .stats-hero { grid-template-columns: 1fr; gap: var(--space-lg); }
         }
 
         /* ---------- 图表块编号 ---------- */
@@ -215,14 +264,26 @@
     <main class="stats-wrap">
         <!-- hero -->
         <section class="stats-hero" data-reveal>
-            <p class="stats-hero-eyebrow"><span class="live-dot" aria-hidden="true"></span>AI NEWS OBSERVATORY</p>
-            <h1 class="stats-hero-title">一个仍在生长的<br>AI 观察数据全景</h1>
-            <p class="stats-hero-sub">每天 08:00 抓取、翻译并审批发布 AI 领域重要动态——快照只增不删。这一页是它的全部数据：收录节奏、来源版图、实体热度与主题演变。</p>
-            <div class="stats-hero-chips">
-                <span class="stats-hero-chip"><b id="heroChipTotal">–</b> 条收录</span>
-                <span class="stats-hero-chip"><b id="heroChipDays">–</b> 天有记录</span>
-                <span class="stats-hero-chip"><b id="heroChipTop">–</b> 最热实体</span>
+            <div class="stats-hero-copy">
+                <p class="stats-hero-eyebrow"><span class="live-dot" aria-hidden="true"></span>AI NEWS OBSERVATORY</p>
+                <h1 class="stats-hero-title">一个仍在生长的<br>AI 观察数据全景</h1>
+                <p class="stats-hero-sub">每天 08:00 抓取、翻译并审批发布 AI 领域重要动态——快照只增不删。这一页是它的全部数据：收录节奏、来源版图、实体热度与主题演变。</p>
+                <div class="stats-hero-chips">
+                    <span class="stats-hero-chip"><b id="heroChipTotal">–</b> 条收录</span>
+                    <span class="stats-hero-chip"><b id="heroChipDays">–</b> 天有记录</span>
+                    <span class="stats-hero-chip"><b id="heroChipTop">–</b> 最热实体</span>
+                </div>
             </div>
+            <figure class="stats-hero-media">
+                <video id="introVideo" poster="assets/ai-news/ai-news-intro-poster.jpg" preload="none" playsinline muted>
+                    <source src="assets/ai-news/ai-news-intro.mp4" type="video/mp4">
+                    <a href="assets/ai-news/ai-news-intro.mp4">下载片头视频（MP4）</a>
+                </video>
+                <button class="stats-hero-play" id="introPlayBtn" type="button" aria-label="播放数据片头">
+                    <i class="ph ph-play" aria-hidden="true"></i>
+                </button>
+                <figcaption class="stats-hero-media-cap"><i class="ph ph-film-slate" aria-hidden="true"></i>片头 · 用站点真实数据程序化生成 · 15 秒</figcaption>
+            </figure>
         </section>
 
         <section class="glass-card stats-error" id="statsError" hidden>
@@ -1252,10 +1313,28 @@
             }).observe(sent);
         }
 
+        function initIntroVideo() {
+            var v = document.getElementById('introVideo');
+            var btn = document.getElementById('introPlayBtn');
+            if (!v || !btn || !v.addEventListener || !v.play) { return; }
+            btn.addEventListener('click', function () {
+                if (v.paused) {
+                    var p = v.play();
+                    if (p && p.catch) { p.catch(function () {}); }
+                } else {
+                    v.pause();
+                }
+            });
+            v.addEventListener('play', function () { if (btn.classList) { btn.classList.add('is-playing'); } });
+            v.addEventListener('pause', function () { if (btn.classList) { btn.classList.remove('is-playing'); } });
+            v.addEventListener('ended', function () { if (btn.classList) { btn.classList.remove('is-playing'); } });
+        }
+
         /* ---------- 事件 ---------- */
         $('statsRetry').addEventListener('click', boot);
         initReveal();
         initTopbar();
+        initIntroVideo();
         window.addEventListener('resize', function () {
             for (var i = 0; i < charts.length; i++) { charts[i].resize(); }
         });
