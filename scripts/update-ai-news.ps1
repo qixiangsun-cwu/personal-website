@@ -3,8 +3,11 @@
 # 抓取 RSS -> 生成 ai-news.pending.json + 预览页 ai-news-preview.html
 # 不提交、不推送；生成后自动打开本地审批台 http://localhost:8866/approve
 # 由 Windows 计划任务每天 08:00 调用；-Headless 供 CI/手动无界面调用
+# 可选：-DigestUrl <微信文章链接>  额外摄取「腾讯研究院AI速递」当期
+#   （仿腾讯研究院模式：人工聚合的 3 要点式中文条目，每期 7-9 条，
+#    重复运行安全——标题级去重会挡住同一期）
 # ============================================================
-param([switch]$Headless)
+param([switch]$Headless, [string]$DigestUrl)
 
 $ErrorActionPreference = 'Stop'
 $OutputEncoding = [System.Text.Encoding]::UTF8
@@ -121,6 +124,76 @@ foreach ($feed in $feeds) {
     }
 }
 
+# ---------- 腾讯研究院AI速递摄取（可选，-DigestUrl 传入当期文章链接） ----------
+# 解析结构：板块名（短行）→ 一、标题 → 1./2./3. 要点 → 原文链接行
+# 条目 source=腾讯研究院AI速递、digest=true、section=板块；url 指向速递中给出的原文
+if ($DigestUrl) {
+    if ($DigestUrl -notmatch 'mp\.weixin\.qq\.com') {
+        Write-Log "WARN digest: 非 mp.weixin.qq.com 链接，跳过 -> $DigestUrl"
+    } else {
+        try {
+            $dResp = Invoke-WebRequest -Uri $DigestUrl -UseBasicParsing -TimeoutSec 25 `
+                -UserAgent 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/126 Safari/537.36'
+            $dHtml = [System.Text.Encoding]::UTF8.GetString($dResp.RawContentStream.ToArray())
+
+            # 期号日期来自 og:title（「…AI速递 20261112」），取不到则用今天
+            $dDate = (Get-Date -Format 'yyyy-MM-dd')
+            $dOg = [regex]::Match($dHtml, '<meta property="og:title" content="([^"]*)"')
+            if ($dOg.Success -and $dOg.Groups[1].Value -match '(\d{8})') {
+                try { $dDate = [datetime]::ParseExact($dOg.Groups[1].Value, 'yyyyMMdd', $null).ToString('yyyy-MM-dd') } catch {}
+            }
+
+            # 正文区段：对齐到 <div 开头，避免把开标签属性残行当文本
+            $idPos = $dHtml.IndexOf('id="js_content"')
+            if ($idPos -lt 0) { throw '未找到正文 js_content' }
+            $divPos = $dHtml.LastIndexOf('<div', $idPos)
+            $endPos = $dHtml.IndexOf('<script', $idPos)
+            if ($endPos -lt 0) { $endPos = $dHtml.IndexOf('<style', $idPos) }
+            if ($endPos -lt 0) { $endPos = $dHtml.Length }
+            $dContent = $dHtml.Substring($divPos, $endPos - $divPos)
+
+            $dText = $dContent -replace '<br\s*/?>', "`n" -replace '</p>', "`n" -replace '</section>', "`n" -replace '<[^>]+>', ''
+            $dText = [System.Net.WebUtility]::HtmlDecode($dText)
+            $dLines = @($dText -split "`n" | ForEach-Object { ([string]$_).Trim() } | Where-Object { $_ -ne '' })
+
+            $dTitle = ''; $dPoints = @(); $dSection = ''; $dCount = 0
+            foreach ($line in $dLines) {
+                if ($line -match '^https?://') {
+                    if ($dTitle -and $line -match 'mp\.weixin\.qq\.com' -and -not $seen.ContainsKey($dTitle)) {
+                        $dSummary = ($dPoints -join "`n")
+                        if ($dSummary.Length -gt 600) { $dSummary = $dSummary.Substring(0, 600) + '…' }
+                        $newItems.Add([PSCustomObject]@{
+                            title    = $dTitle
+                            title_en = $dTitle
+                            summary  = $dSummary
+                            source   = '腾讯研究院AI速递'
+                            url      = $line
+                            date     = $dDate
+                            digest   = $true
+                            section  = $dSection
+                        })
+                        $seen[$dTitle] = $true
+                        $dCount++
+                    }
+                    $dTitle = ''; $dPoints = @()
+                    continue
+                }
+                if ($line -match '^([一二三四五六七八九十]{1,3}、)(.+)$') {
+                    $dTitle = $Matches[2].Trim(); $dPoints = @()
+                    continue
+                }
+                if ($line -match '^[1-9][.、．]') { $dPoints += $line; continue }
+                if ($line.Length -le 12) { $dSection = $line; continue }
+            }
+            Write-Log "OK digest: 解析 $dCount 条（期号 $dDate）"
+        } catch {
+            $warnMsg = [string]$_.Exception.Message
+            if ($warnMsg.Length -gt 300) { $warnMsg = $warnMsg.Substring(0, 300) + ' …' }
+            Write-Log "WARN digest $DigestUrl -> $warnMsg"
+        }
+    }
+}
+
 Write-Log "抓取到新条目: $($newItems.Count)"
 if ($newItems.Count -eq 0) {
     Write-Log "没有新条目，无需审核"
@@ -159,6 +232,8 @@ foreach ($it in $allItems) {
             source   = [string]$it.source
             url      = [string]$it.url
             date     = [string]$it.date
+            digest   = [bool]$it.digest
+            section  = [string]$it.section
         }
         $merged += $obj
         if (-not $oldTitles.ContainsKey($t)) { $newTitles.Add($obj) }
@@ -171,11 +246,14 @@ $latestCutoff = ([datetime]::ParseExact($latestDate, 'yyyy-MM-dd', $null)).AddDa
 $currentList = [System.Collections.Generic.List[object]]::new()
 $srcCount = @{}
 $capPerSource = 1
+# 腾讯研究院AI速递为人工聚合源，一期即多条高质量条目：放宽到 6 条进 current
+$digestCapPerIssue = 6
 foreach ($it in @($merged | Where-Object { $_.date -ge $latestCutoff })) {
     if ($currentList.Count -ge 15) { break }
     $src = [string]$it.source
+    $cap = if ([bool]$it.digest) { $digestCapPerIssue } else { $capPerSource }
     if (-not $srcCount.ContainsKey($src)) { $srcCount[$src] = 0 }
-    if ($srcCount[$src] -ge $capPerSource) { continue }
+    if ($srcCount[$src] -ge $cap) { continue }
     $currentList.Add($it)
     $srcCount[$src]++
 }

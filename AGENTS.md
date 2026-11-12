@@ -16,6 +16,14 @@
 
 ## 每日审批流程
 
+0. （推荐）摄取「腾讯研究院AI速递」当期：先用 websearch 搜索
+   「腾讯研究院AI速递 yyyyMMdd」找到最新一期微信文章链接，然后运行
+   `powershell -NoProfile -ExecutionPolicy Bypass -File scripts\update-ai-news.ps1 -Headless -DigestUrl <链接>`
+   把它解析进待审稿——该源每条已带 1/2/3 三要点中文摘要与原文链接
+   （source=腾讯研究院AI速递，digest=true，section=生成式AI/前沿科技），
+   已是中文无需翻译；重复运行安全（标题级去重会挡住同一期）。
+   注意速递条目与 RSS 抓取的同题材条目可能同题不同文，审批时人工剔除一边；
+   current 配额已放宽：速递源每期最多 6 条，普通 RSS 源仍每源 1 条。
 1. 读取 `ai-news.pending.json`，与 `ai-news.json` 对比列出「本期新增」；
 2. 把非中文条目翻译成中文，**必须写回 `ai-news.pending.json` 文件本身**
    （更新 `title` / `summary`，保留 `title_en`）——只在对话里展示译文无效：
