@@ -136,11 +136,12 @@ if ($DigestUrl) {
                 -UserAgent 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/126 Safari/537.36'
             $dHtml = [System.Text.Encoding]::UTF8.GetString($dResp.RawContentStream.ToArray())
 
-            # 期号日期来自 og:title（「…AI速递 20261112」），取不到则用今天
+            # 期号日期来自标题（「…AI速递 20261112」），取不到则用今天。
+            # og:title 偶发缺失（页面变体），故全文兜底匹配「AI速递 日期」（h1 内同样含期号）
             $dDate = (Get-Date -Format 'yyyy-MM-dd')
-            $dOg = [regex]::Match($dHtml, '<meta property="og:title" content="([^"]*)"')
-            if ($dOg.Success -and $dOg.Groups[1].Value -match '(\d{8})') {
-                try { $dDate = [datetime]::ParseExact($dOg.Groups[1].Value, 'yyyyMMdd', $null).ToString('yyyy-MM-dd') } catch {}
+            $dHit = [regex]::Match($dHtml, 'AI速递\s*([12]\d{7})')
+            if ($dHit.Success) {
+                try { $dDate = [datetime]::ParseExact($dHit.Groups[1].Value, 'yyyyMMdd', $null).ToString('yyyy-MM-dd') } catch {}
             }
 
             # 正文区段：对齐到 <div 开头，避免把开标签属性残行当文本
