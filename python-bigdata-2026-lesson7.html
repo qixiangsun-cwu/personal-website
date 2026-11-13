@@ -443,7 +443,7 @@ footer a:hover{text-decoration:underline;}
 
 /* 配套资料下载区 */
 .dl-table td{font-size:14px;}
-.dl-link{color:var(--blue-deep);font-weight:700;text-decoration:none;border-bottom:1px dashed #cfe0f0;word-break:break-all;}
+.dl-link{color:var(--blue-deep);font-weight:700;font-size:13.5px;text-decoration:none;border-bottom:1px dashed #cfe0f0;word-break:break-all;}
 .dl-link:hover{color:var(--blue);border-bottom-style:solid;}
 .dl-link .nb{white-space:nowrap;}
 .dl-size{color:var(--ink-faint);font-size:13px;white-space:nowrap;}
@@ -459,6 +459,8 @@ footer a:hover{text-decoration:underline;}
   .anim-stage{overflow-x:auto;}
   .inter-row label{max-width:100%;min-width:0;}
   .inter-row select,.inter-row input{max-width:100%;}
+  .inter-row select{flex:1 1 auto;min-width:0;}
+  .dl-table{min-width:560px;}
   .dl-table td{font-size:13px;}
 }
 </style>
@@ -3903,7 +3905,7 @@ argsort 的下标： [8, 1, 9, 7, 3, 2, 4, 6, 5, 0]
       <text x="738" y="231" text-anchor="middle" font-size="11" font-weight="700" fill="#1f3864">③ argmin + divmod</text>
       <text x="738" y="249" text-anchor="middle" font-size="9.5" fill="#5d594c">最小涨幅 -0.0116 → 压平下标 11 → divmod(11,5)=(2,1)</text>
     </svg>
-    <div class="figcap">图 7-16　教材股票案例的数据流：4×5 的涨跌幅矩阵乘 4 维权重得到 5 个每日收益率，再按 100 万本金折算并求和</div>
+    <div class="figcap">图 7-15　教材股票案例的数据流：4×5 的涨跌幅矩阵乘 4 维权重得到 5 个每日收益率，再按 100 万本金折算并求和</div>
   </div>
 
   <h4>（1）先把数据造出来：4 只股票 × 5 个交易日</h4>
@@ -4080,7 +4082,7 @@ print('还原成行列（行, 列）：', divmod(int(pos), stocks[0].size))</pre
         <marker id="ar715" markerWidth="9" markerHeight="9" refX="4" refY="4.5" orient="auto"><path d="M0,0 L4,4.5 L0,9 z" fill="#b8860b"/></marker>
       </defs>
     </svg>
-    <div class="figcap">图 7-15　ndarray → Tensor → GPU 张量的 AI 链路：中间的数据清洗、归一化、切 batch 全用 NumPy 完成，进入模型前才转成张量</div>
+    <div class="figcap">图 7-16　ndarray → Tensor → GPU 张量的 AI 链路：中间的数据清洗、归一化、切 batch 全用 NumPy 完成，进入模型前才转成张量</div>
   </div>
 
   <div class="demo" data-demo="k7-ai-tensor">
@@ -4274,7 +4276,7 @@ shape = (2, 3)  dtype = float64
   <h3>一、数据文件（课件课后题 + 教材案例）</h3>
   <div class="tbl-wrap">
     <table class="mini-table dl-table">
-      <thead><tr><th style="width:30%">文件名（点击下载）</th><th>内容</th><th style="width:11%">大小</th></tr></thead>
+      <thead><tr><th style="width:34%">文件名（点击下载）</th><th>内容</th><th style="width:11%">大小</th></tr></thead>
       <tbody>
         <tr>
           <td><a class="dl-link" href="assets/python-bigdata-2026/lesson7/%E5%AD%A6%E7%94%9F%E6%88%90%E7%BB%A9%E8%A1%A8.csv" download>学生成绩表<span class="nb">.csv</span></a></td>
@@ -4293,7 +4295,7 @@ shape = (2, 3)  dtype = float64
   <h3>二、示例代码（按模块整理，可直接运行）</h3>
   <div class="tbl-wrap">
     <table class="mini-table dl-table">
-      <thead><tr><th style="width:30%">文件名（点击下载）</th><th>内容</th><th style="width:11%">大小</th></tr></thead>
+      <thead><tr><th style="width:34%">文件名（点击下载）</th><th>内容</th><th style="width:11%">大小</th></tr></thead>
       <tbody>
         <tr>
           <td><a class="dl-link" href="assets/python-bigdata-2026/lesson7/%E7%A4%BA%E4%BE%8B%E4%BB%A3%E7%A0%81_%E6%A8%A1%E5%9D%971_NumPy%E4%B8%8Endarray.py" download>示例代码_模块1_NumPy与ndarray<span class="nb">.py</span></a></td>
@@ -4337,7 +4339,7 @@ shape = (2, 3)  dtype = float64
   <h3>三、课后作业参考答案</h3>
   <div class="tbl-wrap">
     <table class="mini-table dl-table">
-      <thead><tr><th style="width:30%">文件名（点击下载）</th><th>内容</th><th style="width:11%">大小</th></tr></thead>
+      <thead><tr><th style="width:34%">文件名（点击下载）</th><th>内容</th><th style="width:11%">大小</th></tr></thead>
       <tbody>
         <tr>
           <td><a class="dl-link" href="assets/python-bigdata-2026/lesson7/%E7%AC%AC7%E7%AB%A0_%E8%AF%BE%E5%90%8E%E4%BD%9C%E4%B8%9A_%E5%8F%82%E8%80%83%E7%AD%94%E6%A1%88.py" download>第7章_课后作业_参考答案<span class="nb">.py</span></a></td>
