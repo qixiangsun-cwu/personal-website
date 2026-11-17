@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>第 10 次课 · 世界在看什么样的 VR | 2026年虚拟现实技术</title>
-<meta name="description" content="《虚拟现实技术》第 10 次课课堂网页：VR 没有「唯一最高奖」，而是内容（威尼斯沉浸单元）、研究（IEEE VGTC 虚拟现实奖）、产业（Laval Virtual Awards）三条赛道各自的最高认可。含 2026 年威尼斯沉浸大奖《鸽环》（中国，35 分钟）完整拆解——40 相机采集、体积视频重建、4D 高斯、自研剪辑工具，以及它付的代价：单场景 15,827,211 个高斯点，与头显 72Hz / 13.9 毫秒 / 三角面 ≤ 10 万的两套物理条件对照；另含 IEEE VGTC 五类奖与 2026 得主、Laval Virtual 第 28 届 4 赛道 6 类别与「成本 / 重量 / 穿戴时间」三个真指标、35 分钟评审工作坊（用评委的眼睛看自己的作品）与一页纸作业。">
+<meta name="description" content="《虚拟现实技术》第 10 次课课堂网页：VR 没有「唯一最高奖」，而是内容（威尼斯沉浸单元）、研究（IEEE VGTC 虚拟现实奖）、产业（Laval Virtual Awards）三条赛道各自的最高认可。含 2026 年威尼斯沉浸大奖《鸽环》（中国，35 分钟）完整拆解——40 相机采集、体积视频重建、4D 高斯、自研剪辑工具，以及它付的代价：单场景 15,827,211 个高斯点，与头显 72Hz / 13.9 毫秒 / 三角面 ≤ 10 万的两套物理条件对照；另含 2020—2026 七年二十一件获奖作品年表（含 2020 年爱奇艺《杀死超级明星》获最佳 VR 故事、2025 陈芯宜《The Clouds Are 2000 Metres Up》获大奖的华语线索）、体积视频 / 摄影测量 / NeRF / 3D 高斯泼溅 / 4D 高斯 / V-PCC 与实时渲染的技术方案详解（附 arXiv 论文与中文视频）、IEEE VGTC 五类奖与 2026 全部得主、Laval Virtual 第 28 届 4 赛道 6 类别与「成本 / 重量 / 穿戴时间」三个真指标、35 分钟评审工作坊（用评委的眼睛看自己的作品）与一页纸作业。">
 <link rel="stylesheet" href="assets/vr-2026/course.css">
 </head>
 <body>
@@ -25,16 +25,19 @@
 <nav class="nav" id="nav">
   <div class="nav-inner" id="navInner">
     <a href="vr-2026.html" class="nav-back">← 课程主页</a>
+        <a href="vr-2026.html" class="nav-back">← 课程主页</a>
     <a href="#guide" data-sec="guide" class="on">本课导览</a>
     <a href="#c1" data-sec="c1">一、三条赛道</a>
     <a href="#c2" data-sec="c2">二、内容赛道</a>
+    <a href="#history" data-sec="history">获奖年表 2020—2026</a>
     <a href="#c3" data-sec="c3">三、《鸽环》</a>
     <a href="#c4" data-sec="c4">四、怎么做的</a>
     <a href="#c5" data-sec="c5">五、代价</a>
-    <a href="#c6" data-sec="c6">六、研究赛道</a>
-    <a href="#c7" data-sec="c7">七、产业赛道</a>
-    <a href="#ws" data-sec="ws">八、工作坊</a>
-    <a href="#hw" data-sec="hw">九、作业与达标</a>
+    <a href="#tech" data-sec="tech">六、技术方案</a>
+    <a href="#c6" data-sec="c6">七、研究赛道</a>
+    <a href="#c7" data-sec="c7">八、产业赛道</a>
+    <a href="#ws" data-sec="ws">九、工作坊</a>
+    <a href="#hw" data-sec="hw">十、作业与达标</a>
     <a href="#appendix" data-sec="appendix">附录</a>
   </div>
 </nav>
@@ -92,6 +95,9 @@
   </div>
 
   <div class="note"><strong>这一课不讲什么：</strong>高斯溅射的球谐函数、协方差、光栅化——<strong>一律不讲</strong>；性能工程（帧预算、DrawCall、动态降级）这一课也不展开，只在第五节留一页，作为「在场有代价」的证据。完整性能内容在<a href="vr-2026-lesson10.html#practice">课后自检表</a>与期末作品的「性能记录」里完成。</div>
+
+  <div class="note"><strong>本页比课堂多两节：</strong>「获奖年表 2020—2026」与「技术方案」是为<strong>课后查阅</strong>准备的深度内容。
+  课堂 180 分钟按上面的时间轴走——年表<strong>只用 3 分钟</strong>过三个节点（2020 中国首次获奖 → 2023 观众成为角色 → 2025—2026 连续两年华语大奖），技术方案<strong>课上不讲</strong>，留作课后与第 11、12 次课的自学材料。</div>
 </section>
 
 <!-- ===== 一、三条赛道 ===== -->
@@ -175,6 +181,110 @@
     <figcaption style="color:#6b6483;font-size:13px;padding:8px 4px 2px">《鸽环》剧照：老屋、阳台上的鸽舍、回到屋里的祖孙。素材：B 站《鸽环》官方视频（BV19fWY65E4V），仅课堂使用。</figcaption>
   </figure>
 </section>
+
+  <h3 id="history">五、获奖年表：2020—2026（七年，二十一件获奖作品）</h3>
+  <p>下面这张表把「威尼斯沉浸单元」七年来的三个奖一次列全。注意一件事：<strong>2020—2022 年的奖叫「Grand Jury Prize（评审团大奖）／Best VR Story／Best VR Experience」，2023 年起才改成「Grand Prize（大奖）／Special Jury Prize／Achievement Prize」</strong>——名字变了，评的东西没变：一个最高、一个特别、一个成就。</p>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th style="width:13%">年份</th><th style="width:34%">最高奖</th><th style="width:26%">第二奖</th><th>第三奖</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>2020</strong><br><span style="color:#6b6483;font-size:12px">第 77 届<br>Venice VR Expanded</span></td>
+          <td><strong>Grand Jury Prize</strong><br>The Hangman at Home<br><span style="color:#6b6483">Michelle &amp; Uri Kranot（丹麦／法国／加拿大）</span></td>
+          <td><strong>Best VR Story</strong><br><strong>《杀死超级明星》Killing a Superstar</strong><br><span style="color:#6b6483">范帆 / 爱奇艺（中国）</span></td>
+          <td><strong>Best VR Experience</strong><br>Finding Pandora X<br><span style="color:#6b6483">Kiira Benzing（美国）</span></td>
+        </tr>
+        <tr>
+          <td><strong>2021</strong><br><span style="color:#6b6483;font-size:12px">第 78 届</span></td>
+          <td><strong>Grand Jury Prize</strong><br>Goliath: Playing with Reality<br><span style="color:#6b6483">May Abdalla、Barry Gene Murphy（英国／法国）</span></td>
+          <td><strong>Best VR Story</strong><br>End of Night<br><span style="color:#6b6483">David Adler（丹麦／法国）</span></td>
+          <td><strong>Best VR Experience</strong><br>Le Bal de Paris de Blanca Li<br><span style="color:#6b6483">Blanca Li（法国）</span></td>
+        </tr>
+        <tr>
+          <td><strong>2022</strong><br><span style="color:#6b6483;font-size:12px">第 79 届<br>首次改称 Venice Immersive</span></td>
+          <td><strong>Grand Prize</strong><br>From the Main Square<br><span style="color:#6b6483">Pedro Harres（德国）｜19′</span></td>
+          <td><strong>Special Jury Prize</strong><br>Eggscape<br><span style="color:#6b6483">Germán Heller（阿根廷）</span></td>
+          <td><strong>Best Immersive Experience</strong><br>The Man Who Couldn't Leave<br><span style="color:#6b6483">陳芯宜 Singing Chen（中国台湾）</span></td>
+        </tr>
+        <tr>
+          <td><strong>2023</strong><br><span style="color:#6b6483;font-size:12px">第 80 届</span></td>
+          <td><strong>Grand Prize</strong><br>Songs for a Passerby<br><span style="color:#6b6483">Céline Daemen（荷兰）｜约 30′</span></td>
+          <td><strong>Special Jury Prize</strong><br>Flow<br><span style="color:#6b6483">Adriaan Lokman（荷兰／法国）</span></td>
+          <td><strong>Achievement Prize</strong><br>Empereur<br><span style="color:#6b6483">Marion Burger、Ilan Cohen（法国／德国）</span></td>
+        </tr>
+        <tr>
+          <td><strong>2024</strong><br><span style="color:#6b6483;font-size:12px">第 81 届</span></td>
+          <td><strong>Grand Prize</strong><br>Ito Meikyū<br><span style="color:#6b6483">Boris Labbé（法国／卢森堡）</span></td>
+          <td><strong>Special Jury Prize</strong><br>Oto's Planet<br><span style="color:#6b6483">Gwenaël François（卢森堡／法国）</span></td>
+          <td><strong>Achievement Prize</strong><br>Impulse: Playing with Reality<br><span style="color:#6b6483">May Abdalla、Barry Gene Murphy（英国／法国）</span></td>
+        </tr>
+        <tr>
+          <td><strong>2025</strong><br><span style="color:#6b6483;font-size:12px">第 82 届</span></td>
+          <td><strong>Grand Prize</strong><br>The Clouds Are 2000 Metres Up<br><span style="color:#6b6483">陳芯宜 Singing Chen（中国台湾／德国）</span></td>
+          <td><strong>Special Jury Prize</strong><br>Less Than 5gr of Saffron<br><span style="color:#6b6483">Négar Motevalymeidanshah（法国）</span></td>
+          <td><strong>Achievement Prize</strong><br>A Long Goodbye<br><span style="color:#6b6483">Kate Voet、Victor Maes（比利时／卢森堡／荷兰）｜35′</span></td>
+        </tr>
+        <tr>
+          <td><strong>2026</strong><br><span style="color:#6b6483;font-size:12px">第 83 届</span></td>
+          <td><strong>Grand Prize</strong><br><strong>《鸽环》The Pigeon Ring</strong><br><span style="color:#6b6483">张妤琦、陶世欣（中国）｜35′</span></td>
+          <td><strong>Special Jury Prize</strong><br>Out of the Ashes<br><span style="color:#6b6483">Rory Mitchell、Nonny de la Peña｜26′</span></td>
+          <td><strong>Achievement Prize</strong><br>Empire at Sea<br><span style="color:#6b6483">Peter Flaherty｜22′</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="note"><strong>年份是「届」不是「年度」：</strong>威尼斯电影节每年 8—9 月办，第 83 届就是 2026 年那一届。表中「时长」只写已经核到的数字，没有核到的留空——<strong>不猜</strong>。</div>
+
+  <h3>六年，从「最佳故事」到「大奖」：华语作品的一条线</h3>
+  <p>把华语作品单独拎出来看，会看到一条很清楚的上升线——这比"拿了一次奖"更有说服力：</p>
+  <div class="step-grid">
+    <div class="step-card">
+      <div class="tag">2020 · 第一次获奖</div>
+      <h4 style="margin:8px 0 4px">《杀死超级明星》</h4>
+      <p style="margin:0 0 6px;color:#6b6483;font-size:12.5px">范帆 / 爱奇艺（中国大陆）</p>
+      <p style="margin:0;font-size:14px">Best VR Story。<strong>中国大陆第一部在威尼斯获奖的 VR 作品</strong>——一部 8K 互动 VR 悬疑片，观众是"在场"的目击者。</p>
+    </div>
+    <div class="step-card">
+      <div class="tag">2022 · 最佳体验</div>
+      <h4 style="margin:8px 0 4px">The Man Who Couldn't Leave</h4>
+      <p style="margin:0 0 6px;color:#6b6483;font-size:12.5px">陳芯宜（中国台湾）</p>
+      <p style="margin:0;font-size:14px">Best Immersive Experience。三年后，同一位导演带着《The Clouds Are 2000 Metres Up》回来拿大奖。</p>
+    </div>
+    <div class="step-card">
+      <div class="tag">2025 · 大奖</div>
+      <h4 style="margin:8px 0 4px">The Clouds Are 2000 Metres Up</h4>
+      <p style="margin:0 0 6px;color:#6b6483;font-size:12.5px">陳芯宜（中国台湾／德国）</p>
+      <p style="margin:0;font-size:14px">改编吴明益小说，<strong>单人自由行走</strong>的梦境森林；公开访谈里主创明确说这部片子在<strong>高斯泼溅</strong>上做了新尝试。</p>
+    </div>
+    <div class="step-card">
+      <div class="tag">2026 · 大奖</div>
+      <h4 style="margin:8px 0 4px">《鸽环》</h4>
+      <p style="margin:0 0 6px;color:#6b6483;font-size:12.5px">张妤琦、陶世欣（中国大陆）</p>
+      <p style="margin:0;font-size:14px">40 台相机 + 4D 高斯 + 自研非线性剪辑，把一间老屋变成可以走进去的 35 分钟。</p>
+    </div>
+  </div>
+  <div class="key"><strong>这条线的意思不是「中国作品崛起了」，而是：从"讲一个故事"到"造一个空间"，中间隔着六年的技术积累。</strong><br>
+    《杀死超级明星》赢在<strong>叙事与交互</strong>；《鸽环》赢在<strong>你可以在那间屋子里自由走动</strong>。</div>
+
+  <h3>七年大奖，七条技术路线（这也是下一节的地图）</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th style="width:9%">年份</th><th style="width:30%">大奖作品</th><th style="width:20%">技术路线</th><th>一句话</th></tr></thead>
+      <tbody>
+        <tr><td>2020</td><td>The Hangman at Home</td><td>手绘动画 ＋ 实时交互</td><td>画风本身就是技术：炭笔质感在头显里成立</td></tr>
+        <tr><td>2021</td><td>Goliath: Playing with Reality</td><td>实时动画 ＋ 交互叙事</td><td>用交互讲心理，而不是用交互当玩法</td></tr>
+        <tr><td>2022</td><td>From the Main Square</td><td>实时动画 ＋ 群体模拟</td><td>一次让几百个角色同时在场的"尺度"实验</td></tr>
+        <tr><td>2023</td><td>Songs for a Passerby</td><td><strong>实时 3D 相机</strong> ＋ 6DoF 行走</td><td>把观众自己的身体变成作品的一部分</td></tr>
+        <tr><td>2024</td><td>Ito Meikyū</td><td>手绘扫描 ＋ Unity 实时分层</td><td>把二维绘画"竖"进三维空间</td></tr>
+        <tr><td>2025</td><td>The Clouds Are 2000 Metres Up</td><td><strong>高斯泼溅</strong> ＋ 单人自由行走</td><td>用重建出来的真实空间承载文学叙事</td></tr>
+        <tr><td>2026</td><td>《鸽环》</td><td><strong>40 相机 ＋ 4D 高斯 ＋ 动捕</strong></td><td>把"实拍表演"焊进"可自由行走的空间"</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="warn"><strong>课堂怎么用这张表（3 分钟）：</strong>不要逐年讲。只讲三个节点——<strong>2020 中国第一次获奖（叙事）</strong> → <strong>2023 观众成为角色（交互）</strong> → <strong>2025—2026 连续两年华语大奖、且都靠高斯泼溅（空间）</strong>。讲完正好接第三节《鸽环》。</div>
 
 <!-- ===== 三、《鸽环》 ===== -->
 <section id="c3">
@@ -318,10 +428,166 @@
   <p>每一个「删」，都是在回答：<strong>这部作品到底靠什么成立</strong>。</p>
 </section>
 
-<!-- ===== 六、研究赛道 ===== -->
-<section id="c6">
+<!-- ===== 六、技术方案 ===== -->
+<section id="tech">
   <div class="sec-head">
     <div class="sec-num">六</div>
+    <div>
+      <h2>它们用了什么技术：六条路线，从"拍"到"建"到"算"</h2>
+      <p class="sec-sub">这一节回答一个问题：<strong>同一件"能走进去"的作品，技术上是怎么做出来的？</strong>——只讲方案与代价，不讲公式</p>
+    </div>
+  </div>
+
+  <p>把前面七年的获奖作品摊开看，技术路线其实只有三条主干：<strong>拍下来（360° 视频）</strong>、<strong>建出来（体积捕捉 / 摄影测量 / 重建）</strong>、<strong>算出来（实时渲染与交互）</strong>。作品之间的差别，多半是这三条按不同比例混合。</p>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th style="width:16%">路线</th><th style="width:18%">你能得到什么</th><th style="width:16%">自由度</th><th style="width:18%">数据形态</th><th>代表作品</th></tr></thead>
+      <tbody>
+        <tr><td><strong>360° 视频</strong></td><td>真实的画面、真实的表演</td><td><strong>3DoF</strong>（能转头，不能走）</td><td>球面视频流（ERP 投影）</td><td>2021《End of Night》等纪录类</td></tr>
+        <tr><td><strong>体积捕捉</strong></td><td>真人＋真场景，可绕到侧面看</td><td><strong>6DoF</strong>（能走、能蹲）</td><td>点云 / 网格 ＋ 时序帧</td><td>2026《鸽环》（40 相机）</td></tr>
+        <tr><td><strong>摄影测量 / 重建</strong></td><td>静态空间的真实几何与光照</td><td><strong>6DoF</strong></td><td>网格 ＋ 纹理 / NeRF / 3D 高斯</td><td>2025《Clouds》、2026《鸽环》老屋</td></tr>
+        <tr><td><strong>实时动画</strong></td><td>完全可控的画面（画风即表达）</td><td>通常是<strong>6DoF</strong> 或固定动线</td><td>引擎场景（几何＋材质＋骨骼）</td><td>2020《Hangman》、2022《From the Main Square》、2024《Ito Meikyū》</td></tr>
+        <tr><td><strong>现场表演 VR</strong></td><td>真人在场、可以互动</td><td>6DoF ＋ 多人同步</td><td>动捕数据流 ＋ 实时引擎</td><td>2021《Le Bal de Paris》</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>1. 360° 视频：最便宜、也最受限的"在场"</h3>
+  <p><strong>怎么工作：</strong>全景相机（常见 8—16 目）同时拍摄 → 光流／特征拼接成一张"球面图" → 投影成<strong>等距柱状投影</strong>（ERP，就是那种上下被拉长的图）→ 编码成 H.264/H.265/AV1 两路（左右眼）→ 头显里反投影回球面，跟着你的头转。</p>
+  <p><strong>代价：</strong>相机固定在一个点，<strong>你只能转头，不能走动</strong>（3DoF）。而且画面被摊在整张球面上，<strong>有效分辨率很低</strong>——4K 的球面视频，在 100° 视场里可能只剩每度十几个像素，近看必糊。所以 360° 作品必须靠<strong>构图与叙事</strong>把观众"钉"在位置上。</p>
+  <p><strong>用在哪：</strong>纪录片、现场演出回放、旅游宣传。威尼斯早期获奖作品里大量使用。</p>
+
+  <h3>2. 体积视频：把"人"和"屋子"变成可以绕着看的数据</h3>
+  <p><strong>怎么工作：</strong>一圈相机（或者 RGB-D 深度相机阵列）同时拍 → 用多视角立体匹配／深度融合，算出<strong>每一帧的三维点</strong> → 逐帧串起来，就是"会动的三维模型"。这就是《鸽环》里那套<strong>移动式 40 相机系统</strong>干的事。</p>
+  <p><strong>怎么压缩：</strong>点云不能直接塞进视频编码器，所以 MPEG 定了 <strong>V-PCC</strong>（Video-based Point Cloud Compression，ISO/IEC 23090-5）：把三维点<strong>拆成几张二维图</strong>（占位图／几何图／颜色图），再当成普通视频用 HEVC 压。这是"体积视频能进头显"的关键一环。</p>
+  <figure class="fig">
+    <svg viewBox="0 0 900 190" style="width:100%;height:auto;display:block" role="img" aria-label="体积视频管线：采集、重建、压缩、渲染">
+      <rect x="8" y="20" width="200" height="150" rx="12" fill="#faf8fd" stroke="#ddd7f2"/>
+      <text x="108" y="52" text-anchor="middle" font-size="15" font-weight="700" fill="#241f52">① 采集</text>
+      <text x="108" y="80" text-anchor="middle" font-size="12.5" fill="#5a5470">40 台相机 / 深度相机</text>
+      <text x="108" y="102" text-anchor="middle" font-size="12.5" fill="#5a5470">同步快门 · 标定</text>
+      <text x="108" y="134" text-anchor="middle" font-size="12" fill="#8a84a8">得到：多视角图像</text>
+
+      <rect x="236" y="20" width="200" height="150" rx="12" fill="#faf8fd" stroke="#ddd7f2"/>
+      <text x="336" y="52" text-anchor="middle" font-size="15" font-weight="700" fill="#241f52">② 重建</text>
+      <text x="336" y="80" text-anchor="middle" font-size="12.5" fill="#5a5470">SfM 求位姿（COLMAP）</text>
+      <text x="336" y="102" text-anchor="middle" font-size="12.5" fill="#5a5470">MVS / 深度融合</text>
+      <text x="336" y="134" text-anchor="middle" font-size="12" fill="#8a84a8">得到：逐帧点云</text>
+
+      <rect x="464" y="20" width="200" height="150" rx="12" fill="#faf8fd" stroke="#ddd7f2"/>
+      <text x="564" y="52" text-anchor="middle" font-size="15" font-weight="700" fill="#241f52">③ 压缩</text>
+      <text x="564" y="80" text-anchor="middle" font-size="12.5" fill="#5a5470">V-PCC：投影成 2D 图集</text>
+      <text x="564" y="102" text-anchor="middle" font-size="12.5" fill="#5a5470">HEVC 编码</text>
+      <text x="564" y="134" text-anchor="middle" font-size="12" fill="#8a84a8">得到：可流式传输的码流</text>
+
+      <rect x="692" y="20" width="200" height="150" rx="12" fill="#faf8fd" stroke="#ddd7f2"/>
+      <text x="792" y="52" text-anchor="middle" font-size="15" font-weight="700" fill="#241f52">④ 渲染</text>
+      <text x="792" y="80" text-anchor="middle" font-size="12.5" fill="#5a5470">解码 → 反投影</text>
+      <text x="792" y="102" text-anchor="middle" font-size="12.5" fill="#5a5470">每眼一遍立体渲染</text>
+      <text x="792" y="134" text-anchor="middle" font-size="12" fill="#8a84a8">得到：能走进去的画面</text>
+
+      <g stroke="#b7aede" stroke-width="2" fill="none"><path d="M210 95 H224"/><path d="M438 95 H452"/><path d="M666 95 H680"/></g>
+      <g fill="#b7aede"><path d="M224 90 L236 95 L224 100 z"/><path d="M452 90 L464 95 L452 100 z"/><path d="M680 90 L692 95 L680 100 z"/></g>
+    </svg>
+    <figcaption style="color:#6b6483;font-size:12.5px;padding:8px 4px 2px">图 10-1　体积视频的四步管线：每一帧都要"重建 → 压缩 → 反投影"，成本由此而来。</figcaption>
+  </figure>
+  <div class="warn"><strong>代价：</strong>一台相机阵列的采集成本、逐帧重建的算力、以及<strong>码率</strong>——体积视频的码率通常是同分辨率普通视频的几倍到几十倍。<strong>"能走"是用这些换来的。</strong></div>
+
+  <h3>3. 摄影测量：只用照片，把一间屋子"量"出来</h3>
+  <p><strong>怎么工作：</strong>拍几百张有重叠的照片 → <strong>SfM</strong>（Structure-from-Motion，代表工具 COLMAP）算出每张照片站在哪儿、朝哪儿 → <strong>MVS</strong>（多视角立体）把像素配成三维点 → 生成网格 + 纹理。优点是便宜（一台相机走一圈就行），缺点是<strong>只能拍静态的东西</strong>，反光、透明、纯色墙面都容易失败。</p>
+  <p><strong>用在哪：</strong>《鸽环》里老屋的静态部分、文物与场景扫描、《Clouds》里那些"真实存在过"的地貌。</p>
+
+  <h3>4. NeRF：用神经网络"记住"一个空间</h3>
+  <p><strong>怎么工作：</strong>训练一个小网络，输入是"空间中的一个点 + 一个观察方向"，输出是<strong>那个点的颜色和密度</strong>；渲染时沿着视线采样一堆点、积分成像素（体渲染）。它没有"面"，也没有"点"，<strong>整个空间被存在网络的权重里</strong>。</p>
+  <p><strong>优点：</strong>照片级质量、视角连续、反光处理得比摄影测量好。<strong>缺点：</strong>训练要几十分钟到几小时，早期版本渲染一帧要几秒——<strong>对 VR 来说太慢了</strong>。后续的 Instant-NGP 用哈希编码把训练压到秒级，才让 NeRF 进入实时讨论。</p>
+
+  <h3>5. 3D 高斯泼溅（3DGS）：现在最热的"实时重建"</h3>
+  <p><strong>一句话：</strong>用几十万到上千万个<strong>各向异性的椭球</strong>（高斯）表示场景，每个椭球带位置、朝向、大小、透明度、颜色，然后<strong>直接把它们"泼"到屏幕上</strong>——不做体渲染，做光栅化，所以快。</p>
+  <figure class="fig">
+    <svg viewBox="0 0 900 210" style="width:100%;height:auto;display:block" role="img" aria-label="3D 高斯泼溅的四步流程">
+      <rect x="8" y="30" width="196" height="140" rx="12" fill="#f5f0e4" stroke="#e5dcc0"/>
+      <text x="106" y="62" text-anchor="middle" font-size="15" font-weight="700" fill="#5d5230">① 拍</text>
+      <text x="106" y="90" text-anchor="middle" font-size="12.5" fill="#6b6040">环拍 / 视频抽帧</text>
+      <text x="106" y="112" text-anchor="middle" font-size="12.5" fill="#6b6040">几十到几百张</text>
+
+      <rect x="236" y="30" width="196" height="140" rx="12" fill="#f5f0e4" stroke="#e5dcc0"/>
+      <text x="334" y="62" text-anchor="middle" font-size="15" font-weight="700" fill="#5d5230">② 算位姿</text>
+      <text x="334" y="90" text-anchor="middle" font-size="12.5" fill="#6b6040">SfM（COLMAP）</text>
+      <text x="334" y="112" text-anchor="middle" font-size="12.5" fill="#6b6040">稀疏点云做初值</text>
+
+      <rect x="464" y="30" width="196" height="140" rx="12" fill="#f5f0e4" stroke="#e5dcc0"/>
+      <text x="562" y="62" text-anchor="middle" font-size="15" font-weight="700" fill="#5d5230">③ 优化高斯</text>
+      <text x="562" y="90" text-anchor="middle" font-size="12.5" fill="#6b6040">可微渲染 → 反向传播</text>
+      <text x="562" y="112" text-anchor="middle" font-size="12.5" fill="#6b6040">分裂 / 克隆 / 剪枝</text>
+
+      <rect x="692" y="30" width="200" height="140" rx="12" fill="#f5f0e4" stroke="#e5dcc0"/>
+      <text x="792" y="62" text-anchor="middle" font-size="15" font-weight="700" fill="#5d5230">④ 泼上去</text>
+      <text x="792" y="90" text-anchor="middle" font-size="12.5" fill="#6b6040">按深度排序 → 光栅化</text>
+      <text x="792" y="112" text-anchor="middle" font-size="12.5" fill="#6b6040">实时 30—100+ FPS</text>
+
+      <g stroke="#c9a25c" stroke-width="2" fill="none"><path d="M206 100 H224"/><path d="M434 100 H452"/><path d="M662 100 H680"/></g>
+      <g fill="#c9a25c"><path d="M224 95 L236 100 L224 105 z"/><path d="M452 95 L464 100 L452 105 z"/><path d="M680 95 L692 100 L680 105 z"/></g>
+      <text x="450" y="196" text-anchor="middle" font-size="12" fill="#8a84a8">关键差别：NeRF 是「隐式 + 体渲染」，3DGS 是「显式 + 光栅化」——所以它能实时</text>
+    </svg>
+    <figcaption style="color:#6b6483;font-size:12.5px;padding:8px 4px 2px">图 10-2　3D 高斯泼溅的四步：拍 → 算位姿 → 优化高斯 → 光栅化。第 ③ 步决定了"像不像"，第 ④ 步决定了"跑不跑得动"。</figcaption>
+  </figure>
+  <p><strong>为什么它是这两年的关键：</strong>① <strong>实时</strong>——桌面级显卡上可以跑到 100+ FPS，这是 NeRF 做不到的；② <strong>可编辑</strong>——你可以删掉一片高斯、把一段高斯单独拿出来剪（《鸽环》的自研剪辑工具就干这个）；③ <strong>可压缩</strong>——SOG/SPZ 这类格式把它压到能进头显的量级。</p>
+  <p><strong>动态版本：</strong>加上时间维度，就是 <strong>4D 高斯</strong>——《鸽环》里的"4D 高斯"正是这个。做法上常见的两条路：给每个高斯加"随时间变化的运动/形变"（Dynamic 3D Gaussians），或者用一个形变场把时间映射到空间（4D Gaussian Splatting）。</p>
+  <div class="warn"><strong>代价（这一条直接接回第五节）：</strong>一个场景动辄<strong>几百万到上千万个高斯</strong>；每个高斯要参与排序和混合；显存与带宽是硬瓶颈。所以<strong>"重建得越真，越要谈 LOD、裁剪、分级"</strong>——这就是性能工程为什么绕不开。</div>
+
+  <h3>6. 实时渲染：为什么"重建出来"不等于"跑得动"</h3>
+  <p>头显要<strong>每只眼睛渲染一遍</strong>（立体），而且必须在 <strong>13.9 ms</strong> 内画完一帧（72Hz）。真正在吃时间的是三件事：<strong>填充率</strong>（每像素算多少）、<strong>带宽</strong>（贴图与缓冲读写）、<strong>DrawCall</strong>（CPU 把数据交给 GPU 的次数）。</p>
+  <p>工业界的三件套应对手段：</p>
+  <ul>
+    <li><strong>注视点渲染（Foveated Rendering）</strong>：人眼只有中心一小块是高分辨率，边缘可以降采样——省下大量填充率。眼动追踪版（动态 FFR）能省得更多。</li>
+    <li><strong>异步时间扭曲 / 空间扭曲（ATW / ASW）</strong>：帧没赶上时，用上一帧＋最新的头部姿态"扭"出一帧，避免卡顿与晕动。</li>
+    <li><strong>LOD 与分级降级</strong>：远处的高斯换成更少的点、贴图降分辨率、关阴影——<strong>而且必须可逆</strong>。</li>
+  </ul>
+  <p>你们在课上的 WebXR 作品，用的是同一套逻辑，只是预算更紧：<strong>移动头显三角面 ≤ 10 万、一帧 13.9 ms</strong>。所以"把《鸽环》搬到 PICO 上"从来不是格式转换，而是<strong>重新设计</strong>。</p>
+
+  <h3>7. 交互与声音：容易被忽略的另一半</h3>
+  <p><strong>交互</strong>：6DoF 叙事的第一原则是<strong>"观众走到哪儿，故事就在哪儿发生"</strong>——用光、声、动线引导，而不是用镜头。2023 年的《Songs for a Passerby》更进一步：用<strong>实时 3D 相机</strong>把观众自己的轮廓抓进画面，让"你"成为作品里的一个角色。</p>
+  <p><strong>声音</strong>：VR 里的声音必须"有方向、有距离、有房间"——空间音频（HRTF 双耳渲染、Ambisonics 环绕声）承担了很大一部分"在场感"。2026 年 IEEE VGTC 技术成就奖颁给 <strong>Stefania Serafin</strong>，理由正是她把"声音如何传达材质、动作与可供性"做成了可复用的方法——<strong>声音不是配乐，是空间信息</strong>。</p>
+
+  <h3>8. 论文与视频（课后自己往下钻）</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th style="width:26%">主题</th><th style="width:40%">论文 / 官方页面</th><th>为什么值得看</th></tr></thead>
+      <tbody>
+        <tr><td><strong>NeRF</strong></td><td><a href="https://arxiv.org/abs/2003.08934" target="_blank" rel="noopener">NeRF: Representing Scenes as Neural Radiance Fields (ECCV 2020)</a></td><td>隐式表示的起点，理解"体渲染"必读</td></tr>
+        <tr><td><strong>Instant-NGP</strong></td><td><a href="https://arxiv.org/abs/2201.05989" target="_blank" rel="noopener">Instant Neural Graphics Primitives (SIGGRAPH 2022)</a></td><td>把 NeRF 训练从小时压到秒级的关键</td></tr>
+        <tr><td><strong>3D 高斯泼溅</strong></td><td><a href="https://arxiv.org/abs/2308.04079" target="_blank" rel="noopener">3D Gaussian Splatting for Real-Time Radiance Field Rendering (SIGGRAPH 2023)</a><br><a href="https://repo-sam.inria.fr/fungraph/3d-gaussian-splatting/" target="_blank" rel="noopener">官方项目页（含对比视频）</a></td><td><strong>本课最该看的一篇</strong>：显式表示 ＋ 光栅化</td></tr>
+        <tr><td><strong>动态 3DGS</strong></td><td><a href="https://arxiv.org/abs/2308.09713" target="_blank" rel="noopener">Dynamic 3D Gaussians (3DV 2024)</a><br><a href="https://dynamic3dgaussians.github.io/" target="_blank" rel="noopener">项目页</a></td><td>从静态到"4D"的第一步</td></tr>
+        <tr><td><strong>4D 高斯</strong></td><td><a href="https://arxiv.org/abs/2310.08528" target="_blank" rel="noopener">4D Gaussian Splatting (CVPR 2024)</a><br><a href="https://fudan-zvg.github.io/4d-gaussian-splatting/" target="_blank" rel="noopener">项目页</a></td><td>《鸽环》那类"会动的高斯"的方法侧</td></tr>
+        <tr><td><strong>摄影测量</strong></td><td><a href="https://colmap.github.io/" target="_blank" rel="noopener">COLMAP（SfM/MVS 工具与文档）</a></td><td>自己拍一组照片就能跑通的重建</td></tr>
+        <tr><td><strong>点云压缩</strong></td><td><a href="https://mpeg.chiariglione.org/standards/mpeg-i/point-cloud-compression" target="_blank" rel="noopener">MPEG V-PCC（ISO/IEC 23090-5）</a></td><td>体积视频能上头显的工程前提</td></tr>
+        <tr><td><strong>WebXR</strong></td><td><a href="https://www.w3.org/TR/webxr/" target="_blank" rel="noopener">W3C WebXR Device API</a></td><td>你们课堂作品用的就是这套标准</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th style="width:22%">视频</th><th style="width:12%">时长</th><th>怎么看</th></tr></thead>
+      <tbody>
+        <tr><td><a href="https://www.bilibili.com/video/BV16JsP6GEi8" target="_blank" rel="noopener">视频一键转 3D｜01Splat 高斯泼溅演示</a></td><td>2:44</td><td>本页第五、六节用的截图就来自这里；看"从视频到高斯场景"的完整流程</td></tr>
+        <tr><td><a href="https://www.bilibili.com/video/BV1WWumzyEAK" target="_blank" rel="noopener">大疆智图 5.0：高斯泼溅与可见光模型</a></td><td>3:32</td><td>看"重建质量"与"工程化"之间的关系</td></tr>
+        <tr><td><a href="https://www.bilibili.com/video/BV1Gu3uztECe" target="_blank" rel="noopener">3DGS 本地训练环境搭建（保姆教程）</a></td><td>25:13</td><td>想自己动手：从环境到跑通一个场景</td></tr>
+        <tr><td><a href="https://www.bilibili.com/video/BV1X1f4BkEFz" target="_blank" rel="noopener">在 TouchDesigner 里玩高斯泼溅</a></td><td>7:54</td><td>看"重建结果"怎么被当成素材去创作</td></tr>
+        <tr><td><a href="https://www.bilibili.com/video/BV1PC411H7Tq" target="_blank" rel="noopener">GS-SLAM：用高斯泼溅做稠密视觉 SLAM</a></td><td>40:27</td><td>进阶：重建与定位同时做的研究向内容</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="key"><strong>这一节的结论只有一句：</strong>作品之间的技术差异，最后都落在三句话上——<strong>你拍到了什么（采集）、你重建了什么（表示）、你一帧画得完吗（性能）。</strong></div>
+</section>
+
+
+<!-- ===== 七、研究赛道 ===== -->
+<section id="c6">
+  <div class="sec-head">
+    <div class="sec-num">七</div>
     <div>
       <h2>研究赛道：IEEE VGTC 虚拟现实奖</h2>
       <p class="sec-sub">2005 年设立 ｜ 五类奖 ＋ VR Academy ｜ 奖人，不奖作品</p>
@@ -346,23 +612,36 @@
 
   <div class="key">看一个领域成不成熟，就看它有没有<strong>「给年轻人的奖」</strong>和<strong>「给博士论文的奖」</strong>。</div>
 
-  <h3>二、2026 年：两个名字</h3>
-  <div class="grid2">
-    <div class="step-card">
-      <div class="tag">终身成就奖</div>
-      <h4 style="margin:8px 0 2px">Carolina Cruz-Neira</h4>
-      <p style="margin:0 0 8px;color:#6b6483;font-size:13px">中佛罗里达大学</p>
-      <p style="margin:0">CAVE 沉浸式系统的<strong>共同发明人</strong>——1992 年，把投影仪围成一间屋子，人站进去。你今天用的「沉浸式大屏」「多面投影」，源头就在那儿。</p>
-    </div>
-    <div class="step-card">
-      <div class="tag">服务奖</div>
-      <h4 style="margin:8px 0 2px">Gregory Welch</h4>
-      <p style="margin:0 0 8px;color:#6b6483;font-size:13px">中佛罗里达大学</p>
-      <p style="margin:0">长期为社区做组织与服务性工作：会议、期刊、评审、培养后辈。<strong>「让这个领域转起来」本身也是一种贡献。</strong></p>
-    </div>
+    <h3>二、2026 年：五类奖全部得主（IEEE VR 2026 · 韩国大邱，3 月 21—25 日）</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th style="width:20%">类别</th><th style="width:22%">2026 得主</th><th style="width:22%">单位</th><th>为什么是他 / 她</th></tr></thead>
+      <tbody>
+        <tr><td><strong>终身成就奖</strong><br><span style="color:#6b6483;font-size:12px">Lifetime Achievement</span></td><td><strong>Carolina Cruz-Neira</strong></td><td>中佛罗里达大学（美国）</td><td><strong>CAVE 共同发明人</strong>——1992 年把投影仪围成一间屋子；沉浸式可视化与产学研协作的长期推动者</td></tr>
+        <tr><td><strong>技术成就奖</strong><br><span style="color:#6b6483;font-size:12px">Technical Achievement</span></td><td><strong>Stefania Serafin</strong></td><td>奥尔堡大学（丹麦）／哥本哈根听力与平衡中心</td><td><strong>空间音频</strong>：让声音传达材质、动作与可供性；把 VR 从"以视觉为主"推向多感官交互</td></tr>
+        <tr><td><strong>新锐研究者奖</strong><br><span style="color:#6b6483;font-size:12px">Significant New Researcher</span></td><td><strong>Kangsoo Kim</strong></td><td>卡尔加里大学（加拿大）</td><td><strong>社会临场与虚拟代理</strong>：人—智能体交互中的言语与非言语线索（含触觉）</td></tr>
+        <tr><td><strong>最佳博士论文奖</strong><br><span style="color:#6b6483;font-size:12px">Best Dissertation</span></td><td><strong>Nina Döllinger</strong></td><td>维尔茨堡大学（德国），2025 年博士</td><td>论文《Replacing the Body in Embodiment: The Relationship Between Avatars and Interoception in Virtual Reality》——化身如何影响自我感知与内感受；另有<strong>两项荣誉提名</strong></td></tr>
+        <tr><td><strong>服务奖</strong><br><span style="color:#6b6483;font-size:12px">Service</span></td><td><strong>Gregory Welch</strong></td><td>中佛罗里达大学（美国）</td><td>长期为社区做组织与服务：会议、期刊、评审、培养后辈</td></tr>
+      </tbody>
+    </table>
   </div>
+  <div class="note"><strong>怎么看这张表：</strong>五类奖里，<strong>技术成就奖</strong>和<strong>新锐研究者奖</strong>最能反映"这两年什么方向在冒头"。2026 年这两个位置，一个给了<strong>声音</strong>，一个给了<strong>社会临场</strong>——都不是"更清晰的画面"，而是"更可信的在场"。</div>
 
-  <h3>三、作品奖 vs 研究奖</h3>
+  <h3>三、近三年的趋势：从"画面"转向"人"</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th style="width:10%">年份</th><th style="width:26%">技术成就奖</th><th style="width:26%">新锐研究者奖</th><th>拐点</th></tr></thead>
+      <tbody>
+        <tr><td>2024</td><td>—</td><td>Ana Serrano（萨拉戈萨大学）</td><td>感知与渲染交叉的年轻研究者开始被单独表彰</td></tr>
+        <tr><td>2025</td><td><strong>Ronald Azuma</strong>（AR 定义与计算显示）</td><td><strong>Pedro Lopes</strong>（芝加哥大学，电刺激触觉）</td><td>一次把"AR 的定义"和"把身体当硬件"同时表彰</td></tr>
+        <tr><td>2026</td><td><strong>Stefania Serafin</strong>（空间音频）</td><td><strong>Kangsoo Kim</strong>（社会临场／虚拟代理）</td><td><strong>声音与社交存在</strong>——"在场"的两条非视觉路径</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="key"><strong>研究奖不颁给「今年最好的一部片子」，它颁给「让这个领域往前走了十年的人」。</strong><br>
+    但从这三年的名单能看出另一个信号：<strong>被奖励的"进步"，越来越不是分辨率和帧率，而是"人信不信"。</strong></div>
+
+<h3>四、作品奖 vs 研究奖</h3>
   <div class="tbl-wrap">
     <table>
       <thead><tr><th style="width:16%"></th><th style="width:42%">作品奖（威尼斯）</th><th>研究奖（IEEE VGTC）</th></tr></thead>
@@ -378,10 +657,10 @@
   <p><strong>课堂提问：</strong>如果你要拿研究奖，你现在缺什么？（论文 / 系统 / 服务，三选一）</p>
 </section>
 
-<!-- ===== 七、产业赛道 ===== -->
+<!-- ===== 八、产业赛道 ===== -->
 <section id="c7">
   <div class="sec-head">
-    <div class="sec-num">七</div>
+    <div class="sec-num">八</div>
     <div>
       <h2>产业赛道：Laval Virtual Awards</h2>
       <p class="sec-sub">1999 年创办 ｜ 2026 年第 28 届 ｜ 70 位评委 · 30 个国家 · 300 件参赛 · 10 座奖杯</p>
@@ -461,10 +740,10 @@
     KineThreads 被记住，不是因为它「最先进」，而是因为它<strong>同时把这三个数压了下来</strong>。</div>
 </section>
 
-<!-- ===== 八、工作坊 ===== -->
+<!-- ===== 九、工作坊 ===== -->
 <section id="ws">
   <div class="sec-head">
-    <div class="sec-num">八</div>
+    <div class="sec-num">九</div>
     <div>
       <h2>工作坊：用评审的眼睛，看一件作品</h2>
       <p class="sec-sub">35 分钟 ｜ 4—5 人一组 ｜ 抽一条赛道 ｜ 产出一张《作品评审单》</p>
@@ -515,10 +794,10 @@
   <div class="warn"><strong>教师巡回只看三件事：</strong>① 有没有「证据」（说的是感受还是细节）；② 有没有落到「取舍」（第二条改进）；③ 有没有人没说话。</div>
 </section>
 
-<!-- ===== 九、作业与达标 ===== -->
+<!-- ===== 十、作业与达标 ===== -->
 <section id="hw">
   <div class="sec-head">
-    <div class="sec-num">九</div>
+    <div class="sec-num">十</div>
     <div>
       <h2>作业与达标：把你的作品送上评审桌</h2>
       <p class="sec-sub">下次课（2026-11-25）上课前交｜一页纸，A4</p>
@@ -653,7 +932,7 @@
   navInner.querySelectorAll('a[data-sec]').forEach(function(a){
     navLinks[a.getAttribute('data-sec')] = a;
   });
-  var sections = ['guide','c1','c2','c3','c4','c5','c6','c7','ws','hw','appendix'];
+  var sections = ['guide','c1','c2','history','c3','c4','c5','tech','c6','c7','ws','hw','appendix'];
   if ('IntersectionObserver' in window) {
     var obs = new IntersectionObserver(function(entries){
       entries.forEach(function(en){
