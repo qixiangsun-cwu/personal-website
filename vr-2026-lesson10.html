@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>第 10 次课 · 好看和跑得动是两件事 | 2026年虚拟现实技术</title>
-<meta name="description" content="《虚拟现实技术》第 10 次课课堂内容：帧预算为什么是 13.9 ms 而不是 16.7 ms（72Hz ＋ 浏览器合成要占时间）、优化先看 DrawCall 不要先看面数（同一场景 101 次 → 2 次）、实例化 / 合批 / 贴图复用 / 阴影分辨率四个手段、动态降级 L1 降像素比 0.78 → L2 关阴影 0.62 且可逆、隧道视野与默认传送 ＋ Snap 45°，并拆解演示案例 03「编钟之韵」的判定窗口、WebAudio 加法合成非谐泛音列（零音频文件）与触觉三档；含 180 分钟时间轴、工作室性能体检与一次优化对照任务、里程碑 M4 性能报告，以及任何情况下都不降的三条底线。">
+<title>第 10 次课 · 世界在看什么样的 VR | 2026年虚拟现实技术</title>
+<meta name="description" content="《虚拟现实技术》第 10 次课课堂网页：VR 没有「唯一最高奖」，而是内容（威尼斯沉浸单元）、研究（IEEE VGTC 虚拟现实奖）、产业（Laval Virtual Awards）三条赛道各自的最高认可。含 2026 年威尼斯沉浸大奖《鸽环》（中国，35 分钟）完整拆解——40 相机采集、体积视频重建、4D 高斯、自研剪辑工具，以及它付的代价：单场景 15,827,211 个高斯点，与头显 72Hz / 13.9 毫秒 / 三角面 ≤ 10 万的两套物理条件对照；另含 IEEE VGTC 五类奖与 2026 得主、Laval Virtual 第 28 届 4 赛道 6 类别与「成本 / 重量 / 穿戴时间」三个真指标、35 分钟评审工作坊（用评委的眼睛看自己的作品）与一页纸作业。">
 <link rel="stylesheet" href="assets/vr-2026/course.css">
 </head>
 <body>
@@ -12,9 +12,9 @@
 <!-- ===== 顶部 ===== -->
 <header class="hero">
   <div class="hero-inner">
-    <span class="kicker">虚拟现实技术 · 第 10 次课 · 性能工程</span>
-    <h1>好看和跑得动是两件事</h1>
-    <p class="sub">第 10 次课 · 帧预算 13.9 ms · DrawCall · 动态降级与舒适度 —— 上一次课你的作品已经「能玩」了，这一次课要让它「扛得住」</p>
+    <span class="kicker">虚拟现实技术 · 第 10 次课 · 国际大奖与标杆作品</span>
+    <h1>世界在看什么样的 VR</h1>
+    <p class="sub">国际大奖 · 标杆作品 · 技术底座 —— 三条赛道各自的最高台：<strong>内容</strong>（威尼斯沉浸单元）、<strong>研究</strong>（IEEE VGTC 虚拟现实奖）、<strong>产业</strong>（Laval Virtual Awards）</p>
     <div class="meta">
       <span>中华女子学院</span><span>4 学时（180 分钟）· 第 12 周</span><span>授课人：孙琪翔</span><span>2026-11-18（周三）</span><span>设备与场地【待确认】</span>
     </div>
@@ -26,16 +26,16 @@
   <div class="nav-inner" id="navInner">
     <a href="vr-2026.html" class="nav-back">← 课程主页</a>
     <a href="#guide" data-sec="guide" class="on">本课导览</a>
-    <a href="#c1" data-sec="c1">一、帧预算</a>
-    <a href="#c2" data-sec="c2">二、先看 DrawCall</a>
-    <a href="#c3" data-sec="c3">三、优化四手段</a>
-    <a href="#c4" data-sec="c4">四、动态降级</a>
-    <a href="#c5" data-sec="c5">五、舒适度</a>
-    <a href="#cases" data-sec="cases">演示案例拆解</a>
-    <a href="#demo" data-sec="demo">工作室</a>
-    <a href="#hw" data-sec="hw">达标 · M4</a>
-    <a href="#practice" data-sec="practice">一页速查</a>
-    <a href="#appendix" data-sec="appendix">附录 · 工程纪律</a>
+    <a href="#c1" data-sec="c1">一、三条赛道</a>
+    <a href="#c2" data-sec="c2">二、内容赛道</a>
+    <a href="#c3" data-sec="c3">三、《鸽环》</a>
+    <a href="#c4" data-sec="c4">四、怎么做的</a>
+    <a href="#c5" data-sec="c5">五、代价</a>
+    <a href="#c6" data-sec="c6">六、研究赛道</a>
+    <a href="#c7" data-sec="c7">七、产业赛道</a>
+    <a href="#ws" data-sec="ws">八、工作坊</a>
+    <a href="#hw" data-sec="hw">九、作业与达标</a>
+    <a href="#appendix" data-sec="appendix">附录</a>
   </div>
 </nav>
 
@@ -46,732 +46,601 @@
   <div class="sec-head">
     <div class="sec-num">导</div>
     <div>
-      <h2>本课导览：能玩，不等于扛得住</h2>
-      <p class="sec-sub">上一次课你们过的是这门课唯一的一道硬门槛（<strong>M3 主流程可玩</strong>）；这一课补上后半句——<strong>路子通了、也退得出去，但戴进去掉帧，同样不算完成</strong></p>
+      <h2>本课导览：把「好」拆开看</h2>
+      <p class="sec-sub">前九次课你已经有一件能跑的作品了。这一课不写代码、不调参数，只做一件事：<strong>看看世界在奖励什么样的 VR，再回来照一照自己的作品。</strong></p>
     </div>
   </div>
 
-  <p>第 9 次课的结论是「<strong>路子不通、或者退不出去的作品，画面再好看也不算完成</strong>」。但那时的作品只是「<strong>能玩</strong>」，不是「<strong>扛得住</strong>」。这一节课只解决一个问题：</p>
-  <div class="key"><strong>同一件作品，在头显里掉帧和在你笔记本上流畅，是两件事。</strong><br>
-    头显是<strong>两只眼睛、两块屏、一个移动芯片</strong>在跑；你的笔记本是<strong>一块屏、一个桌面显卡、还插着电</strong>。你在电脑上看到的帧率，跟它没有关系。</div>
+  <p>你大概问过这三个问题：<strong>「我这算 VR 吗？」「那些获奖作品是不是用了很贵的技术？」「我这个东西能拿去做什么？」</strong>这三个问题，本质上都是<strong>坐标系</strong>问题——你得先知道世界上最好的东西长什么样，才知道自己站在哪里。</p>
 
-  <p>这一课和第 6 次课的关系要说清楚，免得变成重复：第 6 次课那 10 分钟讲的是「<strong>要去看哪几个数</strong>」；这一课讲的是「<strong>这几个数意味着什么、超了按什么顺序改、改到什么程度算达标</strong>」。口径完全继承、不另立一套——<strong>72Hz 帧预算、移动头显三角面 ≤ 10 万、优化先看 DrawCall</strong>，这三条一个字没改。</p>
+  <div class="key"><strong>这一节课的核心一句</strong><br>
+    世界在奖励的，不是「技术很新」，而是「<strong>你真的让我在场</strong>」。<br>
+    而「在场」这件事，从来是<strong>用代价换来的</strong>。</div>
 
-  <div class="key"><strong>本课产出 = 每人一份性能体检与优化对照记录</strong>：<strong>改前 / 改后</strong>两组读数（DrawCall / 三角面 / 帧时间）＋ <strong>改动依据</strong>说明 ＋ <strong>与页面 HUD 一致的核对栏</strong>。<br>
-    这就是<strong>里程碑 M4 性能报告</strong>。M4 只交一份对照，不交第二份优化——65 分钟够「体检 ＋ 一次优化 ＋ 真机对照」，要求两次优化会挤掉真机验证。</div>
+  <h3>一、为什么用「奖」当坐标系</h3>
+  <p>奖项的好处是：它把「好」拆成了<strong>可核对的标准</strong>——谁在评、评什么、评了多久。而且 2026 年刚好有一件中国作品（《鸽环》，张妤琦、陶世欣）拿到内容赛道的最高奖，这件事比任何说教都有说服力。</p>
+  <p>奖项的坏处是：容易被当成「光环」。所以这一课我们只做一件事——<strong>把奖还原成标准</strong>。</p>
 
-  <h3>一、今天三件事</h3>
-  <ol>
-    <li>讲清一句话：<strong>帧预算是 13.9 ms，不是 16.7 ms</strong>；</li>
-    <li>放两个演示，亲眼看到同一场景 <strong>101 次 DrawCall → 2 次</strong>、画面一模一样；</li>
-    <li>给自己作品做一次<strong>性能体检 ＋ 一次优化</strong>，把改前 / 改后的数抄下来。</li>
-  </ol>
-
-  <h3>二、180 分钟怎么分</h3>
+  <h3>二、180 分钟怎么排</h3>
   <div class="tbl-wrap">
     <table>
-      <thead><tr><th>段</th><th>墙钟</th><th>时长</th><th>环节</th></tr></thead>
+      <thead><tr><th>段</th><th>墙钟</th><th>时长</th><th>内容</th><th>性质</th></tr></thead>
       <tbody>
-        <tr><td>① 开场</td><td>0:00—0:10</td><td><strong>10′</strong></td><td>M3 点评 ＋ 三类卡壳统计（环境 / 作品 / 设备各多少人）</td></tr>
-        <tr><td>② 讲授</td><td>0:10—0:55</td><td><strong>45′</strong></td><td>性能工程：帧预算 · DrawCall · 优化手段 · 动态降级 · 舒适度</td></tr>
-        <tr><td>③ 课间</td><td>0:55—1:05</td><td><strong>10′</strong></td><td>——（<strong>不计入教学时长</strong>）</td></tr>
-        <tr><td>④ 演示 ＋ 拆解</td><td>1:05—1:40</td><td><strong>35′</strong></td><td>两个性能演示（15′）＋ 拆演示案例 03 的判定 / 程序化音频 / 触觉三档（20′）</td></tr>
-        <tr><td>⑤ 工作室</td><td>1:40—2:45</td><td><strong>65′</strong></td><td>给自己作品做性能体检 ＋ 一次优化前后对照</td></tr>
-        <tr><td>⑥ 收束</td><td>2:45—3:00</td><td><strong>15′</strong></td><td>M4 提交要求 ＋ 读数必须与 HUD 一致</td></tr>
+        <tr><td>① 开场</td><td>0:00—0:10</td><td>10′</td><td>三个问题 · 三条赛道 · 纠正「唯一最高奖」</td><td>讲</td></tr>
+        <tr><td>② 内容赛道</td><td>0:10—0:40</td><td>30′</td><td>威尼斯沉浸单元 2016→2026 · 三个奖 · 《鸽环》 · <strong>看片 V1</strong></td><td>讲 + 放片 + 讨论</td></tr>
+        <tr><td>③ 拆一部作品</td><td>0:40—1:20</td><td>40′</td><td>采集→重建→表演→剪辑 · <strong>看片 V2</strong> · 代价 15,827,211 · 两套物理条件</td><td>讲 + 放片 + 讨论</td></tr>
+        <tr><td>④ 课间</td><td>1:20—1:30</td><td>10′</td><td>——（不计入教学时长）</td><td>—</td></tr>
+        <tr><td>⑤ 研究赛道</td><td>1:30—1:52</td><td>22′</td><td>IEEE VGTC：五类奖 · 2026 得主 · 奖人不奖作品</td><td>讲 + 提问</td></tr>
+        <tr><td>⑥ 产业赛道</td><td>1:52—2:15</td><td>23′</td><td>Laval Virtual 第 28 届 · 4 赛道 + 6 类别 · 三个真指标</td><td>讲 + 放片 30″</td></tr>
+        <tr><td>⑦ 工作坊</td><td>2:15—2:50</td><td>35′</td><td>分组抽赛道 → 写评审单 → 汇报三句</td><td>学生动手</td></tr>
+        <tr><td>⑧ 收束</td><td>2:50—3:00</td><td>10′</td><td>评委问什么→你准备什么 · 作业 · 一句话</td><td>讲 + 板书</td></tr>
       </tbody>
     </table>
   </div>
-  <p>逐段相加：10 ＋ 45 ＋ 10 ＋ 35 ＋ 65 ＋ 15 ＝ <strong>180 分钟</strong>；<strong>教学时长 = 180 − 10 = 170 分钟</strong>。墙钟累加 0:10 → 0:55 → 1:05 → 1:40 → 2:45 → 3:00，正好 3 小时。任何一段超 5 分钟，就从「时间不够时的降级优先级」往下砍（见「工作室」一节）。</p>
+  <p><strong>教学时长 170 分钟 ＋ 课间 10 分钟 ＝ 180 分钟</strong>（逐段相加核对：10+30+40 与 22+23+35+10）。现场两个打卡点：<strong>1:20 必须进课间、2:50 必须进收束</strong>。</p>
 
-  <div class="note"><strong>开场段要投屏的三个数字：</strong>【待补充：M3 收件数与环境 / 作品 / 设备三类卡壳人数】——<strong>必须在 11-18 上课前统计完</strong>，课上不现编。<br>
-    这三个数字不是走过场，它就是后面降级优先级的依据：如果「环境」类的人最多，那么工作室的<strong>第一件事就不是优化，是让每个人先进得去 VR</strong>。老话再念一遍：<strong>先怀疑环境，再怀疑代码。</strong></div>
-
-  <div class="note"><strong>设备与场地口径：</strong>头显型号与数量【待确认】、上课地点【待确认】。本课的统一性能口径来自共享工程内核附录——<strong>72Hz ⇒ 13.9 ms/帧</strong>（对应 PICO Neo3）。<strong>若实际头显是别的刷新率（如 90Hz），帧预算要按 1 ÷ 刷新率重算</strong>，但「先看 DrawCall」的顺序不变。</div>
-
-  <h3>三、课上要放的两个演示</h3>
-  <div class="btn-row">
-    <a class="btn" href="assets/vr-2026/panorama/pano-drawcall-lab.html" target="_blank" rel="noopener">★ DrawCall 对照实验室（必放）→</a>
-    <a class="btn ghost" href="assets/vr-2026/panorama/pano-perf-budget.html" target="_blank" rel="noopener">移动 VR 性能预算计算器 →</a>
+  <h3>三、本课产出</h3>
+  <div class="grid2">
+    <div class="step-card">
+      <div class="tag">课堂（小组）</div>
+      <p style="margin:6px 0 0"><strong>《作品评审单》</strong>：五问 ＋ 3 条评语 ＋ 2 条改进。<br><span style="color:#6b6483">每条评语都要带证据。</span></p>
+    </div>
+    <div class="step-card">
+      <div class="tag gold">课后（个人）</div>
+      <p style="margin:6px 0 0"><strong>一页纸</strong>：100 字 pitch ＋ 三条自评 ＋ 一条取舍。<br><span style="color:#6b6483">11-25 上课前交。</span></p>
+    </div>
   </div>
-  <p style="font-size:14px;color:var(--ink-soft);">左边那个<strong>绝不砍</strong>；右边那个时间不够时可以砍，省下的时间并进工作室。<strong>两个页面课前都要在教师机上预演一遍</strong>，并准备好断网时的本地离线副本——不要在课上现场搜链接。</p>
+
+  <div class="note"><strong>这一课不讲什么：</strong>高斯溅射的球谐函数、协方差、光栅化——<strong>一律不讲</strong>；性能工程（帧预算、DrawCall、动态降级）这一课也不展开，只在第五节留一页，作为「在场有代价」的证据。完整性能内容在<a href="vr-2026-lesson10.html#practice">课后自检表</a>与期末作品的「性能记录」里完成。</div>
 </section>
 
-<!-- ===== 一、帧预算 ===== -->
+<!-- ===== 一、三条赛道 ===== -->
 <section id="c1">
   <div class="sec-head">
     <div class="sec-num">一</div>
     <div>
-      <h2>帧预算：13.9 ms，不是 16.7 ms</h2>
-      <p class="sec-sub">整节课的骨头就这一根。这一句话后面挂着三个必须回答的问题：预算有多少 / 超了先看哪个数 / 超了怎么降回来</p>
+      <h2>三条赛道，各有各的最高台</h2>
+      <p class="sec-sub">VR 没有「唯一最高奖」；有的是<strong>三条赛道各自的最高认可</strong>，而且它们评的根本不是同一种东西</p>
     </div>
   </div>
 
-  <div class="key"><strong>头显的目标刷新率 72 Hz → 一帧的时间 = 1 ÷ 72 = 13.9 ms。这就是你的全部预算。</strong><br>
-    你这一帧里要做的一切——JS、绘制命令、GPU 画图、浏览器合成——都得塞进这 13.9 毫秒。</div>
-
-  <h3>一、为什么是 13.9，不是 16.7</h3>
   <div class="tbl-wrap">
     <table>
-      <thead><tr><th>数值</th><th>它是谁的</th><th>含义</th></tr></thead>
+      <thead><tr><th style="width:10%">赛道</th><th style="width:32%">奖项</th><th style="width:28%">谁在评</th><th>评什么</th></tr></thead>
       <tbody>
-        <tr><td><strong>16.7 ms</strong></td><td>1 ÷ <strong>60</strong> Hz</td><td>那是「<strong>一整帧的时间</strong>」——很多人记得的是这个数</td></tr>
-        <tr><td><strong>13.9 ms</strong></td><td>1 ÷ <strong>72</strong> Hz</td><td>那是「<strong>你这一帧能支配的时间</strong>」</td></tr>
+        <tr><td><strong>内容</strong></td><td><strong>威尼斯沉浸大奖</strong><br><span style="color:#6b6483">Venice Immersive Grand Prize</span></td><td>威尼斯国际电影节<br>官方竞赛单元</td><td><strong>作品</strong>：在场感与叙事</td></tr>
+        <tr><td><strong>研究</strong></td><td><strong>IEEE VGTC 虚拟现实奖</strong><br><span style="color:#6b6483">VR Awards</span></td><td>IEEE 可视化与图形技术委员会</td><td><strong>人</strong>：终身贡献、技术成就、博士论文</td></tr>
+        <tr><td><strong>产业</strong></td><td><strong>Laval Virtual Awards</strong></td><td>法国拉瓦勒国际 VR / AR 展</td><td><strong>产品</strong>：能不能被别人用起来</td></tr>
       </tbody>
     </table>
   </div>
-  <p>两个原因叠在一起：<strong>第一，目标刷新率更高（72Hz），一帧本来就短；第二，也是最容易忘的一点——你的代码画完之后，浏览器还要把这一帧合成、交给头显显示，这段时间也要算在这一帧里。</strong></p>
-  <div class="warn"><strong>这一屏不做除法推导。</strong>要能说出口的是那<strong>一句解释</strong>：<strong>「浏览器合成要占时间。」</strong>能说出这一句，这一条就过了。</div>
 
-  <h3>二、13.9 ms 里都装着谁</h3>
-  <div class="tbl-wrap">
-    <table>
-      <thead><tr><th>谁在用这 13.9 ms</th><th>具体在干什么</th></tr></thead>
-      <tbody>
-        <tr><td><strong>你的 JS</strong></td><td>每一帧的状态更新、判定、谱面推进</td></tr>
-        <tr><td><strong>渲染提交（CPU）</strong></td><td>把每个物体整理好、<strong>喊一次 DrawCall</strong></td></tr>
-        <tr><td>GPU</td><td>真正把像素画出来</td></tr>
-        <tr><td>浏览器合成</td><td>把画面送进头显</td></tr>
-      </tbody>
-    </table>
-  </div>
-  <p><strong>你唯一能直接控制的是前两项。</strong>这也是为什么「减少绘制命令的次数」是最见效的一招——它正好落在你能控制的那一半里。</p>
+  <div class="key"><strong>同一个词「最高」，在三条赛道里指的不是同一件事。</strong><br>
+    判断一个奖的分量，先问三件事：<strong>谁在评、评什么、评了多久。</strong>三个奖评的不是同一种东西，所以它们排不出「第一」。</div>
 
-  <h3>三、打开面板，你会看到六个数字</h3>
-  <p>工程面板 / 探针面板上能看到的六个读数：<strong>FPS</strong> ｜ <strong>帧时间</strong> ｜ <strong>最差 1% 帧</strong> ｜ <strong>DrawCalls</strong> ｜ <strong>三角面</strong> ｜ <strong>贴图数</strong>。</p>
-  <div class="grid2">
-    <div class="cell">
-      <h4>第一重要：帧时间</h4>
-      <p>它直接告诉你<strong>超没超 13.9</strong>。这是唯一一个能和预算直接比的数；FPS 只是它的另一种说法。</p>
-    </div>
-    <div class="cell">
-      <h4>第二重要：DrawCall</h4>
-      <p>它是最容易改得动的那一个。三角面、贴图数、FPS、最差 1% 帧都是辅助——它们帮你判断「问题出在哪个方向」。</p>
-    </div>
-  </div>
-
-  <h3>四、超了会怎样：引擎会替你降级（先给结论）</h3>
-  <p>内核的<strong>动态降级</strong>：<strong>帧时间持续超预算 20% 达 2 秒 → 降像素比（L1）→ 再关阴影（L2）；余量恢复时回升——可逆。</strong>具体怎么降、什么时候降，见「四、动态降级」一节。这里只要先记住一句话：<strong>降级是可逆的。</strong>这一点非常关键。</p>
-  <p><strong>掉帧在头显里比画面糊严重得多——糊你能忍，卡你不能忍。</strong></p>
+  <div class="warn"><strong>课上绝对不要说的两句话：</strong>①「XX 奖是 VR 领域最高奖」——没有这种东西；②「《鸽环》用了高斯泼溅所以拿奖」——反了，<strong>是内容立住了，技术把它实现了</strong>；技术是必要条件，不是充分条件。</div>
 </section>
 
-<!-- ===== 二、先看 DrawCall ===== -->
+<!-- ===== 二、内容赛道 ===== -->
 <section id="c2">
   <div class="sec-head">
     <div class="sec-num">二</div>
     <div>
-      <h2>超了先看哪个数：先看 DrawCall，不要先看面数</h2>
-      <p class="sec-sub">顺序错了，学生会去删模型。这一节的证据不是讲出来的，是放出来的</p>
+      <h2>内容赛道：威尼斯沉浸单元</h2>
+      <p class="sec-sub">2016 年设立 ｜ 2026 年第 83 届 ｜ 68 部展映 · 26 个国家和地区 · 30 部入围竞赛</p>
     </div>
   </div>
 
-  <div class="key"><strong>优化先看 DrawCall，不要先看面数。</strong><br>
-    面数大，<strong>不一定</strong>慢——GPU 画三角面是它的本职工作；<strong>DrawCall 多，一定慢</strong>——每一次绘制命令，都是 CPU 到 GPU 的一次沟通，而这个沟通有固定开销。</div>
+  <h3>一、2016：一个电影节，为什么要开 VR 单元</h3>
+  <p>2016 年，威尼斯电影节设立「<strong>威尼斯沉浸单元</strong>」（Venice Immersive）。它不是展映边角料——<strong>它是官方竞赛单元，与主竞赛、地平线并列</strong>：有入围、有评委、有奖。今天它已经是<strong>全球规模最大的沉浸式内容专业活动</strong>。</p>
+  <p>电影节为什么要开这个单元？因为观众不再只是「看」，他们开始「<strong>在里面</strong>」。</p>
 
-  <p>打个比方：<strong>面数是你让工人搬多少砖；DrawCall 是你喊了多少次「开始搬」。</strong>你搬的砖不多，但你喊了一百次——<strong>工人全花在听你喊上了。</strong></p>
+  <h3>二、2026 年的数字</h3>
+  <div class="figure-row" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr))">
+    <div class="step-card" style="text-align:center"><div style="font-size:34px;font-weight:800;color:#5a52c8">68</div><div style="color:#6b6483;font-size:13px">部作品展映</div></div>
+    <div class="step-card" style="text-align:center"><div style="font-size:34px;font-weight:800;color:#5a52c8">26</div><div style="color:#6b6483;font-size:13px">个国家和地区</div></div>
+    <div class="step-card" style="text-align:center"><div style="font-size:34px;font-weight:800;color:#5a52c8">30</div><div style="color:#6b6483;font-size:13px">部入围竞赛</div></div>
+    <div class="step-card" style="text-align:center"><div style="font-size:34px;font-weight:800;color:#5a52c8">≈44%</div><div style="color:#6b6483;font-size:13px">入围率</div></div>
+  </div>
+  <p>它不是「人人有奖」的展——<strong>30 部里选 3 部</strong>，这是今年的竞争强度。</p>
 
-  <h3>一、现场放《DrawCall 对照实验室》</h3>
-  <p>同一个场景，100 个方块，两种做法：</p>
+  <h3>三、三个奖，都是作品奖</h3>
   <div class="tbl-wrap">
     <table>
-      <thead><tr><th>做法</th><th>DrawCall</th><th>为什么</th></tr></thead>
+      <thead><tr><th style="width:22%">奖项</th><th style="width:18%">中文</th><th>评什么</th></tr></thead>
       <tbody>
-        <tr><td><strong>左边：各交各的</strong></td><td><strong>101 次</strong></td><td>100 个方块各喊一次，加上地面 1 次</td></tr>
-        <tr><td><strong>右边：一个 InstancedMesh 打包交一次</strong></td><td><strong>2 次</strong></td><td>1 次把 100 个方块一起交上去，加上地面 1 次</td></tr>
+        <tr><td><strong>Grand Prize</strong></td><td>威尼斯沉浸大奖</td><td>单元最高奖。评的是整件作品在沉浸媒介里的完成度</td></tr>
+        <tr><td><strong>Achievement Prize</strong></td><td>成就奖</td><td>表彰某一方面突出的成就：技术、叙事或空间设计</td></tr>
+        <tr><td><strong>Special Jury Prize</strong></td><td>评审团特别奖</td><td>评委特别推荐：不一定完美，但值得被看见</td></tr>
       </tbody>
     </table>
   </div>
-  <p>拖一拖滑杆，让学生盯着数字：<strong>左边随方块数一路涨，右边一直趴在 2——而画面一模一样。</strong></p>
-  <div class="key"><strong>画面一模一样。开销差 50 倍。</strong><br>
-    为什么可以这样合？<strong>因为这 100 个方块「几何相同、材质相同」。</strong>用一个 <code class="inline">InstancedMesh</code> 把「同一个几何 ＋ 同一个材质」的 100 个实例打包交一次，就变成 1 次。<br>
-    <strong>你看到的画面，和机器付出的代价，是两件事。</strong></div>
+  <p>评委由<strong>策展人、创作者、艺术家</strong>组成——他们看的不是技术参数，是<strong>这件作品成不成立</strong>。</p>
 
-  <div class="btn-row">
-    <a class="btn" href="assets/vr-2026/panorama/pano-drawcall-lab.html" target="_blank" rel="noopener">打开 DrawCall 对照实验室 →</a>
-    <a class="btn ghost" href="assets/vr-2026/panorama/pano-perf-budget.html" target="_blank" rel="noopener">性能预算计算器（可降级）→</a>
+  <h3>四、2026 年的三个答案</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>作品</th><th>作者 / 团队</th><th style="width:10%">时长</th><th style="width:18%">形态</th><th style="width:20%">奖项</th></tr></thead>
+      <tbody>
+        <tr><td><strong>《鸽环》The Pigeon Ring</strong></td><td>张妤琦、陶世欣（中国）</td><td>35 分钟</td><td>VR ＋ 沉浸式装置</td><td><strong>Grand Prize</strong></td></tr>
+        <tr><td><strong>Empire at Sea</strong></td><td>Peter Flaherty</td><td>22 分钟</td><td>MR 剧情</td><td>Achievement Prize</td></tr>
+        <tr><td><strong>Out of the Ashes</strong></td><td>Rory Mitchell、Nonny de la Peña</td><td>26 分钟</td><td>VR 纪录</td><td>Special Jury Prize</td></tr>
+      </tbody>
+    </table>
   </div>
+  <div class="key"><strong>注意三件作品的共同点：</strong>都不是「看一段 360° 视频」，而是「<strong>你在一个真空间里</strong>」。这是沉浸媒介与电影最根本的分界线。</div>
 
-  <h3>二、演示区还有三句话要念</h3>
-  <ol>
-    <li><strong>「一次 DrawCall = CPU 把这一批数据整理好、交给 GPU 开始画」</strong>——把这个「交接」讲清楚，学生就明白为什么它有固定开销；</li>
-    <li><strong>「实例数量很少（比如 3 个）时，改不改差不多，别为了 3 个物体重构代码。」</strong></li>
-    <li><strong>这个演示的场景是「100 个一模一样的方块」</strong>——所以别指望在自己作品里也做出「101 → 2」这种数字。<strong>你要找的是同一类问题，不是同一个数字。</strong></li>
-  </ol>
-  <div class="warn"><strong>紧接着补一句，防止学生课后空手而归：</strong>你作品里的「100 个方块」可能只有 8 个。<strong>那也值得改——8 次变 1 次，就是省了 7 次。</strong><br>
-    放完演示立刻接一句提问：<strong>「你作品里有几组『长得一样、只是位置不同』的东西？那几组就是你今天要动手的地方。」</strong></div>
-
-  <h3>三、第二个演示：性能预算计算器（可降级）</h3>
-  <p>填进 <strong>Mesh 数 / 材质数 / 贴图分辨率 / 三角面</strong>，它算出 <strong>DrawCall、纹理显存、面数占预算的比例</strong>三条预算条，并给出「<strong>先改哪个</strong>」的顺序。用法：<strong>用一份学生作品的真实读数填进去</strong>（三角面 70k 的预设即可），回答的是那句话——<strong>「我这作品到底超没超」是可以算的。</strong></p>
-  <div class="note">时间不够时砍这一个（7′），<strong>只放《DrawCall 对照实验室》</strong>，省下的时间并进工作室。<strong>第一个绝不砍。</strong></div>
+  <figure class="fig">
+    <img src="assets/vr-2026/lesson10/img/pigeon_scene.jpg" alt="《鸽环》中的老屋场景：孙女与爷爷在室内" style="width:100%;border-radius:8px;display:block">
+    <figcaption style="color:#6b6483;font-size:13px;padding:8px 4px 2px">《鸽环》剧照：老屋、阳台上的鸽舍、回到屋里的祖孙。素材：B 站《鸽环》官方视频（BV19fWY65E4V），仅课堂使用。</figcaption>
+  </figure>
 </section>
 
-<!-- ===== 三、优化四手段 ===== -->
+<!-- ===== 三、《鸽环》 ===== -->
 <section id="c3">
   <div class="sec-head">
     <div class="sec-num">三</div>
     <div>
-      <h2>四个优化手段：改哪一处、看哪个数</h2>
-      <p class="sec-sub">按性价比从上往下用。<strong>别一上来就动阴影</strong>——阴影是第四顺位</p>
+      <h2>《鸽环》：一间老屋，一枚丢了的鸽环</h2>
+      <p class="sec-sub">张妤琦、陶世欣 ｜ 35 分钟 ｜ VR ＋ 沉浸式装置 ｜ 第 83 届威尼斯沉浸大奖</p>
     </div>
   </div>
 
-  <h3>一、四个手段，按性价比排（本课最实用的一张表）</h3>
-  <div class="tbl-wrap">
-    <table>
-      <thead><tr><th>优先级</th><th>手段</th><th>什么情况下用</th><th>改完主要看哪个数</th><th>演示案例 03 里的对应</th></tr></thead>
-      <tbody>
-        <tr>
-          <td><strong>1</strong></td>
-          <td><strong>实例化（InstancedMesh）</strong></td>
-          <td>有<strong>多个「几何相同 ＋ 材质相同」</strong>的物体（<strong>≥3 个</strong>才值得；很少时改不改差不多）</td>
-          <td><strong>DrawCall ↓</strong></td>
-          <td>七口钟用同一套几何 / 贴图，整场 <strong>48 个几何体 / 59 次 DrawCall</strong></td>
-        </tr>
-        <tr>
-          <td><strong>2</strong></td>
-          <td><strong>合批 / 合并几何</strong></td>
-          <td>静态不动的东西多、材质可共享</td>
-          <td><strong>DrawCall ↓</strong>（三角面不变）</td>
-          <td>钟架（双立柱 ＋ 横梁）</td>
-        </tr>
-        <tr>
-          <td><strong>3</strong></td>
-          <td><strong>贴图复用 / 降分辨率</strong></td>
-          <td>贴图张数多、纹理内存吃紧</td>
-          <td><strong>贴图数 ↓</strong>（DrawCall 可能不变）</td>
-          <td>只有 <strong>10 张程序化贴图</strong>，全部 canvas 现画</td>
-        </tr>
-        <tr>
-          <td><strong>4</strong></td>
-          <td><strong>阴影分辨率</strong></td>
-          <td>阴影 pass 吃掉帧时间、画面不依赖精细阴影</td>
-          <td><strong>帧时间 ↓</strong>（DrawCall 可能只降一点点）</td>
-          <td>单平行光 <strong>1024×1024 PCFSoft</strong>，<strong>仅钟架与钟体投影</strong></td>
-        </tr>
-      </tbody>
-    </table>
+  <p>假期返乡的小林，陪固执的爷爷回到久无人居的老屋，找一枚丢失的鸽环。在翻找物件的过程中，爷爷藏了半生的往事被一点点翻出来——用祖孙之间的相处，勾勒一个普通中国家庭的记忆与亲情。</p>
+
+  <div class="key"><strong>它拿奖不是因为「技术新」，是因为你在那间屋子里。</strong><br>
+    片尾导演原话：「能够把实拍内容在 VR 里，以 <strong>6DoF</strong> 的方式展现出来。」</div>
+
+  <h3>看片之前：三个观察任务</h3>
+  <div class="step-grid">
+    <div class="step-card"><div style="color:#5a52c8;font-weight:800;font-size:20px">①</div><h4 style="margin:4px 0 6px">镜头在哪儿？</h4><p style="margin:0;color:#6b6483;font-size:14px">是导演替你选好了视角，还是「你就在这间屋里」？</p></div>
+    <div class="step-card"><div style="color:#5a52c8;font-weight:800;font-size:20px">②</div><h4 style="margin:4px 0 6px">光是真的还是渲的？</h4><p style="margin:0;color:#6b6483;font-size:14px">看窗户、瓷砖、木头的反光——像不像真的？</p></div>
+    <div class="step-card"><div style="color:#5a52c8;font-weight:800;font-size:20px">③</div><h4 style="margin:4px 0 6px">你能走吗？</h4><p style="margin:0;color:#6b6483;font-size:14px">能不能绕到桌子后面去，蹲下来看那只鸟笼？</p></div>
   </div>
-  <div class="key"><strong>给学生的一句判断法：</strong><strong>先数一数，你场景里有几组「长得一样、只是位置不同」的东西。有几组，就有几个能立刻见效的地方。</strong></div>
 
-  <h3>二、手段 ①②：实例化 / 合批</h3>
-  <p>演示案例 03「编钟之韵」在这两点上是一个可以<strong>照抄</strong>的样板：<strong>七口钟用的是同一套几何 ＋ 同一套程序化贴图</strong>，整场 <strong>48 个几何体 / 59 次 DrawCall / 8.9k 三角面</strong>。</p>
-  <div class="tbl-wrap">
-    <table>
-      <thead><tr><th>来源</th><th>DrawCall</th><th>三角面</th><th>其他</th></tr></thead>
-      <tbody>
-        <tr><td><strong>演示案例 03 README</strong></td><td><strong>59</strong></td><td><strong>8.9k（8 949）</strong></td><td><strong>10 张程序化贴图</strong>、48 个几何体</td></tr>
-        <tr><td><code class="inline">_标准与审计</code> 审计文件口径</td><td><strong>60</strong></td><td><strong>8950</strong></td><td>——</td></tr>
-      </tbody>
-    </table>
-  </div>
-  <div class="note"><strong>两个口径都来自实测，差 1 次是统计口径（是否计入某个 pass / 取整方式）造成的，不是编数据。</strong>课上两个数都念出来，并落一句：<strong>「两个都来自实测，差 1 次是口径问题；但你自己记录表上的数，必须和当时页面 HUD 上显示的一致。」</strong><br>
-    两个数都远低于 10 万面预算——这正是「演示案例 03 是可以放心照抄的性能样板」的原因。它是<strong>样板</strong>，不是「看我怎么把它救回来」的优化案例。</div>
+  <figure class="fig">
+    <video controls preload="metadata" playsinline poster="assets/vr-2026/lesson10/video/v1_pigeon_story_poster.jpg" style="width:100%;border-radius:8px;display:block;background:#000">
+      <source src="assets/vr-2026/lesson10/video/v1_pigeon_story.mp4" type="video/mp4">
+      你的浏览器不支持 video 标签，<a href="assets/vr-2026/lesson10/video/v1_pigeon_story.mp4">点此下载本段视频（1:40）</a>。
+    </video>
+    <figcaption style="color:#6b6483;font-size:13px;padding:8px 4px 2px"><strong>V1 片头与导演自述（1:40）</strong>：老屋里的 VR 场景 ＋ 两位导演自述。看完只回答一个问题——<strong>它凭什么让你相信「你在场」？</strong></figcaption>
+  </figure>
 
-  <h3>三、手段 ③：贴图复用 / 降分辨率</h3>
-  <p>演示案例 03 在这一块给了一个极端做法：<strong>一张音频文件都没有，一张外部图片也没有</strong>。它只有 <strong>10 张程序化贴图</strong>，<strong>全部是 canvas 现画的</strong>：</p>
-  <ul>
-    <li>青铜钟体的「枚」（乳钉）：<strong>3 列 × 4 排</strong>；</li>
-    <li>篆部横带、铣（侧棱）；</li>
-    <li><strong>同一张图案再生成 <code class="inline">bumpMap</code></strong>，做出凹凸光照；</li>
-    <li>钟架木纹。</li>
-  </ul>
-  <p>环境反射用<strong>一次性生成的 PMREM 贴图</strong>（解决金属材质发黑，<strong>已 try/catch 降级</strong>）。</p>
-  <div class="key"><strong>「贴图复用」不只是把大图改小，还能是「根本不引入那张图」。</strong><br>
-    另外注意括号里那句——它的环境反射已经做了 <code class="inline">try/catch</code> 降级。这就是「降级是设计的一部分」的实例。</div>
-
-  <h3>四、手段 ④：阴影分辨率——演示案例 03 的阴影只投两个东西</h3>
-  <ul>
-    <li>单平行光，阴影贴图 <strong>1024×1024</strong>，<strong>PCFSoft</strong>；</li>
-    <li><strong>仅钟架与钟体投影</strong>，其他东西不投；</li>
-    <li>全场只有 <strong>3 个光源</strong>：半球光 ＋ 主平行光 ＋ 暖色补光；</li>
-    <li><strong>无实时点光源</strong>——两侧宫灯是<strong>自发光球，不是实时光源</strong>（它不发光，它只是看起来在发光）。</li>
-  </ul>
-  <p>这三个克制的决定加起来，就是把阴影 pass 的成本压到很低。<strong>你要动阴影的时候，先问自己：「我的画面，真的需要这么精细的阴影吗？」</strong></p>
+  <div class="note"><strong>获奖作品的第一道门槛不是「好看」，是「你在里面」。</strong>6DoF 这三个字母，就是这道门槛的名字：它意味着你可以<strong>在场景里自由移动、蹲下、绕到物体后面</strong>——而这是一整套重建工作换来的。</div>
 </section>
 
-<!-- ===== 四、动态降级 ===== -->
+<!-- ===== 四、怎么做的 ===== -->
 <section id="c4">
   <div class="sec-head">
     <div class="sec-num">四</div>
     <div>
-      <h2>动态降级：L1 降像素比 → L2 关阴影，而且可逆</h2>
-      <p class="sec-sub">这一段最关键的三个字是<strong>可逆</strong>——一个不会回升的降级，等于把作品永久变丑</p>
+      <h2>一部 35 分钟的片子，是怎么被做出来的</h2>
+      <p class="sec-sub">采集 → 重建 → 表演 → 剪辑：前两步决定「能不能走」，后两步决定「是不是作品」</p>
     </div>
   </div>
 
-  <h3>一、两级：L1 → L2，顺序固定</h3>
-  <div class="tbl-wrap">
-    <table>
-      <thead><tr><th>等级</th><th>做什么</th><th>代价</th></tr></thead>
-      <tbody>
-        <tr><td><strong>L0</strong></td><td>不降级（正常）</td><td>——</td></tr>
-        <tr><td><strong>L1</strong></td><td><strong>降像素比</strong>（渲染像素比降到 <strong>0.78</strong>）</td><td>画面变软（有点糊）</td></tr>
-        <tr><td><strong>L2</strong></td><td><strong>再关阴影</strong>（像素比进一步降到 <strong>0.62</strong>）</td><td>立体感和落地感下降</td></tr>
-      </tbody>
-    </table>
-  </div>
-  <p><strong>顺序是固定的：先 L1，后 L2。</strong>为什么？<strong>因为糊一点比没有阴影更容易被接受。</strong></p>
-
-  <h3>二、触发条件：超预算 20%、持续 2 秒、降一级</h3>
-  <div class="key"><strong>帧时间持续超预算 20% 达 2 秒 → 降一级。</strong></div>
-  <p>这句话里有三个词很重要：</p>
-  <div class="grid3">
-    <div class="cell">
-      <h4>① 20%</h4>
-      <p>13.9 × 1.2 ≈ <strong>16.7 ms</strong>。偶然一次抖动不算——它要的是<strong>稳定地超</strong>。</p>
-    </div>
-    <div class="cell">
-      <h4>② 持续 2 秒</h4>
-      <p>进场加载那一下卡顿不算。短暂的一次峰值不触发降级。</p>
-    </div>
-    <div class="cell">
-      <h4>③ 降一级</h4>
-      <p>不是直接掉到 L2——<strong>是一级一级降</strong>。不因为一次抖动就把你的画面变丑。</p>
-    </div>
+  <div class="step-grid">
+    <div class="step-card"><div class="tag">01</div><h4 style="margin:8px 0 6px">采集</h4><p style="margin:0">把真实空间<strong>记下来</strong><br><span style="color:#6b6483;font-size:13px">40 相机阵列 / 扫描</span></p></div>
+    <div class="step-card"><div class="tag">02</div><h4 style="margin:8px 0 6px">重建</h4><p style="margin:0">把记录变成<strong>可以走的空间</strong><br><span style="color:#6b6483;font-size:13px">点云 / 4D 高斯</span></p></div>
+    <div class="step-card"><div class="tag">03</div><h4 style="margin:8px 0 6px">表演</h4><p style="margin:0">让人的动作<strong>留在里面</strong><br><span style="color:#6b6483;font-size:13px">动捕 / 实拍</span></p></div>
+    <div class="step-card"><div class="tag">04</div><h4 style="margin:8px 0 6px">剪辑</h4><p style="margin:0">把素材变成<strong>一件作品</strong><br><span style="color:#6b6483;font-size:13px">时间线 / 对齐</span></p></div>
   </div>
 
-  <h3>三、最关键的三个字：可逆</h3>
-  <div class="key"><strong>余量恢复时，降级会回升。</strong><br>
-    掉了像素比 → 帧时间回到预算内 → <strong>像素比会回来</strong>；关了阴影 → 余量够了 → <strong>阴影会回来</strong>。</div>
-  <p>为什么要这样设计？因为<strong>一个不会回升的降级，等于把你的作品永久变丑了</strong>——那学生就不敢让它降级了。所以你后面会在真机上看到 L1、L2，<strong>不要把它当成「我的作品坏了」，它是引擎在替你把帧率守住。</strong></p>
-  <div class="note"><strong>内核源码里的实际判定（可现场核对）：</strong>帧时间均值 <strong>超过预算的 1.20 倍</strong>累计满 <strong>2000 ms</strong> → 降一级；帧时间均值<strong>低于预算的 0.85 倍</strong>累计满 <strong>4000 ms</strong> → 升一级。<br>
-    也就是说，<strong>回升比下降更谨慎</strong>（要 4 秒的余量才回升）——这正是「不因为一次抖动就改画面」的同一条思路。数值见 <code class="inline">_xr_core.js</code> 的降级判定段与 <code class="inline">applyDegrade()</code>（像素比 0.78 / 0.62、L2 关阴影）。<strong>唯一可信的，是运行起来以后看到的数。</strong></div>
+  <figure class="fig">
+    <video controls preload="metadata" playsinline poster="assets/vr-2026/lesson10/video/v2_pigeon_tech_poster.jpg" style="width:100%;border-radius:8px;display:block;background:#000">
+      <source src="assets/vr-2026/lesson10/video/v2_pigeon_tech.mp4" type="video/mp4">
+      你的浏览器不支持 video 标签，<a href="assets/vr-2026/lesson10/video/v2_pigeon_tech.mp4">点此下载本段视频（2:22）</a>。
+    </video>
+    <figcaption style="color:#6b6483;font-size:13px;padding:8px 4px 2px"><strong>V2 技术段（2:22）</strong>：平板上的重建点云 → 实地采集 → 40 相机移动式阵列 → 4D 高斯 → 时间线剪辑。<strong>放的时候不讲解</strong>，先让学生自己看现场。</figcaption>
+  </figure>
 
-  <div class="warn"><strong>现场可选演示（若时间允许）</strong>：用 <strong>Chrome DevTools 的 CPU 4× 降速</strong>，让学生<strong>看着面板上的降级等级从 L0 掉到 L1</strong>。若时间紧，这一屏只讲不演。</div>
-  <p><strong>落一句：降级不是失败，是设计的一部分。</strong>下一次课要接 LLM 智能 NPC——「大模型接不上时怎么办」用的是同一套思路。</p>
+  <h3>一、采集：一圈相机，人在中间演</h3>
+  <p>片子里用的是「<strong>移动式的 4D 摄影系统</strong>」：<strong>40 台相机围成一个可以推着走的阵列</strong>，演员站在中间表演。导演组有一句原话——「我们采用了这种移动式的 40 相机系统，这样一次可以去拍一个大的场景」。</p>
+  <div class="key">它记录的不是「画面」，是<strong>「这个空间里每一个点长什么样」</strong>。<br>
+    对比一下：固定机位 180° 视频，你只能看；它记录的是<strong>整间屋子</strong>。</div>
+
+  <div class="figure-row">
+    <figure class="fig">
+      <img src="assets/vr-2026/lesson10/img/pigeon_rig_clean.jpg" alt="40 台相机的移动式阵列" style="width:100%;border-radius:8px;display:block">
+      <figcaption style="color:#6b6483;font-size:12.5px;padding:8px 4px 2px">采集现场：40 台相机围成的移动阵列（画面来自《鸽环》官方视频）</figcaption>
+    </figure>
+    <figure class="fig">
+      <img src="assets/vr-2026/lesson10/img/pigeon_pointcloud.jpg" alt="平板上的重建点云" style="width:100%;border-radius:8px;display:block">
+      <figcaption style="color:#6b6483;font-size:12.5px;padding:8px 4px 2px">平板上的彩色重建：所谓「重建」，是把空间变成<strong>点</strong>，不是变成视频</figcaption>
+    </figure>
+  </div>
+
+  <h3>二、重建：不是视频，是「点」</h3>
+  <p><strong>传统视频</strong>：每一帧是一张平面图，你只能看。<strong>体积视频（volumetric video）</strong>：每一帧都是三维的，你可以走进去。代价是——<strong>数据从「兆」变成「千万个点」</strong>。</p>
+
+  <h3>三、4D 高斯：一句话说清楚</h3>
+  <p>用一堆<strong>带颜色、会衰减的椭球（高斯）</strong>，把真实场景「拼」出来——不是用面片搭，而是用点堆。为什么用它？<strong>真实光照、细节多、可以从任意角度观看</strong>。代价？<strong>点多</strong>。</p>
+  <div class="warn"><strong>边界：</strong>球谐函数、协方差矩阵、光栅化排序——这一课<strong>一律不讲</strong>。今天只需要记住一条因果链：<strong>6DoF 自由行走 → 全场景重建 → 数据量爆炸</strong>。原理留到第 11、12 次课或课后。</div>
+
+  <figure class="fig">
+    <img src="assets/vr-2026/lesson10/img/gs_scene.jpg" alt="高斯泼溅重建的场景：点状的墙面与走廊" style="width:100%;border-radius:8px;display:block">
+    <figcaption style="color:#6b6483;font-size:13px;padding:8px 4px 2px">高斯泼溅重建出来的空间：放大看，它不是「面」，而是<strong>无数个半透明的点</strong>。素材：B 站 01Splat 演示（BV16JsP6GEi8），仅课堂使用。</figcaption>
+  </figure>
+
+  <h3>四、表演：技术不替代表演</h3>
+  <p>动捕跟踪每一个演员，让动作「留」在重建的空间里。但片子里很多镜头是 <strong>3—5 分钟的长镜头</strong>——这对演员的台词、肢体、走位是硬要求。<strong>技术让表演「留得住」，但没有让表演变容易。</strong></p>
+
+  <h3>五、剪辑：能剪，才叫作品</h3>
+  <p>实拍、重建、动捕三类素材，要在同一条时间线上<strong>对齐、加载、剪切</strong>。团队为此写了自研的非线性剪辑工具。</p>
+  <figure class="fig">
+    <img src="assets/vr-2026/lesson10/img/pigeon_timeline_clean.jpg" alt="4D 高斯的非线性剪辑工具时间线" style="width:100%;border-radius:8px;display:block">
+    <figcaption style="color:#6b6483;font-size:13px;padding:8px 4px 2px">《鸽环》幕后：自研的非线性剪辑工具，把实拍、重建、动捕三类素材放进同一条时间线</figcaption>
+  </figure>
+  <div class="key"><strong>能剪，才叫作品；不能剪，只叫素材。</strong></div>
 </section>
 
-<!-- ===== 五、舒适度 ===== -->
+<!-- ===== 五、代价 ===== -->
 <section id="c5">
   <div class="sec-head">
     <div class="sec-num">五</div>
     <div>
-      <h2>舒适度：隧道视野、默认传送与 Snap 45°</h2>
-      <p class="sec-sub">性能与舒适度是同一件事的两面：<strong>帧率守住了，还有一件事要守——别让人晕</strong></p>
+      <h2>代价：一个场景，一千五百万个点</h2>
+      <p class="sec-sub">「在场」不是免费的；自由度是用数据量买的，数据量是用算力还的</p>
     </div>
   </div>
 
-  <h3>一、隧道视野</h3>
-  <p><strong>平滑移动时，视野自动收窄</strong>（强度 <strong>0—85%</strong> 可调）；<strong>瞬移时</strong>是短闪遮罩。<strong>内核已内置，不用你写。</strong></p>
-  <p>为什么有用？因为晕动来自<strong>前庭系统和视觉信息打架</strong>：你眼睛看到自己在动，身体没动。<strong>把周边视野挡掉一部分，这场「打架」就弱了。</strong></p>
-
-  <h3>二、默认：瞬移（短闪）＋ Snap 45°</h3>
-  <div class="tbl-wrap">
-    <table>
-      <thead><tr><th>默认值</th><th>它比什么更不易晕</th><th>学生最容易记反的一点</th></tr></thead>
-      <tbody>
-        <tr><td><strong>移动：瞬移（短闪）</strong></td><td>瞬移比平滑移动更不易晕</td><td>平滑移动给了大脑一段「我在动但身体没动」的时间，<strong>反而更容易晕</strong></td></tr>
-        <tr><td><strong>转向：Snap 45°</strong></td><td>Snap 转向比平滑转向更不易晕</td><td>拨一下摇杆，<strong>直接转一个固定角度</strong>，中间没有那段平滑旋转</td></tr>
-      </tbody>
-    </table>
-  </div>
-  <div class="key">两个结论都和直觉相反。记住这句话：<strong>「更平滑」不等于「更舒服」。</strong></div>
-  <div class="btn-row">
-    <a class="btn ghost" href="assets/vr-2026/panorama/pano-turn-comfort.html" target="_blank" rel="noopener">转向范式与舒适度（现场比一次）→</a>
-  </div>
-
-  <h3>三、还有三件小事</h3>
-  <div class="grid3">
-    <div class="cell">
-      <h4>眼高读数</h4>
-      <p>戴上去第一眼看<strong>当前眼高（m）</strong>，首次进入应看到 <strong>1.5—1.8 m</strong>。不在这个区间，先查站位与地面参考系，别去查代码。</p>
-    </div>
-    <div class="cell">
-      <h4>一键重置（Y）</h4>
-      <p><code class="inline">Y</code> 重置站位与朝向。<strong>换人体验前先按一下</strong>——这是 40 人轮流戴头显时最容易漏的一步。</p>
-    </div>
-    <div class="cell">
-      <h4>10 分钟休息提示</h4>
-      <p>连续体验 10 分钟提示休息。呼应《VR 头显用户健康与安全须知》——<strong>课上不打断，但提示必须开着</strong>。</p>
-    </div>
-  </div>
-</section>
-
-<!-- ===== 案例拆解 ===== -->
-<section id="cases">
-  <div class="sec-head">
-    <div class="sec-num">例</div>
+  <div class="grid2">
+    <figure class="fig" style="margin:0">
+      <img src="assets/vr-2026/lesson10/img/gs_count_panel.jpg" alt="高斯泼溅工具界面右上角显示 15,827,211 个高斯点" style="width:100%;border-radius:8px;display:block">
+      <figcaption style="color:#6b6483;font-size:12.5px;padding:8px 4px 2px">界面右上角：<strong>GAUSSIANS 15,827,211</strong>（单场景；不同场景数字不同）</figcaption>
+    </figure>
     <div>
-      <h2>演示案例拆解：03「编钟之韵」的判定、音频与触觉</h2>
-      <p class="sec-sub">它的性能数字不是重点，它的<strong>判定、音频、触觉</strong>才是——因为这三样回答「<strong>性能省下来的时间用来干什么</strong>」：省下来的帧时间，是用来做反馈的</p>
+      <div style="font-size:44px;font-weight:800;color:#5a52c8;letter-spacing:1px">15,827,211</div>
+      <p style="margin:8px 0 0">一个场景，一千五百万个高斯点；<strong>每一帧，都要把它们「看」一遍</strong>。</p>
+      <p>这不是「素材多」，这是<strong>每一帧的计算量</strong>。</p>
+      <div class="warn" style="margin-top:10px">这个数字来自一段演示画面的截图（01Splat），<strong>是单场景、单次采集的数量级参考</strong>，不是《鸽环》的官方参数。</div>
     </div>
   </div>
 
-  <div class="btn-row">
-    <a class="btn" href="assets/vr-2026/cases/03-bianzhong-rhythm/" target="_blank" rel="noopener">打开演示案例 03「编钟之韵」→</a>
-    <a class="btn ghost" href="assets/vr-2026/panorama/pano-perf-budget.html" target="_blank" rel="noopener">用它的数填一次预算计算器 →</a>
-  </div>
-
-  <h3>一、判定规则：五档，四档给分，两档清零</h3>
+  <h3>两套物理条件</h3>
   <div class="tbl-wrap">
     <table>
-      <thead><tr><th>判定</th><th>时间窗（相对音符）</th><th>分值</th><th>连击</th></tr></thead>
+      <thead><tr><th style="width:16%"></th><th style="width:40%">《鸽环》的放映条件</th><th>你的 WebXR 作品</th></tr></thead>
       <tbody>
-        <tr><td><strong>完美</strong></td><td>≤ 70 ms</td><td>100</td><td>＋1</td></tr>
-        <tr><td><strong>很棒</strong></td><td>≤ 140 ms</td><td>70</td><td>＋1</td></tr>
-        <tr><td><strong>不错</strong></td><td>≤ 240 ms</td><td>40</td><td>＋1</td></tr>
-        <tr><td><strong>失误</strong></td><td>241—350 ms，或音符飞过未敲</td><td>0</td><td><strong>清零</strong></td></tr>
-        <tr><td><strong>空击</strong></td><td>附近 350 ms 内根本没有音符</td><td>0</td><td><strong>清零</strong></td></tr>
-      </tbody>
-    </table>
-  </div>
-  <p>评级：准确率 <strong>≥95% S ／ ≥85% A ／ ≥70% B ／ ≥50% C</strong>，否则 D。</p>
-  <div class="key"><strong>空击惩罚是刻意的</strong>：否则可以对着七口钟乱敲刷满分。<strong>连击与防刷分是一套设计，不是两条规则。</strong></div>
-
-  <h3>二、程序化音频：WebAudio 加法合成非谐泛音列，零音频文件</h3>
-  <p>演示案例 03 <strong>没有任何音频文件</strong>——钟声是算出来的：<strong>8 个正弦分音叠加</strong>，重建青铜钟的<strong>非谐泛音列</strong>。</p>
-  <div class="tbl-wrap">
-    <table>
-      <thead><tr><th>分音</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th></tr></thead>
-      <tbody>
-        <tr><td><strong>频率比</strong></td><td>0.50</td><td>1.00</td><td>1.19</td><td>1.50</td><td>2.00</td><td>2.66</td><td>3.01</td><td>4.07</td></tr>
-        <tr><td><strong>相对强度</strong></td><td>0.34</td><td>1.00</td><td>0.52</td><td>0.38</td><td>0.46</td><td>0.20</td><td>0.13</td><td>0.08</td></tr>
-        <tr><td><strong>衰减时长（s）</strong></td><td>3.4</td><td>2.7</td><td>2.0</td><td>1.5</td><td>1.05</td><td>0.75</td><td>0.55</td><td>0.40</td></tr>
-      </tbody>
-    </table>
-  </div>
-  <p><strong>原理一句</strong>：真实钟声「嗡」而不像钢琴，因为泛音<strong>不是整数倍</strong>（非谐）；再叠一段 <strong>60 ms 带通噪声</strong>做「槌击瞬态」。<strong>低分音衰减慢、高分音衰减快 → 起振明亮、尾音变暗。</strong></p>
-  <p>代码入口：<code class="inline">PARTIALS</code> 数组 ＋ <code class="inline">playBell()</code>。</p>
-
-  <h3>三、触觉三档：同一件事，三种分量</h3>
-  <div class="tbl-wrap">
-    <table>
-      <thead><tr><th>触发场景</th><th>强度</th><th>时长</th><th>为什么这么定</th></tr></thead>
-      <tbody>
-        <tr><td>射线（指向 / 选中）</td><td><strong>0.45</strong></td><td><strong>28 ms</strong></td><td>最轻、最短——它是「瞄到了」，不是「敲到了」</td></tr>
-        <tr><td>木槌（真的敲中钟）</td><td><strong>0.75</strong></td><td><strong>45 ms</strong></td><td>最重、最长——它对应一次真实的物理撞击</td></tr>
-        <tr><td>UI（面板按钮）</td><td><strong>0.25</strong></td><td><strong>20 ms</strong></td><td>最克制——面板操作不该抢敲钟的反馈</td></tr>
-      </tbody>
-    </table>
-  </div>
-  <p>谱面：<strong>BPM 100</strong>（每拍 0.6 s）、<strong>48 拍</strong>、全长约 30 s、<strong>固定种子</strong>生成（可复现）。</p>
-
-  <h3>四、想拆代码，照着这些入口找</h3>
-  <div class="tbl-wrap">
-    <table>
-      <thead><tr><th>想改什么</th><th>改这里</th></tr></thead>
-      <tbody>
-        <tr><td>音高 / 音阶</td><td><code class="inline">BELL_FREQ</code>、<code class="inline">BELL_NAME</code></td></tr>
-        <tr><td>音色（泛音列）</td><td><code class="inline">PARTIALS</code> 数组、<code class="inline">playBell()</code></td></tr>
-        <tr><td>BPM、曲目长度</td><td><code class="inline">BPM</code>、<code class="inline">TOTAL_BEATS</code>、<code class="inline">LEAD</code></td></tr>
-        <tr><td>判定窗口松紧</td><td><code class="inline">judge()</code> 里的 <code class="inline">0.070 / 0.140 / 0.240</code>，以及 <code class="inline">strike()</code> 里的 <code class="inline">0.35</code></td></tr>
-        <tr><td>难度（用钟 / 密度 / 下落速度）</td><td><code class="inline">DIFF</code> 数组 与 <code class="inline">buildChart()</code></td></tr>
-        <tr><td>音符外观</td><td><code class="inline">buildPool()</code>（几何体）与 <code class="inline">updNotes()</code> 里的 <code class="inline">scale / opacity</code></td></tr>
-        <tr><td>木槌挥击灵敏度</td><td><code class="inline">updMallets()</code> 里的速度阈值 <code class="inline">1.05</code> 与命中半径 <code class="inline">0.30</code></td></tr>
-        <tr><td>钟的数量 / 间距</td><td><code class="inline">NBELL</code>（7）、<code class="inline">SPACING</code>（0.62）——<strong>改 7 → 其他数需同步 <code class="inline">BELL_FREQ</code> 等数组长度</strong></td></tr>
-        <tr><td>HUD 显示内容</td><td><code class="inline">drawHud()</code>（960×192 canvas）</td></tr>
-        <tr><td>面板按钮</td><td><code class="inline">BTN_DEF</code> ＋ <code class="inline">fireUI()</code> ＋ <code class="inline">drawUI()</code></td></tr>
+        <tr><td><strong>算力</strong></td><td>工作站 / 影院级设备</td><td>头显里的移动芯片</td></tr>
+        <tr><td><strong>数据量</strong></td><td>千万级高斯点，可预渲染</td><td><strong>三角面 ≤ 10 万</strong>，实时渲染</td></tr>
+        <tr><td><strong>一帧多久</strong></td><td>按秒算也不心疼</td><td><strong>72Hz ⇒ 一帧 13.9 毫秒</strong></td></tr>
+        <tr><td><strong>出错怎么办</strong></td><td>重渲一遍</td><td>现场掉帧、晕动</td></tr>
       </tbody>
     </table>
   </div>
 
-  <h3>五、这一段必须现场改一处代码</h3>
-  <ol>
-    <li><strong>首选改动</strong>：把 <code class="inline">judge()</code> 里的 <code class="inline">0.070</code> 改成 <code class="inline">0.120</code>，让学生体感「判定窗变松了」，再改回来。<br>
-      <strong>提问：「判定窗越松，游戏越容易吗？」</strong>——不一定：<strong>宽松的判定会让「完美」失去意义。</strong></li>
-    <li><strong>次选改动</strong>：在 <code class="inline">PARTIALS</code> 里<strong>删掉第 3 个分音（1.19）</strong>，听钟声变成什么样。<br>
-      <strong>提问：「为什么去掉一个分音，钟就不像钟了？」</strong>——因为 1.19 那个<strong>非整数倍</strong>的分音正是「钟味」的来源。</li>
-  </ol>
-  <p><strong>「拆解」与「讲解」的分界就在这里：拆解必须现场动一次代码。</strong>时间不够时这一档可降为「只讲判定表 ＋ 音频原理」，但那一降会让拆解退化成讲解，尽量不用。</p>
+  <div class="key"><strong>所以「移植」从来不是把文件拷过去——是把作品重新设计一遍。</strong><br>
+    获奖作品用 1500 万个点，换「你能自由走动」；你要用 10 万个面，换「它能跑得动」。<strong>中间差两个数量级。</strong></div>
 
-  <h3>六、三条必须如实讲的边界（不能省）</h3>
-  <div class="warn"><strong>① 它是性能样板，不是优化案例。</strong>演示案例 03 报 <strong>59 draw calls / 8.9k 三角面 / 10 张程序化贴图</strong>；<code class="inline">_标准与审计</code> 审计文件报 <strong>60 / 8950</strong>——两个口径都来自实测，差 1 次是统计口径。<strong>两个数都远低于 10 万面预算</strong>，所以它是「照这个做就对了」的样板，不是「看我怎么把它救回来」的案例。</div>
-  <div class="warn"><strong>② 已知简化必须主动讲明。</strong>真实<strong>曾侯乙编钟</strong>为 <strong>65 件、三层、一音双音</strong>（音域跨五个八度）；演示案例 03 简化为 <strong>单层 7 件、一钟一音</strong>（七音：宫 C – 商 D – 角 E – 变徵 F – 徵 G – 羽 A – 变宫 B）。<br>
-    <strong>⚠️ 编钟不是只有七个音——演示案例是为了「30 秒一局」做的简化。这句话必须说出口。</strong>其他简化：钟体侧面铭文、甬部旋虫等细节用<strong>贴图近似</strong>，未做几何建模。</div>
-  <div class="note"><strong>③ 课堂演示的打开方式。</strong>演示案例 03 用<strong>今天走通的那条通路</strong>打开，或用教师机投屏；<strong>课前必须在头显里真机跑通一遍（含进入与退出）——没跑过不许进课堂。</strong></div>
+  <h3>课堂讨论（3 分钟，同桌两人）</h3>
+  <p><strong>如果只能留下一半细节，你删哪里？</strong>删背景？删人物？删光照？还是删掉「能走」？</p>
+  <p>每一个「删」，都是在回答：<strong>这部作品到底靠什么成立</strong>。</p>
 </section>
 
-<!-- ===== 工作室 ===== -->
-<section id="demo">
+<!-- ===== 六、研究赛道 ===== -->
+<section id="c6">
   <div class="sec-head">
-    <div class="sec-num">实</div>
+    <div class="sec-num">六</div>
     <div>
-      <h2>工作室（65 分钟）：性能体检 ＋ 一次优化前后对照</h2>
-      <p class="sec-sub">这是本课次的重心。原则沿用整门课后半程：<strong>宁可少讲一个知识点，也要让学生手上有一个能跑的东西</strong></p>
+      <h2>研究赛道：IEEE VGTC 虚拟现实奖</h2>
+      <p class="sec-sub">2005 年设立 ｜ 五类奖 ＋ VR Academy ｜ 奖人，不奖作品</p>
     </div>
   </div>
 
-  <div class="key"><strong>今天下午的产出就四样：</strong>① 改前三个数（DrawCall / 三角面 / 帧时间）；② 改了一处并写清依据；③ 改后三个数；④ 戴头显跑一次，把工程面板上的数和记录表逐格对照。</div>
+  <h3>一、一个跑了二十年的奖</h3>
+  <p><strong>IEEE VGTC 虚拟现实奖</strong>，<strong>2005 年设立</strong>；2022 年修订时增设 <strong>Service Award（服务奖）</strong> 与 <strong>VR Academy（虚拟现实学院）</strong>。它奖励的是「人」——不是某件作品，而是一个人的积累、一个系统的发明、一篇论文的开创。</p>
 
-  <h3>一、三个任务（1:40—2:45）</h3>
   <div class="tbl-wrap">
     <table>
-      <thead><tr><th>任务</th><th>分钟</th><th>墙钟</th><th>做什么</th><th>产出</th></tr></thead>
+      <thead><tr><th style="width:34%">类别</th><th>看什么</th></tr></thead>
       <tbody>
-        <tr><td><strong>任务 1 · 性能体检</strong></td><td>15′</td><td>1:40—1:55</td><td>打开自己作品的性能面板 / 探针，<strong>抄下改前的三个数</strong>：DrawCall、三角面、帧时间；同时看<strong>降级等级是不是 L0</strong></td><td>性能体检表「改前」列</td></tr>
-        <tr><td><strong>任务 2 · 一次优化</strong></td><td>25′</td><td>1:55—2:20</td><td><strong>只改一处</strong>，从四个手段里选一个（实例化 / 合批 / 贴图复用 / 阴影分辨率）；改完<strong>再抄一次三个数</strong>；写清<strong>改动依据</strong></td><td>「改后」列 ＋ 改动依据说明栏</td></tr>
-        <tr><td><strong>任务 3 · 真机验证 ＋ 对照</strong></td><td>25′</td><td>2:20—2:45</td><td><strong>戴头显进自己作品</strong>，看<strong>工程面板</strong>上的 FPS / 帧时间 / DrawCall / 三角面 / 降级等级；<strong>把面板上的数和记录表逐格对照</strong>；若显示 L1/L2，<strong>记录并写原因</strong></td><td>「读数与 HUD 对照」核对栏 ＋ M4 自查清单</td></tr>
+        <tr><td><strong>终身成就奖</strong> Lifetime Achievement</td><td>一个人对整个领域的长期贡献</td></tr>
+        <tr><td><strong>技术成就奖</strong> Technical Achievement</td><td>奠基性的技术贡献</td></tr>
+        <tr><td><strong>新锐研究者奖</strong> Significant New Researcher</td><td>早期职业生涯中已经产生的影响</td></tr>
+        <tr><td><strong>最佳博士论文奖</strong> Best Dissertation</td><td>近两年内完成的优秀博士论文</td></tr>
+        <tr><td><strong>服务奖</strong> Service</td><td>为社区做组织、评审、培养后辈</td></tr>
       </tbody>
     </table>
   </div>
 
-  <h3>二、怎么打开性能面板</h3>
+  <div class="key">看一个领域成不成熟，就看它有没有<strong>「给年轻人的奖」</strong>和<strong>「给博士论文的奖」</strong>。</div>
+
+  <h3>二、2026 年：两个名字</h3>
+  <div class="grid2">
+    <div class="step-card">
+      <div class="tag">终身成就奖</div>
+      <h4 style="margin:8px 0 2px">Carolina Cruz-Neira</h4>
+      <p style="margin:0 0 8px;color:#6b6483;font-size:13px">中佛罗里达大学</p>
+      <p style="margin:0">CAVE 沉浸式系统的<strong>共同发明人</strong>——1992 年，把投影仪围成一间屋子，人站进去。你今天用的「沉浸式大屏」「多面投影」，源头就在那儿。</p>
+    </div>
+    <div class="step-card">
+      <div class="tag">服务奖</div>
+      <h4 style="margin:8px 0 2px">Gregory Welch</h4>
+      <p style="margin:0 0 8px;color:#6b6483;font-size:13px">中佛罗里达大学</p>
+      <p style="margin:0">长期为社区做组织与服务性工作：会议、期刊、评审、培养后辈。<strong>「让这个领域转起来」本身也是一种贡献。</strong></p>
+    </div>
+  </div>
+
+  <h3>三、作品奖 vs 研究奖</h3>
   <div class="tbl-wrap">
     <table>
-      <thead><tr><th>你的情况</th><th>用什么看</th><th>能看到什么</th></tr></thead>
+      <thead><tr><th style="width:16%"></th><th style="width:42%">作品奖（威尼斯）</th><th>研究奖（IEEE VGTC）</th></tr></thead>
       <tbody>
-        <tr><td><strong>电脑上看</strong>（不戴头显）</td><td>给页面加一行 <code class="inline">vr-probe.js</code></td><td>角落显示 FPS / DrawCall / 三角面 / JS 报错</td></tr>
-        <tr><td><strong>戴头显看</strong></td><td>场景里的 <strong>XR 工程面板</strong>（3D 物件，在场景里）</td><td>FPS / 帧时间 / 最差 1% 帧 / DrawCalls / 三角面 / 贴图数</td></tr>
+        <tr><td><strong>评什么</strong></td><td>一次体验</td><td>一个人的积累</td></tr>
+        <tr><td><strong>证据</strong></td><td>观众的反应、评委的现场体验</td><td>论文、系统、学生、社区服务</td></tr>
+        <tr><td><strong>时间尺度</strong></td><td>一年一届</td><td>二十年</td></tr>
+        <tr><td><strong>谁能被提名</strong></td><td>创作者、团队</td><td>研究者、工程师、教育者</td></tr>
       </tbody>
     </table>
   </div>
-  <div class="warn"><strong>必须知道的一条限制：网页上的 DOM 面板，在沉浸模式（戴头显）里是看不见的。</strong>所以戴进去以后，<strong>只能看场景里那块 XR 工程面板</strong>。这也是为什么真机读数不能靠电脑截图代替。</div>
-
-  <h3>三、表 1 · 性能体检表（这张表是 M4 的核心）</h3>
-  <div class="tbl-wrap">
-    <table>
-      <thead><tr><th>读数</th><th>改前</th><th>改后</th><th>变化（↓ / ↑ / 不变）</th><th>从哪儿读的（探针 / 工程面板）</th></tr></thead>
-      <tbody>
-        <tr><td><strong>DrawCall</strong></td><td style="color:#a09ab8">＿＿＿＿</td><td style="color:#a09ab8">＿＿＿＿</td><td style="color:#a09ab8">＿＿＿</td><td style="color:#a09ab8">＿＿＿＿＿＿</td></tr>
-        <tr><td><strong>三角面</strong></td><td style="color:#a09ab8">＿＿＿＿</td><td style="color:#a09ab8">＿＿＿＿</td><td style="color:#a09ab8">＿＿＿</td><td style="color:#a09ab8">＿＿＿＿＿＿</td></tr>
-        <tr><td><strong>帧时间（ms）</strong></td><td style="color:#a09ab8">＿＿＿＿</td><td style="color:#a09ab8">＿＿＿＿</td><td style="color:#a09ab8">＿＿＿</td><td style="color:#a09ab8">＿＿＿＿＿＿</td></tr>
-        <tr><td>（可选）FPS</td><td style="color:#a09ab8">＿＿＿＿</td><td style="color:#a09ab8">＿＿＿＿</td><td style="color:#a09ab8">＿＿＿</td><td style="color:#a09ab8">＿＿＿＿＿＿</td></tr>
-        <tr><td>（可选）贴图数</td><td style="color:#a09ab8">＿＿＿＿</td><td style="color:#a09ab8">＿＿＿＿</td><td style="color:#a09ab8">＿＿＿</td><td style="color:#a09ab8">＿＿＿＿＿＿</td></tr>
-        <tr><td><strong>降级等级（L0 / L1 / L2）</strong></td><td style="color:#a09ab8">＿＿＿＿</td><td style="color:#a09ab8">＿＿＿＿</td><td style="color:#a09ab8">＿＿＿</td><td style="color:#a09ab8">＿＿＿＿＿＿</td></tr>
-      </tbody>
-    </table>
-  </div>
-  <p>我这份作品的三角面达标了吗？　☐ 达标（≤10 万）　☐ 超了 ＿＿ 万，我打算这样砍：＿＿＿＿＿＿＿＿＿＿</p>
-  <div class="note"><strong>参考口径：</strong>帧预算 <strong>13.9 ms</strong>（72Hz）——<strong>不是 16.7 ms</strong>（那是 60Hz 的一整帧，浏览器合成还要占时间）；移动头显三角面 <strong>≤ 10 万</strong>；真机自检：工程面板确认 <strong>FPS ≥ 70、降级 L0</strong>，若 <strong>L1/L2 常驻，记录并在 M4 里分析原因</strong>。</div>
-
-  <h3>四、表 2 · 改动依据说明栏（这一栏填不满，改得再多也不算）</h3>
-  <div class="tbl-wrap">
-    <table>
-      <thead><tr><th>项目</th><th>我写的内容</th></tr></thead>
-      <tbody>
-        <tr><td>场景里有几组「长得一样」的东西？各有几个？</td><td style="color:#a09ab8">＿＿＿＿＿＿＿＿＿＿＿＿＿＿</td></tr>
-        <tr><td>我改了哪一处（说具体：哪个物体 / 哪张贴图 / 哪个光源）</td><td style="color:#a09ab8">＿＿＿＿＿＿＿＿＿＿＿＿＿＿</td></tr>
-        <tr><td>为什么选这个手段而不是别的</td><td style="color:#a09ab8">＿＿＿＿＿＿＿＿＿＿＿＿＿＿</td></tr>
-        <tr><td>改之前那个数是多少，改之后是多少</td><td style="color:#a09ab8">＿＿＿＿＿＿＿＿＿＿＿＿＿＿</td></tr>
-        <tr><td>画面看起来有变化吗？哪里变了</td><td style="color:#a09ab8">＿＿＿＿＿＿＿＿＿＿＿＿＿＿</td></tr>
-        <tr><td>如果没效果，我下一步打算改哪里</td><td style="color:#a09ab8">＿＿＿＿＿＿＿＿＿＿＿＿＿＿</td></tr>
-      </tbody>
-    </table>
-  </div>
-  <div class="key"><strong>改得少但说得清，比改得多但说不清，分高。</strong>改了三处但都说不出依据的，<strong>按没改处理</strong>。</div>
-  <p><strong>动手前先想清楚（30 秒，写在任务卡上）：</strong>① 我看到的哪个数不对（DrawCall 偏高 / 三角面超过 10 万 / 帧时间超 13.9 ms / 降级停在 L1 或 L2）？② 我打算改哪一处？③ 用哪个手段？④ 预计改完哪个数会掉？</p>
-
-  <h3>五、表 3 · 「读数与 HUD 对照」核对栏（这节课最重要的一张表）</h3>
-  <p>做法：把<strong>工程面板上的数字</strong>和<strong>表 1 里抄的数字</strong>并排念一遍。<strong>对不上就重抄</strong>，并注明是哪一次读数。</p>
-  <div class="tbl-wrap">
-    <table>
-      <thead><tr><th>读数</th><th>我记录表上写的</th><th>工程面板上显示的</th><th>对得上吗</th><th>对不上时说明原因（哪一次 / 什么时候读的）</th></tr></thead>
-      <tbody>
-        <tr><td><strong>DrawCall</strong></td><td style="color:#a09ab8">＿＿＿＿</td><td style="color:#a09ab8">＿＿＿＿</td><td>☐ 对得上　☐ 对不上</td><td style="color:#a09ab8">＿＿＿＿＿＿</td></tr>
-        <tr><td><strong>三角面</strong></td><td style="color:#a09ab8">＿＿＿＿</td><td style="color:#a09ab8">＿＿＿＿</td><td>☐ 对得上　☐ 对不上</td><td style="color:#a09ab8">＿＿＿＿＿＿</td></tr>
-        <tr><td><strong>帧时间（ms）</strong></td><td style="color:#a09ab8">＿＿＿＿</td><td style="color:#a09ab8">＿＿＿＿</td><td>☐ 对得上　☐ 对不上</td><td style="color:#a09ab8">＿＿＿＿＿＿</td></tr>
-        <tr><td><strong>FPS</strong></td><td style="color:#a09ab8">＿＿＿＿</td><td style="color:#a09ab8">＿＿＿＿</td><td>☐ 对得上　☐ 对不上</td><td style="color:#a09ab8">＿＿＿＿＿＿</td></tr>
-        <tr><td><strong>降级等级</strong></td><td style="color:#a09ab8">＿＿＿＿</td><td style="color:#a09ab8">＿＿＿＿</td><td>☐ 对得上　☐ 对不上</td><td style="color:#a09ab8">＿＿＿＿＿＿</td></tr>
-      </tbody>
-    </table>
-  </div>
-  <p>我看到的降级等级是：☐ <strong>L0</strong>（正常）　☐ <strong>L1</strong>（降像素比）　☐ <strong>L2</strong>（关阴影）。<strong>如果是 L1 / L2 常驻，我判断原因是</strong>＿＿＿＿＿＿＿＿（这一条是 M4 的加分项）。</p>
-
-  <h3>六、戴头显：三条硬规矩 ＋ 两件先做的事</h3>
-  <div class="warn"><strong>三条硬规矩，戴之前念一遍：</strong>① <strong>戴上之前先看清周围有没有人</strong>；② <strong>不许在戴着头显时走动</strong>；③ <strong>觉得晕，立刻摘下来。</strong></div>
-  <p><strong>戴上以后第一件事</strong>：按 <code class="inline">Y</code> 一键重置站位与朝向（换人体验前必须先按）；再确认<strong>眼高读数在 1.5—1.8 m</strong> 之间。走完一遍主流程，顺手把三条退出路里的<strong>至少一条</strong>试通并记下用时——退出路和上一次课一样：注视「退出 VR」按钮 / 长按手柄握把 2 秒 / 头显系统键。</p>
-
-  <h3>七、教师巡回的四个检查点（不要替学生动手）</h3>
-  <ol>
-    <li><strong>他的「改前」数抄了没有？</strong>没抄就先去抄——<strong>没有改前的数，改后无法对照，M4 直接不合格</strong>。</li>
-    <li><strong>他改的那一处有依据吗？</strong>问一句「你是看到哪个数超了才改这里的？」<strong>答不上来就是瞎改</strong>。</li>
-    <li><strong>他的数对得上吗？</strong>让他把记录表和 HUD <strong>并排放在一起</strong>念一遍。对不上就重抄。</li>
-    <li><strong>他戴进去了吗？</strong>工作室段结束前<strong>每个人必须戴一次</strong>——整门课后半程的第 1 优先级，<strong>绝不砍</strong>。</li>
-  </ol>
-
-  <h3>八、环境问题吃掉时间怎么办</h3>
-  <div class="tbl-wrap">
-    <table>
-      <thead><tr><th>情况</th><th>怎么处理</th></tr></thead>
-      <tbody>
-        <tr><td><strong>环境类卡壳 &gt; 10 人</strong></td><td>工作室<strong>前 10 分钟专门用于通路</strong>，全员按白板上那句话重走一遍；任务 2 的「一次优化」<strong>压缩到一处最小改动</strong>（例如只把阴影分辨率从 2048 降到 1024），<strong>保证对照读数能拿到</strong></td></tr>
-        <tr><td>环境已通的学生</td><td>先做任务 1、2；教师只处理环境问题，学生管理员一对一带</td></tr>
-        <tr><td>最差情况：通路完全走不通</td><td><strong>用 PC 端完成同一套体检与优化</strong>（<code class="inline">vr-probe.js</code> 在非沉浸模式下可读 FPS / DrawCall / 三角面），<strong>M4 依然可以交</strong>；真机那一次留到下次课开头补</td></tr>
-      </tbody>
-    </table>
-  </div>
-  <div class="note"><strong>排课现实：40 人选课 / 机位有限。</strong>若头显不是一人一台，按审计文件的现实做法——<strong>一组戴头显、其余人用 PC 端完成同一套功能</strong>，各自导出体验数据 JSON，<strong>轮换后比对读数</strong>（这本身就是一次真实的人因实验）。</div>
+  <div class="key"><strong>作品奖奖励「这一次」，研究奖奖励「这一类」。</strong></div>
+  <p><strong>课堂提问：</strong>如果你要拿研究奖，你现在缺什么？（论文 / 系统 / 服务，三选一）</p>
 </section>
 
-<!-- ===== 达标 · M4 ===== -->
+<!-- ===== 七、产业赛道 ===== -->
+<section id="c7">
+  <div class="sec-head">
+    <div class="sec-num">七</div>
+    <div>
+      <h2>产业赛道：Laval Virtual Awards</h2>
+      <p class="sec-sub">1999 年创办 ｜ 2026 年第 28 届 ｜ 70 位评委 · 30 个国家 · 300 件参赛 · 10 座奖杯</p>
+    </div>
+  </div>
+
+  <h3>一、1999 → 2026：一个「集市」办了 28 年</h3>
+  <p><strong>Laval Virtual</strong> 1999 年创办于法国拉瓦勒，每年 3 天，是这个行业最老牌的展。2026 年是<strong>第 28 届</strong>（4 月 8—10 日），下一届 2027 年 4 月 7—9 日。它不评「艺术成就」，它看的是：<strong>这个方案能不能被别人用起来</strong>。</p>
+
+  <div class="figure-row" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr))">
+    <div class="step-card" style="text-align:center"><div style="font-size:32px;font-weight:800;color:#5a52c8">70</div><div style="color:#6b6483;font-size:13px">位评委</div></div>
+    <div class="step-card" style="text-align:center"><div style="font-size:32px;font-weight:800;color:#5a52c8">30</div><div style="color:#6b6483;font-size:13px">个国家</div></div>
+    <div class="step-card" style="text-align:center"><div style="font-size:32px;font-weight:800;color:#5a52c8">300</div><div style="color:#6b6483;font-size:13px">件参赛（+15%）</div></div>
+    <div class="step-card" style="text-align:center"><div style="font-size:32px;font-weight:800;color:#5a52c8">10</div><div style="color:#6b6483;font-size:13px">座奖杯</div></div>
+  </div>
+  <p>参赛量比上一年多 <strong>15%</strong>，创纪录——说明「能落地」这件事，越来越多人来争。<strong>300 件里选 10 件。</strong></p>
+
+  <h3>二、它的奖怎么分：4 个赛道 ＋ 6 个类别</h3>
+  <div class="grid2">
+    <div>
+      <p style="margin:0 0 6px"><strong>4 个竞赛赛道</strong></p>
+      <ul style="margin:0">
+        <li><strong>#StartUps</strong>（创业）</li>
+        <li><strong>#ReVolution</strong>（实验室 / 研究）</li>
+        <li><strong>#Experiences</strong>（沉浸创作）</li>
+        <li><strong>#Students</strong>（学生）</li>
+      </ul>
+    </div>
+    <div>
+      <p style="margin:0 0 6px"><strong>6 个行业类别</strong></p>
+      <ul style="margin:0">
+        <li>XR 设备与交互</li>
+        <li>开发工具</li>
+        <li>公益（XR for a Cause）</li>
+        <li>企业生产力</li>
+        <li>教育培训</li>
+        <li>消费体验与娱乐</li>
+      </ul>
+    </div>
+  </div>
+  <div class="key"><strong>#Students 是给你们的</strong>——学生作品可以单独报名，和创业公司、实验室同场评审。</div>
+
+  <h3>三、三件值得记住的作品</h3>
+  <div class="step-grid">
+    <div class="step-card">
+      <h4 style="margin:0 0 4px">KineThreads</h4>
+      <div style="color:#5a52c8;font-size:12.5px;margin-bottom:8px">卡内基梅隆大学 ｜ XR 设备与交互</div>
+      <p style="margin:0">力反馈服：<strong>不到 5 kg、30 秒穿好、约 400 美元</strong>，<strong>开源</strong>。</p>
+    </div>
+    <div class="step-card">
+      <h4 style="margin:0 0 4px">AquaWave Ensemble</h4>
+      <div style="color:#5a52c8;font-size:12.5px;margin-bottom:8px">台湾清华大学 ｜ 教育培训</div>
+      <p style="margin:0">混合现实音乐课：<strong>一个学生戴头显、全班看投屏</strong>，一起合奏。</p>
+    </div>
+    <div class="step-card">
+      <h4 style="margin:0 0 4px">La Magie Opéra</h4>
+      <div style="color:#5a52c8;font-size:12.5px;margin-bottom:8px">Backlight × 巴黎歌剧院 ｜ 消费体验</div>
+      <p style="margin:0"><strong>25 分钟多人体验</strong>：观众演一名合唱队员，走进后台。</p>
+    </div>
+  </div>
+
+  <figure class="fig">
+    <video controls preload="metadata" playsinline poster="assets/vr-2026/lesson10/video/v4_laval_floor_poster.jpg" style="width:100%;border-radius:8px;display:block;background:#000">
+      <source src="assets/vr-2026/lesson10/video/v4_laval_floor.mp4" type="video/mp4">
+      你的浏览器不支持 video 标签，<a href="assets/vr-2026/lesson10/video/v4_laval_floor.mp4">点此下载本段视频（0:32）</a>。
+    </video>
+    <figcaption style="color:#6b6483;font-size:13px;padding:8px 4px 2px"><strong>V4 展会现场（0:32）</strong>：Laval Virtual 2026 展台与头显墙。素材：INO-VR × Laval Virtual 2026 Aftermovie，仅课堂使用。</figcaption>
+  </figure>
+
+  <h3>四、产业只看三个数</h3>
+  <div class="figure-row">
+    <div class="step-card" style="text-align:center"><div style="font-size:26px;font-weight:800;color:#5a52c8">成本</div><div style="color:#6b6483;font-size:13px">能不能买得起</div></div>
+    <div class="step-card" style="text-align:center"><div style="font-size:26px;font-weight:800;color:#5a52c8">重量</div><div style="color:#6b6483;font-size:13px">能不能戴住</div></div>
+    <div class="step-card" style="text-align:center"><div style="font-size:26px;font-weight:800;color:#5a52c8">穿戴时间</div><div style="color:#6b6483;font-size:13px">能不能用起来</div></div>
+  </div>
+  <div class="key">这三个数，决定一件东西<strong>能不能进学校、进医院、进工厂</strong>。<br>
+    KineThreads 被记住，不是因为它「最先进」，而是因为它<strong>同时把这三个数压了下来</strong>。</div>
+</section>
+
+<!-- ===== 八、工作坊 ===== -->
+<section id="ws">
+  <div class="sec-head">
+    <div class="sec-num">八</div>
+    <div>
+      <h2>工作坊：用评审的眼睛，看一件作品</h2>
+      <p class="sec-sub">35 分钟 ｜ 4—5 人一组 ｜ 抽一条赛道 ｜ 产出一张《作品评审单》</p>
+    </div>
+  </div>
+
+  <h3>一、怎么分组、做什么、多久</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th style="width:18%">环节</th><th style="width:12%">时间</th><th>做法</th></tr></thead>
+      <tbody>
+        <tr><td><strong>分组</strong></td><td>2′</td><td>4—5 人一组；每组<strong>抽一条赛道</strong>：内容 / 研究 / 产业 / 学生</td></tr>
+        <tr><td><strong>选题</strong></td><td>3′</td><td>选一件「课堂作品」：<strong>案例 03《编钟之韵》</strong>，或你们组自己的作品</td></tr>
+        <tr><td><strong>讨论</strong></td><td>15′</td><td>按下面五个问题，写出 <strong>3 条评语 ＋ 2 条改进</strong>，填进评审单</td></tr>
+        <tr><td><strong>汇报</strong></td><td>12′</td><td>3—4 组，每组 <strong>2 分钟</strong>；教师只追问一句「证据呢？」</td></tr>
+        <tr><td><strong>收</strong></td><td>3′</td><td>交评审单（计入平时分，作为「作品对标」材料）</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>二、评审单：五个问题</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th style="width:6%">#</th><th style="width:44%">问题</th><th>提示</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>它想让我「在场」做什么？</td><td>一句话说清这个体验是干什么的</td></tr>
+        <tr><td>2</td><td>它靠什么成立？</td><td>故事 / 交互 / 技术 / 成本，选一个最主要的，<strong>并给出证据</strong></td></tr>
+        <tr><td>3</td><td>它的技术代价是什么？</td><td>面数、贴图、帧时间、加载、多人同步……知道多少写多少</td></tr>
+        <tr><td>4</td><td>如果预算砍一半，先砍哪里？</td><td>说清「先砍什么、为什么是它」</td></tr>
+        <tr><td>5</td><td>它够得上哪条赛道？为什么？</td><td>内容 / 研究 / 产业 / 学生，四选一</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="note"><strong>句式模板（不会写就照抄）：</strong>「我看到<strong>（具体细节）</strong>……所以我判断<strong>（结论）</strong>……如果改，我会<strong>（取舍）</strong>。」<br>
+    只有感受、没有细节的评语，<strong>不算评语</strong>。</div>
+
+  <h3>三、汇报只说三句</h3>
+  <div class="step-grid">
+    <div class="step-card"><div class="tag">01</div><h4 style="margin:8px 0 6px">一句结论</h4><p style="margin:0">这件作品够不够得上这条赛道？</p></div>
+    <div class="step-card"><div class="tag">02</div><h4 style="margin:8px 0 6px">两条证据</h4><p style="margin:0">从哪两个细节看出来的？</p></div>
+    <div class="step-card"><div class="tag">03</div><h4 style="margin:8px 0 6px">一条改进</h4><p style="margin:0">如果只改一处，改哪里？</p></div>
+  </div>
+
+  <p style="margin-top:6px"><a class="btn" href="assets/vr-2026/lesson10/doc/第10次课_学生评审单.docx" download>下载《作品评审单》（DOCX，A4 一页）</a>
+     <a class="btn ghost" href="assets/vr-2026/lesson10/doc/第10次课_学生评审单.docx" target="_blank" rel="noopener">在新窗口打开</a></p>
+
+  <div class="warn"><strong>教师巡回只看三件事：</strong>① 有没有「证据」（说的是感受还是细节）；② 有没有落到「取舍」（第二条改进）；③ 有没有人没说话。</div>
+</section>
+
+<!-- ===== 九、作业与达标 ===== -->
 <section id="hw">
   <div class="sec-head">
-    <div class="sec-num">作</div>
+    <div class="sec-num">九</div>
     <div>
-      <h2>达标线与里程碑 M4 性能报告</h2>
-      <p class="sec-sub">本课不为 M4 另立一套评分表——直接用量规里「性能与工程 15 分」这一维，与课堂作业的同一维口径一致</p>
+      <h2>作业与达标：把你的作品送上评审桌</h2>
+      <p class="sec-sub">下次课（2026-11-25）上课前交｜一页纸，A4</p>
     </div>
   </div>
 
-  <h3>一、本课次达标五条（缺一条不算过）</h3>
-  <ol>
-    <li><strong>有预算意识</strong>：能说出<strong>帧预算是 13.9 ms（72Hz）</strong>，并解释<strong>为什么不是 16.7</strong>（浏览器合成要占时间）；</li>
-    <li><strong>先看 DrawCall</strong>：能说清「优化先看 DrawCall，不要先看面数」，并指出自己作品里<strong>哪一组物体可以合并</strong>；</li>
-    <li><strong>有一处真实优化</strong>：改前 / 改后各一组读数（DrawCall / 三角面 / 帧时间），且<strong>改动依据说明栏填满</strong>；</li>
-    <li><strong>三角面达标</strong>：移动头显 <strong>≤ 10 万</strong>（超出要写明打算怎么砍）；</li>
-    <li><strong>读数与 HUD 一致</strong>：记录表上的数字<strong>和当时页面 HUD / 工程面板显示的对得上</strong>。</li>
-  </ol>
-
-  <h3>二、硬条件（写成 M4 的硬门槛）</h3>
-  <div class="warn"><strong>必须有一处「改前 → 改后」的对照读数，且该处改动能一句话说清依据。</strong><br>
-    <strong>只有改后的数、没有改前的数 → M4 不合格</strong>（因为无法判断你到底改了没有）；<strong>读数与 HUD 对不上 → M4 退回重抄。</strong></div>
-
-  <h3>三、M4 要交什么</h3>
+  <h3>一、这一课要交什么</h3>
   <div class="tbl-wrap">
     <table>
-      <thead><tr><th>#</th><th>M4 要交什么</th><th>具体口径</th></tr></thead>
+      <thead><tr><th style="width:22%">项</th><th style="width:50%">要求</th><th>说明</th></tr></thead>
       <tbody>
-        <tr><td>1</td><td><strong>优化前后对照</strong></td><td>DrawCall / 三角面 / 帧时间 <strong>各一对</strong>（改前 ＋ 改后）</td></tr>
-        <tr><td>2</td><td><strong>你改了什么</strong></td><td>一句话说清：<strong>看到哪个数超 → 改了哪一处（哪个手段）→ 变成多少</strong></td></tr>
-        <tr><td>3</td><td><strong>读数与 HUD 对照</strong></td><td>记录表上的数<strong>必须和页面 HUD / 工程面板当时显示的一致</strong>；不一致的要注明「是哪一次读数」</td></tr>
-        <tr><td>4</td><td><strong>三角面达标</strong></td><td><strong>移动头显 ≤ 10 万</strong>（超出要写明打算怎么砍）</td></tr>
-        <tr><td>5</td><td><strong>降级等级</strong></td><td>真机跑的时候是 <strong>L0 / L1 / L2</strong>；若是 L1/L2，写原因</td></tr>
+        <tr><td><strong>一句话 pitch</strong></td><td>100 字以内说清「这是什么、给谁、为什么值得做」</td><td>期末答辩的开场白草稿</td></tr>
+        <tr><td><strong>三条自评</strong></td><td>从评审单的五个问题里挑三条，各写 2 句话</td><td>每条都要有细节、有证据</td></tr>
+        <tr><td><strong>一条取舍</strong></td><td>如果预算砍一半，先砍哪里？为什么？</td><td>考的是判断，不是技术</td></tr>
       </tbody>
     </table>
   </div>
-  <p><strong>任务卡末页还有一张九条的自查清单</strong>（有改前数 / 有改后数 / 依据栏填满 / 三角面达标 / 读数与 HUD 对得上 / 戴头显跑过一次 / 知道 13.9 并能解释 / 能指出哪一组物体可以合并 / 自己的 README 与页面文字里没有和代码不一致的说明），交之前逐条打钩。</p>
+  <p><strong>格式：</strong>A4 一页，标题写作品名 ＋ 姓名学号；<strong>截止：2026-11-25（周三）上课前</strong>。</p>
 
-  <h3>四、评价量规（本课次只看这一维）</h3>
+  <h3>二、本课达标四条（缺一条不算过）</h3>
+  <div class="step-grid">
+    <div class="step-card"><p style="margin:0">① 能说清<strong>三条赛道的区别</strong>（作品 / 人 / 产品），不混为一谈</p></div>
+    <div class="step-card"><p style="margin:0">② 能说出《鸽环》<strong>为什么能拿大奖</strong>（不是「技术新」，是 6DoF 的在场感）</p></div>
+    <div class="step-card"><p style="margin:0">③ 能说出<strong>「在场」的代价</strong>（全场景重建 → 千万级点 → 与实时渲染冲突）</p></div>
+    <div class="step-card"><p style="margin:0">④ 能对自己的作品给出<strong>三条有证据的评语</strong></p></div>
+  </div>
+
+  <h3>三、量规（本课只看「作品对标」这一维，10 分）</h3>
   <div class="tbl-wrap">
     <table>
-      <thead><tr><th>维度</th><th>权重</th><th>优（满分）</th><th>合格（60%）</th><th>不合格</th></tr></thead>
+      <thead><tr><th style="width:18%">维度</th><th style="width:8%">权重</th><th style="width:30%">优</th><th style="width:24%">合格</th><th>不合格</th></tr></thead>
       <tbody>
-        <tr><td><strong>性能与工程</strong></td><td><strong>15</strong>（大作业量规原值）</td><td><strong>达到 72Hz 预算</strong>、有降级意识与优化对照、能说清改动的依据、数据与 HUD 一致</td><td><strong>知道看面板，但没优化</strong></td><td><strong>不看性能</strong></td></tr>
+        <tr><td><strong>作品对标与表达</strong></td><td>10</td><td>三条评语<strong>都有证据</strong>，改进建议<strong>落到取舍</strong>，能说清对标哪条赛道</td><td>能写评语但偏感受，改进建议笼统</td><td>只写「挺好的 / 不好看」</td></tr>
       </tbody>
     </table>
   </div>
-  <div class="note"><strong>过程数据不作排名</strong>：帧率分布、晕动暴露时长只作参与度参考；但<strong>优化对照的读数本身是评分证据</strong>——晕动暴露高可能恰恰说明你在认真测试平滑移动。</div>
 
-  <h3>五、任何情况下都不降的三条</h3>
-  <div class="key">① <strong>达标线本身</strong>（移动头显 ≤ 10 万；有对照；读数与 HUD 一致）；<br>
-    ② <strong>改动必须有依据</strong>（不能「看着不舒服就删了两个东西」）；<br>
-    ③ <strong>记录表上的数字必须和页面 HUD 对得上——编数据比做不出来更严重。</strong></div>
+  <div class="warn"><strong>里程碑口径的一处调整（需授课教师确认）：</strong>原课程计划把第 10 次课定为 <strong>M4 性能报告</strong>。改成本课（奖项与标杆）之后，建议：
+    <br>① <strong>M4 性能报告 → 改为课后自检项</strong>，并入期末作品的「性能记录（自检表）」，不再占课堂 45 分钟；
+    <br>② <strong>本课产出 → M4′「作品对标一页纸」</strong>（100 字 pitch ＋ 三条自评 ＋ 一条取舍），11-25 上课前交。
+    <br>期末大作业量规中的「性能与工程」一维<strong>不变</strong>，只是不再由课堂讲授直接产出。</div>
 
-  <h3>六、收束段最后两句（照抄板书）</h3>
-  <div class="grid2">
-    <div class="cell">
-      <h4>第一句（收紧）</h4>
-      <p><strong>「记录表上的数字，必须和页面 HUD 对得上。编数据比做不出来更严重。」</strong></p>
-    </div>
-    <div class="cell">
-      <h4>第二句（放开）</h4>
-      <p><strong>「改得少但说得清，比改得多但说不清，分高。」</strong></p>
-    </div>
+  <h3>四、评委问什么，你就该准备什么</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th style="width:26%">评委问的</th><th style="width:34%">你要准备的</th><th>对应到你的作品</th></tr></thead>
+      <tbody>
+        <tr><td>它凭什么成立？</td><td>一句话说清「这是什么」</td><td>选题一页纸 / 一句话 pitch</td></tr>
+        <tr><td>它真的能跑吗？</td><td>真机跑通，进得去也退得出</td><td>主流程可玩 ＋ 免手柄通路</td></tr>
+        <tr><td>它有多大代价？</td><td>三角面、帧时间、加载时长</td><td>性能记录（自检表）</td></tr>
+        <tr><td>它给谁用？</td><td>目标用户与使用场景</td><td>使用说明 ＋ 演示动线</td></tr>
+      </tbody>
+    </table>
   </div>
+  <div class="key"><strong>奖项不是给别人看的，是逼你把「好」说清楚。</strong></div>
 </section>
 
-<!-- ===== 一页速查 ===== -->
-<section id="practice">
-  <div class="sec-head">
-    <div class="sec-num">查</div>
-    <div>
-      <h2>一页速查 · 板书 · 下次课</h2>
-      <p class="sec-sub">把这一页抄在笔记本上，这一课的骨架就齐了</p>
-    </div>
-  </div>
-
-  <h3>一、八句话速查</h3>
-  <div class="tbl-wrap">
-    <table>
-      <thead><tr><th>主题</th><th>要记住的</th></tr></thead>
-      <tbody>
-        <tr><td><strong>帧预算</strong></td><td>72Hz ⇒ <strong>13.9 ms</strong>／帧；<strong>不是 16.7</strong>——那是 60Hz 的一整帧，浏览器合成还要占时间</td></tr>
-        <tr><td>面板六个数</td><td><strong>FPS ｜ 帧时间 ｜ 最差 1% 帧 ｜ DrawCalls ｜ 三角面 ｜ 贴图数</strong>；帧时间第一重要，DrawCall 第二重要</td></tr>
-        <tr><td>先看谁</td><td><strong>先看 DrawCall，不要先看面数</strong>——面数是搬多少砖，DrawCall 是你喊了多少次「开始搬」</td></tr>
-        <tr><td>证据</td><td>《DrawCall 对照实验室》：同一场景 <strong>101 次 → 2 次</strong>，画面一模一样，开销差 50 倍</td></tr>
-        <tr><td>四个手段</td><td><strong>① 实例化 ② 合批 ③ 贴图复用 / 降分辨率 ④ 阴影分辨率</strong>（按性价比从上往下用）</td></tr>
-        <tr><td>三角面口径</td><td>移动头显 <strong>≤ 10 万</strong>；真机自检 <strong>FPS ≥ 70、降级 L0</strong>，L1/L2 常驻要记录并分析原因</td></tr>
-        <tr><td>动态降级</td><td>帧时间<strong>持续超预算 20% 达 2 秒</strong> → <strong>L1 降像素比（0.78）→ L2 再关阴影（0.62）</strong>；余量恢复时回升，<strong>可逆</strong></td></tr>
-        <tr><td>舒适度</td><td><strong>隧道视野</strong>（平滑移动时视野收窄，0—85% 可调）；默认<strong>传送 ＋ Snap 45°</strong>；眼高 1.5—1.8 m；<code class="inline">Y</code> 重置；10 分钟休息提示</td></tr>
-      </tbody>
-    </table>
-  </div>
-
-  <h3>二、课上板书（照抄，不要多写）</h3>
-  <pre>帧预算　：72Hz ⇒ 13.9ms（不是 16.7——浏览器合成要占时间）
-先看谁　：先看 DrawCall，不要先看面数
-降级　　：L1 降像素比 → L2 关阴影，可逆
-达标线　：移动头显三角面 ≤ 10 万；有一处优化前后对照；读数与 HUD 一致
-里程碑　：M4 性能报告（改前/改后对照 + 改动说明）</pre>
-
-  <h3>三、收尾四句话</h3>
-  <ol>
-    <li><strong>能玩，不等于扛得住。</strong>在笔记本上流畅和戴进头显里不卡，是两件事；</li>
-    <li><strong>13.9 ms 是全部预算</strong>，你唯一能直接控制的是「你的 JS」和「渲染提交」这两半；</li>
-    <li><strong>降级不是失败，是设计的一部分</strong>——但它必须可逆；一个不会回升的降级，等于把作品永久变丑；</li>
-    <li><strong>唯一可信的，是运行起来以后看到的数。</strong>记录时必须写清「哪个作品、哪一次、哪个面板上读的」。</li>
-  </ol>
-
-  <h3>四、下次课预告（2026-11-25，第 11 次课）</h3>
-  <p><strong>让作品会说话，并且能被度量</strong>——接 LLM 智能 NPC，<strong>并且必须带离线降级兜底</strong>。</p>
-  <div class="key">「今天你学会了『帧时间超了会自动降级』。下次课要学的是同一件事的另一面——<strong>大模型接不上时，你的作品怎么办。</strong>降级不是失败，是设计的一部分。」</div>
-  <p><strong>要带来的三样</strong>：① <strong>M4 的这份记录</strong>（下次课要投屏点评「改前 / 改后」两组读数）；② 你的作品<strong>能跑的最新版本</strong>；③ 提前想一个问题：<strong>「大模型接不上时，我的作品怎么办？」</strong></p>
-</section>
-
-<!-- ===== 附录 · 工程纪律 ===== -->
+<!-- ===== 附录 ===== -->
 <section id="appendix">
   <div class="sec-head">
     <div class="sec-num">附</div>
     <div>
-      <h2>附录 · 工程纪律：你抄的那句话，不一定是真的</h2>
-      <p class="sec-sub">这一节是本课次<strong>最便宜的工程纪律教具</strong>，不要删。它讲的是一个真实发生过的不一致，以及<strong>怎么发现这类不一致</strong></p>
+      <h2>附录：出处、口径与素材</h2>
+      <p class="sec-sub">课堂上的每个数字都能在这里查到出处；视频素材仅用于课堂投屏</p>
     </div>
   </div>
 
-  <h3>一、先看事实：同一门课里，45° 与 30° 并存</h3>
+  <h3>一、事实与出处</h3>
   <div class="tbl-wrap">
     <table>
-      <thead><tr><th>哪一份</th><th>转向角度</th><th>在哪儿确认</th></tr></thead>
+      <thead><tr><th style="width:46%">事实</th><th>出处</th></tr></thead>
       <tbody>
-        <tr><td><strong>6 个演示案例</strong>（走共享内核）</td><td><strong>45°</strong></td><td><code class="inline">_xr_core.js</code> 第 29 行 <code class="inline">snapDeg:45</code>（第 73、545 行引用该值）；演示案例 01 / 02 / 03 / 04 的说明书也都写 45°</td></tr>
-        <tr><td><strong>《故宫》那份作品</strong>（第 4 次课素材）</td><td><strong>30°</strong></td><td><code class="inline">gugong_webxr.html</code> 第 1129—1132 行：<code class="inline">yaw -= Math.sign(rightX) * deg(30)</code>，冷却 <strong>350 ms</strong>；它自己的 README 也写 30°</td></tr>
+        <tr><td>《鸽环》获第 83 届威尼斯沉浸大奖；35 分钟；张妤琦、陶世欣</td><td>新华社 2026-09-13；Xinhua English</td></tr>
+        <tr><td>本届 68 部 / 26 国 / 30 部入围竞赛</td><td>新华社 2026-09-13</td></tr>
+        <tr><td>Achievement Prize：Empire at Sea；Special Jury Prize：Out of the Ashes</td><td>The VR Collective 2026-09-15</td></tr>
+        <tr><td>IEEE VGTC VR Awards：2005 设立，2022 增设服务奖与 VR Academy，五类奖</td><td>IEEE CSDL · VR Awards Program Chair Message</td></tr>
+        <tr><td>2026 终身成就奖 Carolina Cruz-Neira（CAVE 共同发明人）；服务奖 Gregory Welch</td><td>IEEE CSDL；UCF News 2026-03-24</td></tr>
+        <tr><td>Laval Virtual：1999 创办；2026 第 28 届（4/8—10）；70 评委 / 30 国 / 300 件（+15%）/ 10 座奖杯；4 赛道 ＋ 6 类别</td><td>Laval Virtual 官方博客 2026-06-08</td></tr>
+        <tr><td>15,827,211 个高斯点（单场景）</td><td>01Splat 演示画面右上角（本页截图）</td></tr>
       </tbody>
     </table>
   </div>
-  <p><strong>这两份都「没错」——它们本来就是两套不同的东西。</strong>故宫那份没有接课堂内核，自己写了一套；<strong>它写的是它自己的数，也对得上。</strong>本课统一口径按 45° 讲（因为演示案例走内核，学生戴进去感受到的就是 45°），同时如实告诉学生 30° 也是真实存在的。</p>
 
-  <h3>二、真实发生过的一次「文档落后于代码」</h3>
-  <div class="warn"><strong>就在本资料包编写时（资料整理：2026-10-13 前后）撞上了一次：</strong><br>
-    21:44 第一次核验时，<strong>演示案例 01 的 <code class="inline">index.html</code> 第 61 行</strong>（页面上那块手柄说明面板）写着「右摇杆=<strong>转向30°</strong>」，<strong>而它跑的内核是 <code class="inline">snapDeg:45</code></strong>——<strong>面板文字与代码不一致</strong>。<br>
-    21:45 前后该文件被修改，<strong>现在这一行已经改成「转向45°」，不一致消失</strong>。</div>
-  <div class="key"><strong>这个前后变化不要浪费——它就是本节要讲的工程事实本身：</strong><br>
-    <strong>代码改了，说明文字不一定跟着改。它会在一段时间里留着旧数字——而这段时间正好是你抄它的时候。</strong><br>
-    所以：<strong>你抄的那句话，不一定是真的；而且它不一定错，它可能只是旧的。</strong></div>
+  <h3>二、三个口径提醒（容易说错的地方）</h3>
+  <div class="warn">
+    <p style="margin:0 0 6px"><strong>① 不要说「XX 奖是 VR 领域最高奖」。</strong>准确说法是「<strong>内容 / 研究 / 产业三条赛道各自的最高认可</strong>」——三个奖评的对象不同（作品 / 人 / 产品），排不出「第一」。</p>
+    <p style="margin:0 0 6px"><strong>② 不要说「用了高斯泼溅所以拿奖」。</strong>反了：是内容立住了，技术把它实现了。技术是必要条件，不是充分条件。</p>
+    <p style="margin:0"><strong>③ 不要说「Laval Virtual 是欧洲最大的 VR 展」。</strong>官方口径是「world's leading event for VR/AR」；「最大」这类绝对化说法，没有出处就不要说。</p>
+  </div>
 
-  <h3>三、怎么发现这类不一致（方法，不是口号）</h3>
-  <ol>
-    <li><strong>不查文档，查两处能对上的地方，并且当场核一遍。</strong>需要同时看到「文字写的」和「运行起来的」两个来源——只看一个来源，永远发现不了不一致。</li>
-    <li><strong>现场两处对照，一次就够：</strong>
-      <ul>
-        <li>打开<strong>演示案例 01</strong>：面板上写的是 <strong>45°</strong>，按 <code class="inline">N</code> 切转向范式，内核面板也显示 <strong>Snap 45°</strong> → <strong>对得上</strong>；</li>
-        <li>打开<strong>《故宫》那份</strong>：搜 <code class="inline">deg(30)</code>，看到的就是 <strong>30°</strong> → <strong>它写的是它自己的数，也对得上</strong>。</li>
-      </ul>
-    </li>
-    <li><strong>改一次、看一次，再看文字有没有跟着改。</strong>凡是「改了参数」的改动，都顺手回查一遍 README 与页面提示文字；这一步 30 秒，但能挡住最贵的一类错。</li>
-    <li><strong>发现可疑时，先分清是哪一种：</strong>① <strong>「两个数字不一样，而且都合法」</strong>（两套实现，像上面的 45° / 30°）；② <strong>「两个数字不一样，其中一个是旧的」</strong>（代码改了、说明没改）。<strong>两种情况都要会认。</strong></li>
-    <li><strong>记录数字时写清三件事：这是哪个作品、哪一次、哪个面板上读的。</strong>这正是本课要求「记录表上的数字必须和页面 HUD 对得上」的由来——<strong>唯一可信的，是运行起来以后看到的数。</strong></li>
-  </ol>
-
-  <h3>四、留给你的课后自查（一处「文档 bug」也算收获）</h3>
+  <h3>三、素材与版权</h3>
   <div class="tbl-wrap">
     <table>
-      <thead><tr><th>我写的 / 面板上写的</th><th>实际是</th><th>要不要改</th></tr></thead>
+      <thead><tr><th style="width:34%">素材</th><th style="width:26%">来源</th><th>用途</th></tr></thead>
       <tbody>
-        <tr><td style="color:#a09ab8">＿＿＿＿＿＿＿＿＿＿＿＿</td><td style="color:#a09ab8">＿＿＿＿＿＿＿＿＿＿＿＿</td><td>☐ 要　☐ 不用</td></tr>
-        <tr><td style="color:#a09ab8">＿＿＿＿＿＿＿＿＿＿＿＿</td><td style="color:#a09ab8">＿＿＿＿＿＿＿＿＿＿＿＿</td><td>☐ 要　☐ 不用</td></tr>
+        <tr><td>V1 片头与导演自述（1:40）<br>V2 技术段（2:22）</td><td>B 站《鸽环》官方视频<br>BV19fWY65E4V</td><td>课堂投屏</td></tr>
+        <tr><td>V4 展会现场（0:32）</td><td>YouTube：INO-VR × Laval Virtual 2026 Aftermovie</td><td>课堂投屏</td></tr>
+        <tr><td>高斯泼溅演示截图与片段</td><td>B 站 01Splat 演示 BV16JsP6GEi8</td><td>课堂投屏</td></tr>
       </tbody>
     </table>
   </div>
-  <p>检查自己作品的 README 与页面提示文字，<strong>有没有哪一句和代码实际行为不一样</strong>（比如你后来改过 <code class="inline">yaw</code>、速度、判定窗，但说明没改）。有的话，那就是一处要修的「文档 bug」。<strong>见过它一次，以后每交一份作品都会顺手查一遍。</strong></p>
+  <div class="note">以上均为第三方公开内容，<strong>仅用于课堂投屏与课后复习</strong>；不上传、不二次剪辑传播。若要公开发布（课程站、公众号），<strong>必须换成可授权素材</strong>或用截图 ＋ 自绘示意图代替。</div>
 
-  <div class="note"><strong>留给授课教师的一条未决项：</strong>是否把《故宫》那份也对齐到 45°，或保留 30° 并在说明里写明「这是与演示案例不同的独立取值」。本页只登记事实，<strong>不修改上述任何文件</strong>。</div>
+  <h3>四、本课配套下载</h3>
+  <p>
+    <a class="btn" href="assets/vr-2026/lesson10/doc/第10次课_学生评审单.docx" download>《作品评审单》（DOCX）</a>
+  </p>
+
+  <h3>五、课后可继续看的三条线</h3>
+  <div class="step-grid">
+    <div class="step-card"><h4 style="margin:0 0 6px">内容线</h4><p style="margin:0;font-size:14px">把《鸽环》官方视频（5:39）整片看完；对照本页第四节，找出「采集 / 重建 / 表演 / 剪辑」四处。</p></div>
+    <div class="step-card"><h4 style="margin:0 0 6px">研究线</h4><p style="margin:0;font-size:14px">查一位 IEEE VGTC 历年得主的代表作，看他「让这个领域往前走了哪一步」。</p></div>
+    <div class="step-card"><h4 style="margin:0 0 6px">产业线</h4><p style="margin:0;font-size:14px">挑一件 Laval Virtual 获奖作品，用「成本 / 重量 / 穿戴时间」三个数给它打分。</p></div>
+  </div>
 </section>
 
 </main>
 
 <footer>
   <div class="f-main">中华女子学院 · 2026年虚拟现实技术 · 第 10 次课</div>
-  <div>数据科学与信息技术学院 · 授课教师：孙琪翔 · 2026-11-18 · 好看和跑得动是两件事（性能工程 · 4 学时）</div>
-  <div style="margin-top:6px;font-size:12px;opacity:.75;">本页依据第 10 次课资料包（README / 教学方案 180 分钟 / 课件正文 / 学生任务卡）、《WebXR转型设计_第7-12次课与大作业》第 10 次课一节与《README附录_XR工程内核与评分量规》整理，用于课堂与课后复习。</div>
+  <div>数据科学与信息技术学院 · 授课教师：孙琪翔 · 2026-11-18 · 世界在看什么样的 VR（国际大奖与标杆作品 · 4 学时）</div>
+  <div style="margin-top:6px;font-size:12px;opacity:.75;">本页依据第 10 次课资料包（教学方案 180 分钟 / 讲稿 / 学生评审单 / 课件）与新华社、Xinhua English、The VR Collective、IEEE CSDL、UCF News、Laval Virtual 官方博客整理，用于课堂与课后复习。</div>
   <div style="margin-top:12px;font-size:14px;"><a href="vr-2026.html">← 返回课程主页</a> · <a href="index.html">返回个人网站</a></div>
 </footer>
 
@@ -784,7 +653,7 @@
   navInner.querySelectorAll('a[data-sec]').forEach(function(a){
     navLinks[a.getAttribute('data-sec')] = a;
   });
-  var sections = ['guide','c1','c2','c3','c4','c5','cases','demo','hw','practice','appendix'];
+  var sections = ['guide','c1','c2','c3','c4','c5','c6','c7','ws','hw','appendix'];
   if ('IntersectionObserver' in window) {
     var obs = new IntersectionObserver(function(entries){
       entries.forEach(function(en){
