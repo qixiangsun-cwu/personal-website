@@ -24,6 +24,10 @@
    已是中文无需翻译；重复运行安全（标题级去重会挡住同一期）。
    注意速递条目与 RSS 抓取的同题材条目可能同题不同文，审批时人工剔除一边；
    current 配额已放宽：速递源每期最多 6 条，普通 RSS 源仍每源 1 条。
+   链接 host 支持三种：微信原文 mp.weixin.qq.com、镜像 aiexpress.news、
+   搜狐镜像 www.sohu.com（搜狐剥掉了每条末尾的原文链接行，解析器会自动合成
+   指向本页的 URL 行做条目终止符）。`-DigestUrl` 可逗号分隔多期一次摄取；
+   补摄历史期（待审稿被当日重生成冲掉）可加 `-WindowDays 5` 放宽 RSS 抓取窗口。
 1. 读取 `ai-news.pending.json`，与 `ai-news.json` 对比列出「本期新增」；
 2. 把非中文条目翻译成中文，**必须写回 `ai-news.pending.json` 文件本身**
    （更新 `title` / `summary`，保留 `title_en`）——只在对话里展示译文无效：

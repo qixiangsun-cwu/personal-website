@@ -3,11 +3,11 @@
 # 抓取 RSS -> 生成 ai-news.pending.json + 预览页 ai-news-preview.html
 # 不提交、不推送；生成后自动打开本地审批台 http://localhost:8866/approve
 # 由 Windows 计划任务每天 08:00 调用；-Headless 供 CI/手动无界面调用
-# 可选：-DigestUrl <微信文章链接>  额外摄取「腾讯研究院AI速递」当期
+# 可选：-DigestUrl <微信/镜像/搜狐链接，可逗号分隔多期>  额外摄取「腾讯研究院AI速递」
 #   （仿腾讯研究院模式：人工聚合的 3 要点式中文条目，每期 7-9 条，
 #    重复运行安全——标题级去重会挡住同一期）
 # ============================================================
-param([switch]$Headless, [string]$DigestUrl)
+param([switch]$Headless, [string[]]$DigestUrl, [int]$WindowDays = 2)
 
 $ErrorActionPreference = 'Stop'
 $OutputEncoding = [System.Text.Encoding]::UTF8
@@ -70,8 +70,10 @@ foreach ($feed in $feeds) {
             try { $xmlText = [System.Text.Encoding]::GetEncoding($encMatch.Groups[1].Value).GetString($bytes) } catch {}
         }
         $rss = [xml]$xmlText
-        $items = @($rss.rss.channel.item)
-        if ($items.Count -eq 0) { $items = @($rss.feed.entry) }
+        # 无 <item> 的 feed 经 @() 包装会得到 @($null)（Count=1），必须先滤掉 $null，
+        # 否则下方 Atom 回退分支永不触发——曾致 theverge 等 Atom 源静默摄取 0 条而日志仍显示 OK
+        $items = @($rss.rss.channel.item | Where-Object { $null -ne $_ })
+        if ($items.Count -eq 0) { $items = @($rss.feed.entry | Where-Object { $null -ne $_ }) }
 
         foreach ($item in $items) {
             $title = Get-ElemText $item.title
@@ -85,7 +87,9 @@ foreach ($feed in $feeds) {
 
             $dt = [datetime]::MinValue
             if (-not [DateTime]::TryParse([string]$pub, [ref]$dt)) { continue }
-            if ($dt -lt (Get-Date).AddDays(-2)) { continue }
+            # 抓取窗口（默认 48h）。补摄历史期时可放宽（如 -WindowDays 5），
+            # 把因待审稿被当日重生成冲掉而未批准发布的条目重新捞回
+            if ($dt -lt (Get-Date).AddDays(-$WindowDays)) { continue }
 
             $dateStr = $dt.ToString('yyyy-MM-dd')
             $link = Get-ElemText $item.link
@@ -124,17 +128,34 @@ foreach ($feed in $feeds) {
     }
 }
 
-# ---------- 腾讯研究院AI速递摄取（可选，-DigestUrl 传入当期文章链接） ----------
+# ---------- 腾讯研究院AI速递摄取（可选，-DigestUrl 传入当期文章链接，支持数组批量） ----------
 # 解析结构：板块名（短行）→ 一、标题 → 1./2./3. 要点 → 原文链接行
 # 条目 source=腾讯研究院AI速递、digest=true、section=板块；url 指向速递中给出的原文
+# 支持三类 host：
+#   mp.weixin.qq.com  —— 微信原文（正文在 js_content，链接行必须为微信短链）
+#   *.aiexpress.news  —— 镜像页（正文在 <article>，链接行可为任意 http(s)）
+#   www.sohu.com      —— 搜狐镜像（正文在 <article id=mp-editor>，被剥掉链接行：
+#                        解析时在每个编号标题行前/最后一条要点后合成指向本页的 URL 行做条目终止符）
 if ($DigestUrl) {
-    if ($DigestUrl -notmatch 'mp\.weixin\.qq\.com') {
-        Write-Log "WARN digest: 非 mp.weixin.qq.com 链接，跳过 -> $DigestUrl"
+  # powershell -File 模式不会把「a,b」绑成数组，会整体作为一个字符串传入：自行按逗号拆分
+  $dUrls = @($DigestUrl | ForEach-Object { ([string]$_) -split ',' } | ForEach-Object { ([string]$_).Trim() } | Where-Object { $_ })
+  foreach ($dUrl in $dUrls) {
+    $isWeixin = $dUrl -match 'mp\.weixin\.qq\.com'
+    $isMirror = $dUrl -match 'aiexpress\.news'
+    $isSohu   = $dUrl -match 'sohu\.com'
+    if (-not $isWeixin -and -not $isMirror -and -not $isSohu) {
+        Write-Log "WARN digest: 非支持的链接 host（mp.weixin.qq.com / aiexpress.news / sohu.com），跳过 -> $dUrl"
     } else {
         try {
-            $dResp = Invoke-WebRequest -Uri $DigestUrl -UseBasicParsing -TimeoutSec 25 `
-                -UserAgent 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/126 Safari/537.36'
-            $dHtml = [System.Text.Encoding]::UTF8.GetString($dResp.RawContentStream.ToArray())
+            # 抓取用 curl.exe 落盘再读（Invoke-WebRequest 会触发 aiexpress 的 WAF JS 盾，
+            # 且 PowerShell 管道会损坏 curl 的 UTF-8 输出，故必须 -o 文件后按 UTF-8 读入）
+            $dTmp = Join-Path $env:TEMP ("digest-{0}.html" -f [guid]::NewGuid().ToString('N'))
+            & curl.exe -s -L -A 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/126 Safari/537.36' --max-time 60 $dUrl -o $dTmp
+            if ($LASTEXITCODE -ne 0 -or -not (Test-Path $dTmp) -or (Get-Item $dTmp).Length -lt 2000) {
+                throw "curl 下载失败（exit=$LASTEXITCODE）"
+            }
+            $dHtml = [System.IO.File]::ReadAllText($dTmp, [System.Text.Encoding]::UTF8)
+            Remove-Item -LiteralPath $dTmp -ErrorAction SilentlyContinue
 
             # 期号日期来自标题（「…AI速递 20261112」），取不到则用今天。
             # og:title 偶发缺失（页面变体），故全文兜底匹配「AI速递 日期」（h1 内同样含期号）
@@ -144,23 +165,54 @@ if ($DigestUrl) {
                 try { $dDate = [datetime]::ParseExact($dHit.Groups[1].Value, 'yyyyMMdd', $null).ToString('yyyy-MM-dd') } catch {}
             }
 
-            # 正文区段：对齐到 <div 开头，避免把开标签属性残行当文本
-            $idPos = $dHtml.IndexOf('id="js_content"')
-            if ($idPos -lt 0) { throw '未找到正文 js_content' }
-            $divPos = $dHtml.LastIndexOf('<div', $idPos)
-            $endPos = $dHtml.IndexOf('<script', $idPos)
-            if ($endPos -lt 0) { $endPos = $dHtml.IndexOf('<style', $idPos) }
-            if ($endPos -lt 0) { $endPos = $dHtml.Length }
-            $dContent = $dHtml.Substring($divPos, $endPos - $divPos)
+            # 正文区段：
+            #  微信版  —— js_content，对齐到 <div 开头，避免把开标签属性残行当文本
+            #  镜像版 —— <article>…</article> 容器
+            if ($isWeixin) {
+                $idPos = $dHtml.IndexOf('id="js_content"')
+                if ($idPos -lt 0) { throw '未找到正文 js_content' }
+                $divPos = $dHtml.LastIndexOf('<div', $idPos)
+                $endPos = $dHtml.IndexOf('<script', $idPos)
+                if ($endPos -lt 0) { $endPos = $dHtml.IndexOf('<style', $idPos) }
+                if ($endPos -lt 0) { $endPos = $dHtml.Length }
+                $dContent = $dHtml.Substring($divPos, $endPos - $divPos)
+            } else {
+                $artPos = $dHtml.IndexOf('<article')
+                if ($artPos -lt 0) { throw '未找到正文 article 容器' }
+                $artEnd = $dHtml.IndexOf('</article>', $artPos)
+                if ($artEnd -lt 0) { throw 'article 容器未闭合' }
+                $dContent = $dHtml.Substring($artPos, $artEnd - $artPos + 10)
+            }
 
             $dText = $dContent -replace '<br\s*/?>', "`n" -replace '</p>', "`n" -replace '</section>', "`n" -replace '<[^>]+>', ''
             $dText = [System.Net.WebUtility]::HtmlDecode($dText)
             $dLines = @($dText -split "`n" | ForEach-Object { ([string]$_).Trim() } | Where-Object { $_ -ne '' })
 
+            # 无链接行变体（sohu.com 剥掉了每条末尾的原文链接行）：
+            # 在每个编号标题行前、以及最后一条要点行后，合成一条指向本次文章页的 URL 行，
+            # 复用「URL 行 = 条目终止符」的既有解析逻辑
+            if ($isSohu) {
+                $dLines2 = [System.Collections.Generic.List[string]]::new()
+                $firstTitle = $true; $lastPointIdx = -1
+                for ($i = 0; $i -lt $dLines.Count; $i++) {
+                    $line = $dLines[$i]
+                    if ($line -match '^[一二三四五六七八九十]{1,3}、') {
+                        if (-not $firstTitle) { $dLines2.Add($dUrl) }
+                        $firstTitle = $false
+                    }
+                    if ($line -match '^[1-9][.、．]') { $lastPointIdx = $dLines2.Count }
+                    $dLines2.Add($line)
+                }
+                if ($lastPointIdx -ge 0) { $dLines2.Insert($lastPointIdx, $dUrl) } else { $dLines2.Add($dUrl) }
+                $dLines = @($dLines2)
+            }
+
             $dTitle = ''; $dPoints = @(); $dSection = ''; $dCount = 0
             foreach ($line in $dLines) {
                 if ($line -match '^https?://') {
-                    if ($dTitle -and $line -match 'mp\.weixin\.qq\.com' -and -not $seen.ContainsKey($dTitle)) {
+                    # 微信版链接行必须为微信短链；镜像版任意 http(s) 行均视为原文链接
+                    $urlOk = if ($isWeixin) { $line -match 'mp\.weixin\.qq\.com' } else { $true }
+                    if ($dTitle -and $urlOk -and -not $seen.ContainsKey($dTitle)) {
                         $dSummary = ($dPoints -join "`n")
                         if ($dSummary.Length -gt 600) { $dSummary = $dSummary.Substring(0, 600) + '…' }
                         $newItems.Add([PSCustomObject]@{
@@ -184,15 +236,19 @@ if ($DigestUrl) {
                     continue
                 }
                 if ($line -match '^[1-9][.、．]') { $dPoints += $line; continue }
+                # 板块行：先按已知板块 token 匹配（镜像页会粘在 meta 行尾，如「…更新…生成式AI」），
+                # 再退回「短行即板块」规则
+                if ($line -match '(生成式AI|前沿科技|报告观点|深度洞察)\s*$') { $dSection = $Matches[1]; continue }
                 if ($line.Length -le 12) { $dSection = $line; continue }
             }
             Write-Log "OK digest: 解析 $dCount 条（期号 $dDate）"
         } catch {
-            $warnMsg = [string]$_.Exception.Message
-            if ($warnMsg.Length -gt 300) { $warnMsg = $warnMsg.Substring(0, 300) + ' …' }
-            Write-Log "WARN digest $DigestUrl -> $warnMsg"
+            $warnMsg = ([string]$_.Exception.Message) -replace '\s+', ' '
+            if ($warnMsg.Length -gt 200) { $warnMsg = $warnMsg.Substring(0, 200) + ' …' }
+            Write-Log "WARN digest $dUrl -> $warnMsg"
         }
     }
+  }
 }
 
 Write-Log "抓取到新条目: $($newItems.Count)"
@@ -261,11 +317,12 @@ foreach ($it in @($merged | Where-Object { $_.date -ge $latestCutoff })) {
 $current = @($currentList)
 # 归档 = 未进入 current 的全部条目（含被“每源限 1 条”挤掉的同日条目），
 # 避免 date >= cutoff 但未选入 current 的条目既不进 current 也不进 archive 而丢失
+# 排除键用「url|title」复合键：速递同一期的多条目共用同一页面 URL，
+# 若按纯 URL/标题分别建键，未进 current 的兄弟条目（同 URL 不同标题）会被误判
+# 为「已选入 current」而踢出归档（曾致 20261118 期 4 条凭空消失）
 $selKeys = @{}
 foreach ($it in $currentList) {
-    $selU = [string]$it.url; $selT = [string]$it.title
-    if ($selU) { $selKeys[$selU] = $true }
-    if ($selT) { $selKeys[$selT] = $true }
+    $selKeys[([string]$it.url) + '|' + ([string]$it.title)] = $true
 }
 # arXiv 洪峰控制：周一常一次性投递上百篇论文，每天最多归档 5 条（取最新）。
 # 关键：已发布条目（存在于 ai-news.json）永远保留——否则同日二次抓取时，新抓条目会
@@ -277,7 +334,7 @@ $archivePool = [System.Collections.Generic.List[object]]::new()
 # 第一遍：已发布条目先占当日名额并保留（不受 5 条限流约束）
 foreach ($it in $merged) {
     $u = [string]$it.url; $t = [string]$it.title
-    if (($u -and $selKeys.ContainsKey($u)) -or ($t -and $selKeys.ContainsKey($t))) { continue }
+    if ($selKeys.ContainsKey("$u|$t")) { continue }
     if ($u -match 'arxiv\.org' -and $u -and $pubUrls.ContainsKey($u)) {
         $dayKey = [string]$it.date
         if (-not $arxivDayCount.ContainsKey($dayKey)) { $arxivDayCount[$dayKey] = 0 }
@@ -288,7 +345,7 @@ foreach ($it in $merged) {
 # 第二遍：新抓取条目（非 arXiv 不限；arXiv 只能用当日剩余名额）
 foreach ($it in $merged) {
     $u = [string]$it.url; $t = [string]$it.title
-    if (($u -and $selKeys.ContainsKey($u)) -or ($t -and $selKeys.ContainsKey($t))) { continue }
+    if ($selKeys.ContainsKey("$u|$t")) { continue }
     if ($u -match 'arxiv\.org') {
         if ($u -and $pubUrls.ContainsKey($u)) { continue }  # 第一遍已加入
         $dayKey = [string]$it.date
