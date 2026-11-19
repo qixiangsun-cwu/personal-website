@@ -16,3 +16,8 @@ database_id = "fa70aa19-4f3c-40b1-8449-3f9bc85a8f06"
 [[kv_namespaces]]
 binding = "PROPOSALS"
 id = "74e6d97acf4a44828ae0c34d4548e742"
+
+# 研究项目（问卷 / 在线自填访谈）· 导出鉴权
+# 仅存 sha256（管理密钥本身不发到仓库），used by functions/api/survey.js 与 interview.js
+[vars]
+RESEARCH_KEY_HASH = "9cdfc5c67b91446fb3b36d55309b2005142ecb0d4e5ff0dc86e141a3f91651c4"

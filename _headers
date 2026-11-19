@@ -30,3 +30,9 @@
 
 /private/director/sw.js
   Cache-Control: no-cache
+
+/research/*
+  X-Robots-Tag: noindex, nofollow
+
+/research/admin
+  X-Robots-Tag: noindex, nofollow

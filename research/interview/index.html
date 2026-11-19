@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>关于 AI 家务建议的访谈｜匿名自填</title>
+<style>
+  :root{
+    --ink:#1c1d1f; --muted:#5f6368; --faint:#8a8f98; --line:#e4e5e7;
+    --bg:#fbfbfa; --card:#fff; --accent:#3a4a6b; --accent-soft:#eef0f5;
+    --warn:#a8442b; --radius:14px; --shadow:0 1px 2px rgba(20,22,24,.05),0 8px 24px rgba(20,22,24,.06);
+    --serif:"Songti SC","Source Han Serif SC","Noto Serif SC",Georgia,"SimSun",serif;
+    --sans:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.75;-webkit-text-size-adjust:100%}
+  .wrap{max-width:680px;margin:0 auto;padding:0 18px 110px}
+  header.top{padding:34px 0 10px;text-align:center}
+  header.top h1{font-family:var(--serif);font-weight:600;font-size:25px;line-height:1.4;margin:0 0 6px}
+  header.top .sub{color:var(--muted);font-size:14px;margin:0}
+  .rule{height:1px;background:linear-gradient(90deg,transparent,var(--line),transparent);margin:18px 0 26px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:22px 20px;margin:0 0 18px;box-shadow:var(--shadow)}
+  .card h2{font-family:var(--serif);font-size:20px;font-weight:600;margin:0 0 10px}
+  .card h3{font-size:16.5px;font-weight:600;margin:0 0 6px}
+  p{margin:0 0 12px}
+  .muted{color:var(--muted);font-size:14px}
+  .tiny{color:var(--faint);font-size:13px}
+  .consent{border:1px solid var(--line);border-radius:12px;background:#fcfcfb;padding:14px 16px;margin:12px 0 4px}
+  .consent label{display:flex;gap:10px;align-items:flex-start;font-size:15px;cursor:pointer}
+  input[type=checkbox],input[type=radio]{accent-color:var(--accent);width:18px;height:18px;flex:0 0 auto;margin-top:3px}
+  .q{margin:20px 0 0}
+  .q .lb{font-weight:600;display:block;margin-bottom:6px;line-height:1.6}
+  .q .hint{color:var(--faint);font-size:13.5px;margin:-2px 0 8px}
+  .opts{display:flex;flex-wrap:wrap;gap:8px}
+  .opts label{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);border-radius:999px;padding:8px 14px;background:#fff;font-size:14.5px;cursor:pointer}
+  .opts label:has(input:checked){border-color:var(--accent);background:var(--accent-soft)}
+  textarea,input[type=text],select{width:100%;font-family:var(--sans);font-size:15px;color:var(--ink);background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px 13px;line-height:1.7}
+  textarea{min-height:104px;resize:vertical}
+  textarea:focus,input:focus,select:focus{outline:2px solid var(--accent);outline-offset:1px;border-color:var(--accent)}
+  .cardsay{border:1px solid var(--line);border-radius:12px;background:#fcfcfb;padding:14px 16px;margin:10px 0 4px;font-size:14.5px}
+  .cardsay b{font-weight:600}
+  .cardsay .who{color:var(--accent)}
+  .pill{display:inline-block;font-size:12.5px;color:var(--accent);background:var(--accent-soft);border-radius:999px;padding:2px 10px;margin-left:6px;vertical-align:middle}
+  .split{border-top:1px dashed var(--line);margin:16px 0;padding-top:14px}
+  .module{font-family:var(--serif);font-size:18px;font-weight:600;margin:6px 0 4px}
+  .module .cnt{font-family:var(--sans);font-size:13px;color:var(--faint);font-weight:400;margin-left:8px}
+  footer{margin-top:26px;text-align:center;color:var(--faint);font-size:13px}
+  .submitbar{position:fixed;left:0;right:0;bottom:0;background:rgba(251,251,250,.94);backdrop-filter:blur(8px);border-top:1px solid var(--line);padding:10px 18px calc(10px + env(safe-area-inset-bottom))}
+  .submitbar .inner{max-width:680px;margin:0 auto;display:flex;align-items:center;gap:12px}
+  .prog{flex:1;height:8px;border-radius:999px;background:#e9eaea;overflow:hidden}
+  .prog i{display:block;height:100%;width:0;background:var(--accent);transition:width .25s}
+  .progtxt{font-size:12.5px;color:var(--muted);white-space:nowrap}
+  button.primary{appearance:none;border:0;border-radius:999px;background:var(--accent);color:#fff;font-size:15.5px;font-weight:600;padding:12px 22px;cursor:pointer;font-family:var(--sans)}
+  button.primary:disabled{background:#c9cfcc;cursor:not-allowed}
+  .err{color:var(--warn);font-size:13.5px;margin-top:6px;display:none}
+  .hp{position:absolute!important;left:-9999px!important;width:1px;height:1px;overflow:hidden}
+  .done{display:none;text-align:center;padding:34px 8px}
+  .done .mark{width:56px;height:56px;border-radius:50%;background:var(--accent-soft);color:var(--accent);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:26px}
+  .done h2{font-family:var(--serif);font-size:22px;margin:0 0 8px}
+  .done .id{font-family:ui-monospace,Menlo,Consolas,monospace;background:#f2f3f3;border-radius:8px;padding:4px 10px;display:inline-block;margin:8px 0}
+  @media (max-width:420px){
+    header.top h1{font-size:21px}
+    .card{padding:18px 15px}
+    textarea{min-height:96px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <h1>关于 AI 家务建议的访谈<br><span class="sub">匿名自填版 · 约 20–30 分钟</span></h1>
+    <p class="sub">共 18 题，答满 12 题即可提交</p>
+  </header>
+  <div class="rule"></div>
+
+  <div id="formArea">
+    <section class="card">
+      <h2>访谈说明</h2>
+      <p>这是一个关于「AI 家务建议」和「家里活怎么分」的访谈。你可以把它当作一次慢慢写下来的谈话：每题用几句话说说就好，不需要写得很完整。</p>
+      <p class="muted">访谈匿名，不会记录姓名、单位、住址；内容只用于学术论文，不用于商业用途。任何一题不想回答可以跳过，随时可以关闭页面退出。</p>
+      <div class="consent">
+        <label><input type="checkbox" id="consent"><span>我已阅读并理解上述说明，自愿参加本次访谈，且已年满 18 岁。</span></label>
+        <div class="err" id="consentErr">请先勾选同意后再开始。</div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>关于你</h2>
+      <p class="tiny">仅用于统计分组，不识别个人。</p>
+      <div class="q">
+        <span class="lb">性别</span>
+        <div class="opts">
+          <label><input type="radio" name="gender" value="F">女</label>
+          <label><input type="radio" name="gender" value="M">男</label>
+          <label><input type="radio" name="gender" value="O">其他 / 不愿透露</label>
+        </div>
+      </div>
+      <div class="q">
+        <span class="lb">年龄段</span>
+        <div class="opts">
+          <label><input type="radio" name="age" value="1">18–24</label>
+          <label><input type="radio" name="age" value="2">25–34</label>
+          <label><input type="radio" name="age" value="3">35–44</label>
+          <label><input type="radio" name="age" value="4">45–54</label>
+          <label><input type="radio" name="age" value="5">55 及以上</label>
+        </div>
+      </div>
+      <div class="q">
+        <span class="lb">婚育状况</span>
+        <div class="opts">
+          <label><input type="radio" name="marital" value="1">未婚未育</label>
+          <label><input type="radio" name="marital" value="2">已婚未育</label>
+          <label><input type="radio" name="marital" value="3">已婚已育</label>
+          <label><input type="radio" name="marital" value="4">其他</label>
+        </div>
+      </div>
+      <div class="q">
+        <span class="lb">目前与您同住并共同分担家务的人</span>
+        <div class="opts">
+          <label><input type="radio" name="live" value="1">独居</label>
+          <label><input type="radio" name="live" value="2">配偶或伴侣</label>
+          <label><input type="radio" name="live" value="3">父母</label>
+          <label><input type="radio" name="live" value="4">子女</label>
+          <label><input type="radio" name="live" value="5">其他</label>
+        </div>
+      </div>
+      <div class="q">
+        <span class="lb">所在城市</span>
+        <div class="opts">
+          <label><input type="radio" name="city" value="1">一线</label>
+          <label><input type="radio" name="city" value="2">二线</label>
+          <label><input type="radio" name="city" value="3">三线及以下</label>
+          <label><input type="radio" name="city" value="4">乡镇或农村</label>
+        </div>
+      </div>
+      <div class="q">
+        <span class="lb">教育程度</span>
+        <div class="opts">
+          <label><input type="radio" name="edu" value="1">高中及以下</label>
+          <label><input type="radio" name="edu" value="2">大专</label>
+          <label><input type="radio" name="edu" value="3">本科</label>
+          <label><input type="radio" name="edu" value="4">硕士及以上</label>
+        </div>
+      </div>
+      <div class="q">
+        <span class="lb">是否用过 AI 助手或智能家居设备</span>
+        <div class="opts">
+          <label><input type="radio" name="aiUsed" value="1">用过</label>
+          <label><input type="radio" name="aiUsed" value="0">没用过</label>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="module">模块一 · 家里的活现在怎么分<span class="cnt" id="cnt1"></span></div>
+      <div class="q">
+        <span class="lb">1. 您家里现在的家务大概是怎么分的？谁做什么？</span>
+        <div class="hint">可以分别说说做饭、洗衣、打扫、修东西、照顾老人孩子。</div>
+        <textarea name="q1" maxlength="800"></textarea>
+      </div>
+      <div class="q">
+        <span class="lb">2. 这个分工是怎么形成的？结婚、同居、有孩子前后有变化吗？</span>
+        <textarea name="q2" maxlength="800"></textarea>
+      </div>
+      <div class="q">
+        <span class="lb">3. 家里有没有「这活不该我干」「这活我不会」的说法？谁说的？</span>
+        <textarea name="q3" maxlength="800"></textarea>
+      </div>
+      <div class="q">
+        <span class="lb">4. 您觉得这个分工公平吗？为什么？如果不公平，您会提出来吗？</span>
+        <textarea name="q4" maxlength="800"></textarea>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="module">模块二 · AI 与智能设备<span class="cnt" id="cnt2"></span></div>
+      <div class="q">
+        <span class="lb">5. 您用过哪些智能家居或 AI 工具？</span>
+        <div class="hint">比如音箱、扫地机器人、AI 聊天、菜谱或记账 App。</div>
+        <textarea name="q5" maxlength="800"></textarea>
+      </div>
+      <div class="q">
+        <span class="lb">6. 有没有让 AI 帮您安排过家务、买菜、做饭、带孩子？说说具体一次。</span>
+        <div class="hint">它给的建议您照做了吗？哪部分没照做？为什么？</div>
+        <textarea name="q6" maxlength="800"></textarea>
+      </div>
+      <div class="q">
+        <span class="lb">7. 您觉得 AI 懂「家务」吗？它懂您家的情况吗？</span>
+        <textarea name="q7" maxlength="800"></textarea>
+      </div>
+      <div class="q">
+        <span class="lb">8. 如果 AI 主动给您排「谁干什么」，您第一反应是什么？</span>
+        <div class="hint">会觉得被冒犯吗？会觉得方便吗？</div>
+        <textarea name="q8" maxlength="800"></textarea>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="module">模块三 · 看两份分工建议<span class="cnt" id="cnt3"></span></div>
+      <p class="muted">下面两份建议都标注为「AI 根据家庭成员情况与过往习惯生成」，请先读完，再回答 9–14 题。</p>
+      <p><b>建议 A</b></p>
+      <div class="cardsay">
+        <div><span class="who">王女士</span>：洗衣、做饭、照护孩子、整理房间</div>
+        <div><span class="who">王先生</span>：修理家电、搬运重物、处理报修</div>
+      </div>
+      <p style="margin-top:14px"><b>建议 C</b></p>
+      <div class="cardsay">
+        <div><span class="who">张女士</span>：修理家电、搬运重物、处理报修</div>
+        <div><span class="who">张先生</span>：洗衣、做饭、照护孩子、整理房间</div>
+      </div>
+      <div class="q">
+        <span class="lb">9. 看建议 A，您第一眼注意到什么？</span>
+        <textarea name="q9" maxlength="800"></textarea>
+      </div>
+      <div class="q">
+        <span class="lb">10. 您觉得 A 这个安排公平吗？为什么？如果这是您家，您会照做吗？哪一条您最不能接受？</span>
+        <textarea name="q10" maxlength="800"></textarea>
+      </div>
+      <div class="q">
+        <span class="lb">11. 您觉得 AI 为什么会这样安排？</span>
+        <div class="hint">是因为统计上常见？它觉得合理？还是它也有偏见？</div>
+        <textarea name="q11" maxlength="800"></textarea>
+      </div>
+      <div class="q">
+        <span class="lb">12. 两份建议比，哪份更让您舒服？为什么？如果这是您家，会发生什么？家人会怎么说？</span>
+        <textarea name="q12" maxlength="800"></textarea>
+      </div>
+      <div class="q">
+        <span class="lb">13. 如果 AI 每次都把修理给男性、照护给女性，您会怎么处理？</span>
+        <div class="hint">改设置？不用了？跟家人讨论？照着做？</div>
+        <textarea name="q13" maxlength="800"></textarea>
+      </div>
+      <div class="q">
+        <span class="lb">14. 反过来，如果 AI 把修理给女性、照护给男性，您觉得现实吗？为什么？</span>
+        <textarea name="q14" maxlength="800"></textarea>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="module">模块四 · 性别观念与代际<span class="cnt" id="cnt4"></span></div>
+      <div class="q">
+        <span class="lb">15. 您觉得「男的擅长修东西、女的擅长照顾人」这种说法有道理吗？</span>
+        <div class="hint">您从小家里是这样吗？您父母那一代呢？</div>
+        <textarea name="q15" maxlength="800"></textarea>
+      </div>
+      <div class="q">
+        <span class="lb">16. 您身边有没有「反着来」的例子（女性修东西、男性带娃）？别人怎么看？</span>
+        <textarea name="q16" maxlength="800"></textarea>
+      </div>
+      <div class="q">
+        <span class="lb">17. 如果 AI 的建议和您家里的习惯不一样，您更信谁？为什么？</span>
+        <textarea name="q17" maxlength="800"></textarea>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="module">模块五 · 收尾<span class="cnt" id="cnt5"></span></div>
+      <div class="q">
+        <span class="lb">18. 如果让您给这个 AI 提一条修改建议，您会说什么？</span>
+        <div class="hint">还有什么我没问到、但您觉得重要的，也可以写在这里。</div>
+        <textarea name="q18" maxlength="1200"></textarea>
+      </div>
+      <div class="split"></div>
+      <div class="q">
+        <span class="lb">联系方式<span class="pill">选填</span></span>
+        <input type="text" name="contact" maxlength="60" placeholder="邮箱或微信号，仅在需要补充说明时联系，不会公开">
+      </div>
+      <input class="hp" type="text" name="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+    </section>
+    <div class="err" id="submitErr" style="margin:6px 2px 0"></div>
+  </div>
+
+  <div class="done" id="done">
+    <div class="mark">✓</div>
+    <h2>已收到，谢谢！</h2>
+    <p class="muted">你的回答已匿名记录。若想核对，可保留下面的编号（不包含任何个人信息）。</p>
+    <p class="id" id="doneId">—</p>
+    <p class="tiny">可以关闭本页。</p>
+  </div>
+
+  <footer>研究用途 · 匿名访谈 · 不收集身份信息</footer>
+</div>
+
+<div class="submitbar">
+  <div class="inner">
+    <div class="prog"><i id="progBar"></i></div>
+    <span class="progtxt" id="progTxt">已答 0/18</span>
+    <button class="primary" id="submitBtn">提交</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  var V = "2026-11-20";
+  var startedAt = new Date().toISOString();
+  var t0 = Date.now();
+  var draftKey = "interview_draft_" + V;
+  var QN = 18, MIN_ANSWER = 12;
+  var MODS = {1:[1,2,3,4], 2:[5,6,7,8], 3:[9,10,11,12,13,14], 4:[15,16,17], 5:[18]};
+
+  function val(name){ var el = document.querySelector('input[name="'+name+'"]:checked'); return el ? el.value : ""; }
+  function ta(n){ var el = document.querySelector('textarea[name="q'+n+'"]'); return el ? el.value.trim() : ""; }
+
+  function answeredCount(){
+    var c = 0;
+    for (var i = 1; i <= QN; i++) if (ta(i).length >= 2) c++;
+    return c;
+  }
+  function refresh(){
+    var c = answeredCount();
+    var p = Math.round(c / QN * 100);
+    document.getElementById("progBar").style.width = p + "%";
+    document.getElementById("progTxt").textContent = "已答 " + c + "/" + QN;
+    Object.keys(MODS).forEach(function(k){
+      var n = MODS[k].filter(function(i){ return ta(i).length >= 2; }).length + "/" + MODS[k].length;
+      var el = document.getElementById("cnt" + k);
+      if (el) el.textContent = n;
+    });
+  }
+  document.addEventListener("input", refresh);
+  refresh();
+
+  function saveDraft(){
+    var d = {a:{}, demo:{}, consent:document.getElementById("consent").checked, contact:""};
+    for (var i = 1; i <= QN; i++) d.a["q"+i] = ta(i);
+    ["gender","age","marital","live","city","edu","aiUsed"].forEach(function(n){ d.demo[n] = val(n); });
+    d.contact = (document.querySelector('input[name="contact"]') || {}).value || "";
+    try { localStorage.setItem(draftKey, JSON.stringify(d)); } catch(e){}
+  }
+  function loadDraft(){
+    var raw = null;
+    try { raw = localStorage.getItem(draftKey); } catch(e){}
+    if (!raw) return;
+    try {
+      var d = JSON.parse(raw);
+      if (d.consent) document.getElementById("consent").checked = true;
+      Object.keys(d.a || {}).forEach(function(k){
+        var el = document.querySelector('textarea[name="'+k+'"]');
+        if (el) el.value = d.a[k];
+      });
+      Object.keys(d.demo || {}).forEach(function(n){
+        var v = d.demo[n];
+        document.querySelectorAll('input[name="'+n+'"]').forEach(function(el){ if (el.value === v) el.checked = true; });
+      });
+      if (d.contact){ var c = document.querySelector('input[name="contact"]'); if (c) c.value = d.contact; }
+      refresh();
+    } catch(e){}
+  }
+  var tm = null;
+  document.addEventListener("input", function(){ clearTimeout(tm); tm = setTimeout(saveDraft, 700); });
+  document.addEventListener("change", function(){ clearTimeout(tm); tm = setTimeout(saveDraft, 200); });
+  loadDraft();
+
+  function collect(){
+    var a = {};
+    for (var i = 1; i <= QN; i++) a["q"+i] = ta(i);
+    return {
+      v: V,
+      consent: !!document.getElementById("consent").checked,
+      demo: {gender:val("gender"), age:val("age"), marital:val("marital"), live:val("live"), city:val("city"), edu:val("edu"), aiUsed:val("aiUsed") === "1"},
+      a: a,
+      contact: (document.querySelector('input[name="contact"]') || {}).value || "",
+      hp: (document.querySelector('input[name="hp"]') || {}).value || "",
+      durationMs: Date.now() - t0,
+      startedAt: startedAt,
+      ua: navigator.userAgent
+    };
+  }
+
+  var sending = false;
+  document.getElementById("submitBtn").addEventListener("click", function(){
+    if (sending) return;
+    var errBox = document.getElementById("submitErr");
+    errBox.style.display = "none";
+    if (!document.getElementById("consent").checked){
+      document.getElementById("consentErr").style.display = "block";
+      window.scrollTo({top:0, behavior:"smooth"});
+      return;
+    }
+    document.getElementById("consentErr").style.display = "none";
+    var c = answeredCount();
+    if (c < MIN_ANSWER){
+      errBox.textContent = "目前答了 " + c + " 题，至少需要 " + MIN_ANSWER + " 题（每题写一两句即可）。";
+      errBox.style.display = "block";
+      return;
+    }
+    var btn = this;
+    sending = true;
+    btn.disabled = true; btn.textContent = "提交中…";
+    fetch("/api/interview", {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body: JSON.stringify(collect())
+    }).then(function(r){ return r.json().then(function(j){ return {ok:r.ok, j:j}; }); })
+      .then(function(res){
+        if (!res.ok || !res.j || !res.j.ok) throw new Error((res.j && res.j.error) || "提交失败");
+        try { localStorage.removeItem(draftKey); } catch(e){}
+        document.getElementById("formArea").style.display = "none";
+        document.getElementById("done").style.display = "block";
+        document.getElementById("doneId").textContent = res.j.id || "已收到";
+        document.querySelector(".submitbar").style.display = "none";
+        window.scrollTo({top:0, behavior:"smooth"});
+      })
+      .catch(function(err){
+        sending = false;
+        btn.disabled = false; btn.textContent = "提交";
+        errBox.textContent = "提交没有成功：" + err.message + "。请稍后重试。";
+        errBox.style.display = "block";
+      });
+  });
+})();
+</script>
+</body>
+</html>

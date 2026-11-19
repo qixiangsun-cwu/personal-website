@@ -1,0 +1,337 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>研究数据管理台</title>
+<style>
+  :root{
+    --ink:#1c1d1f; --muted:#5f6368; --faint:#8a8f98; --line:#e4e5e7;
+    --bg:#fbfbfa; --card:#fff; --accent:#2f5d50; --accent-soft:#eef3f1;
+    --warn:#a8442b; --radius:14px; --shadow:0 1px 2px rgba(20,22,24,.05),0 8px 24px rgba(20,22,24,.06);
+    --sans:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,sans-serif;
+    --serif:"Songti SC","Source Han Serif SC","Noto Serif SC",Georgia,"SimSun",serif;
+    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.65}
+  .wrap{max-width:1080px;margin:0 auto;padding:26px 20px 80px}
+  h1{font-family:var(--serif);font-size:24px;margin:0 0 4px}
+  .sub{color:var(--muted);font-size:13.5px;margin:0 0 20px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px 20px;margin-bottom:16px}
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  input[type=password],input[type=text]{font-family:var(--mono);font-size:14px;padding:9px 12px;border:1px solid var(--line);border-radius:10px;background:#fff;min-width:280px}
+  button{appearance:none;border:0;border-radius:999px;background:var(--accent);color:#fff;font-size:14.5px;font-weight:600;padding:9px 18px;cursor:pointer;font-family:var(--sans)}
+  button.ghost{background:#fff;border:1px solid var(--line);color:var(--ink);font-weight:500}
+  button:disabled{background:#c9cfcc;cursor:not-allowed}
+  a.btn{display:inline-block;border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:999px;padding:8px 16px;font-size:14px;text-decoration:none}
+  a.btn:hover{border-color:var(--accent);color:var(--accent)}
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+  @media(max-width:760px){.stats{grid-template-columns:repeat(2,1fr)}}
+  .stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+  .stat .k{color:var(--muted);font-size:13px}
+  .stat .v{font-size:26px;font-weight:700;font-variant-numeric:tabular-nums}
+  .stat .v small{font-size:13px;color:var(--faint);font-weight:400;margin-left:4px}
+  h2{font-family:var(--serif);font-size:19px;margin:0 0 12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  h2 .count{font-family:var(--sans);font-size:13px;color:var(--muted);font-weight:400}
+  table{width:100%;border-collapse:collapse;font-size:13.5px}
+  th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{color:var(--muted);font-weight:600;font-size:12.5px;white-space:nowrap}
+  tbody tr:hover{background:#fcfcfb}
+  .num{font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
+  .pill{display:inline-block;font-size:12px;padding:1px 8px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+  .pill.g{background:#f0f2f1;color:var(--muted)}
+  .bars{display:grid;gap:6px}
+  .bar{display:grid;grid-template-columns:72px 1fr 46px;gap:8px;align-items:center;font-size:13px}
+  .bar i{display:block;height:10px;border-radius:999px;background:var(--accent-soft);position:relative;overflow:hidden}
+  .bar i b{position:absolute;left:0;top:0;bottom:0;background:var(--accent);border-radius:999px}
+  .bar .n{text-align:right;color:var(--muted);font-variant-numeric:tabular-nums}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media(max-width:860px){.grid2{grid-template-columns:1fr}}
+  .tabs{display:flex;gap:8px;margin:0 0 14px}
+  .tabs button{background:#fff;color:var(--muted);border:1px solid var(--line);font-weight:500}
+  .tabs button.on{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
+  .hint{color:var(--faint);font-size:12.5px;margin-top:6px}
+  .err{color:var(--warn);font-size:13.5px;margin-top:8px}
+  pre{background:#fcfcfb;border:1px solid var(--line);border-radius:10px;padding:12px;font-family:var(--mono);font-size:12px;overflow:auto;max-height:320px;margin:8px 0 0}
+  .hidden{display:none}
+  .kv{display:grid;grid-template-columns:86px 1fr;gap:4px 10px;font-size:13.5px}
+  .kv b{color:var(--muted);font-weight:500}
+  .foot{color:var(--faint);font-size:12.5px;margin-top:18px;text-align:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>研究数据管理台</h1>
+  <p class="sub">「图像大模型的性别化分工预设与人的接受」· 问卷与自填访谈答卷导出。仅研究团队可见，密钥只保存在本机浏览器。</p>
+
+  <div class="card">
+    <div class="row">
+      <input id="key" type="password" placeholder="输入管理密钥" autocomplete="off">
+      <button id="connect">连接</button>
+      <button id="refresh" class="ghost" disabled>刷新</button>
+      <span id="status" class="hint"></span>
+    </div>
+    <div id="err" class="err hidden"></div>
+  </div>
+
+  <div id="panel" class="hidden">
+    <div class="stats">
+      <div class="stat"><div class="k">问卷（有效）</div><div class="v" id="s-count">0<small>份</small></div></div>
+      <div class="stat"><div class="k">访谈（自填）</div><div class="v" id="i-count">0<small>份</small></div></div>
+      <div class="stat"><div class="k">今日新增（问卷）</div><div class="v" id="s-today">0<small>份</small></div></div>
+      <div class="stat"><div class="k">中位数用时（问卷/访谈）</div><div class="v" id="dur">—</div></div>
+    </div>
+
+    <div class="card">
+      <div class="row">
+        <a class="btn" id="s-json" href="#" target="_blank" rel="noopener">问卷 JSON</a>
+        <a class="btn" id="s-csv" href="#">导出问卷 CSV</a>
+        <a class="btn" id="i-json" href="#" target="_blank" rel="noopener">访谈 JSON</a>
+        <a class="btn" id="i-csv" href="#">导出访谈 CSV</a>
+      </div>
+      <div class="hint">CSV 为 UTF-8（含 BOM），Excel 可直接打开；问卷为 4 卡宽表，访谈为 18 题宽表。</div>
+    </div>
+
+    <div class="grid2">
+      <div class="card">
+        <h2>问卷 · 性别分布 <span class="count" id="s-gender-n"></span></h2>
+        <div class="bars" id="s-gender"></div>
+        <h2 style="margin-top:16px">问卷 · 年龄段</h2>
+        <div class="bars" id="s-age"></div>
+      </div>
+      <div class="card">
+        <h2>访谈 · 性别分布 <span class="count" id="i-gender-n"></span></h2>
+        <div class="bars" id="i-gender"></div>
+        <h2 style="margin-top:16px">访谈 · 年龄段</h2>
+        <div class="bars" id="i-age"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>四类建议卡评分（问卷，1–7 均值）</h2>
+      <table>
+        <thead><tr><th>卡片</th><th class="num">n</th><th class="num">公平</th><th class="num">执行</th><th class="num">偏见</th><th class="num">信任</th><th>操纵检验（男/女/均衡）</th></tr></thead>
+        <tbody id="s-cards"></tbody>
+      </table>
+      <div class="hint">卡片：0=刻板·维修主导，1=刻板·照护主导，2=反刻板·维修主导，3=反刻板·照护主导。</div>
+    </div>
+
+    <div class="card">
+      <div class="tabs">
+        <button data-tab="survey" class="on">问卷明细</button>
+        <button data-tab="interview">访谈明细</button>
+      </div>
+      <div id="tab-survey">
+        <table>
+          <thead><tr><th>提交时间</th><th>编号</th><th>性别</th><th>年龄</th><th>AI</th><th class="num">用时</th><th>卡片顺序</th><th></th></tr></thead>
+          <tbody id="s-rows"></tbody>
+        </table>
+      </div>
+      <div id="tab-interview" class="hidden">
+        <table>
+          <thead><tr><th>提交时间</th><th>编号</th><th>性别</th><th>年龄</th><th>婚育</th><th class="num">已答</th><th class="num">字数</th><th></th></tr></thead>
+          <tbody id="i-rows"></tbody>
+        </table>
+      </div>
+      <pre id="detail" class="hidden"></pre>
+    </div>
+  </div>
+
+  <div class="foot">数据仅用于学术研究；导出后请存放在加密目录，不要转发到公共群。</div>
+</div>
+
+<script>
+(function () {
+  const $ = (id) => document.getElementById(id);
+  const state = { key: sessionStorage.getItem('research_admin_key') || '', survey: null, interview: null, tab: 'survey' };
+  const AGE = ['18–24', '25–34', '35–44', '45–54', '55 及以上'];
+  const GENDER = { F: '女', M: '男', O: '其他' };
+
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  }
+  function fmtTime(iso) {
+    if (!iso) return '';
+    const d = new Date(iso);
+    if (isNaN(d)) return iso;
+    const p = (n) => String(n).padStart(2, '0');
+    return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()) + ' ' + p(d.getHours()) + ':' + p(d.getMinutes());
+  }
+  function fmtDur(ms) {
+    const sec = Math.round((Number(ms) || 0) / 1000);
+    if (!sec) return '—';
+    return Math.floor(sec / 60) + '′' + String(sec % 60).padStart(2, '0') + '″';
+  }
+  function median(arr) {
+    const a = arr.filter((x) => Number(x) > 0).sort((x, y) => x - y);
+    if (!a.length) return 0;
+    const m = Math.floor(a.length / 2);
+    return a.length % 2 ? a[m] : Math.round((a[m - 1] + a[m]) / 2);
+  }
+  function setStatus(msg) { $('status').textContent = msg || ''; }
+  function showErr(msg) {
+    const el = $('err');
+    if (!msg) { el.classList.add('hidden'); el.textContent = ''; return; }
+    el.textContent = msg; el.classList.remove('hidden');
+  }
+
+  async function api(path, key) {
+    const url = '/api/' + path + '?key=' + encodeURIComponent(key);
+    const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
+    let body = null;
+    try { body = await res.json(); } catch (e) { body = null; }
+    if (!res.ok || !body || body.ok !== true) {
+      const reason = (body && body.error) || ('HTTP ' + res.status);
+      throw new Error(reason === 'unauthorized' ? '密钥不正确' : ('读取失败：' + reason));
+    }
+    return body;
+  }
+
+  function bar(label, n, total) {
+    const pct = total ? Math.round((n / total) * 100) : 0;
+    return '<div class="bar"><span>' + esc(label) + '</span><i><b style="width:' + pct + '%"></b></i><span class="n">' + n + '</span></div>';
+  }
+
+  function renderSurvey(body) {
+    state.survey = body;
+    const items = body.items || [];
+    $('s-count').innerHTML = items.length + '<small>份</small>';
+    const now = new Date(); const today = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
+    $('s-today').innerHTML = items.filter((x) => String(x.createdAt || '').slice(0, 10) === today).length + '<small>份</small>';
+
+    const g = { F: 0, M: 0, O: 0 };
+    const age = {};
+    items.forEach((it) => {
+      const d = it.data || {};
+      g[d.gender] = (g[d.gender] || 0) + 1;
+      age[d.age] = (age[d.age] || 0) + 1;
+    });
+    $('s-gender-n').textContent = 'n=' + items.length;
+    $('s-gender').innerHTML = Object.keys(g).map((k) => bar(GENDER[k] || k, g[k] || 0, items.length)).join('');
+    $('s-age').innerHTML = ['1', '2', '3', '4', '5'].map((k) => bar(AGE[Number(k) - 1], age[k] || 0, items.length)).join('');
+
+    // 四卡均值
+    const rows = [0, 1, 2, 3].map((i) => {
+      const cs = items.map((it) => ((it.data || {}).cards || []).find((c) => c.i === i)).filter(Boolean);
+      const avg = (k) => cs.length ? (cs.reduce((s, c) => s + (Number(c[k]) || 0), 0) / cs.length) : 0;
+      const manip = { male: 0, female: 0, balanced: 0 };
+      cs.forEach((c) => { manip[c.manip] = (manip[c.manip] || 0) + 1; });
+      const m = '男 ' + manip.male + ' / 女 ' + manip.female + ' / 均衡 ' + manip.balanced;
+      const name = ['0 刻板·维修主导', '1 刻板·照护主导', '2 反刻板·维修主导', '3 反刻板·照护主导'][i];
+      return '<tr><td>' + esc(name) + '</td><td class="num">' + cs.length + '</td>' +
+        [avg('fair'), avg('follow'), avg('bias'), avg('trust')].map((v) => '<td class="num">' + (cs.length ? v.toFixed(2) : '—') + '</td>').join('') +
+        '<td>' + esc(m) + '</td></tr>';
+    });
+    $('s-cards').innerHTML = rows.join('');
+
+    $('s-rows').innerHTML = items.slice(0, 50).map((it) => {
+      const d = it.data || {};
+      return '<tr><td>' + fmtTime(it.createdAt) + '</td><td><span class="pill">' + esc(it.id) + '</span></td><td>' + esc(GENDER[d.gender] || d.gender || '') + '</td>' +
+        '<td>' + esc(AGE[Number(d.age) - 1] || d.age || '') + '</td><td>' + (d.aiUsed ? '用过' : '没用过') + '</td>' +
+        '<td class="num">' + fmtDur(d.durationMs) + '</td><td>' + esc((d.order || []).join('→')) + '</td>' +
+        '<td><a class="btn" href="#" data-detail="survey:' + esc(it.id) + '">详情</a></td></tr>';
+    }).join('') || '<tr><td colspan="8" class="hint">暂无数据</td></tr>';
+
+    const q = state.key;
+    $('s-json').href = '/api/survey?key=' + encodeURIComponent(q);
+    $('s-csv').href = '/api/survey?key=' + encodeURIComponent(q) + '&format=csv';
+  }
+
+  function renderInterview(body) {
+    state.interview = body;
+    const items = body.items || [];
+    $('i-count').innerHTML = items.length + '<small>份</small>';
+
+    const g = { F: 0, M: 0, O: 0 };
+    const age = {};
+    items.forEach((it) => {
+      const d = (it.data || {}).demo || {};
+      g[d.gender] = (g[d.gender] || 0) + 1;
+      age[d.age] = (age[d.age] || 0) + 1;
+    });
+    $('i-gender-n').textContent = 'n=' + items.length;
+    $('i-gender').innerHTML = Object.keys(g).map((k) => bar(GENDER[k] || k, g[k] || 0, items.length)).join('');
+    $('i-age').innerHTML = ['1', '2', '3', '4', '5'].map((k) => bar(AGE[Number(k) - 1], age[k] || 0, items.length)).join('');
+
+    $('i-rows').innerHTML = items.slice(0, 50).map((it) => {
+      const d = it.data || {};
+      const m = d.demo || {};
+      const a = d.a || {};
+      const answered = Object.keys(a).filter((k) => (a[k] || '').trim()).length;
+      const chars = Object.keys(a).reduce((s, k) => s + (a[k] || '').length, 0);
+      return '<tr><td>' + fmtTime(it.createdAt) + '</td><td><span class="pill g">' + esc(it.id) + '</span></td><td>' + esc(GENDER[m.gender] || m.gender || '') + '</td>' +
+        '<td>' + esc(AGE[Number(m.age) - 1] || m.age || '') + '</td><td>' + esc(m.marital || '') + '</td>' +
+        '<td class="num">' + answered + '/18</td><td class="num">' + chars + '</td>' +
+        '<td><a class="btn" href="#" data-detail="interview:' + esc(it.id) + '">详情</a></td></tr>';
+    }).join('') || '<tr><td colspan="8" class="hint">暂无数据</td></tr>';
+
+    const q = state.key;
+    $('i-json').href = '/api/interview?key=' + encodeURIComponent(q);
+    $('i-csv').href = '/api/interview?key=' + encodeURIComponent(q) + '&format=csv';
+  }
+
+  function renderDur() {
+    const s = ((state.survey || {}).items || []).map((x) => (x.data || {}).durationMs);
+    const i = ((state.interview || {}).items || []).map((x) => (x.data || {}).durationMs);
+    $('dur').innerHTML = (s.length ? fmtDur(median(s)) : '—') + ' / ' + (i.length ? fmtDur(median(i)) : '—');
+  }
+
+  async function load(showMsg) {
+    if (!state.key) { showErr('请先输入管理密钥'); return; }
+    setStatus('读取中…');
+    showErr('');
+    try {
+      const [s, i] = await Promise.all([api('survey', state.key), api('interview', state.key)]);
+      renderSurvey(s);
+      renderInterview(i);
+      renderDur();
+      $('panel').classList.remove('hidden');
+      $('refresh').disabled = false;
+      setStatus('已连接 · 存储 ' + (s.storage || i.storage || '') + ' · ' + new Date().toLocaleTimeString());
+      sessionStorage.setItem('research_admin_key', state.key);
+    } catch (e) {
+      showErr(e.message || '读取失败');
+      setStatus('');
+    }
+  }
+
+  $('connect').addEventListener('click', () => {
+    state.key = $('key').value.trim();
+    load(true);
+  });
+  $('key').addEventListener('keydown', (e) => { if (e.key === 'Enter') { state.key = $('key').value.trim(); load(true); } });
+  $('refresh').addEventListener('click', () => load(false));
+
+  document.addEventListener('click', (e) => {
+    const a = e.target.closest('[data-detail]');
+    if (a) {
+      e.preventDefault();
+      const item = a.getAttribute('data-detail');
+      const [kind, id] = item.split(':');
+      const bag = kind === 'survey' ? (state.survey || {}).items : (state.interview || {}).items;
+      const found = (bag || []).find((x) => x.id === id);
+      const pre = $('detail');
+      pre.textContent = found ? JSON.stringify(found, null, 2) : '未找到';
+      pre.classList.remove('hidden');
+      pre.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      return;
+    }
+    const t = e.target.closest('.tabs button');
+    if (t) {
+      state.tab = t.getAttribute('data-tab');
+      document.querySelectorAll('.tabs button').forEach((b) => b.classList.toggle('on', b === t));
+      $('tab-survey').classList.toggle('hidden', state.tab !== 'survey');
+      $('tab-interview').classList.toggle('hidden', state.tab !== 'interview');
+      $('detail').classList.add('hidden');
+    }
+  });
+
+  if (state.key) { $('key').value = state.key; load(false); }
+})();
+</script>
+</body>
+</html>
+
+
