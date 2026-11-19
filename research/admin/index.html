@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="utf-8">
@@ -136,6 +136,7 @@
         </table>
       </div>
       <pre id="detail" class="hidden"></pre>
+      <div id="detail-actions" class="row hidden" style="margin-top:8px"></div>
     </div>
   </div>
 
@@ -304,7 +305,7 @@
   $('key').addEventListener('keydown', (e) => { if (e.key === 'Enter') { state.key = $('key').value.trim(); load(true); } });
   $('refresh').addEventListener('click', () => load(false));
 
-  document.addEventListener('click', (e) => {
+  document.addEventListener('click', async (e) => {
     const a = e.target.closest('[data-detail]');
     if (a) {
       e.preventDefault();
@@ -315,7 +316,28 @@
       const pre = $('detail');
       pre.textContent = found ? JSON.stringify(found, null, 2) : '未找到';
       pre.classList.remove('hidden');
+      const acts = $('detail-actions');
+      acts.innerHTML = found ? '<button class="ghost" data-del="' + esc(kind) + ':' + esc(id) + '">删除这条（测试数据）</button>' : '';
+      acts.classList.toggle('hidden', !found);
       pre.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      return;
+    }
+    const del = e.target.closest('[data-del]');
+    if (del) {
+      e.preventDefault();
+      const [kind, id] = del.getAttribute('data-del').split(':');
+      if (!confirm('确定删除 ' + id + ' ？删除后不可恢复。')) return;
+      try {
+        const res = await fetch('/api/' + kind + '?key=' + encodeURIComponent(state.key) + '&id=' + encodeURIComponent(id), { method: 'DELETE' });
+        const body = await res.json().catch(() => null);
+        if (!res.ok || !body || !body.ok) throw new Error((body && body.error) || ('HTTP ' + res.status));
+        $('detail').classList.add('hidden');
+        $('detail-actions').classList.add('hidden');
+        await load(false);
+        setStatus('已删除 ' + id + ' · 剩余 ' + body.count);
+      } catch (err) {
+        showErr('删除失败：' + (err.message || err));
+      }
       return;
     }
     const t = e.target.closest('.tabs button');

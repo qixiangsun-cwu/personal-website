@@ -185,6 +185,18 @@ export async function onRequest(context) {
       return json({ ok: true, count: items.length, storage: store.kind, items }, 200);
     }
 
+    if (request.method === 'DELETE') {
+      if (!(await authorized(withHash, url.searchParams.get('key') || ''))) {
+        return fail('unauthorized', 401);
+      }
+      const id = url.searchParams.get('id') || '';
+      if (!/^[A-Za-z0-9-]{6,40}$/.test(id)) return fail('bad_id', 400);
+      const store = makeStore(env, 'survey');
+      if (!store) return fail('storage_unbound', 503);
+      await store.delete(id);
+      return json({ ok: true, deleted: id, count: await store.count(), storage: store.kind }, 200);
+    }
+
     return fail('method_not_allowed', 405);
   } catch (err) {
     console.error('[survey] 处理失败', err && err.stack ? err.stack : err);

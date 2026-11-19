@@ -94,6 +94,10 @@ export function makeStore(env, kind) {
         const row = await db.prepare(`SELECT COUNT(*) AS n FROM ${tableFor(kind)}`).first();
         return row ? Number(row.n) : 0;
       },
+      async delete(id) {
+        await ensureD1(db, kind);
+        await db.prepare(`DELETE FROM ${tableFor(kind)} WHERE id=?`).bind(id).run();
+      },
     };
   }
   if (kv) {
@@ -128,6 +132,16 @@ export function makeStore(env, kind) {
           cursor = page.list_complete ? undefined : page.cursor;
         } while (cursor);
         return n;
+      },
+      async delete(id) {
+        let cursor;
+        do {
+          const page = await kv.list({ prefix, cursor });
+          for (const k of page.keys) {
+            if (k.name.endsWith(':' + id)) await kv.delete(k.name);
+          }
+          cursor = page.list_complete ? undefined : page.cursor;
+        } while (cursor);
       },
     };
   }
