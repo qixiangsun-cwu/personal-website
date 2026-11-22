@@ -46,8 +46,12 @@ const D1_STATEMENTS = {
     'CREATE TABLE IF NOT EXISTS interview_responses (id TEXT PRIMARY KEY, created_at TEXT NOT NULL, ip_hash TEXT, ua TEXT, data TEXT NOT NULL)',
     'CREATE INDEX IF NOT EXISTS idx_interview_created ON interview_responses(created_at)',
   ],
+  annotate: [
+    'CREATE TABLE IF NOT EXISTS ann_responses (id TEXT PRIMARY KEY, created_at TEXT NOT NULL, ip_hash TEXT, ua TEXT, data TEXT NOT NULL)',
+    'CREATE INDEX IF NOT EXISTS idx_ann_created ON ann_responses(created_at)',
+  ],
 };
-const ready = { survey: false, interview: false };
+const ready = { survey: false, interview: false, annotate: false };
 
 async function ensureD1(db, kind) {
   if (ready[kind]) return;
@@ -55,8 +59,13 @@ async function ensureD1(db, kind) {
   ready[kind] = true;
 }
 
+const TABLES = {
+  survey: 'survey_responses',
+  interview: 'interview_responses',
+  annotate: 'ann_responses',
+};
 function tableFor(kind) {
-  return kind === 'survey' ? 'survey_responses' : 'interview_responses';
+  return TABLES[kind] || 'survey_responses';
 }
 
 /* ---------------- 存储适配层 ---------------- */
