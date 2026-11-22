@@ -1,0 +1,56 @@
+# 智语外呼 · 语音外呼客服数字员工（Cloudflare Workers 版）
+# 独立 Worker 项目：主域 student-competitions.qixiangsun.com.cn（www 走 _redirects 301）
+# 前端三页（admin / merchant / rag）按交付包原样注入，不做任何修改。
+name = "cwu-zhiyu"
+main = "src/index.js"
+compatibility_date = "2025-07-18"
+compatibility_flags = ["nodejs_compat"]
+workers_dev = true
+send_metrics = false
+
+routes = [
+  { pattern = "student-competitions.qixiangsun.com.cn/*", zone_name = "qixiangsun.com.cn" },
+  { pattern = "qixiangsun.com.cn/ziyu/*", zone_name = "qixiangsun.com.cn" }
+]
+
+[observability]
+enabled = true
+
+# 真实业务库（来自交付包 data/zhiyu.db，1593 行真实数据）
+[[d1_databases]]
+binding = "DB"
+database_name = "cwu-zhiyu-db"
+database_id = "b3cf1f83-cf05-4473-82be-5dffc7b685e5"
+
+# 每通电话一个 Durable Object：内存态（字幕/纪元/打断门）跨实例一致
+[[durable_objects.bindings]]
+name = "CALL_ROOM"
+class_name = "CallRoom"
+
+# 运营后台 /ws/monitor 实时事件总线
+[[durable_objects.bindings]]
+name = "MONITOR_BUS"
+class_name = "MonitorBus"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["CallRoom", "MonitorBus"]
+
+# 智谱 GLM（LLM / TTS 兜底）
+[vars]
+ZHIPU_MODEL = "glm-4-flashx"
+ZHIPU_BASE_URL = "https://open.bigmodel.cn/api/paas/v4"
+# 火山引擎流式 ASR / TTS
+VOLCANO_ASR_URL = "wss://openspeech.bytedance.com/api/v3/sauc/bigmodel_async"
+VOLCANO_RESOURCE_ID = "volc.seedasr.sauc.duration"
+VOLCANO_TTS_URL = "https://openspeech.bytedance.com/api/v3/tts/unidirectional/sse"
+VOLCANO_TTS_RESOURCE_ID = "seed-tts-2.0"
+VOLCANO_TTS_SPEAKER = "ICL_uranus_zh_female_kefunvshengwenhecuishou_tob"
+ENGINEER_BASE_URL = "https://ws-qssy961mb1xnbaip.cn-beijing.maas.aliyuncs.com/compatible-mode/v1"
+ENGINEER_MODEL = "qwen3.7-plus"
+TTS_BACKEND = "volcano"
+# WebRTC 媒体面在 Worker 上不可用（UDP/DTLS 不可出站），保持 WS PCM 链路
+ZHIYU_WEBRTC = "0"
+
+# 密钥（用 wrangler secret put 写入，绝不进仓库）：
+#   ZHIPU_API_KEY / VOLCANO_APP_KEY / VOLCANO_TTS_API_KEY / ENGINEER_API_KEY

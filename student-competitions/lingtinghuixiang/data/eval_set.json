@@ -1,0 +1,48 @@
+{
+  "_meta": {
+    "name": "智语外呼 · 自建评测集 v1",
+    "built_at": "2026-11-21",
+    "why": "赛题要求提交「自建评测集说明 + 原始日志 + RSI 迭代前后对比数据」。本文件同时充当三件事：(1) 意图识别准确率的度量基准；(2) 槽位填充的训练/评测种子；(3) 规则层与模型层决策分歧的对照样本。",
+    "source": "全部条目人工摘自组委会资料，非模型生成：高频QA 11 条来自《驳回外呼QA.xlsx·高频QA》；追问 14 条来自《驳回外呼QA.xlsx·特殊场景》C 列商家后续咨询；另含 5 条对抗性变体（口径见 note 字段）。",
+    "label_rule": "qtype 按《赛题数据说明》第五节给出的五类追问标注：操作路径 / 门槛标准 / 质疑合理性 / 知识来源 / 结果预期。gold_intent 固定为 new_question（这些都是商家在追问，不是「已理解无新问题」）。",
+    "not_answerable": "gold_answer 为空表示该条在组委会原始数据里就没有答案（或原答案断句残缺），评测时只计入意图/槽位，不计入答案正确率。"
+  },
+  "items": [
+    {"id": "qa-01", "text": "如何上传联系方式", "qtype": "操作路径", "gold_intent": "new_question", "material": "授权书", "gold_answer": "可在单据中授权书位置上传"},
+    {"id": "qa-02", "text": "你们是和谁核实的", "qtype": "知识来源", "gold_intent": "new_question", "material": "其他", "gold_answer": "若是企微/邮箱，可告知授权方企微/邮箱名；号码不支持告知全号"},
+    {"id": "qa-03", "text": "在职证明有哪些", "qtype": "门槛标准", "gold_intent": "new_question", "material": "授权书", "gold_answer": "尽量提供有企微认证或与官方邮箱后缀一致的邮箱"},
+    {"id": "qa-04", "text": "店铺名怎么更改", "qtype": "操作路径", "gold_intent": "new_question", "material": "店铺名称", "gold_answer": "京麦后台-找客服-创建咨询单（问题类型选店铺运营类/修改店铺名称）"},
+    {"id": "qa-05", "text": "授权书里面京东非要改为京东全球购吗", "qtype": "质疑合理性", "gold_intent": "new_question", "material": "授权书", "gold_answer": "是的，需要重新提供授权，授权平台需要为京东全球购"},
+    {"id": "qa-06", "text": "什么情况下需要提供银行流水", "qtype": "门槛标准", "gold_intent": "new_question", "material": "流水", "gold_answer": "形式发票、小票、日本发票及部分网站采购记录需要提供银行流水"},
+    {"id": "qa-07", "text": "发票必须要盖开店公司公章吗", "qtype": "门槛标准", "gold_intent": "new_question", "material": "公章", "gold_answer": "全球购提供的发票、流水等材料均需要加盖开店公司的公章"},
+    {"id": "qa-08", "text": "商标持有人要和品牌库持有人一样吗", "qtype": "门槛标准", "gold_intent": "new_question", "material": "商标注册证", "gold_answer": "需要提供与品牌信息一致的商标文件"},
+    {"id": "qa-09", "text": "从专柜拿货算是追溯到品牌持有人吗", "qtype": "门槛标准", "gold_intent": "new_question", "material": "授权书", "gold_answer": "不算，专柜销售不一定是持有人在销售的"},
+    {"id": "qa-10", "text": "发票有效期不是6个月吗，为什么需要3个月内的", "qtype": "质疑合理性", "gold_intent": "new_question", "material": "发票", "gold_answer": "按品类分档：酒类等12个月，时尚类6个月，其余一级类目3个月以内"},
+    {"id": "qa-11", "text": "是不是我只要提供你们要的发票或授权书就能通过了", "qtype": "结果预期", "gold_intent": "new_question", "material": "发票", "gold_answer": "具体能否通过需要审核完整材料后才能确定"},
+
+    {"id": "sp-01", "text": "那怎么样才可以申请这个类目", "qtype": "门槛标准", "gold_intent": "new_question", "material": "类目", "gold_answer": "B类资质：每级未冲红发票单品牌二级类目分类数量累计≥10件或≥1吨"},
+    {"id": "sp-02", "text": "数量要求多少", "qtype": "门槛标准", "gold_intent": "new_question", "material": "发票", "gold_answer": "单品牌累计商品数量≥10件或末级发票累计金额≥2000元（京喜C店特批）"},
+    {"id": "sp-03", "text": "我在哪可以查询到这个商标状态", "qtype": "知识来源", "gold_intent": "new_question", "material": "商标注册证", "gold_answer": "可在国家商标网查询商标状态"},
+    {"id": "sp-04", "text": "我怎么知道这个是图形还是文字商标", "qtype": "知识来源", "gold_intent": "new_question", "material": "商标注册证", "gold_answer": "在权大师搜索商标注册号，文字商标会显示名称，图形商标会直接显示图形"},
+    {"id": "sp-05", "text": "这个商标是注册状态呀", "qtype": "质疑合理性", "gold_intent": "new_question", "material": "商标注册证", "gold_answer": ""},
+    {"id": "sp-06", "text": "这个我补上来了就可以通过了吗", "qtype": "结果预期", "gold_intent": "new_question", "material": "授权书", "gold_answer": "是否通过要在审核完整材料后才能确定"},
+    {"id": "sp-07", "text": "已经有授权书了还不行吗", "qtype": "质疑合理性", "gold_intent": "new_question", "material": "授权书", "gold_answer": "个人持有的品牌还需补充持有人身份证复印件并签字捺印"},
+    {"id": "sp-08", "text": "给我授权的就是品牌的正规经销商不行吗", "qtype": "质疑合理性", "gold_intent": "new_question", "material": "授权书", "gold_answer": "需要提供从品牌方到您公司的完整链路授权书"},
+    {"id": "sp-09", "text": "可是我这个是品牌方固定的模板，没办法按照你们的模板开的", "qtype": "质疑合理性", "gold_intent": "new_question", "material": "授权书", "gold_answer": "无法按模板开具的，建议联系运营做特殊报备后重新提交"},
+    {"id": "sp-10", "text": "在哪里修改", "qtype": "操作路径", "gold_intent": "new_question", "material": "类目", "gold_answer": "申请单驳回后，在销售授权书位置选择有经营限制并勾选对应类目后重新提交"},
+    {"id": "sp-11", "text": "我就要经营这些类目怎么办", "qtype": "操作路径", "gold_intent": "new_question", "material": "类目", "gold_answer": "联系品牌方再授权这些类目所需的对应类商标"},
+    {"id": "sp-12", "text": "你们联系的谁", "qtype": "知识来源", "gold_intent": "new_question", "material": "授权书", "gold_answer": "通过指定渠道联系的授权方，您也可以提供其他联系方式上传至单据"},
+    {"id": "sp-13", "text": "我这明明是真的授权，怎么会不属实呢", "qtype": "质疑合理性", "gold_intent": "new_question", "material": "授权书", "gold_answer": "建议联系品牌方确认信息是否同步，确认无误后重新提交，我们会重新核实"},
+    {"id": "sp-14", "text": "我想两个品牌都经营可以吗", "qtype": "门槛标准", "gold_intent": "new_question", "material": "品牌", "gold_answer": "旗舰店/专卖店仅支持申请一个持有人名下的品牌，多持有人需改专营店"},
+
+    {"id": "adv-01", "text": "静脉是啥", "qtype": "知识来源", "gold_intent": "new_question", "material": "品牌", "gold_answer": "（对抗性变体：ASR 把「京麦」误转成「静脉」，考察同音归一后仍能正确答疑）", "note": "ASR 同音对抗"},
+    {"id": "adv-02", "text": "我上次不是已经交过材料了吗，怎么还要补", "qtype": "质疑合理性", "gold_intent": "new_question", "material": "其他", "gold_answer": "", "note": "历史材料争议，需先查工单再答"},
+    {"id": "adv-03", "text": "那要是补了还是过不了呢", "qtype": "结果预期", "gold_intent": "new_question", "material": "其他", "gold_answer": "具体以审核完整材料的结果为准", "note": "追问式结果预期，不能说包过"},
+    {"id": "adv-04", "text": "后台上传的口在哪来着", "qtype": "操作路径", "gold_intent": "new_question", "material": "其他", "gold_answer": "登录京麦后台，按驳回意见在对应材料位置重新上传", "note": "口语化操作路径"},
+    {"id": "adv-05", "text": "你这个规定是哪来的，京东哪条规则写的", "qtype": "知识来源", "gold_intent": "new_question", "material": "其他", "gold_answer": "依据京东开放平台招商资质标准，可在京麦后台查看驳回意见与规则说明", "note": "规则溯源追责式提问"},
+
+    {"id": "neg-01", "text": "京麦驳回", "qtype": "", "gold_intent": "other", "material": "其他", "gold_answer": "", "note": "组委会数据噪声：这列混入的「京麦驳回」是场景标记，不是商家提问，不应被当成追问"},
+    {"id": "neg-02", "text": "好的，我都明白了，没有别的疑问了", "qtype": "", "gold_intent": "confirmed_understood", "material": "其他", "gold_answer": "", "note": "反例：收束语，不能判成追问"},
+    {"id": "neg-03", "text": "嗯……这样啊", "qtype": "", "gold_intent": "hesitant", "material": "其他", "gold_answer": "", "note": "反例：含糊，不能判成追问"}
+  ]
+}

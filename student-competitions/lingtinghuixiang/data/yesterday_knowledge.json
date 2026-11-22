@@ -1,0 +1,412 @@
+[
+ {
+  "source": "policy",
+  "title": "标准口径 · refuse_followup",
+  "content": "商家问：我不改了 / 我不补了 / 你们也管不了我吧\n客服答：商家拒绝整改时：先说明具体处理方式以后台审核结果和平台规则为准、不能替审核下结论，如实记到工单；再追问原因——情绪宣泄先安慰、给出具体原因正面接住，随后询问是否愿意整改；仍拒绝则如实记录并标「拒绝整改型」。同一通电话累计3次找茬即礼貌收线，标记非任务结束、不计业务闭环。\n禁用：严禁替审核下结论、严禁恐吓「关店罚款」；追问原因时不得纠缠，仍拒绝即如实记录标「拒绝整改型」，不得反复施压。",
+  "meta": {
+   "kind": "standard_policy",
+   "origin": "policy_chunks.py",
+   "managed_by": "import_yesterday_knowledge.py"
+  }
+ },
+ {
+  "source": "policy",
+  "title": "标准口径 · scam_verify",
+  "content": "商家问：你是来诈骗的吗 / 你们是骗子吧 / 想套我资料\n客服答：商家质疑诈骗时：亮明京东商家资质审核专员官方身份、说明明细仅电话说明、不索要任何账号资料，给出官方核验渠道（京麦后台或商家服务热线）；随后询问是否愿意相信——愿意则继续业务，不信则引导人工服务热线。累计3次即礼貌收线。\n禁用：严禁索要账号密码验证码等任何资料；严禁为自证而承诺回拨或私下联系；不信则引导官方人工热线，不得争吵。",
+  "meta": {
+   "kind": "standard_policy",
+   "origin": "policy_chunks.py",
+   "managed_by": "import_yesterday_knowledge.py"
+  }
+ },
+ {
+  "source": "policy",
+  "title": "标准口径 · pushback_close",
+  "content": "商家问：同一通电话反复找茬累计3次\n客服答：同一通电话反复找茬（拒绝整改/质疑诈骗）累计3次，播礼貌结束语：说明暂无法继续核对、引导京麦后台整改或拨打商家服务热线，感谢接听后结束；标记非任务结束，不计业务闭环，与闲聊第4次收线同结构。\n禁用：严禁在第3次前提前挂断或恐吓；结束语须引导京麦后台/商家服务热线并致谢，标记非任务结束、不计业务闭环。",
+  "meta": {
+   "kind": "standard_policy",
+   "origin": "policy_chunks.py",
+   "managed_by": "import_yesterday_knowledge.py"
+  }
+ },
+ {
+  "source": "policy",
+  "title": "标准口径 · platform_what",
+  "content": "商家问：京麦是什么 / 京麦是干嘛的 / 京麦有什么用\n客服答：京麦就是京东商家后台（商家工作台）：在处理审核、驳回、整改、资质提交时，商家登录京麦后台就能看到本次驳回原因、需要补的材料和重新提交入口。明细我这边只能电话说明，不索要账号资料。\n禁用：严禁把「京麦」解释成与业务无关的事物（如中医经络）或编造系统能力；只能说明它是京东商家后台（商家工作台），并引导到驳回意见/材料/重新提交入口。",
+  "meta": {
+   "kind": "standard_policy",
+   "origin": "policy_chunks.py",
+   "managed_by": "import_yesterday_knowledge.py"
+  }
+ },
+ {
+  "source": "policy",
+  "title": "标准口径 · platform_login",
+  "content": "商家问：京麦在哪登录 / 怎么登录 / 登不上\n客服答：登录入口：电脑端打开京东商家后台（京麦），用店铺账号登录，在「资质/品牌」相关入口查看驳回意见并重新提交；登录遇到问题可拨打京东商家服务热线4006180092。\n禁用：严禁索要或指导提供账号密码、验证码；不得承诺代为登录或代为操作，登录异常引导商家服务热线。",
+  "meta": {
+   "kind": "standard_policy",
+   "origin": "policy_chunks.py",
+   "managed_by": "import_yesterday_knowledge.py"
+  }
+ },
+ {
+  "source": "policy",
+  "title": "标准口径 · platform_submit",
+  "content": "商家问：京麦怎么提交 / 在哪重新提交 / 提交不了\n客服答：重新提交路径：登录京麦商家后台 → 找到本次驳回的资质/品牌条目 → 按驳回意见补齐材料 → 上传后提交，等待审核；提交后是否成功以后台记录为准，我这边不能替您确认结果。\n禁用：严禁承诺提交后一定通过或给出具体审核天数；不得说「我帮您提交」，只能说明路径与以后台记录为准。",
+  "meta": {
+   "kind": "standard_policy",
+   "origin": "policy_chunks.py",
+   "managed_by": "import_yesterday_knowledge.py"
+  }
+ },
+ {
+  "source": "qa",
+  "title": "费用 · 资质审核收不收费",
+  "content": "商家问：资质审核要收费吗？是不是交钱就能过？\n客服答：资质审核本身不收取任何费用，也没有年费、审核费，更不需要交钱加快；审核只看材料是否符合平台要求。\n边界：保证金、平台使用费、技术服务费属于入驻协议范畴，按您签署的协议和类目标准执行，具体金额请以京麦「费用中心」的账单为准，我不在电话里报数字，避免和账单不一致。",
+  "meta": {
+   "kind": "kb_extra",
+   "origin": "kb_extra.py",
+   "managed_by": "import_yesterday_knowledge.py"
+  }
+ },
+ {
+  "source": "qa",
+  "title": "费用 · 保证金与退还",
+  "content": "商家问：保证金要交多少？什么时候能退？\n客服答：保证金按类目标准和您签署的协议执行，金额在京麦「费用中心 / 保证金」里能查到；退店或类目调整后的退还，按协议约定的流程和周期走，需要您在京麦提交退保证金申请。\n边界：我不在电话里报具体金额和到账天数，以京麦账单和协议为准。",
+  "meta": {
+   "kind": "kb_extra",
+   "origin": "kb_extra.py",
+   "managed_by": "import_yesterday_knowledge.py"
+  }
+ },
+ {
+  "source": "qa",
+  "title": "费用 · 账期结算与发票",
+  "content": "商家问：账期能不能提前？结算周期几天？发票怎么开？\n客服答：结算周期和账期以您签署的协议为准，在京麦「结算管理」里能看到每期账单；发票在京麦「发票管理」里申请，开票主体和资质主体要保持一致。\n边界：账期调整不属于资质审核环节，需要联系商家服务热线或对接的运营。",
+  "meta": {
+   "kind": "kb_extra",
+   "origin": "kb_extra.py",
+   "managed_by": "import_yesterday_knowledge.py"
+  }
+ },
+ {
+  "source": "qa",
+  "title": "时效 · 超时没审怎么办",
+  "content": "商家问：提交好几天了还没审，是不是卡住了？\n客服答：审核按提交顺序排队，时效以京麦后台显示的进度为准；如果状态长时间没变化，可以在京麦「资质管理」里看是否有补充材料通知，或拨打商家服务热线让客服帮您查单。\n边界：我不能承诺具体哪天出结果，也不能代替审核催单。",
+  "meta": {
+   "kind": "kb_extra",
+   "origin": "kb_extra.py",
+   "managed_by": "import_yesterday_knowledge.py"
+  }
+ },
+ {
+  "source": "qa",
+  "title": "提交 · 只能线上提交，没有线下通道",
+  "content": "商家问：能不能线下提交？我把材料送过去行不行？\n客服答：资质材料只能通过京麦后台在线上提交，没有线下收材料的通道；纸质材料即使送到，也不会进入审核流程。\n边界：线上提交后以京麦显示的提交状态为准，提交成功会有记录。",
+  "meta": {
+   "kind": "kb_extra",
+   "origin": "kb_extra.py",
+   "managed_by": "import_yesterday_knowledge.py"
+  }
+ },
+ {
+  "source": "qa",
+  "title": "提交 · 京麦登录、入口与撤销重提",
+  "content": "商家问：京麦怎么登录？上传入口在哪？提交错了能撤销吗？\n客服答：京麦用开店时注册的账号登录，登录后在「资质管理 / 我的资质」里找到对应类目，点「修改」就能重新上传；提交后在审核完成前一般可以撤销或重新提交，以页面按钮为准。\n边界：账号密码找回要走京麦登录页的找回流程，我不能在电话里处理账号密码。",
+  "meta": {
+   "kind": "kb_extra",
+   "origin": "kb_extra.py",
+   "managed_by": "import_yesterday_knowledge.py"
+  }
+ },
+ {
+  "source": "qa",
+  "title": "类目 · 食品类需要什么资质",
+  "content": "商家问：卖食品需要什么证？\n客服答：预包装食品需要食品经营许可证（或食品生产许可证，看您是自产还是经销），证上的经营项目要覆盖您要卖的类目；进口食品还要报关单和中文标签。\n边界：具体到某个细分类目要不要额外资质，以京麦该类目招商标准为准。",
+  "meta": {
+   "kind": "kb_extra",
+   "origin": "kb_extra.py",
+   "managed_by": "import_yesterday_knowledge.py"
+  }
+ },
+ {
+  "source": "qa",
+  "title": "类目 · 化妆品需要什么资质",
+  "content": "商家问：卖化妆品要备案吗？\n客服答：国产普通化妆品要有备案凭证，特殊用途化妆品（防晒、染发、祛斑等）要有注册批件；进口化妆品还要报关单和中文标签。\n边界：备案号可以在国家药监局网站核验，我这边不替您判断备案是否有效。",
+  "meta": {
+   "kind": "kb_extra",
+   "origin": "kb_extra.py",
+   "managed_by": "import_yesterday_knowledge.py"
+  }
+ },
+ {
+  "source": "qa",
+  "title": "类目 · 3C 认证要求",
+  "content": "商家问：卖手机、电器、玩具需要 3C 吗？要原件吗？\n客服答：属于强制性产品认证目录的商品必须有 3C 证书，证书上的申请人/制造商要和您提交的主体、品牌对得上；提交扫描件即可，不需要寄原件，但扫描件要清晰完整、在有效期内。\n边界：某个具体型号是否在目录内，以证书和产品说明为准，我不做目录判定。",
+  "meta": {
+   "kind": "kb_extra",
+   "origin": "kb_extra.py",
+   "managed_by": "import_yesterday_knowledge.py"
+  }
+ },
+ {
+  "source": "qa",
+  "title": "类目 · 医疗器械需要什么资质",
+  "content": "商家问：卖医疗器械需要几类证？\n客服答：一类器械一般需要备案凭证，二类需要经营备案（部分产品还要二类经营备案凭证），三类需要医疗器械经营许可证；同时营业执照经营范围要含医疗器械销售。\n边界：具体产品属于几类，以产品注册证/备案凭证上的类别为准。",
+  "meta": {
+   "kind": "kb_extra",
+   "origin": "kb_extra.py",
+   "managed_by": "import_yesterday_knowledge.py"
+  }
+ },
+ {
+  "source": "qa",
+  "title": "类目 · 保健品、酒类、图书的特殊要求",
+  "content": "商家问：卖保健品、酒、图书要什么证？\n客服答：保健食品要有保健食品注册或备案凭证（俗称蓝帽子），且不能宣称疗效；酒类要有酒类流通相关许可或生产许可，且营业执照经营范围覆盖；图书、音像制品要有出版物经营许可证。\n边界：这三类都属于前置资质，没有证不能先上架。",
+  "meta": {
+   "kind": "kb_extra",
+   "origin": "kb_extra.py",
+   "managed_by": "import_yesterday_knowledge.py"
+  }
+ },
+ {
+  "source": "qa",
+  "title": "材料 · 检测报告要 CNAS / CMA 章吗",
+  "content": "商家问：检测报告必须要 CNAS 章吗？有效期多久？\n客服答：平台认可具备资质的检测机构出具的报告，报告上一般要有 CNAS 或 CMA 标识，送检产品要和您要卖的产品一致；报告不能过期，通常要求是一年内的报告，具体以该类目招商标准写明的期限为准。\n边界：报告真伪由出具机构核验，我这边只核报告要素是否齐全。",
+  "meta": {
+   "kind": "kb_extra",
+   "origin": "kb_extra.py",
+   "managed_by": "import_yesterday_knowledge.py"
+  }
+ },
+ {
+  "source": "qa",
+  "title": "材料 · 授权链路怎么才算完整",
+  "content": "商家问：授权链路要几层？独占和非独占有什么区别？\n客服答：授权要从品牌持有人（或商标注册人）一路开到您开店主体，中间每一层都要有盖章授权书，链路不能断；独占授权是只授权您一家，非独占可以同时授权多家，平台按类目要求看是否必须独占。\n边界：授权书要写清授权方、被授权方、品牌、类目、授权期限，缺一项就可能被判不完整。",
+  "meta": {
+   "kind": "kb_extra",
+   "origin": "kb_extra.py",
+   "managed_by": "import_yesterday_knowledge.py"
+  }
+ },
+ {
+  "source": "qa",
+  "title": "材料 · 报关单与进口链路",
+  "content": "商家问：进口商品要哪些材料？报关单要谁的？\n客服答：进口商品一般要报关单、入境货物检验检疫证明，报关单上的收货单位要与授权链路里的进口方或您的主体对得上；链路断了要补一层采购或分销授权。\n边界：报关单真伪由海关系统核验，我只核要素和链路是否连续。",
+  "meta": {
+   "kind": "kb_extra",
+   "origin": "kb_extra.py",
+   "managed_by": "import_yesterday_knowledge.py"
+  }
+ },
+ {
+  "source": "qa",
+  "title": "材料 · 发票与公章要求",
+  "content": "商家问：发票要盖公章吗？有效期为什么是 3 个月？\n客服答：作为资质材料提交的发票需要加盖开店主体公章（或财务专用章），抬头要与开店主体一致；有效期按该类目招商标准执行，常见要求是 3 个月内，以驳回意见里写明的期限为准。\n边界：发票真伪由税务系统核验，我不做真伪判断。",
+  "meta": {
+   "kind": "kb_extra",
+   "origin": "kb_extra.py",
+   "managed_by": "import_yesterday_knowledge.py"
+  }
+ },
+ {
+  "source": "qa",
+  "title": "超范围 · 店铺降权、扣分、处罚申诉",
+  "content": "商家问：店铺被降权了、扣分了怎么申诉？\n客服答：降权、扣分、违规处罚、商品被下架属于平台规则与商家运营范畴，不在这通资质审核电话的处理范围内。您可以在京麦「规则中心 / 违规管理」里看处罚原因并提交申诉，或拨打商家服务热线转对应团队。\n边界：我不对处罚结果做任何承诺，也不代商家提交申诉。",
+  "meta": {
+   "kind": "kb_extra",
+   "origin": "kb_extra.py",
+   "managed_by": "import_yesterday_knowledge.py"
+  }
+ },
+ {
+  "source": "qa",
+  "title": "超范围 · 流量、活动、价格与竞品",
+  "content": "商家问：怎么提升流量？能不能报活动？价格比别的平台低会被罚吗？\n客服答：流量、活动报名、价格策略属于店铺运营，不在资质审核范围；活动报名入口在京麦「营销中心」，价格违规的判定标准在「规则中心」。\n边界：这通电话只处理资质与材料问题，运营问题建议走商家服务热线或对接运营。",
+  "meta": {
+   "kind": "kb_extra",
+   "origin": "kb_extra.py",
+   "managed_by": "import_yesterday_knowledge.py"
+  }
+ },
+ {
+  "source": "qa",
+  "title": "超范围 · 七天无理由、售后与假一赔十",
+  "content": "商家问：七天无理由怎么设置？假一赔十是什么规则？\n客服答：七天无理由、价保、假一赔十都属于售后与规则范畴，具体规则和设置入口在京麦「规则中心 / 售后管理」，不同类目支持范围不一样。\n边界：资质审核这通电话不处理售后纠纷，涉及具体订单建议走售后入口。",
+  "meta": {
+   "kind": "kb_extra",
+   "origin": "kb_extra.py",
+   "managed_by": "import_yesterday_knowledge.py"
+  }
+ },
+ {
+  "source": "qa",
+  "title": "超范围 · 店铺转让、关店与续签",
+  "content": "商家问：店铺能不能转让？不想做了怎么关店？合同到期怎么续签？\n客服答：店铺转让、关店退店、合同续签属于入驻与合同范畴，要走京麦「店铺管理」提交申请并由对应团队审核，资质审核环节办不了这些。\n边界：关店前要先处理完在售商品、售后和结算，具体以退店流程页为准。",
+  "meta": {
+   "kind": "kb_extra",
+   "origin": "kb_extra.py",
+   "managed_by": "import_yesterday_knowledge.py"
+  }
+ },
+ {
+  "source": "qa",
+  "title": "风险 · 先上架后补资质行不行",
+  "content": "商家问：我能不能先上架卖，资质后面再补？\n客服答：不行。资质是上架的前置条件，没有通过审核的商品不能上架销售；先上架后补属于违规，会被下架并按平台规则处理。\n边界：这一点没有例外通道，也不要相信所谓「内部先开权限」的说法。",
+  "meta": {
+   "kind": "kb_extra",
+   "origin": "kb_extra.py",
+   "managed_by": "import_yesterday_knowledge.py"
+  }
+ },
+ {
+  "source": "qa",
+  "title": "风险 · 资质造假的后果",
+  "content": "商家问：资质造假会怎么样？被发现了再说行不行？\n客服答：伪造公章、伪造授权、PS 证件都属于资质造假，一经查实这一单直接审核不通过，已上架商品会被下架，并按平台规则处罚，情节严重的会移交相关部门处理。\n边界：我不会帮您修图、刻章、做假材料，也不会替您判断「能不能查出来」。",
+  "meta": {
+   "kind": "kb_extra",
+   "origin": "kb_extra.py",
+   "managed_by": "import_yesterday_knowledge.py"
+  }
+ },
+ {
+  "source": "qa",
+  "title": "风险 · 投诉、举报与信息安全",
+  "content": "商家问：我要投诉你们 / 我要去 12315 / 你们泄露我信息怎么办？\n客服答：投诉、找媒体曝光可以通过京东商家服务热线或京麦「客服中心」提交，会有专人跟进；关于个人信息，我们只在资质审核范围内使用您在工单登记的联系方式，不会提供给第三方。\n边界：我不在电话里承诺处理结果和赔偿，也不索要身份证号、银行卡号、验证码。",
+  "meta": {
+   "kind": "kb_extra",
+   "origin": "kb_extra.py",
+   "managed_by": "import_yesterday_knowledge.py"
+  }
+ },
+ {
+  "source": "qa",
+  "title": "时效 · 审核结果怎么通知",
+  "content": "商家问：审核通过会通知我吗？会打电话告诉我吗？\n客服答：审核结果会通过京麦站内信和后台状态更新告知，您在京麦「资质管理」里能看到通过或不通过的结论；这通电话只负责告知驳回原因和整改要求，不会另外打电话通知结果。\n边界：短信提醒可能因运营商拦截收不到，以京麦后台状态为准。",
+  "meta": {
+   "kind": "kb_extra",
+   "origin": "kb_extra.py",
+   "managed_by": "import_yesterday_knowledge.py"
+  }
+ },
+ {
+  "source": "qa",
+  "title": "时效 · 工作日与节假日怎么算",
+  "content": "商家问：周末审核吗？节假日算不算审核时间？\n客服答：审核按工作日推进，法定节假日一般顺延，具体时效以京麦后台显示的预计完成时间为准。\n边界：我不能承诺「节前一定审完」，也不建议按自然日倒推。",
+  "meta": {
+   "kind": "kb_extra",
+   "origin": "kb_extra.py",
+   "managed_by": "import_yesterday_knowledge.py"
+  }
+ },
+ {
+  "source": "qa",
+  "title": "时效 · 审核进度怎么查",
+  "content": "商家问：审到哪一步了？怎么查进度？\n客服答：京麦「资质管理 / 我的资质」里每条资质都有状态（待审核、审核中、已通过、已驳回），点进去能看到提交时间和处理记录；状态长时间不动可以打商家服务热线让客服查单。\n边界：我这边看不到实时审核队列，不报「排到第几位」。",
+  "meta": {
+   "kind": "kb_extra",
+   "origin": "kb_extra.py",
+   "managed_by": "import_yesterday_knowledge.py"
+  }
+ },
+ {
+  "source": "qa",
+  "title": "类目 · 特种设备、危化品、药品等前置许可",
+  "content": "商家问：卖特种设备、危化品、药品要什么资质？\n客服答：这几类都是强前置许可：特种设备要有特种设备生产或经营许可证，危化品要有危险化学品经营许可证，药品要有药品经营许可证，且营业执照经营范围要覆盖。\n边界：这类目没有「先卖后补」的空间，也不支持用厂家资质替代经营资质。",
+  "meta": {
+   "kind": "kb_extra",
+   "origin": "kb_extra.py",
+   "managed_by": "import_yesterday_knowledge.py"
+  }
+ },
+ {
+  "source": "qa",
+  "title": "费用 · 退款退到哪里、多久到账",
+  "content": "商家问：退款退到哪里？多久能到？\n客服答：退款一般按原支付渠道退回，或退到您的京东账户余额，具体以退款单上显示的退款方式和到账时间为准，在京麦「退款管理」里能查到每笔的进度。\n边界：我不承诺具体到账天数，也不在电话里核对银行卡号。",
+  "meta": {
+   "kind": "kb_extra",
+   "origin": "kb_extra.py",
+   "managed_by": "import_yesterday_knowledge.py"
+  }
+ },
+ {
+  "source": "qa",
+  "title": "超范围 · 不想做了、想换平台",
+  "content": "商家问：我不想做了 / 我想换别的平台。\n客服答：做不做、在哪做是您的选择，我们尊重。如果确定不做了，走京麦「店铺管理 - 退店」提交申请，先处理完在售商品、售后和结算；如果只是暂时不做，可以先下架商品保留店铺。\n边界：我不劝留、不施压，也不拿审核结果做交换；需要转人工可以帮您登记。",
+  "meta": {
+   "kind": "kb_extra",
+   "origin": "kb_extra.py",
+   "managed_by": "import_yesterday_knowledge.py"
+  }
+ },
+ {
+  "source": "qa",
+  "title": "驳回 · 驳回原因在哪里看、怎么看懂",
+  "content": "商家问：为什么驳回？驳回原因在哪看？\n客服答：驳回原因在京麦「资质管理」对应资质下的驳回意见里，会写明是哪份材料、哪一项不符合；本次电话我也会把驳回原因和要补的材料说清楚，两处内容是一致的。\n边界：如果驳回意见写得不清楚，可以让客服帮您转审核同学解释，我不替审核改结论。",
+  "meta": {
+   "kind": "kb_extra",
+   "origin": "kb_extra.py",
+   "managed_by": "import_yesterday_knowledge.py"
+  }
+ },
+ {
+  "source": "qa",
+  "title": "驳回 · 对结果有异议能不能申诉",
+  "content": "商家问：我不认可这个驳回，能申诉吗？\n客服答：可以先按驳回意见补充材料重新提交；如果认为驳回有误，可通过京麦工单或商家服务热线提交申诉，由审核团队复核，复核结论以工单回复为准。\n边界：我不在电话里承诺复核结果，也不承诺「一定能改判」。",
+  "meta": {
+   "kind": "kb_extra",
+   "origin": "kb_extra.py",
+   "managed_by": "import_yesterday_knowledge.py"
+  }
+ },
+ {
+  "source": "qa",
+  "title": "材料 · 借资质、挂靠行不行",
+  "content": "商家问：我借朋友的资质 / 挂靠一家公司行不行？\n客服答：不行。资质主体必须和开店主体一致，借用、挂靠、代持都属于主体不一致，会被驳回；用别人资质上架属于违规，查实后商品下架并按规则处理。\n边界：这一点没有变通办法，也不存在「先挂靠后过户」的通道。",
+  "meta": {
+   "kind": "kb_extra",
+   "origin": "kb_extra.py",
+   "managed_by": "import_yesterday_knowledge.py"
+  }
+ },
+ {
+  "source": "qa",
+  "title": "身份 · 电话来源与上次通话",
+  "content": "商家问：你怎么有我电话？你们是官方的吗？上次不是你们打的吗？\n客服答：您的联系方式来自您在京东开店时登记的资质工单，我们只用于资质审核结果的通知；本次是京东商家服务这边的正式沟通，历史通话记录在京麦工单里可以查。上次跟谁通过电话、哪天打的，工单里都有记录，我可以帮您对一下时间。\n边界：您要是还不放心，可以挂断后拨打京东商家服务热线核实，不影响您的审核；我们不会索要身份证号、银行卡号或验证码。",
+  "meta": {
+   "kind": "kb_extra",
+   "origin": "kb_extra.py",
+   "managed_by": "import_yesterday_knowledge.py"
+  }
+ },
+ {
+  "source": "qa",
+  "title": "身份 · 你是不是审核专员",
+  "content": "商家问：你是京东审核专员吗 / 你是来审核的对吧？\n客服答：您好，我是京东商家资质审核专员。",
+  "meta": {
+   "kind": "qa_pair_converted",
+   "origin": "qa_pairs#23",
+   "managed_by": "import_yesterday_knowledge.py"
+  }
+ },
+ {
+  "source": "qa",
+  "title": "后台 · 要登录什么后台",
+  "content": "商家问：要登录什么后台 / 去哪个后台弄？\n客服答：需要您登录京麦后台，按驳回意见把材料补齐后重新提交。",
+  "meta": {
+   "kind": "qa_pair_converted",
+   "origin": "qa_pairs#24",
+   "managed_by": "import_yesterday_knowledge.py"
+  }
+ },
+ {
+  "source": "qa",
+  "title": "材料 · 具体要补什么材料",
+  "content": "商家问：要交什么材料 / 缺什么资料 / 具体要补什么？\n客服答：请登录京麦后台，按驳回意见补齐对应材料后重新提交；具体以京麦后台显示为准。",
+  "meta": {
+   "kind": "qa_pair_converted",
+   "origin": "qa_pairs#25",
+   "managed_by": "import_yesterday_knowledge.py"
+  }
+ }
+]

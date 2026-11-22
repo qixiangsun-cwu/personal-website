@@ -1,0 +1,1963 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>灵听 · 商家声场 | 智语外呼</title>
+<link rel="icon" type="image/svg+xml" href="/static/lingting-mark.svg">
+<style>
+/* ================= 设计令牌 ================= */
+:root{
+  --bg:#F3D9D4; --card:#FFFFFF; --surface:#FFFFFF; --surface2:#FCEFEA;
+  --line:#F6DCD4; --line2:#EFC3B7;
+  --text:#5A2720; --text2:#8A5044; --text3:#B5897D;
+  --red:#E1251B; --red-deep:#C0180F; --red-soft:#FDE5E0; --red-line:#F5B8AC;
+  --coral:#F0604A; --rose:#F07A88; --wine:#B02A3A;
+  --ok:#0FA36B; --ok-soft:#E9F8F1; --ok-line:#BFE8D3;
+  --warn:#C07800; --warn-soft:#FFF4E2; --warn-line:#F0D9B0;
+  --info:#E14A3A; --info-soft:#FDE7E1; --info-line:#F5C4B9;
+  --vio:#C2627B; --vio-soft:#FBEAF0; --vio-line:#F0CCD8;
+  --sh:0 2px 6px rgba(200,40,30,.07),0 16px 38px rgba(200,40,30,.10);
+  --sh-h:0 3px 10px rgba(200,40,30,.10),0 22px 50px rgba(200,40,30,.15);
+  --r:22px; --r-sm:14px; --r-xs:10px;
+  --font:"MiSans","HarmonyOS Sans SC","PingFang SC","Microsoft YaHei UI",system-ui,-apple-system,sans-serif;
+  --fscale:1;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:calc(15px * var(--fscale));min-height:100vh;
+  line-height:1.5;-webkit-font-smoothing:antialiased;
+  background-image:radial-gradient(1100px 480px at 12% -12%,rgba(225,37,27,.12),transparent 62%),
+                   radial-gradient(900px 420px at 108% 6%,rgba(240,96,74,.10),transparent 58%)}
+.wrap{max-width:1240px;margin:0 auto;padding:24px 22px 56px}
+
+/* ================= 顶栏 ================= */
+header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:12px}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{width:44px;height:44px;border-radius:13px;background:linear-gradient(135deg,var(--red),var(--red-deep));
+  display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:1.15em;
+  box-shadow:0 6px 18px rgba(225,37,27,.26)}
+.brand h1{font-size:1.42em;letter-spacing:.5px;line-height:1.25}
+.brand .tag{font-size:.78em;color:var(--text3);margin-top:2px}
+.head-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.pill{padding:6px 13px;border-radius:999px;background:var(--surface);border:1px solid var(--line);font-size:.86em;
+  color:var(--text2);white-space:nowrap;text-decoration:none}
+a.pill:hover{border-color:var(--red-line);color:var(--red)}
+.pill b{color:var(--red);font-variant-numeric:tabular-nums}
+.dot{width:7px;height:7px;border-radius:50%;display:inline-block;margin-right:6px;vertical-align:1px}
+.dot.ok{background:var(--ok);box-shadow:0 0 0 3px var(--ok-soft)}
+.dot.idle{background:var(--text3);box-shadow:0 0 0 3px #F1EBE9}
+
+/* ================= 布局 ================= */
+.grid{display:grid;grid-template-columns:minmax(330px,4.6fr) minmax(400px,6fr);gap:18px;align-items:start}
+@media(max-width:960px){.grid{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--sh);padding:20px}
+.card h2{font-size:1.02em;margin-bottom:14px;display:flex;align-items:center;gap:8px;font-weight:700;line-height:1.4}
+.card h2 .sub{font-size:.76em;color:var(--text3);font-weight:400;margin-left:auto;text-align:right}
+.note{font-size:.82em;color:var(--text3);line-height:1.65}
+.chip{display:inline-flex;align-items:center;gap:5px;padding:2.5px 9px;border-radius:7px;font-size:.76em;font-weight:600;
+  background:var(--surface2);color:var(--text2);border:1px solid transparent;white-space:nowrap}
+.chip.ok{background:var(--ok-soft);color:var(--ok);border-color:var(--ok-line)}
+.chip.warn{background:var(--warn-soft);color:var(--warn);border-color:var(--warn-line)}
+.chip.bad{background:var(--red-soft);color:var(--red);border-color:var(--red-line)}
+.chip.info{background:var(--info-soft);color:var(--info);border-color:var(--info-line)}
+.chip.plain{background:var(--surface2);color:var(--text2);border-color:var(--line)}
+.dotc{width:7px;height:7px;border-radius:50%;display:inline-block;flex:none}
+.dotc.ok{background:var(--ok)} .dotc.warn{background:var(--warn)} .dotc.bad{background:var(--red)}
+
+/* ================= 通话终端 ================= */
+.call-card{position:sticky;top:18px}
+@media(max-width:960px){.call-card{position:static}}
+.cc-head{display:flex;align-items:center;gap:8px;font-size:.82em;color:var(--text2);font-weight:600;
+  padding-bottom:14px;border-bottom:1px dashed var(--line2)}
+.cc-head .chip{margin-left:auto}
+.avatar-wrap{position:relative;width:112px;height:112px;margin:18px auto 8px}
+.av{width:112px;height:112px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:2.6em;
+  background:radial-gradient(circle at 35% 30%,#FF6A5E,var(--red) 60%,var(--red-deep));
+  color:#fff;position:relative;z-index:1;box-shadow:0 12px 32px rgba(225,37,27,.3);transition:.25s}
+.avatar-wrap::before,.avatar-wrap::after{content:"";position:absolute;inset:0;border-radius:50%;
+  border:2px solid var(--red-line);opacity:0}
+.avatar-wrap.on::before,.avatar-wrap.on::after{animation:pulse 2s infinite}
+.avatar-wrap.on::after{animation-delay:.66s}
+@keyframes pulse{0%{transform:scale(.94);opacity:.85}100%{transform:scale(1.42);opacity:0}}
+.avatar-wrap.incall .av{background:radial-gradient(circle at 35% 30%,#38C98F,var(--ok) 60%,#06794F);box-shadow:0 12px 32px rgba(15,163,107,.3)}
+.avatar-wrap.incall::before,.avatar-wrap.incall::after{display:none}
+.caller{text-align:center;margin-top:6px}
+.caller .who{font-size:1.28em;font-weight:750;letter-spacing:.2px}
+.caller .why{font-size:.84em;color:var(--text2);margin-top:5px;line-height:1.6;padding:0 8px}
+.timer{text-align:center;font-size:2.1em;font-weight:800;letter-spacing:1px;font-variant-numeric:tabular-nums;
+  margin-top:12px;color:var(--text)}
+.state{text-align:center;font-size:.78em;color:var(--text3);margin-top:2px;letter-spacing:.4px}
+.wave{display:flex;align-items:center;justify-content:center;gap:3px;height:38px;margin:14px 6px 4px}
+.wave i{display:block;width:3px;height:8px;border-radius:3px;background:#EBD3CE;transition:height .12s ease}
+.wave.live i{background:linear-gradient(180deg,var(--red),#FF8A7E)}
+.rail-h{display:flex;align-items:flex-start;margin:16px 0 4px}
+.rail-h .node{flex:1;position:relative;text-align:center;min-width:0}
+.rail-h .node::after{content:"";position:absolute;top:10px;left:50%;width:100%;height:2px;background:var(--line2);z-index:0}
+.rail-h .node:last-child::after{display:none}
+.rail-h .node.done::after{background:var(--ok-line)}
+.rail-h .d{position:relative;z-index:1;width:21px;height:21px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  background:var(--surface);border:1.5px solid var(--line2);color:var(--text3);font-size:.62em;font-weight:700;margin:0 auto;transition:.2s}
+.rail-h .node.done .d{background:var(--ok);border-color:var(--ok);color:#fff}
+.rail-h .node.now .d{border-color:var(--red);color:var(--red);background:var(--red-soft);box-shadow:0 0 0 4px rgba(225,37,27,.1)}
+.rail-h .node.miss .d{border-color:var(--red);color:var(--red);background:var(--red-soft)}
+.rail-h .l{display:block;font-size:.68em;color:var(--text3);margin-top:5px;line-height:1.25}
+.rail-h .node.done .l,.rail-h .node.now .l{color:var(--text);font-weight:600}
+.call-actions{display:flex;justify-content:center;gap:26px;margin:18px 0 6px}
+.call-actions .ac{display:flex;flex-direction:column;align-items:center;gap:7px;font-size:.74em;color:var(--text3)}
+.rbtn{width:58px;height:58px;border-radius:50%;border:none;cursor:pointer;font-size:1.2em;font-weight:700;
+  display:flex;align-items:center;justify-content:center;transition:.18s;font-family:var(--font)}
+.rbtn.answer{background:linear-gradient(135deg,#2FC08B,var(--ok));color:#fff;box-shadow:0 8px 22px rgba(15,163,107,.3)}
+.rbtn.reject{background:var(--surface);border:1px solid var(--red-line);color:var(--red)}
+.rbtn.hangup{background:linear-gradient(135deg,#F0554B,var(--red));color:#fff;box-shadow:0 8px 22px rgba(225,37,27,.28)}
+/* 11/19：麦克风开关——静音态琥珀色，避免和挂断红混淆 */
+.rbtn.mic{background:var(--surface);border:1px solid var(--line2);color:var(--text2)}
+.rbtn.mic.muted{background:linear-gradient(135deg,#F5A623,#E8940F);color:#fff;border-color:transparent;box-shadow:0 8px 22px rgba(232,148,15,.3)}
+.rbtn:hover:not(:disabled){transform:translateY(-2px)}
+.rbtn:disabled{opacity:.35;cursor:not-allowed;transform:none;box-shadow:none}
+.meters{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:14px}
+.meter{background:var(--surface2);border:1px solid var(--line);border-radius:var(--r-xs);padding:7px 9px;min-width:0}
+.meter span{display:block;font-size:.68em;color:var(--text3);letter-spacing:.2px}
+.meter b{font-size:.82em;font-weight:700;display:block;margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.backcall{margin-top:14px;padding-top:14px;border-top:1px dashed var(--line2);display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.backcall b{font-size:.78em;color:var(--text2);flex:none}
+select{padding:7px 11px;border-radius:9px;border:1px solid var(--line2);font-family:var(--font);font-size:.82em;
+  background:var(--surface);color:var(--text);min-width:0;max-width:100%}
+.btn{padding:8px 16px;border-radius:999px;border:1px solid transparent;font-size:.85em;font-family:var(--font);
+  cursor:pointer;font-weight:600;transition:.18s;white-space:nowrap}
+.btn.primary{background:linear-gradient(135deg,var(--red),var(--red-deep));color:#fff;box-shadow:0 5px 16px rgba(225,37,27,.26)}
+.btn.primary:hover{transform:translateY(-1px)}
+.btn.ghost{background:var(--surface);border-color:var(--line2);color:var(--text2)}
+.btn.ghost:hover{border-color:var(--red-line);color:var(--red)}
+.btn.warn{background:var(--warn-soft);border-color:var(--warn-line);color:var(--warn)}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+
+/* ================= 字幕 ================= */
+.sub-live{height:calc(100vh - 330px);min-height:390px;max-height:620px;overflow-y:auto;background:var(--surface2);
+  border:1px solid var(--line);border-radius:var(--r-sm);padding:14px;display:flex;flex-direction:column;gap:9px;scroll-behavior:smooth}
+.line{max-width:86%;padding:9px 13px;border-radius:14px;font-size:.9em;line-height:1.6;word-break:break-word;position:relative}
+.line.agent{align-self:flex-start;background:var(--info-soft);border:1px solid var(--info-line);border-top-left-radius:5px;
+  border-left:3px solid var(--info);color:var(--text);box-shadow:0 1px 3px rgba(40,70,140,.08)}
+.line.merchant{align-self:flex-end;background:linear-gradient(135deg,#FFF1EC,#FFE9E2);border:1px solid var(--red-line);border-top-right-radius:5px}
+.line.sys{align-self:center;background:var(--vio-soft);color:var(--vio);border:1px dashed var(--vio-line);font-size:.76em;max-width:96%}
+.line.partial{opacity:.65;font-style:italic}
+.line .who{font-size:.72em;color:var(--text3);display:block;margin-bottom:2px;font-weight:700}
+.line .meta{font-size:.72em;color:var(--text3);margin-top:4px;display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.badge{padding:1px 7px;border-radius:6px;font-size:.94em;font-weight:600;background:var(--surface2);border:1px solid var(--line)}
+.badge.int{background:var(--warn-soft);color:var(--warn);border-color:var(--warn-line)}
+.badge.emo-angry{background:var(--red-soft);color:var(--red);border-color:var(--red-line)}
+.badge.emo-anxious{background:var(--warn-soft);color:var(--warn);border-color:var(--warn-line)}
+.badge.emo-satisfied{background:var(--ok-soft);color:var(--ok);border-color:var(--ok-line)}
+.badge.comp-ok{background:var(--ok-soft);color:var(--ok);border-color:var(--ok-line)}
+.badge.comp-miss{background:var(--warn-soft);color:var(--warn);border-color:var(--warn-line)}
+.empty-tip{text-align:center;color:var(--text3);font-size:.86em;margin:auto;padding:26px 18px;line-height:1.9}
+.empty-tip b{display:block;color:var(--text2);font-size:1.04em;margin-bottom:6px}
+.inputbar{display:flex;gap:8px;margin-top:12px}
+.inputbar input{flex:1;padding:10px 15px;border-radius:999px;border:1px solid var(--line2);font-size:.9em;
+  font-family:var(--font);background:var(--surface);color:var(--text);min-width:0}
+.inputbar input:focus{outline:none;border-color:var(--red);box-shadow:0 0 0 3px rgba(225,37,27,.1)}
+.adversary{display:flex;gap:7px;margin-top:10px;flex-wrap:wrap}
+.chip-btn{padding:7px 13px;border-radius:999px;border:1px solid var(--line2);background:var(--surface);font-size:.8em;
+  cursor:pointer;color:var(--text2);user-select:none;transition:.15s}
+.chip-btn.on{background:var(--red-soft);border-color:var(--red-line);color:var(--red);font-weight:600}
+.tool-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:12px;padding-top:12px;border-top:1px dashed var(--line2)}
+.tool-row .lbl{font-size:.78em;color:var(--text3);font-weight:600}
+.toolbar{display:flex;gap:8px;align-items:center;margin-bottom:16px;background:var(--surface);border:1px solid var(--line);
+  border-radius:var(--r-sm);padding:10px 14px;flex-wrap:wrap;font-size:.84em;color:var(--text2);box-shadow:var(--sh)}
+.toolbar input[type=range]{accent-color:var(--red);width:140px}
+
+/* ================= 工单卡 ================= */
+.tk{border:1px solid var(--line);border-radius:var(--r-sm);background:var(--surface);padding:15px 17px;position:relative;overflow:hidden}
+.tk::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,var(--red),#FF8A7E)}
+.tk-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.tk-no{font-family:"JetBrains Mono","Cascadia Mono",Consolas,monospace;font-size:.92em;font-weight:700}
+.tk-meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(108px,1fr));gap:7px 14px;margin:11px 0;
+  padding:10px 12px;background:var(--surface2);border:1px solid var(--line);border-radius:var(--r-xs)}
+.kv-item{display:flex;flex-direction:column;gap:1px;min-width:0}
+.kv-item span{font-size:.7em;color:var(--text3)}
+.kv-item b{font-size:.82em;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tk-cols{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:11px}
+@media(max-width:720px){.tk-cols{grid-template-columns:1fr}}
+.tk-box{border:1px solid var(--line);border-radius:var(--r-xs);padding:10px 12px;background:var(--surface)}
+.tk-box.ok{background:linear-gradient(180deg,var(--ok-soft),#fff 72%);border-color:var(--ok-line)}
+.tk-box.warn{background:linear-gradient(180deg,var(--warn-soft),#fff 72%);border-color:var(--warn-line)}
+.tk-box .bx-h{display:flex;align-items:center;gap:6px;font-size:.8em;font-weight:700;margin-bottom:6px}
+.tk-box .bx-h em{margin-left:auto;font-style:normal;color:var(--text3)}
+.tk-box ul{list-style:none;display:flex;flex-direction:column;gap:5px}
+.tk-box li{font-size:.8em;line-height:1.6;color:var(--text2);padding-left:14px;position:relative}
+.tk-box li::before{content:"";position:absolute;left:2px;top:7px;width:5px;height:5px;border-radius:50%;background:var(--ok)}
+.tk-box.warn li::before{background:var(--warn)}
+.empty-line{font-size:.8em;color:var(--text3);padding:4px 0}
+
+/* ================= 结束提示条 ================= */
+.end-bar{margin-top:18px;background:var(--card);border:1px solid var(--line);border-radius:14px;
+  padding:14px 18px;gap:13px;align-items:center;box-shadow:var(--sh)}
+.end-bar .ic{width:34px;height:34px;border-radius:50%;background:var(--ok-soft);border:1px solid var(--ok-line);
+  color:var(--ok);display:flex;align-items:center;justify-content:center;font-weight:800;flex:none}
+.end-bar b{font-size:.95em}
+.end-bar .note{margin-top:3px}
+
+/* ================= 通话记录 ================= */
+.records{display:flex;flex-direction:column;gap:8px;max-height:420px;overflow:auto}
+.rec{display:grid;grid-template-columns:1fr auto;gap:6px 12px;align-items:center;padding:11px 13px;border-radius:var(--r-xs);
+  background:var(--surface2);font-size:.85em;cursor:pointer;border:1px solid transparent;transition:.15s;text-align:left;
+  font-family:var(--font);color:var(--text);width:100%}
+.rec:hover{border-color:var(--red-line);background:#fff}
+.rec:hover .r-go{color:var(--red)}
+.rec .r-main{display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-width:0}
+.rec .r-main b{font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rec .r-sub{font-size:.78em;color:var(--text3);grid-column:1/-1;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.rec .r-go{color:var(--text3);font-size:.78em}
+.pbar{height:5px;border-radius:3px;background:#F0E7E4;overflow:hidden;width:70px;display:inline-block;vertical-align:middle}
+.pbar>i{display:block;height:100%;border-radius:3px;background:var(--red)}
+.pbar.ok>i{background:var(--ok)} .pbar.warn>i{background:var(--warn)}
+.sec-title{display:flex;align-items:baseline;gap:8px;font-size:.84em;font-weight:700;margin:14px 0 8px;color:var(--text2)}
+footer{text-align:center;color:var(--text3);font-size:.78em;margin-top:26px;line-height:1.8}
+
+/* ================= 主题：商务蓝 / 青竹绿 / 星夜暗色 ================= */
+body[data-theme="blue"]{
+  --bg:#F1F4FC;--card:#fff;--surface:#fff;--surface2:#F2F6FD;--line:#E1E8F5;--line2:#CFDAEC;
+  --text:#1A2434;--text2:#465468;--text3:#7E8CA3;
+  --red:#2F62D8;--red-deep:#23499F;--red-soft:#EDF3FE;--red-line:#CFE0F5;--info:#3E63DD;
+  --sh:0 2px 6px rgba(40,70,140,.06),0 16px 38px rgba(40,70,140,.10);
+  --sh-h:0 3px 10px rgba(40,70,140,.08),0 22px 50px rgba(40,70,140,.14)}
+body[data-theme="green"]{
+  --bg:#F3FAF6;--card:#fff;--surface:#fff;--surface2:#F0F9F4;--line:#DFEFE7;--line2:#C8E6D8;
+  --text:#17281F;--text2:#41584B;--text3:#7C9487;
+  --red:#0E9464;--red-deep:#0A7550;--red-soft:#E7F8F0;--red-line:#BCE8D4;
+  --sh:0 2px 6px rgba(20,90,60,.06),0 16px 38px rgba(20,90,60,.10);
+  --sh-h:0 3px 10px rgba(20,90,60,.08),0 22px 50px rgba(20,90,60,.14)}
+body[data-theme="dark"]{
+  --bg:#11151C;--card:#1A2029;--surface:#1C232D;--surface2:#232B36;--line:#2C3541;--line2:#3C4756;
+  --text:#ECEFF4;--text2:#B4BECD;--text3:#7D889B;
+  --red:#FF6F63;--red-deep:#E0453A;--red-soft:#382524;--red-line:#5E3733;
+  --ok:#3DDC9E;--ok-soft:#1C3429;--ok-line:#2E5A44;
+  --warn:#FFB65C;--warn-soft:#382E1D;--warn-line:#5E4E2B;
+  --info:#7C9BFF;--info-soft:#212C45;--info-line:#35456B;
+  --vio:#B199FF;--vio-soft:#2A2445;--vio-line:#443A70;
+  --sh:0 2px 6px rgba(0,0,0,.3),0 16px 38px rgba(0,0,0,.36);
+  --sh-h:0 3px 10px rgba(0,0,0,.36),0 22px 50px rgba(0,0,0,.46)}
+body[data-theme="dark"] .line.agent{background:#1B2536;border-color:#34507E;border-left:3px solid var(--info);color:var(--text)}
+body[data-theme="dark"] .line.merchant{background:linear-gradient(135deg,#3A2A26,#33241F);border-color:#5E3D36}
+body[data-theme="dark"] .pbar{background:#2C3541}
+body[data-theme="dark"] .rec:hover{background:#232B36}
+
+::-webkit-scrollbar{width:8px;height:8px}
+::-webkit-scrollbar-thumb{background:#DCCDC7;border-radius:5px;border:2px solid transparent;background-clip:content-box}
+::-webkit-scrollbar-thumb:hover{background:#C9B6AF;background-clip:content-box}
+::-webkit-scrollbar-track{background:transparent}
+
+/* ===== 双向字幕同步（2026/11/12）：两端共用同一套行结构，保证显示内容一致 ===== */
+.zy-line .zy-head{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:3px}
+.zy-line .zy-head .who{display:inline;margin-bottom:0}
+.zy-line .zy-time{font-size:.72em;color:var(--text3);margin-left:auto;font-variant-numeric:tabular-nums}
+.zy-line .zy-text{white-space:pre-wrap}
+.zy-line .zy-tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:5px}
+.zy-line .zy-tag{padding:1px 7px;border-radius:6px;font-size:.72em;font-weight:600;
+  background:var(--surface2);border:1px solid var(--line);color:var(--text2)}
+.line.partial{opacity:.65;font-style:italic}
+
+/* ============================================================
+   绯红 · 流动质感层（仅默认红色主题生效）
+   选择器排除 商务蓝 / 青竹绿 / 星夜暗色，三套旧主题观感保持原样。
+   只改视觉，不改任何通话、字幕、WebSocket 逻辑。
+   ============================================================ */
+@keyframes redFlow{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+@keyframes redDrift{0%{transform:translate3d(0,0,0) scale(1)}100%{transform:translate3d(-3%,2%,0) scale(1.07)}}
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]){
+  background:
+    radial-gradient(760px 500px at 4% -8%,rgba(240,147,132,.24),transparent 66%),
+    radial-gradient(700px 460px at 102% 0%,rgba(229,162,168,.22),transparent 64%),
+    radial-gradient(860px 600px at 52% 112%,rgba(212,93,93,.13),transparent 68%),
+    linear-gradient(160deg,#FDF6F4 0%,#FBF1EE 48%,#F9ECE8 100%);
+  background-attachment:fixed}
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"])::before{
+  content:"";position:fixed;inset:-15%;z-index:-1;pointer-events:none;
+  background:
+    radial-gradient(36% 30% at 24% 20%,rgba(240,147,132,.20),transparent 70%),
+    radial-gradient(32% 28% at 80% 14%,rgba(229,162,168,.18),transparent 70%),
+    radial-gradient(40% 36% at 58% 90%,rgba(192,90,107,.12),transparent 72%);
+  animation:redDrift 24s ease-in-out infinite alternate}
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .card,
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .toolbar,
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .end-bar{
+  background:linear-gradient(150deg,rgba(255,253,252,.92),rgba(255,244,241,.78));
+  border:1px solid rgba(255,255,255,.92);
+  box-shadow:0 2px 8px rgba(178,96,90,.05),0 16px 40px rgba(178,96,90,.08),inset 0 1px 0 rgba(255,255,255,.9);
+  backdrop-filter:blur(18px) saturate(1.06);-webkit-backdrop-filter:blur(18px) saturate(1.06)}
+/* 流动感：logo / 主按钮 / 挂断键 / 待接头像 */
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .logo,
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .btn.primary,
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .rbtn.hangup,
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .avatar-wrap:not(.incall) .av{
+  background-image:linear-gradient(120deg,#F0604A,#E1251B 45%,#C0180F 78%,#F07A88);
+  background-size:220% 220%;animation:redFlow 7s ease infinite}
+/* 字幕区与清透泡泡 */
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .sub-live{
+  background:linear-gradient(180deg,rgba(255,252,251,.9),rgba(250,238,234,.76));
+  border-color:rgba(238,205,198,.8)}
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .line{
+  padding:12px 16px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .line.agent{
+  border-radius:22px 24px 24px 8px;
+  background:linear-gradient(150deg,rgba(255,255,255,.88),rgba(255,243,240,.64));
+  border:1px solid rgba(238,190,182,.7);border-left:1px solid rgba(238,190,182,.7);color:var(--text);
+  box-shadow:0 8px 20px rgba(190,110,104,.10),inset 0 1px 7px rgba(255,255,255,.9)}
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .line.merchant{
+  border-radius:24px 22px 8px 24px;
+  background:linear-gradient(150deg,rgba(243,158,145,.34),rgba(229,162,168,.26));
+  border:1px solid rgba(230,150,142,.5);color:#823D3D;
+  box-shadow:0 10px 24px rgba(198,106,100,.12),inset 0 1px 8px rgba(255,255,255,.62)}
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .line.sys{
+  background:rgba(255,255,255,.6);color:var(--text3);border:1px dashed var(--red-line)}
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) ::-webkit-scrollbar-thumb{background:#EFD3CE}
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) ::-webkit-scrollbar-thumb:hover{background:#E3B8B0}
+@media (prefers-reduced-motion:reduce){
+  body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"])::before,
+  body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .logo,
+  body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .btn.primary,
+  body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .rbtn.hangup,
+  body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .avatar-wrap:not(.incall) .av{animation:none}}
+/* ============================================================
+   灵听 · 商家声场（默认红色主题）
+   只重排红色主题；商务蓝 / 青竹绿 / 星夜暗色保持原样。
+   ============================================================ */
+.lt-ambient{display:none}
+.brand-eyebrow{font-size:.68em;letter-spacing:.18em;color:var(--red);font-weight:700;margin-bottom:2px}
+.logo img{display:block;width:100%;height:100%;object-fit:contain}
+@keyframes mltAmbientA{0%{transform:translate3d(-4%,-2%,0) scale(1)}50%{transform:translate3d(5%,4%,0) scale(1.14)}100%{transform:translate3d(-4%,-2%,0) scale(1)}}
+@keyframes mltAmbientB{0%{transform:translate3d(3%,2%,0) scale(1.07)}50%{transform:translate3d(-5%,-4%,0) scale(.95)}100%{transform:translate3d(3%,2%,0) scale(1.07)}}
+@keyframes mltRibbon{0%{background-position:0% 50%;opacity:.40}50%{background-position:100% 50%;opacity:.72}100%{background-position:0% 50%;opacity:.40}}
+@keyframes mltSheen{0%{transform:translateX(-160%) skewX(-18deg)}100%{transform:translateX(280%) skewX(-18deg)}}
+@keyframes mltCorePulse{0%,100%{transform:scale(.94);opacity:.82}50%{transform:scale(1.06);opacity:1}}
+@keyframes mltIdleWave{0%,100%{height:8px;opacity:.46}45%{height:28px;opacity:.9}72%{height:15px;opacity:.68}}
+@keyframes mltBubbleIn{from{opacity:0;transform:translateY(14px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]){overflow-x:hidden;background:#FFF8F6}
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .lt-ambient{display:block;position:fixed;inset:0;z-index:-2;overflow:hidden;pointer-events:none}
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .lt-ambient i{position:absolute;border-radius:50%;filter:blur(66px);will-change:transform}
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .lt-a{width:46vw;height:46vw;min-width:520px;min-height:520px;left:-14vw;top:-20vw;background:radial-gradient(circle,rgba(239,126,116,.38),rgba(239,126,116,0) 68%);animation:mltAmbientA 22s ease-in-out infinite}
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .lt-b{width:40vw;height:40vw;min-width:460px;min-height:460px;right:-12vw;top:8vh;background:radial-gradient(circle,rgba(219,91,105,.28),rgba(219,91,105,0) 70%);animation:mltAmbientB 27s ease-in-out infinite}
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .lt-c{width:36vw;height:36vw;min-width:420px;min-height:420px;left:40vw;bottom:-24vw;background:radial-gradient(circle,rgba(246,169,154,.30),rgba(246,169,154,0) 70%);animation:mltAmbientA 31s ease-in-out infinite reverse}
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .lt-ribbon{position:absolute;left:-8%;width:116%;height:220px;border-radius:50%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.34) 20%,rgba(221,91,101,.20) 50%,rgba(255,255,255,.30) 78%,transparent);background-size:220% 100%;filter:blur(28px);animation:mltRibbon 12s ease-in-out infinite}
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .lt-r1{top:16vh;transform:rotate(-13deg)}
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .lt-r2{top:60vh;transform:rotate(11deg);animation-delay:-5s;animation-duration:16s}
+/* 顶栏与整体画布 */
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .wrap{max-width:1460px;padding:22px 24px 52px}
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) header{padding:14px 18px;border-radius:30px;background:linear-gradient(118deg,rgba(255,252,250,.86),rgba(250,224,220,.64));border:1px solid rgba(255,255,255,.9);box-shadow:0 18px 44px rgba(176,79,86,.12),inset 0 1px 0 rgba(255,255,255,.95);backdrop-filter:blur(24px) saturate(1.12)}
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .logo{width:52px;height:52px;border-radius:18px;background:rgba(255,255,255,.52);border:1px solid rgba(255,255,255,.9);padding:4px;box-shadow:0 10px 24px rgba(190,80,91,.16);animation:none}
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .brand h1{font-size:1.34em;color:#6D2E35;letter-spacing:.02em}
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .brand .tag{font-size:.78em;color:#8E6969}
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .grid{grid-template-columns:minmax(360px,.88fr) minmax(520px,1.32fr);gap:22px;align-items:start}
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .card{border-radius:34px;border:1px solid rgba(255,255,255,.9);background:linear-gradient(150deg,rgba(255,253,252,.88),rgba(249,226,222,.62));box-shadow:0 24px 58px rgba(176,79,86,.12),inset 0 1px 0 rgba(255,255,255,.96);backdrop-filter:blur(24px) saturate(1.1)}
+/* 左侧通话声场 */
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .call-card{top:20px;overflow:hidden;padding:24px 24px 22px;position:sticky}
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .call-card::before{content:"";position:absolute;left:-24%;right:-24%;top:80px;height:180px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.42),rgba(220,83,95,.16),rgba(255,255,255,.38),transparent);background-size:220% 100%;filter:blur(24px);transform:rotate(-10deg);animation:mltRibbon 10s ease-in-out infinite;pointer-events:none}
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .cc-head{position:relative;z-index:1;color:#8C6262;border-bottom:1px dashed rgba(222,158,154,.42)}
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .avatar-wrap{position:relative;z-index:1;width:148px;height:148px;margin:20px auto 8px}
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .av{width:148px;height:148px;border-radius:50%;background:rgba(255,255,255,.54);border:1px solid rgba(255,255,255,.9);box-shadow:0 18px 42px rgba(190,80,91,.18),inset 0 1px 10px rgba(255,255,255,.88);color:transparent;font-size:0;animation:none}
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .avatar-wrap.incall .av{background:linear-gradient(145deg,rgba(255,250,248,.78),rgba(238,139,139,.34));box-shadow:0 18px 42px rgba(190,80,91,.22),inset 0 1px 10px rgba(255,255,255,.9)}
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) #ringIcon::before{content:"";display:block;width:96px;height:96px;background:url('/static/lingting-mark.svg') center/contain no-repeat;filter:drop-shadow(0 12px 18px rgba(176,79,86,.18));animation:mltCorePulse 3.8s ease-in-out infinite}
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .avatar-wrap::before{border-color:rgba(212,91,103,.24)}
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .avatar-wrap::after{border-color:rgba(212,91,103,.16)}
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .caller .who{color:#6D2E35;font-weight:800}
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .timer{color:#6D2E35;text-shadow:0 1px 0 rgba(255,255,255,.85)}
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .wave:not(.live) i{animation:mltIdleWave 1.8s ease-in-out infinite;background:#E7A8A4}
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .wave:not(.live) i:nth-child(2n){animation-delay:.16s}
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .wave:not(.live) i:nth-child(3n){animation-delay:.32s}
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .wave.live i{background:linear-gradient(180deg,#EF8C88,#D55260)}
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .rbtn.answer{box-shadow:0 12px 28px rgba(15,163,107,.24)}
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .rbtn.hangup{background:linear-gradient(135deg,#EF8C88,#D55260 58%,#B9485B);background-size:220% 220%;animation:redFlow 5.5s ease-in-out infinite}
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .meter{border-radius:16px;background:rgba(255,255,255,.52);border-color:rgba(239,204,200,.72)}
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .backcall{border-top-color:rgba(222,158,154,.42);background:rgba(255,255,255,.28);margin-left:-10px;margin-right:-10px;padding-left:10px;padding-right:10px;border-radius:18px}
+/* 右侧清透泡泡对话 */
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .grid>.card:last-child{padding:22px;overflow:hidden;position:relative}
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .grid>.card:last-child::before{content:"";position:absolute;right:-100px;top:-120px;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(238,139,139,.18),transparent 68%);pointer-events:none}
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .card h2{color:#713B40}
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .sub-live{height:calc(100vh - 300px);min-height:470px;max-height:720px;padding:24px;border-radius:30px;border:1px solid rgba(242,207,202,.78);background:radial-gradient(500px 280px at 82% 8%,rgba(239,139,135,.16),transparent 70%),linear-gradient(180deg,rgba(255,253,252,.82),rgba(248,226,222,.52));backdrop-filter:blur(22px) saturate(1.08);gap:16px;box-shadow:inset 0 1px 0 rgba(255,255,255,.92)}
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .line{max-width:78%;padding:15px 18px;font-size:.92em;line-height:1.78;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);animation:mltBubbleIn .46s cubic-bezier(.2,.9,.25,1);isolation:isolate}
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .line::after{content:"";position:absolute;inset:1px 2px auto 2px;height:46%;border-radius:inherit;background:linear-gradient(180deg,rgba(255,255,255,.44),transparent);opacity:.72;pointer-events:none;z-index:-1}
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .line.agent{border-radius:28px 30px 30px 11px;background:linear-gradient(145deg,rgba(255,255,255,.82),rgba(255,246,243,.58));border:1px solid rgba(232,181,177,.74);box-shadow:0 14px 30px rgba(181,91,96,.10),inset 0 1px 8px rgba(255,255,255,.86);color:#5F4545}
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .line.agent::before{content:"";position:absolute;left:-6px;bottom:14px;width:13px;height:13px;border-radius:50%;background:rgba(255,250,248,.82);border:1px solid rgba(232,181,177,.74);box-shadow:0 5px 12px rgba(181,91,96,.08)}
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .line.merchant{border-radius:30px 28px 11px 30px;background:linear-gradient(145deg,rgba(239,144,139,.42),rgba(214,92,104,.28));border:1px solid rgba(225,137,138,.58);box-shadow:0 16px 34px rgba(191,78,91,.15),inset 0 1px 9px rgba(255,255,255,.52);color:#773B42}
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .line.merchant::before{content:"";position:absolute;right:-6px;bottom:14px;width:13px;height:13px;border-radius:50%;background:rgba(232,145,145,.42);border:1px solid rgba(225,137,138,.58);box-shadow:0 5px 12px rgba(191,78,91,.10)}
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .line.sys{border-radius:999px;background:rgba(255,255,255,.56);border:1px dashed rgba(214,139,142,.48);color:#9B7370;box-shadow:none;backdrop-filter:blur(8px)}
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .line.partial{opacity:.68}
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .zy-head{display:flex;align-items:center;gap:8px;margin-bottom:4px}
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .line .who{font-size:.72em;font-weight:800;letter-spacing:.03em;color:#A26B6B}
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .zy-time{margin-left:auto;font-size:.68em;color:#B18986}
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .zy-text{position:relative;z-index:1}
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .inputbar{margin-top:16px;padding:6px;border-radius:999px;background:rgba(255,255,255,.68);border:1px solid rgba(238,199,195,.78);box-shadow:0 12px 28px rgba(181,91,96,.10),inset 0 1px 0 rgba(255,255,255,.9)}
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .inputbar input{border:none;background:transparent;padding-left:14px;box-shadow:none!important}
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .send-btn{width:46px;height:46px;flex:0 0 46px;padding:0;border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .send-btn svg{width:21px;height:21px;position:relative;z-index:1}
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .send-btn::after{content:"";position:absolute;top:-30%;bottom:-30%;left:0;width:28px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.62),transparent);transform:translateX(-160%) skewX(-18deg);animation:mltSheen 3.2s ease-in-out infinite}
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .chip-btn{background:rgba(255,255,255,.54);border-color:rgba(236,198,194,.74)}
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .chip-btn.on{background:linear-gradient(120deg,rgba(239,144,139,.25),rgba(214,92,104,.18));border-color:rgba(214,92,104,.42);box-shadow:0 8px 18px rgba(191,78,91,.10)}
+/* 授权弹窗 */
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) #armOverlay{background:rgba(94,47,50,.28);backdrop-filter:blur(14px)}
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) #armOverlay>div{background:linear-gradient(150deg,rgba(255,253,252,.94),rgba(249,226,222,.84));border:1px solid rgba(255,255,255,.94);box-shadow:0 30px 90px rgba(116,51,58,.22)!important;backdrop-filter:blur(24px)}
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .arm-mark{width:78px;height:78px;margin:0 auto;animation:mltCorePulse 3.8s ease-in-out infinite}
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .arm-mark img{width:100%;height:100%;display:block;filter:drop-shadow(0 12px 22px rgba(176,79,86,.18))}
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) #armOverlay .btn.primary{position:relative;overflow:hidden}
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) #armOverlay .btn.primary::after{content:"";position:absolute;top:-30%;bottom:-30%;left:0;width:42px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.55),transparent);transform:translateX(-160%) skewX(-18deg);animation:mltSheen 3.4s ease-in-out infinite}
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .toolbar{border-radius:24px;background:rgba(255,252,250,.72);backdrop-filter:blur(18px)}
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .end-bar{border-radius:24px;background:rgba(255,252,250,.78);backdrop-filter:blur(18px)}
+@media(max-width:960px){
+  body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .grid{grid-template-columns:1fr}
+  body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .call-card{position:static}
+  body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .sub-live{height:auto;min-height:430px;max-height:none}
+  body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .line{max-width:88%}
+}
+@media (prefers-reduced-motion:reduce){
+  body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .lt-ambient *,
+  body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .call-card::before,
+  body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) #ringIcon::before,
+  body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .wave:not(.live) i,
+  body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .send-btn::after,
+  body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) #armOverlay .btn.primary::after,
+  body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .arm-mark,
+  body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .line{animation:none!important}}
+/* ============================================================
+   商家声场 · 二次定稿
+   更大胆的红色层次、更圆更蓬的气泡、更少持续动态。
+   ============================================================ */
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]){
+  --red:#C9364D; --red-deep:#A92F46; --red-soft:#FAD9D9; --red-line:#E8AAA9;
+  --coral:#EA746D; --rose:#D96B78; --wine:#8F3347;
+  background:#F3D9D4}
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .lt-ambient i,
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .lt-ribbon{animation:none}
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .lt-a{background:radial-gradient(circle,rgba(224,88,102,.48),rgba(224,88,102,0) 68%)}
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .lt-b{background:radial-gradient(circle,rgba(190,51,75,.38),rgba(190,51,75,0) 70%)}
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .lt-c{background:radial-gradient(circle,rgba(238,132,123,.40),rgba(238,132,123,0) 70%)}
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .lt-ribbon{opacity:.16;filter:blur(34px)}
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) header{background:linear-gradient(118deg,rgba(255,250,247,.92),rgba(244,193,190,.72));box-shadow:0 20px 50px rgba(158,45,62,.18),inset 0 1px 0 rgba(255,255,255,.98)}
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .brand-eyebrow{color:#A92F46}
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .brand h1,body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .caller .who,body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .timer{color:#571D28}
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .card{border-color:rgba(232,171,171,.68);background:linear-gradient(150deg,rgba(255,252,250,.92),rgba(245,202,198,.66));box-shadow:0 26px 62px rgba(158,45,62,.15),inset 0 1px 0 rgba(255,255,255,.96)}
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .call-card::before{animation:none;opacity:.24}
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) #ringIcon::before{animation:mltCorePulse 5.6s ease-in-out infinite}
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .wave:not(.live) i{animation:none;opacity:.78;background:#D96B78}
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .wave:not(.live) i:nth-child(4n+1){height:9px}
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .wave:not(.live) i:nth-child(4n+2){height:16px}
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .wave:not(.live) i:nth-child(4n+3){height:24px}
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .wave:not(.live) i:nth-child(4n){height:13px}
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .rbtn.hangup{animation:none;box-shadow:0 12px 28px rgba(169,47,70,.30)}
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .sub-live{background:radial-gradient(500px 280px at 82% 8%,rgba(224,96,107,.22),transparent 70%),linear-gradient(180deg,rgba(255,252,250,.88),rgba(246,211,208,.60));border-color:rgba(226,154,156,.76)}
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .line{max-width:76%;padding:17px 20px;border-radius:34px}
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .line.agent{border-radius:34px 36px 36px 13px;background:linear-gradient(145deg,rgba(255,255,255,.88),rgba(255,242,238,.66));border-color:rgba(224,162,162,.80);box-shadow:0 16px 34px rgba(158,45,62,.12),inset 0 1px 9px rgba(255,255,255,.88)}
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .line.agent::before{left:-7px;bottom:16px;width:15px;height:15px;background:rgba(255,247,244,.86);border-color:rgba(224,162,162,.80)}
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .line.merchant{border-radius:36px 34px 13px 36px;background:linear-gradient(145deg,rgba(234,116,109,.52),rgba(201,54,77,.34));border-color:rgba(210,91,103,.66);box-shadow:0 18px 38px rgba(158,45,62,.18),inset 0 1px 10px rgba(255,255,255,.54);color:#672A35}
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .line.merchant::before{right:-7px;bottom:16px;width:15px;height:15px;background:rgba(220,94,106,.48);border-color:rgba(210,91,103,.66)}
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .line.sys{border-radius:999px;background:rgba(255,255,255,.64);color:#875057;border-color:rgba(201,83,96,.42)}
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .inputbar{background:rgba(255,255,255,.74);border-color:rgba(224,162,162,.82);box-shadow:0 14px 32px rgba(158,45,62,.12),inset 0 1px 0 rgba(255,255,255,.94)}
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .send-btn::after{display:none}
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .btn.primary{background:linear-gradient(125deg,#EF746F,#D03D55 48%,#A92F46 82%,#E87978);box-shadow:0 10px 26px rgba(169,47,70,.30)}
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) #armOverlay .btn.primary::after{display:none}
+body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .arm-mark{animation:mltCorePulse 5.6s ease-in-out infinite}
+@media (prefers-reduced-motion:reduce){
+  body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) #ringIcon::before,
+  body:not([data-theme="blue"]):not([data-theme="green"]):not([data-theme="dark"]) .arm-mark{animation:none!important}}
+</style>
+</head>
+<body>
+<div class="lt-ambient" aria-hidden="true"><i class="lt-a"></i><i class="lt-b"></i><i class="lt-c"></i><span class="lt-ribbon lt-r1"></span><span class="lt-ribbon lt-r2"></span></div>
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <div class="logo"><img src="/static/lingting-mark.svg" alt="灵听声泡花"></div>
+      <div><div class="brand-eyebrow">LINGTING · MERCHANT FIELD</div><h1>灵听 · 商家声场</h1><div class="tag">智语外呼 / 模拟被外呼商家 · 京东商家资质审核专线</div></div>
+    </div>
+    <div class="head-right">
+      <div class="pill"><span class="dot" id="wsDot"></span><span id="wsText">未连接</span></div>
+      <div class="pill">未接来电 <b id="missCount">0</b></div>
+      <div class="pill" style="cursor:pointer" onclick="toggleSettings()">显示设置</div>
+      <a class="pill" href="/" target="_blank">运营后台 ↗</a>
+    </div>
+  </header>
+
+  <!-- 一次性授权遮罩 -->
+  <div id="armOverlay" style="position:fixed;inset:0;z-index:999;background:rgba(30,20,18,.46);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:18px">
+    <div style="background:var(--card);border-radius:24px;padding:34px 38px;text-align:center;box-shadow:0 24px 80px rgba(0,0,0,.26);max-width:420px">
+      <div class="arm-mark"><img src="/static/lingting-mark.svg" alt="灵听声泡花"></div>
+      <div style="font-size:1.15em;font-weight:800;margin:14px 0 8px">开启商家接听模式</div>
+      <div style="font-size:.86em;color:var(--text2);line-height:1.85;margin-bottom:20px">
+        点击下方按钮完成一次麦克风与声音授权。<br>
+        完成后通话中将<b style="color:var(--red)">自动开启收音与声音播放</b>。
+      </div>
+      <button class="btn primary" style="padding:13px 34px;font-size:1em" onclick="armPage()">开启接听模式</button>
+      <div style="margin-top:12px"><a href="javascript:void(0)" onclick="document.getElementById('armOverlay').style.display='none'" style="font-size:.78em;color:var(--text3);text-decoration:none">暂不开启（通话需手动接听）</a></div>
+    </div>
+  </div>
+
+  <div class="toolbar" id="settingsBar" style="display:none">
+    <b>字号缩放</b> <input type="range" id="fsRange" min="0.8" max="1.6" step="0.05" value="1" oninput="setFont(this.value)">
+    <span id="fsLabel" style="min-width:44px">100%</span>
+    <b style="margin-left:10px">主题</b>
+    <select onchange="setTheme(this.value)" style="width:auto">
+      <option value="red">绯红 · 流动（默认）</option>
+      <option value="blue">商务蓝 · 冷白</option>
+      <option value="green">青竹绿 · 清新</option>
+      <option value="dark">星夜 · 暗色模式</option>
+    </select>
+    <span style="color:var(--text3)">（实时生效并自动记忆）</span>
+  </div>
+
+  <div class="grid">
+    <!-- 左：通话终端 -->
+    <div class="card call-card">
+      <div class="cc-head"><span class="dotc bad"></span>京东商家资质审核专线 <span class="chip info">4006180092</span></div>
+
+      <div class="avatar-wrap" id="ring">
+        <div class="av" id="ringIcon">灵</div>
+      </div>
+
+      <div class="caller">
+        <div class="who" id="callerWho">等待来电</div>
+        <div class="why" id="callerWhy">运营后台发起外呼后，此处显示来电信息</div>
+      </div>
+
+      <div class="timer" id="callTimer">00:00</div>
+      <div class="state" id="callState">STANDBY · 待机</div>
+
+      <div class="wave" id="wave"></div>
+
+      <div class="rail-h" id="stageRail"></div>
+      <div style="text-align:center;font-size:.74em;color:var(--text3);margin-top:4px" id="elemsText">要素 0/5</div>
+
+      <div class="call-actions">
+        <div class="ac"><button class="rbtn answer" id="btnAnswer" onclick="answerCall()" disabled>✓</button>接听</div>
+        <div class="ac"><button class="rbtn reject" id="btnReject" onclick="rejectCall()" disabled>✕</button>拒接</div>
+        <div class="ac"><button class="rbtn hangup" id="btnHangup" onclick="hangupCall()" disabled>■</button>挂断</div>
+        <div class="ac"><button class="rbtn mic" id="btnMic" onclick="toggleMic()" disabled title="通话中可关闭麦克风，改用下方打字交流">🎤</button>麦克风</div>
+      </div>
+
+      <div class="meters">
+        <div class="meter"><span>商家情绪</span><b id="mEmotion">—</b></div>
+        <div class="meter"><span>端点检测</span><b id="mVad">待机</b></div>
+        <div class="meter"><span>麦克风音量</span><b id="mVol">—</b></div>
+        <div class="meter"><span>已发音频帧</span><b id="mPkt">—</b></div>
+        <div class="meter"><span>语音识别</span><b id="mAsr">—</b></div>
+        <div class="meter"><span>首字时延</span><b id="mLat">—</b></div>
+      </div>
+
+      <div class="backcall">
+        <b>主动来电 / 回拨：</b>
+        <select id="myMerchant" style="flex:1;min-width:120px"></select>
+        <button class="btn ghost" onclick="inboundCall()">给京东打电话</button>
+        <button class="btn ghost" id="btnRedial" onclick="redialMissed()" disabled>回拨未接</button>
+      </div>
+    </div>
+
+    <!-- 右：实时字幕 -->
+    <div class="card">
+      <h2>流式实时转写字幕 <span class="sub" id="liveTag">STANDBY · 待机</span></h2>
+      <div class="sub-live" id="subLive">
+        <div class="empty-tip"><b>等待接听</b>接听来电后，商家语音与数字员工回复将逐句实时呈现<br>每句话附带状态、情绪与识别置信度</div>
+      </div>
+      <div class="inputbar">
+        <input id="textInput" placeholder="文字输入（ASR 未配置时的兜底 / 也可直接打字提问）" onkeydown="if(event.key==='Enter')sendText()">
+        <button class="btn primary send-btn" onclick="sendText()" aria-label="发送文字"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      </div>
+      <div id="micRetryBar" style="display:none;gap:8px;align-items:center;margin-top:10px;padding:9px 12px;border-radius:10px;background:var(--warn-soft);border:1px solid var(--warn-line);font-size:.8em;color:var(--warn);flex-wrap:wrap">
+        <span>麦克风异常？授权后点这里重试：</span>
+        <button class="btn warn" style="padding:5px 12px" onclick="retryMic()">重试麦克风</button>
+        <button class="btn warn" style="padding:5px 12px" onclick="manualReconnect()">重连通话</button>
+        <select id="micDevice" onchange="retryMic()" style="max-width:220px"></select>
+      </div>
+      <!-- 【WebRTC 弱网传输·11/19】传输方式开关：语音媒体走 SRTP/Opus（推荐），
+           协商失败自动回退 WS PCM 旧链路；字幕/打断/文字兜底始终走 WS 信令通道 -->
+      <div class="tool-row" style="margin-top:8px">
+        <span class="lbl">传输方式</span>
+        <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap;font-size:.8em;color:var(--text2)">
+          <label style="display:flex;gap:5px;align-items:center;cursor:pointer">
+            <input type="radio" name="transport" value="rtc" checked onchange="onTransportChange()"> WebRTC（弱网优选）
+          </label>
+          <label style="display:flex;gap:5px;align-items:center;cursor:pointer">
+            <input type="radio" name="transport" value="ws" onchange="onTransportChange()"> WebSocket（PCM 直传）
+          </label>
+          <span id="rtcBadge" style="display:none;padding:3px 10px;border-radius:999px;background:var(--info-soft,var(--card));border:1px solid var(--line);color:var(--text2);font-size:.78em;font-variant-numeric:tabular-nums">RTC:待协商</span>
+        </div>
+      </div>
+      <!-- 【11/20 答辩弱网开关】服务端 aioice 层真实丢包注入，真机即时演示，无需 clumsy -->
+      <div class="tool-row" style="margin-top:6px">
+        <span class="lbl">弱网模拟</span>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:.8em;color:var(--text2)">
+          <select id="weaknetSel" onchange="onWeaknetChange()" style="max-width:150px">
+            <option value="0">关闭（正常网络）</option>
+            <option value="5">轻度丢包 5%</option>
+            <option value="15">中度丢包 15%</option>
+            <option value="30">重度丢包 30%</option>
+          </select>
+          <span id="weaknetBadge" style="padding:3px 10px;border-radius:999px;background:var(--info-soft,var(--card));border:1px solid var(--line);color:var(--text2);font-size:.78em">弱网:关闭</span>
+          <span style="opacity:.75">（网络保持连通，仅在音频 UDP 层注入丢包；FEC/NACK/PLC 生效）</span>
+        </div>
+      </div>
+      <!-- 11/21 弱网传输实时指标：与 pc.getStats 每2s采样同源，答辩时可直接读屏 -->
+      <div id="rtcNetBar" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
+        <div style="flex:1;min-width:92px;padding:6px 9px;border:1px solid var(--line);border-radius:8px;background:var(--card)">
+          <div style="font-size:.72em;color:var(--text3)">RTT 往返</div>
+          <div style="font-weight:800;font-size:1.05em"><span id="nbRtt">—</span><small style="font-weight:400;color:var(--text3)"> ms</small></div>
+          <div style="height:3px;background:var(--line);border-radius:2px;margin-top:4px"><i id="nbRttBar" style="display:block;height:100%;width:0;background:var(--ok,#2a7);border-radius:2px"></i></div>
+        </div>
+        <div style="flex:1;min-width:92px;padding:6px 9px;border:1px solid var(--line);border-radius:8px;background:var(--card)">
+          <div style="font-size:.72em;color:var(--text3)">抖动 Jitter</div>
+          <div style="font-weight:800;font-size:1.05em"><span id="nbJit">—</span><small style="font-weight:400;color:var(--text3)"> ms</small></div>
+          <div style="height:3px;background:var(--line);border-radius:2px;margin-top:4px"><i id="nbJitBar" style="display:block;height:100%;width:0;background:var(--ok,#2a7);border-radius:2px"></i></div>
+        </div>
+        <div style="flex:1;min-width:92px;padding:6px 9px;border:1px solid var(--line);border-radius:8px;background:var(--card)">
+          <div style="font-size:.72em;color:var(--text3)">接收丢包</div>
+          <div style="font-weight:800;font-size:1.05em"><span id="nbLoss">—</span><small style="font-weight:400;color:var(--text3)"> %</small></div>
+          <div style="height:3px;background:var(--line);border-radius:2px;margin-top:4px"><i id="nbLossBar" style="display:block;height:100%;width:0;background:var(--ok,#2a7);border-radius:2px"></i></div>
+        </div>
+        <div style="flex:1;min-width:92px;padding:6px 9px;border:1px solid var(--line);border-radius:8px;background:var(--card)">
+          <div style="font-size:.72em;color:var(--text3)">弱网注入</div>
+          <div style="font-weight:800;font-size:1.05em" id="nbInj">关闭</div>
+          <div style="font-size:.68em;color:var(--text3)">服务端生效值</div>
+        </div>
+      </div>
+      <audio id="remoteAudio" autoplay style="display:none"></audio>
+      <div class="tool-row">
+        <span class="lbl">评测对抗模拟</span>
+        <div class="adversary" style="margin:0">
+          <div class="chip-btn" onclick="toggleChip(this,'noise')">背景噪声</div>
+          <div class="chip-btn" onclick="toggleChip(this,'double')">双讲抢话</div>
+          <div class="chip-btn" onclick="toggleChip(this,'barge')">自然打断</div>
+        </div>
+      </div>
+      <!-- 11/21 抗双讲：默认开启；关=后端真实停用（所有声音恢复转写），不只是改标签 -->
+      <div class="tool-row">
+        <span class="lbl">抗双讲</span>
+        <div class="adversary" style="margin:0">
+          <div class="chip-btn on" id="antiDoubleBtn" onclick="toggleAntiDouble()">抗双讲：开</div>
+          <div class="chip-btn" id="relockBtn" onclick="relockSpeaker()" title="视频/旁人先说话抢了音纹时，本人在安静环境点一下">重锁音纹</div>
+        </div>
+        <span class="lbl" id="antiDoubleHint" style="font-size:.76em;color:var(--text3)">已记住第一句话的声音 · 旁人自动忽略</span>
+        <span class="chip-btn" id="diagBtn" onclick="dumpDiag()" style="font-size:.72em;padding:2px 8px;margin-left:8px">复制诊断</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 挂断后的结束提示（工单与通话复盘统一在运营后台，商家端不展示） -->
+  <div class="end-bar" id="endBar" style="display:none">
+    <span class="ic">✓</span>
+    <div class="et">
+      <b id="endBarT">通话已结束</b>
+      <div class="note">本次通话记录已同步至运营后台，工单进度与复核结论由资质审核运营同事继续跟进</div>
+    </div>
+  </div>
+
+  <footer>智语外呼 · 灵听回响 — 商家接听端（演示数据，非真实京东业务）</footer>
+</div>
+
+<script>
+/* ============================================================
+   版本自检 + 浏览器黑匣子
+   ============================================================ */
+const BUILD_ID = 'zy-20261121-rtc-epoch-swap';
+function wsdbg(m){
+  try{fetch('/api/debug/client-error',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({msg:String(m).slice(0,280)})}).catch(()=>{})}catch(e){}
+}
+window.addEventListener('error',e=>wsdbg('JS异常: '+e.message+' @'+(e.lineno||'?')));
+window.addEventListener('unhandledrejection',e=>wsdbg('Promise异常: '+((e.reason&&e.reason.message)||e.reason)));
+(function(){
+  let reloading = false;
+  setInterval(async ()=>{
+    if(reloading)return;
+    try{
+      const src = await (await fetch(location.pathname,{cache:'no-store'})).text();
+      const m = src.match(/BUILD_ID = '([^']+)'/);
+      if(m && m[1] !== BUILD_ID){ reloading = true; location.reload(); }
+    }catch(e){}
+  },20000);
+})();
+
+/* ============================================================
+   工具
+   ============================================================ */
+const $ = id => document.getElementById(id);
+function esc(s){const d=document.createElement('div');d.textContent=(s==null?'':String(s));return d.innerHTML}
+function parseJSON(s,fb){try{const v=(typeof s==='string')?JSON.parse(s):s;return (v==null)?fb:v}catch(e){return fb}}
+
+/* ============================================================
+   双向字幕同步（2026/11/12）
+   本页不再自己往 #subLive 写 DOM：所有字幕行统一上报服务端唯一真值源，
+   服务端把同一份快照同时推给商家端与运营后台，两端用同一段代码渲染，
+   因此两个窗口永远显示同样的内容、同样的顺序、同样的时间。
+   ============================================================ */
+const SUB_EMPTY='<div class="empty-tip"><b>等待接听</b>接听来电后，商家语音与数字员工回复将逐句实时呈现<br>每句话附带状态、情绪与识别置信度</div>';
+let lastTranscriptRev=-1, lastTranscriptEpoch='', partialActive=false, agentBubbleSeq=0;
+function transcriptHTML(l){
+  const role=l.role||'sys';
+  /* 工具调用是运营后台的内部证据（模型查了什么），商家端不展示；
+     快照两端共用，所以在这里把 role=tool 的行过滤掉。 */
+  if(role==='tool') return '';
+  const cls=role==='agent'?'agent':role==='merchant'?'merchant':role==='partial'?'merchant partial':'sys';
+  const who=role==='agent'?'数字员工 · 京东资质审核专员':role==='merchant'?'商家（我）':role==='partial'?'商家（识别中…）':'系统';
+  const tags=(l.tags||[]).map(t=>`<span class="zy-tag">${esc(t)}</span>`).join('');
+  return `<div class="line ${cls} zy-line"><div class="zy-head"><span class="who">${who}</span><span class="zy-time">${esc(l.ts||'')}</span></div>`+
+         `<div class="zy-text">${esc(l.text||'')}</div>${tags?`<div class="zy-tags">${tags}</div>`:''}</div>`;
+}
+function renderTranscript(snap,boxId,emptyHtml){
+  if(!snap||!Array.isArray(snap.lines))return;
+  if(snap.epoch!==lastTranscriptEpoch){ lastTranscriptEpoch=snap.epoch||''; lastTranscriptRev=-1 }
+  if(snap.rev<=lastTranscriptRev)return;      // 只认最新快照，乱序/重复事件都不会造成两端不一致
+  lastTranscriptRev=snap.rev;
+  const box=$(boxId); if(!box)return;
+  box.innerHTML=snap.lines.length?snap.lines.map(transcriptHTML).join(''):emptyHtml;
+  box.scrollTop=box.scrollHeight;
+}
+function applyTranscript(s){ renderTranscript(s,'subLive',SUB_EMPTY) }
+// 12/12：新会话发起时才清空实时转写（挂断后停留，不立即重置）
+function clearTranscript(){ const b=$('subLive'); if(b) b.innerHTML=SUB_EMPTY; }
+function syncLine(action,line){
+  fetch('/api/transcript/line',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({action:action,line:line})})
+    .then(r=>r.json()).then(applyTranscript).catch(()=>{});
+}
+function fetchTranscript(){
+  fetch('/api/transcript',{cache:'no-store'}).then(r=>r.json()).then(applyTranscript).catch(()=>{});
+}
+const EMON={neutral:'平和',anxious:'焦急',angry:'激动',satisfied:'满意'};
+const EMOTONE={neutral:'',anxious:'emo-anxious',angry:'emo-angry',satisfied:'emo-satisfied'};
+// 12/12 统一五环节（与运营端 / 工单 / 历史同一份模型，由后端 flow5 驱动）
+const STAGES_5=[{id:1,name:'自我介绍'},{id:2,name:'商家身份确认'},{id:3,name:'情况说明'},{id:4,name:'商家答疑'},{id:5,name:'整改意愿确认'}];
+function timeNow(){const d=new Date();return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')}
+function fmtTime(s){return s?String(s).slice(5,16):'—'}
+function fmtDur(a,b){
+  if(!a||!b) return '—';
+  const t0=new Date(String(a).replace(' ','T')).getTime();
+  const t1=new Date(String(b).replace(' ','T')).getTime();
+  if(isNaN(t0)||isNaN(t1)||t1<t0) return '—';
+  const s=Math.round((t1-t0)/1000);
+  return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');
+}
+
+/* ============================================================
+   全局状态
+   ============================================================ */
+let WS=null, callId=null, mediaStream=null, audioCtx=null, processor=null, playing=false;
+let audioQ=[], audioDraining=false, currentAgentBubble=null, currentAgentEpoch=null, currentSource=null, audioGen=0;
+// 【11/21 二轮·验证可见】抗双讲拦截计数：计数增长=真在拦截；不动=云端没听出语音
+let guardBlocked=0, guardStale=0, guardDomPass=0;
+let ringPoll=null, missCount=0, lastMissed=null;
+let callStartAt=null, callTimerId=null, waveTimer=null;
+let lastRms=0;
+// 【赛题口径埋点·罗 11/12】全部时间取自浏览器单一时钟 performance.now()：
+// 起点=用户停止说话（本地最后人声），终点=首个音频帧 src.start()。
+// latTailMs 在 final 时刻锁定，不用实时变量，避免回声把 ASR 尾点算成负数。
+let latLastVoiceAt=0, latFinalAt=0, latTurnStartAt=0, latFirstPlayAt=0, latTailMs=0, latTurnNo=0;
+// 【D1·v2 第 1 期·罗】只有带真实人声的语音轮才允许上报 e2e；文字输入兜底轮不计入。
+let latVoiceTurn=false;
+const WAVE_BARS=26;
+const mic = { noise:false, double:false, barge:false };
+const cur = {elements:{}, state:'', ended:false, flow:[]};
+
+/* ============================================================
+   初始化（在所有声明之后统一调用，见脚本末尾）
+   ============================================================ */
+function loadMerchants(){
+  fetch('/api/merchants').then(r=>r.json()).then(list=>{
+    $('myMerchant').innerHTML=(list||[]).map(m=>`<option value="${m.id}">${esc(m.company_name)}</option>`).join('');
+  });
+}
+function toggleSettings(){const b=$('settingsBar');b.style.display=b.style.display==='flex'?'none':'flex'}
+function setFont(v){
+  document.documentElement.style.setProperty('--fscale',v);
+  $('fsLabel').textContent=Math.round(v*100)+'%';
+  localStorage.setItem('zy_fs',v);
+}
+function setTheme(t){document.body.dataset.theme=t;localStorage.setItem('zy_theme',t)}
+(function restoreSettings(){
+  const f=localStorage.getItem('zy_fs');
+  if(f){
+    document.documentElement.style.setProperty('--fscale',f);
+    if($('fsRange'))$('fsRange').value=f;
+    if($('fsLabel'))$('fsLabel').textContent=Math.round(f*100)+'%';
+  }
+  const t=localStorage.getItem('zy_theme');
+  if(t)document.body.dataset.theme=t;
+})();
+function toggleChip(el,k){mic[k]=!mic[k];el.classList.toggle('on',mic[k])}
+
+/* ============================================================
+   抗双讲开关（11/21）：默认开启；关闭时后端真实停用。
+   状态只在收到 anti_doubletalk_ack 后才翻转——"显示开=功能真开"。
+   ============================================================ */
+let antiDoubleOn=true;   // 与后端 session["anti_doubletalk"] 初始值一致
+function toggleAntiDouble(){
+  if(!WS||WS.readyState!==1){   // 链路未建立：改为“本地预选”，下次接通随 start 一起下发
+    antiDoubleOn=!antiDoubleOn;
+    applyAntiDouble(antiDoubleOn);
+    const h=$('antiDoubleHint');
+    if(h) h.textContent = antiDoubleOn
+      ? '已预选开启 · 下次通话生效（只认第一句话的声音）'
+      : '已预选关闭 · 下次通话所有声音都会转写';
+    return;
+  }
+  WS.send(JSON.stringify({action:'anti_doubletalk',enabled:!antiDoubleOn}));
+}
+function relockSpeaker(){
+  if(!WS||WS.readyState!==1){
+    addLine('system','（未通话，无法重锁音纹）',null,true);return;
+  }
+  WS.send(JSON.stringify({action:'relock_speaker'}));
+  const h=$('antiDoubleHint');
+  if(h) h.textContent='已请求重锁 · 请本人说一句，重新锁定';
+}
+function applyAntiDouble(enabled){
+  antiDoubleOn=!!enabled;
+  guardBlocked=0;guardStale=0;guardDomPass=0;   // 开关切换=新一轮判定，计数重新累计
+  const btn=$('antiDoubleBtn'),hint=$('antiDoubleHint');
+  if(btn){
+    btn.classList.toggle('on',antiDoubleOn);
+    btn.textContent='抗双讲：'+(antiDoubleOn?'开':'关');
+  }
+  if(hint){
+    hint.textContent=antiDoubleOn
+      ?'已记住第一句话的声音 · 旁人自动忽略'
+      :'已关闭 · 所有说话人的声音都会转写';
+  }
+}
+
+/* ============================================================
+   诊断版（11/21）：一键导出音纹判决日志，定位锁错人/没锁上/倍频记错。
+   ============================================================ */
+function dumpDiag(){
+  if(!WS||WS.readyState!==1){alert('链路未连接，无法导出诊断');return}
+  WS.send(JSON.stringify({action:'diag_dump'}));
+  const b=$('diagBtn');if(b)b.textContent='导出中…';
+}
+function closeDiagPanel(){
+  const box=document.getElementById('diagPanel');if(box)box.remove();
+  const mask=document.getElementById('diagMask');if(mask)mask.remove();
+}
+function showDiagPanel(text){
+  // 【11.21-12】诊断文字改为独立背景板 + 半透明遮罩：旧版用 CSS 变量背景，
+  // 在浅色主题下解析为透明，文字直接浮在外呼页上"很花"。这里一律用固定的
+  // 不透明深色卡片 + 清晰前景色，任何主题下都可读；点遮罩/关闭按钮均可收起。
+  let mask=document.getElementById('diagMask');
+  if(!mask){
+    mask=document.createElement('div');mask.id='diagMask';
+    mask.style.cssText='position:fixed;inset:0;z-index:9998;background:rgba(0,0,0,.45)';
+    mask.onclick=closeDiagPanel;
+    document.body.appendChild(mask);
+  }
+  let box=document.getElementById('diagPanel');
+  if(!box){
+    box=document.createElement('div');box.id='diagPanel';
+    box.style.cssText='position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:9999;width:min(92vw,860px);max-height:82vh;background:#1e2229;color:#e8eaed;border:1px solid #3a4048;border-radius:12px;padding:18px 20px;box-shadow:0 10px 50px rgba(0,0,0,.55);box-sizing:border-box';
+    document.body.appendChild(box);
+  }
+  const lines=(text||'').split('\n');
+  let head='<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;border-bottom:1px solid #3a4048;padding-bottom:10px">'
+    +'<b style="font-size:15px;color:#fff">抗双讲诊断</b>'
+    +'<span style="font-size:.8em;color:#9aa4b2">全选复制发回即可，不用看懂</span>'
+    +'<button onclick="copyDiag()" style="margin-left:auto">复制全部</button>'
+    +'<button onclick="closeDiagPanel()">关闭</button></div>';
+  let table='<div style="overflow:auto;max-height:66vh;margin-top:12px;font-family:var(--font-mono,monospace);font-size:12px;line-height:1.6;white-space:pre;color:#d7dce3">'+escapeHtml(text||'')+'</div>';
+  box.innerHTML=head+table;
+  window._diagText=text||'';
+}
+function copyDiag(){
+  const t=window._diagText||'';
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(()=>alert('已复制，粘贴发回即可'))}
+  else{const ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();try{document.execCommand('copy');alert('已复制')}catch(e){}ta.remove()}
+}
+function escapeHtml(s){return String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]))}
+function formatDiag(snap){
+  if(!snap||snap.error)return '诊断不可用：'+(snap&&snap.error||'无会话');
+  const L=[];
+  L.push('=== 抗双讲诊断 '+snap.call_id+' ===');
+  L.push('开关:'+(snap.anti_doubletalk?'开':'关')+'  已锁定:'+(snap.locked?'是':'否')+'  参考f0:'+snap.ref_f0+'Hz');
+  L.push('参考zcr:'+snap.ref_zcr+'  参考tilt:'+snap.ref_tilt+'  目标编号:'+snap.target_speaker);
+  L.push('判定门槛 F0_NEAR:'+snap.F0_NEAR+' F0_MID:'+snap.F0_MID+' F0_FAR:'+snap.F0_FAR);
+  L.push('音频环:'+snap.ring_sec+'s  已发送:'+snap.fed_sec+'s');
+  L.push('---------------- 逐句判决（时间/结果/文本/实测f0/spread/ref/相对差/判定/AI播报中/说明）----------------');
+  for(const e of (snap.events||[])){
+    L.push([e.t+'s',e.ev,JSON.stringify(e.txt),'f0='+e.f0,'zcr='+e.zcr,'tilt='+e.tilt,
+            'spread='+e.spread,'spk='+e.spk,'ref='+e.ref_f0,'rel='+e.rel,
+            'sim='+e.sim,'ai='+e.ai_speaking,e.extra].join(' | '));
+  }
+  return L.join('\n');
+}
+
+/* ============================================================
+   语音波形（由真实麦克风 RMS 驱动）
+   ============================================================ */
+function buildWave(){
+  const w=$('wave'); if(!w) return;
+  w.innerHTML=Array.from({length:WAVE_BARS}).map(()=>'<i style="height:8px"></i>').join('');
+}
+function updateWave(level){
+  const w=$('wave'); if(!w) return;
+  const bars=w.querySelectorAll('i');
+  const live=callId&&/IN-CALL|通话中/.test($('callState').textContent);
+  w.classList.toggle('live',!!live);
+  bars.forEach((b,i)=>{
+    const center=1-Math.abs(i-(WAVE_BARS-1)/2)/(WAVE_BARS/2);
+    let h;
+    if(!live){ h=8 }
+    else{
+      const base=Math.min(1,level*18);
+      h=7+base*30*(0.28+center*0.85)*(0.55+Math.random()*0.65);
+    }
+    b.style.height=Math.max(7,Math.round(h))+'px';
+  });
+}
+setInterval(()=>{ if(callId) updateWave(lastRms/* 见下 */) },140);
+
+/* ============================================================
+   一次性授权解锁
+   ============================================================ */
+window.__armed=false;
+async function armPage(){
+  if(window.__armed)return;
+  window.__armed=true;
+  try{
+    if(!audioCtx) audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+    if(audioCtx.state==='suspended') await audioCtx.resume();
+  }catch(e){}
+  try{
+    const s=await navigator.mediaDevices.getUserMedia({audio:true});
+    s.getTracks().forEach(t=>t.stop());
+    addLine('system','（麦克风已就绪：通话中将自动开启收音）',null,true);
+  }catch(e){
+    addLine('system','（麦克风预授权失败['+(e.name||'未知')+'：通话中可用「重试麦克风」或文字输入兜底）',null,true);
+  }
+  const ov=$('armOverlay'); if(ov) ov.style.display='none';
+}
+
+/* ============================================================
+   来电轮询
+   ============================================================ */
+function startRingPoll(){
+  ringPoll=setInterval(async()=>{
+    const calls=await (await fetch('/api/calls')).json();
+    const ringing=calls.find(c=>c.status==='ringing'&&c.direction!=='merchant_self');
+    if(ringing&&!callId){
+      callId=ringing.call_id;
+      cur.flow=[]; cur.state=''; cur.ended=false; clearTranscript(); renderRail();
+      startRingtone();
+      // 11/14：来电方永远是京东（外呼/回拨都是京东打给商家），固定显示京东；
+      // ringing.company_name 是被叫商家自己的名字，之前误显示成来电方（回拨时看不到京东字样）
+      $('callerWho').textContent='京东商家服务';
+      $('callerWhy').textContent=`资审驳回外呼 · 场景：${ringing.level2_category||'资质审核'}`;
+      $('callState').textContent='RINGING · 来电中';
+      $('ring').classList.add('on');
+      $('ring').classList.remove('incall');
+      $('btnAnswer').disabled=false;
+      $('btnReject').disabled=false;
+      $('mAsr').textContent=ringing.company_name?'等待接听':'—';
+    }
+  },2000);
+}
+
+/* ============================================================
+   来电铃声（WebAudio 合成）
+   ============================================================ */
+let ringTimer=null, ringCtx=null;
+function startRingtone(){
+  if(ringTimer)return;
+  try{
+    ringCtx=new (window.AudioContext||window.webkitAudioContext)();
+    if(ringCtx.state==='suspended')ringCtx.resume();
+  }catch(e){return}
+  const beep=()=>{
+    if(!ringCtx)return;
+    const t0=ringCtx.currentTime;
+    [[0.0,0.35],[0.5,0.35]].forEach(([start,dur])=>{
+      const osc=ringCtx.createOscillator(), g=ringCtx.createGain();
+      osc.type='sine';osc.frequency.value=450;
+      g.gain.setValueAtTime(0,t0+start);
+      g.gain.linearRampToValueAtTime(0.22,t0+start+0.03);
+      g.gain.setValueAtTime(0.22,t0+start+dur-0.04);
+      g.gain.linearRampToValueAtTime(0,t0+start+dur);
+      osc.connect(g).connect(ringCtx.destination);
+      osc.start(t0+start);osc.stop(t0+start+dur);
+    });
+  };
+  beep();beep();
+  ringTimer=setInterval(beep,2000);
+}
+function stopRingtone(){
+  if(ringTimer){clearInterval(ringTimer);ringTimer=null}
+  if(ringCtx){try{ringCtx.close()}catch(e){}ringCtx=null}
+}
+
+/* ============================================================
+   计时器
+   ============================================================ */
+function startTimer(){
+  stopTimer();
+  callStartAt=Date.now();
+  const tick=()=>{
+    const s=Math.max(0,Math.round((Date.now()-callStartAt)/1000));
+    $('callTimer').textContent=String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');
+  };
+  tick();
+  callTimerId=setInterval(tick,1000);
+}
+function stopTimer(){ if(callTimerId){clearInterval(callTimerId);callTimerId=null} }
+
+/* ============================================================
+   阶段进度
+   ============================================================ */
+function renderRail(){
+  const rail=$('stageRail'); if(!rail) return;
+  const flow = (cur.flow && cur.flow.length) ? cur.flow
+             : STAGES_5.map(s=>({id:s.id,name:s.name,done:false,current:false,ts:null}));
+  rail.innerHTML=flow.map(s=>{
+    const ok=!!s.done;
+    const now=!ok && !cur.ended && !!s.current;
+    const cls=ok?'done':now?'now':'';
+    const ts=(ok && s.ts!=null) ? `<i class="ts">第${Math.round(s.ts)}秒</i>` : '';
+    return `<div class="node ${cls}"><div class="d">${ok?'✓':now?'•':'·'}</div><span class="l">${esc(s.name)}</span>${ts}</div>`;
+  }).join('');
+  const doneN=flow.filter(s=>s.done).length;
+  const curStage=flow.find(s=>s.current);
+  $('elemsText').textContent=(flow.length===5?'整改进度 ':'咨询进度 ')+doneN+'/'+flow.length
+    + (cur.ended ? (doneN===5?' · 已完成':' · 通话结束')
+                 : (curStage?(' · 当前：'+curStage.name):' · 进行中'));
+}
+function applyMetaToSteps(m){
+  if(m && Array.isArray(m.flow5) && m.flow5.length){
+    cur.flow = m.flow5.map(s=>({id:s.id,name:s.name,done:!!s.done,current:!!s.current,ts:s.ts}));
+  } else if(m && m.compliance && m.compliance.elements){
+    // 兼容旧数据：无 flow5 时按要素粗略映射
+    const c=m.compliance.elements;
+    cur.flow=STAGES_5.map(s=>{
+      let done=false;
+      if(s.id===1) done=true;
+      else if(s.id===2) done=!!c['身份确认'];
+      else if(s.id===3) done=!!(c['驳回原因']&&c['整改动作']);
+      else if(s.id===4) done=false;
+      else if(s.id===5) done=!!c['结束语'];
+      return {id:s.id,name:s.name,done,current:false,ts:null};
+    });
+  }
+  if(m&&m.state) cur.state=m.state;
+  renderRail();
+}
+
+/* ============================================================
+   接听 / 拒接 / 挂断
+   ============================================================ */
+async function answerCall(){
+  if(!callId)return;
+  stopRingtone();
+  showMicRetry();
+  // 【11/14 修复·开场白无声】播放上下文不能依赖麦克风授权：audioCtx 原来只在
+  // startMic()（getUserMedia 成功）里创建，麦克风授权失败时 audioCtx=null，
+  // pumpAudio 会把开场白等全部音频帧静默丢弃。接听是用户手势，在此创建并 resume。
+  try{
+    if(!audioCtx) audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+    if(audioCtx.state==='suspended'){try{await audioCtx.resume()}catch(e){}}
+  }catch(e){}
+  await fetch(`/api/calls/${callId}/answer`,{method:'POST'});
+  $('ring').classList.remove('on');
+  $('ring').classList.add('incall');
+  $('callState').textContent='IN-CALL · 通话中';
+  $('btnAnswer').disabled=true;
+  $('btnReject').disabled=true;
+  $('btnHangup').disabled=false;
+  $('liveTag').textContent='LIVE · 转写中';
+  $('mVad').textContent='监听中';
+  startTimer();
+  openWS(callId);
+}
+async function rejectCall(){
+  if(!callId)return;
+  stopRingtone();
+  await fetch(`/api/calls/${callId}/reject`,{method:'POST'});
+  missCount++; lastMissed=callId;
+  $('missCount').textContent=missCount;
+  $('btnRedial').disabled=false;
+  addLine('merchant','（商家拒接了本次来电）',null,true);
+  resetTerminal('已拒接 · REJECTED');
+}
+async function hangupCall(){
+  if(WS&&WS.readyState===1){WS.send(JSON.stringify({action:'hangup'}))}
+  else if(callId){try{await fetch(`/api/calls/${callId}/hangup`,{method:'POST'})}catch(e){}}
+  stopPlayback();   // 11/12修复：挂断时先停播再关音频上下文，防 pumpAudio 卡死在 onended
+  rtcHardStop();    // 【11/22】挂断时连 WebRTC 通道一起硬停，否则残留音频会继续播
+  stopMic();
+  if(reconnectTimer){clearInterval(reconnectTimer);reconnectTimer=null}
+  const finished=callId;
+  // 冉 11/11：中途挂断记为「待再呼」，不再误导成一次已完成的任务闭环
+  resetTerminal('已挂断 · 待再呼');
+  addLine('system','（通话已记录，未完成任务的可由运营后台再次发起外呼）',null,true);
+  markCallEnded(finished);
+}
+async function redialMissed(){
+  if(!lastMissed)return;
+  await fetch(`/api/calls/${lastMissed}/answer`,{method:'POST'});
+  callId=lastMissed; missCount=Math.max(0,missCount-1);
+  $('missCount').textContent=missCount;
+  answerCall();
+}
+async function inboundCall(){
+  const mid=$('myMerchant').value;
+  // 冉 11/11：来电必须绑定驳回场景。原来把场景留空，模型拿不到参考话术，
+  // 说不出驳回原因与整改动作，必说话术合规率必然掉分；后端也会兜底取首条场景。
+  let sid=null;
+  try{
+    const scs=await (await fetch('/api/scenarios')).json();
+    if(Array.isArray(scs)&&scs.length) sid=scs[0].id;
+  }catch(e){}
+  const r=await (await fetch('/api/calls',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({merchant_id:+mid,scenario_id:sid,direction:'inbound'})})).json();
+  callId=r.call_id;
+  cur.flow=[]; cur.state=''; cur.ended=false; clearTranscript(); renderRail();
+  $('callerWho').textContent='京东商家服务热线';
+  $('callerWhy').textContent='商家主动来电 · 咨询资质审核';
+  answerCall();
+}
+
+function resetTerminal(msg){
+  stopRingtone(); stopTimer();
+  $('callTimer').textContent='00:00';
+  $('callState').textContent=msg;
+  $('ringIcon').textContent='灵';
+  $('ring').classList.remove('on','incall');
+  $('btnHangup').disabled=true;
+  $('btnAnswer').disabled=true;
+  $('btnReject').disabled=true;
+  $('liveTag').textContent='STANDBY · 待机';
+  $('mVad').textContent='待机';
+  // 11/19：通话结束恢复麦克风按钮待机态，静音状态不跨通话
+  micMuted=false; updateMicBtn();
+  cur.ended=true; renderRail();
+  updateWave(0);
+  callId=null;
+}
+
+/* ============================================================
+   WebSocket 实时链路
+   ============================================================ */
+let wsReadyReceived=false, wsTryCount=0, reconnectTimer=null, WSWatch=null;
+// 11/21：弱网档位在通话前预设也要记住——WS 建立后补发，否则徽章显示但后端未生效
+let pendingWeaknetPct=0;
+function openWS(cid){
+  // 【11/22】新通话先清页面级 RTC 状态，否则上一通的 rtcMode 会让 rtcStart() 直接跳过，
+  // 新通话就不发 offer → RTC 模式下一句话都收不到。（同一通的重连不受影响）
+  rtcResetForNewCall(cid);
+  const proto=location.protocol==='https:'?'wss':'ws';
+  WS=new WebSocket(`${proto}://${location.host}/ws/call/${cid}`);
+  WS.binaryType='arraybuffer';
+  wsReadyReceived=false; wsTryCount++;
+  wsdbg(`WS-NEW #${wsTryCount} call=${cid} host=${location.host}`);
+  if(WSWatch)clearTimeout(WSWatch);
+  WSWatch=setTimeout(()=>{
+    if(wsReadyReceived||callId!==cid)return;
+    if(wsTryCount>12){
+      wsdbg('WS-GIVEUP 12次重试失败');
+      addLine('system','（链路反复建立失败：请看下方诊断条，或用文字输入兜底）',null,true);
+      showMicRetry();return;
+    }
+    wsdbg(`WS-WATCHDOG #${wsTryCount} readyState=${WS?WS.readyState:'?'}`);
+    try{WS.onclose=null;WS.close()}catch(e){}
+    addLine('system',`（链路未建立（第${wsTryCount}次尝试），自动重试…）`,null,true);
+    openWS(cid);
+  },1500);
+  WS.onopen=()=>{
+    if(window.__armed&&audioCtx&&audioCtx.state==='suspended'){try{audioCtx.resume()}catch(e){}}
+    wsdbg('WS-OPEN');
+    setDot(true,'已连接 · 实时链路');
+    if(reconnectTimer){clearInterval(reconnectTimer);reconnectTimer=null}
+    WS.send(JSON.stringify({action:'start'}));
+    // 11/21 抗双讲：接通即同步一次开关状态（重连后后端 session 是新对象，默认开）
+    try{WS.send(JSON.stringify({action:'anti_doubletalk',enabled:antiDoubleOn}))}catch(e){}
+    // 11/21：补发通话前预设的弱网档位（含 0，重连后也复位到页面当前值）
+    try{WS.send(JSON.stringify({action:'rtc_weaknet',pct:pendingWeaknetPct}))}catch(e){}
+    // 11/19：每次接通一律重置为开麦——「接电话保持开着」，上一通的静音不带入
+    micMuted=false;
+    if(transportMode()==='rtc')rtcStart();
+    else startMic();
+    updateMicBtn();
+  };
+  WS.onclose=()=>{
+    wsdbg('WS-CLOSE');
+    setDot(false,'连接断开');stopPlayback();try{rtcStop()}catch(e){};stopMic();   // 11/12修复：先停播再关上下文
+    if(callId&&$('callState').textContent.startsWith('IN-CALL')&&!wsReadyReceived)return;
+    if(callId&&$('callState').textContent.startsWith('IN-CALL')){
+      addLine('system','（实时链路断开，正在自动重连…最多重试8次）',null,true);
+      tryReconnect(8);
+    }
+  };
+  WS.onerror=()=>{wsdbg('WS-ERROR')};
+  WS.onmessage=ev=>{
+    if(ev.data instanceof ArrayBuffer){
+      // 【11/21 防截断】WS 音频一律接收播放：服务端已按轮切换——只有
+      // 「RTC 未连通」或「正在播的这轮（交接轮）」才会走 WS 下发，
+      // 都必须播完；RTC 生效后服务端不再发 WS，天然无双路叠声。
+      enqueueAudio(ev.data);return}
+    try{ handleEvent(JSON.parse(ev.data)) }catch(e){ wsdbg('事件解析失败: '+e.message) }
+  };
+}
+function tryReconnect(n){
+  if(reconnectTimer)return;
+  let left=n;
+  reconnectTimer=setInterval(()=>{
+    if(!callId||!$('callState').textContent.startsWith('IN-CALL')){
+      clearInterval(reconnectTimer);reconnectTimer=null;return;
+    }
+    if(left<=0){
+      clearInterval(reconnectTimer);reconnectTimer=null;
+      addLine('system','（重连失败：服务可能未运行。请双击「一键启动.bat」后，点下方「重连通话」或重新发起外呼）',null,true);
+      showMicRetry();return;
+    }
+    left--;
+    fetch('/api/calls').then(r=>{
+      if(r.ok){
+        clearInterval(reconnectTimer);reconnectTimer=null;
+        addLine('system','（服务已恢复，重建通话链路…）',null,true);
+        openWS(callId);
+      }
+    }).catch(()=>{});
+  },2000);
+}
+function manualReconnect(){
+  if(!callId){alert('当前没有进行中的通话');return}
+  if(reconnectTimer){clearInterval(reconnectTimer);reconnectTimer=null}
+  addLine('system','（手动重连中…）',null,true);
+  openWS(callId);
+}
+function setDot(on,txt){
+  $('wsDot').className='dot '+(on?'ok':'idle');
+  $('wsText').textContent=txt;
+}
+function handleEvent(m){
+  if(m.type==='transcript'){ applyTranscript(m); return }   // 服务端下发的唯一字幕快照
+  if(m.type==='ready'){
+    wsReadyReceived=true;
+    if(WSWatch){clearTimeout(WSWatch);WSWatch=null}
+    wsdbg('WS-READY-RECV');
+    $('mAsr').textContent = m.asr==='connecting' ? '链路就绪·识别连接中' : (m.asr==='volcano'?'火山流式':'文字兜底');
+  }
+  if(m.type==='asr_ready'){
+    $('mAsr').textContent = m.asr==='volcano' ? '火山流式' : '文字兜底';
+    if(m.asr==='unavailable')addLine('system','（语音识别不可用：'+(m.err||m.msg||'')+'，可用下方文字输入兜底）',null,true);
+  }
+  if(m.type==='system'){addLine('system',m.text,null,true);return}
+  // 【11/21 抗双讲】后端确认开关真实状态后才翻转按钮（显示开=功能真开）
+  if(m.type==='anti_doubletalk_ack'){applyAntiDouble(m.enabled);return}
+  // 【11/21 诊断版】收到判决日志快照 → 弹出可复制面板
+  if(m.type==='diag_data'){
+    const b=$('diagBtn');if(b)b.textContent='复制诊断';
+    showDiagPanel(formatDiag(m.snapshot));return;
+  }
+  // 【11/21 抗双讲】锁定/拦截事件：只更新小字提示 + 拦截计数，旁人说话内容绝不渲染成字幕
+  // 【11/21 二轮·验证可见】计数就是"真拦截 vs 没听清"的判别器：
+  //   放播音噪音时计数增长 = 云端听出了语音且音纹判定为旁人（真抗双讲生效）；
+  //   计数不动、也无字幕 = 云端根本没把它听成语音（被当环境噪音，与抗双讲无关）。
+  if(m.type==='speaker_guard'){
+    const hint=$('antiDoubleHint');
+    if(m.event==='locked'){guardBlocked=0;guardStale=0;guardDomPass=0;
+      if(hint)hint.textContent='已锁定您的声音 · 只认您说话'}
+    else if(m.event==='blocked'){guardBlocked++;
+      if(hint)hint.textContent='已拦截旁人说话 ×'+guardBlocked+' · 不显示不触发'}
+    else if(m.event==='no_feat'){guardBlocked++;
+      if(hint)hint.textContent='已拦截疑似旁人 ×'+guardBlocked+' · 不显示不触发'}
+    else if(m.event==='stale'){guardStale++;
+      if(hint)hint.textContent='已丢弃延迟重发旧句 ×'+guardStale+' · 防幽灵复活'}
+    else if(m.event==='no_lock'&&hint){hint.textContent='第一句太短未锁定 · 请再说一句稍长的话'}
+    else if(m.event==='ai_echo'){guardBlocked++;
+      if(hint)hint.textContent='AI 播报中的声音已忽略 ×'+guardBlocked+' · 不入锁不上屏'}
+    else if(m.event==='blocked_doubletalk'){guardBlocked++;
+      if(hint)hint.textContent='已拦截双讲混音 ×'+guardBlocked+' · 旁人更响，整句不上屏'}
+    else if(m.event==='dominance_pass'){guardDomPass=(guardDomPass||0)+1;
+      if(hint)hint.textContent='响度裁决放行 ×'+guardDomPass+' · 本人更响更清晰，本句上屏'}
+    else if(m.event==='relock'&&hint){hint.textContent='语音链路已重建 · 音纹保持，继续只认目标'}
+    return   // 注意：即使带 text 也绝不上屏（后端拦截事件 text 本为空，双保险）
+  }
+  if(m.type==='partial'){
+    if(m.text&&m.text.startsWith('[ASR')){addLine('system',m.text,null,true);return}
+    $('mVad').textContent='识别中…';
+    upsertPartial(m.text);
+  }
+  if(m.type==='final'){
+    latFinalAt=performance.now();
+    latTurnStartAt=latLastVoiceAt||latFinalAt;
+    if(latTurnStartAt>latFinalAt)latTurnStartAt=latFinalAt;  // 钳制回声污染
+    latTailMs=latFinalAt-latTurnStartAt;
+    latTurnNo=m.turn||(latTurnNo+1);
+    latFirstPlayAt=0;
+    // 【D1·v2 第 1 期·罗】本轮是真实语音轮，允许上报；基准取完快照立即清零，
+    // 否则某轮人声偏弱（RMS 未过阈值）时会沿用上一轮的旧时刻，e2e 逐轮虚高漂移。
+    latVoiceTurn=true;
+    latLastVoiceAt=0;
+    // 【关键修正·罗 11/12】商家已开口，丢弃上一轮残留音频并停播，保证本轮首帧
+    // 一定是本轮新下发的回复。上一版没做这步，导致残留音频被误记成
+    // 本轮首响（255ms / 453ms 假达标）。
+    stopPlayback();
+    removePartial();
+    // 【11/21 P50修复】RTC 模式：本轮计时起点已定，启动远端轨首帧可闻检测
+    if(rtcMode&&rtcConnected)startRtcLatWatch();
+    // 气泡改由服务端 epoch 分组：同一轮的所有片段合并成一条，不再被 final 切断
+    addLine('merchant',m.text,{conf:m.confidence});
+    $('mVad').textContent='说话结束';
+    setTimeout(()=>{$('mVad').textContent='监听中'},1200);
+  }
+  if(m.type==='agent_reply'){
+    removePartial();
+    appendAgentText(m.text,m.epoch);
+    if(window.__lastMeta)applyMetaToSteps(window.__lastMeta);
+  }
+  if(m.type==='agent_reply_meta'){
+    window.__lastMeta=m;
+    $('mEmotion').textContent=EMON[m.emotion]||m.emotion||'—';
+    if(m.latency_ms)$('mLat').textContent=Math.round(m.latency_ms)+'ms';
+    applyMetaToSteps(m);
+  }
+  if(m.type==='rtc_answer'){rtcHandleAnswer(m);return}
+  if(m.type==='rtc_candidate'){rtcAddCandidate(m.candidate);return}
+  if(m.type==='rtc_weaknet_state'){
+    const b=$('weaknetBadge');
+    if(b&&typeof m.pct==='number'){
+      const p=Math.round(m.pct);
+      b.textContent = p>0 ? ('弱网:'+p+'% 丢包') : '弱网:关闭';
+      b.style.color = p>0 ? 'var(--warn, #c77)' : 'var(--text2)';
+    }
+    if(m.msg)addLine('system','（弱网回执：'+String(m.msg).slice(0,60)+'）',null,true);
+    if(typeof m.pct==='number')updateNetBar(null,null,null,Math.round(m.pct));
+    return
+  }
+  if(m.type==='rtc_state'){if(m.state!=='connected')addLine('system','（'+String(m.msg||('WebRTC '+m.state)).slice(0,80)+'）',null,true);return}
+  if(m.type==='tts_first_audio'){return}
+  if(m.type==='interrupt_tts'){stopPlayback();resetAgentBubble();addLine('system','（商家打断，AI 已停止播报并聆听）',null,true)}
+  if(m.type==='resumed'){addLine('system','（链路已恢复，AI 正在继续此通话——不会重复开场白）',null,true)}
+  if(m.type==='call_finished'){
+    const cid=callId;
+    stopRtcLatWatch();                                   // 【11/21 P50修复】
+    stopPlayback();rtcHardStop();stopMic(); resetTerminal('通话已结束'); markCallEnded(cid);   // 11/12修复：先停播；11/22 连 RTC 一起硬停
+  }
+}
+
+/* ============================================================
+   字幕渲染
+   ============================================================ */
+function addLine(role,text,meta,sys){
+  const tags=[];
+  if(meta&&meta.conf!=null)tags.push('识别置信 '+(meta.conf*100).toFixed(0)+'%');
+  if(meta&&meta.tts)tags.push('TTS 语音');
+  syncLine('append',{role:role==='agent'?'agent':role==='merchant'?'merchant':'sys',
+    text:text,tags:tags});
+}
+function upsertPartial(text){
+  partialActive=true;
+  syncLine('upsert',{key:'partial',role:'partial',text:text,tags:['识别中 · 实时流式']});
+}
+function removePartial(){
+  if(!partialActive)return;                 // 避免无意义的重复请求
+  partialActive=false;
+  syncLine('remove',{key:'partial'});
+}
+function sendText(){
+  const inp=$('textInput');
+  const t=inp.value.trim(); if(!t)return;
+  inp.value='';
+  // 【D1·v2 第 1 期·罗】文字轮没有真实人声：不上报 e2e，避免把上一轮残留基准
+  // 当成「最后人声 → 首帧」混进 P50（赛题严格口径只统计真实语音轮）。
+  latVoiceTurn=false; latTurnStartAt=0; latFirstPlayAt=0; latTailMs=0;
+  if(WS&&WS.readyState===1)WS.send(JSON.stringify({action:'text',text:t}));
+  else addLine('system','（未接通通话，文字未发送）',null,true);
+}
+
+/* ============================================================
+   WebRTC 弱网传输（11/19）
+   语音媒体走 RTCPeerConnection（SRTP/Opus，浏览器自带 FEC/抖动缓冲/PLC）；
+   信令复用现有 WS（rtc_offer/rtc_answer/rtc_candidate）；
+   协商失败自动回退 WS PCM 旧链路（startMic），演示现场不翻车。
+   ============================================================ */
+let pc=null, rtcMode=false, rtcConnected=false, rtcStatsTimer=null, rtcFallbackTimer=null, rtcPendingCands=[];
+// 【11/22 修复·同一页面第二通完全不收音】
+// rtcMode / pc 是"页面级"状态，原来只在 rtcStop()/rtcFallback() 里复位。
+// 真机复现：第一通里商家说「好了好了，挂了吧。」，没等旧 RTC 关闭就再点「给京东打电话」，
+// 旧 pc 还活着（日志里没有 RTC-CONN closed）、rtcMode 仍是 true，
+// 于是新通话 WS.onopen → rtcStart() 第一行 `if(rtcMode)return` 直接跳过
+// → 浏览器**根本不发 offer**（server_debug.log 里第二通完全没有 RTC-OFFER-RECV）
+// → RTC 模式下上行只走 RTC，没有 RTC 就没有麦克风 → 一句话都识别不到。
+// 修法：每通新电话（call_id 变化）先把页面级 RTC 状态清空。
+let _rtcCallId=null;
+function rtcResetForNewCall(cid){
+  if(_rtcCallId===cid)return;          // 同一通的重连不动它
+  _rtcCallId=cid;
+  if(rtcFallbackTimer){clearTimeout(rtcFallbackTimer);rtcFallbackTimer=null}
+  if(rtcDiscTimer){clearTimeout(rtcDiscTimer);rtcDiscTimer=null}
+  if(rtcStatsTimer){clearInterval(rtcStatsTimer);rtcStatsTimer=null}
+  try{stopRtcLatWatch()}catch(e){}
+  rtcAnalyser=null;
+  try{if(pc)pc.close()}catch(e){}
+  pc=null;rtcMode=false;rtcConnected=false;rtcPendingCands=[];
+  try{if(mediaStream)mediaStream.getTracks().forEach(t=>t.stop())}catch(e){}
+  mediaStream=null;micActive=false;
+  const a=$('remoteAudio');if(a&&a.srcObject)a.srcObject=null;
+  wsdbg('RTC-RESET 新通话：旧 RTC 状态已清空');
+}
+let rtcDiscTimer=null, rtcRestartCount=0;   // 【11/20 弱网·断连降级阶梯】
+// 【11/21 P50修复】RTC 模式 e2e 采样：远端轨接 AnalyserNode（只接分析器不接
+// destination，不出声也不回声），用于「用户停说→浏览器首帧可闻」检测。
+let rtcAnalyser=null, rtcLatTimer=null, rtcLatHit=0;
+function transportMode(){
+  const el=document.querySelector('input[name="transport"]:checked');
+  return el?el.value:'rtc';
+}
+function rtcBadge(txt,show=true){
+  const b=$('rtcBadge');
+  if(b){b.textContent=txt;b.style.display=show?'inline-block':'none'}
+}
+async function rtcStart(){
+  // 【11/22】跳过时一定留痕：之前这里静默 return，导致"第二通不收音"只能靠猜。
+  if(rtcMode){wsdbg('RTC-START-SKIP rtcMode 仍为 true（旧状态未复位）');return}
+  if(!WS||WS.readyState!==1){wsdbg('RTC-START-SKIP WS 未就绪');return}
+  rtcMode=true;
+  rtcPendingCands=[];
+  rtcBadge('RTC:协商中');
+  try{
+    pc=new RTCPeerConnection();
+    const devSel=$('micDevice');
+    const constraints=devSel&&devSel.value
+      ? {deviceId:{exact:devSel.value},echoCancellation:true,noiseSuppression:true,autoGainControl:true}
+      : {echoCancellation:true,noiseSuppression:true,autoGainControl:true};
+    mediaStream=await navigator.mediaDevices.getUserMedia({audio:constraints});
+    micActive=true;listMicDevices();
+    mediaStream.getAudioTracks().forEach(t=>pc.addTrack(t,mediaStream));
+    pc.ontrack=e=>{
+      const a=$('remoteAudio');
+      if(a){a.srcObject=e.streams[0];try{a.play()}catch(err){}}
+      // 【11/21 修复】ontrack 在 SDP 协商时就会触发（早于 ICE 连通），
+      // 这里绝不能置 rtcConnected=true：置早了会把服务端 WS 兜底音频
+      // （连通前下发）整段丢弃 → 开场白缺一段 + RTC 续播 = 听感忽快忽慢。
+      // rtcConnected 只由下方 connectionstatechange 'connected' 置位。
+      rtcBadge('RTC:已连接');
+      addLine('system','（WebRTC 已连接：语音走 SRTP/Opus 弱网链路，浏览器内置回声消除/抖动缓冲）',null,true);
+      // 【11/21 P50修复】给远端轨接分析器：RTC 模式 e2e 采样用（不出声不回声）
+      try{
+        if(!audioCtx||audioCtx.state==='closed')
+          audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+        if(audioCtx.state==='suspended'){try{audioCtx.resume()}catch(e2){}}
+        const srcNode=audioCtx.createMediaStreamSource(e.streams[0]);
+        rtcAnalyser=audioCtx.createAnalyser();
+        rtcAnalyser.fftSize=1024;
+        srcNode.connect(rtcAnalyser);
+      }catch(e3){rtcAnalyser=null}
+    };
+    pc.onicecandidate=e=>{
+      if(e.candidate&&WS&&WS.readyState===1)
+        WS.send(JSON.stringify({action:'rtc_candidate',candidate:{
+          candidate:e.candidate.candidate,sdpMid:e.candidate.sdpMid,
+          sdpMLineIndex:e.candidate.sdpMLineIndex}}));
+    };
+    pc.onconnectionstatechange=()=>{
+      const st=pc?pc.connectionState:'closed';
+      if(st==='connected'){
+        rtcConnected=true;   // 【11/21】连通后才允许服务端切 RTC 下行
+        rtcBadge('RTC:已连接');
+        // 【11/21 防截断】此处绝不 stopPlayback()：服务端按轮切换（正在播的这轮
+        // 继续 WS 播完，下一轮才切 RTC），清队列会把开场白从半截掐断。
+        // WS/RTC 交接只发生在轮次边界，天然不会双路叠声。
+        if(rtcFallbackTimer){clearTimeout(rtcFallbackTimer);rtcFallbackTimer=null}
+        // 【11/20】恢复正常 → 清除断连阶梯计时器
+        if(rtcDiscTimer){clearTimeout(rtcDiscTimer);rtcDiscTimer=null}
+        rtcRestartCount=0;
+      }
+      else if(st==='disconnected'){
+        rtcConnected=false;   // 【11/21】断连期间音频自动回 WS，不静音
+        // 【11/20 弱网·降级阶梯】短暂断网 ICE 会自愈，不立刻回退；
+        // 8s 仍断 → 尝试 ICE restart（最多 2 次）；restart 后 8s 仍断 → 回退 WS
+        rtcBadge('RTC:断线自愈中');
+        if(rtcDiscTimer)clearTimeout(rtcDiscTimer);
+        rtcDiscTimer=setTimeout(()=>{
+          if(!pc||pc.connectionState==='connected')return;
+          if(rtcRestartCount<2 && typeof pc.restartIce==='function'){
+            rtcRestartCount++;
+            addLine('system','（网络抖动：第'+rtcRestartCount+'次尝试 ICE 重连…）',null,true);
+            try{pc.restartIce()}catch(e){}
+            rtcDiscTimer=setTimeout(()=>{
+              if(pc&&pc.connectionState!=='connected')rtcFallback('WebRTC 断连自愈失败');
+            },8000);
+          }else{
+            rtcFallback('WebRTC 断连自愈失败');
+          }
+        },8000);
+      }
+      else if(st==='failed'||st==='closed'){rtcFallback('WebRTC '+st)}
+      else rtcBadge('RTC:'+st);
+    };
+    const offer=await pc.createOffer();
+    await pc.setLocalDescription(offer);
+    WS.send(JSON.stringify({action:'rtc_offer',sdp:{
+      type:pc.localDescription.type,sdp:pc.localDescription.sdp}}));
+    // 看门狗：6 秒未连通 → 自动回退 WS 旧链路（演示安全阀）
+    rtcFallbackTimer=setTimeout(()=>{
+      if(pc&&pc.connectionState!=='connected')rtcFallback('WebRTC 6秒未连通');
+    },6000);
+    startRtcStats();
+  }catch(e){
+    rtcFallback('WebRTC 启动失败['+e.name+']');
+  }
+}
+function rtcFallback(reason){
+  if(!rtcMode&&!pc)return;
+  rtcMode=false;rtcConnected=false;   // 【11/21】回退后恢复接收 WS 音频
+  stopRtcLatWatch();rtcAnalyser=null;   // 【11/21 P50修复】回退走 WS 链路采样
+  if(rtcFallbackTimer){clearTimeout(rtcFallbackTimer);rtcFallbackTimer=null}
+  if(rtcDiscTimer){clearTimeout(rtcDiscTimer);rtcDiscTimer=null}  // 【11/20】清除断连阶梯计时器
+  if(rtcStatsTimer){clearInterval(rtcStatsTimer);rtcStatsTimer=null}
+  // 【11/20 无声修复】关闭 pc 前通知服务端释放 media 会话，
+  // 否则 audio_sender 继续把音频 push 进已死的轨 → 前端再也收不到 AI 声音
+  if(WS&&WS.readyState===1){try{WS.send(JSON.stringify({action:'rtc_close'}))}catch(e){}}
+  try{if(pc)pc.close()}catch(e){}
+  pc=null;
+  try{if(mediaStream)mediaStream.getTracks().forEach(t=>t.stop())}catch(e){}
+  mediaStream=null;micActive=false;
+  const a=$('remoteAudio');if(a&&a.srcObject)a.srcObject=null;
+  rtcBadge('RTC:关闭(WS回退)');
+  addLine('system','（'+reason+'，已自动回退 WebSocket PCM 链路）',null,true);
+  if(WS&&WS.readyState===1)startMic();
+}
+function rtcStop(){
+  if(rtcStatsTimer){clearInterval(rtcStatsTimer);rtcStatsTimer=null}
+  if(rtcFallbackTimer){clearTimeout(rtcFallbackTimer);rtcFallbackTimer=null}
+  if(rtcDiscTimer){clearTimeout(rtcDiscTimer);rtcDiscTimer=null}  // 【11/20】清除断连阶梯计时器
+  stopRtcLatWatch();rtcAnalyser=null;   // 【11/21 P50修复】
+  rtcMode=false;rtcConnected=false;   // 【11/21】rtcStop 后恢复接收 WS 音频
+  if(WS&&WS.readyState===1){try{WS.send(JSON.stringify({action:'rtc_close'}))}catch(e){}}
+  try{if(pc)pc.close()}catch(e){}
+  pc=null;
+  try{if(mediaStream)mediaStream.getTracks().forEach(t=>t.stop())}catch(e){}
+  mediaStream=null;micActive=false;
+  const a=$('remoteAudio');if(a&&a.srcObject)a.srcObject=null;
+  rtcBadge('RTC:待协商',false);
+}
+/* 【11/22 修复·挂断残留音频】挂断/结束时的硬停：只收资源，不发 rtc_close、不改角标。
+   原来 hangupCall / call_finished 只调 stopPlayback()（只清 WS 播放队列），
+   WebRTC 下行轨的 remoteAudio.srcObject 没断，挂断前未播完的结束语尾巴会继续播。 */
+function rtcHardStop(){
+  if(rtcStatsTimer){clearInterval(rtcStatsTimer);rtcStatsTimer=null}
+  if(rtcFallbackTimer){clearTimeout(rtcFallbackTimer);rtcFallbackTimer=null}
+  if(rtcDiscTimer){clearTimeout(rtcDiscTimer);rtcDiscTimer=null}
+  try{stopRtcLatWatch()}catch(e){}
+  rtcAnalyser=null;
+  rtcMode=false;rtcConnected=false;
+  try{if(pc)pc.close()}catch(e){}
+  pc=null;
+  try{if(mediaStream)mediaStream.getTracks().forEach(t=>t.stop())}catch(e){}
+  mediaStream=null;micActive=false;
+  const a=$('remoteAudio');if(a&&a.srcObject)a.srcObject=null;
+}
+async function rtcHandleAnswer(m){
+  if(!pc)return;
+  try{
+    await pc.setRemoteDescription({type:m.sdp.type,sdp:m.sdp.sdp});
+    for(const c of rtcPendingCands.splice(0)){
+      try{await pc.addIceCandidate(new RTCIceCandidate(c))}catch(e){}
+    }
+    if(rtcFallbackTimer&&pc.connectionState!=='new'){
+      // 应答已到，看门狗改为等 connected（由 connectionstatechange 管理）
+      clearTimeout(rtcFallbackTimer);rtcFallbackTimer=setTimeout(()=>{
+        if(pc&&pc.connectionState!=='connected')rtcFallback('WebRTC 10秒未连通');
+      },10000);
+    }
+  }catch(e){rtcFallback('WebRTC 应答失败')}
+}
+async function rtcAddCandidate(c){
+  if(!pc)return;
+  if(!pc.remoteDescription){rtcPendingCands.push(c);return}
+  try{await pc.addIceCandidate(new RTCIceCandidate(c))}catch(e){}
+}
+function onTransportChange(){
+  // 仅在通话中生效切换：rtc→ws 停掉 pc 走 startMic；ws→rtc 反之
+  if(!(WS&&WS.readyState===1))return;
+  const mode=transportMode();
+  if(mode==='rtc'&&!rtcMode){stopMic();rtcStart()}
+  else if(mode==='ws'&&rtcMode){rtcStop();startMic()}
+}
+// 【11/20 答辩弱网开关】发信令让服务端在 aioice 层注入双向 RTP/SRTP 丢包。
+// 网络本身保持连通（云端 ASR/LLM/TTS 正常），只损伤浏览器↔后端的音频传输。
+// 11/21：弱网实时指标条（与 pc.getStats 每 2s 采样同源，null 表示保持上一帧值）
+function nbSet(id,v){const e=$(id);if(e)e.textContent=v}
+function nbBar(id,pct,color){const e=$(id);if(e){e.style.width=Math.max(0,Math.min(100,pct))+'%';e.style.background=color}}
+function updateNetBar(rtt,jit,loss,inj){
+  if(rtt!=null){
+    nbSet('nbRtt',rtt);
+    nbBar('nbRttBar',rtt/200*100, rtt>200?'var(--bad,#d33)':(rtt>100?'var(--warn,#c77)':'var(--ok,#2a7)'));
+  }
+  if(jit!=null){
+    nbSet('nbJit',jit);
+    nbBar('nbJitBar',jit/50*100, jit>30?'var(--bad,#d33)':(jit>10?'var(--warn,#c77)':'var(--ok,#2a7)'));
+  }
+  if(loss!=null){
+    nbSet('nbLoss',loss);
+    nbBar('nbLossBar',loss/30*100, loss>15?'var(--bad,#d33)':(loss>5?'var(--warn,#c77)':'var(--ok,#2a7)'));
+  }
+  if(inj!=null){
+    nbSet('nbInj',inj>0?(inj+'% 丢包'):'关闭');
+    const e=$('nbInj'); if(e)e.style.color=inj>0?'var(--warn,#c77)':'var(--ok,#2a7)';
+  }
+}
+function onWeaknetChange(){
+  const sel=$('weaknetSel');
+  if(!sel)return;
+  const pct=Number(sel.value)||0;
+  pendingWeaknetPct=pct;   // 11/21：先记住，WS 未连通时 onopen 会自动补发
+  updateNetBar(null,null,null,pct);
+  const badge=$('weaknetBadge');
+  if(badge){
+    badge.textContent = pct>0 ? ('弱网:'+pct+'% 丢包') : '弱网:关闭';
+    badge.style.color = pct>0 ? 'var(--warn, #c77)' : 'var(--text2)';
+  }
+  if(!(WS&&WS.readyState===1)){
+    addLine('system','（弱网设置已记录，通话连接后自动生效）',null,true);
+    return;
+  }
+  try{WS.send(JSON.stringify({action:'rtc_weaknet',pct:pct}))}catch(e){}
+  addLine('system', pct>0
+    ? ('（已开启弱网模拟：音频 UDP 丢包 '+pct+'%，网络仍连通，观察对话是否闭环）')
+    : '（已关闭弱网模拟，恢复正常传输）', null, true);
+}
+function startRtcStats(){
+  if(rtcStatsTimer)clearInterval(rtcStatsTimer);
+  rtcStatsTimer=setInterval(async()=>{
+    if(!pc||pc.connectionState!=='connected')return;
+    try{
+      const s=await pc.getStats();
+      let rtt=null,jit=null,lost=null,recv=0;
+      s.forEach(r=>{
+        if(r.type==='candidate-pair'&&r.nominated&&r.currentRoundTripTime!=null)
+          rtt=Math.round(r.currentRoundTripTime*1000);
+        if(r.type==='inbound-rtp'&&r.kind==='audio'){
+          jit=r.jitter?Math.round(r.jitter*1000):0;
+          lost=r.packetsLost||0;recv=r.packetsReceived||0;
+        }
+      });
+      const total=recv+(lost||0);
+      const lossPct=total>0?Math.round((lost||0)/total*1000)/10:0;
+      rtcBadge('RTC:连接 · RTT '+(rtt==null?'—':rtt+'ms')+' · 抖动 '+(jit||0)+'ms · 丢包 '+(lost||0)+'包('+lossPct+'%)');
+      updateNetBar(rtt,jit,lossPct,pendingWeaknetPct);
+      if(WS&&WS.readyState===1)
+        WS.send(JSON.stringify({action:'rtc_stats',stats:{
+          rtt_ms:rtt,jitter_ms:jit,loss_pkts:lost||0,loss_pct:lossPct}}));
+    }catch(e){}
+  },2000);
+}
+
+/* ============================================================
+   【11/21 P50修复】RTC 模式 e2e 采样
+   WS 链路的 e2e 在 pumpAudio 的 src.start() 埋点上报（latency_report）；
+   RTC 模式下音频走 SRTP 远端轨，pumpAudio 永不播放 → latency_report
+   从不上报 → 看板 P50/P95「暂无样本」。
+   口径与 WS 链路对齐：用户停说(latTurnStartAt) → 浏览器首个可闻音频帧
+   （远端轨 AnalyserNode RMS 连续 2 个采样窗 > 0.01，约 25~50ms 检测粒度）。
+   ============================================================ */
+function stopRtcLatWatch(){
+  if(rtcLatTimer){clearInterval(rtcLatTimer);rtcLatTimer=null}
+  rtcLatHit=0;
+}
+function startRtcLatWatch(){
+  stopRtcLatWatch();
+  rtcLatTimer=setInterval(()=>{
+    if(!(rtcMode&&rtcConnected))return;
+    if(!latVoiceTurn||latFirstPlayAt||!latTurnStartAt){stopRtcLatWatch();return}
+    if(!rtcAnalyser)return;
+    try{
+      const buf=new Float32Array(rtcAnalyser.fftSize);
+      rtcAnalyser.getFloatTimeDomainData(buf);
+      let s=0;for(let i=0;i<buf.length;i++)s+=buf[i]*buf[i];
+      const rms=Math.sqrt(s/buf.length);
+      if(rms>0.01){
+        rtcLatHit++;
+        if(rtcLatHit>=2){          // 连续两窗可闻，避开单帧毛刺/残响
+          latFirstPlayAt=performance.now();
+          if(WS&&WS.readyState===1)WS.send(JSON.stringify({action:'latency_report',
+            turn:latTurnNo,
+            e2e_ms:Math.round(latFirstPlayAt-latTurnStartAt),
+            asr_tail_ms:Math.round(latTailMs)}));
+          stopRtcLatWatch();
+        }
+      }else{rtcLatHit=0}
+    }catch(e){stopRtcLatWatch()}
+  },25);
+}
+
+/* ============================================================
+   麦克风采集：默认采样率 + JS 重采样到 16k
+   ============================================================ */
+let micActive=false, resamplePending=[], pktCount=0, volTimer=null;
+async function listMicDevices(){
+  try{
+    const devs=await navigator.mediaDevices.enumerateDevices();
+    const mics=devs.filter(d=>d.kind==='audioinput');
+    $('micDevice').innerHTML='<option value="">系统默认</option>'+mics.map((d,i)=>
+      `<option value="${d.deviceId}">${d.label||('麦克风'+(i+1))}</option>`).join('');
+  }catch(e){}
+}
+async function startMic(){
+  try{
+    const devSel=$('micDevice');
+    const audioConstraint=devSel&&devSel.value
+      ? {deviceId:{exact:devSel.value},echoCancellation:true,noiseSuppression:true,autoGainControl:true}
+      : {echoCancellation:true,noiseSuppression:true,autoGainControl:true};
+    mediaStream=await navigator.mediaDevices.getUserMedia({audio:audioConstraint});
+    // 11/19：关麦→开麦时复用存活的 AudioContext（旧上下文还在放京东语音），避免双上下文
+    if(!audioCtx||audioCtx.state==='closed')audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+    if(audioCtx.state==='suspended'){try{await audioCtx.resume()}catch(e){}}
+    const src=audioCtx.createMediaStreamSource(mediaStream);
+    const inRate=audioCtx.sampleRate;
+    processor=audioCtx.createScriptProcessor(2048,1,1);
+    resamplePending=[];
+    processor.onaudioprocess=e=>{
+      if(!WS||WS.readyState!==1||micMuted)return;   // 11/19：静音态绝不推流
+      let buf=new Float32Array(e.inputBuffer.getChannelData(0));
+      let sum=0;for(let i=0;i<buf.length;i++)sum+=buf[i]*buf[i];
+      lastRms=Math.sqrt(sum/buf.length);
+      if(lastRms>0.01)latLastVoiceAt=performance.now();
+      if(mic.noise)buf=mixNoise(buf);
+      if(mic.double)buf=mixVoice(buf,inRate);
+      for(let i=0;i<buf.length;i++)resamplePending.push(buf[i]);
+      const ratio=inRate/16000;
+      const nOut=Math.floor(resamplePending.length/ratio);
+      if(nOut<=0)return;
+      const out=new Int16Array(nOut);
+      for(let i=0;i<nOut;i++){
+        const pos=i*ratio, i0=Math.floor(pos), fr=pos-i0;
+        const s0=resamplePending[i0], s1=resamplePending[Math.min(i0+1,resamplePending.length-1)];
+        const v=Math.max(-1,Math.min(1,(s0+(s1-s0)*fr)));
+        out[i]=v<0?v*0x8000:v*0x7FFF;
+      }
+      resamplePending=resamplePending.slice(Math.floor(nOut*ratio));
+      WS.send(out.buffer);
+      pktCount++;
+      if(!micActive){micActive=true;listMicDevices();}
+    };
+    src.connect(processor);processor.connect(audioCtx.destination);
+    if(volTimer)clearInterval(volTimer);
+    volTimer=setInterval(()=>{
+      const v=lastRms;
+      $('mVol').textContent = micMuted?'已关':(v>0.02?'强':(v>0.004?'弱':(micActive?'静音':'—')));
+      $('mPkt').textContent = pktCount;
+    },300);
+    listMicDevices();
+    setTimeout(async()=>{
+      if(audioCtx&&audioCtx.state!=='running'){try{await audioCtx.resume()}catch(e){}}
+      if(!micActive)addLine('system','（麦克风还没有出数据：对着说话看「麦克风音量」——若一直「静音」，在「设备」下拉里换一个麦克风再点重试；也请检查 Windows 声音设置的默认输入设备）',null,true);
+    },2000);
+  }catch(e){
+    const reason={NotAllowedError:'权限被拒绝',NotFoundError:'没找到麦克风设备',
+      NotReadableError:'麦克风被其他程序占用（微信 / 腾讯会议 / 录音软件），请关闭后重试'}[e.name]||e.message||'未知原因';
+    addLine('system',`（麦克风启动失败[${e.name}]：${reason}。刚授权过的话，点下方「重试麦克风」再试一次）`,null,true);
+    showMicRetry();
+  }
+}
+function showMicRetry(){
+  const bar=$('micRetryBar');
+  if(bar)bar.style.display='flex';
+}
+// ============ 【链路保活·罗 11/12】标签恢复 + 收音看门狗 ============
+// Chrome 会把后台标签的 ScriptProcessorNode 回调节流、挂起 AudioContext，
+// 浏览器一旦停止推流，火山 ASR 等不到音频包就会 45000081 超时并重建会话。
+// 后端已补静音保活帧；这里负责切回前台时尽快恢复真实收音。
+document.addEventListener('visibilitychange',()=>{
+  if(document.visibilityState!=='visible')return;
+  if(audioCtx&&audioCtx.state==='suspended'){try{audioCtx.resume()}catch(e){}}
+});
+window.addEventListener('focus',()=>{
+  if(audioCtx&&audioCtx.state==='suspended'){try{audioCtx.resume()}catch(e){}}
+});
+let lastPktSeen=0, stallTicks=0, micAutoRestartAt=0;
+setInterval(()=>{
+  if(document.visibilityState!=='visible')return;
+  if(!WS||WS.readyState!==1||!callId)return;
+  const cs=$('callState');
+  if(!cs||!cs.textContent.startsWith('IN-CALL'))return;
+  if(rtcMode){lastPktSeen=pktCount;stallTicks=0;return;}   // 【11/21】RTC 模式麦克风音频不走 WS，pktCount 恒定属正常，看门狗不适用
+  if(micMuted){lastPktSeen=pktCount;stallTicks=0;return;}   // 11/19：手动静音不是收音故障
+  if(pktCount!==lastPktSeen){lastPktSeen=pktCount;stallTicks=0;return;}
+  stallTicks++;
+  if(stallTicks<3)return;                         // 约6秒没有新音频包
+  const now=Date.now();
+  if(now-micAutoRestartAt<30000)return;           // 30秒内最多自愈一次
+  micAutoRestartAt=now;stallTicks=0;
+  if(audioCtx&&audioCtx.state==='suspended'){try{audioCtx.resume()}catch(e){}}
+  addLine('system','（收音中断，已自动恢复麦克风；若仍无声音请点「🎤 重试麦克风」）',null,true);
+  if(!rtcMode){try{stopMic();startMic()}catch(e){}}
+},2000);
+function retryMic(){
+  const bar=$('micRetryBar');
+  if(bar)bar.style.display='none';
+  if(rtcMode){rtcFallback('手动重试麦克风');return}
+  stopMic();
+  if(WS&&WS.readyState===1)startMic();
+  else addLine('system','（当前没有进行中的通话，接听后再说）',null,true);
+}
+function stopMic(){
+  if(processor)processor.disconnect();
+  if(audioCtx){try{audioCtx.close()}catch(e){}}
+  if(mediaStream)mediaStream.getTracks().forEach(t=>t.stop());
+  processor=null;audioCtx=null;mediaStream=null;micActive=false;resamplePending=[];
+}
+
+/* ============================================================
+   11/19：麦克风手动开关——商家可关麦改打字交流；
+   接通新通话时一律自动重置为开启（接电话保持开着）。
+   关麦只停收音（stopMic），WS/播放链路不动：京东语音照常说，
+   文字输入照常发。
+   ============================================================ */
+let micMuted=false;
+/* 关麦专用：只停「收音」，保留 audioCtx（京东语音可能正在播放，不能销毁播放上下文） */
+function muteMicOnly(){
+  if(processor)processor.disconnect();
+  if(mediaStream)mediaStream.getTracks().forEach(t=>t.stop());
+  processor=null;mediaStream=null;micActive=false;resamplePending=[];
+}
+function inCallNow(){
+  const cs=$('callState');
+  return !!(WS&&WS.readyState===1&&callId&&cs&&cs.textContent.startsWith('IN-CALL'));
+}
+function updateMicBtn(){
+  const b=$('btnMic'); if(!b)return;
+  b.textContent=micMuted?'🔇':'🎤';
+  b.classList.toggle('muted',micMuted);
+  b.disabled=!inCallNow();
+  const inp=$('textInput');
+  if(inp)inp.placeholder=micMuted
+    ?'麦克风已关闭 · 打字交流中（京东语音照常播放）'
+    :'文字输入（ASR 未配置时的兜底 / 也可直接打字提问）';
+}
+async function toggleMic(){
+  if(!inCallNow()){
+    addLine('system','（接通通话后才能开关麦克风；每次接听自动开启收音）',null,true);
+    return;
+  }
+  micMuted=!micMuted;
+  if(micMuted){
+    muteMicOnly();                   // 停收音；播放上下文/WS/文字链路不受影响
+    $('mVad').textContent='已静音';
+    $('mVol').textContent='已关';
+    addLine('system','（麦克风已关闭：现在可以打字交流，京东语音照常播放；再点一次恢复语音）',null,true);
+  }else{
+    addLine('system','（麦克风已重新开启：恢复语音通话）',null,true);
+    try{await startMic()}catch(e){}
+  }
+  updateMicBtn();
+}
+let noisePhase=0;
+function mixNoise(buf){
+  const out=new Float32Array(buf.length);
+  for(let i=0;i<buf.length;i++){const n=(Math.random()*2-1)*0.18;out[i]=buf[i]*0.7+n}
+  return out;
+}
+function mixVoice(buf,sr){
+  const out=new Float32Array(buf.length);
+  for(let i=0;i<buf.length;i++){
+    const t=(performance.now()/1000+noisePhase);
+    const v=0.12*Math.sin(2*Math.PI*(180+60*Math.sin(t*3))*t)+0.05*Math.sin(2*Math.PI*520*t);
+    out[i]=Math.max(-1,Math.min(1,buf[i]*0.6+v));
+  }
+  return out;
+}
+
+/* ============================================================
+   AI 气泡：一轮合并为一条
+   ============================================================ */
+function appendAgentText(text,epoch){
+  // 同一 epoch + 同一气泡序号 = 同一条 AI 消息；服务端按 key 续写，两端看到同一条气泡
+  syncLine('upsert',{key:'agent-'+epoch+'-'+agentBubbleSeq,role:'agent',text:text,append:true});
+}
+function resetAgentBubble(){agentBubbleSeq++}
+
+/* ============================================================
+   音频播放队列：逐帧顺序播
+   ============================================================ */
+function enqueueAudio(wavBytes){ audioQ.push(wavBytes); pumpAudio() }
+async function pumpAudio(){
+  if(audioDraining)return;
+  audioDraining=true;
+  const gen=audioGen;   // 【11/14 修复·冯】本代播放序号：被打断即换代，在途帧全部作废
+  try{
+    while(audioQ.length){
+      // 11/12修复：上下文已被 stopMic 关闭时直接丢弃剩余音频，绝不卡死队列
+      if(gen!==audioGen)break;
+      // 【11/14 修复·开场白无声】兜底：接听流程外的任何路径（重连/恢复）也保证有播放上下文
+      if(!audioCtx){
+        try{
+          audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+          if(audioCtx.state==='suspended'){try{await audioCtx.resume()}catch(e){}}
+        }catch(e){break}
+      }
+      if(audioCtx.state==='closed')break;
+      if(audioCtx.state==='suspended'){try{await audioCtx.resume()}catch(e){}}
+      try{
+        const buf=await audioCtx.decodeAudioData(audioQ.shift().slice(0));
+        // 【11/14 修复·冯】decodeAudioData 无法取消：decode 期间若被打断
+        // （stopPlayback 换代），这帧是「上一轮在途孤儿帧」，必须丢弃，
+        // 绝不插播到新答案后面（打断后旧答案继续播报的根因之一）
+        if(gen!==audioGen)continue;
+        const src=audioCtx.createBufferSource();
+        src.buffer=buf;src.connect(audioCtx.destination);
+        currentSource=src;
+        src.start();
+        if(latVoiceTurn&&latTurnStartAt&&!latFirstPlayAt){
+          latFirstPlayAt=performance.now();
+          if(WS&&WS.readyState===1)WS.send(JSON.stringify({action:'latency_report',
+            turn:latTurnNo,
+            e2e_ms:Math.round(latFirstPlayAt-latTurnStartAt),
+            asr_tail_ms:Math.round(latTailMs)}));
+        }
+        // 11/12修复：onended 兜底超时——上下文被 close/suspended 时 onended 永不触发，
+        // 原实现会永远卡在这里（audioDraining 锁死），后续所有通话全部无声
+        await Promise.race([new Promise(r=>{src.onended=r}),
+                            new Promise(r=>setTimeout(r,(buf.duration||2)*1000+1200))]);
+        currentSource=null;
+      }catch(e){}
+    }
+  }finally{
+    // 11/12修复：任何退出路径（异常/上下文关闭）都必须释放播放锁
+    audioDraining=false;
+  }
+}
+function stopPlayback(){
+  audioQ=[];
+  audioGen++;   // 【11/14 修复·冯】换代：在途 decode 帧 / 迟到帧全部作废
+  try{if(currentSource)currentSource.stop()}catch(e){}
+  playing=false;currentSource=null;
+}
+
+/* ============================================================
+   工单卡（商家端：轻量但信息完整）
+   ============================================================ */
+function railHTML(call,comp){
+  const el=(comp&&comp.elements)||{};
+  const ended=call&&['completed','failed','rejected'].includes(call.status);
+  let fp=null;
+  if(!ended){ for(const k of ELEMENTS){ if(el[k]!==true){ fp=k; break } } }
+  return '<div class="rail-h">'+ELEMENTS.map(k=>{
+    const ok=el[k]===true;
+    const now=!ok&&!ended&&k===fp;
+    const miss=!ok&&ended;
+    const cls=ok?'done':miss?'miss':now?'now':'';
+    return `<div class="node ${cls}"><div class="d">${ok?'✓':miss?'✕':now?'•':'·'}</div><span class="l">${k}</span></div>`;
+  }).join('')+'</div>';
+}
+function markCallEnded(cid){
+  const bar=$('endBar'); if(!bar) return;
+  const t0=callStartAt?Math.max(0,Math.round((Date.now()-callStartAt)/1000)):0;
+  const dur=String(Math.floor(t0/60)).padStart(2,'0')+':'+String(t0%60).padStart(2,'0');
+  $('endBarT').textContent='通话已结束 · 时长 '+dur;
+  bar.style.display='flex';
+  bar.scrollIntoView({behavior:'smooth',block:'center'});
+}
+
+/* ============================================================
+   通话记录
+   ============================================================ */
+/* ============================================================
+   启动
+   ============================================================ */
+loadMerchants(); startRingPoll(); buildWave(); renderRail(); updateWave(0);
+fetchTranscript(); setInterval(fetchTranscript,1000);   // 字幕快照校准：任何丢包/晚开页面都能追平
+window.addEventListener('beforeunload',()=>{if(WS)WS.close()});
+</script>
+</body>
+</html>

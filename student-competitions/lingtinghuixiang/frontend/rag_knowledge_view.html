@@ -1,0 +1,243 @@
+<!DOCTYPE html><html lang='zh-CN'><head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width,initial-scale=1'>
+<title>RAG 知识库与话术约束 · 智语外呼数字员工</title>
+<style>
+:root{--bg:#fdf5f3;--card:#fff;--ink:#3a1f1f;--ink2:#6b4340;--ink3:#9a6f6b;
+--line:#f0dcd8;--blue:#d4351d;--blue-soft:#fdeae5;--red:#d4351d;--red-soft:#fdeae5;
+--amber:#b8791b;--amber-soft:#fff7e8;--green:#16815f;--green-soft:#eaf7f1;--code:#fbf5f2}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);
+font-family:"Microsoft YaHei","PingFang SC","Segoe UI",system-ui,sans-serif;line-height:1.65}
+.wrap{max-width:1180px;margin:0 auto;padding:28px 24px 70px}
+.hero{background:linear-gradient(120deg,#a8171a,#e1251b 55%,#f05a52);color:#fff;
+border-radius:16px;padding:30px 34px;box-shadow:0 10px 30px rgba(180,20,25,.22)}
+.hero h1{margin:0 0 8px;font-size:27px;letter-spacing:.5px}
+.hero p{margin:0;opacity:.92;font-size:14px}
+.hero .pill{display:inline-block;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.35);
+padding:3px 11px;border-radius:999px;font-size:12px;margin:12px 8px 0 0}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:18px 0 8px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;
+box-shadow:0 2px 8px rgba(150,40,40,.05)}
+.kpi b{display:block;font-size:25px;color:var(--blue);line-height:1.2}
+.kpi span{font-size:12px;color:var(--ink3)}
+h2{font-size:19px;margin:34px 0 14px;padding-left:11px;border-left:4px solid var(--red)}
+h3{font-size:15px;margin:20px 0 10px;color:var(--ink2)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 20px;
+box-shadow:0 2px 8px rgba(150,40,40,.05)}
+.guide{background:var(--amber-soft);border:1px solid #f0dcb4;border-radius:12px;
+padding:14px 18px;margin:18px 0 4px;font-size:13px;color:#75501a}
+.guide b{color:#8a5a10}
+.guide ol{margin:8px 0 0;padding-left:20px}.guide li{margin:4px 0}
+.flow{display:flex;align-items:stretch;gap:0;flex-wrap:wrap;margin:6px 0 4px}
+.fstep{flex:1;min-width:150px;background:var(--red-soft);border:1px solid #f6c9c2;border-radius:10px;
+padding:12px 13px;position:relative;margin-right:20px;margin-bottom:12px}
+.fstep:last-child{margin-right:0}
+.fstep:not(:last-child):after{content:"\279C";position:absolute;right:-17px;top:38%;color:var(--red);font-size:16px}
+.fstep .n{font-size:11px;color:var(--red);font-weight:800;letter-spacing:1px}
+.fstep b{display:block;font-size:13px;margin:3px 0 4px}
+.fstep p{margin:0;font-size:11.5px;color:var(--ink2);line-height:1.55}
+.fstep.gate{background:var(--red-soft);border-color:#f2d2cf}
+.fstep.gate .n{color:var(--red)}
+table{width:100%;border-collapse:collapse;font-size:13px;background:var(--card)}
+th,td{border:1px solid var(--line);padding:9px 11px;text-align:left;vertical-align:top}
+th{background:#fbe9e5;color:var(--ink2);font-weight:700;font-size:12px}
+td code,.code{background:var(--code);border:1px solid var(--line);border-radius:5px;
+padding:1px 5px;font-family:Consolas,Monaco,monospace;font-size:11.5px;color:#b3211a}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.box-say{border:1px solid #bfe6d4;background:var(--green-soft);border-radius:12px;padding:16px 18px}
+.box-no{border:1px solid #f1cdca;background:var(--red-soft);border-radius:12px;padding:16px 18px}
+.box-say h3{color:var(--green);margin-top:0}.box-no h3{color:var(--red);margin-top:0}
+.box-say ul,.box-no ul{margin:0;padding-left:18px;font-size:12.8px}
+.box-say li,.box-no li{margin-bottom:9px}
+.src{font-size:11px;color:var(--ink3);display:block;margin-top:2px}
+pre{background:var(--code);border:1px solid var(--line);border-radius:8px;padding:12px 14px;
+overflow:auto;font-size:11.5px;line-height:1.6;color:#2b3a5c;margin:8px 0;white-space:pre-wrap}
+.tag{display:inline-block;font-size:10.5px;padding:1px 7px;border-radius:999px;font-weight:700}
+.t-blue{background:var(--blue-soft);color:var(--blue)}.t-red{background:var(--red-soft);color:var(--red)}
+.t-amber{background:var(--amber-soft);color:var(--amber)}.t-green{background:var(--green-soft);color:var(--green)}
+.demo{border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin-bottom:12px;background:var(--card)}
+.demo .q{font-weight:800;color:var(--red);font-size:14px;margin-bottom:6px}
+.demo .row{font-size:12.3px;margin:4px 0;color:var(--ink2)}
+.demo .row b{color:var(--ink)}
+.demo .final{background:var(--green-soft);border-left:3px solid var(--green);padding:7px 11px;
+border-radius:0 6px 6px 0;margin-top:8px;font-size:12.5px}
+.note{font-size:12px;color:var(--ink3);margin:8px 0 0}
+.hit{background:var(--red-soft);border-left:3px solid var(--red);padding:6px 10px;border-radius:0 6px 6px 0;
+font-size:12.3px;margin-top:6px}
+.ok{color:var(--green);font-weight:800}.bad{color:var(--red);font-weight:800}
+.foot{margin-top:34px;padding-top:16px;border-top:1px solid var(--line);font-size:12px;color:var(--ink3)}
+@media(max-width:900px){.kpis{grid-template-columns:repeat(2,1fr)}.two{grid-template-columns:1fr}
+.fstep{min-width:45%;margin-right:12px}}
+@media print{body{background:#fff}.hero{box-shadow:none}.card,.demo{break-inside:avoid}}
+</style></head><body><div class='wrap'>
+<div class='hero'><h1>RAG 知识库 与「说什么 / 不说什么」控制链路</h1>
+<p>智语外呼 · 审核驳回数字员工 — 从企业资料构建检索索引，到系统提示词约束，再到播出前逐句闸门</p>
+<span class='pill' id='kbTotal'>知识库 182 条</span>
+<span class='pill' id='kbSources'>7 类来源</span>
+<span class='pill'>三层约束：提示词 / 标准口径 / 输出闸门</span>
+<span class='pill'>条数与来源分布实时读自运行库（<code>/api/kb/stats</code>）</span></div>
+<div class='kpis'>
+<div class='kpi'><b>66</b><span>scenario · 驳回场景条目：一级环节 / 材料大类</span></div>
+<div class='kpi'><b>52</b><span>script · 标准参考话术：各驳回原因的整段口径（</span></div>
+<div class='kpi'><b>17</b><span>special · 特殊场景剧本：商家追问 → 客服回答</span></div>
+<div class='kpi'><b>11</b><span>qa · 高频问答对：商家问 / 客服答，短小</span></div>
+<div class='kpi'><b>11</b><span>merchant · 商家档案：公司/店铺/联系人（检索时</span></div>
+<div class='kpi'><b>10</b><span>policy · 标准口径：高频追问的逐字答复 + 禁</span></div>
+</div>
+<div class='kpis' style='grid-template-columns:repeat(4,1fr)'>
+<div class='kpi'><b>9</b><span>条标准口径（说什么）</span></div>
+<div class='kpi'><b>15</b><span>类禁语 + 插字变体正则</span></div>
+<div class='kpi'><b>8</b><span>句违规话术实测拦截</span></div>
+<div class='kpi'><b>16/16</b><span>合规话术零误伤</span></div>
+</div>
+<div class='guide'><b>给评审的 3 个重点（建议按这个顺序看）：</b><ol>
+<li><b>第三章</b>：知识库只提供「可以说的素材」，真正决定说不说的是提示词红线、标准口径表、输出闸门三层。</li>
+<li><b>第五章</b>：把模型可能说错的 8 句话真的喂进闸门，当场看到被替换成什么；合规话术不会被误伤。</li>
+<li><b>第六章</b>：6 个真实商家提问，逐条展示「检索命中 → 注入提示词 → 口径约束 → 允许播报」。</li>
+</ol></div>
+<h2>一、一句话 → 播报出去，中间经过什么</h2><div class='card'><div class='flow'>
+<div class='fstep'><div class='n'>① 检索</div><b>db.search_knowledge()</b><p>中文字符 bigram + IDF 加权；标题权重 2.5 倍；min_score 0.20 + 相对阈值 0.5 去噪；同标题去重；主动排除 merchant 防串店。</p></div>
+<div class='fstep'><div class='n'>② 清洗与锚定</div><b>_rag_context()</b><p>先放「本单场景锚点」（判定/需提供/整改）；提问时 QA / special 的客服回答优先；丢掉无关场景；【】模板截断；XX 占位符换成本单真值。</p></div>
+<div class='fstep'><div class='n'>③ 组装提示词</div><b>_system_prompt()</b><p>固定话术 + 本单驳回明细 + RAG 片段 + 合规红线 + 标准口径 + 五环节进度 + 工具查证结果 + 商家风险画像。</p></div>
+<div class='fstep'><div class='n'>④ 模型生成</div><b>GLM 流式生成</b><p>只依据注入的事实与口径作答；一到两句、≤50 字，适合语音播放；不得脱离当前环节。</p></div>
+<div class='fstep gate'><div class='n'>⑤ 播出前闸门</div><b>_safe_sentence()</b><p>逐句拦截禁语与越权承诺，命中即整句替换为标准口径；片段播出前替换，落库文本与播报一致。</p></div>
+</div><p class='note'>关键点：知识库<strong>不直接决定</strong>模型说什么。它提供「可以说的素材」；「哪些必须说、哪些绝对不能说」由系统提示词红线 + 标准口径表 + 输出侧闸门共同控制。</p></div>
+<h2>二、知识库怎么来的</h2><div class='card'><table>
+<tr><th style='width:14%'>来源</th><th style='width:8%'>条数</th><th>内容与作用</th></tr>
+<tr><td><span class='tag t-blue'>scenario</span></td><td><b data-src="scenario">47</b></td><td>驳回场景条目：一级环节 / 材料大类 / 关单方式 / 书面话术模板</td></tr>
+<tr><td><span class='tag t-blue'>script</span></td><td><b data-src="script">43</b></td><td>标准参考话术：各驳回原因的整段口径（含历史遗留占位符）</td></tr>
+<tr><td><span class='tag t-blue'>special</span></td><td><b data-src="special">17</b></td><td>特殊场景剧本：商家追问 → 客服回答（多轮问答对）</td></tr>
+<tr><td><span class='tag t-blue'>qa</span></td><td><b data-src="qa">46</b></td><td>高频问答对：商家问 / 客服答，短小精准</td></tr>
+<tr><td><span class='tag t-blue'>policy</span></td><td><b data-src="policy">16</b></td><td>标准口径条目：高频追问的逐字答复 + 禁用说法（随数据导入写入）</td></tr>
+<tr><td><span class='tag t-blue'>merchant</span></td><td><b data-src="merchant">11</b></td><td>商家档案：公司/店铺/联系人（检索时主动排除，防串店）</td></tr>
+<tr><td><span class='tag t-blue'>rsi_patch</span></td><td><b data-src="rsi_patch">2</b></td><td>RSI 自进化写入的知识补丁（经校验与回滚保护后入库）</td></tr>
+</table><p class='note'>原始资料由 <code>import_data.py / company_import.py</code> 双写入库；比赛现场可在后台「新数据一键导入」即时更新，无需重启服务。检索时会主动排除 merchant 类，避免把 A 商家的资料检索给 B 商家（串店）。</p></div>
+<h2>三、控制模型「说什么 / 不说什么」★ 重点</h2><div class='two'>
+<div class='box-say'><h3>✅ 必须说 / 可以这样说</h3><ul>
+<li>自报身份「我是京东商家资质审核专员」<span class='src'>控制位置：开场固定话术 FIXED_OPENING</span></li>
+<li>先确认对方是不是公司负责人，才说驳回详情<span class='src'>控制位置：_SYS_TEMPLATE 合规红线 2 + 身份段细分意图</span></li>
+<li>按【本次驳回明细】正面答品牌 / 类目 / 缺件 / 怎么改<span class='src'>控制位置：_rag_context() 场景锚点 + 本单驳回明细注入</span></li>
+<li>高频追问按固定口径回答<span class='src'>控制位置：reply_policy 判定函数分流 + prompts.STATE_HINTS 环节约束</span></li>
+<li>引用系统实时查到的工单状态、累计通话、材料名<span class='src'>控制位置：工具证据 evidence + 强制引用约束</span></li>
+<li>引导京麦后台 / 商家服务热线 4006180092<span class='src'>控制位置：固定话术与标准口径</span></li>
+</ul></div>
+<div class='box-no'><h3>⛔ 绝对不能说（说了会被替换或拦截）</h3><ul>
+<li>保证通过 / 一定过 / 包过 / 百分百（含「保证能通过」插字变体）<span class='src'>拦截位置：提示词红线 3 + 禁语闸门 + 插字正则补召回</span></li>
+<li>封店、关店、罚款、处罚等恐吓或担保<span class='src'>拦截位置：提示词红线 3 + 越权闸门 consequence</span></li>
+<li>索要身份证号 / 银行卡号 / 验证码 / 密码<span class='src'>拦截位置：提示词红线 4 + 禁语闸门 + 输入脱敏</span></li>
+<li>念出【】（）里的待填占位符、XX 状态<span class='src'>拦截位置：提示词红线 5 + _rag_context 占位符换真值</span></li>
+<li>编造政策 / 时限 / 内部流程 / 审核结果<span class='src'>拦截位置：提示词红线（编造类）+ 播出前禁语闸门</span></li>
+<li>把「商标注册 9-12 个月」当成平台审核时长<span class='src'>拦截位置：标准口径 1 + 越权闸门 audit_time</span></li>
+<li>承诺发短信 / 微信 / 邮件<span class='src'>拦截位置：标准口径 4 + 越权闸门 delivery</span></li>
+<li>「我们会立即复查」「尽快联系您」「请随时联系我」<span class='src'>拦截位置：标准口径 5 + 越权闸门 no_promise</span></li>
+<li>复述内部质检字段（已覆盖必说要素 / 整改进度4/5 / 闲聊警告）<span class='src'>拦截位置：工具证据清洗 _external_summary + 提示词硬约束</span></li>
+</ul></div></div>
+<h2>四、标准口径表（高频追问，逐字口径，不许自由发挥）</h2>
+<div class='card'><table><tr><th style='width:19%'>类别</th><th style='width:44%'>只能这样说</th><th>为什么（实测踩过的坑）</th></tr>
+<tr><td><span class='tag t-blue'>audit_time</span></td><td>提交后的审核时长以京麦商家后台显示为准，我这边不能给具体天数。</td><td>旧版把商标局的商标注册周期当成京东平台审核时长答给商家（知识库并无该时限，是模型自行编造）</td></tr>
+<tr><td><span class='tag t-blue'>expedite</span></td><td>审核按提交顺序处理，我这边无法加急，也不能承诺具体时间。</td><td>旧版说「我们只能按商标局的规定」——把京东审核说成商标局</td></tr>
+<tr><td><span class='tag t-blue'>consequence</span></td><td>具体处理方式以后台审核结果和平台规则为准，我这边不能替审核下结论。</td><td>旧版擅自打保票「不会关店或罚款」，越权替审核下结论</td></tr>
+<tr><td><span class='tag t-blue'>delivery</span></td><td>明细我这边只能通过电话说明，您也可以在京麦后台查看驳回意见，无法发送短信或微信。</td><td>系统没有短信/微信能力，旧版却答应「我会发给您」</td></tr>
+<tr><td><span class='tag t-blue'>already_submitted</span></td><td>是否提交成功以京麦后台的提交记录和当前工单状态为准，我这边不能替您确认结果。</td><td>旧版编造「可能审核遗漏、会立即复查」，且念出内部复盘字段</td></tr>
+<tr><td><span class='tag t-blue'>cannot_promise</span></td><td>能不能通过要看材料是否齐全合规，具体以审核完整材料的结果为准。</td><td>合规红线：不得对审核结果做任何承诺或暗示</td></tr>
+<tr><td><span class='tag t-blue'>complaint</span></td><td>您的意见我记下了，可通过京东商家服务热线4006180092反馈，会有专员跟进。</td><td>旧版一律套「理解您的心情」+ 念驳回原因，答非所问</td></tr>
+<tr><td><span class='tag t-blue'>human</span></td><td>人工服务请拨打京东商家服务热线4006180092，会有专员为您跟进。</td><td>旧版把要人工当情绪处理，直接收线且不给入口</td></tr>
+<tr><td><span class='tag t-blue'>no_promise</span></td><td>具体进展以京麦商家后台的记录为准，我这边不能替您承诺后续动作。</td><td>本专线不提供个人回拨，不得说「请随时联系我」</td></tr>
+</table><p class='note'>位置：<code>backend/prompts.py → SYS_TEMPLATE / STATE_HINTS</code>，配合 <code>reply_policy.py</code> 的分类判定与各 <code>*_TEXT</code> 话术常量，在生成前注入系统提示词。</p><p class='note'>其中高频追问的固定口径同时以 <b><code>source='policy'</code> 知识条目</b>存入 RAG（当前 16 条），随数据导入写入。<b>答辩要点</b>：知识库条目是「可检索、可讲解的素材」，不是唯一约束；即使检索没命中，提示词硬约束与播出前闸门照样生效，口径不会失效。</p></div>
+<h2>五、播出前的两道闸门 ★ 重点（模型说了也不算数）</h2><div class='card'>
+<h3>① 禁语表（命中即整句换成当前阶段的安全话术）</h3><pre>保证通过 / 绝对能过 / 一定能过 / 包过 / 肯定过 / 百分百通过 / 封店 / 关店 / 罚款 / 处罚 / 身份证号 / 银行卡号 / 验证码 / 密码
+＋ 插字变体正则：保证|一定|肯定|绝对|包|百分百|确保|承诺 … 通过|过审|没问题|批下来|办成
+（补洞原因：实测「您放心，这次保证能通过」因中间多一个「能」字绕过了精确子串匹配；现同时用于播出闸门与通话质检，否定语境如「我不能保证通过」不误杀）</pre>
+<h3>② 越权 / 事实性错误句式（命中即整句替换为标准口径）</h3>
+<p class='note'>下面每一行都是<strong>把左栏原句真的喂进 <code>_safe_sentence()</code></strong> 得到的输出，不是手写示意；共 8 句，全部拦截成功。</p>
+<table><tr><th style='width:18%'>问题类型</th><th style='width:30%'>模型可能说出的话（输入）</th><th style='width:38%'>播出前被替换成（真实输出）</th><th style='width:14%'>命中 / 结果</th></tr>
+<tr><td>把商标注册周期当成平台审核时长</td><td>商标注册通常需要9到12个月，以商标局进度为准</td><td>提交后的审核时长以京麦商家后台显示为准，我这边不能给具体天数。</td><td><span class='tag t-red'>audit_time</span> <span class='ok'>已拦截</span></td></tr>
+<tr><td>把京东审核说成商标局规定</td><td>我们只能按照商标局的规定进行，没法加急</td><td>审核按提交顺序处理，我这边无法加急，也不能承诺具体时间。</td><td><span class='tag t-red'>expedite</span> <span class='ok'>已拦截</span></td></tr>
+<tr><td>承诺系统不具备的短信能力</td><td>好的，我会把相关信息发送给您，请留意短信</td><td>明细我这边只能通过电话说明，您也可以在京麦后台查看驳回意见，无法发送短信或微信。</td><td><span class='tag t-red'>delivery</span> <span class='ok'>已拦截</span></td></tr>
+<tr><td>承诺不存在的后续动作</td><td>我们会立即复查，之后会尽快联系您</td><td>具体进展以京麦商家后台的记录为准，我这边不能替您承诺后续动作。</td><td><span class='tag t-red'>no_promise</span> <span class='ok'>已拦截</span></td></tr>
+<tr><td>越权替审核下结论 / 恐吓类词汇</td><td>不会因为你这一项就关店或者罚款的</td><td>具体处理方式以后台审核结果和平台规则为准，我这边不能替审核下结论。</td><td><span class='tag t-red'>consequence</span> <span class='ok'>已拦截</span></td></tr>
+<tr><td>结果担保（本次实测补的插字漏洞）</td><td>您放心，这次保证能通过</td><td>能不能通过要看材料是否齐全合规，这个我不能给您打包票。</td><td><span class='tag t-red'>禁语表</span> <span class='ok'>已拦截</span></td></tr>
+<tr><td>结果担保口语变体</td><td>这个我肯定能给过审，交给我没问题</td><td>能不能通过要看材料是否齐全合规，这个我不能给您打包票。</td><td><span class='tag t-red'>禁语表</span> <span class='ok'>已拦截</span></td></tr>
+<tr><td>禁语表直接命中</td><td>包过，百分百通过</td><td>能不能通过要看材料是否齐全合规，这个我不能给您打包票。</td><td><span class='tag t-red'>禁语表</span> <span class='ok'>已拦截</span></td></tr>
+</table>
+<div class='hit'><b>反向验证：</b>16 句合规话术（全部标准口径 + 安全句 + 「我不能保证通过」「请勿相信包过」「请您不要提供身份证号」等否定语境）喂进同一闸门，<b>16/16 原样通过</b>，零误伤。</div>
+<p class='note'>位置：<code>agent.FORBIDDEN_PHRASES</code>（禁语表与插字变体）→ <code>agent._safe_sentence()</code>，在流式片段播出<strong>之前</strong>逐句生效，因此落库字幕与实际播报一致。</p></div>
+<h2>六、真实检索演示 ★ 重点（每一步都是当场跑出来的）</h2>
+<div class='demo'><div class='q'>商家问：「具体哪里不符合，说细一点」</div>
+<div class='row'><b>① 检索命中：</b>[scenario] 商标注册时间不符合（过期或卡控时 (0.5837)、[scenario] 店铺名称不符合规范 (0.6256)、[scenario] 商标状态不符合要求 (0.6292)</div>
+<div class='row'><b>② 实际注入提示词的片段：</b></div><pre>- [本单场景锚点|商标状态不符合要求] 判定：您申请的商标目前在商标局显示的状态不是「已注册」，常见的是「注册中」「驳回复审中」「已失效」「已撤销」；需提供：需要「已注册（R 标）」状态的商标注册证；如果还在注册中，可以先提供商标局出具的《商标注册申请受理通知书》加申请进度截图；整改：登录京麦后台
+- [special|在哪里修改] 客服回答：申请单驳回后，在上传销售授权书的位置下方有无经营限制和有经营限制的两个方框，您选择有经营限制后，点击下面蓝色的：选择授权类目，您根据授权书授权的产品勾选类目后，重新提交申请就可以了
+- [scenario|商标注册时间不符合（过期或卡控时间不符合] 资审驳回场景【商标注册时间不符合（过期或卡控时间不符合）】。一级环节：品牌；材料大类：商标注册证。关单方式：电话。（驳回明细见本单场景锚点）</pre>
+<div class='row'><b>③ 口径约束：</b>无硬口径 → 只按「本单场景锚点 + 检索到的相关条目」正面作答，不得泛化到知识库里其它驳回场景</div>
+<div class='final'><b>④ 可说的事实范围：</b>- [本单场景锚点|商标状态不符合要求] 判定：您申请的商标目前在商标局显示的状态不是「已注册」，常见的是「注册中」「驳回复审中」「已失效」「已撤销」；需提供：需要「已注册（R 标）」状态的商标注册证；如果还在注册中，可以先提供商标局出具的《商标注册申请受理通知书》加申请进度截图；整改：登录京麦后台</div>
+<div class='demo'><div class='q'>商家问：「第四大类呢」</div>
+<div class='row'><b>① 检索命中：</b>[scenario] 品牌混淆 (1.0679)、[scenario] 授权核实无果（无回复&amp;无在职证明 (1.0715)、[scenario] 不符合业务要求 (1.0764)</div>
+<div class='row'><b>② 实际注入提示词的片段：</b></div><pre>- [本单场景锚点|商标状态不符合要求] 判定：您申请的商标目前在商标局显示的状态不是「已注册」，常见的是「注册中」「驳回复审中」「已失效」「已撤销」；需提供：需要「已注册（R 标）」状态的商标注册证；如果还在注册中，可以先提供商标局出具的《商标注册申请受理通知书》加申请进度截图；整改：登录京麦后台</pre>
+<div class='row'><b>③ 口径约束：</b>无硬口径 → 只按「本单场景锚点 + 检索到的相关条目」正面作答，不得泛化到知识库里其它驳回场景</div>
+<div class='final'><b>④ 可说的事实范围：</b>- [本单场景锚点|商标状态不符合要求] 判定：您申请的商标目前在商标局显示的状态不是「已注册」，常见的是「注册中」「驳回复审中」「已失效」「已撤销」；需提供：需要「已注册（R 标）」状态的商标注册证；如果还在注册中，可以先提供商标局出具的《商标注册申请受理通知书》加申请进度截图；整改：登录京麦后台</div>
+<div class='hit'><b>教学点：</b>检索命中了「品牌混淆 / 授权核实无果 / 不符合业务要求」三个<strong>与本题无关</strong>的场景，但注入片段第一行永远是「本单场景锚点」，且提示词规定泛问只信本单锚点 —— 这就是「检索不准也不会答错」的兜底。</div>
+<div class='demo'><div class='q'>商家问：「提交之后多久能审核完？」</div>
+<div class='row'><b>① 检索命中：</b>[policy] 标准口径 · audit_tim (0.8827)</div>
+<div class='row'><b>② 实际注入提示词的片段：</b></div><pre>- [本单场景锚点|商标状态不符合要求] 判定：您申请的商标目前在商标局显示的状态不是「已注册」，常见的是「注册中」「驳回复审中」「已失效」「已撤销」；需提供：需要「已注册（R 标）」状态的商标注册证；如果还在注册中，可以先提供商标局出具的《商标注册申请受理通知书》加申请进度截图；整改：登录京麦后台
+- [policy|标准口径 · audit_time] 商家问：提交之后多久能审核完 / 几天出结果 / 要多久 客服答：提交后的审核时长以京麦商家后台显示为准，我这边不能给具体天数。 禁用：严禁把商标局的商标注册周期当成京东平台审核时长；严禁给出具体天数；严禁说「按商标局进度」。</pre>
+<div class='row'><b>③ 口径约束：</b><span class='tag t-amber'>audit_time</span> 命中标准口径，逐字锁定</div>
+<div class='final'><b>④ 最终允许播报：</b>提交后的审核时长以京麦商家后台显示为准，我这边不能给具体天数。</div>
+<div class='demo'><div class='q'>商家问：「能不能加急」</div>
+<div class='row'><b>① 检索命中：</b>[policy] 标准口径 · expedite (0.548)</div>
+<div class='row'><b>② 实际注入提示词的片段：</b></div><pre>- [本单场景锚点|商标状态不符合要求] 判定：您申请的商标目前在商标局显示的状态不是「已注册」，常见的是「注册中」「驳回复审中」「已失效」「已撤销」；需提供：需要「已注册（R 标）」状态的商标注册证；如果还在注册中，可以先提供商标局出具的《商标注册申请受理通知书》加申请进度截图；整改：登录京麦后台
+- [policy|标准口径 · expedite] 商家问：能不能加急 / 帮我催一下 / 能不能插队 客服答：审核按提交顺序处理，我这边无法加急，也不能承诺具体时间。 禁用：严禁说「按商标局的规定」「商标局审核流程」；我们是京东资质审核，不代表商标局；不得承诺插队或具体时间。</pre>
+<div class='row'><b>③ 口径约束：</b><span class='tag t-amber'>expedite</span> 命中标准口径，逐字锁定</div>
+<div class='final'><b>④ 最终允许播报：</b>审核按提交顺序处理，我这边无法加急，也不能承诺具体时间。</div>
+<div class='demo'><div class='q'>商家问：「我上周就提交过了」</div>
+<div class='row'><b>① 检索命中：</b>[policy] 标准口径 · already_s (0.983)</div>
+<div class='row'><b>② 实际注入提示词的片段：</b></div><pre>- [本单场景锚点|商标状态不符合要求] 判定：您申请的商标目前在商标局显示的状态不是「已注册」，常见的是「注册中」「驳回复审中」「已失效」「已撤销」；需提供：需要「已注册（R 标）」状态的商标注册证；如果还在注册中，可以先提供商标局出具的《商标注册申请受理通知书》加申请进度截图；整改：登录京麦后台
+- [policy|标准口径 · already_submi] 商家问：我上周就提交过了 / 已经改好了 / 为什么还打电话 客服答：是否提交成功以京麦后台的提交记录和当前工单状态为准，我这边不能替您确认结果。 禁用：严禁编造「可能审核遗漏」「我们会立即复查」「会尽快联系您」「我们会重新审核」；必须</pre>
+<div class='row'><b>③ 口径约束：</b><span class='tag t-amber'>already_submitted</span> 命中标准口径，逐字锁定</div>
+<div class='final'><b>④ 最终允许播报：</b>是否提交成功以京麦后台的提交记录和当前工单状态为准，我这边不能替您确认结果。</div>
+<div class='demo'><div class='q'>商家问：「发我短信吧」</div>
+<div class='row'><b>① 检索命中：</b>[policy] 标准口径 · delivery (0.548)</div>
+<div class='row'><b>② 实际注入提示词的片段：</b></div><pre>- [本单场景锚点|商标状态不符合要求] 判定：您申请的商标目前在商标局显示的状态不是「已注册」，常见的是「注册中」「驳回复审中」「已失效」「已撤销」；需提供：需要「已注册（R 标）」状态的商标注册证；如果还在注册中，可以先提供商标局出具的《商标注册申请受理通知书》加申请进度截图；整改：登录京麦后台
+- [policy|标准口径 · delivery] 商家问：发我短信 / 发微信 / 发邮件 / 把资料发过来 客服答：明细我这边只能通过电话说明，您也可以在京麦后台查看驳回意见，无法发送短信或微信。 禁用：严禁承诺「我会发给您」「请留意短信」——系统没有短信、微信、邮件能力。</pre>
+<div class='row'><b>③ 口径约束：</b><span class='tag t-amber'>delivery</span> 命中标准口径，逐字锁定</div>
+<div class='final'><b>④ 最终允许播报：</b>明细我这边只能通过电话说明，您也可以在京麦后台查看驳回意见，无法发送短信或微信。</div>
+<p class='note'>演示说明：第 ①②④ 步均为运行时真实数据；第 ③ 步是代码里的规则判定。「最终允许播报」即标准口径原文，模型若说出别的话会在第五章闸门被整句替换。</p>
+<h2>七、知识库里到底存了什么（各类真实样例）</h2><div class='card'><table>
+<tr><th style='width:13%'>来源</th><th style='width:22%'>标题</th><th>内容节选</th></tr>
+<tr><td><span class='tag t-blue'>scenario</span></td><td>商标状态不符合要求</td><td>资审驳回场景【商标状态不符合要求】。一级环节：品牌；材料大类：商标注册证。关单方式：电话。【必说要素】驳回原因：尊敬的商家伙伴您好，我是京东资质审核专员，您申请的【】品牌，因商标状态为【】故不符合要求，需您提供【】状态的【】类商标，如有疑问您可以电话联系：4006180092，我们将竭诚为您服务；整改动作：尊敬的商家伙伴您好，我是京东资质审核专员，您申请的【】品牌，因商标状态为…</td></tr>
+<tr><td><span class='tag t-blue'>scenario</span></td><td>商标注册时间不符合（过期或卡控时间不符合）</td><td>资审驳回场景【商标注册时间不符合（过期或卡控时间不符合）】。一级环节：品牌；材料大类：商标注册证。关单方式：电话。【必说要素】驳回原因：尊敬的商家伙伴您好，我是京东资质审核专员，您申请的【】品牌，因商标注册时间【】，请【】后再重新提交，如有疑问您可以电话联系：4006180092，我们将竭诚为您服务；整改动作：尊敬的商家伙伴您好，我是京东资质审核专员，您申请的【】品牌，因商标注…</td></tr>
+<tr><td><span class='tag t-blue'>script</span></td><td>授权未核验到/无号码驳回话术</td><td>您好，我是京东商家资质审核专员，请问您是（商家公司名/店铺名称）吗？【联系您是因为您申请的XX品牌，暂未搜到XX公司的回复，单据先给您驳回了，可在品牌回复后重新提交，如需提供其他联系方式，可上传至单据中】感谢您的接听，祝您生活愉快，再见！…</td></tr>
+<tr><td><span class='tag t-blue'>script</span></td><td>授权不属实驳回话术</td><td>您好，我是京东商家资质审核专员，请问您是（商家公司名/店铺名称）吗？【联系您是因为您申请的XX品牌，XX公司反馈未给XX授权等，单据先给您驳回了，建议您与品牌方沟通一致后再次提交】感谢您的接听，祝您生活愉快，再见！…</td></tr>
+<tr><td><span class='tag t-blue'>special</span></td><td>那怎么样才可以申请这个类目</td><td>话术：您好，我是京东商家资质审核专员工号XXX号，请问您是（商家公司名/店铺名称）吗？联系您是因为您申请的XX品牌，申请的【XXXX】类目超出发票可经营范围，请删除超范围类目后重新提交。感谢您的接听，祝您生活愉快，再见！ 商家追问：那怎么样才可以申请这个类目 客服回答：B类资质：每级未冲红发票单品牌的二级类目分类数量累计≥10件或≥1吨 京喜C店特批：发票中包含该类目产品…</td></tr>
+<tr><td><span class='tag t-blue'>special</span></td><td>数量/金额要求多少</td><td>话术：您好，我是京东商家资质审核专员工号XXX号，请问您是（商家公司名/店铺名称）吗？联系您是因为您申请的XX品牌，发票采购数量/金额不符合XXXX要求，请核实后重新申请。感谢您的接听，祝您生活愉快，再见！ 商家追问：数量/金额要求多少 客服回答：B类资质：每级未冲红发票单品牌的二级类目分类数量累计≥10件或≥1吨 京喜c店特批：单品牌累计商品数量≥10件或末级发票累计金额≥2…</td></tr>
+<tr><td><span class='tag t-blue'>qa</span></td><td>如何上传联系方式</td><td>商家问：如何上传联系方式 客服答：可在单据中授权书位置上传…</td></tr>
+<tr><td><span class='tag t-blue'>qa</span></td><td>你们是和谁核实的</td><td>商家问：你们是和谁核实的 客服答：若是企微/邮箱，可告知授权方企微/邮箱名，若是号码不支持告知号码全号（可告知号码尾号后四位/企查查/天眼查等查询到的联系方式），建议商家自行与品牌方沟通…</td></tr>
+<tr><td><span class='tag t-blue'>merchant</span></td><td>苏州锦程数码专营店</td><td>商家资料：公司苏州锦程数码专营店，店铺锦程数码京东自营，联系人刘主管，电话13800001002。附加：{&quot;资审单号&quot;: &quot;ZS-2026-1002&quot;, &quot;驳回场景&quot;: &quot;授权书内容不完整&quot;}…</td></tr>
+<tr><td><span class='tag t-blue'>merchant</span></td><td>广州晨曦美妆有限公司</td><td>商家资料：公司广州晨曦美妆有限公司，店铺晨曦美妆官方旗舰店，联系人王女士，电话13800001003。附加：{&quot;资审单号&quot;: &quot;ZS-2026-1003&quot;, &quot;驳回场景&quot;: &quot;商标注册时间不符合&quot;}…</td></tr>
+<tr><td><span class='tag t-blue'>policy</span></td><td>标准口径总纲 · 说什么不说什么</td><td>适用范围：商家在资质驳回外呼中提出的高频追问（审核时长、加急、不改后果、发送资料、已提交、能否通过、投诉、转人工、后续跟进）。「标准口径」条目给出逐字答复与禁用说法，客服必须照此回答，不得自由发挥、不得编造政策 / 时限 / 内部流程 / 审核结果。注意：知识库提供的是「可以说的素材」；真正决定说不说的是系统提示词里的合规红线、标准口径硬约束，以及播出前的逐句闸门（命中越权句式…</td></tr>
+<tr><td><span class='tag t-blue'>policy</span></td><td>标准口径 · audit_time</td><td>商家问：提交之后多久能审核完 / 几天出结果 / 要多久 客服答：提交后的审核时长以京麦商家后台显示为准，我这边不能给具体天数。 禁用：严禁把商标局的商标注册周期当成京东平台审核时长；严禁给出具体天数；严禁说「按商标局进度」。…</td></tr>
+</table></div>
+<h2>八、代码索引（照着这个顺序讲）</h2><div class='card'><table>
+<tr><th style='width:26%'>文件</th><th style='width:30%'>关键函数 / 常量</th><th>职责</th></tr>
+<tr><td><code>backend/db.py</code></td><td><code>search_knowledge()</code></td><td>中文 bigram + IDF 检索、去噪、同标题去重、排除商家档案</td></tr>
+<tr><td><code>backend/agent.py</code></td><td><code>_rag_context()</code></td><td>本轮问题检索 → 场景锚点 + QA/special 优先 + 占位符替换真值</td></tr>
+<tr><td><code>backend/prompts.py</code></td><td><code>SYS_TEMPLATE / STATE_HINTS</code></td><td>9 条合规红线 + 问什么答什么 + 不懂如实说 + 环节约束</td></tr>
+<tr><td><code>backend/agent.py</code></td><td><code>FORBIDDEN_PHRASES</code></td><td>禁语表 + 插字变体正则</td></tr>
+<tr><td><code>backend/agent.py</code></td><td><code>_safe_sentence()</code></td><td>流式逐句闸门：命中禁语整句换成安全话术，播出前生效</td></tr>
+<tr><td><code>backend/reply_policy.py</code></td><td><code>is_lookup_question / findfault_hit / is_distrust</code></td><td>追问类型分流：操作路径 / 门槛标准 / 质疑合理性 / 知识来源 / 结果预期</td></tr>
+<tr><td><code>backend/agent.py</code></td><td><code>_history_hint / _risk_hint / _inbound_hint</code></td><td>长会话记忆、商家风险画像、热线场景的提示词注入</td></tr>
+<tr><td><code>backend/server.py</code></td><td><code>api_kb_stats()</code></td><td>知识库条数与来源分布实时统计，供本页顶部显示</td></tr>
+</table></div>
+<div class='foot'>智语外呼 · 审核驳回数字员工｜本页为<strong>只读展示</strong>，不改动任何业务逻辑。顶部条数与来源分布由 <code>/api/kb/stats</code> 从运行中的数据库实时读取；检索命中、注入片段与闸门输出为当前实现说明。<br>系统内访问：<code>/rag</code> 或 <code>/static/rag_knowledge_view.html</code>｜页面更新：2026-11-22</div>
+<script>
+fetch('/api/kb/stats').then(function(r){return r.json()}).then(function(d){
+  if(!d || !d.total) return;
+  var t=document.getElementById('kbTotal'), s=document.getElementById('kbSources');
+  if(t) t.textContent = '知识库 ' + d.total + ' 条';
+  if(s) s.textContent = d.sources + ' 类来源';
+  var bs=d.by_source||{};
+  document.querySelectorAll('[data-src]').forEach(function(el){
+    var k=el.getAttribute('data-src');
+    if(bs[k]!==undefined) el.textContent=bs[k];
+  });
+}).catch(function(){});
+</script>
+</div></body></html>

@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" role="img" aria-labelledby="title desc">
+  <title id="title">Lingting sound bloom</title>
+  <desc id="desc">Three soft translucent sound bubbles form a flower around a white voice core.</desc>
+  <defs>
+    <linearGradient id="tile" x1="18" y1="12" x2="142" y2="150" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFF9F7"/>
+      <stop offset="0.52" stop-color="#FCE9E7"/>
+      <stop offset="1" stop-color="#F6D7D8"/>
+    </linearGradient>
+    <radialGradient id="petalA" cx="0" cy="0" r="1" gradientTransform="translate(66 37) rotate(68) scale(83 69)" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFAAA1"/>
+      <stop offset="0.48" stop-color="#F17678"/>
+      <stop offset="1" stop-color="#CF3F55"/>
+    </radialGradient>
+    <radialGradient id="petalB" cx="0" cy="0" r="1" gradientTransform="translate(45 62) rotate(42) scale(91 76)" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFC8BE"/>
+      <stop offset="0.5" stop-color="#EE7E87"/>
+      <stop offset="1" stop-color="#D94B67"/>
+    </radialGradient>
+    <radialGradient id="petalC" cx="0" cy="0" r="1" gradientTransform="translate(105 56) rotate(126) scale(86 72)" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFB2AA"/>
+      <stop offset="0.5" stop-color="#E46775"/>
+      <stop offset="1" stop-color="#B93651"/>
+    </radialGradient>
+    <filter id="soft" x="-35%" y="-35%" width="170%" height="170%">
+      <feDropShadow dx="0" dy="7" stdDeviation="7" flood-color="#A84755" flood-opacity="0.18"/>
+    </filter>
+    <filter id="coreSoft" x="-60%" y="-60%" width="220%" height="220%">
+      <feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#9B4450" flood-opacity="0.18"/>
+    </filter>
+  </defs>
+  <rect x="4" y="4" width="152" height="152" rx="48" fill="url(#tile)"/>
+  <rect x="5" y="5" width="150" height="150" rx="47" fill="none" stroke="#FFFFFF" stroke-opacity="0.8" stroke-width="2"/>
+  <g filter="url(#soft)">
+    <ellipse cx="80" cy="52" rx="35" ry="49" fill="url(#petalA)" fill-opacity="0.84"/>
+    <ellipse cx="80" cy="52" rx="35" ry="49" fill="url(#petalB)" fill-opacity="0.78" transform="rotate(60 80 80)"/>
+    <ellipse cx="80" cy="52" rx="35" ry="49" fill="url(#petalC)" fill-opacity="0.76" transform="rotate(120 80 80)"/>
+    <ellipse cx="67" cy="35" rx="11" ry="20" fill="#FFFFFF" fill-opacity="0.24" transform="rotate(24 67 35)"/>
+  </g>
+  <circle cx="80" cy="80" r="29" fill="#FFFCFB" fill-opacity="0.94" filter="url(#coreSoft)"/>
+  <circle cx="80" cy="80" r="28" fill="none" stroke="#FFFFFF" stroke-width="1.5"/>
+  <g fill="#C9364D">
+    <rect x="64" y="75" width="6" height="11" rx="3"/>
+    <rect x="74" y="66" width="7" height="28" rx="3.5"/>
+    <rect x="85" y="71" width="7" height="19" rx="3.5"/>
+    <rect x="96" y="76" width="5" height="9" rx="2.5"/>
+  </g>
+</svg>

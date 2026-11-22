@@ -1,0 +1,17 @@
+﻿# 智语外呼 · 运行依赖
+# 安装：python -m pip install -r requirements.txt
+# 纯离线闭环自测（tools/test_closure.py）不依赖以下任何一项。
+
+fastapi>=0.110
+uvicorn[standard]>=0.27
+websockets>=11
+python-multipart>=0.0.9
+zhipuai>=2.1
+python-dotenv>=1.0
+requests>=2.31
+openpyxl>=3.1
+# 结果导出（tools/export_results.py 生成 results/ 里的图片）
+Pillow>=10
+# WebRTC 媒体面（缺失时自动降级为 WebSocket 音频链路）
+aiortc>=1.16.0
+

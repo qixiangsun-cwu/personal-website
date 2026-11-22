@@ -26,3 +26,43 @@ _backup/
 _beautify_lecture/
 _trash_20260910/
 opencode.json
+
+# ============================================================
+# 学生比赛 · 灵听作品（student-competitions/）
+# 只上线「主站卡片 + logo」；下面是绝不入库的项：
+# ============================================================
+
+# 交付包里的真实密钥（ZHIPU / 火山 ASR-TTS / 阿里云百炼），
+# 一旦入库即等于公开泄露。示例文件 .env.example 可以入库。
+student-competitions/lingtinghuixiang/backend/.env
+.env
+.env.local
+*.env
+
+# 交付包中的自检/工具脚本：含真实密钥的用法示例（如
+# tools/test_tts_volcano.py 里写死了 VOLCANO_APP_KEY），且属赛题交付物，
+# 不是上线运行所需。整个 tools/ 与 backend 的调参脚本都不入库。
+student-competitions/lingtinghuixiang/tools/
+
+# Worker 本地开发变量
+.dev.vars
+.wrangler/
+
+# 交付包内的运行时数据/缓存/报告，不需要进 Pages 仓库
+student-competitions/lingtinghuixiang/data/*.db
+student-competitions/lingtinghuixiang/data/*.db-*
+student-competitions/lingtinghuixiang/data/tts_cache_volcano/
+student-competitions/lingtinghuixiang/results/
+student-competitions/lingtinghuixiang/docs/
+
+# 生成产物：python 源码快照 164KB+（可由 scripts/dump-pysrc.py 随时重建）
+# 注意：frontend.gen.js / literals.gen.js 虽然也是生成物，但被
+# worker/src/index.js、rules.js、prompts.js 直接 import，属运行时必需，
+# 必须入库，否则 clone 后无法 wrangler deploy。
+student-competitions/worker/src/pysrc.json
+
+# 导入 D1 用的数据 SQL（含真实商家名/通话记录，属业务数据）
+student-competitions/data/
+
+# 本地导出的导入汇总、测试输出
+student-competitions/worker/.test-out/
