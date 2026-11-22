@@ -1,11 +1,13 @@
-// 研究项目 · 匿名问卷后端（Cloudflare Pages Function）
+// 研究项目 · 匿名问卷后端（Cloudflare Pages Function）· v2（2026-11-22）
 //
 // 路由：/api/survey
 //   POST            公开提交一份问卷（无需鉴权）
 //   GET  ?key=KEY   导出全部答卷，format=json（默认）或 format=csv
+//   DELETE ?key=&id= 删除单条（自检数据清理）
 //
-// 存储：D1（env.DB）优先，KV（env.PROPOSALS）兜底；表 survey_responses
-// 鉴权：?key= 与服务端 sha256 常量比对（RESEARCH_KEY_HASH 可在 wrangler.toml [vars] 覆盖）
+// v2 结构：5 张卡（A 刻板×组合一、B 反刻板×组合一、C 刻板×组合二、D 反刻板×组合二、E 中性）
+// 每卡 4 个 1–7 量表（fair/follow/bias/realism）+ 2 个操纵检验（care/repair）+ 1 个选填理由
+// 另有注意力检查 attn（必须为 3）
 
 import {
   json,
@@ -26,88 +28,104 @@ const KEY_HASH_DEFAULT = '9cdfc5c67b91446fb3b36d55309b2005142ecb0d4e5ff0dc86e141
 
 const GENDERS = new Set(['F', 'M', 'O']);
 const MANIP = new Set(['male', 'female', 'balanced']);
+const N_CARDS = 5;
 
 function validate(body) {
   if (body.consent !== true) return 'consent_required';
   if (body.adult !== true) return 'adult_required';
-  if (typeof body.aiUsed !== 'boolean') return 'bad_aiUsed';
   if (!GENDERS.has(body.gender)) return 'bad_gender';
   if (!isScale(body.age, 1, 5)) return 'bad_age';
+  if (!isScale(body.marital, 1, 4)) return 'bad_marital';
+  if (!isScale(body.live, 1, 5)) return 'bad_live';
+  if (!isScale(body.main, 1, 5)) return 'bad_main';
+  if (!isScale(body.timeUse, 1, 5)) return 'bad_timeUse';
+  if (!isScale(body.edu, 1, 4)) return 'bad_edu';
+  if (!isScale(body.city, 1, 4)) return 'bad_city';
+  if (typeof body.aiUsed !== 'boolean') return 'bad_aiUsed';
 
   const order = body.order;
-  if (!Array.isArray(order) || order.length !== 4) return 'bad_order';
+  if (!Array.isArray(order) || order.length !== N_CARDS) return 'bad_order';
   const seenOrder = new Set(order.map(Number));
-  if (seenOrder.size !== 4 || [...seenOrder].some((n) => n < 0 || n > 3)) return 'bad_order';
+  if (seenOrder.size !== N_CARDS || [...seenOrder].some((n) => n < 0 || n > N_CARDS - 1)) return 'bad_order';
 
   const cards = body.cards;
-  if (!Array.isArray(cards) || cards.length !== 4) return 'bad_cards';
+  if (!Array.isArray(cards) || cards.length !== N_CARDS) return 'bad_cards';
   const seenCards = new Set();
   for (const c of cards) {
     if (!c || typeof c !== 'object') return 'bad_card';
     const i = Number(c.i);
-    if (!Number.isInteger(i) || i < 0 || i > 3 || seenCards.has(i)) return 'bad_card_index';
+    if (!Number.isInteger(i) || i < 0 || i > N_CARDS - 1 || seenCards.has(i)) return 'bad_card_index';
     seenCards.add(i);
-    for (const k of ['fair', 'follow', 'bias', 'trust']) {
+    for (const k of ['fair', 'follow', 'bias', 'realism']) {
       if (!isScale(c[k], 1, 7)) return 'bad_' + k;
     }
-    if (!MANIP.has(c.manip)) return 'bad_manip';
-    if (typeof c.why !== 'string' || c.why.length > 600) return 'bad_why';
+    if (!MANIP.has(c.care)) return 'bad_care';
+    if (!MANIP.has(c.repair)) return 'bad_repair';
+    if (typeof c.why !== 'string' || c.why.length > 300) return 'bad_why';
   }
 
   const gen = body.gen;
   if (!gen || typeof gen !== 'object') return 'bad_gen';
-  if (!isScale(gen.c1, 1, 7) || !isScale(gen.c2, 1, 7)) return 'bad_c1_c2';
-  for (const k of ['c3', 'c4', 'c5', 'c6']) if (!isScale(gen[k], 1, 5)) return 'bad_' + k;
+  for (const k of ['c1', 'c2', 'c3', 'c4']) if (!isScale(gen[k], 1, 5)) return 'bad_' + k;
 
-  const d = body.demo;
-  if (!d || typeof d !== 'object') return 'bad_demo';
-  const ranges = { marital: [1, 4], live: [1, 5], main: [1, 5], edu: [1, 4], city: [1, 4], heard: [1, 3] };
-  for (const k of Object.keys(ranges)) if (!isScale(d[k], ranges[k][0], ranges[k][1])) return 'bad_' + k;
+  if (Number(body.attn) !== 3) return 'bad_attn';
+
+  const post = body.post;
+  if (!post || typeof post !== 'object') return 'bad_post';
+  if (!isScale(post.use, 1, 7) || !isScale(post.neutral, 1, 7) || !isScale(post.understand, 1, 7)) {
+    return 'bad_post_scale';
+  }
+  if (!isScale(post.heard, 1, 3)) return 'bad_heard';
 
   const open = body.open;
   if (!open || typeof open !== 'object') return 'bad_open';
-  if (typeof open.e1 !== 'string' || open.e1.length > 1000) return 'bad_e1';
-  if (typeof open.e2 !== 'string' || open.e2.length > 1000) return 'bad_e2';
+  if (typeof open.e1 !== 'string' || open.e1.length > 800) return 'bad_e1';
+  if (typeof open.e2 !== 'string' || open.e2.length > 800) return 'bad_e2';
+  if (typeof body.contact !== 'string' || body.contact.length > 80) return 'bad_contact';
 
   return null;
 }
 
 function normalize(body, request) {
   return {
-    v: clampStr(body.v, 20) || '2026-11-20',
+    v: clampStr(body.v, 20) || '2026-11-22',
     consent: true,
     adult: true,
-    aiUsed: body.aiUsed,
     gender: body.gender,
     age: String(body.age),
+    marital: String(body.marital),
+    live: String(body.live),
+    main: String(body.main),
+    timeUse: String(body.timeUse),
+    edu: String(body.edu),
+    city: String(body.city),
+    aiUsed: body.aiUsed,
     order: body.order.map(Number),
     cards: body.cards.map((c) => ({
       i: Number(c.i),
       fair: Number(c.fair),
       follow: Number(c.follow),
       bias: Number(c.bias),
-      trust: Number(c.trust),
-      manip: c.manip,
-      why: clampStr(c.why, 600),
+      realism: Number(c.realism),
+      care: c.care,
+      repair: c.repair,
+      why: clampStr(c.why, 300),
     })),
     gen: {
       c1: Number(body.gen.c1),
       c2: Number(body.gen.c2),
       c3: Number(body.gen.c3),
       c4: Number(body.gen.c4),
-      c5: Number(body.gen.c5),
-      c6: Number(body.gen.c6),
     },
-    demo: {
-      marital: String(body.demo.marital),
-      live: String(body.demo.live),
-      main: String(body.demo.main),
-      edu: String(body.demo.edu),
-      city: String(body.demo.city),
-      heard: String(body.demo.heard),
+    attn: Number(body.attn),
+    post: {
+      use: Number(body.post.use),
+      neutral: Number(body.post.neutral),
+      understand: Number(body.post.understand),
+      heard: String(body.post.heard),
     },
-    open: { e1: clampStr(body.open.e1, 1000), e2: clampStr(body.open.e2, 1000) },
-    contact: clampStr(body.contact, 120),
+    open: { e1: clampStr(body.open.e1, 800), e2: clampStr(body.open.e2, 800) },
+    contact: clampStr(body.contact, 80),
     durationMs: Math.max(0, Math.min(Number(body.durationMs) || 0, 86400000)),
     startedAt: clampStr(body.startedAt, 40),
     submittedAt: new Date().toISOString(),
@@ -115,31 +133,43 @@ function normalize(body, request) {
   };
 }
 
-const CSV_HEADER = [
-  'id', 'createdAt', 'durationMs', 'gender', 'age', 'aiUsed', 'order',
-  'c0_fair', 'c0_follow', 'c0_bias', 'c0_trust', 'c0_manip', 'c0_why',
-  'c1_fair', 'c1_follow', 'c1_bias', 'c1_trust', 'c1_manip', 'c1_why',
-  'c2_fair', 'c2_follow', 'c2_bias', 'c2_trust', 'c2_manip', 'c2_why',
-  'c3_fair', 'c3_follow', 'c3_bias', 'c3_trust', 'c3_manip', 'c3_why',
-  'gen_c1', 'gen_c2', 'gen_c3', 'gen_c4', 'gen_c5', 'gen_c6',
-  'marital', 'live', 'main', 'edu', 'city', 'heard',
-  'e1', 'e2', 'contact', 'startedAt',
-];
+const CARD_FIELDS = ['fair', 'follow', 'bias', 'realism', 'care', 'repair', 'why'];
+
+const CSV_HEADER = (() => {
+  const h = [
+    'id', 'createdAt', 'durationMs', 'gender', 'age', 'marital', 'live', 'main',
+    'timeUse', 'edu', 'city', 'aiUsed', 'order',
+  ];
+  for (let i = 0; i < N_CARDS; i++) {
+    for (const f of CARD_FIELDS) h.push('c' + i + '_' + f);
+  }
+  h.push(
+    'gen_c1', 'gen_c2', 'gen_c3', 'gen_c4', 'attn',
+    'post_use', 'post_neutral', 'post_understand', 'heard',
+    'e1', 'e2', 'contact', 'startedAt'
+  );
+  return h;
+})();
 
 function toRow(item) {
   const d = item.data || {};
   const byCard = {};
   for (const c of d.cards || []) byCard[c.i] = c;
-  const row = [item.id, item.createdAt, d.durationMs, d.gender, d.age, d.aiUsed, (d.order || []).join('|')];
-  for (let i = 0; i < 4; i++) {
+  const row = [
+    item.id, item.createdAt, d.durationMs, d.gender, d.age, d.marital, d.live, d.main,
+    d.timeUse, d.edu, d.city, d.aiUsed, (d.order || []).join('|'),
+  ];
+  for (let i = 0; i < N_CARDS; i++) {
     const c = byCard[i] || {};
-    row.push(c.fair, c.follow, c.bias, c.trust, c.manip, c.why);
+    for (const f of CARD_FIELDS) row.push(c[f]);
   }
   const g = d.gen || {};
-  row.push(g.c1, g.c2, g.c3, g.c4, g.c5, g.c6);
-  const m = d.demo || {};
-  row.push(m.marital, m.live, m.main, m.edu, m.city, m.heard);
-  row.push(d.open && d.open.e1, d.open && d.open.e2, d.contact, d.startedAt);
+  const p = d.post || {};
+  row.push(
+    g.c1, g.c2, g.c3, g.c4, d.attn,
+    p.use, p.neutral, p.understand, p.heard,
+    d.open && d.open.e1, d.open && d.open.e2, d.contact, d.startedAt
+  );
   return row;
 }
 
