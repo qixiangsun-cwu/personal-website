@@ -72,7 +72,7 @@
       <p>请填写一个昵称或编号（用于区分不同标注者，2–20 个字）：</p>
       <input id="who" type="text" maxlength="20" placeholder="例如：A02 或 小林" autocomplete="off">
       <p class="muted" style="margin-top:10px">填好后点下面的按钮开始；中途关掉页面再打开会自动接着上次的进度。</p>
-      <div style="margin-top:14px"><button id="start" style="width:100%;padding:13px;border-radius:12px;border:0;background:var(--accent);color:#fff;font-size:16px;font-weight:600;cursor:pointer">开始标注</button></div>
+      <div style="margin-top:14px"><button id="start" style="width:100%;padding:13px;border-radius:12px;border:0;background:var(--accent);color:#fff;font-size:16px;font-weight:600;cursor:pointer">开始标注</button> <button id="reset" style="padding:11px 16px;border-radius:10px;border:1px solid var(--line);background:#fff;font-size:14px;cursor:pointer">本机草稿有问题？重新开始</button></div>
     </div>
   </div>
 
@@ -93,6 +93,7 @@
     </div>
     <div class="card" style="margin-top:14px">
       <p class="muted" id="hint">选一个即自动跳到下一张。已选的图片可以回来修改。</p>
+      <div id="jumpwrap" style="display:none;margin-top:10px"><button id="jump" style="padding:11px 16px;border-radius:10px;border:1px solid var(--line);background:#fff;font-size:14px;cursor:pointer">跳到还没标注的那一张</button> <button id="reset2" style="padding:11px 16px;border-radius:10px;border:1px solid var(--line);background:#fff;font-size:14px;cursor:pointer">清空本机草稿重来</button></div>
     </div>
   </div>
 
@@ -138,6 +139,8 @@
     try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){}
   }
   function count(){ var n=0; for(var k in state.labels){ if(state.labels[k]) n++; } return n; }
+  function unlabeledIdx(){ var out=[]; for(var i=0;i<N;i++){ if(!state.labels[order[i]]) out.push(i); } return out; }
+  function firstUnlabeled(){ var u=unlabeledIdx(); return u.length ? u[0] : -1; }
   function toast(msg){ var t=$('#toast'); t.textContent=msg; t.classList.add('on'); setTimeout(function(){t.classList.remove('on');},1200); }
 
   function render(){
@@ -146,6 +149,7 @@
     var img = $('#pic');
     img.src = 'img/' + String(realIdx).padStart(3,'0') + '.jpg';
     img.alt = '第 ' + (state.idx+1) + ' 张';
+    img.onerror = function(){ this.alt = '图片加载失败，请刷新页面重试'; };
     var n = count();
     $('#ptext').textContent = n + ' / ' + N;
     $('#pbar').style.width = (n/N*100) + '%';
@@ -156,13 +160,34 @@
     });
     $('#prev').disabled = state.idx === 0;
     $('#next').disabled = state.idx >= N-1;
+    var gaps = unlabeledIdx().length;
+    if(gaps > 0 && state.idx >= N-1){
+      $('#hint').textContent = '还有 ' + gaps + ' 张没有标注，点下面的按钮跳到第一张缺的。';
+      $('#jump').textContent = '跳到还没标注的那一张（共 ' + gaps + ' 张）';
+      $('#jumpwrap').style.display = 'block';
+    }else if(gaps > 0 && state.idx > 0 && state.idx < N-1){
+      $('#hint').textContent = '还有 ' + gaps + ' 张没有标注；全部选完才能提交。';
+      $('#jumpwrap').style.display = gaps > 0 ? 'block' : 'none';
+      $('#jump').textContent = '跳到还没标注的那一张（共 ' + gaps + ' 张）';
+    }else{
+      $('#hint').textContent = '选一个即自动跳到下一张。已选的图片可以回来修改。';
+      $('#jumpwrap').style.display = 'none';
+    }
   }
 
   function setLabel(v){
     var realIdx = order[state.idx];
     state.labels[realIdx] = v;
+    if(state.idx < N-1){
+      state.idx++;
+    }else{
+      var f = firstUnlabeled();
+      if(f >= 0){
+        state.idx = f;
+        toast('还有 ' + (N - count()) + ' 张没有标注，已跳到第一张缺的');
+      }
+    }
     save(); render();
-    if(state.idx < N-1){ state.idx++; save(); render(); }
   }
 
   function start(){
@@ -216,6 +241,7 @@
   $('#prev').addEventListener('click', function(){ if(state.idx>0){state.idx--;save();render();} });
   $('#next').addEventListener('click', function(){ if(state.idx<N-1){state.idx++;save();render();} });
   $('#submit').addEventListener('click', submit);
+  $('#jump').addEventListener('click', function(){ var f=firstUnlabeled(); if(f>=0){ state.idx=f; save(); render(); } });
   document.addEventListener('keydown', function(e){
     if(!started) return;
     if(e.key==='1') setLabel('M');
