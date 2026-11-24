@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reality View：每 222 ms，把世界重画一遍 | 2026年虚拟现实技术</title>
+<meta name="description" content="特斯拉 FSD v15 Reality View 技术拆解：8 路相机 → 共享 UVE 编码器 → 3B 驾驶 / 1B 渲染双出口；222 ms 生成窗口与 VR 11.1 ms 帧预算的对照；3DGS 进车规芯片；教学模拟器、三段动图与四分钟课堂脚本。">
+<link rel="stylesheet" href="assets/vr-2026/course.css">
+<style>
+  code{font-family:Consolas,"Times New Roman",monospace;background:#f4f2fa;border:1px solid #eae6f6;border-radius:4px;padding:1px 5px;font-size:12.5px;color:#2e2a6f;word-break:break-all}
+  .rv-gifs{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:18px 0 8px}
+  @media(max-width:860px){.rv-gifs{grid-template-columns:1fr}}
+  .rv-gifs figure{margin:0;background:#0d1117;border:1px solid #232b36;border-radius:10px;overflow:hidden}
+  .rv-gifs img{display:block;width:100%;height:auto}
+  .rv-gifs figcaption{padding:9px 12px 11px;color:#c9d3df;font-size:12.5px;line-height:1.65;background:#121821}
+  .rv-gifs figcaption b{color:#f0b35a}
+  .rv-video{background:#0d1117;border:1px solid #232b36;border-radius:10px;padding:10px;margin:16px 0}
+  .rv-video video{display:block;width:auto;max-width:100%;max-height:520px;margin:0 auto;border-radius:6px;background:#000}
+  .rv-video .cap{color:#aab6c4;font-size:12.5px;padding:8px 4px 2px;line-height:1.6}
+  .rv-simwrap{border:1px solid #232b36;border-radius:10px;overflow:hidden;background:#0b0f14;margin:16px 0 8px}
+  .rv-simwrap iframe{display:block;width:100%;height:780px;border:0}
+  @media(max-width:760px){.rv-simwrap iframe{height:1120px}}
+  .rv-quote{background:#f6f5fb;border-left:5px solid #8b7fd4;border-radius:0 10px 10px 0;padding:14px 18px;margin:14px 0;font-size:14.5px;line-height:1.8;color:#383268}
+  .rv-quote .en{display:block;font-family:Georgia,"Times New Roman",serif;font-size:12.5px;color:#6b6483;margin-top:8px;line-height:1.65}
+  .rv-num{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:16px 0}
+  @media(max-width:760px){.rv-num{grid-template-columns:1fr 1fr}}
+  .rv-num div{background:#faf8fd;border:1px solid #e3ddf1;border-radius:12px;padding:14px 16px}
+  .rv-num b{display:block;font:700 24px/1.2 Consolas,monospace;color:#b45309;margin-bottom:6px}
+  .rv-num span{font-size:12.5px;color:#6b6483;line-height:1.6}
+  .rv-badge{display:inline-block;font-size:11.5px;font-weight:700;border-radius:999px;padding:1px 9px;margin-left:6px;vertical-align:1px}
+  .rv-badge.a{color:#2e7d32;background:#eef8ef;border:1px solid #a9cfa9}
+  .rv-badge.b{color:#b45309;background:#fdf3e6;border:1px solid #e0b878}
+  .rv-table-narrow td:first-child{white-space:nowrap}
+  .rv-footnote{font-size:12px;color:#8b879e;line-height:1.7;margin-top:10px}
+  #flow .step-grid{grid-template-columns:repeat(3,1fr)}
+  @media(max-width:900px){#flow .step-grid{grid-template-columns:1fr 1fr}}
+  @media(max-width:620px){#flow .step-grid{grid-template-columns:1fr}}
+  .nav-inner{flex-wrap:wrap;row-gap:4px}
+  @media(max-width:760px){.nav-inner{flex-wrap:nowrap}}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-inner">
+    <span class="kicker">虚拟现实技术 · 技术前沿案例 · 2026-11-24</span>
+    <h1>每 222 ms，把世界重画一遍</h1>
+    <p class="sub">特斯拉 FSD v15 的 Reality View：一台车上不存在的相机，每 36 分之一秒出一帧，整幅画面却滞后 222 ms。它把这学期散落的线索——3DGS、实时渲染、帧预算、生成式幻觉、降级兜底——第一次拧在了同一个产品里。</p>
+    <div class="meta">
+      <span>中华女子学院</span><span>数字媒体技术 2023 级 · 40 人</span><span>授课人：孙琪翔</span><span>配套教学模拟器</span><span>课堂用本地视频</span>
+    </div>
+  </div>
+</header>
+
+<nav class="nav" id="nav">
+  <div class="nav-inner" id="navInner">
+    <a href="vr-2026-review.html" class="nav-back">← 结课回顾</a>
+    <a href="#top" data-sec="top" class="on">速览</a>
+    <a href="#facts" data-sec="facts">一、事实</a>
+    <a href="#arch" data-sec="arch">二、架构</a>
+    <a href="#flow" data-sec="flow">三、六阶段</a>
+    <a href="#budget" data-sec="budget">四、222 ms</a>
+    <a href="#fork" data-sec="fork">五、3DGS / 扩散</a>
+    <a href="#sim" data-sec="sim">六、模拟器</a>
+    <a href="#myths" data-sec="myths">七、三个错误</a>
+    <a href="#debate" data-sec="debate">八、讨论</a>
+    <a href="#media" data-sec="media">九、视频</a>
+    <a href="#teach" data-sec="teach">十、用法</a>
+  </div>
+</nav>
+
+<main>
+
+<!-- ===== 速览 ===== -->
+<section id="top">
+  <div class="sec-head">
+    <div class="sec-num">看</div>
+    <div>
+      <h2>先看三段画面：官方、车主、开源复刻</h2>
+      <p class="sec-sub">第一段来自特斯拉官方 36 秒样片；第二段是车主白天实拍的中控屏；第三段是博主 vogeldev 用行车记录仪做的 3DGS 复刻。</p>
+    </div>
+  </div>
+
+  <div class="rv-gifs">
+    <figure>
+      <img src="assets/vr-2026/rv/rv-official.gif" alt="特斯拉官方 FSD v15 宣传片：夜间城市，中控屏以车顶上方虚拟相机生成街景" loading="lazy">
+      <figcaption><b>官方 36 秒样片</b><br>车顶正上方的虚拟相机，夜景城市。片中出现“25x safer”字样——注意，这个说法我们在第七节会改写。</figcaption>
+    </figure>
+    <figure>
+      <img src="assets/vr-2026/rv/rv-owner.gif" alt="车主白天实拍：中控屏生成环岛与周围建筑" loading="lazy">
+      <figcaption><b>车主白天实拍</b><br>注意画面里的建筑、斑马线、停放车辆都不是“图标”，而是一整幅连续画面；箭头是叠加层。</figcaption>
+    </figure>
+    <figure>
+      <img src="assets/vr-2026/rv/rv-3dgs.gif" alt="vogeldev 用行车记录仪与 3D 高斯泼溅复刻的飞行视角" loading="lazy">
+      <figcaption><b>开源复刻 · 3DGS</b><br>6 路行车记录仪 → 深度 → 高斯泼溅 → 生成式收尾。它证明“能复现”，也证明“离量产还很远”。</figcaption>
+    </figure>
+  </div>
+  <p class="rv-footnote">动图由本地 720P 素材截取 3.2 秒制作，仅用于课堂评论与教学演示；版权归原作者，完整原片见第九节。页面不依赖 YouTube / X，可直接离线打开。</p>
+
+  <div class="key"><strong>一句话先记住：</strong>这块屏不是“摄像头画面”，也不是“游戏引擎”，而是<strong>每 36 分之一秒生成一帧、但整幅画面滞后约 222 ms 的生成式显示</strong>。它只负责“让你看懂车想干什么”，不参与“车怎么开”。</div>
+
+  <h3>为什么它值得占用这门课的四分钟</h3>
+  <div class="grid3">
+    <div class="cell">
+      <h4>它把帧预算讲活了</h4>
+      <p>VR 头显 90 Hz 的单帧预算只有 <strong>11.1 ms</strong>；这块车机屏敢用 <strong>222 ms</strong>。同一个“延迟”，为什么一个会晕、一个能忍？因为一个是控制回路，一个是显示回路。</p>
+    </div>
+    <div class="cell">
+      <h4>它把 3DGS 接上了</h4>
+      <p>第 2 次课你们第一次听到 NeRF / 3DGS；第 5 次课做过“全景 → 3DGS”的进阶线。现在，这类“从任意视角重建空间”的能力跑在一颗只做整数运算的车规芯片上，每 222 ms 一个窗口。</p>
+    </div>
+    <div class="cell">
+      <h4>它把“幻觉”摆到眼前</h4>
+      <p>生成式画面越真实，人越容易把“画出来的”当成“检测到的”。这是一块屏上的幻觉治理，也是你们做 LLM NPC 时同一条边界。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 事实 ===== -->
+<section id="facts">
+  <div class="sec-head">
+    <div class="sec-num">一</div>
+    <div>
+      <h2>事实核验：哪些是官方说的，哪些是别人猜的</h2>
+      <p class="sec-sub">这个案例最大的教学价值，不是“它有多酷”，而是“公开信息到底能支撑到哪一步”。</p>
+    </div>
+  </div>
+
+  <p>先把官方原话摆出来。特斯拉在 <strong>2026.38.6.11</strong> 的更新说明里，对 Reality View 只写了四行：</p>
+
+  <div class="rv-quote">
+    “New <strong>real-time generative driving visualization</strong> that continuously streams a view from an <strong>arbitrary virtual camera situated above your vehicle</strong>, enabling you to <strong>see and control what FSD is planning to do</strong>.”
+    <span class="en">Tesla, Update 2026.38.6.11 (FSD v15) — Release Notes, 2026-11-21</span>
+  </div>
+
+  <p>翻成课堂话：<strong>它不是回放摄像头，而是从一台“车上根本不存在的相机”持续生成画面；这台相机的位置由你选，画面用来让你看懂 FSD 接下来想做什么。</strong>官方没有说模型结构，没有说参数规模，也没有说“3DGS”或“扩散”。这三件事，都是后来别人补的。</p>
+
+  <h3>发布事实（A 级）</h3>
+  <div class="tbl-wrap">
+    <table class="rv-table-narrow">
+      <thead><tr><th style="width:22%">项</th><th>事实</th><th style="width:30%">课堂提示</th></tr></thead>
+      <tbody>
+        <tr><td><strong>版本 / 固件</strong></td><td>FSD (Supervised) v15.0.1 · 2026.38.6.11</td><td>“v15”是功能版本，不是模型版本号</td></tr>
+        <tr><td><strong>推送</strong></td><td>2026-11-21 起先推美国 Early Access 用户；首日 7 台车；12 月 Holiday Update 扩大</td><td>首日 7 台 ≈ 车队 0.1%，别把“发布”当“普及”</td></tr>
+        <tr><td><strong>硬件</strong></td><td><strong>仅 HW4 / AI4</strong>；HW3 停在 v14.3 Lite；未在欧洲上线</td><td>同一套软件，硬件代际直接决定“有没有”</td></tr>
+        <tr><td><strong>显示模式</strong></td><td>全屏实景 / 全屏地图 / 分屏 / quiet（Calm）</td><td>四种模式就是一条降级阶梯</td></tr>
+        <tr><td><strong>交互</strong></td><td>导航转向直接画进实景；点击画面可设定目标</td><td>“看”与“控”是同一块屏</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>信源分三级，引用要标级</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th style="width:18%">等级</th><th style="width:34%">来源</th><th>能用来做什么</th><th style="width:24%">不能用来做什么</th></tr></thead>
+      <tbody>
+        <tr><td><strong>A · 官方一手</strong></td><td>Tesla 更新说明原文（2026-11-21）</td><td>功能清单、原话、HW4 限制、发布日期</td><td>不能据此推断实现细节</td></tr>
+        <tr><td><strong>B · 当事人原话</strong></td><td>马斯克 / Ashok Elluswamy / Phil Duan 等 X 长帖（11-21～23）</td><td>3B + 1B 分叉、8 帧 @36 fps、半颗 TRIP、222 ms</td><td>属转述，未经独立核实；数字之间会冲突</td></tr>
+        <tr><td><strong>C · 第三方推断</strong></td><td>vogeldev 复刻、Not a Tesla App、电子工程专辑、astig 等</td><td>提出可证伪的假设、解释现象</td><td>不能写成“特斯拉就是这么做的”</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="note"><strong>一次真实的翻车（可以直接当信息素养练习）：</strong>整理这一页的第一版，把 <code>youtube.com/watch?v=z3O7SclpX8Q</code> 记成了“特斯拉官方视频”。复核频道才发现它是 <strong>DennisCW</strong> 的个人视频《NEW FSD v15 Explained》；官方那条是 <code>eNBqkc7V1nU</code>（@Tesla，36 秒）。<strong>标题里有 Tesla ≠ 官方发布</strong>——引用前把发布者核到 @Tesla 这一级，这就是上面那张三级表存在的理由。</div>
+
+  <div class="warn"><strong>课堂上要反复说的一句话：</strong>“官方只说了 generative 和 arbitrary virtual camera。剩下的架构，是媒体、博主和复刻项目拼出来的。”这不是抠字眼——一家把端到端讲了三年的公司，在旗舰功能上<strong>没有公开架构</strong>，这件事本身就是一个很好的工程课话题。</div>
+</section>
+
+<!-- ===== 架构 ===== -->
+<section id="arch">
+  <div class="sec-head">
+    <div class="sec-num">二</div>
+    <div>
+      <h2>一条数据通路，两个出口</h2>
+      <p class="sec-sub">这是整节课最该板书的一张图：共享编码器，分叉到“开车”和“画画”两个任务头。</p>
+    </div>
+  </div>
+
+  <figure class="fig">
+    <img src="assets/vr-2026/img/diagram-rv-arch.svg" alt="Reality View 架构：8 路相机进入共享 UVE 编码器，分叉为 3B 驾驶模型与 1B 渲染模型，屏幕叠加零延迟意图层">
+    <figcaption>一条数据通路，两个出口：左边决定车怎么开（0 ms，真值），右边决定屏上画什么（222 ms，生成）。图：本页绘制。</figcaption>
+  </figure>
+
+  <h3>两个出口，延迟容忍度差 20 倍</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th style="width:22%"></th><th>分支 A · 开车</th><th>分支 B · 画画</th></tr></thead>
+      <tbody>
+        <tr><td><strong>规模（B 级）</strong></td><td>约 3B 驾驶模型</td><td>约 1B 扩散 / mean-flow 模型</td></tr>
+        <tr><td><strong>输出</strong></td><td>方向盘、油门、刹车</td><td>屏幕上的像素</td></tr>
+        <tr><td><strong>算力</strong></td><td>优先级最高</td><td>半颗 TRIP（0.5 / 6 ≈ 8.3%）</td></tr>
+        <tr><td><strong>误差后果</strong></td><td>直接影响安全</td><td>影响“人怎么理解车”</td></tr>
+        <tr><td><strong>延迟</strong></td><td>越低越好（安全关键）</td><td><strong>222 ms 可接受</strong>（只预告意图）</td></tr>
+        <tr><td><strong>共享什么</strong></td><td colspan="2">同一份 UVE 视觉特征——这是“总算力反而更少”的原因</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <figure class="fig">
+    <img src="assets/vr-2026/img/diagram-rv-fork-anim.svg" alt="双出口时序动画：光点从 8 路相机进入共享 UVE 编码器后分叉，上路 3B 驾驶模型立即输出，下路 1B 渲染模型逐帧生成，222 毫秒后才到达屏幕" loading="lazy">
+    <figcaption><strong>动图 · 同一个输入，两个时间尺度：</strong>绿点立刻到（0 ms，真值通道），橙点要走完 8 帧才到（222 ms，生成通道）。投屏时让学生盯着橙点走完那一段——那就是“你看到的世界比真实世界晚”的样子。图：本页绘制。</figcaption>
+  </figure>
+
+  <h3>旧管线 vs 新管线：省掉的是“翻译”</h3>
+  <p>旧版可视化走的是“<strong>感知分类 + 素材贴图</strong>”：端到端模型本来不需要“车道线 / 框”这些中间量，但为了让驾驶员看懂，工程师额外开了一个接口，把类别和位置交给渲染引擎，渲染引擎再去素材库取预制模型摆到屏幕上。结果就是——<strong>清单上没有的东西，屏幕上就没有；识别错了，画面就穿帮</strong>。老车主见过“工程车被渲染成一列火车”。</p>
+
+  <figure class="fig">
+    <img src="assets/vr-2026/img/diagram-rv-oldnew.svg" alt="旧管线与 v15 新管线对比：旧方案翻译成素材清单，新方案共享编码器直接生成">
+    <figcaption>旧管线多一层“翻译”，新管线把这一层取消。省下的不是画质，是算力。图：本页绘制。</figcaption>
+  </figure>
+
+  <figure class="fig">
+    <img src="assets/vr-2026/img/diagram-rv-train.svg" alt="旧管线穿帮动画：感知把工程车分类为工程车，渲染引擎去素材库取模型时取错成火车，屏幕上于是出现一辆行驶在公路上的火车" loading="lazy">
+    <figcaption><strong>动图 · 那张“表”错一格的样子：</strong>感知说“工程车”，素材库却取到了火车那一格，屏幕于是把一辆火车画在公路上。这不是画质问题，是<strong>中间表示被当成事实</strong>。老车主真的见过这一幕。图：本页绘制。</figcaption>
+  </figure>
+
+  <div class="key"><strong>为什么这是本课的核心？</strong>因为它和第 11 次课的“一个模型两个出口”同构：<strong>共享编码器 + 分叉到不同规模的任务头</strong>，比“一个巨模型什么都干”更容易在固定算力下同时满足延迟与画质。你们做 WebXR 时也在做同一件事——把“每帧都要算的”和“只在交互时算的”分开。</div>
+
+  <div class="note"><strong>同一块屏，两个时延：</strong>生成画面滞后 222 ms，但转向箭头 / 泊车图钉 / 规划路径这些“意图叠加层”取的是<strong>当前</strong>规划，接近 0 ms。所以“我看到箭头”比“我看到路”更实时。这正是它作为“意图预报仪”的价值，也是它不能当“感知真相”的原因。</div>
+</section>
+
+<!-- ===== 六阶段 ===== -->
+<section id="flow">
+  <div class="sec-head">
+    <div class="sec-num">三</div>
+    <div>
+      <h2>六个阶段：从 8 路视频到一块屏</h2>
+      <p class="sec-sub">把架构图拆成工程流水线，每一步都问三个问题：输入是什么、约束是什么、延迟算在谁头上。</p>
+    </div>
+  </div>
+
+  <div class="step-grid">
+    <div class="step-card">
+      <div class="sc-no">S0 · 采集对齐</div>
+      <div class="sc-title">8 路相机先对上“同一个瞬间”</div>
+      <div class="sc-desc">时间戳对齐 + 空间标定。复刻项目实测：特斯拉摄像头之间最多差 <strong>8.7 ms</strong>，软件里应已校正。不校正，就谈不上“把多路像素放到同一时刻”。</div>
+    </div>
+    <div class="step-card">
+      <div class="sc-no">S1 · 特征化</div>
+      <div class="sc-title">UVE：一条 18 Hz 的特征流</div>
+      <div class="sc-desc">编码器要<strong>够小</strong>（进 SRAM、带宽受限），又要<strong>够泛</strong>（没见过的路牌、链条、坑洼也得认）。所以用百万级互联网视频预训练。</div>
+    </div>
+    <div class="step-card">
+      <div class="sc-no">S2 · 分叉</div>
+      <div class="sc-title">同一份特征，两个任务头</div>
+      <div class="sc-desc">一路 3B 驾驶，一路 1B 渲染。共享特征意味着“画面与决策看到的是同一个世界”，但两个头的规模、延迟、失败模式完全不同。</div>
+    </div>
+    <div class="step-card">
+      <div class="sc-no">S3 · 生成</div>
+      <div class="sc-title">上一帧是记忆，特征是纠正</div>
+      <div class="sc-desc">上一帧加噪作起点，用最新 UVE 特征去噪，输出 8 帧。它是<strong>逐帧续写</strong>，不是逐物体重绘——所以比旧版“灰白格子车”连续。</div>
+    </div>
+    <div class="step-card">
+      <div class="sc-no">S4 · 叠加交互</div>
+      <div class="sc-title">确定性的意图层，零延迟</div>
+      <div class="sc-desc">转向 chevron、泊车图钉、规划路径由规划结果直接画，不经过生成模型。点击画面 → 反投影成世界目标点 → 交回驾驶分支重规划。</div>
+    </div>
+    <div class="step-card">
+      <div class="sc-no">S5 · 显示降级</div>
+      <div class="sc-title">生成不好，就退回事实</div>
+      <div class="sc-desc">全量 → Calm（只留车速 / 限速 / 下一转向）→ 分屏 → 纯地图 → HW3 直接没有。先砍质量，再砍频率，<strong>但永远不砍真值通道</strong>。</div>
+    </div>
+  </div>
+
+  <h3>S5 的降级阶梯，值得单独抄一遍</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th style="width:14%">层级</th><th style="width:34%">屏幕上还剩什么</th><th>什么时候进入</th></tr></thead>
+      <tbody>
+        <tr><td><strong>L0 全量</strong></td><td>生成画面 + 全部叠加层</td><td>默认</td></tr>
+        <tr><td><strong>L1 Calm</strong></td><td>只留车速、限速、下一转向、到达时间</td><td>用户主动 / 免打扰</td></tr>
+        <tr><td><strong>L2 分屏</strong></td><td>地图 + 缩小的实景</td><td>导航需求高</td></tr>
+        <tr><td><strong>L3 隐藏</strong></td><td>纯全屏地图，零可视化</td><td>不想被画面分心</td></tr>
+        <tr><td><strong>L4 关闭</strong></td><td>没有这个功能（HW3 现状）</td><td>硬件不支持</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>这和你们做 LLM NPC 时的四级降级是同一条思路：<strong>接不上时，先退回事实，再退回最小信息集，而不是编一个更像样的回答。</strong></p>
+
+  <figure class="fig">
+    <img src="assets/vr-2026/img/diagram-rv-degrade.svg" alt="降级阶梯：L0 全量到 L4 关闭，屏上信息逐级减少，但绿色真值通道（转向、限速、下一动作）始终保持不变" loading="lazy">
+    <figcaption>把降级画成台阶：越往右下，屏上剩的东西越少；绿色那条“真值通道”从头到尾没动过。<strong>先砍质量，再砍频率，最后砍功能，但事实层一次都不砍。</strong>图：本页绘制。</figcaption>
+  </figure>
+</section>
+
+<!-- ===== 时间账 ===== -->
+<section id="budget">
+  <div class="sec-head">
+    <div class="sec-num">四</div>
+    <div>
+      <h2>222 ms 的时间账：现场就能算</h2>
+      <p class="sec-sub">这一节不要放 PPT 结论，直接在黑板上算。两条独立路径会算出同一个数。</p>
+    </div>
+  </div>
+
+  <figure class="fig">
+    <img src="assets/vr-2026/img/diagram-rv-latency.svg" alt="222 毫秒的推导与 VR 帧预算对比：8 帧除 36 fps，4 个 18 Hz 周期，空间误差 3.6 米">
+    <figcaption>上：两条路径都得到 222 ms；下：与 VR 90 Hz 的 11.1 ms 单帧预算相差约 20 倍。图：本页绘制。</figcaption>
+  </figure>
+
+  <pre>路径 A（生成侧）：  8 帧 ÷ 36 fps          = 0.222 s
+路径 B（编码侧）：  4 个 UVE 周期 ÷ 18 Hz  = 0.222 s
+空间误差：          0.222 s × 16 m/s       ≈ 3.6 m
+优化目标：          0.222 s × 0.65         ≈ 143 ms（−35%，软件重排，不换硬件）</pre>
+
+  <figure class="fig">
+    <img src="assets/vr-2026/img/diagram-rv-window-anim.svg" alt="222 毫秒窗口动画：采集对齐、UVE 编码、生成 8 帧、合成显示四个阶段；白色播放头循环扫过整条流水线；下方与 VR 90 Hz 的 11.1 毫秒单帧预算对照" loading="lazy">
+    <figcaption><strong>动图 · 一条流水线走完 222 ms：</strong>白色播放头每三秒扫一遍，就是车机“重画一次世界”的节奏；橙点依次亮起，是那 8 帧在往外吐。底下两根条按同一比例尺——222 ms 约为 11.1 ms 的 20 倍。图：本页绘制。</figcaption>
+  </figure>
+
+  <div class="rv-num">
+    <div><b>222 ms</b><span>8 帧 @36 fps 的播放窗口；也是 4 个 18 Hz 特征周期</span></div>
+    <div><b>3.6 m</b><span>16 m/s 下，画面里的世界比真实世界晚 3.6 米</span></div>
+    <div><b>11.1 ms</b><span>VR 90 Hz 的单帧预算——同一个“延迟”，差约 20 倍</span></div>
+    <div><b>8.3%</b><span>0.5 / 6 颗 TRIP；约 20 TOPS 是第三方推算，不是官方</span></div>
+  </div>
+
+  <div class="key"><strong>全课最该记住的对照：</strong>VR 里超预算 10 ms 就开始晕；车机屏上“落后真实世界 220 ms”却可以接受。差别不在数字，在用途——<strong>一个在控制回路里，一个只在显示回路里。</strong>这也解释了为什么同一个模型的两个分支可以有截然不同的延迟容忍度。</div>
+
+  <div class="warn"><strong>必须标注：</strong>222 ms 是马斯克给出的三个数字的<strong>算术推论</strong>，不是独立实测。两条路径吻合，只能说明这套说法自洽，不能说明它就是实测值。课堂上让学生自己算一遍，比记住 222 更有价值。</div>
+
+  <h3>如果算力再砍一半，先砍什么？</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th style="width:34%">被砍的东西</th><th>判断</th></tr></thead>
+      <tbody>
+        <tr><td>生成画面分辨率 / 细节</td><td>✅ 可砍——它只是显示层</td></tr>
+        <tr><td>生成帧率 36 → 18 fps</td><td>✅ 可砍——窗口变成 444 ms，仍在“预告意图”的容忍范围</td></tr>
+        <tr><td>意图叠加层</td><td>❌ 不可砍——这是唯一零延迟、真值来源的通道</td></tr>
+        <tr><td>“已确认检测”的 3D 物体</td><td>⚠️ 灰色地带——砍掉就退化成旧版，保住诊断透明度但失去生成优势</td></tr>
+        <tr><td>直接关掉 Reality View</td><td>✅ 终极兜底——退回图标式可视化（HW3 的现状）</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ===== 两套口径 ===== -->
+<section id="fork">
+  <div class="sec-head">
+    <div class="sec-num">五</div>
+    <div>
+      <h2>3DGS，还是扩散？公开信息不足以判定</h2>
+      <p class="sec-sub">这是本案例最能训练批判性思维的地方：两套架构都能解释同一个 222 ms。</p>
+    </div>
+  </div>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th style="width:20%">口径</th><th style="width:18%">来源</th><th>主张</th><th style="width:22%">关键数字</th></tr></thead>
+      <tbody>
+        <tr><td><strong>① 扩散视频生成</strong></td><td>马斯克 11-22 X 长帖（B 级）</td><td>UVE 特征 → 约 1B 扩散模型 → 逐帧去噪，生成 8 帧视频</td><td>8 帧 @36 fps · 18 Hz · 4 周期 · 222 ms</td></tr>
+        <tr><td><strong>② 生成式高斯泼溅</strong></td><td>特斯拉公开讲过的路线 + 电子工程专辑（C 级）</td><td>驾驶网络一次计算直接生成 splat 椭球，再从任意虚拟相机渲染</td><td>一次 splat 计算约 220 ms</td></tr>
+        <tr><td><strong>③ 3D 代理 + 扩散补真</strong></td><td>vogeldev 复刻（C 级）</td><td>多相机对齐 → 深度 → 高斯泼溅 → 迭代比对 → 替换运动车辆 → 生成式收尾</td><td>纯生成几何失败；相机不同步 8.7 ms</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="warn"><strong>为什么两套都能自洽：</strong>222 ms 在口径 ① 里是“8 帧 @36 fps 的播放窗口”，在口径 ② 里是“一次 splat 计算的耗时”。<strong>同一个数字被两种架构同时解释</strong>——这正是最好的教学素材。教师建议口径：我倾向于“两种都有”：几何部分负责“这是什么地方、有多远”，扩散部分负责“看起来像不像”。但这是推断，不是官方结论。</div>
+
+  <h3>三个可证伪的观察点（留给学生作业）</h3>
+  <ol>
+    <li><strong>立体物 vs 贴地平面：</strong>车、行人、路障的失真，和斑马线、车道线的失真，程度是否不同？口径 ③ 预测：立体物来自 3D 代理，平面元素来自视频贴图，平面会更“糊”。</li>
+    <li><strong>盲区里有没有细节：</strong>纯几何方案盲区应无物；纯生成方案盲区可能出现臆造物。已有车主报告“某些东西突然变形或出现不该出现的”。</li>
+    <li><strong>高速失真的形态：</strong>是“整体滞后”，还是“边缘拖影”？前者指向生成式续写，后者指向几何重建 + 贴图。</li>
+  </ol>
+  <p class="rv-footnote">作业要求：三条任选一条，去找证据，结论只能写“支持 / 不支持 / 证据不足”，并列出看过的材料。禁止转述媒体结论。</p>
+
+  <h3 id="3dgs">🔗 3DGS 闭环：从任意视角重建，真的上车了</h3>
+  <p>第 2 次课《立体显示技术》的结尾，讲义里有一句：“NeRF、3DGS 等把真实世界转为可显示、可交互的 3D 表示，是未来生成式立体内容的基础。”第 5 次课的全景进阶线又留了一句：“全景记录的是从一个点看到的一圈；3DGS 记录的是一整个可以走进去的空间。”</p>
+  <p>Reality View 实现的，正是这两句话描述的能力——不管底层是 3DGS、扩散，还是两者混合（官方都没公布）：<strong>从运动中的 8 路摄像头，在一个 222 ms 的窗口里重建一整个空间，而且是从一台车上根本不存在的相机（车顶正上方）看出去。</strong>如果“生成式高斯泼溅”的口径成立，那就是 3DGS 真的跑上了车规芯片；即便不是，这条“从任意视角重建”的技术线也已经量产落地。</p>
+  <div class="key"><strong>一句话接上：</strong>“你们学过 3DGS；今天要看的，是同一类能力跑在一颗只做整数运算的芯片上，输出的是一台现实世界里不存在的相机的画面。”——这也是本案例为什么放在“结课回顾”而不是“又一章新技术”的原因。</div>
+
+  <div class="note"><strong>开源复刻：</strong><a href="https://github.com/jchacker5/open-tesla-reality-view" target="_blank" rel="noopener">open-tesla-reality-view</a>（MIT）把特斯拉行车记录仪（USB）跑成 3D 高斯泼溅回放，支持追尾视角、各路相机画面与遥测。它是“学生可动手”的那一层；但一个开源项目 ≠ 一颗量产芯片上的量产模型。</div>
+</section>
+
+<!-- ===== 模拟器 ===== -->
+<section id="sim">
+  <div class="sec-head">
+    <div class="sec-num">六</div>
+    <div>
+      <h2>教学模拟器：把预算与失效模式变成可操作的四块仪表</h2>
+      <p class="sec-sub">单文件、零依赖、双击即开。它不模拟特斯拉的画质，只模拟时序、预算与失效方式。</p>
+    </div>
+  </div>
+
+  <div class="rv-simwrap">
+    <iframe src="assets/vr-2026/rv/rv-sim.html" title="Reality View 教学模拟器：特征条、驾驶头、渲染头与时序仪表"></iframe>
+  </div>
+  <p class="rv-footnote">如果页面内操作不方便，<a href="assets/vr-2026/rv/rv-sim.html" target="_blank" rel="noopener">全屏打开模拟器 →</a>。真实浏览器实测（2026-11-24，本机）：无 JS 错误；<strong>画面滞后在 221–252 ms 之间浮动</strong>——222 是窗口长度，“滞后”读数含“这一帧已经等了几毫秒”，所以只会往上漂不会往下掉；空间误差随之在 3.5–4.0 m；<strong>算力占用显示 2–3%</strong>，那是这台电脑的实测换算，与车规芯片无关——所以模拟器只用来讲时序与失效方式，不讲算力绝对值。</p>
+
+  <h3>四个课堂动作（按教学价值排序）</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th style="width:30%">动作</th><th>预期现象</th><th style="width:32%">对应教学点</th></tr></thead>
+      <tbody>
+        <tr><td><strong>拖动相机高度 / 后距 / 俯仰</strong></td><td>同一段路换一个取景，甚至从车顶正上方看</td><td>“arbitrary virtual camera”是真的自由取景</td></tr>
+        <tr><td><strong>关掉 3D 几何辅助</strong></td><td>画面塌成色块与拖影</td><td>纯生成做不出几何正确的场景</td></tr>
+        <tr><td><strong>把 K 拉到 8</strong></td><td>算力条逼近甚至冲破半颗 TRIP 预算</td><td>算力约束如何逼你降级</td></tr>
+        <tr><td><strong>勾选幻觉注入</strong></td><td>屏幕上出现一个现实里没有的橙色物体</td><td>生成式界面的“流畅错误”</td></tr>
+        <tr><td><strong>单击主画面</strong></td><td>规划轨迹转向点击处</td><td>像素 → 反投影 → 世界目标点 → 重规划</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <figure class="fig">
+    <img src="assets/vr-2026/img/diagram-rv-fail-anim.svg" alt="三种失效方式并排动画：几何辅助开启时结构清晰，关掉几何辅助后画面塌成色块与拖影，幻觉注入时屏幕上出现现实里不存在的物体" loading="lazy">
+    <figcaption><strong>动图 · 同一块屏的三种失效：</strong>左是几何辅助开着（结构在）；中是把几何辅助关掉（只剩生成，塌成色块）；右是幻觉注入（画出真实世界里没有的东西）。这三张就是模拟器里两个开关的样子。图：本页绘制。</figcaption>
+  </figure>
+
+  <div class="warn"><strong>教师须说明：</strong>模拟器里的画面是<strong>教学替身</strong>，不是特斯拉的真实画质，也不是真的扩散模型。它复现的是“时序、预算与失效模式”，不是“生成质量”。否则学生会把模拟器当成技术证据。<strong>另外两条自检口径也要说清</strong>：算力条是<strong>按帧数与时延估算</strong>出来的（页面跑在虚拟时钟上，读不到真实占用）；画面里的“自车”是从车顶正上方看的样子，不是摄像头视角。</div>
+</section>
+
+<!-- ===== 三个错误 ===== -->
+<section id="myths">
+  <div class="sec-head">
+    <div class="sec-num">七</div>
+    <div>
+      <h2>三个必须纠正的流传错误</h2>
+      <p class="sec-sub">这一节可以直接当“信息素养”练习：同一条新闻，三种写法，哪一种能进论文？</p>
+    </div>
+  </div>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th style="width:30%">流传说法</th><th>问题</th><th style="width:36%">正确写法</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>“参数从 10 亿涨到 100 亿”</strong></td>
+          <td>特斯拉从未官方公布参数规模；马斯克 11-22 的口径是 <strong>3B 驾驶 + 1B 渲染</strong>，“v14≈1B / v15≈10B”是二手转述。</td>
+          <td>“据 2026-11-22 马斯克技术说明：约 3B 驾驶 + 约 1B 渲染”；或“第三方转述称约 10B，未经官方确认”。两套口径都摆出来。</td>
+        </tr>
+        <tr>
+          <td><strong>“220 ms 是实测”</strong></td>
+          <td>它是 8÷36、4÷18 两条路径的算术推论；媒体明确写过“这是马斯克数字里的算术，不是独立测量”。</td>
+          <td>“按官方口径推算约 220 ms”；若写“实测”，必须给出测量方法与设备。</td>
+        </tr>
+        <tr>
+          <td><strong>“3D 重建 + 扩散补全是官方架构”</strong></td>
+          <td>官方只说了 generative + arbitrary virtual camera；“拼接 → 3D → 补全”是媒体描述与 vogeldev 复刻的第三方推断。</td>
+          <td>把两套口径作为<strong>假设</strong>讲，明确写“特斯拉没有说明用的是哪一种”。</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="note"><strong>再加一条容易混的：</strong>网上说“用了 Unreal / 游戏引擎”。马斯克 11-22 明确否认（“实时 AI 视频生成，没有游戏引擎”）。<strong>车机代码里有引擎痕迹 ≠ v15 用它。</strong></div>
+
+  <div class="key"><strong>“25 倍”也要改写：</strong>官方原文是 <em>improving the critical intervention rate by 25x</em>——<strong>关键干预率改善 25 倍</strong>，特斯拉自测口径，没有公开基线、里程与方法。不能简化成“更安全 25 倍”。方向 ≠ 距离。</div>
+</section>
+
+<!-- ===== 讨论 ===== -->
+<section id="debate">
+  <div class="sec-head">
+    <div class="sec-num">八</div>
+    <div>
+      <h2>四个讨论题：从“酷”走到“代价”</h2>
+      <p class="sec-sub">如果只剩五分钟，选第 1 题和第 4 题；它们最能接回你们自己的作品。</p>
+    </div>
+  </div>
+
+  <h3>1. 诊断透明度的倒退（最值得讲）</h3>
+  <p>旧版可视化是<strong>检测清单</strong>：模型检出什么，屏幕就画什么图标。新版是<strong>模型的主观重绘</strong>：斑马线、倒影可能只是画出来的，不是确认检测到的。<strong>你看到的不等于车看到的。</strong>对监督式系统来说，这是从“证据”退到“演出”。这是进步还是风险？</p>
+
+  <h3>2. 监督摩擦被移除</h3>
+  <p>v15 删除 disengagement 菜单——接管时不再弹窗提示。一面是体验优化，一面是把监督成本从系统身上转移到人身上。与“Supervised（监督式）”的责任承诺方向相反。<strong>好设计还是危险信号？</strong></p>
+
+  <h3>3. 流畅的错误</h3>
+  <p>生成器的失效方式就是“流畅地出错”。车主报告过“开着开着某些东西突然变形，或出现不该出现的东西”。这对安全关键场景和工业 / 医疗 VR 是不可接受的——那些场景必须能追溯到具体信号。<strong>你的作品里，哪个模块允许“流畅地错”，哪个不允许？</strong></p>
+
+  <h3>4. 25× 没有基线</h3>
+  <p>特斯拉自测口径，无测试集、无里程、无定义、无第三方复核；FSD 历史上版本并非单调改善。教学上要教会学生区分“<strong>方向</strong>”与“<strong>距离</strong>”。<strong>如果让你为这句话补一个实验设计，最少需要哪三个量？</strong></p>
+
+  <div class="note"><strong>讨论组织（10 分钟）：</strong>两人一组，选一题，3 分钟立场 + 2 分钟反驳；最后每组只报一句“我们最不确定的是什么”。不允许用“我觉得”开头，必须引用一条事实或一个数字。</div>
+</section>
+
+<!-- ===== 媒体 ===== -->
+<section id="media">
+  <div class="sec-head">
+    <div class="sec-num">九</div>
+    <div>
+      <h2>视频与出处：课堂用本地，链接供查证</h2>
+      <p class="sec-sub">YouTube / X 在校园网通常不可直连；课堂一律用本地文件，页面只保留出处链接。</p>
+    </div>
+  </div>
+
+  <div class="tbl-wrap">
+    <table class="rv-table-narrow">
+      <thead><tr><th style="width:30%">站点（2026-11-24 本机实测）</th><th style="width:16%">直连</th><th style="width:22%">经 127.0.0.1:7890</th><th>对课堂意味着什么</th></tr></thead>
+      <tbody>
+        <tr><td><strong>bilibili.com</strong></td><td><span style="color:#2e7d32;font-weight:700">200 ✅</span></td><td>200</td><td>教室里能直接打开；4K / 1080P60 是大会员专享，未登录只给 720P——对课堂够用</td></tr>
+        <tr><td><strong>youtube.com · i.ytimg.com</strong></td><td><span style="color:#b45309;font-weight:700">000 ❌</span></td><td>200 ✅</td><td>四条原片是<strong>经代理</strong>下载的；校园网大概率没有这个代理</td></tr>
+        <tr><td><strong>x.com</strong></td><td><span style="color:#b45309;font-weight:700">000 ❌</span></td><td>200 ✅</td><td>推文链接学生在家能开，教室里打不开——只当出处，不当素材</td></tr>
+        <tr><td>github.com · api.github.com</td><td>000 ❌ · 200 ✅</td><td>—</td><td>仓库网页打不开，但 API 能读到 README</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="key"><strong>所以只有一条策略：</strong>课堂放本地文件（<code>视频素材\</code> 353 MB · 18 个文件；<code>视频素材_YT\</code> 394 MB · 4 个文件），链接留给学生回家看。<strong>别让 40 个学生同时挂在教室网络上点 YouTube。</strong></div>
+
+  <h3>官方 36 秒样片（课堂开场）</h3>
+  <div class="rv-video">
+    <video controls muted loop playsinline preload="metadata" poster="assets/vr-2026/rv/rv-official-poster.jpg">
+      <source src="assets/vr-2026/rv/rv-official.mp4" type="video/mp4">
+      你的浏览器不支持视频标签；可直接打开 <a href="assets/vr-2026/rv/rv-official.mp4">rv-official.mp4</a>。
+    </video>
+    <div class="cap">Tesla《Introducing Tesla Self-Driving V15》，36 秒，@Tesla 官方频道。课堂用本地 720P 备份；版权归 Tesla，仅教学评论。</div>
+  </div>
+
+  <h3>四条 YouTube 原片（已核实标题与频道）</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th style="width:34%">视频</th><th style="width:22%">频道</th><th>链接</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Introducing Tesla Self-Driving V15</strong>（36 s）</td><td>@Tesla（官方）</td><td><a href="https://www.youtube.com/watch?v=eNBqkc7V1nU" target="_blank" rel="noopener">youtube.com/watch?v=eNBqkc7V1nU</a></td></tr>
+        <tr><td><strong>Tesla FSD V15: I Rebuilt Reality View From My Own Car</strong>（10:16）</td><td>@vogeldev</td><td><a href="https://www.youtube.com/watch?v=u8SUx7tKaRM" target="_blank" rel="noopener">youtube.com/watch?v=u8SUx7tKaRM</a></td></tr>
+        <tr><td>First drive on Tesla FSD V15（25:15）</td><td>@realsawyermerritt</td><td><a href="https://www.youtube.com/watch?v=TSpBfh7Ubw8" target="_blank" rel="noopener">youtube.com/watch?v=TSpBfh7Ubw8</a></td></tr>
+        <tr><td>First Tesla FSD V15 daytime drive（9:22）</td><td>@realsawyermerritt</td><td><a href="https://www.youtube.com/watch?v=swuHnUDS6hM" target="_blank" rel="noopener">youtube.com/watch?v=swuHnUDS6hM</a></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>B 站：课堂可直连的 6 条</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th style="width:46%">标题</th><th style="width:14%">时长</th><th>用途</th></tr></thead>
+      <tbody>
+        <tr><td><a href="https://www.bilibili.com/video/BV1RmySzbE9z" target="_blank" rel="noopener">技术解析！特斯拉 FSD V15 离谱可视化到底怎么做的？</a></td><td>5:25</td><td>⭐ 备课基准：3B/1B、8 帧 @36 fps、半颗 TRIP</td></tr>
+        <tr><td><a href="https://www.bilibili.com/video/BV1ygyDzCEM9" target="_blank" rel="noopener">特斯拉 FSD V15 背后的技术就是大名鼎鼎的高斯泼溅！</a></td><td>1:31</td><td>⭐ 接第 2 / 5 次课 3DGS 线</td></tr>
+        <tr><td><a href="https://www.bilibili.com/video/BV1vayXzTEo9" target="_blank" rel="noopener">科技博主 vogeldev：我用 Model 3 行车记录仪复现了 Reality View</a></td><td>1:06</td><td>⭐ 复刻工作流</td></tr>
+        <tr><td><a href="https://www.bilibili.com/video/BV1BUyJz7E4e" target="_blank" rel="noopener">FSD v15 实景视图有延迟？</a></td><td>1:39</td><td>⭐ 把 222 ms 讲成可感知的体验</td></tr>
+        <tr><td><a href="https://www.bilibili.com/video/BV1UAyDzEET7" target="_blank" rel="noopener">特斯拉 FSD v15 Reality View 就这？v14 撞杆，v15 会重…</a></td><td>0:37</td><td>v14 vs v15：这次到底换了什么</td></tr>
+        <tr><td><a href="https://www.bilibili.com/video/BV1SPyRzPEpF" target="_blank" rel="noopener">特斯拉 FSD V15 最大骗局</a></td><td>6:14</td><td>批判视角：删除接管弹窗、25× 无基线</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>可打开的图文出处</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th style="width:38%">材料</th><th>链接</th><th style="width:26%">价值</th></tr></thead>
+      <tbody>
+        <tr><td><strong>官方更新说明原文</strong></td><td><a href="https://www.notateslaapp.com/software-updates/version/2026.38.6.11/release-notes" target="_blank" rel="noopener">notateslaapp.com/software-updates/version/2026.38.6.11</a></td><td>一切引用的源头</td></tr>
+        <tr><td>Gear Musk：马斯克技术说明整理</td><td><a href="https://gearmusk.com/2026/11/22/fsd-v15-reality-view/" target="_blank" rel="noopener">gearmusk.com/2026/11/22/fsd-v15-reality-view</a></td><td>B 级主源</td></tr>
+        <tr><td>汇智网：半颗 TRIP、220 毫秒</td><td><a href="https://www.hubwiz.com/blog/reality-view-3b-1b-diffusion-half-trip-220ms/" target="_blank" rel="noopener">hubwiz.com/blog/reality-view-3b-1b-diffusion-half-trip-220ms</a></td><td>算术核对最细</td></tr>
+        <tr><td>新浪汽车：画面究竟如何实时生成</td><td><a href="https://auto.sina.cn/2026-11-23/detail-inizsuwk8386422.d.html" target="_blank" rel="noopener">auto.sina.cn/2026-11-23/detail-inizsuwk8386422</a></td><td>双路分叉讲得最清楚</td></tr>
+        <tr><td>爱范儿：把“GTA”搬进汽车</td><td><a href="https://tech.ifeng.com/c/8yGDxrIUHlS" target="_blank" rel="noopener">tech.ifeng.com/c/8yGDxrIUHlS</a></td><td>旧管线“素材贴图”讲得最清楚</td></tr>
+        <tr><td>astig：高斯泼溅原理</td><td><a href="https://astig.ph/gaussian-splatting-explained-tesla-reality-view" target="_blank" rel="noopener">astig.ph/gaussian-splatting-explained-tesla-reality-view</a></td><td>接第 2 / 5 次课 3DGS</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>完整清单｜B 站 17 条（本地素材库里都有）</h3>
+  <p>检索方式：8 组关键词 × 2 种排序 × 3 档时长，命中 110 条，人工筛出 17 条。⭐ 是课堂上真会用到的那几条，其余留给课后。</p>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th style="width:5%">#</th><th style="width:52%">标题</th><th style="width:10%">时长</th><th>用途</th></tr></thead>
+      <tbody>
+        <tr><td>01</td><td><a href="https://www.bilibili.com/video/BV1RmySzbE9z" target="_blank" rel="noopener">技术解析！特斯拉 FSD V15 离谱可视化到底怎么做的？</a></td><td>5:25</td><td>⭐ 备课基准（42 号车库）</td></tr>
+        <tr><td>02</td><td><a href="https://www.bilibili.com/video/BV1ygyDzCEM9" target="_blank" rel="noopener">特斯拉 FSD V15 背后的技术就是大名鼎鼎的高斯泼溅！</a></td><td>1:31</td><td>⭐ 接第 2 / 5 次课 3DGS</td></tr>
+        <tr><td>03</td><td><a href="https://www.bilibili.com/video/BV1vayXzTEo9" target="_blank" rel="noopener">科技博主 vogeldev：我用 Model 3 行车记录仪复现了 Reality View</a></td><td>1:06</td><td>⭐ 复刻工作流</td></tr>
+        <tr><td>04</td><td><a href="https://www.bilibili.com/video/BV1XAypzyEi2" target="_blank" rel="noopener">网友一夜复刻马斯克引以为傲的“实时渲染”，并不能解决实际问题</a></td><td>3:26</td><td>⭐ 复刻 + 批判，讨论题素材</td></tr>
+        <tr><td>05</td><td><a href="https://www.bilibili.com/video/BV1mQynzPEWL" target="_blank" rel="noopener">特斯拉 FSD V15 看见了什么？从真实激光回波到一根拦路的树枝</a></td><td>3:06</td><td>感知链路（对应 S0 / S1）</td></tr>
+        <tr><td>06</td><td><a href="https://www.bilibili.com/video/BV1BUyJz7E4e" target="_blank" rel="noopener">FSD v15 实景视图有延迟？</a></td><td>1:39</td><td>⭐ 把 222 ms 讲成可感知的体验</td></tr>
+        <tr><td>07</td><td><a href="https://www.bilibili.com/video/BV1royDzGELp" target="_blank" rel="noopener">FSD V15 雾天“透视”画面为 AI 重建 / 存在时延</a></td><td>0:27</td><td>极端天气 + 时延，短，适合插入</td></tr>
+        <tr><td>08</td><td><a href="https://www.bilibili.com/video/BV1XZyQz8Etb" target="_blank" rel="noopener">FSD v15 真正的价值，在于找到了世界模型的低维表达</a></td><td>1:39</td><td>理论收束（深蓝学院）</td></tr>
+        <tr><td>09</td><td><a href="https://www.bilibili.com/video/BV1WdynzhET5" target="_blank" rel="noopener">【三分半看懂】现实版 GTA 来了？自带上帝视角的实景视图怎么做出来的</a></td><td>6:20</td><td>通俗总览，零基础适用</td></tr>
+        <tr><td>10</td><td><a href="https://www.bilibili.com/video/BV1HMy5zgE9q" target="_blank" rel="noopener">特斯拉 FSD V15 实时渲染是怎么做到的，Reality View 技术讨论</a></td><td>8:15</td><td>长篇讨论（可能是外网口播，字幕未必可用）</td></tr>
+        <tr><td>11</td><td><a href="https://www.bilibili.com/video/BV1bXyozuEoK" target="_blank" rel="noopener">特斯拉 FSD V15 上帝视角 Reality View 深度解析</a></td><td>13:52</td><td>课后材料（分 p1 / p2 两个文件）</td></tr>
+        <tr><td>12</td><td><a href="https://www.bilibili.com/video/BV1dDyQzNE8j" target="_blank" rel="noopener">特斯拉 FSD 全解：原理、历史、争议一次讲透｜从 FSD 15 讲起</a></td><td>16:47</td><td>⭐ 课后自学首选（史 + 术）</td></tr>
+        <tr><td>13</td><td><a href="https://www.bilibili.com/video/BV1jTyJzLEbR" target="_blank" rel="noopener">FSD V15 暴雨场景实时渲染</a></td><td>0:18</td><td>极端天气画质，冲击感强</td></tr>
+        <tr><td>14</td><td><a href="https://www.bilibili.com/video/BV1ETyJzLEMk" target="_blank" rel="noopener">特斯拉 FSD V15 在美推送，道路实时渲染像玩游戏</a></td><td>0:23</td><td>快闪，做开场</td></tr>
+        <tr><td>15</td><td><a href="https://www.bilibili.com/video/BV1CuyDz5EaY" target="_blank" rel="noopener">特斯拉 FSD v15 眼中的曼哈顿街区，白天都能识别哪些物体</a></td><td>2:51</td><td>白天的“识别清单”</td></tr>
+        <tr><td>16</td><td><a href="https://www.bilibili.com/video/BV1SPyRzPEpF" target="_blank" rel="noopener">特斯拉 FSD V15 最大骗局</a></td><td>6:14</td><td>⭐ 批判视角：删除接管弹窗、25× 无基线</td></tr>
+        <tr><td>17</td><td><a href="https://www.bilibili.com/video/BV1UAyDzEET7" target="_blank" rel="noopener">FSD v15 Reality View 就这？v14 撞杆，v15 会重…</a></td><td>0:37</td><td>v14 与 v15 直接对比</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>完整清单｜YouTube 4 条已下载 + 6 条备选</h3>
+  <p>上面四条已用 oembed 核实标题与频道并存进 <code>视频素材_YT\</code>；下面六条是同批检索到、没下载的备选，需要时按 ID 补。</p>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th style="width:16%">ID</th><th style="width:44%">内容</th><th style="width:26%">频道</th><th>时长</th></tr></thead>
+      <tbody>
+        <tr><td><code>iAqFI3cnBJY</code></td><td>AI DRIVR 首驾体验</td><td>@AI DRIVR</td><td>8:09</td></tr>
+        <tr><td><code>ZtDJ6A67hns</code></td><td>TESLARATI 深入解析</td><td>@TESLARATI</td><td>14:03</td></tr>
+        <tr><td><code>0r7oIUrT35g</code></td><td>停车与答疑（长）</td><td>@Dirty Tesla</td><td>31:13</td></tr>
+        <tr><td><code>ndkxVhJAmqc</code></td><td>首驾片段</td><td>@Dirty Tesla</td><td>9:18</td></tr>
+        <tr><td><code>UP-6LWM-UzA</code></td><td>首驾片段</td><td>@Dirty Tesla</td><td>9:06</td></tr>
+        <tr><td><code>z3O7SclpX8Q</code></td><td>《NEW FSD v15 Explained》<strong>非官方</strong></td><td>@DennisCW</td><td>1:39</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="rv-footnote">补下载命令（教师自己机器，必须带代理）：<code>yt-dlp --proxy http://127.0.0.1:7890 -f "bv*[height&lt;=720]+ba/b[height&lt;=720]" "https://www.youtube.com/watch?v=&lt;ID&gt;"</code></p>
+
+  <h3>完整清单｜X 原帖 9 条（status ID 可直接打开）</h3>
+  <p>这些是“3B + 1B、8 帧 @36 fps、半颗 TRIP、222 ms、−35%”这套数字<strong>真正的出处</strong>。引用时请标到具体一条，而不是“据外媒”。</p>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th style="width:20%">作者</th><th style="width:46%">内容</th><th>链接</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Elon Musk</strong></td><td>v15 技术说明长帖（UVE / 3B+1B / 8 帧 @36 fps / 半颗 TRIP / 222 ms / −35%）</td><td><a href="https://x.com/elonmusk/status/2124458557525397780" target="_blank" rel="noopener">status/2124458557525397780</a></td></tr>
+        <tr><td>Elon Musk</td><td>车继续用 AI4，AI5 不给车</td><td><a href="https://x.com/elonmusk/status/2124475458150334900" target="_blank" rel="noopener">status/2124475458150334900</a></td></tr>
+        <tr><td>Elon Musk</td><td>AI5 算力约为 AI4 的 12 倍</td><td><a href="https://x.com/elonmusk/status/2124459444620628193" target="_blank" rel="noopener">status/2124459444620628193</a></td></tr>
+        <tr><td>Elon Musk</td><td>约 10 倍整体硬件性能，<strong>内存带宽仍是瓶颈</strong></td><td><a href="https://x.com/elonmusk/status/2124581034419499420" target="_blank" rel="noopener">status/2124581034419499420</a></td></tr>
+        <tr><td>Ashok Elluswamy</td><td>新可视化<strong>总算力比旧界面还少</strong></td><td><a href="https://x.com/aelluswamy/status/2124230700547326435" target="_blank" rel="noopener">status/2124230700547326435</a></td></tr>
+        <tr><td>TeslaNewswire</td><td>实车样片（海岸线 / 云浪）</td><td><a href="https://x.com/TeslaNewswire/status/2124786359558631831" target="_blank" rel="noopener">status/2124786359558631831</a></td></tr>
+        <tr><td>Lawson Fulton</td><td>Duan 四年前在面试时提出“让屏幕像挡风玻璃”</td><td><a href="https://x.com/lawsonfulton/status/2124302147965886962" target="_blank" rel="noopener">status/2124302147965886962</a></td></tr>
+        <tr><td>Yun-Ta Tsai</td><td>团队同时在推进多个项目</td><td><a href="https://x.com/yunta_tsai/status/2124327233028505636" target="_blank" rel="noopener">status/2124327233028505636</a></td></tr>
+        <tr><td>Shahan Neda</td><td>2023 年的照片：长期在做“把图像变成 3D 场景”</td><td><a href="https://x.com/shahanneda/status/2124310657223086245" target="_blank" rel="noopener">status/2124310657223086245</a></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="rv-footnote">另有 13 条 <code>pic.twitter.com/…</code> 媒体短码（Tesla 推送总览、@TeslaSI 更新说明、“FSD is GTA irl”、Nic Cruz Patane 三条、Sawyer Merritt 三条、Drive Tesla Canada 演进图、@BLKMDL3 对比、@AsFoundX 圣诞彩灯、@01Ananto 曼哈顿 1:11:44 全程）——短码必须配账号名与日期才能定位，完整清单见教师本地 <code>视频清单.md</code> §3.3。</p>
+
+  <div class="note"><strong>版权与使用：</strong>页面中的动图与短视频是他人作品的<strong>短片段</strong>，仅用于课堂评论、教学演示与课后指定阅读，版权归原作者；请勿二次剪辑上传。完整原片在教师本地素材库（B 站 17 条 / 353 MB，YouTube 4 条 / 394 MB），课堂不依赖网络。</div>
+</section>
+
+<!-- ===== 课堂用法 ===== -->
+<section id="teach">
+  <div class="sec-head">
+    <div class="sec-num">十</div>
+    <div>
+      <h2>课堂怎么用：4 分钟、25 分钟、90 分钟</h2>
+      <p class="sec-sub">结课回顾只有 4 分钟给它；这一页的其余部分是课后阅读与专题课素材。</p>
+    </div>
+  </div>
+
+  <h3>版本 A｜结课回顾开场 4 分钟（明天就用这个）</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th style="width:14%">时间</th><th>做什么</th><th style="width:30%">素材</th></tr></thead>
+      <tbody>
+        <tr><td><strong>0:00—0:50</strong></td><td>放官方 36 秒样片，只问一句：“这是摄像头画面，还是游戏引擎？”让学生举手</td><td>本页视频 / 本地原片</td></tr>
+        <tr><td><strong>0:50—2:10</strong></td><td>给三个数字：3B + 1B、半颗 TRIP、222 ms；说清“两个出口”</td><td>架构图</td></tr>
+        <tr><td><strong>2:10—2:50</strong></td><td>现场算：8÷36、4÷18、0.222×16；和 VR 的 11.1 ms 对撞</td><td>黑板 / 时间账图</td></tr>
+        <tr><td><strong>2:50—3:40</strong></td><td>打开模拟器，只做两个动作：关几何辅助、勾幻觉注入</td><td>模拟器</td></tr>
+        <tr><td><strong>3:40—4:00</strong></td><td>收在“从任意视角重建”：“你们学过 3DGS；今天，这类能力跑在车规芯片上，每 222 ms 一个窗口。”</td><td>第 2 / 5 次课伏笔</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>版本 B｜25 分钟专题（放进任意一次课的前沿线）</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th style="width:16%">分钟</th><th>内容</th></tr></thead>
+      <tbody>
+        <tr><td>0–4</td><td>官方 30 秒 + 车主白天 30 秒；问“是摄像头还是引擎”</td></tr>
+        <tr><td>4–10</td><td>板书架构图；只讲一个结论：共享编码器 + 分叉任务头，总算力反而更少</td></tr>
+        <tr><td>10–15</td><td>只算一个数：222 ms vs VR 11.1 ms ≈ 20×</td></tr>
+        <tr><td>15–21</td><td>模拟器三个动作：K 拉到 8、关几何辅助、勾幻觉注入</td></tr>
+        <tr><td>21–25</td><td>一个讨论题 + 落回 3DGS：“它现在跑在一颗只做整数运算的芯片上”</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>版本 C｜90 分钟专题课</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th style="width:16%">段</th><th style="width:12%">时长</th><th>内容</th></tr></thead>
+      <tbody>
+        <tr><td>① 钩子</td><td>8′</td><td>官方视频 + 车主夜城实测；投票“摄像头还是引擎”</td></tr>
+        <tr><td>② 立靶</td><td>12′</td><td>三个数字：3B/1B、半颗 TRIP、220 ms</td></tr>
+        <tr><td>③ 拆架构</td><td>18′</td><td>板书“一条数据通路、两个出口”</td></tr>
+        <tr><td>④ 算时间账</td><td>15′</td><td>8/36、4/18、0.5/6；222 vs 11.1</td></tr>
+        <tr><td>⑤ 动手</td><td>20′</td><td>模拟器四个动作</td></tr>
+        <tr><td>⑥ 争议</td><td>12′</td><td>诊断透明度 / 删除接管菜单 / 25× 无基线</td></tr>
+        <tr><td>⑦ 收束</td><td>5′</td><td>接回“全景 → 3DGS → 车规 3DGS”</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>板书只写这 6 行</h3>
+  <pre>摄像头 8 路 ──► UVE 编码器(18Hz) ──┬─► 3B 驾驶模型 ─► 车怎么开   [零延迟·真值]
+                                  └─► 1B 扩散模型 ─► 屏幕画什么   [222ms·生成]
+                                      ▲                        │
+                                      └── 上一帧 + 噪 ─────────┘（记忆 + 纠正）
+
+算力: 0.5 / 6 TRIP ≈ 8.3%      数值: INT8, softmax 28 步模拟
+延迟: 8帧/36fps = 4周期/18Hz = 222ms   @16m/s ≈ 3.6m
+对照: VR@90Hz 单帧 11.1ms  →  222ms ≈ 20 倍</pre>
+
+  <h3>三个作业（三选一）</h3>
+  <div class="grid3">
+    <div class="cell">
+      <h4>A · 观察报告</h4>
+      <p>任选一条车主视频，只记录能测量的东西：画面内容与真实场景的差异点（盲区、边缘、被遮挡物）、失真形态（滞后 / 漂移 / 畸变 / 突变）。<strong>必须写出 3 个“我无法判断”的点。</strong></p>
+    </div>
+    <div class="cell">
+      <h4>B · 降级方案</h4>
+      <p>给自己作品里的一个生成式模块（LLM NPC、导览文本、语音）设计四层降级链，写清每层牺牲什么、保留什么真值通道。<strong>最坏情况下用户仍能拿到什么？</strong></p>
+    </div>
+    <div class="cell">
+      <h4>C · 复现实验</h4>
+      <p>用三个可证伪观察点中的任意一条去找证据。结论只能写“支持 / 不支持 / 证据不足”，并列出看过的材料。<strong>不允许只转述媒体结论。</strong></p>
+    </div>
+  </div>
+
+  <h3>教师备课包（本地文件，全程不依赖网络）</h3>
+  <p>下面这些都在课程目录 <code>10_课堂案例_生成式现实视图_RealityView\</code> 里；本页与模拟器的站点副本在 <code>assets/vr-2026/</code>。</p>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th style="width:26%">文件</th><th style="width:42%">内容</th><th>什么时候用</th></tr></thead>
+      <tbody>
+        <tr><td><code>教学包_RealityView_技术拆解与课堂设计.md</code></td><td>12 节、约 36 KB：事实核验与信源分级、六阶段工作流、两套口径、数值预算、课次落点、90′ / 25′ 课表、提问链、三个作业、引用规范</td><td>备课与答问的底稿；学生追问细节时照着讲</td></tr>
+        <tr><td><code>视频清单.md</code></td><td>17 条 B 站 + 4 条 YouTube + 9 条 X + 13 条媒体短码 + 可达性实测</td><td>找素材、找出处、核对标题与时长</td></tr>
+        <tr><td><code>视频素材\</code>（353 MB · 18 个文件）</td><td>B 站 720P，已合并 MP4</td><td>课堂播放，VLC / PotPlayer / 浏览器都能开</td></tr>
+        <tr><td><code>视频素材_YT\</code>（394 MB · 4 个文件）</td><td>官方 36 秒样片 + vogeldev 复刻 + Sawyer Merritt 两条</td><td>开场那 50 秒就用官方那条</td></tr>
+        <tr><td><code>reality_view_sim.html</code></td><td>模拟器源文件（站点副本在 <code>assets/vr-2026/rv/rv-sim.html</code>）</td><td>没有网络时双击即开，不必进浏览器历史</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>上课前 60 秒自检</h3>
+  <ol>
+    <li><strong>本页能不能离线打开：</strong>断网，双击，看三段 GIF 是否在动、三张新图是否在循环（本页没有 CDN、没有外链字体、没有脚本依赖）。</li>
+    <li><strong>模拟器四块仪表有没有数：</strong>拖一下相机高度，确认「画面滞后 22x ms / 空间误差 3.5–4 m / 生成耗时 1 ms 上下」都在跳；关一次 3D 几何辅助，看画面是否塌掉。<strong>若读数飙到两千多毫秒</strong>，说明窗口在后台被节流了——点一下页面或切到前台就恢复。</li>
+    <li><strong>官方 36 秒样片能不能放：</strong>用本地 mp4，不要用 YouTube 链接；音量调到能听见但不刺耳。</li>
+    <li><strong>备用方案在手：</strong>投屏一旦卡，就退成「三张静态图 + 黑板算 222」——第 2、4 节的静态图都还在，不影响把话讲完。</li>
+  </ol>
+
+  <div class="key"><strong>最后收一句：</strong>这块屏真正让人不安的，不是它画得不够真，而是它<strong>画得太真</strong>——真到你忘了它只是“车想干什么”的示意图，不是“世界是什么”的证据。做 VR 也一样：<strong>越沉浸，越要标清哪一层是事实、哪一层是演出。</strong></div>
+
+  <div class="btn-row">
+    <a class="btn" href="vr-2026-review.html">← 回到结课回顾</a>
+    <a class="btn ghost" href="assets/vr-2026/rv/rv-sim.html" target="_blank" rel="noopener">全屏打开模拟器 →</a>
+    <a class="btn ghost" href="vr-2026.html">课程主页 →</a>
+  </div>
+</section>
+
+</main>
+
+<button id="toTop" title="回到顶部">↑</button>
+
+<footer>
+  <div class="f-main">中华女子学院 · 2026年虚拟现实技术 · 技术前沿案例</div>
+  <div>2026-11-24 整理 · 配套结课回顾 2026-11-25 · 教学模拟器 + 本地视频素材</div>
+  <div>视频与图片版权归原作者，仅课程教学与评论使用 · <a href="vr-2026.html">返回课程主页</a></div>
+</footer>
+
+<script>
+(function(){
+  var navInner = document.getElementById('navInner');
+  var navLinks = {};
+  navInner.querySelectorAll('a[data-sec]').forEach(function(a){
+    navLinks[a.getAttribute('data-sec')] = a;
+  });
+  var sections = ['top','facts','arch','flow','budget','fork','sim','myths','debate','media','teach'];
+  if ('IntersectionObserver' in window) {
+    var obs = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        if (en.isIntersecting) {
+          document.querySelectorAll('#nav a').forEach(function(a){ a.classList.remove('on'); });
+          var a = navLinks[en.target.id];
+          if (a) a.classList.add('on');
+        }
+      });
+    }, {rootMargin:'-15% 0px -70% 0px'});
+    sections.forEach(function(s){
+      var el = document.getElementById(s);
+      if (el) obs.observe(el);
+    });
+  }
+  var toTop = document.getElementById('toTop');
+  if (toTop) {
+    window.addEventListener('scroll', function(){
+      toTop.classList.toggle('show', window.pageYOffset > 400);
+    }, {passive:true});
+    toTop.addEventListener('click', function(){ window.scrollTo({top:0, behavior:'smooth'}); });
+  }
+})();
+</script>
+
+</body>
+</html>

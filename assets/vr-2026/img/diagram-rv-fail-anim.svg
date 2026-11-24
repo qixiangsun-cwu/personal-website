@@ -1,0 +1,98 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 364" width="960" height="364" role="img" aria-label="三种失效方式并排动画：几何辅助开启时结构清晰，关掉几何辅助后画面塌成色块与拖影，幻觉注入时屏幕上出现现实里不存在的物体">
+  <style>
+    text{font-family:"Microsoft YaHei",sans-serif}
+    .t{font:700 19px "Microsoft YaHei",sans-serif;fill:#2e2a6f}
+    .s{font:12.5px "Microsoft YaHei",sans-serif;fill:#5a5670}
+    .cn{font:700 12.5px "Microsoft YaHei",sans-serif;fill:#2e2a6f}
+    .tag{font:700 11px "Microsoft YaHei",sans-serif;fill:#fff}
+    .cap{font:11px "Microsoft YaHei",sans-serif;fill:#6b6483}
+    .g1{animation:wob1 3.2s ease-in-out infinite}
+    .g2{animation:wob2 3.6s ease-in-out infinite}
+    .ghost{animation:blink 2.4s ease-in-out infinite}
+    @keyframes wob1{0%,100%{opacity:1}50%{opacity:.9}}
+    @keyframes wob2{0%,100%{transform:translate(0,0)}50%{transform:translate(2px,-1px)}}
+    @keyframes blink{0%,100%{opacity:.42}50%{opacity:1}}
+  </style>
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#18232f"/><stop offset="1" stop-color="#0f151d"/></linearGradient>
+    <g id="scene">
+      <rect x="0" y="0" width="288" height="210" fill="#0f151d"/>
+      <rect x="0" y="0" width="288" height="124" fill="url(#sky)"/>
+      <rect x="4" y="38" width="52" height="96" fill="#26313f"/>
+      <rect x="60" y="16" width="38" height="118" fill="#1f2937"/>
+      <rect x="212" y="26" width="48" height="106" fill="#26313f"/>
+      <rect x="260" y="52" width="28" height="80" fill="#1f2937"/>
+      <g fill="#f2c477" opacity=".5">
+        <rect x="12" y="48" width="7" height="7"/><rect x="26" y="48" width="7" height="7"/><rect x="40" y="48" width="7" height="7"/>
+        <rect x="12" y="66" width="7" height="7"/><rect x="26" y="66" width="7" height="7"/><rect x="40" y="66" width="7" height="7"/>
+        <rect x="68" y="28" width="6" height="6"/><rect x="80" y="28" width="6" height="6"/><rect x="68" y="44" width="6" height="6"/>
+        <rect x="80" y="44" width="6" height="6"/><rect x="68" y="60" width="6" height="6"/><rect x="80" y="60" width="6" height="6"/>
+        <rect x="220" y="40" width="7" height="7"/><rect x="234" y="40" width="7" height="7"/><rect x="248" y="40" width="7" height="7"/>
+        <rect x="220" y="58" width="7" height="7"/><rect x="234" y="58" width="7" height="7"/><rect x="248" y="58" width="7" height="7"/>
+      </g>
+      <circle cx="112" cy="98" r="15" fill="#2e4a3c"/>
+      <circle cx="104" cy="92" r="9" fill="#37553f"/>
+      <rect x="110" y="110" width="4" height="14" fill="#3a3226"/>
+      <polygon points="88,118 200,118 268,210 20,210" fill="#1a2330"/>
+      <polygon points="90,120 198,120 200,132 88,132" fill="#222d3c"/>
+      <g fill="#d7dee8" opacity=".82">
+        <polygon points="96,196 103,196 128,210 119,210"/>
+        <polygon points="112,196 119,196 146,210 137,210"/>
+        <polygon points="130,196 137,196 164,210 155,210"/>
+        <polygon points="148,196 155,196 182,210 173,210"/>
+        <polygon points="166,196 173,196 200,210 191,210"/>
+      </g>
+      <polygon points="236,178 243,178 258,210 249,210" fill="#8a7b52" opacity=".5"/>
+      <rect x="130" y="176" width="36" height="19" rx="5" fill="#3f4b5c"/>
+      <rect x="136" y="170" width="23" height="9" rx="4" fill="#48566a"/>
+      <circle cx="138" cy="196" r="4.2" fill="#0e1218"/>
+      <circle cx="158" cy="196" r="4.2" fill="#0e1218"/>
+      <rect x="130" y="180" width="4" height="4" fill="#ffd27a"/>
+      <rect x="162" y="180" width="3" height="4" fill="#ff8b7a"/>
+    </g>
+    <filter id="blur" x="-10%" y="-10%" width="120%" height="120%">
+      <feGaussianBlur stdDeviation="3.2"/>
+    </filter>
+  </defs>
+  <rect width="960" height="364" fill="#fff"/>
+  <text class="t" x="24" y="34">三种失效方式，同一块屏</text>
+  <text class="s" x="24" y="56">左：几何辅助开着，结构在。中：关掉几何辅助，只剩生成，画面塌成色块。右：生成器画出真实世界里没有的东西。</text>
+
+  <!-- 面板 1 -->
+  <text class="cn" x="24" y="84">① 几何辅助 ON</text>
+  <g class="g1">
+    <rect x="24" y="92" width="288" height="210" rx="10" fill="#0f151d" stroke="#232b36" stroke-width="1.5"/>
+    <use href="#scene" transform="translate(24,92)"/>
+  </g>
+  <text class="cap" x="24" y="322">真值清单：楼房 / 斑马线 / 树 / 车 —— 位置与轮廓都能对上</text>
+
+  <!-- 面板 2 -->
+  <text class="cn" x="336" y="84">② 关掉 3D 几何辅助</text>
+  <rect x="336" y="92" width="288" height="210" rx="10" fill="#0f151d" stroke="#232b36" stroke-width="1.5"/>
+  <g class="g2" filter="url(#blur)">
+    <use href="#scene" transform="translate(336,92)"/>
+  </g>
+  <g opacity=".4">
+    <ellipse cx="404" cy="196" rx="34" ry="10" fill="#d9b46a"/>
+    <ellipse cx="520" cy="178" rx="40" ry="12" fill="#9fb0c8"/>
+    <ellipse cx="470" cy="200" rx="52" ry="9" fill="#7d8fa8"/>
+  </g>
+  <text class="cap" x="336" y="322" fill="#b45309">失效形态：轮廓消失、平面糊成一片、边缘拖影</text>
+
+  <!-- 面板 3 -->
+  <text class="cn" x="648" y="84">③ 幻觉注入</text>
+  <rect x="648" y="92" width="288" height="210" rx="10" fill="#0f151d" stroke="#232b36" stroke-width="1.5"/>
+  <use href="#scene" transform="translate(648,92)"/>
+  <g class="ghost">
+    <ellipse cx="838" cy="168" rx="24" ry="17" fill="#f0a020" opacity=".6"/>
+    <ellipse cx="838" cy="168" rx="24" ry="17" fill="none" stroke="#ffb454" stroke-width="1.6" stroke-dasharray="5 4"/>
+    <ellipse cx="838" cy="186" rx="15" ry="5" fill="#f0a020" opacity=".35"/>
+  </g>
+  <rect x="795" y="204" width="86" height="20" rx="4" fill="#e5484d"/>
+  <text class="tag" x="838" y="218" text-anchor="middle">现实里没有它</text>
+  <text class="cap" x="648" y="322" fill="#b45309">真值清单里没有这一项：它只存在于生成结果里</text>
+
+  <line x1="24" y1="338" x2="936" y2="338" stroke="#efebf8" stroke-width="1"/>
+  <text class="cap" x="24" y="356">课堂用法：先让学生判断“哪个是真的”，再说清三张图对应的是同一套时序——左/中来自模拟器的几何开关，右来自模拟器的幻觉开关。</text>
+</svg>
+

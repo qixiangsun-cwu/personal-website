@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 440" width="960" height="440" role="img" aria-label="旧可视化管线与 v15 新管线的对比：旧方案把感知结果翻译成类别和框，再去素材库取预制模型；新方案由共享编码器直接分叉生成画面">
+  <style>
+    .t{font:700 19px "Microsoft YaHei",sans-serif;fill:#2e2a6f}
+    .s{font:12.5px "Microsoft YaHei",sans-serif;fill:#5a5670}
+    .n{font:700 11.5px "Microsoft YaHei",sans-serif;fill:#5a52c8;letter-spacing:1px}
+    .bt{font:700 14px "Microsoft YaHei",sans-serif;fill:#272436}
+    .bd{font:11.5px "Microsoft YaHei",sans-serif;fill:#6b6483}
+    .bad{font:700 12.5px "Microsoft YaHei",sans-serif;fill:#b45309}
+    .ok{font:700 12.5px "Microsoft YaHei",sans-serif;fill:#2e7d32}
+    .box{fill:#f6f5fb;stroke:#ddd7f2;stroke-width:1.4}
+    .old{fill:#fdf6ec;stroke:#e5c79a;stroke-width:1.4}
+    .new{fill:#eef8ef;stroke:#a9cfa9;stroke-width:1.4}
+    .arrow{stroke:#8b7fd4;stroke-width:2;fill:none;marker-end:url(#a)}
+  </style>
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#8b7fd4"/></marker>
+  </defs>
+  <rect width="960" height="440" fill="#fff"/>
+  <text class="t" x="24" y="34">旧管线在「翻译」，新管线直接画</text>
+  <text class="s" x="24" y="56">省掉的不是画质，是「把感知结果翻译成素材清单」这一层。所以官方才说 using less total compute。</text>
+
+  <!-- 旧 -->
+  <rect x="24" y="76" width="440" height="316" rx="12" fill="#fffdfa" stroke="#e5c79a" stroke-width="1.5"/>
+  <text class="n" x="40" y="100" fill="#b45309">旧 · 感知分类 + 素材贴图</text>
+  <text class="bd" x="40" y="122">端到端模型本来不需要“车道线 / 框”这些中间量；</text>
+  <text class="bd" x="40" y="140">是工程师为了让驾驶员看懂，额外开了一个接口。</text>
+
+  <rect class="old" x="40" y="156" width="408" height="38" rx="7"/>
+  <text class="bt" x="54" y="181">① 驾驶网络输出“类别 + 位置”</text>
+  <rect class="old" x="40" y="204" width="408" height="38" rx="7"/>
+  <text class="bt" x="54" y="229">② 渲染引擎拿清单去素材库取模型</text>
+  <rect class="old" x="40" y="252" width="408" height="38" rx="7"/>
+  <text class="bt" x="54" y="277">③ 把预制模型摆到屏幕上</text>
+
+  <text class="bad" x="40" y="316">清单上没有的，屏幕上就没有；识别错了，画面就穿帮。</text>
+  <text class="bd" x="40" y="338">老车主见过：旁边明明是一辆造型奇特的工程车，</text>
+  <text class="bd" x="40" y="356">屏幕上却凭空冒出一列火车。</text>
+  <text class="bd" x="40" y="378">特斯拉工程师的吐槽：“把车渲染成火车的日子，总算过去了。”</text>
+
+  <!-- 新 -->
+  <rect x="496" y="76" width="440" height="316" rx="12" fill="#fbfefb" stroke="#a9cfa9" stroke-width="1.5"/>
+  <text class="n" x="512" y="100" fill="#2e7d32">新 · 共享编码器 + 生成</text>
+  <text class="bd" x="512" y="122">不再向渲染引擎“翻译”。模型自己把世界画出来，</text>
+  <text class="bd" x="512" y="140">驾驶与渲染共用同一份视觉特征。</text>
+
+  <rect class="new" x="512" y="156" width="408" height="38" rx="7"/>
+  <text class="bt" x="526" y="181">① 8 路相机 → UVE 特征（18 Hz）</text>
+  <rect class="new" x="512" y="204" width="408" height="38" rx="7"/>
+  <text class="bt" x="526" y="229">② 分叉：3B 开车 / 1B 画画</text>
+  <rect class="new" x="512" y="252" width="408" height="38" rx="7"/>
+  <text class="bt" x="526" y="277">③ 生成画面 ⊕ 零延迟意图层</text>
+
+  <text class="ok" x="512" y="316">少一次“翻译”，所以总算力反而比旧界面更少。</text>
+  <text class="bd" x="512" y="338">但代价是：画面不再等于“检测清单”，</text>
+  <text class="bd" x="512" y="356">斑马线、倒影可能只是画出来的，不是确认检测到的。</text>
+  <text class="bd" x="512" y="378">你看到的，不等于车看到的。</text>
+
+  <text class="s" x="24" y="420">官方原话：replacing all of the explicit model signals into a single end-to-end visualization, using less total compute.　图：本页绘制</text>
+</svg>

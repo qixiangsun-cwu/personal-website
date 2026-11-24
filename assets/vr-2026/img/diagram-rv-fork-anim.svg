@@ -1,0 +1,92 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 320" width="960" height="320" role="img" aria-label="双出口时序动画：光点从 8 路相机进入共享 UVE 编码器后分叉，上路 3B 驾驶模型立即输出（0 毫秒），下路 1B 渲染模型逐帧生成，222 毫秒后才到达屏幕">
+  <style>
+    text{font-family:"Microsoft YaHei",sans-serif}
+    .t{font:700 19px "Microsoft YaHei",sans-serif;fill:#2e2a6f}
+    .s{font:12.5px "Microsoft YaHei",sans-serif;fill:#5a5670}
+    .st{font:700 13px "Microsoft YaHei",sans-serif;fill:#2e2a6f}
+    .sd{font:11.5px "Microsoft YaHei",sans-serif;fill:#6b6483}
+    .num{font:700 12px Consolas,monospace;fill:#b45309}
+    .ok{font:700 12px "Microsoft YaHei",sans-serif;fill:#2e7d32}
+    .up{animation:pulseUp 3.6s linear infinite}
+    .dn{animation:pulseDown 3.6s linear infinite}
+    .fd{animation:feed 3.6s linear infinite}
+    .bar{transform-box:fill-box;transform-origin:left center;animation:fillbar 3.6s linear infinite}
+    @keyframes feed{
+      0%,4%{transform:translate(0,0);opacity:0}
+      6%{opacity:1}
+      11%{transform:translate(24px,0);opacity:1}
+      16%,100%{transform:translate(24px,0);opacity:0}
+    }
+    @keyframes pulseUp{
+      0%,5%{transform:translate(0,0);opacity:0}
+      7%{opacity:1}
+      13%{transform:translate(230px,0);opacity:1}
+      86%{transform:translate(230px,0);opacity:1}
+      93%,100%{transform:translate(230px,0);opacity:0}
+    }
+    @keyframes pulseDown{
+      0%,5%{transform:translate(0,0);opacity:0}
+      7%{opacity:1}
+      71%{transform:translate(230px,0);opacity:1}
+      86%{transform:translate(230px,0);opacity:1}
+      93%,100%{transform:translate(230px,0);opacity:0}
+    }
+    @keyframes fillbar{
+      0%,6%{transform:scaleX(0);opacity:1}
+      71%{transform:scaleX(1);opacity:1}
+      90%{transform:scaleX(1);opacity:1}
+      100%{transform:scaleX(1);opacity:0}
+    }
+  </style>
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#8b7fd4"/></marker>
+  </defs>
+  <rect width="960" height="320" fill="#fff"/>
+  <text class="t" x="24" y="34">同一个输入，两个时间尺度</text>
+  <text class="s" x="24" y="56">光点沿数据通路移动。上路立刻到；下路要走完 8 帧才到屏幕——这段差值就是 222 ms。</text>
+
+  <!-- 输入 -->
+  <rect x="24" y="96" width="160" height="66" rx="10" fill="#f6f5fb" stroke="#ddd7f2" stroke-width="1.5"/>
+  <text class="st" x="104" y="122" text-anchor="middle">8 路环绕相机</text>
+  <text class="sd" x="104" y="142" text-anchor="middle">按时间戳对齐</text>
+
+  <!-- UVE -->
+  <rect x="236" y="96" width="210" height="66" rx="10" fill="#eeeafb" stroke="#8b7fd4" stroke-width="1.8"/>
+  <text class="st" x="341" y="120" text-anchor="middle">共享 UVE 编码器</text>
+  <text class="sd" x="341" y="140" text-anchor="middle">18 Hz 特征流 · 百万级视频预训练</text>
+
+  <line x1="184" y1="129" x2="230" y2="129" stroke="#8b7fd4" stroke-width="2.2" marker-end="url(#a)"/>
+
+  <!-- 分叉 -->
+  <path d="M446,129 L470,129" stroke="#8b7fd4" stroke-width="2.2" fill="none"/>
+  <path d="M470,129 L470,100 L690,100" stroke="#8b7fd4" stroke-width="2.2" fill="none"/>
+  <path d="M470,129 L470,192 L690,192" stroke="#b45309" stroke-width="2.2" fill="none"/>
+  <circle cx="470" cy="129" r="3" fill="#5a52c8"/>
+
+  <!-- 上路 -->
+  <rect x="694" y="80" width="242" height="40" rx="9" fill="#eeeafb" stroke="#8b7fd4" stroke-width="1.6"/>
+  <text class="st" x="708" y="105">3B 驾驶模型 → 车怎么开</text>
+  <text class="ok" x="916" y="105" text-anchor="end">0 ms</text>
+  <text class="sd" x="708" y="150">真值通道 · 决定安全 · 越低越好</text>
+
+  <!-- 下路 -->
+  <rect x="694" y="172" width="242" height="40" rx="9" fill="#fdf3e6" stroke="#e0b878" stroke-width="1.6"/>
+  <text class="st" x="708" y="197">1B 渲染模型 → 屏上画什么</text>
+  <text class="num" x="916" y="197" text-anchor="end">222 ms</text>
+
+  <!-- 生成进度条 -->
+  <rect x="470" y="214" width="230" height="10" rx="5" fill="#f1ece1"/>
+  <rect class="bar" x="470" y="214" width="230" height="10" rx="5" fill="#b45309" opacity=".85"/>
+  <text class="sd" x="470" y="242">8 帧逐帧生成</text>
+  <text class="sd" x="700" y="242" text-anchor="end">播放窗口 = 8 ÷ 36 fps</text>
+
+  <!-- 光点 -->
+  <circle class="fd" cx="446" cy="129" r="5.5" fill="#5a52c8"/>
+  <circle class="up" cx="470" cy="100" r="6" fill="#2e7d32"/>
+  <circle class="dn" cx="470" cy="192" r="6" fill="#b45309"/>
+
+  <!-- 结论 -->
+  <line x1="24" y1="266" x2="936" y2="266" stroke="#efebf8" stroke-width="1"/>
+  <text class="st" x="24" y="292">两个出口共用同一份特征，所以“画面”与“决策”看的是同一个世界；但它们的失败方式、延迟预算、甚至芯片占用都不同。</text>
+  <text class="sd" x="24" y="312">课堂提问：如果一个模型只能选一个出口，你选哪个？为什么特斯拉宁愿让屏幕慢 222 ms，也不让方向盘慢？</text>
+</svg>

@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Reality View 教学模拟器 · FSD v15 工作流拆解</title>
+<style>
+  :root{
+    --bg:#0b0f14; --panel:#121821; --line:#1f2833; --txt:#dfe7f0; --dim:#8a97a6;
+    --ok:#3fb950; --warn:#d29922; --bad:#f85149; --acc:#58a6ff; --acc2:#f0883e;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--txt);
+    font:13px/1.55 "Microsoft YaHei","PingFang SC","Segoe UI",system-ui,sans-serif;}
+  header{padding:10px 16px;border-bottom:1px solid var(--line);display:flex;
+    align-items:baseline;gap:14px;flex-wrap:wrap;background:#0e131a}
+  header h1{font-size:16px;margin:0;font-weight:600}
+  header .sub{color:var(--dim);font-size:12px}
+  header .tag{border:1px solid var(--acc);color:var(--acc);border-radius:3px;
+    padding:1px 6px;font-size:11px}
+  header .tag.o{border-color:var(--warn);color:var(--warn)}
+  main{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:12px;padding:12px}
+  @media (max-width:1100px){main{grid-template-columns:1fr}}
+  .stage{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:10px}
+  .stagewrap{position:relative;width:100%;aspect-ratio:16/9;background:#000;border-radius:4px;overflow:hidden}
+  #rv{position:absolute;inset:0;width:100%;height:100%;cursor:crosshair}
+  .hud{position:absolute;left:8px;top:8px;font-family:Consolas,monospace;font-size:12px;
+    text-shadow:0 1px 3px #000;pointer-events:none;line-height:1.5}
+  .hud b{color:var(--acc2)}
+  .mini{display:flex;gap:10px;margin-top:10px;flex-wrap:wrap}
+  .mini figure{margin:0;flex:1 1 240px}
+  .mini figcaption{color:var(--dim);font-size:11px;margin-bottom:4px;display:flex;justify-content:space-between}
+  .mini canvas{width:100%;background:#05070a;border:1px solid var(--line);border-radius:4px;display:block}
+  aside{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:10px 12px}
+  aside h2{font-size:12px;margin:0 0 8px;color:var(--acc);letter-spacing:.5px;
+    border-bottom:1px solid var(--line);padding-bottom:5px}
+  aside h2:nth-of-type(2){margin-top:14px}
+  .ctl{display:grid;grid-template-columns:104px 1fr 46px;gap:6px;align-items:center;margin-bottom:6px}
+  .ctl label{color:var(--dim);font-size:12px}
+  .ctl output{font-family:Consolas,monospace;font-size:12px;text-align:right;color:var(--txt)}
+  input[type=range]{width:100%;accent-color:var(--acc);height:16px}
+  select{width:100%;background:#0e131a;color:var(--txt);border:1px solid var(--line);
+    border-radius:3px;padding:2px;font-size:12px}
+  .toggles{display:grid;grid-template-columns:1fr 1fr;gap:4px 8px;margin:4px 0 2px}
+  .tg{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--dim);cursor:pointer}
+  .tg input{accent-color:var(--acc2)}
+  .meter{margin:5px 0}
+  .meter .row{display:flex;justify-content:space-between;font-size:12px;color:var(--dim)}
+  .meter .row b{font-family:Consolas,monospace;color:var(--txt);font-weight:500}
+  .bar{height:9px;background:#05070a;border:1px solid var(--line);border-radius:2px;overflow:hidden;margin-top:3px}
+  .bar i{display:block;height:100%;width:0%;background:var(--ok);transition:width .12s linear}
+  .bar.warn i{background:var(--warn)} .bar.bad i{background:var(--bad)}
+  .cmp{font-size:11px;color:var(--dim);border-top:1px solid var(--line);margin-top:12px;padding-top:8px}
+  .cmp div{display:flex;justify-content:space-between;margin:2px 0}
+  .cmp b{font-family:Consolas,monospace;color:var(--txt);font-weight:500}
+  .note{font-size:11px;color:var(--dim);line-height:1.5;margin-top:8px}
+  .note b{color:var(--acc2)}
+  button{background:#1b2430;color:var(--txt);border:1px solid var(--line);border-radius:3px;
+    padding:4px 9px;font-size:12px;cursor:pointer}
+  button:hover{border-color:var(--acc)}
+  .row2{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+</style>
+</head>
+<body>
+<header>
+  <h1>Tesla Reality View · 教学模拟器</h1>
+  <span class="sub">FSD (Supervised) v15.0.1 / 2026.38.6.11 · 2026-11-21 · 仅 HW4</span>
+  <span class="tag">架构替身：模拟时序与预算</span>
+  <span class="tag o">画面为教学替身，非特斯拉真实画质</span>
+</header>
+
+<main>
+<section class="stage">
+  <div class="stagewrap">
+    <canvas id="rv" width="960" height="540"></canvas>
+    <div class="hud" id="hud"></div>
+  </div>
+  <div class="mini">
+    <figure>
+      <figcaption><span>真值视图（实时，无延迟）</span><span id="tlab">t = 0 ms</span></figcaption>
+      <canvas id="truth" width="300" height="169"></canvas>
+    </figure>
+    <figure>
+      <figcaption><span>UVE 特征代理（<span id="freqLab">18</span> Hz 更新）</span><span>64 维</span></figcaption>
+      <canvas id="feats" width="300" height="120"></canvas>
+    </figure>
+    <figure>
+      <figcaption><span>时间轴：生成 vs 播放</span><span id="dlab">每 4 个特征周期出一批 8 帧</span></figcaption>
+      <canvas id="tl" width="300" height="120"></canvas>
+    </figure>
+  </div>
+</section>
+
+<aside>
+  <h2>虚拟相机（车顶上方那台不存在的相机）</h2>
+  <div class="ctl"><label>相机高度 m</label><input id="cH" type="range" min="1" max="14" step="0.5" value="5.6"><output id="cHo"></output></div>
+  <div class="ctl"><label>后距 m</label><input id="cB" type="range" min="0" max="28" step="0.5" value="9.5"><output id="cBo"></output></div>
+  <div class="ctl"><label>偏航 °</label><input id="cY" type="range" min="-40" max="40" step="1" value="0"><output id="cYo"></output></div>
+  <div class="ctl"><label>俯仰 °</label><input id="cP" type="range" min="-40" max="5" step="1" value="-16"><output id="cPo"></output></div>
+  <div class="ctl"><label>视场 °</label><input id="cF" type="range" min="30" max="100" step="1" value="52"><output id="cFo"></output></div>
+
+  <h2>生成器参数</h2>
+  <div class="ctl"><label>去噪步数 K</label><input id="gK" type="range" min="1" max="8" step="1" value="4"><output id="gKo"></output></div>
+  <div class="ctl"><label>车速 m/s</label><input id="gV" type="range" min="0" max="30" step="1" value="16"><output id="gVo"></output></div>
+  <div class="ctl"><label>特征频率</label><select id="gF">
+    <option value="10">10 Hz（弱）</option><option value="18" selected>18 Hz（官方）</option>
+    <option value="30">30 Hz（强）</option></select><output></output></div>
+  <div class="toggles">
+    <label class="tg"><input type="checkbox" id="tGeo" checked>3D 几何辅助</label>
+    <label class="tg"><input type="checkbox" id="tQ" checked>INT8 量化</label>
+    <label class="tg"><input type="checkbox" id="tOv" checked>意图叠加层</label>
+    <label class="tg"><input type="checkbox" id="tHal">幻觉注入</label>
+    <label class="tg"><input type="checkbox" id="tQuiet">Quiet 降级</label>
+    <label class="tg"><input type="checkbox" id="tWire">调试线框</label>
+  </div>
+  <div class="row2">
+    <button id="bReset">复位场景</button>
+    <button id="bDest">设终点 +80m</button>
+    <button id="bPause">暂停</button>
+  </div>
+
+  <h2>实时仪表</h2>
+  <div class="meter"><div class="row"><span>画面滞后</span><b id="mLat">— ms</b></div>
+    <div class="bar"><i id="bLat"></i></div></div>
+  <div class="meter"><div class="row"><span>生成耗时（实测）</span><b id="mGen">— ms</b></div>
+    <div class="bar"><i id="bGen"></i></div></div>
+  <div class="meter"><div class="row"><span>半颗 TRIP 占用</span><b id="mTri">— %</b></div>
+    <div class="bar"><i id="bTri"></i></div></div>
+  <div class="meter"><div class="row"><span>空间误差 @当前车速</span><b id="mErr">— m</b></div>
+    <div class="bar"><i id="bErr"></i></div></div>
+
+  <div class="cmp">
+    <div><span>Reality View 生成窗口</span><b>222 ms</b></div>
+    <div><span>VR 帧预算 @72 Hz</span><b>13.9 ms</b></div>
+    <div><span>VR 帧预算 @90 Hz</span><b>11.1 ms</b></div>
+    <div><span>倍数（222 / 11.1）</span><b>20 ×</b></div>
+  </div>
+
+  <div class="note">
+    <b>课堂操作建议：</b>
+    ① 关掉「3D 几何辅助」→ 画面塌成色块（对应纯生成会失败）；
+    ② 把 K 拉到 8 → 算力条可能变红（此时只有三条路：降分辨率 / 降帧率 / 关掉本功能）；
+    ③ 勾「幻觉注入」→ 屏幕上出现现实里没有的物体（生成式界面的流畅错误）；
+    ④ 在主画面上<b>单击</b> → 设置目标点，走势箭头随之改变（click-to-go）。
+  </div>
+</aside>
+</main>
+
+<script>
+"use strict";
+/* =========================================================================
+   Reality View 教学模拟器
+   ---------------------------------------------------------------------
+   目标不是复刻特斯拉的画质（做不到），而是把 FSD v15 Reality View 这条
+   <b>不可见的工作流</b>变成可见的四块仪表：
+       ① 特征侧：UVE 特征代理（18 Hz）
+       ② 决策侧：3B 驾驶头 -> 规划轨迹 / 转向意图 / 泊车位
+       ③ 生成侧：1B 渲染头 -> 上一帧加噪 + 条件去噪（教学替身）
+       ④ 时序侧：4 个特征周期出一批 8 帧 @36fps，画面整体滞后 222 ms
+   所有画面程序化生成，零外部依赖，file:// 双击可开。
+   ========================================================================= */
+
+/* ---------- 0. 常量（全部来自 2026-11-22 马斯克技术说明口径） ---------- */
+const DEG = Math.PI / 180;
+const LAG_MS   = 222;    // 8帧@36fps = 222ms；4周期@18Hz = 222ms
+const BATCH    = 8;
+const FPS_OUT  = 36;
+const RES_W = 320, RES_H = 180;
+
+/* ---------- 1. 可复现随机 ---------- */
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+let rnd = mulberry32(20261125);
+
+/* ---------- 2. 道路中心线 ---------- */
+const AMP = 16, WL = 95, HALF_W = 7.0, LANE = 3.5;
+function pathX(s){ return AMP * Math.sin(s / WL); }
+function pathDX(s){ return AMP / WL * Math.cos(s / WL); }
+function yawAt(s){ return Math.atan2(pathDX(s), 1); }
+function rgt(s){ const y = yawAt(s); return [Math.cos(y), -Math.sin(y)]; }
+function pt(s, u){ const r = rgt(s); return [pathX(s) + r[0]*u, s + r[1]*u]; }
+
+/* ---------- 3. 场景 ---------- */
+const buildings = [], trees = [], signs = [], potholes = [], props = [];
+const traffic = [], walkers = [];
+function buildScene(){
+  rnd = mulberry32(20261125);
+  buildings.length = 0; trees.length = 0; signs.length = 0; potholes.length = 0; props.length = 0;
+  const cols = [0x8a8f96, 0x9a8578, 0x6f7a80, 0xa39a86, 0x7b6f66, 0x8d5f52];
+  for (let s = -60; s < 460; s += 26 + rnd() * 16) {
+    for (const side of [-1, 1]) {
+      buildings.push({ s: s + rnd()*10, u: side*(HALF_W + 7 + rnd()*9),
+        len: 12 + rnd()*16, wid: 9 + rnd()*10, hgt: 6 + rnd()*26,
+        col: cols[(rnd()*cols.length)|0], lit: rnd() < 0.5 });
+      if (rnd() < 0.75) trees.push({ s: s + rnd()*14, u: side*(HALF_W + 2.2 + rnd()*2.4),
+        r: 1.3 + rnd()*1.6, h: 4 + rnd()*5 });
+    }
+  }
+  for (let s = 20; s < 440; s += 55 + rnd()*40) signs.push({ s, u: -(HALF_W+1.4), kind: rnd()<0.5?0:1 });
+  potholes.push({ s: 128, u: 1.6, r: 0.9 });
+  potholes.push({ s: 214, u: -5.1, r: 0.7 });
+  props.push({ kind: 'branch', s: 88, u: 3.4, len: 7 });
+  props.push({ kind: 'animal', s: 168, u: -3.3 });
+}
+function buildTraffic(){
+  traffic.length = 0; walkers.length = 0;
+  for (let i=0;i<7;i++) traffic.push({ s: 40+i*33+rnd()*20,
+    u: (i%2?1:-1)*LANE*(0.5+(i%3)*0.5), v: 12+rnd()*8, len: 4.4, wid: 1.9, hgt: 1.45,
+    col: [0xb03a3a,0x2f4f7f,0xd8d8d8,0x2b2b2b,0xc8a24a][(rnd()*5)|0] });
+  for (let i=0;i<4;i++) walkers.push({ s: 60+i*47, u: (i%2?1:-1)*(HALF_W+1.6), v: 1.2+rnd()*0.6, h: 1.75 });
+}
+function stepTraffic(dt, sCar){
+  for (const c of traffic){ c.s += c.v*dt; if (c.s < sCar-60) c.s = sCar + 190 + rnd()*60; }
+  for (const p of walkers){ p.s += p.v*dt; if (p.s < sCar-60) p.s = sCar + 140 + rnd()*60; }
+}
+
+/* ---------- 4. 车辆状态 ---------- */
+const car = { s: 6, v: 16, destS: 96, destU: 0, clickU: null };
+let paused = false;
+
+/* ---------- 5. 相机与投影 ---------- */
+const cam = { h: 5.6, back: 9.5, yaw: 0, pitch: -16*DEG, fov: 52*DEG };
+let C = [0,0,0], AX = { f:[0,0,1], r:[1,0,0], u:[0,1,0] }, focal = 500, CW = 960, CH = 540;
+function updateCam(W, H){
+  CW = W; CH = H;
+  const y = yawAt(car.s) + cam.yaw;
+  const base = pt(car.s, 0);
+  const f = [Math.sin(y), Math.cos(y)];
+  C = [base[0] - f[0]*cam.back, cam.h, base[1] - f[1]*cam.back];
+  const cp = Math.cos(cam.pitch), sp = Math.sin(cam.pitch);
+  AX.f = [Math.sin(y)*cp, sp, Math.cos(y)*cp];
+  AX.r = [Math.cos(y), 0, -Math.sin(y)];
+  AX.u = [AX.f[1]*AX.r[2]-AX.f[2]*AX.r[1], AX.f[2]*AX.r[0]-AX.f[0]*AX.r[2], AX.f[0]*AX.r[1]-AX.f[1]*AX.r[0]];
+  focal = (W/2) / Math.tan(cam.fov/2);
+}
+function project(Wp){
+  const dx = Wp[0]-C[0], dy = Wp[1]-C[1], dz = Wp[2]-C[2];
+  const zc = dx*AX.f[0] + dy*AX.f[1] + dz*AX.f[2];
+  if (zc < 0.4) return null;
+  const xc = dx*AX.r[0] + dy*AX.r[1] + dz*AX.r[2];
+  const yc = dx*AX.u[0] + dy*AX.u[1] + dz*AX.u[2];
+  return { x: CW/2 + focal*xc/zc, y: CH/2 - focal*yc/zc, z: zc };
+}
+
+/* ---------- 6. 绘制原语 ---------- */
+function shade(hex, k){
+  const r=(hex>>16)&255, g=(hex>>8)&255, b=hex&255;
+  return 'rgb('+Math.min(255,r*k|0)+','+Math.min(255,g*k|0)+','+Math.min(255,b*k|0)+')';
+}
+function drawBox(ctx, cx, cz, len, wid, hgt, yaw, topCol, sideCol){
+  const c = Math.cos(yaw), s = Math.sin(yaw);
+  const L = len/2, Wd = wid/2;
+  const loc = [[-L,-Wd],[L,-Wd],[L,Wd],[-L,Wd]];
+  const cor = [];
+  for (const p of loc){ const x = cx + p[0]*c - p[1]*s, z = cz + p[0]*s + p[1]*c;
+    cor.push([x,0,z]); }
+  for (const p of loc){ const x = cx + p[0]*c - p[1]*s, z = cz + p[0]*s + p[1]*c;
+    cor.push([x,hgt,z]); }
+  // 0-3 底面四角，4-7 顶面四角
+  const faces = [
+    { i:[4,5,6,7], col: topCol },
+    { i:[0,1,5,4], col: sideCol },
+    { i:[1,2,6,5], col: shade2(sideCol, 0.82) },
+    { i:[2,3,7,6], col: sideCol },
+    { i:[3,0,4,7], col: shade2(sideCol, 0.68) }
+  ];
+  const out = [];
+  for (const f of faces){
+    const pts = f.i.map(k => project(cor[k]));
+    if (pts.some(p => !p)) continue;
+    out.push({ pts, col: f.col, z: pts.reduce((a,p)=>a+p.z,0)/pts.length });
+  }
+  out.sort((a,b) => b.z - a.z);
+  for (const f of out){
+    ctx.fillStyle = f.col;
+    ctx.beginPath(); ctx.moveTo(f.pts[0].x, f.pts[0].y);
+    for (let i=1;i<f.pts.length;i++) ctx.lineTo(f.pts[i].x, f.pts[i].y);
+    ctx.closePath(); ctx.fill();
+  }
+}
+function shade2(rgbStr, k){
+  const m = /rgb\((\d+),(\d+),(\d+)\)/.exec(rgbStr);
+  if (!m) return rgbStr;
+  return 'rgb('+(m[1]*k|0)+','+(m[2]*k|0)+','+(m[3]*k|0)+')';
+}
+function quad(ctx, A, B, Cc, D, col){
+  const p = [A,B,Cc,D].map(project);
+  if (p.some(x => !x)) return;
+  ctx.fillStyle = col; ctx.beginPath(); ctx.moveTo(p[0].x, p[0].y);
+  for (let i=1;i<p.length;i++) ctx.lineTo(p[i].x, p[i].y);
+  ctx.closePath(); ctx.fill();
+}
+
+/* ---------- 7. 场景渲染（真值与生成目标共用） ---------- */
+function renderScene(ctx, opts){
+  opts = opts || {};
+  const w = ctx.canvas.width, h = ctx.canvas.height;
+  const sCar = car.s;
+  const g = ctx.createLinearGradient(0,0,0,h);
+  g.addColorStop(0,'#16203a'); g.addColorStop(0.40,'#3d4b64'); g.addColorStop(1,'#10141b');
+  ctx.fillStyle = g; ctx.fillRect(0,0,w,h);
+  // 远山
+  ctx.fillStyle = '#1e2839'; ctx.beginPath(); ctx.moveTo(0, h*0.54);
+  for (let x=0; x<=w; x+=w/12) ctx.lineTo(x, h*0.54 - Math.sin(x*0.06+1.2)*h*0.05 - h*0.015);
+  ctx.lineTo(w,h); ctx.lineTo(0,h); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = '#20261f'; ctx.fillRect(0, h*0.57, w, h*0.43);
+
+  const items = [];
+  const push = (z, f) => items.push({ z, f });
+  // 路面 + 人行道 + 车道线
+  for (let s = sCar - 45; s < sCar + 200; s += 6){
+    const a = pt(s,-HALF_W), b = pt(s,HALF_W), c = pt(s+6,HALF_W), d = pt(s+6,-HALF_W);
+    push(s, () => quad(ctx, [a[0],0.02,a[1]], [b[0],0.02,b[1]], [c[0],0.02,c[1]], [d[0],0.02,d[1]], '#34383d'));
+    const wa = pt(s,-HALF_W-2.4), xa = pt(s,HALF_W), xb = pt(s,HALF_W+2.4);
+    const wa2 = pt(s+6,-HALF_W-2.4), xa2 = pt(s+6,HALF_W), xb2 = pt(s+6,HALF_W+2.4);
+    push(s, () => quad(ctx, [wa[0],0.03,wa[1]], [a[0],0.03,a[1]], [d[0],0.03,d[1]], [wa2[0],0.03,wa2[1]], '#3b4046'));
+    push(s, () => quad(ctx, [xa[0],0.03,xa[1]], [xb[0],0.03,xb[1]], [xb2[0],0.03,xb2[1]], [xa2[0],0.03,xa2[1]], '#3b4046'));
+    if (((s/6)|0) % 2 === 0){
+      for (const u of [-LANE*1.5,-LANE*0.5,LANE*0.5,LANE*1.5]){
+        const la = pt(s,u-0.09), lb = pt(s,u+0.09), lc = pt(s+6,u+0.09), ld = pt(s+6,u-0.09);
+        push(s, () => quad(ctx, [la[0],0.045,la[1]], [lb[0],0.045,lb[1]], [lc[0],0.045,lc[1]], [ld[0],0.045,ld[1]], '#d9d9d0'));
+      }
+    }
+    for (const u of [-HALF_W+0.18, HALF_W-0.18]){
+      const la = pt(s,u-0.09), lb = pt(s,u+0.09), lc = pt(s+6,u+0.09), ld = pt(s+6,u-0.09);
+      push(s, () => quad(ctx, [la[0],0.045,la[1]], [lb[0],0.045,lb[1]], [lc[0],0.045,lc[1]], [ld[0],0.045,ld[1]], '#ecece2'));
+    }
+  }
+  // 坑洼
+  for (const p of potholes){
+    if (p.s < sCar-30 || p.s > sCar+190) continue;
+    push(p.s, () => {
+      const q = [];
+      for (let a=0;a<8;a++){ const ang=a/8*Math.PI*2;
+        const p2 = pt(p.s + Math.cos(ang)*p.r, p.u + Math.sin(ang)*p.r);
+        q.push(project([p2[0],0.05,p2[1]])); }
+      if (q.some(x=>!x)) return;
+      ctx.fillStyle='#171a1d'; ctx.beginPath(); ctx.moveTo(q[0].x,q[0].y);
+      for(let i=1;i<q.length;i++) ctx.lineTo(q[i].x,q[i].y); ctx.closePath(); ctx.fill();
+    });
+  }
+  // 建筑
+  for (const bl of buildings){
+    if (bl.s < sCar-45 || bl.s > sCar+210) continue;
+    const c = pt(bl.s, bl.u), y = yawAt(bl.s);
+    push(bl.s, () => {
+      drawBox(ctx, c[0], c[1], bl.len, bl.wid, bl.hgt, y, shade(bl.col, bl.lit?1.06:0.82), shade(bl.col, 0.60));
+      if (bl.lit){
+        ctx.fillStyle = 'rgba(255,225,150,0.5)';
+        const n = Math.max(1, Math.floor(bl.hgt/3.2));
+        for (let i=-1;i<=1;i++) for (let k=1;k<n;k++){
+          const wc = pt(bl.s + i*bl.len*0.28, bl.u - Math.sign(bl.u)*bl.wid*0.49);
+          const p = project([wc[0], k*3.0, wc[1]]);
+          if (p) ctx.fillRect(p.x-1.6, p.y-1.6, 3.2, 2.4);
+        }
+      }
+    });
+  }
+  // 树
+  for (const t of trees){
+    if (t.s < sCar-30 || t.s > sCar+195) continue;
+    const c = pt(t.s, t.u);
+    push(t.s, () => {
+      const p = project([c[0], t.h*0.75, c[1]]);
+      if (!p) return;
+      const r = focal * t.r / p.z;
+      ctx.strokeStyle='#3a2c22'; ctx.lineWidth=Math.max(1, focal*0.18/p.z);
+      const tr = project([c[0],0,c[1]]);
+      if (tr){ ctx.beginPath(); ctx.moveTo(tr.x,tr.y); ctx.lineTo(p.x,p.y); ctx.stroke(); }
+      ctx.fillStyle='#2e4a2b'; ctx.beginPath(); ctx.arc(p.x,p.y,r,0,6.2832); ctx.fill();
+      ctx.fillStyle='rgba(190,220,180,0.10)'; ctx.beginPath(); ctx.arc(p.x-r*0.28,p.y-r*0.28,r*0.58,0,6.2832); ctx.fill();
+    });
+  }
+  // 标志牌
+  for (const s of signs){
+    if (s.s < sCar-20 || s.s > sCar+195) continue;
+    const c = pt(s.s, s.u);
+    push(s.s, () => {
+      const p = project([c[0], 2.3, c[1]]);
+      if (!p) return;
+      const r = Math.max(2.5, focal*0.42/p.z);
+      const st = project([c[0],0,c[1]]);
+      if (st){ ctx.strokeStyle='#6b6f74'; ctx.lineWidth=Math.max(1,focal*0.07/st.z);
+        ctx.beginPath(); ctx.moveTo(st.x,st.y); ctx.lineTo(p.x,p.y); ctx.stroke(); }
+      ctx.fillStyle = s.kind ? '#e8e8e0' : '#d04030';
+      ctx.beginPath(); ctx.arc(p.x,p.y,r,0,6.2832); ctx.fill();
+      ctx.fillStyle='#20242a'; ctx.font=(Math.max(5,r*1.05)|0)+'px sans-serif';
+      ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText(s.kind?'50':'!', p.x, p.y+1);
+    });
+  }
+  // 车流
+  for (const c of traffic){
+    if (c.s < sCar-45 || c.s > sCar+195) continue;
+    const wp = pt(c.s, c.u), y = yawAt(c.s);
+    push(c.s, () => {
+      drawBox(ctx, wp[0], wp[1], c.len, c.wid, c.hgt, y, shade(c.col,1.12), shade(c.col,0.68));
+      const tail = project([wp[0]-Math.sin(y)*c.len*0.5, 0.7, wp[1]-Math.cos(y)*c.len*0.5]);
+      if (tail){ ctx.fillStyle='#ff3b30'; ctx.beginPath();
+        ctx.arc(tail.x, tail.y, Math.max(1.4, focal*0.14/tail.z), 0, 6.2832); ctx.fill(); }
+    });
+  }
+  // 行人
+  for (const p of walkers){
+    if (p.s < sCar-30 || p.s > sCar+175) continue;
+    const wp = pt(p.s, p.u);
+    push(p.s, () => {
+      const q = project([wp[0], p.h*0.55, wp[1]]);
+      if (!q) return;
+      const r = Math.max(1.2, focal*0.28/q.z);
+      ctx.fillStyle='#c9bba8'; ctx.fillRect(q.x-r, q.y-r*2.1, r*2, r*3.4);
+    });
+  }
+  // 障碍
+  for (const p of props){
+    if (p.s < sCar-30 || p.s > sCar+185) continue;
+    const wp = pt(p.s, p.u);
+    push(p.s, () => {
+      if (p.kind === 'branch') drawBox(ctx, wp[0], wp[1], p.len, 0.6, 0.55, yawAt(p.s)+0.35, '#4d3c2b', '#3a2c20');
+      else { const q = project([wp[0], 0.35, wp[1]]); if (!q) return;
+        const r = Math.max(1.4, focal*0.45/q.z);
+        ctx.fillStyle='#6b5a3e'; ctx.beginPath(); ctx.ellipse(q.x,q.y,r,r*0.7,0,0,6.2832); ctx.fill(); }
+    });
+  }
+  // 幻觉注入：只出现在"生成目标"里的物体（现实里没有）
+  if (opts.ghost){
+    const gs = sCar + 46, gu = -3.2, wp = pt(gs, gu);
+    push(gs, () => drawBox(ctx, wp[0], wp[1], 1.1, 1.1, 2.1, yawAt(gs), 'rgba(255,120,40,0.92)', 'rgba(255,92,20,0.88)'));
+  }
+  // 本车
+  const cs = pt(car.s, 0), cy = yawAt(car.s);
+  push(car.s - 0.05, () => {
+    drawBox(ctx, cs[0], cs[1], 4.6, 2.0, 1.45, cy, '#2c4d70', '#1d3450');
+    // 风挡玻璃（暗色块），让俯视时读起来像"车顶"而不是一块蓝色贴纸
+    const a = pt(car.s + 1.35, -0.8), b = pt(car.s + 1.35, 0.8);
+    const c2 = pt(car.s + 0.35, 0.8), d2 = pt(car.s + 0.35, -0.8);
+    quad(ctx, [a[0],1.47,a[1]], [b[0],1.47,b[1]], [c2[0],1.47,c2[1]], [d2[0],1.47,d2[1]], '#101a26');
+  });
+  items.sort((a,b) => b.z - a.z);
+  for (const it of items) it.f();
+}
+
+/* ---------- 8. UVE 特征代理（12 扇区 × 5 + 4 标志位） ---------- */
+const NSEC = 12, FEAT_DIM = NSEC*5 + 4;
+const feats = new Float32Array(FEAT_DIM);
+function rayHit(ox, oz, dirx, dirz, maxT){
+  let best = { t: maxT, col: [40,44,50] };
+  const test = (cx, cz, yaw, hx, hz, col) => {
+    const rx = ox-cx, rz = oz-cz;
+    const c1 = Math.cos(-yaw), s1 = Math.sin(-yaw);
+    const lx = rx*c1 - rz*s1, lz = rx*s1 + rz*c1;
+    const c2 = Math.cos(yaw), s2 = Math.sin(yaw);
+    const dx = dirx*c2 - dirz*s2, dz = dirx*s2 + dirz*c2;
+    let t0 = 0, t1 = best.t, ok = true;
+    for (const pr of [[lx,dx,hx],[lz,dz,hz]]){
+      const o = pr[0], d = pr[1], h = pr[2];
+      if (Math.abs(d) < 1e-6){ if (Math.abs(o) > h){ ok = false; break; } }
+      else { let ta = (-h-o)/d, tb = (h-o)/d; if (ta>tb){ const t=ta; ta=tb; tb=t; }
+             t0 = Math.max(t0,ta); t1 = Math.min(t1,tb); if (t0>t1){ ok=false; break; } }
+    }
+    if (ok && t0 > 0.6 && t0 < best.t) best = { t: t0, col };
+  };
+  for (const b of buildings){ const c = pt(b.s,b.u); test(c[0],c[1],yawAt(b.s), b.len/2+0.5, b.wid/2+0.5, [138,143,150]); }
+  for (const v of traffic){ const c = pt(v.s,v.u); test(c[0],c[1],yawAt(v.s), v.len/2, v.wid/2, [180,90,70]); }
+  for (const t of trees){
+    const c = pt(t.s,t.u); const dx=c[0]-ox, dz=c[1]-oz;
+    const pr = dx*dirx + dz*dirz;
+    if (pr > 0.6 && pr < best.t){ const perp2 = (dx*dx+dz*dz) - pr*pr;
+      if (perp2 < t.r*t.r) best = { t: pr, col: [47,74,44] }; }
+  }
+  for (const p of props){
+    const c = pt(p.s,p.u); const dx=c[0]-ox, dz=c[1]-oz;
+    const pr = dx*dirx + dz*dirz; const perp2 = (dx*dx+dz*dz) - pr*pr;
+    if (pr > 0.6 && pr < best.t && perp2 < (p.kind==='branch'?6:0.6))
+      best = { t: pr, col: p.kind==='branch'?[77,60,43]:[107,90,62] };
+  }
+  return best;
+}
+function sampleFeatures(){
+  const o = pt(car.s, 0);
+  const y = yawAt(car.s), ca = Math.cos(y), sa = Math.sin(y);
+  for (let i=0;i<NSEC;i++){
+    const a = (i - (NSEC-1)/2) * (120/NSEC) * DEG;
+    const dirx = Math.sin(a)*ca + Math.cos(a)*sa;
+    const dirz = Math.sin(a)*sa + Math.cos(a)*ca;
+    const h = rayHit(o[0], o[1], dirx, dirz, 110);
+    const b = i*5;
+    feats[b]   = Math.min(1, h.t/110);
+    feats[b+1] = h.col[0]/255; feats[b+2] = h.col[1]/255; feats[b+3] = h.col[2]/255;
+    feats[b+4] = h.t < 22 ? 1 : 0;
+  }
+  feats[NSEC*5+0] = signs.some(x => x.s > car.s && x.s < car.s+55) ? 1 : 0;
+  feats[NSEC*5+1] = potholes.some(x => x.s > car.s && x.s < car.s+30) ? 1 : 0;
+  feats[NSEC*5+2] = props.some(x => x.kind==='animal' && x.s > car.s && x.s < car.s+45) ? 1 : 0;
+  feats[NSEC*5+3] = props.some(x => x.kind==='branch' && x.s > car.s && x.s < car.s+40) ? 1 : 0;
+}
+function quantizeINT8(){
+  for (let i=0;i<FEAT_DIM;i++) feats[i] = Math.round(Math.max(0,Math.min(1,feats[i]))*255)/255;
+}
+
+/* ---------- 9. 3B 驾驶头（规划） ---------- */
+let plan = [];
+function driveHead(){
+  let targetU = car.clickU !== null ? car.clickU : 0;
+  const obstacle = props.some(p => p.kind==='branch' && p.s > car.s+8 && p.s < car.s+34)
+    || traffic.some(c => Math.abs(c.u) < LANE && c.s > car.s+10 && c.s < car.s+30);
+  if (obstacle && car.clickU === null) targetU = (targetU >= 0) ? -LANE : LANE;
+  const prevU = plan.length ? plan[plan.length-1].u : 0;
+  const u = prevU + (targetU - prevU)*0.35;
+  plan = [];
+  for (const d of [10,20,32,46,64]) plan.push({ s: car.s + d, u });
+}
+
+/* ---------- 10. 1B 渲染头（生成替身） ---------- */
+const gCanvas = document.createElement('canvas'); gCanvas.width=RES_W; gCanvas.height=RES_H;
+const gCtx = gCanvas.getContext('2d');
+const workA = document.createElement('canvas'); workA.width=RES_W; workA.height=RES_H;
+const workB = document.createElement('canvas'); workB.width=RES_W; workB.height=RES_H;
+const aCtx = workA.getContext('2d'), bCtx = workB.getContext('2d');
+const blurC = document.createElement('canvas'); blurC.width=RES_W*0.62; blurC.height=RES_H*0.62;
+const blurCtx = blurC.getContext('2d');
+const qCanvas = document.createElement('canvas'); qCanvas.width=40; qCanvas.height=23;
+const qCtx = qCanvas.getContext('2d');
+const outCanvas = document.createElement('canvas'); outCanvas.width=RES_W; outCanvas.height=RES_H;
+const oCtx = outCanvas.getContext('2d');
+const noiseCanvas = document.createElement('canvas'); noiseCanvas.width=RES_W; noiseCanvas.height=RES_H;
+(function(){
+  const n = noiseCanvas.getContext('2d');
+  const img = n.createImageData(RES_W, RES_H);
+  for (let i=0;i<img.data.length;i+=4){ const v=(Math.random()*255)|0;
+    img.data[i]=v; img.data[i+1]=v; img.data[i+2]=v; img.data[i+3]=24; }
+  n.putImageData(img,0,0);
+})();
+let genCost = 0, genMeasured = true, framesProduced = 0, displayContentTime = 0, haveFrame = false;
+
+function buildFeatureProxy(ctx){
+  const w = qCanvas.width, h = qCanvas.height;
+  for (let i=0;i<NSEC;i++){
+    const b = i*5;
+    const r = Math.round(feats[b+1]*255), g = Math.round(feats[b+2]*255), bl = Math.round(feats[b+3]*255);
+    const x0 = Math.floor(i*w/NSEC), x1 = Math.floor((i+1)*w/NSEC);
+    const depth = Math.max(0.05, Math.min(1, feats[b]));
+    const y1 = Math.floor(h*(0.22 + depth*0.78));
+    qCtx.fillStyle = 'rgb('+r+','+g+','+bl+')';
+    qCtx.fillRect(x0, 0, x1-x0+1, y1);
+    qCtx.fillStyle = 'rgb(18,20,24)';
+    qCtx.fillRect(x0, y1, x1-x0+1, h-y1);
+  }
+  ctx.save();
+  ctx.imageSmoothingEnabled = true;
+  ctx.globalAlpha = 0.32;
+  ctx.drawImage(qCanvas, 0, 0, ctx.canvas.width, ctx.canvas.height);
+  ctx.restore();
+}
+function denoiseInto(target, K, useQ){
+  const w = RES_W, h = RES_H;
+  aCtx.clearRect(0,0,w,h);
+  if (haveFrame) aCtx.drawImage(outCanvas, 0, 0, w, h);
+  else { aCtx.fillStyle = '#1b2027'; aCtx.fillRect(0,0,w,h); }
+  if (useQ){ bCtx.globalAlpha = 0.10; bCtx.drawImage(noiseCanvas,0,0,w,h); bCtx.globalAlpha = 1; }
+  for (let i=0;i<K;i++){
+    bCtx.globalAlpha = 0.42; bCtx.drawImage(target,0,0,w,h); bCtx.globalAlpha = 1;
+    blurCtx.clearRect(0,0,blurC.width,blurC.height);
+    blurCtx.drawImage(bCtx.canvas,0,0,blurC.width,blurC.height);
+    bCtx.clearRect(0,0,w,h);
+    bCtx.drawImage(blurC,0,0,w,h);
+    if (haveFrame){ bCtx.globalAlpha = 0.08; bCtx.drawImage(outCanvas,0,0,w,h); bCtx.globalAlpha = 1; }
+  }
+  oCtx.clearRect(0,0,w,h);
+  oCtx.drawImage(bCtx.canvas,0,0);
+  haveFrame = true;
+}
+
+/* ---------- 11. 调度 ---------- */
+const rv = document.getElementById('rv'), rctx = rv.getContext('2d');
+const truth = document.getElementById('truth'), tctx = truth.getContext('2d');
+const featC = document.getElementById('feats'), fc = featC.getContext('2d');
+const tlC = document.getElementById('tl'), tc = tlC.getContext('2d');
+const hud = document.getElementById('hud');
+let last = performance.now(), featAcc = 0, featHz = 18, pausedNow = false;
+
+function tick(){
+  const K = +document.getElementById('gK').value;
+  const useGeo = document.getElementById('tGeo').checked;
+  const useQ = document.getElementById('tQ').checked;
+  const ghost = document.getElementById('tHal').checked;
+  const t0 = performance.now();
+  for (let k=0;k<2;k++){                       // 每特征周期出 2 帧 -> 36 fps
+    const contentT = performance.now()/1000 - LAG_MS/1000;
+    if (useGeo){
+      updateCam(RES_W, RES_H);
+      renderScene(gCtx, { ghost });
+      if (useQ) buildFeatureProxy(gCtx);
+    } else {
+      gCtx.fillStyle = '#141920'; gCtx.fillRect(0,0,RES_W,RES_H);
+      buildFeatureProxy(gCtx);
+    }
+    denoiseInto(gCanvas, K, useQ);
+    displayContentTime = contentT;
+    framesProduced++;
+  }
+  const measured = performance.now() - t0;
+  // 虚拟时钟/低精度环境下帧内计时可能恒为 0，此时退回理论估算
+  genCost = measured > 0.05 ? measured : (0.8 * K * 2 + 1.5);
+  genMeasured = measured > 0.05;
+}
+
+/* ---------- 12. 主循环 ---------- */
+function loop(){
+  requestAnimationFrame(loop);
+  const nowP = performance.now();               // 统一用 performance.now()，避免不同时间基准造成的负值
+  const dt = Math.min(0.05, Math.max(0, (nowP - last)/1000)); last = nowP;
+  try {
+    if (!pausedNow){
+      car.v = +document.getElementById('gV').value;
+      car.s += car.v * dt;
+      stepTraffic(dt, car.s);
+      featHz = +document.getElementById('gF').value;
+      featAcc += dt;
+      const fperiod = 1/featHz;
+      let guard = 0;
+      while (featAcc >= fperiod && guard++ < 4){
+        featAcc -= fperiod;
+        sampleFeatures();
+        if (document.getElementById('tQ').checked) quantizeINT8();
+        tick();
+      }
+      driveHead();
+    }
+    cam.h = +document.getElementById('cH').value;
+    cam.back = +document.getElementById('cB').value;
+    cam.yaw = +document.getElementById('cY').value * DEG;
+    cam.pitch = +document.getElementById('cP').value * DEG;
+    cam.fov = +document.getElementById('cF').value * DEG;
+
+    // 主画面 = 延迟帧 + 实时意图叠加层
+    rctx.fillStyle = '#05070a'; rctx.fillRect(0,0,rv.width,rv.height);
+    if (haveFrame) rctx.drawImage(outCanvas, 0, 0, rv.width, rv.height);
+    updateCam(rv.width, rv.height);
+    if (!document.getElementById('tQuiet').checked) drawOverlay(rctx);
+
+    // 真值视图
+    updateCam(truth.width, truth.height);
+    renderScene(tctx, {});
+
+    drawFeats();
+    drawTimeline(nowP/1000);
+    updateHUD(nowP/1000);
+    syncOutputs();
+  } catch (e) {
+    hud.innerHTML = '<b style="color:#f85149">运行错误: ' + e.message + '</b>';
+    window.__lastErr = e.message;
+  }
+}
+
+/* ---------- 13. 意图叠加层（0 延迟通道） ---------- */
+function drawOverlay(ctx){
+  if (!document.getElementById('tOv').checked) return;
+  ctx.lineWidth = 4; ctx.strokeStyle = 'rgba(80,160,255,0.92)';
+  ctx.beginPath();
+  let started = false;
+  for (const p of plan){
+    const wp = pt(p.s, p.u);
+    const q = project([wp[0], 0.08, wp[1]]);
+    if (!q) continue;
+    if (!started){ ctx.moveTo(q.x,q.y); started = true; } else ctx.lineTo(q.x,q.y);
+  }
+  ctx.stroke();
+  const far = plan[plan.length-1];
+  if (far){
+    const wp = pt(far.s, far.u);
+    const q = project([wp[0], 2.8, wp[1]]);
+    if (q){
+      ctx.strokeStyle = 'rgba(255,170,60,0.95)'; ctx.lineWidth = 5;
+      const d = 18;
+      ctx.beginPath();
+      ctx.moveTo(q.x-d, q.y+d); ctx.lineTo(q.x, q.y-d); ctx.lineTo(q.x+d, q.y+d);
+      ctx.stroke();
+    }
+  }
+  if (car.s > car.destS - 46){
+    const wp = pt(car.destS, car.destU);
+    const q = project([wp[0], 0.2, wp[1]]);
+    if (q){ ctx.fillStyle = '#f85149';
+      ctx.beginPath(); ctx.arc(q.x,q.y,9,0,6.2832); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(q.x,q.y); ctx.lineTo(q.x-5,q.y-15); ctx.lineTo(q.x+5,q.y-15); ctx.closePath(); ctx.fill(); }
+  }
+  if (car.clickU !== null){
+    const wp = pt(car.destS, car.destU);
+    const q = project([wp[0], 0.2, wp[1]]);
+    if (q){ ctx.strokeStyle='#3fb950'; ctx.lineWidth=3; ctx.beginPath(); ctx.arc(q.x,q.y,13,0,6.2832); ctx.stroke(); }
+  }
+}
+
+/* ---------- 14. 面板 ---------- */
+function drawFeats(){
+  const w = featC.width, h = featC.height;
+  fc.fillStyle = '#0a0e13'; fc.fillRect(0,0,w,h);
+  fc.fillStyle = 'rgba(255,255,255,0.06)'; fc.fillRect(0, h*0.25, w, 1);
+  const bw = w / FEAT_DIM;
+  for (let i=0;i<FEAT_DIM;i++){
+    const v = Math.max(0, Math.min(1, feats[i]));
+    fc.fillStyle = i >= NSEC*5 ? (v>0.5 ? '#f85149' : '#2b3440') : '#58a6ff';
+    fc.fillRect(i*bw, h - v*(h-6) - 3, Math.max(1, bw-0.6), v*(h-6));
+  }
+}
+function drawTimeline(t){
+  const w = tlC.width, h = tlC.height;
+  tc.fillStyle = '#0a0e13'; tc.fillRect(0,0,w,h);
+  const span = 600, x0 = w - 40;
+  const genStart = t - LAG_MS/1000;
+  const xg = x0 - (t - genStart)*1000/span*w;
+  tc.fillStyle = 'rgba(88,166,255,0.25)'; tc.fillRect(xg, 26, x0-xg, 22);
+  tc.strokeStyle = '#58a6ff'; tc.lineWidth = 1; tc.strokeRect(xg+0.5, 26.5, x0-xg-1, 21);
+  tc.fillStyle = '#8a97a6'; tc.font = '10px monospace'; tc.fillText('生成窗口 222ms', 4, 20);
+  const pEnd = t + LAG_MS/1000;
+  const xp = x0 - (pEnd - t)*1000/span*w;
+  tc.fillStyle = 'rgba(63,185,80,0.25)'; tc.fillRect(xp, 54, x0-xp, 22);
+  tc.strokeStyle = '#3fb950'; tc.strokeRect(xp+0.5, 54.5, x0-xp-1, 21);
+  tc.fillText('播放窗口 222ms', 4, 48);
+  tc.fillStyle = '#f0883e';
+  for (let i=0;i<12;i++){
+    const tt = t - i*(1/featHz);
+    const x = x0 - (t-tt)*1000/span*w;
+    if (x < 0) break;
+    tc.fillRect(x-1, 84, 2, 10);
+  }
+  tc.fillStyle = '#8a97a6'; tc.fillText('特征 tick (18Hz)', 4, 90);
+  tc.fillStyle = '#dfe7f0';
+  tc.fillText('屏上内容 = ' + ((t - displayContentTime)*1000).toFixed(0) + ' ms 前', 4, 110);
+}
+function updateHUD(t){
+  const lag = (t - displayContentTime)*1000;
+  const err = lag/1000 * car.v;
+  hud.innerHTML = 'Reality View · FSD v15<br>'
+    + '滞后 <b>' + lag.toFixed(0) + ' ms</b>　空间误差 <b>' + err.toFixed(1) + ' m</b><br>'
+    + '特征 <b>' + featHz + ' Hz</b>　已生成 <b>' + framesProduced + '</b> 帧<br>'
+    + '相机 h=<b>' + cam.h.toFixed(1) + 'm</b> back=<b>' + cam.back.toFixed(0) + 'm</b>';
+  document.getElementById('mLat').textContent = lag.toFixed(0) + ' ms';
+  document.getElementById('bLat').style.width = Math.min(100, lag/300*100) + '%';
+  document.getElementById('mGen').textContent = genCost.toFixed(1) + ' ms' + (genMeasured ? '' : ' (估)');
+  document.getElementById('bGen').style.width = Math.min(100, genCost/50*100) + '%';
+  const load = (genCost / (1000/featHz)) * 100;
+  document.getElementById('mTri').textContent = load.toFixed(0) + ' %';
+  const b = document.getElementById('bTri');
+  b.style.width = Math.min(100, load) + '%';
+  b.parentElement.className = 'bar' + (load>90?' bad':(load>60?' warn':''));
+  document.getElementById('mErr').textContent = err.toFixed(1) + ' m';
+  document.getElementById('bErr').style.width = Math.min(100, err/12*100) + '%';
+}
+function syncOutputs(){
+  const map = [['cH','cHo',1],['cB','cBo',1],['cY','cYo',0],['cP','cPo',0],['cF','cFo',0],['gK','gKo',0],['gV','gVo',1]];
+  for (const m of map) document.getElementById(m[1]).textContent = (+document.getElementById(m[0]).value).toFixed(m[2]);
+  document.getElementById('freqLab').textContent = featHz;
+  document.getElementById('tlab').textContent = 't = ' + (performance.now()%10000).toFixed(0) + ' ms';
+}
+
+/* ---------- 15. 控件 ---------- */
+document.getElementById('bReset').onclick = () => { buildScene(); buildTraffic(); car.s = 6; plan = []; haveFrame = false; };
+document.getElementById('bDest').onclick  = () => { car.destS = car.s + 80; car.destU = 0; car.clickU = null; };
+document.getElementById('bPause').onclick = (e) => { pausedNow = !pausedNow; e.target.textContent = pausedNow ? '继续' : '暂停'; };
+rv.addEventListener('click', (e) => {
+  const r = rv.getBoundingClientRect();
+  const px = (e.clientX - r.left)/r.width*rv.width;
+  const py = (e.clientY - r.top)/r.height*rv.height;
+  updateCam(rv.width, rv.height);
+  const ndcx = (px - rv.width/2)/focal, ndcy = -(py - rv.height/2)/focal;
+  const dir = [
+    AX.f[0] + AX.r[0]*ndcx + AX.u[0]*ndcy,
+    AX.f[1] + AX.r[1]*ndcx + AX.u[1]*ndcy,
+    AX.f[2] + AX.r[2]*ndcx + AX.u[2]*ndcy
+  ];
+  if (Math.abs(dir[1]) < 1e-4) return;
+  const tHit = -C[1]/dir[1];
+  if (tHit < 0.5 || tHit > 400) return;
+  const wx = C[0] + dir[0]*tHit, wz = C[2] + dir[2]*tHit;
+  let bs = car.s, bd = 1e9;
+  for (let s = car.s; s < car.s + 260; s += 1){
+    const p = pt(s,0); const d = (p[0]-wx)*(p[0]-wx) + (p[1]-wz)*(p[1]-wz);
+    if (d < bd){ bd = d; bs = s; }
+  }
+  const p0 = pt(bs,0), r0 = rgt(bs);
+  const u = (wx - p0[0])*r0[0] + (wz - p0[1])*r0[1];
+  car.destS = bs; car.destU = u; car.clickU = u;
+});
+window.addEventListener('keydown', (e) => { if (e.key === 'p' || e.key === 'P') document.getElementById('bPause').click(); });
+
+/* ---------- 16. 启动 ---------- */
+buildScene(); buildTraffic(); syncOutputs();
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>

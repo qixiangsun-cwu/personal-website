@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 560" width="960" height="560" role="img" aria-label="FSD v15 Reality View 架构：8 路相机进入共享 UVE 编码器，分叉为 3B 驾驶模型与 1B 扩散渲染模型，最后在屏幕上叠加零延迟意图层">
+  <style>
+    .t{font:700 19px "Microsoft YaHei",sans-serif;fill:#2e2a6f}
+    .s{font:12.5px "Microsoft YaHei",sans-serif;fill:#5a5670}
+    .box{fill:#f6f5fb;stroke:#ddd7f2;stroke-width:1.5}
+    .hot{fill:#eeeafb;stroke:#8b7fd4;stroke-width:1.8}
+    .gen{fill:#fdf3e6;stroke:#e0b878;stroke-width:1.8}
+    .scr{fill:#f3f1fa;stroke:#b9b0e0;stroke-width:1.8}
+    .n{font:700 11.5px "Microsoft YaHei",sans-serif;fill:#5a52c8;letter-spacing:1px}
+    .bt{font:700 15px "Microsoft YaHei",sans-serif;fill:#272436}
+    .bd{font:11.5px "Microsoft YaHei",sans-serif;fill:#6b6483}
+    .num{font:700 13px Consolas,monospace;fill:#b45309}
+    .ok{font:700 11.5px "Microsoft YaHei",sans-serif;fill:#2e7d32}
+    .arrow{stroke:#8b7fd4;stroke-width:2.2;fill:none;marker-end:url(#a)}
+    .fork{stroke:#8b7fd4;stroke-width:2;fill:none}
+    .dash{stroke:#b45309;stroke-width:1.8;fill:none;stroke-dasharray:5 4;marker-end:url(#o)}
+  </style>
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#8b7fd4"/></marker>
+    <marker id="o" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#b45309"/></marker>
+  </defs>
+  <rect width="960" height="560" fill="#fff"/>
+  <text class="t" x="24" y="34">一条数据通路，两个出口</text>
+  <text class="s" x="24" y="56">同一份 UVE 特征，一边决定车怎么开，一边决定屏幕画什么。两条出口的延迟容忍度完全不同。</text>
+
+  <!-- 采集 -->
+  <rect class="box" x="24" y="78" width="204" height="110" rx="10"/>
+  <text class="n" x="38" y="100">S0 · 采集</text>
+  <text class="bt" x="38" y="124">8 路环绕相机</text>
+  <text class="bd" x="38" y="146">顶视 / 前视 / 侧视×4 / 后视</text>
+  <text class="bd" x="38" y="166">复刻实测：同步最多差 8.7 ms</text>
+
+  <!-- UVE -->
+  <rect class="hot" x="274" y="78" width="286" height="110" rx="10"/>
+  <text class="n" x="288" y="100">S1 · 特征化</text>
+  <text class="bt" x="288" y="124">UVE 通用视觉编码器</text>
+  <text class="bd" x="288" y="146">与 FSD / Robotaxi / Optimus 共享</text>
+  <text class="bd" x="288" y="166">百万级互联网视频预训练</text>
+
+  <!-- 算力 -->
+  <rect class="box" x="606" y="78" width="330" height="110" rx="10"/>
+  <text class="n" x="620" y="100">硬件约束（B 级口径）</text>
+  <text class="bd" x="620" y="124">Reality View 只用 <tspan class="num">0.5 / 6 颗 TRIP</tspan> ≈ 8.3%</text>
+  <text class="bd" x="620" y="146">只做 INT8；softmax 用 28 步数学模拟</text>
+  <text class="bd" x="620" y="166">小解码器搬进 SRAM——带宽才是瓶颈</text>
+
+  <line class="arrow" x1="228" y1="133" x2="268" y2="133"/>
+
+  <!-- 分叉 -->
+  <path class="fork" d="M410,188 L410,206 L245,206 L245,220"/>
+  <path class="fork" d="M410,188 L410,206 L715,206 L715,220"/>
+  <line class="arrow" x1="245" y1="210" x2="245" y2="220"/>
+  <line class="arrow" x1="715" y1="210" x2="715" y2="220"/>
+  <text class="n" x="426" y="202">分叉：共享特征，不共享任务</text>
+
+  <!-- 分支 A -->
+  <rect class="hot" x="60" y="222" width="370" height="124" rx="12"/>
+  <text class="n" x="76" y="246">分支 A · 开车</text>
+  <text class="bt" x="76" y="272">约 3B 驾驶模型</text>
+  <text class="bd" x="76" y="294">输出：运动学 / 路径规划 / 驾驶动作</text>
+  <text class="bd" x="76" y="314">误差后果：直接影响安全</text>
+  <text class="ok" x="76" y="336">0 ms · 真值通道 · 决定车怎么开</text>
+
+  <!-- 分支 B -->
+  <rect class="gen" x="530" y="222" width="370" height="124" rx="12"/>
+  <text class="n" x="546" y="246" fill="#b45309">分支 B · 画画</text>
+  <text class="bt" x="546" y="272">约 1B 扩散 / mean-flow 模型</text>
+  <text class="bd" x="546" y="294">上一帧加噪 + 最新 UVE 特征 → 8 帧 @36 fps</text>
+  <text class="bd" x="546" y="314">上一帧是记忆，UVE 特征是对当下的纠正</text>
+  <text class="num" x="546" y="336">222 ms · 生成通道 · 决定屏上画什么</text>
+
+  <!-- 汇合到屏幕 -->
+  <line class="arrow" x1="245" y1="346" x2="245" y2="392"/>
+  <line class="arrow" x1="715" y1="346" x2="715" y2="392"/>
+
+  <!-- 屏幕 -->
+  <rect class="scr" x="60" y="396" width="840" height="112" rx="12"/>
+  <text class="n" x="76" y="420">S4 / S5 · 叠加与显示</text>
+  <text class="bt" x="76" y="446">中控屏 = 生成画面（滞后 222 ms） ⊕ 意图叠加层（实时 0 ms）</text>
+  <text class="bd" x="76" y="468">转向 chevron / 泊车图钉 / 规划路径 · 四种模式：全屏实景 / 全屏地图 / 分屏 / Calm</text>
+  <text class="bd" x="76" y="490">单击画面任意位置 → 反投影成世界目标点 → 交回分支 A 重规划（click-to-go）</text>
+
+  <!-- click-to-go 回路 -->
+  <path class="dash" d="M892,452 L916,452 L916,360 L420,360 L420,350"/>
+  <text class="bd" x="744" y="380" fill="#b45309">click-to-go 回路</text>
+
+  <text class="s" x="24" y="540">官方原话：replacing all of the explicit model signals into a single end-to-end visualization, using less total compute.　图：本页绘制</text>
+</svg>

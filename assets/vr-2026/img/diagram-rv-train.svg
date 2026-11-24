@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 262" width="960" height="262" role="img" aria-label="旧管线穿帮动画：感知把工程车分类为工程车，渲染引擎去素材库取模型时取错成火车，屏幕上于是出现一辆行驶在公路上的火车">
+  <style>
+    text{font-family:"Microsoft YaHei",sans-serif}
+    .t{font:700 18px "Microsoft YaHei",sans-serif;fill:#2e2a6f}
+    .s{font:12px "Microsoft YaHei",sans-serif;fill:#5a5670}
+    .st{font:700 12px "Microsoft YaHei",sans-serif;fill:#2e2a6f}
+    .d{font:11px "Microsoft YaHei",sans-serif;fill:#6b6483}
+    .chip{font:11px "Microsoft YaHei",sans-serif;fill:#2e2a6f}
+    .bad{animation:bad 2.6s ease-in-out infinite}
+    .blink{animation:blink 1.8s ease-in-out infinite}
+    @keyframes bad{0%,100%{opacity:.45}50%{opacity:1}}
+    @keyframes blink{0%,100%{opacity:.55}50%{opacity:1}}
+  </style>
+  <rect width="960" height="262" fill="#fff"/>
+  <text class="t" x="24" y="30">旧管线为什么穿帮：屏幕上的东西是“查表查出来的”</text>
+  <text class="s" x="24" y="50">端到端模型本来不输出“车道线、框、类别”；为了让人看懂，工程师额外把这层中间量交给渲染引擎，引擎再去素材库摆模型。查错一格，就穿帮。</text>
+
+  <!-- ① 感知 -->
+  <text class="st" x="38" y="76">① 感知分类</text>
+  <rect x="40" y="96" width="70" height="26" rx="4" fill="#3f4b5c"/>
+  <rect x="104" y="104" width="28" height="18" rx="3" fill="#48566a"/>
+  <rect x="40" y="100" width="70" height="6" fill="#f0b35a" opacity=".55"/>
+  <circle cx="58" cy="124" r="6" fill="#111722"/><circle cx="118" cy="124" r="6" fill="#111722"/>
+  <rect x="40" y="134" width="152" height="22" rx="11" fill="#eeeafb" stroke="#8b7fd4" stroke-width="1.3"/>
+  <text class="chip" x="52" y="149">工程车 · 置信度 0.91</text>
+  <text class="d" x="40" y="178">“这是一台工程车”，位置在</text>
+  <text class="d" x="40" y="192">本车右前方约 20 m</text>
+
+  <!-- ② 素材库 -->
+  <text class="st" x="338" y="76">② 素材库取预制模型</text>
+  <g stroke="#ddd7f2" stroke-width="1.2" fill="#f6f5fb">
+    <rect x="338" y="90" width="84" height="46" rx="6"/>
+    <rect x="430" y="90" width="84" height="46" rx="6"/>
+    <rect x="522" y="90" width="84" height="46" rx="6"/>
+    <rect x="338" y="144" width="84" height="46" rx="6"/>
+    <rect x="430" y="144" width="84" height="46" rx="6"/>
+    <rect x="522" y="144" width="84" height="46" rx="6"/>
+  </g>
+  <!-- 卡车图标 -->
+  <g fill="#5a5670">
+    <rect x="348" y="106" width="30" height="14" rx="2"/><rect x="380" y="110" width="14" height="10" rx="2"/>
+    <circle cx="356" cy="122" r="3.2"/><circle cx="386" cy="122" r="3.2"/>
+  </g>
+  <!-- 火车图标（被取错） -->
+  <g fill="#b45309">
+    <rect x="440" y="106" width="54" height="15" rx="3"/><rect x="494" y="108" width="10" height="11" rx="2"/>
+    <circle cx="452" cy="123" r="3.2"/><circle cx="482" cy="123" r="3.2"/>
+  </g>
+  <rect class="bad" x="428" y="88" width="88" height="50" rx="7" fill="none" stroke="#e5484d" stroke-width="2" stroke-dasharray="5 3"/>
+  <text class="d" x="606" y="83" fill="#e5484d" text-anchor="end">取错一格</text>
+  <!-- 公交 / 锥桶 / 树 / 房子 -->
+  <g fill="#8b879e">
+    <rect x="532" y="104" width="40" height="16" rx="3"/><circle cx="542" cy="123" r="3"/><circle cx="562" cy="123" r="3"/>
+    <polygon points="368,158 380,158 375,170"/><rect x="371" y="170" width="6" height="4"/>
+    <circle cx="462" cy="164" r="8"/><rect x="460" y="172" width="4" height="8"/>
+    <rect x="530" y="160" width="26" height="16"/><polygon points="526,160 543,148 560,160"/>
+  </g>
+  <text class="d" x="338" y="228">素材库只存“类别 → 预制模型”的查表。</text>
+
+  <!-- ③ 屏幕 -->
+  <text class="st" x="662" y="76">③ 屏幕上出现的结果</text>
+  <rect x="662" y="86" width="274" height="118" rx="8" fill="#0f151d" stroke="#232b36" stroke-width="1.4"/>
+  <polygon points="700,120 900,120 936,200 664,200" fill="#1a2330"/>
+  <g fill="#d7dee8" opacity=".5">
+    <polygon points="716,190 722,190 736,200 729,200"/>
+    <polygon points="742,190 748,190 762,200 755,200"/>
+  </g>
+  <g class="blink">
+    <rect x="748" y="158" width="96" height="26" rx="4" fill="#8a4a3a"/>
+    <rect x="748" y="158" width="96" height="7" rx="3" fill="#c1745c"/>
+    <rect x="838" y="161" width="18" height="18" rx="3" fill="#a85a45"/>
+    <circle cx="764" cy="187" r="3.6" fill="#0e1218"/><circle cx="826" cy="187" r="3.6" fill="#0e1218"/>
+    <g fill="#f0c477" opacity=".8">
+      <rect x="756" y="166" width="5" height="4"/><rect x="766" y="166" width="5" height="4"/>
+      <rect x="776" y="166" width="5" height="4"/><rect x="786" y="166" width="5" height="4"/>
+      <rect x="796" y="166" width="5" height="4"/><rect x="806" y="166" width="5" height="4"/>
+    </g>
+  </g>
+  <rect class="bad" x="730" y="120" width="132" height="20" rx="4" fill="#e5484d"/>
+  <text class="chip" x="796" y="134" fill="#fff" text-anchor="middle">公路上开着一列火车</text>
+  <text class="d" x="662" y="228">问题不在画质，在“中间表示被当成事实”。</text>
+</svg>
+
+
+

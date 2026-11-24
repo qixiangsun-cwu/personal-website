@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>结课回顾 · 十二次课，收成一件作品 | 2026年虚拟现实技术</title>
-<meta name="description" content="《虚拟现实技术》2026 秋 · 第 11 次课（2026-11-25）结课回顾页：十二次课的主线与教材八章映射、六个课堂案例、11 条硬门槛与 7 维量规、3.5 分钟路演脚本、把体验变成证据的 A/B 对照、以及 LLM 智能交互接不上时的四级降级。附全套站内链接与配图。">
+<meta name="description" content="《虚拟现实技术》2026 秋 · 第 11 次课（2026-11-25）结课回顾页：页首 6 分钟新技术速览（视频扩散世界模型 + 特斯拉 FSD v15 Reality View）、十二次课的主线与教材八章映射、六个课堂案例、11 条硬门槛与 7 维量规、3.5 分钟路演脚本、把体验变成证据的 A/B 对照、以及 LLM 智能交互接不上时的四级降级。附全套站内链接与配图。">
 <link rel="stylesheet" href="assets/vr-2026/course.css">
 <style>
   .rev-pre{background:#f6f5fb;border:1px solid #e3ddf1;border-radius:10px;padding:14px 16px;overflow-x:auto;margin:14px 0;font:13px/1.7 Consolas,"Microsoft YaHei",monospace;color:#3b3860}
@@ -19,6 +19,19 @@
   figure.fig.cover img{aspect-ratio:16/9;object-fit:cover}
   figure.fig.rev-shot img{width:100%;height:240px;object-fit:cover;background:#f6f5fb;border-radius:8px;display:block}
   figure.fig.rev-shot.wide img{object-fit:contain}
+  .rev-gifs{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:16px 0 8px}
+  @media(max-width:860px){.rev-gifs{grid-template-columns:1fr}}
+  .rev-gifs figure{margin:0;background:#0d1117;border:1px solid #232b36;border-radius:10px;overflow:hidden}
+  .rev-gifs img{display:block;width:100%;height:auto}
+  .rev-gifs figcaption{padding:8px 11px 10px;color:#c9d3df;font-size:12px;line-height:1.6;background:#121821}
+  .rev-gifs figcaption b{color:#f0b35a}
+  .rev-nums{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:14px 0}
+  @media(max-width:760px){.rev-nums{grid-template-columns:1fr 1fr}}
+  .rev-nums div{background:#faf8fd;border:1px solid #e3ddf1;border-radius:12px;padding:12px 14px}
+  .rev-nums b{display:block;font:700 22px/1.2 Consolas,monospace;color:#b45309;margin-bottom:5px}
+  .rev-nums span{font-size:12px;color:#6b6483;line-height:1.55}
+  .nav-inner{flex-wrap:wrap;row-gap:4px}
+  @media(max-width:760px){.nav-inner{flex-wrap:nowrap}}
 </style>
 </head>
 <body>
@@ -28,7 +41,7 @@
   <div class="hero-inner">
     <span class="kicker">虚拟现实技术 · 结课回顾 · 第 11 次课 · 2026-11-25</span>
     <h1>十二次课，收成一件作品</h1>
-    <p class="sub">第 13 教学周 · 4 学时 / 180 分钟 —— 开头 6 分钟讲一个新技术：视频扩散世界模型（渲染正在变成生成）。然后按你手上那件作品讲：把十二次课排成一条线，再把三件与作品收尾直接相关的事讲清楚：3.5 分钟怎么讲、数字怎么变成证据、智能交互接不上时怎么兜底。</p>
+    <p class="sub">第 13 教学周 · 4 学时 / 180 分钟 —— 开头 6 分钟讲两件正在发生的事：视频扩散世界模型（渲染正在变成生成），和特斯拉 FSD v15 的 Reality View（每 222 ms 把世界重画一遍）。然后按你手上那件作品讲：把十二次课排成一条线，再把三件与作品收尾直接相关的事讲清楚：3.5 分钟怎么讲、数字怎么变成证据、智能交互接不上时怎么兜底。</p>
     <div class="meta">
       <span>中华女子学院</span><span>数字媒体技术 2023 级 · 40 人</span><span>授课人：孙琪翔</span><span>2026-11-25（周三）</span><span>期末作品 12-02 现场路演</span>
     </div>
@@ -40,6 +53,7 @@
   <div class="nav-inner" id="navInner">
     <a href="vr-2026.html" class="nav-back">← 课程主页</a>
     <a href="#wm" data-sec="wm" class="on">新技术 · 视频世界模型</a>
+    <a href="#rvcase" data-sec="rvcase">现场案例 · Reality View</a>
     <a href="#guide" data-sec="guide">本课导览</a>
     <a href="#r1" data-sec="r1">一、一条主线</a>
     <a href="#r2" data-sec="r2">二、十二次课</a>
@@ -162,6 +176,65 @@
 
   <div class="note"><strong>课堂用法（6 分钟）：</strong>30 秒说结论（渲染正在变成生成）→ 2 分钟讲三个动作（压缩 / 速度场 / 自回归）→ 2 分钟放两段视频（Cosmos 合成、GAIA-2 动作条件）→ 1 分钟收在“幻觉边界”。已从回顾里匀出 1 分钟（回顾 39′ → 38′）；若要展开到 12 分钟，再从回顾借 6 分钟，或把这一段整体挪到课后。完整推导与部署细节留作课后阅读。</div>
 </section>
+
+<!-- ===== 现场案例 Reality View ===== -->
+<section id="rvcase">
+  <div class="sec-head">
+    <div class="sec-num">例</div>
+    <div>
+      <h2>现场案例 · FSD v15 Reality View：每 222 ms，把世界重画一遍</h2>
+      <p class="sec-sub">2026-11-21 刚推送给车主。课上只取 4 分钟：三段动图、一张架构图、一个 222 ms 对 11.1 ms 的对照。</p>
+    </div>
+  </div>
+
+  <p>这是刚才那个“视频世界模型”的<strong>量产落地版</strong>：不是生成一段好看的视频，而是在车里、在一颗只做整数运算的芯片上、每 36 分之一秒生成一帧，并且从<strong>一台车上根本不存在的相机</strong>（车顶正上方）看出去。官方原话只有一句：<em>“New real-time generative driving visualization that continuously streams a view from an arbitrary virtual camera situated above your vehicle.”</em></p>
+
+  <div class="rev-gifs">
+    <figure>
+      <img src="assets/vr-2026/rv/rv-official.gif" alt="特斯拉官方 FSD v15 样片：夜间城市生成画面" loading="lazy" decoding="async">
+      <figcaption><b>官方 36 秒样片</b><br>车顶正上方的虚拟相机。片中的“25x safer”是我们第七节要改写的说法。</figcaption>
+    </figure>
+    <figure>
+      <img src="assets/vr-2026/rv/rv-owner.gif" alt="车主白天实拍：中控屏生成环岛" loading="lazy" decoding="async">
+      <figcaption><b>车主白天实拍</b><br>建筑、斑马线、停放车辆都是连续画面；箭头才是叠加层。</figcaption>
+    </figure>
+    <figure>
+      <img src="assets/vr-2026/rv/rv-3dgs.gif" alt="vogeldev 用 3D 高斯泼溅复刻的飞行视角" loading="lazy" decoding="async">
+      <figcaption><b>开源复刻 · 3DGS</b><br>行车记录仪 → 深度 → 高斯泼溅。接第 2 / 5 次课的 3DGS 线。</figcaption>
+    </figure>
+  </div>
+
+  <div class="rev-nums">
+    <div><b>3B + 1B</b><span>约 3B 驾驶 + 约 1B 渲染（B 级口径，非官方参数公布）</span></div>
+    <div><b>222 ms</b><span>8 帧 ÷ 36 fps ＝ 4 个 18 Hz 周期（算术推论，非实测）</span></div>
+    <div><b>3.6 m</b><span>16 m/s 下，画面比真实世界晚 3.6 米</span></div>
+    <div><b>11.1 ms</b><span>VR 90 Hz 单帧预算——同一个“延迟”差约 20 倍</span></div>
+  </div>
+
+  <figure class="fig">
+    <img src="assets/vr-2026/img/diagram-rv-arch.svg" alt="Reality View 架构：8 路相机 → 共享 UVE → 3B 驾驶 / 1B 渲染 → 屏幕叠加意图层">
+    <figcaption>一条数据通路，两个出口：左边决定车怎么开（0 ms，真值），右边决定屏上画什么（222 ms，生成）。图：本页绘制。</figcaption>
+  </figure>
+
+  <div class="key"><strong>课上只讲这一句：</strong>同一块屏上，<strong>生成画面滞后 222 ms，意图叠加层是 0 ms</strong>。画面只用来“预告车想干什么”，不参与“车怎么开”。所以 222 ms 在车机上能忍，在 VR 头显里不能忍——<strong>一个在显示回路，一个在控制回路。</strong></div>
+
+  <p>这块屏真正让人不安的，不是它画得不够真，而是它<strong>画得太真</strong>：真到你忘了它只是“车想干什么”的示意图，不是“世界是什么”的证据。它把 3DGS、帧预算、生成式幻觉、降级兜底四条线，第一次拧在了同一个产品里。</p>
+
+  <div class="note"><strong>完整拆解（课后阅读 / 专题课）：</strong>六阶段流水线、旧管线“工程车变火车”、两套技术口径（3DGS 还是扩散）、三个可证伪观察点、可操作的<strong>教学模拟器</strong>（关几何辅助 → 画面塌陷；勾幻觉注入 → 屏上出现现实没有的物体）、三个流传错误、四个讨论题、全部视频与出处——都在专页：<a href="vr-2026-reality-view.html"><strong>《Reality View：每 222 ms，把世界重画一遍》→</strong></a></div>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th style="width:16%">课上 4 分钟</th><th>做什么</th></tr></thead>
+      <tbody>
+        <tr><td><strong>0:00—0:50</strong></td><td>放官方 36 秒，只问一句：“这是摄像头画面，还是游戏引擎？”</td></tr>
+        <tr><td><strong>0:50—2:10</strong></td><td>三个数字：3B + 1B、半颗 TRIP、222 ms；说清“两个出口”</td></tr>
+        <tr><td><strong>2:10—2:50</strong></td><td>现场算 8÷36、4÷18、0.222×16；和 VR 的 11.1 ms 对撞</td></tr>
+        <tr><td><strong>2:50—3:40</strong></td><td>模拟器只做两个动作：关 3D 几何辅助、勾幻觉注入</td></tr>
+        <tr><td><strong>3:40—4:00</strong></td><td>收在 3DGS：“你们学过它，它现在跑在车规芯片上，每 222 ms 重建一次。”</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
 <!-- ===== 导览 ===== -->
 <section id="guide">
   <div class="sec-head">
@@ -172,7 +245,7 @@
     </div>
   </div>
 
-  <p>这门课的期末不是一张卷子，是一件<strong>你自己做的 WebXR 作品</strong>，加上一份说清楚它的文档，再加上一次<strong>3.5 分钟</strong>的现场演示。所以今天不是“再讲一章”，而是<strong>把十二次课重新排成一条线</strong>，再讲清三件与作品收尾直接相关的事。页首还加了一节<strong>新技术速览</strong>——视频扩散世界模型，6 分钟，讲“渲染正在变成生成”。</p>
+  <p>这门课的期末不是一张卷子，是一件<strong>你自己做的 WebXR 作品</strong>，加上一份说清楚它的文档，再加上一次<strong>3.5 分钟</strong>的现场演示。所以今天不是“再讲一章”，而是<strong>把十二次课重新排成一条线</strong>，再讲清三件与作品收尾直接相关的事。页首还加了一节<strong>新技术速览</strong>——视频扩散世界模型 + 特斯拉 FSD v15 的 Reality View，6 分钟（2 + 4），讲“渲染正在变成生成”。</p>
 
   <div class="key"><strong>这一节收成三样东西：</strong><br>
     ① <strong>一条线</strong>——能在一分钟内说清“这门课教了什么、我的作品站在哪一步”；<br>
@@ -184,7 +257,7 @@
     <table>
       <thead><tr><th style="width:16%">时段</th><th style="width:9%">时长</th><th>内容</th></tr></thead>
       <tbody>
-        <tr><td><strong>0:00—0:06</strong></td><td>6′</td><td><strong>开场 + 新技术速览</strong>：视频扩散世界模型（结论 + 三个动作 + 两段视频）· 这一节的三样东西 · 与 12-02 验收的衔接</td></tr>
+        <tr><td><strong>0:00—0:06</strong></td><td>6′</td><td><strong>开场 + 新技术速览</strong>：2′ 视频扩散世界模型（结论 + 三个动作）＋ 4′ FSD v15 Reality View（官方样片 + 两个出口 + 222 ms 对 11.1 ms）· 这一节的三样东西 · 与 12-02 验收的衔接</td></tr>
         <tr><td><strong>0:06—0:44</strong></td><td><strong>38′</strong></td><td><strong>回顾</strong>：一条主线（看 VR → 造空间 → 能交互 → 有目标 → 有边界 → 有度量 → 接智能）+ 十二次课时间轴 + 教材八章映射 + 六个案例</td></tr>
         <tr><td><strong>0:44—1:20</strong></td><td><strong>36′</strong></td><td><strong>新东西 · 智能</strong>：一句话怎么变成一段回答——LLM 智能交互的完整链路、动作白名单、四级降级（对应第 11 次课的主课内容）</td></tr>
         <tr><td><strong>1:20—1:30</strong></td><td>10′</td><td><strong>课间</strong>（头显摘下放桌上，不放椅子上）</td></tr>
@@ -600,6 +673,7 @@
     <table>
       <thead><tr><th style="width:26%">资源</th><th>地址</th><th style="width:30%">用来干什么</th></tr></thead>
       <tbody>
+        <tr><td><strong>现场案例 · Reality View</strong></td><td><a href="vr-2026-reality-view.html">vr-2026-reality-view.html</a></td><td>技术拆解专页：架构、六阶段、222 ms 时间账、3DGS 闭环、教学模拟器、讨论题与全部视频出处</td></tr>
         <tr><td><strong>新技术 · 视频世界模型</strong></td><td><a href="#wm">#wm</a></td><td>页首那一节：原理、流水线、6 条官方视频与资料</td></tr>
         <tr><td><strong>课程主页</strong></td><td><a href="vr-2026.html">vr-2026.html</a></td><td>十二次课的总入口、作业与通知</td></tr>
         <tr><td><strong>期末大作业任务书</strong></td><td><a href="vr-2026-final-project.html">vr-2026-final-project.html</a></td><td>提交物、目录规范、11 条门槛的完整原文</td></tr>
@@ -693,7 +767,7 @@
   navInner.querySelectorAll('a[data-sec]').forEach(function(a){
     navLinks[a.getAttribute('data-sec')] = a;
   });
-  var sections = ['guide','r1','r2','r3','r4','r5','r6','n1','n2','n3','links','end'];
+  var sections = ['wm','rvcase','guide','r1','r2','r3','r4','r5','r6','n1','n2','n3','links','end'];
   if ('IntersectionObserver' in window) {
     var obs = new IntersectionObserver(function(entries){
       entries.forEach(function(en){
