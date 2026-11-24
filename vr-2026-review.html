@@ -192,6 +192,11 @@
     </div>
   </div>
 
+  <figure class="fig">
+    <img src="assets/vr-2026/img/diagram-algo-flow.svg" alt="速度场与少步采样：噪声沿速度场走回数据，2-4 步到达画面">
+    <figcaption>速度场与少步采样：网络不学“像素长什么样”，只学“往回走的方向与长度”；从纯噪声出发走 2—4 步就到画面，步数越少越快，代价是细节。图：本页绘制。</figcaption>
+  </figure>
+
   <h3>二、方法实现：一条能跑起来的流水线</h3>
   <div class="tbl-wrap">
     <table>
@@ -206,6 +211,8 @@
       </tbody>
     </table>
   </div>
+
+
 
   <div class="key"><strong>一句话记住训练目标：</strong>网络不学“这张图长什么样”，只学“从当前噪声位置，往数据该走哪一步”。所以它天生适合少步推理，也天生会“编”——方向对了，细节可能不对。</div>
 
@@ -258,6 +265,10 @@
   <p style="color:#6b6483;font-size:13px">六阶段的现场演示在专页第六节：<a href="vr-2026-reality-view.html#sim">教学模拟器 →</a>（关 3D 几何辅助、拉大 K、勾幻觉注入，三个开关对应三种坏法）。</p>
 
   <h3>六、222 ms 是怎么算出来的</h3>
+  <figure class="fig">
+    <img src="assets/vr-2026/img/diagram-algo-222.svg" alt="两条时间尺：8 帧 @36fps 与 UVE 18Hz 每 4 周期，都落在 0.222 s">
+    <figcaption>两条互不相干的时间尺：帧率算一遍、特征周期算一遍，落点都是 0.222 s——所以这个数不是调出来的，是结构决定的。图：本页绘制。</figcaption>
+  </figure>
   <p>这不是实测，是<strong>算术</strong>——而且两条互不相干的路都能算出同一个数，所以可信：</p>
   <div class="rev-nums">
     <div><b>8 ÷ 36</b><span>一批 8 帧，按 36 fps 播放 ＝ <strong>0.222 s</strong></span></div>

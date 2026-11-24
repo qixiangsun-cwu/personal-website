@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 360" width="960" height="360" role="img" aria-label="速度场与少步采样示意图">
+  <defs>
+    <marker id="ah" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0 0 L7 3.5 L0 7 z" fill="#b45309"/>
+    </marker>
+  </defs>
+  <style>
+    text{font-family:'Times New Roman','SimSun',serif;fill:#23202f}
+    .cn{font-family:'SimSun','Songti SC','Times New Roman',serif}
+    .mut{fill:#6b6483}
+    .num{fill:#b45309}
+    .ac{fill:#6d5bd0}
+    .fig{font-style:italic;fill:#8b879e}
+    .h{font-weight:700}
+  </style>
+  <rect width="960" height="360" fill="#ffffff"/>
+
+  <text class="fig" x="30" y="30" font-size="12">Fig. 1</text>
+  <text class="cn mut" x="84" y="30" font-size="12">速度场：网络只学“往哪走、走多远”，不学像素</text>
+  <line x1="30" y1="40" x2="640" y2="40" stroke="#d9d5e6" stroke-width="1"/>
+
+  <!-- 坐标轴 -->
+  <line x1="120" y1="304" x2="628" y2="304" stroke="#23202f" stroke-width="1"/>
+  <line x1="120" y1="304" x2="120" y2="76" stroke="#23202f" stroke-width="1"/>
+  <path d="M628 304 l-8 -3.5 M628 304 l-8 3.5" stroke="#23202f" stroke-width="1" fill="none"/>
+  <path d="M120 76 l-3.5 8 M120 76 l3.5 8" stroke="#23202f" stroke-width="1" fill="none"/>
+
+  <text class="num" x="136" y="66" font-size="12">z₁ · noise　t = 1</text>
+  <text class="num" x="628" y="338" font-size="12" text-anchor="end">z₀ · data</text>
+
+  <!-- 轨迹 -->
+  <line x1="120" y1="80" x2="600" y2="292" stroke="#6d5bd0" stroke-width="1.8"/>
+
+  <!-- 采样点 -->
+  <g>
+    <circle cx="120" cy="80" r="3.6" fill="#6d5bd0"/>
+    <circle cx="282" cy="154" r="3.6" fill="#6d5bd0"/>
+    <circle cx="442" cy="224" r="3.6" fill="#6d5bd0"/>
+    <circle cx="600" cy="292" r="3.6" fill="#b45309"/>
+  </g>
+  <g font-size="11" class="num">
+    <text x="130" y="100">t = 1.00</text>
+    <text x="292" y="174">t = 0.66</text>
+    <text x="452" y="244">t = 0.33</text>
+    <text x="590" y="314" text-anchor="end">t = 0.00</text>
+  </g>
+
+  <!-- 速度向量（在轨迹上方，平行于轨迹） -->
+  <g stroke="#b45309" stroke-width="1.3" marker-end="url(#ah)">
+    <line x1="126" y1="83" x2="176" y2="106"/>
+    <line x1="288" y1="157" x2="338" y2="180"/>
+    <line x1="448" y1="227" x2="498" y2="250"/>
+  </g>
+  <g font-size="11" class="num">
+    <text x="182" y="98">v</text>
+    <text x="344" y="172">v</text>
+    <text x="504" y="242">v</text>
+  </g>
+
+  <!-- 说明面板 -->
+  <rect x="660" y="70" width="274" height="206" fill="#faf8fd" stroke="#e3ddf1" stroke-width="1"/>
+  <text class="cn h" x="678" y="94" font-size="13">少步采样与蒸馏</text>
+  <text class="num" x="678" y="118" font-size="13">v_θ(z, t, c)</text>
+  <text class="cn mut" x="678" y="136" font-size="11">方向与长度，一次前向就够</text>
+  <line x1="678" y1="150" x2="916" y2="150" stroke="#e3ddf1" stroke-width="1"/>
+  <text class="num" x="678" y="172" font-size="12">teacher　N = 20–50</text>
+  <text class="num" x="678" y="196" font-size="12">student　N = 2–4</text>
+  <text class="cn mut" x="678" y="218" font-size="11">一致性 / 均值流蒸馏</text>
+  <text class="cn mut" x="678" y="242" font-size="11">代价：细节略掉　收益：速度约 10 倍</text>
+  <text class="cn mut" x="678" y="264" font-size="11">车端一次前向才跑得动</text>
+
+  <text class="cn mut" x="30" y="348" font-size="11">直线 = 从噪声到数据的理想路径；轨迹上的点是压成一维潜变量之后的取值</text>
+</svg>
