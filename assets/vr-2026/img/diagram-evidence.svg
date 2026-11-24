@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 340" width="960" height="340" role="img" aria-label="A/B 对照示意：同一批人、同一任务、只改一个变量，三个指标的前后变化">
+  <style>
+    .t{font:700 17px "Microsoft YaHei",sans-serif;fill:#2e2a6f}
+    .s{font:12.5px "Microsoft YaHei",sans-serif;fill:#5a5670}
+    .m{font:700 13px "Microsoft YaHei",sans-serif;fill:#272436}
+    .v{font:700 13px "Microsoft YaHei",sans-serif;fill:#fff}
+    .a{fill:#b8b3cb}
+    .b{fill:#5a52c8}
+    .axis{stroke:#c9c3dd;stroke-width:1.2}
+    .tagA{font:700 12px "Microsoft YaHei",sans-serif;fill:#6b6483}
+    .tagB{font:700 12px "Microsoft YaHei",sans-serif;fill:#5a52c8}
+    .note{font:12px "Microsoft YaHei",sans-serif;fill:#8b879e}
+  </style>
+  <rect width="960" height="340" fill="#fff"/>
+  <text class="t" x="24" y="32">A/B 对照：只改一个变量，才有资格说"更好"</text>
+  <text class="s" x="24" y="53">六个同学、同一条任务、同一台机器；A 是原版，B 只把"瞬移"换成"淡入淡出"，其余一个字没动。</text>
+
+  <line class="axis" x1="60" y1="278" x2="920" y2="278"/>
+
+  <!-- 组 1 -->
+  <text class="m" x="140" y="300">平均完成用时（秒）</text>
+  <rect class="a" x="150" y="118" width="44" height="160" rx="4"/>
+  <rect class="b" x="204" y="172" width="44" height="106" rx="4"/>
+  <text class="tagA" x="150" y="110">A</text>
+  <text class="tagB" x="204" y="164">B</text>
+  <text class="v" x="152" y="142" style="fill:#272436">62</text>
+  <text class="v" x="206" y="196">41</text>
+
+  <!-- 组 2 -->
+  <text class="m" x="430" y="300">平均求助次数</text>
+  <rect class="a" x="470" y="118" width="44" height="160" rx="4"/>
+  <rect class="b" x="524" y="223" width="44" height="55" rx="4"/>
+  <text class="tagA" x="470" y="110">A</text>
+  <text class="tagB" x="524" y="215">B</text>
+  <text class="v" x="474" y="142" style="fill:#272436">3.2</text>
+  <text class="v" x="528" y="247">1.1</text>
+
+  <!-- 组 3 -->
+  <text class="m" x="700" y="300">首次成功（6 人中）</text>
+  <rect class="a" x="740" y="198" width="44" height="80" rx="4"/>
+  <rect class="b" x="794" y="145" width="44" height="133" rx="4"/>
+  <text class="tagA" x="740" y="190">A</text>
+  <text class="tagB" x="794" y="137">B</text>
+  <text class="v" x="744" y="222" style="fill:#272436">3</text>
+  <text class="v" x="798" y="169">5</text>
+
+  <text class="note" x="24" y="326">示意数据：换成你自己在 JSON 里记下来的那三个数。没有对照，就别写"体验更好"。</text>
+</svg>

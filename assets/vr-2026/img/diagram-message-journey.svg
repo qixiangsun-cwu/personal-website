@@ -1,0 +1,82 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 400" width="960" height="400" role="img" aria-label="一条消息的六站旅程：输入、拼历史、拼人设、发模型、收流、落屏，以及出口的 TTS 与动作协议">
+  <style>
+    .t{font:700 17px "Microsoft YaHei",sans-serif;fill:#2e2a6f}
+    .s{font:12.5px "Microsoft YaHei",sans-serif;fill:#5a5670}
+    .box{fill:#f6f5fb;stroke:#ddd7f2;stroke-width:1.5}
+    .boxHot{fill:#eeeafb;stroke:#8b7fd4;stroke-width:1.8}
+    .n{font:700 12px "Microsoft YaHei",sans-serif;fill:#5a52c8;letter-spacing:1px}
+    .bt{font:700 14px "Microsoft YaHei",sans-serif;fill:#272436}
+    .bd{font:11.5px "Microsoft YaHei",sans-serif;fill:#6b6483}
+    .arrow{stroke:#8b7fd4;stroke-width:2.2;fill:none;marker-end:url(#a)}
+    .dash{stroke:#b45309;stroke-width:2;fill:none;stroke-dasharray:6 5;marker-end:url(#o)}
+    .lbl{font:12px "Microsoft YaHei",sans-serif;fill:#b45309}
+    .ok{font:12px "Microsoft YaHei",sans-serif;fill:#2e7d32}
+  </style>
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#8b7fd4"/></marker>
+    <marker id="o" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#b45309"/></marker>
+  </defs>
+  <rect width="960" height="400" fill="#fff"/>
+  <text class="t" x="24" y="34">一条消息的六站旅程</text>
+  <text class="s" x="24" y="56">你打的那几个字，不是"直接发给模型"；每一轮都要把最近 8 条历史重新拼一遍再发出去。</text>
+
+  <g>
+    <rect class="box" x="24" y="80" width="132" height="78" rx="10"/>
+    <text class="n" x="36" y="102">① 输入</text>
+    <text class="bt" x="36" y="124">你说一句话</text>
+    <text class="bd" x="36" y="144">"带我去图书馆"</text>
+
+    <rect class="box" x="176" y="80" width="132" height="78" rx="10"/>
+    <text class="n" x="188" y="102">② 拼历史</text>
+    <text class="bt" x="188" y="124">HISTORY 最近 8 条</text>
+    <text class="bd" x="188" y="144">MAXH = 8，约 4 轮</text>
+
+    <rect class="box" x="328" y="80" width="132" height="78" rx="10"/>
+    <text class="n" x="340" y="102">③ 拼人设</text>
+    <text class="bt" x="340" y="124">DEFAULT_SYS</text>
+    <text class="bd" x="340" y="144">它"是谁"由这段决定</text>
+
+    <rect class="boxHot" x="480" y="80" width="132" height="78" rx="10"/>
+    <text class="n" x="492" y="102">④ 发模型</text>
+    <text class="bt" x="492" y="124">一次 HTTP 请求</text>
+    <text class="bd" x="492" y="144">带 Key，走 SSE</text>
+
+    <rect class="box" x="632" y="80" width="132" height="78" rx="10"/>
+    <text class="n" x="644" y="102">⑤ 收流</text>
+    <text class="bt" x="644" y="124">一个字一个字回来</text>
+    <text class="bd" x="644" y="144">不是等一整段</text>
+
+    <rect class="box" x="784" y="80" width="152" height="78" rx="10"/>
+    <text class="n" x="796" y="102">⑥ 落屏</text>
+    <text class="bt" x="796" y="124">打字机：dt × 70</text>
+    <text class="bd" x="796" y="144">文字先出，语音后读</text>
+  </g>
+
+  <line class="arrow" x1="156" y1="119" x2="172" y2="119"/>
+  <line class="arrow" x1="308" y1="119" x2="324" y2="119"/>
+  <line class="arrow" x1="460" y1="119" x2="476" y2="119"/>
+  <line class="arrow" x1="612" y1="119" x2="628" y2="119"/>
+  <line class="arrow" x1="764" y1="119" x2="780" y2="119"/>
+
+  <!-- 重发回路 -->
+  <path class="dash" d="M90,158 L90,196 L560,196 L560,162"/>
+  <text class="lbl" x="300" y="216">下一轮：上一轮的问答被追加进 HISTORY，再整包重发</text>
+
+  <!-- 出口 -->
+  <g transform="translate(24,248)">
+    <rect x="0" y="0" width="440" height="120" rx="12" fill="#fbfafd" stroke="#e3ddf1" stroke-width="1.2"/>
+    <text class="n" x="16" y="24" fill="#2e7d32">出口 A · 语音</text>
+    <text class="bt" x="16" y="48">speakTxt() 整段朗读</text>
+    <text class="bd" x="16" y="70">文字先落屏、语音整段读——</text>
+    <text class="bd" x="16" y="90">所以听起来"慢半拍"是设计，不是卡</text>
+    <text class="bd" x="16" y="108">40 台一起读＝集市，面板上有开关</text>
+  </g>
+  <g transform="translate(488,248)">
+    <rect x="0" y="0" width="448" height="120" rx="12" fill="#fbfafd" stroke="#e3ddf1" stroke-width="1.2"/>
+    <text class="n" x="16" y="24" fill="#b45309">出口 B · 动作</text>
+    <text class="bt" x="16" y="48">模型只能"申请"，不能"执行"</text>
+    <text class="bd" x="16" y="70">{"action":"teleport","value":"east"} 只是文本</text>
+    <text class="bd" x="16" y="90">parseAction() 抠出来 → 查 ACTS 白名单 → 才执行</text>
+    <text class="ok" x="16" y="110">不在白名单里的动作，直接丢弃并回一句"我做不到"</text>
+  </g>
+</svg>

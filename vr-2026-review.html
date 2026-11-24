@@ -1,0 +1,723 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>结课回顾 · 十二次课，收成一件作品 | 2026年虚拟现实技术</title>
+<meta name="description" content="《虚拟现实技术》2026 秋 · 第 11 次课（2026-11-25）结课回顾页：十二次课的主线与教材八章映射、六个课堂案例、11 条硬门槛与 7 维量规、3.5 分钟路演脚本、把体验变成证据的 A/B 对照、以及 LLM 智能交互接不上时的四级降级。附全套站内链接与配图。">
+<link rel="stylesheet" href="assets/vr-2026/course.css">
+<style>
+  .rev-pre{background:#f6f5fb;border:1px solid #e3ddf1;border-radius:10px;padding:14px 16px;overflow-x:auto;margin:14px 0;font:13px/1.7 Consolas,"Microsoft YaHei",monospace;color:#3b3860}
+  .rev-pre .c{color:#8b879e}
+  .rev-pre .k{color:#5a52c8;font-weight:700}
+  .rev-pre .s{color:#b45309}
+  .rev-tagrow{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 4px}
+  .rev-tagrow .tag{font-size:12px}
+  .rev-two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media(max-width:760px){.rev-two{grid-template-columns:1fr}}
+  .figure-row.tight{gap:10px}
+  figure.fig.cover img{aspect-ratio:16/9;object-fit:cover}
+  figure.fig.rev-shot img{width:100%;height:240px;object-fit:cover;background:#f6f5fb;border-radius:8px;display:block}
+  figure.fig.rev-shot.wide img{object-fit:contain}
+</style>
+</head>
+<body>
+
+<!-- ===== 顶部 ===== -->
+<header class="hero">
+  <div class="hero-inner">
+    <span class="kicker">虚拟现实技术 · 结课回顾 · 第 11 次课 · 2026-11-25</span>
+    <h1>十二次课，收成一件作品</h1>
+    <p class="sub">第 13 教学周 · 4 学时 / 180 分钟 —— 开头 6 分钟讲一个新技术：视频扩散世界模型（渲染正在变成生成）。然后按你手上那件作品讲：把十二次课排成一条线，再把三件与作品收尾直接相关的事讲清楚：3.5 分钟怎么讲、数字怎么变成证据、智能交互接不上时怎么兜底。</p>
+    <div class="meta">
+      <span>中华女子学院</span><span>数字媒体技术 2023 级 · 40 人</span><span>授课人：孙琪翔</span><span>2026-11-25（周三）</span><span>期末作品 12-02 现场路演</span>
+    </div>
+  </div>
+</header>
+
+<!-- ===== 目录导航 ===== -->
+<nav class="nav" id="nav">
+  <div class="nav-inner" id="navInner">
+    <a href="vr-2026.html" class="nav-back">← 课程主页</a>
+    <a href="#wm" data-sec="wm" class="on">新技术 · 视频世界模型</a>
+    <a href="#guide" data-sec="guide">本课导览</a>
+    <a href="#r1" data-sec="r1">一、一条主线</a>
+    <a href="#r2" data-sec="r2">二、十二次课</a>
+    <a href="#r3" data-sec="r3">三、教材八章</a>
+    <a href="#r4" data-sec="r4">四、六个案例</a>
+    <a href="#r5" data-sec="r5">五、11 条门槛</a>
+    <a href="#r6" data-sec="r6">六、100 分怎么分</a>
+    <a href="#n1" data-sec="n1">七、3.5 分钟</a>
+    <a href="#n2" data-sec="n2">八、把体验变成证据</a>
+    <a href="#n3" data-sec="n3">九、一句话怎么变成回答</a>
+    <a href="#links" data-sec="links">附、资源与链接</a>
+    <a href="#end" data-sec="end">收束 · 到 12-02</a>
+  </div>
+</nav>
+
+<main>
+
+<!-- ===== 开场：新技术 ===== -->
+<section id="wm">
+  <div class="sec-head">
+    <div class="sec-num">新</div>
+    <div>
+      <h2>新技术 · 视频扩散世界模型：把“渲染”变成一个生成问题</h2>
+      <p class="sec-sub">今天开头先讲 6 分钟正在发生的变化：车机和机器人不再“画”场景，而是每一帧现生成一个场景。</p>
+    </div>
+  </div>
+
+  <p>特斯拉 FSD v15 的 Reality View 把中控屏换成了“实景渲染”：不是 3D 建模、不是游戏引擎、也不是 3DGS，而是车端每 36 分之一秒<strong>生成</strong>一帧画面。它背后的模型叫<strong>视频扩散世界模型</strong>（video diffusion world model）——一个用视频训练、能按条件“预测下一段画面”的生成模型。这一节只讲三件事：它为什么能成立、怎么训练与部署、以及它和 3DGS 各自的分工。</p>
+
+  <figure class="fig">
+    <img src="assets/vr-2026/img/diagram-video-world-model.svg" alt="视频扩散世界模型的训练、推理与自回归生成示意">
+    <figcaption>三个动作：把视频压进潜空间 → 学会把噪声推回视频 → 一块一块往后接。图：本页绘制。</figcaption>
+  </figure>
+
+  <h3>一、三个动作，理解一整套系统</h3>
+  <div class="grid3">
+    <div class="cell">
+      <h4>压缩：把视频变成潜变量</h4>
+      <p>先用一个时空 tokenizer（VAE 一类）把像素压到低维连续空间，空间 8×、时间 4×。1920×1080 的 8 帧，压完只剩两个 240×135 的 latent——不压这一步，扩散模型在车端连一次前向都跑不起。</p>
+    </div>
+    <div class="cell">
+      <h4>生成：学的是“速度场”，不是“图”</h4>
+      <p>训练时给 latent 加噪，让 DiT 预测“从噪声走回数据”的方向与长度（flow matching 的速度场）。推理时从噪声出发，沿这个场走 2–4 步就到画面。相比传统 DDPM 的几十步，这是能上车的唯一现实路径。</p>
+    </div>
+    <div class="cell">
+      <h4>接长：上一帧是下一帧的初值</h4>
+      <p>长视频不是一次画完。每次生成一小段（如 8 帧），把最后一帧加噪当作下一段的起点，条件换成最新的感知特征。上下文只保留最近若干帧，长度才可控，画面也不会“越走越飘”。</p>
+    </div>
+  </div>
+
+  <h3>二、方法实现：一条能跑起来的流水线</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th style="width:18%">阶段</th><th>做什么</th><th style="width:34%">关键点</th></tr></thead>
+      <tbody>
+        <tr><td><strong>数据与条件</strong></td><td>车队/互联网视频 + 动作、位姿、文本、道路属性标注</td><td>条件必须<strong>可核验</strong>：动作来自底盘，位姿来自标定，不是猜的</td></tr>
+        <tr><td><strong>Tokenizer</strong></td><td>把视频压成连续 latent</td><td>空间 8×、时间 4×；重建质量决定生成上限</td></tr>
+        <tr><td><strong>训练</strong></td><td>加噪 → DiT 预测速度场 → 回归损失</td><td>条件走 cross-attention / adaLN；多视角要加一致性约束</td></tr>
+        <tr><td><strong>少步蒸馏</strong></td><td>把 20–50 步的教师压成 2–4 步学生</td><td>一致性蒸馏或均值流；掉一点画质换 10 倍速度</td></tr>
+        <tr><td><strong>推理</strong></td><td>初值 + 条件 → N 步 → 解码 → 上屏</td><td>上一帧加噪强度随运动量自适应；8 帧 ≈ 222 ms 视频</td></tr>
+        <tr><td><strong>端侧</strong></td><td>量化、算子拆分、缓存、调度</td><td>INT8；Softmax 用查表/多项式拆成多步；解码器常驻 SRAM</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="key"><strong>一句话记住训练目标：</strong>网络不学“这张图长什么样”，只学“从当前噪声位置，往数据该走哪一步”。所以它天生适合少步推理，也天生会“编”——方向对了，细节可能不对。</div>
+
+  <h3>附：六个概念的直觉版（不背公式也能懂）</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th style="width:20%">概念</th><th>直觉</th><th style="width:34%">常见写法</th></tr></thead>
+      <tbody>
+        <tr><td><strong>前向加噪</strong></td><td>沿一条直线，从“数据”走到“纯噪声”；走到哪一步由 t 决定</td><td><code class="inline">z_t = (1−t)·z₀ + t·ε</code></td></tr>
+        <tr><td><strong>速度场</strong></td><td>这条直线的方向与长度；网络学的就是它，不是像素</td><td><code class="inline">v = ε − z₀</code></td></tr>
+        <tr><td><strong>一步采样</strong></td><td>知道方向，就往回走一小步；走 2–4 次就到画面</td><td><code class="inline">z ← z − Δ·v_θ(z,t,c)</code></td></tr>
+        <tr><td><strong>条件注入</strong></td><td>动作、位姿、文本不改主干形状，只当“外挂记忆”参与每层计算</td><td>cross-attention / adaLN / 位置编码相加</td></tr>
+        <tr><td><strong>自回归分块</strong></td><td>只生成一小段，把末帧当下一段初值；上下文只留最近几帧</td><td><code class="inline">p(z^{k+1} | z^k, c)</code></td></tr>
+        <tr><td><strong>少步蒸馏</strong></td><td>让学生模型直接“跳”到终点附近，不再一步步走</td><td>consistency / mean-flow distillation</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>三、三条路线，别混为一谈</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th style="width:20%">路线</th><th style="width:22%">代表</th><th>条件是什么</th><th style="width:24%">它保证不了什么</th></tr></thead>
+      <tbody>
+        <tr><td><strong>通用视频生成</strong></td><td>Sora、Veo</td><td>文本 / 图像，追求好看与叙事</td><td>物理一致、动作可控、几何可测</td></tr>
+        <tr><td><strong>驾驶世界模型</strong></td><td>GAIA-2、NVIDIA Cosmos</td><td>自车动作、3D 框、道路属性、天气光照</td><td>长时一致性、极端场景的物理正确性</td></tr>
+        <tr><td><strong>交互式世界模型</strong></td><td>Genie 3</td><td>逐帧的键盘/动作输入</td><td>真实感与可测量的几何（它是“可玩的模拟”）</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>差别不在模型结构，而在<strong>条件</strong>：条件越“物理”，生成越像世界；条件越“语义”，生成越像视频。Reality View 属于第二类——它的条件里有一半来自真实感知，所以画出来的车道线和车实际看到的是同一套。</p>
+
+  <h3>四、和 3DGS / NeRF 的分工</h3>
+  <div class="warn"><strong>不是替代关系，是两种失败模式。</strong>3DGS/NeRF 是<strong>显式重建</strong>：先有稠密视角，才能自由视角；没拍到的地方是空洞，失败表现为拉丝、破洞。视频扩散是<strong>生成式补全</strong>：没拍到的地方它“编”一个合理的，失败表现为幻觉。前者适合“有数据、要测量”的场景，后者适合“数据不全、要好看且实时”的场景。车机选后者，是因为 8 路相机永远拍不全世界。</div>
+
+  <h3>五、为什么这门课要讲它</h3>
+  <ul>
+    <li><strong>它是“渲染”的另一种解法。</strong>你们在 WebXR 里做的是实时渲染：几何 + 材质 + 光照。这条路走的是“每帧生成像素”。两种都在回答同一个问题——怎样让人相信眼前的世界。</li>
+    <li><strong>条件就是交互。</strong>动作、位姿、文本都是条件。这和第 11 次课讲的“模型只能申请、不能执行”是同一条思路：<strong>把可控的入口收窄，系统才安全</strong>。</li>
+    <li><strong>幻觉边界是产品问题。</strong>生成式画面越真实，用户越容易高估系统能力。所以它只能做显示，不能进控制回路——这条边界，比任何参数都重要。</li>
+  </ul>
+
+  <h3>六、官方视频与资料（课上放两段就够）</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th style="width:26%">资料</th><th>看什么</th></tr></thead>
+      <tbody>
+        <tr><td><a href="https://www.nvidia.com/en-us/on-demand/session/gtc25-s72431/" target="_blank" rel="noopener">NVIDIA Cosmos 官方讲座（GTC 2025）</a></td><td>世界基础模型怎么做出“物理可信”的合成视频，Predict / Transfer / Reason 三类能力</td></tr>
+        <tr><td><a href="https://wayve.ai/thinking/gaia-2/" target="_blank" rel="noopener">Wayve GAIA-2 技术博客（含多段视频）</a></td><td>驾驶世界模型的完整拆解：tokenizer + 潜空间扩散、动作条件、多视角一致</td></tr>
+        <tr><td><a href="https://deepmind.google/blog/genie-3-a-new-frontier-for-world-models/" target="_blank" rel="noopener">Google DeepMind Genie 3</a></td><td>可实时交互的世界模型：输入动作，世界即时响应</td></tr>
+        <tr><td><a href="https://deepmind.google/models/veo/" target="_blank" rel="noopener">Google Veo 官方页</a></td><td>通用视频生成的上限：画质、镜头、音频</td></tr>
+        <tr><td><a href="https://wayve.ai/thinking/scaling-gaia-1/" target="_blank" rel="noopener">Wayve GAIA-1 技术博客（9B）</a></td><td>两段式结构的出处：6.5B 自回归世界模型 + 2.6B 视频扩散解码，含行为、天气、转向的大量视频</td></tr>
+        <tr><td><a href="https://www.nvidia.com/en-us/ai/cosmos/" target="_blank" rel="noopener">NVIDIA Cosmos 官方主页</a></td><td>开放模型与工具链，想自己跑一遍可以从这里进</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="note"><strong>课堂用法（6 分钟）：</strong>30 秒说结论（渲染正在变成生成）→ 2 分钟讲三个动作（压缩 / 速度场 / 自回归）→ 2 分钟放两段视频（Cosmos 合成、GAIA-2 动作条件）→ 1 分钟收在“幻觉边界”。已从回顾里匀出 1 分钟（回顾 39′ → 38′）；若要展开到 12 分钟，再从回顾借 6 分钟，或把这一段整体挪到课后。完整推导与部署细节留作课后阅读。</div>
+</section>
+<!-- ===== 导览 ===== -->
+<section id="guide">
+  <div class="sec-head">
+    <div class="sec-num">导</div>
+    <div>
+      <h2>本课导览：先收拢，再补三块</h2>
+      <p class="sec-sub">十二次课铺得很散：硬件、全景、交互、性能、智能。今天要做的第一件事，是把它们收成一条能讲给别人听的线。</p>
+    </div>
+  </div>
+
+  <p>这门课的期末不是一张卷子，是一件<strong>你自己做的 WebXR 作品</strong>，加上一份说清楚它的文档，再加上一次<strong>3.5 分钟</strong>的现场演示。所以今天不是“再讲一章”，而是<strong>把十二次课重新排成一条线</strong>，再讲清三件与作品收尾直接相关的事。页首还加了一节<strong>新技术速览</strong>——视频扩散世界模型，6 分钟，讲“渲染正在变成生成”。</p>
+
+  <div class="key"><strong>这一节收成三样东西：</strong><br>
+    ① <strong>一条线</strong>——能在一分钟内说清“这门课教了什么、我的作品站在哪一步”；<br>
+    ② <strong>一把尺</strong>——11 条硬门槛是闸门，7 个维度共 100 分是刻度；<br>
+    ③ <strong>三句话</strong>——作品做什么、为什么必须戴头显、哪个取舍最疼。</div>
+
+  <h3>一、180 分钟怎么分</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th style="width:16%">时段</th><th style="width:9%">时长</th><th>内容</th></tr></thead>
+      <tbody>
+        <tr><td><strong>0:00—0:06</strong></td><td>6′</td><td><strong>开场 + 新技术速览</strong>：视频扩散世界模型（结论 + 三个动作 + 两段视频）· 这一节的三样东西 · 与 12-02 验收的衔接</td></tr>
+        <tr><td><strong>0:06—0:44</strong></td><td><strong>38′</strong></td><td><strong>回顾</strong>：一条主线（看 VR → 造空间 → 能交互 → 有目标 → 有边界 → 有度量 → 接智能）+ 十二次课时间轴 + 教材八章映射 + 六个案例</td></tr>
+        <tr><td><strong>0:44—1:20</strong></td><td><strong>36′</strong></td><td><strong>新东西 · 智能</strong>：一句话怎么变成一段回答——LLM 智能交互的完整链路、动作白名单、四级降级（对应第 11 次课的主课内容）</td></tr>
+        <tr><td><strong>1:20—1:30</strong></td><td>10′</td><td><strong>课间</strong>（头显摘下放桌上，不放椅子上）</td></tr>
+        <tr><td><strong>1:30—2:05</strong></td><td><strong>35′</strong></td><td><strong>新东西 · 证据</strong>：把体验变成证据——A/B 对照怎么设计、JSON 里记什么、一句话怎么写得让人信</td></tr>
+        <tr><td><strong>2:05—2:50</strong></td><td><strong>45′</strong></td><td><strong>新东西 · 路演</strong>：3.5 分钟怎么讲——四段结构、四个必答、三类翻车预案；两人一组现场掐表演练</td></tr>
+        <tr><td><strong>2:50—3:00</strong></td><td>10′</td><td><strong>收束</strong>：封版规矩（只修错不加功能）· 12-02 流程 · 作品与文档两条提交线</td></tr>
+        <tr><td colspan="2"><strong>合计</strong></td><td>6 + 38 + 36 + 10 + 35 + 45 + 10 = <strong>180′</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="note"><strong>这一页和“第 11 次课”那一页什么关系？</strong>站点上已有的 <a href="vr-2026-lesson11.html"><strong>第 11 次课页</strong></a> 是新东西的<strong>完整版</strong>（六站旅程、提示词工程、多轮窗口、动作协议、密钥与幻觉，含 55 分钟工作室任务）；这一页是<strong>回顾 + 用法</strong>：把十二次课收成一条线，并把三块新东西压成可直接使用的样子。两页可以互相跳。</div>
+
+  <div class="btn-row">
+    <a class="btn" href="vr-2026-lesson11.html">第 11 次课完整页（智能交互 + 封版）→</a>
+    <a class="btn ghost" href="vr-2026-lesson12.html">第 12 次课（路演与验收）→</a>
+    <a class="btn ghost" href="vr-2026-final-project.html">期末大作业任务书 →</a>
+  </div>
+</section>
+
+<!-- ===== 一、一条主线 ===== -->
+<section id="r1">
+  <div class="sec-head">
+    <div class="sec-num">一</div>
+    <div>
+      <h2>一条主线：从“看 VR”到“交一件能被验收的作品”</h2>
+      <p class="sec-sub">十二次课其实只在做一件事：把“我听说过 VR”变成“我做了一个戴着头显能走完的东西”</p>
+    </div>
+  </div>
+
+  <p>回头看，这门课每一段都在给作品<strong>加一层</strong>：先有<strong>空间</strong>（第 4 次课，一座故宫），再有<strong>镜头</strong>（第 5—6 次课，全景与多点漫游），然后<strong>能动手</strong>（第 7 次课，交互零件库），接着<strong>有目标、有边界</strong>（第 8—9 次课，叙事与可访问性），再往后是<strong>有度量</strong>（第 10 次课，13.9 毫秒与 10 万面），最后<strong>接上智能</strong>（第 11 次课，LLM 与降级）。</p>
+
+  <div class="figure-row tight">
+    <figure class="fig rev-shot">
+      <img src="assets/vr-2026/img/gugong-v2/02-taimen.jpg" alt="第 4 次课用 WebXR 生成的故宫场景" style="width:100%;border-radius:8px;display:block">
+      <figcaption style="color:#6b6483;font-size:13px;padding:8px 4px 2px"><strong>第 4 次课</strong>：用 WebXR 生成一座故宫。场景不是“背景图”，是你可以走进去的空间。</figcaption>
+    </figure>
+    <figure class="fig rev-shot">
+      <img src="assets/vr-2026/panorama/pano/living.jpg" alt="全景图：客厅的球面投影" style="width:100%;border-radius:8px;display:block">
+      <figcaption style="color:#6b6483;font-size:13px;padding:8px 4px 2px"><strong>第 5—6 次课</strong>：全景不是“一张很宽的图”，是一个球面投影；节点与边才让它变成“漫游”。</figcaption>
+    </figure>
+    <figure class="fig rev-shot">
+      <img src="assets/vr-2026/lab/lab01-ray-hover.jpg" alt="交互零件库 LAB 01：射线、悬停、三通道反馈" style="width:100%;border-radius:8px;display:block">
+      <figcaption style="color:#6b6483;font-size:13px;padding:8px 4px 2px"><strong>第 7 次课</strong>：九个交互零件。射线打出去，悬停有反馈，按下才算选中；后面每一步都在给作品加一层。</figcaption>
+    </figure>
+  </div>
+
+  <div class="key"><strong>一条判断标准，今天要反复用：</strong>如果你的作品<strong>去掉头显、换成鼠标也能玩完</strong>，那它还不是 VR 作品，只是一个 3D 网页。硬门槛第 6 条问的就是这件事：<strong>哪一处只有 6DoF 或立体才成立？</strong></div>
+
+  <p>这条线也解释了为什么后半程要从 Unity 换成 WebXR：不是 Unity 不好，而是<strong>当天要能跑、当天要能改、当天要能发给老师看</strong>。教材讲的是引擎，课程要的是“你今天就能改一行、刷新就看见”的回路。</p>
+
+  <figure class="fig">
+    <img src="assets/vr-2026/img/diagram-pano-to-3dgs.svg" alt="从全景到 3DGS 的技术谱系图" style="width:100%;border-radius:8px;display:block">
+    <figcaption style="color:#6b6483;font-size:13px;padding:8px 4px 2px">从全景到 3DGS：这门课讲过的“真实场景怎么进头显”，一条谱系。图：站内既有图解。</figcaption>
+  </figure>
+</section>
+
+<!-- ===== 二、十二次课 ===== -->
+<section id="r2">
+  <div class="sec-head">
+    <div class="sec-num">二</div>
+    <div>
+      <h2>十二次课：每一次都留下了一个“东西”</h2>
+      <p class="sec-sub">不是十二个知识点，是十二个交付物的累积——到 12-02，它们要合成一件作品和一份文档</p>
+    </div>
+  </div>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th style="width:7%">次</th><th style="width:13%">日期</th><th style="width:36%">主题</th><th>你交了什么</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>09-02</td><td>概论：VR 是什么、这门课怎么走</td><td>—</td></tr>
+        <tr><td>2</td><td>09-09</td><td>关键技术：立体显示，以及“为什么会晕”</td><td>—</td></tr>
+        <tr><td>3</td><td>09-16</td><td>硬件设备：头显里到底有什么</td><td>—</td></tr>
+        <tr><td>4</td><td>09-23</td><td>用 WebXR 生成一座故宫</td><td>故宫场景（上机）</td></tr>
+        <tr><td>5</td><td>09-30</td><td>三维全景（上）：投影与漫游器</td><td>全景漫游器</td></tr>
+        <tr><td>6</td><td>10-14</td><td>三维全景（下）：节点、边、多点漫游</td><td>多点漫游</td></tr>
+        <tr><td>7</td><td>10-21</td><td>交互零件库：九个零件</td><td><strong>M1 选题一页纸</strong> + 课后作业（10-27 23:59）</td></tr>
+        <tr><td>8</td><td>10-28</td><td>交互进阶 + 开源模型资产管线</td><td>课堂作业 3（一页版）</td></tr>
+        <tr><td>9</td><td>11-11</td><td>路要通、退得出、谁都点得到</td><td><strong>M3 主流程可玩</strong>（硬门槛）</td></tr>
+        <tr><td>10</td><td>11-18</td><td>世界在看什么样的 VR</td><td><strong>M4′ 作品对标一页纸</strong></td></tr>
+        <tr><td>11</td><td>11-25</td><td>让作品会说话、能被度量（今天）</td><td><strong>M5 功能封版</strong>（作品 + 智能模块 + 体验 JSON）</td></tr>
+        <tr><td>12</td><td>12-02</td><td>结课：作品路演与验收</td><td>作品文件（11-25 前交）+ Word 文档（当天前两节）</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p><strong>三个转折点值得记住：</strong>第 4 次课把工具从 Unity 换成 WebXR（“今天就能改”的回路）；第 7 次课把“交互”拆成九个可单独验证的零件（于是你能说清自己缺哪一块）；第 10 次课把“前沿”落回到两个硬数字（13.9 毫秒一帧、10 万面三角面）。</p>
+
+  <h3>站内已有作品的样子</h3>
+  <div class="figure-row tight">
+    <figure class="fig cover"><img src="assets/vr-2026/student/works/230812003/cover.jpg" alt="学生作品封面 230812003" style="width:100%;border-radius:8px;display:block"><figcaption style="color:#6b6483;font-size:12.5px;padding:6px 4px 2px">230812003</figcaption></figure>
+    <figure class="fig cover"><img src="assets/vr-2026/student/works/230812006/cover.jpg" alt="学生作品封面 230812006" style="width:100%;border-radius:8px;display:block"><figcaption style="color:#6b6483;font-size:12.5px;padding:6px 4px 2px">230812006</figcaption></figure>
+    <figure class="fig cover"><img src="assets/vr-2026/student/works/230812012/cover.jpg" alt="学生作品封面 230812012" style="width:100%;border-radius:8px;display:block"><figcaption style="color:#6b6483;font-size:12.5px;padding:6px 4px 2px">230812012</figcaption></figure>
+    <figure class="fig cover"><img src="assets/vr-2026/student/works/230812018/cover.jpg" alt="学生作品封面 230812018" style="width:100%;border-radius:8px;display:block"><figcaption style="color:#6b6483;font-size:12.5px;padding:6px 4px 2px">230812018</figcaption></figure>
+    <figure class="fig cover"><img src="assets/vr-2026/student/works/230812022/cover.jpg" alt="学生作品封面 230812022" style="width:100%;border-radius:8px;display:block"><figcaption style="color:#6b6483;font-size:12.5px;padding:6px 4px 2px">230812022</figcaption></figure>
+    <figure class="fig cover"><img src="assets/vr-2026/student/works/230812034/cover.jpg" alt="学生作品封面 230812034" style="width:100%;border-radius:8px;display:block"><figcaption style="color:#6b6483;font-size:12.5px;padding:6px 4px 2px">230812034</figcaption></figure>
+  </div>
+  <p style="color:#6b6483;font-size:13px">站内已有的作品封面（<code class="inline">assets/vr-2026/student/works/</code>）。你交上去的作品，最终也会以这样的封面出现在展示区：<a href="assets/vr-2026/student/index.html">学生作品展示 →</a></p>
+</section>
+
+<!-- ===== 三、教材八章 ===== -->
+<section id="r3">
+  <div class="sec-head">
+    <div class="sec-num">三</div>
+    <div>
+      <h2>教材八章，课程走了一条“能当天跑起来”的路</h2>
+      <p class="sec-sub">同一个概念，教材用 Unity 演示，课程用浏览器演示——换的是工具，不是知识</p>
+    </div>
+  </div>
+
+  <p>期初的课程大纲把教材八章逐条对到了课次上。十二次课走完回看，这张映射表仍然成立，只有两处调整：<strong>第 6 章（Unity 开发基础）改写成 WebXR 作品工程</strong>，<strong>第 7 章（网络应用）落到第 11 次课的 LLM NPC</strong>。</p>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th style="width:8%">章</th><th style="width:30%">教材内容</th><th style="width:26%">课程落点</th><th>这一章在作品里对应什么</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>概论</td><td>第 1 次课</td><td>“为什么是 VR，不是 3D 网页”</td></tr>
+        <tr><td>2</td><td>关键技术（立体显示、跟踪、渲染）</td><td>第 2 次课 + 第 10 次课</td><td>双眼视差、6DoF、13.9 ms</td></tr>
+        <tr><td>3</td><td>硬件设备</td><td>第 3 次课</td><td>头显、手柄、定位、串流</td></tr>
+        <tr><td>4</td><td>开发常用软件</td><td>第 4 次课</td><td>引擎与 WebXR：两条工具链</td></tr>
+        <tr><td>5</td><td>三维全景</td><td>第 5—6 次课</td><td>球面投影、热点、节点与边</td></tr>
+        <tr><td>6</td><td>Unity 开发基础</td><td>第 7—9 次课（改写为 WebXR）</td><td>场景、交互、状态机、可访问性</td></tr>
+        <tr><td>7</td><td>Unity 网络应用（Socket / 数据库 / LLM）</td><td>第 11 次课</td><td>HTTP + SSE、动作白名单、降级</td></tr>
+        <tr><td>8</td><td>AR（Vuforia）</td><td>案例 05 + 加分项</td><td><code class="inline">immersive-ar</code> 入口与模拟跟踪</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="figure-row tight">
+    <figure class="fig rev-shot">
+      <img src="assets/vr-2026/lesson8/interaction.png" alt="交互实验室首屏：3D 场景、状态机 HUD、输入源检查器" style="width:100%;border-radius:8px;display:block">
+      <figcaption style="color:#6b6483;font-size:13px;padding:8px 4px 2px"><strong>第 6 章的落点</strong>：交互实验室首屏——状态机 HUD 与输入源检查器，教材里的“工程”在这里变成可见的读数。</figcaption>
+    </figure>
+    <figure class="fig rev-shot">
+      <img src="assets/vr-2026/lab/lab06-diegetic-ui.jpg" alt="Diegetic UI：界面长在场景里" style="width:100%;border-radius:8px;display:block">
+      <figcaption style="color:#6b6483;font-size:13px;padding:8px 4px 2px"><strong>第 7 次的零件</strong>：Diegetic UI——面板长在场景里，而不是浮在眼前。选它，就要接受“字会更难读”。</figcaption>
+    </figure>
+    <figure class="fig rev-shot">
+      <img src="assets/vr-2026/lesson10/img/pigeon_scene.jpg" alt="《鸽环》剧照：老屋里的祖孙" style="width:100%;border-radius:8px;display:block">
+      <figcaption style="color:#6b6483;font-size:13px;padding:8px 4px 2px"><strong>第 10 次的参照</strong>：《鸽环》——35 分钟、40 台相机、单场景 1582 万个高斯点。它提醒你“完成度”长什么样。</figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- ===== 四、六个案例 ===== -->
+<section id="r4">
+  <div class="sec-head">
+    <div class="sec-num">四</div>
+    <div>
+      <h2>六个课堂案例：每一个只解决一类问题</h2>
+      <p class="sec-sub">案例不是“给你抄的模板”，是“给你对照的样本”——你的作品至少要在其中一个维度上达到它们的水平</p>
+    </div>
+  </div>
+
+  <div class="lesson-grid">
+    <a class="lesson-card" href="assets/vr-2026/cases/01-vr-sandbox/" target="_blank" rel="noopener">
+      <div class="lc-top"><span class="lc-no">案例 01 · 第 7 次课</span></div>
+      <div class="lc-title">VR 交互沙盒：九个零件</div>
+      <div class="lc-desc">射线悬停、抓取吸附、投掷物理、重力实验、远距拉取、Diegetic UI、舒适移动、Fitts、触觉分级。每个零件单独可验证——缺哪一块，一眼能看出来。</div>
+      <div class="lc-foot"><span class="tag">交互</span><span class="lc-go">打开案例 →</span></div>
+    </a>
+    <a class="lesson-card" href="assets/vr-2026/cases/02-dunhuang-escape/" target="_blank" rel="noopener">
+      <div class="lc-top"><span class="lc-no">案例 02 · 第 8—9 次课</span></div>
+      <div class="lc-title">密室逃脱 · 敦煌寻宝</div>
+      <div class="lc-desc">四步谜题（碎片、点星、密码）、提示分层、三条退出路。它示范的是“空间叙事”与“动线”：玩家下一步该去哪，场景要自己说。</div>
+      <div class="lc-foot"><span class="tag">叙事</span><span class="tag">可访问性</span><span class="lc-go">打开案例 →</span></div>
+    </a>
+    <a class="lesson-card" href="assets/vr-2026/cases/03-bianzhong-rhythm/" target="_blank" rel="noopener">
+      <div class="lc-top"><span class="lc-no">案例 03 · 第 9 次课</span></div>
+      <div class="lc-title">节奏竞技 · 编钟之韵</div>
+      <div class="lc-desc">判定窗口（完美 ≤70ms / 很棒 ≤140 / 不错 ≤240）、加法合成的分音、三档触觉强度。它示范的是“手感”怎么被量化成参数。</div>
+      <div class="lc-foot"><span class="tag">手感</span><span class="tag">触觉</span><span class="lc-go">打开案例 →</span></div>
+    </a>
+    <a class="lesson-card" href="assets/vr-2026/cases/04-campus-tour/" target="_blank" rel="noopener">
+      <div class="lc-top"><span class="lc-no">案例 04 · 第 10—11 次课</span></div>
+      <div class="lc-title">数字校园漫游 + AI 导览</div>
+      <div class="lc-desc">五站打卡、线索随进度递减、按用时/求助/晕动评级，结果写进导出的 JSON。它示范的是“把一次体验变成一组可比较的数”。</div>
+      <div class="lc-foot"><span class="tag">度量</span><span class="tag">AI</span><span class="lc-go">打开案例 →</span></div>
+    </a>
+    <a class="lesson-card" href="assets/vr-2026/cases/05-ar-relic/" target="_blank" rel="noopener">
+      <div class="lc-top"><span class="lc-no">案例 05 · AR 加分项</span></div>
+      <div class="lc-title">AR 文物复原</div>
+      <div class="lc-desc">真 <code class="inline">immersive-ar</code> 入口、平面跟踪与模拟跟踪降级；文物信息中未知项标【待补充】。它示范的是“AR 怎么接、以及不编造”。</div>
+      <div class="lc-foot"><span class="tag">AR</span><span class="tag">诚实</span><span class="lc-go">打开案例 →</span></div>
+    </a>
+    <a class="lesson-card" href="assets/vr-2026/cases/06-llm-npc/" target="_blank" rel="noopener">
+      <div class="lc-top"><span class="lc-no">案例 06 · 第 11 次课</span></div>
+      <div class="lc-title">LLM 智能 NPC · 小澜</div>
+      <div class="lc-desc">流式回答、历史窗口、动作白名单、离线知识库降级。它示范的是“智能接不上时，作品还能不能走完”。</div>
+      <div class="lc-foot"><span class="tag">智能</span><span class="tag">降级</span><span class="lc-go">打开案例 →</span></div>
+    </a>
+  </div>
+
+  <p>六个案例合起来，正好是一份“作品该有的样子”的清单：<strong>空间 + 叙事 + 手感 + 度量 + AR + 智能</strong>。你的作品不一定要六项全占，但<strong>至少两项要立得住</strong>，并且能说清另外四项为什么不做。</p>
+
+  <div class="btn-row">
+    <a class="btn" href="assets/vr-2026/cases/index.html">全部案例 →</a>
+    <a class="btn ghost" href="assets/vr-2026/demos/index.html">演示库 d01–d18 →</a>
+    <a class="btn ghost" href="assets/vr-2026/lab/index.html">交互零件库 →</a>
+  </div>
+</section>
+
+<!-- ===== 五、11 条门槛 ===== -->
+<section id="r5">
+  <div class="sec-head">
+    <div class="sec-num">五</div>
+    <div>
+      <h2>11 条硬门槛：它是闸门，不是扣分项</h2>
+      <p class="sec-sub">一条不过 → 记“待整改”，3 个工作日内补交、上限“合格”、不进优秀推荐；量规分再高也没用</p>
+    </div>
+  </div>
+
+  <p>这张表和 12-02 的验收表<strong>同一口径</strong>（权威版见 <a href="vr-2026-lesson12.html">第 12 次课页</a>与 <a href="vr-2026-final-project.html">期末任务书</a>）。今天逐条对一遍，是因为<strong>没过的项目，从今天到 12-02 只够修、不够重做</strong>。</p>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th style="width:5%">#</th><th style="width:34%">门槛</th><th>怎么算“过”</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td><strong>课堂作业</strong></td><td>各写一段描述性说明：做了什么 / 用了什么技术 / 遇到什么 / 怎么解决，写进 Word 文档</td></tr>
+        <tr><td>2</td><td><strong>方案已确认</strong></td><td>微信发教师并得到确认；不少于 10 种交互 + 必须有模型资产</td></tr>
+        <tr><td>3</td><td><strong>能进能退</strong></td><td>进入 → 走完主流程 → 三条退出路至少一条走通，并报出用时</td></tr>
+        <tr><td>4</td><td><strong>零外部网络依赖</strong></td><td>断网可跑、无 CDN；依赖同目录或内联</td></tr>
+        <tr><td>5</td><td><strong>无报错</strong></td><td>控制台没有红字；主流程连续走两遍不崩</td></tr>
+        <tr><td>6</td><td><strong>为什么必须 VR</strong></td><td>至少一处只有 6DoF 或立体才成立，并在 README 里写清楚</td></tr>
+        <tr><td>7</td><td><strong>≥10 种交互 + 模型资产</strong></td><td>PC 与 VR 两端都能走完；模型是自建或合规引入的资产</td></tr>
+        <tr><td>8</td><td><strong>有目标、有反馈、进度可见</strong></td><td>状态集中在一个 <code class="inline">S</code>，<code class="inline">window.XX.S</code> 能查</td></tr>
+        <tr><td>9</td><td><strong>舒适四项</strong></td><td>默认传送 + Snap 45° · 隧道遮罩 · 眼高可调 · 一键重置 + 10 分钟休息提示</td></tr>
+        <tr><td>10</td><td><strong>性能</strong></td><td>FPS / 帧时间 / DrawCall / 三角面面板；三角面 ≤10 万；一处前后对照；读数与 HUD 一致</td></tr>
+        <tr><td>11</td><td><strong>可访问性与诚实</strong></td><td>坐姿 / 单手 / 注视至少两条通路；不确定的写【待补充】</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>六种“最容易不过”，今天就自查</h3>
+  <div class="grid3">
+    <div class="cell"><h4>进得去，退不出</h4><p>三条退出路只写没测。现场必须<strong>真的点一次</strong>，并报出“从按下到回到主页用了多久”。</p></div>
+    <div class="cell"><h4>偷偷引了 CDN</h4><p>断网白屏、控制台一片红。检查 <code class="inline">&lt;script src="http…"&gt;</code>；three.js 放同目录。</p></div>
+    <div class="cell"><h4><code class="inline">window.XX.S</code> 是 undefined</h4><p>状态散在十几个变量里。把状态收进一个对象再挂到 window 上。</p></div>
+    <div class="cell"><h4>舒适四项缺一</h4><p>只做了传送，没做 Snap、隧道、重置、休息提示。四项是“与”不是“或”。</p></div>
+    <div class="cell"><h4>拿不出对照</h4><p>“优化了性能”但只有一个数。改前改后各记一次，才算证据。</p></div>
+    <div class="cell"><h4>读数与 HUD 对不上</h4><p>面板写 60 FPS，HUD 写 42。验收会同时看两处——不一致按“读数不可信”处理。</p></div>
+  </div>
+
+  <div class="warn"><strong>“待核”只给设备和场地。</strong>全场断网、头显集体连不上，这类由教师课后抽检补判；<strong>不能用来掩盖“我没做完”</strong>。</div>
+</section>
+
+<!-- ===== 六、分数 ===== -->
+<section id="r6">
+  <div class="sec-head">
+    <div class="sec-num">六</div>
+    <div>
+      <h2>100 分怎么分：七个维度，权重差三倍</h2>
+      <p class="sec-sub">门槛全过之后，量规才决定优秀/良好/中等/合格；功能完备一项 25 分，抵得上“美观 + 交互”两项</p>
+    </div>
+  </div>
+
+  <figure class="fig">
+    <img src="assets/vr-2026/img/diagram-rubric.svg" alt="7 维量规权重条形图：功能完备 25、美观度 20、交互与人因 15、VR 学科理解 12、性能与工程 10、演示与文档 10、课堂作业 8" style="width:100%;border-radius:8px;display:block">
+    <figcaption style="color:#6b6483;font-size:13px;padding:8px 4px 2px">7 个维度、合计 100 分。注意“功能完备”一项就占四分之一——先把东西做完，再谈好看。</figcaption>
+  </figure>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th style="width:22%">维度</th><th style="width:10%">权重</th><th>主要看什么</th></tr></thead>
+      <tbody>
+        <tr><td><strong>功能完备</strong></td><td>25</td><td>主流程能不能从头走到尾；10 种交互是否真的可用；有无半成品按钮</td></tr>
+        <tr><td><strong>美观度</strong></td><td>20</td><td>场景、光照、界面的一致性与完成度；不是“花哨”，是“不粗糙”</td></tr>
+        <tr><td><strong>交互与人因</strong></td><td>15</td><td>抓取/射线/传送是否顺手；舒适四项；有没有“反人类”的操作</td></tr>
+        <tr><td><strong>VR 学科理解</strong></td><td>12</td><td>“为什么必须 VR”说得清；6DoF、立体、空间叙事用得对</td></tr>
+        <tr><td><strong>性能与工程</strong></td><td>10</td><td>三角面预算、DrawCall、帧时间；对照与读数可信</td></tr>
+        <tr><td><strong>演示与文档</strong></td><td>10</td><td>3.5 分钟讲得清；README 与 Word 文档完整、诚实</td></tr>
+        <tr><td><strong>课堂作业</strong></td><td>8</td><td>随课作业是否按次交、是否写成“描述性说明”</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="note"><strong>分数怎么换算成等级，以教务规定为准。</strong>课程页上的 90+ / 80–89 / 70–79 / 60–69 / &lt;60 只是建议换算，不是教务口径；12-02 当天用同一张表、同一批评审，<strong>不临场改口径</strong>。</div>
+</section>
+
+<!-- ===== 七、3.5 分钟 ===== -->
+<section id="n1">
+  <div class="sec-head">
+    <div class="sec-num">七</div>
+    <div>
+      <h2>新东西 · 3.5 分钟：不是“介绍一下”，是“证明它能用”</h2>
+      <p class="sec-sub">40 人 × 3.5 分钟 = 140 分钟，装进 180 分钟的课；到点举牌，停后内容不计分，但退出动作必须走完</p>
+    </div>
+  </div>
+
+  <figure class="fig">
+    <img src="assets/vr-2026/img/diagram-350.svg" alt="3.5 分钟路演时间条：30 秒说做什么、90 秒走一遍、60 秒说取舍、30 秒缓冲" style="width:100%;border-radius:8px;display:block">
+    <figcaption style="color:#6b6483;font-size:13px;padding:8px 4px 2px">四段结构：说做什么 30″ · 走一遍 90″ · 说取舍与证据 60″ · 缓冲 30″。前两段决定“有没有做完”，后两段决定“懂不懂”。</figcaption>
+  </figure>
+
+  <h3>四个必答，答不上来就是没准备好</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th style="width:22%">必答</th><th>答成什么样算过</th><th style="width:26%">答砸的样子</th></tr></thead>
+      <tbody>
+        <tr><td><strong>为什么必须戴头显</strong></td><td>指着一处说：这里要 6DoF / 要双眼视差，鼠标替代不了</td><td>“因为它是 VR 课”</td></tr>
+        <tr><td><strong>哪个取舍最疼</strong></td><td>说清砍了什么、为什么砍、砍完还成不成立</td><td>“时间不够，所以做得简单”</td></tr>
+        <tr><td><strong>数字哪来的</strong></td><td>说出面板/JSON 里的具体字段与改前改后</td><td>“大概六十帧吧”</td></tr>
+        <tr><td><strong>崩了怎么办</strong></td><td>有录屏或截图兜底，能切到备用路径继续讲</td><td>当场重启、沉默三十秒</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>三类翻车，各有一句话预案</h3>
+  <div class="grid3">
+    <div class="cell"><h4>头显连不上</h4><p>立刻切 PC 模式走同一套交互，并说：“VR 端刚才验过，现在用 PC 演示同一流程。”<strong>不要现场修设备超过 30 秒。</strong></p></div>
+    <div class="cell"><h4>场景加载卡住</h4><p>提前准备 60 秒录屏；卡住就播录屏，口述你在等什么。<strong>录屏要包含退出动作。</strong></p></div>
+    <div class="cell"><h4>智能模块没响应</h4><p>这本来就是设计的一部分：说“在线模型不可用，已降级离线知识库”，然后看它照常回答。<strong>降级能跑，是加分不是减分。</strong></p></div>
+  </div>
+
+  <div class="key"><strong>现场最容易被记住的一句，不是“我做了什么”，是“我为什么这样选”。</strong>90 秒走流程，60 秒讲选择——后者才是你和“照着教程做”的区别。</div>
+</section>
+
+<!-- ===== 八、证据 ===== -->
+<section id="n2">
+  <div class="sec-head">
+    <div class="sec-num">八</div>
+    <div>
+      <h2>新东西 · 把体验变成证据：只改一个变量，才配说“更好”</h2>
+      <p class="sec-sub">量规里“性能与工程”10 分、“演示与文档”10 分，考的都是同一件事：你的结论有没有数撑着</p>
+    </div>
+  </div>
+
+  <p>“体验更好了”不是结论，是感受。<strong>结论需要对照</strong>：同一批人、同一条任务、同一台机器，<strong>只改一个变量</strong>，其他一个字不动，再看指标怎么变。</p>
+
+  <figure class="fig">
+    <img src="assets/vr-2026/img/diagram-evidence.svg" alt="A/B 对照示意图：平均完成用时、平均求助次数、首次成功人数三项指标的前后变化" style="width:100%;border-radius:8px;display:block">
+    <figcaption style="color:#6b6483;font-size:13px;padding:8px 4px 2px">A/B 对照的写法：一个变量（瞬移 → 淡入淡出）、六个同学、三个指标。图中数字是<strong>示意</strong>，换成你自己 JSON 里记的那三个。</figcaption>
+  </figure>
+
+  <h3>三条“硬数字”，作品里至少要有两条</h3>
+  <div class="grid3">
+    <div class="cell"><h4>帧时间，不是 FPS</h4><p>FPS 会跳，帧时间（ms）更稳。头显的预算是 <strong>13.9 ms/帧</strong>；你的场景在 PC 上多少、头显里多少，分开记。</p></div>
+    <div class="cell"><h4>三角面与 DrawCall</h4><p>三角面 ≤10 万是门槛；DrawCall 决定“同一画面要发多少次指令”。两个数一起看，才知道瓶颈在哪。</p></div>
+    <div class="cell"><h4>一次成功率</h4><p>找 6 个人走同一条任务，记“第一次就成功”的人数。它比“平均分”更能暴露交互设计的问题。</p></div>
+  </div>
+
+  <h3>A/B 四步，30 分钟能做完</h3>
+  <div class="grid2">
+    <div class="cell"><h4>① 定一个变量</h4><p>传送方式、射线长度、提示出现时机——只选一个。<strong>同时改两个，就说不清是谁的功劳。</strong></p></div>
+    <div class="cell"><h4>② 定一条任务</h4><p>“从入口走到展台并拿到物件”，写死起点终点，不让测试者自由探索。</p></div>
+    <div class="cell"><h4>③ 记三个数</h4><p>用时、求助次数、首次成功。写进 JSON：<code class="inline">window.XX.S.experiment</code>。</p></div>
+    <div class="cell"><h4>④ 写成一句话</h4><p>“把瞬移换成淡入淡出后，6 人平均用时从 62s 降到 41s，求助从 3.2 次降到 1.1 次。”<strong>一句话，三个数，一个变量。</strong></p></div>
+  </div>
+
+  <div class="warn"><strong>不要做的事：</strong>拿“老师说好”“同学说不错”当证据；拿自己一个人的体验当样本；改完不记数，路演时凭印象说“快了不少”。</div>
+</section>
+
+<!-- ===== 九、一句话怎么变成回答 ===== -->
+<section id="n3">
+  <div class="sec-head">
+    <div class="sec-num">九</div>
+    <div>
+      <h2>新东西 · 一句话怎么变成一段回答：链路、白名单、降级</h2>
+      <p class="sec-sub">这一节是第 11 次课的主课内容，这里只压成三件事</p>
+    </div>
+  </div>
+
+  <p>你打的那几个字，不是“直接发给模型”。它要先<strong>拼上最近 8 条历史</strong>、<strong>拼上人设</strong>，才作为一个请求发出去；回来的字是<strong>流式</strong>的，落屏时又变成打字机。知道这条链路，你才知道该在哪一段做降级。</p>
+
+  <figure class="fig">
+    <img src="assets/vr-2026/img/diagram-message-journey.svg" alt="一条消息的六站旅程：输入、拼历史、拼人设、发模型、收流、落屏，以及语音与动作两个出口" style="width:100%;border-radius:8px;display:block">
+    <figcaption style="color:#6b6483;font-size:13px;padding:8px 4px 2px">六站旅程：输入 → 拼历史（最近 8 条）→ 拼人设 → 发模型 → 收流 → 落屏；出口有两条：语音朗读、动作请求。</figcaption>
+  </figure>
+
+  <h3>智能不是“接一个 API”，是设计“接不上时怎么办”</h3>
+  <p>四种触发，四个去处。离线兜底是及格线，在线模型是加分项——<strong>因为 40 个人同时打在线接口，一定会有人撞上限流或超时</strong>。</p>
+
+  <figure class="fig">
+    <img src="assets/vr-2026/img/diagram-fallback.svg" alt="四级降级决策图：未配置、超时失败、知识库未命中、动作不在白名单" style="width:100%;border-radius:8px;display:block">
+    <figcaption style="color:#6b6483;font-size:13px;padding:8px 4px 2px">四级降级：没 Key / 超时断网 → 走离线知识库；知识库未命中 → 给引导而不是硬答；动作不在白名单 → 丢弃。</figcaption>
+  </figure>
+
+  <h3>动作白名单：模型只能“申请”，不能“执行”</h3>
+  <p>模型返回的 <code class="inline">{"action":"teleport","value":"east"}</code> 本质上只是<strong>文本</strong>。它必须经过解析与白名单校验，才能变成一次真的移动：</p>
+
+<pre class="rev-pre"><span class="c">// 案例 06：模型能申请的动作，只有这些</span>
+<span class="k">var</span> ACTS = {
+  teleport: [<span class="s">'center'</span>, <span class="s">'east'</span>, <span class="s">'west'</span>],
+  time:     [<span class="s">'day'</span>, <span class="s">'night'</span>],
+  show:     [0, 1, 2]
+};
+
+<span class="c">// 校验：动作名不在表里、参数不在列表里，一律拒绝</span>
+<span class="k">if</span> (!o.action || !ACTS[o.action]) <span class="k">return null</span>;
+<span class="k">if</span> (ACTS[o.action].indexOf(v) &lt; 0) <span class="k">return null</span>;</pre>
+
+  <div class="key"><strong>三句话记住这一节：</strong>① 模型只负责“说”，执行权在你手里；② 每一轮都要把最近 8 条历史重发一遍，所以上下文是<strong>花钱买来的</strong>；③ 离线兜底不是“降级方案”，是<strong>让作品在断网时仍然成立</strong>。</div>
+
+  <div class="btn-row">
+    <a class="btn" href="vr-2026-lesson11.html#c1">完整链路与提示词工程 →</a>
+    <a class="btn ghost" href="vr-2026-lesson11.html#c4">动作协议与白名单 →</a>
+    <a class="btn ghost" href="assets/vr-2026/cases/06-llm-npc/" target="_blank" rel="noopener">案例 06 源码 →</a>
+  </div>
+</section>
+
+<!-- ===== 附、资源 ===== -->
+<section id="links">
+  <div class="sec-head">
+    <div class="sec-num">附</div>
+    <div>
+      <h2>资源与链接：这一页里提到的，都能点开</h2>
+      <p class="sec-sub">作品、文档、案例、工具，各在站点的哪个位置</p>
+    </div>
+  </div>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th style="width:26%">资源</th><th>地址</th><th style="width:30%">用来干什么</th></tr></thead>
+      <tbody>
+        <tr><td><strong>新技术 · 视频世界模型</strong></td><td><a href="#wm">#wm</a></td><td>页首那一节：原理、流水线、6 条官方视频与资料</td></tr>
+        <tr><td><strong>课程主页</strong></td><td><a href="vr-2026.html">vr-2026.html</a></td><td>十二次课的总入口、作业与通知</td></tr>
+        <tr><td><strong>期末大作业任务书</strong></td><td><a href="vr-2026-final-project.html">vr-2026-final-project.html</a></td><td>提交物、目录规范、11 条门槛的完整原文</td></tr>
+        <tr><td><strong>第 11 次课</strong></td><td><a href="vr-2026-lesson11.html">vr-2026-lesson11.html</a></td><td>智能交互完整版 + 55 分钟工作室任务</td></tr>
+        <tr><td><strong>第 12 次课</strong></td><td><a href="vr-2026-lesson12.html">vr-2026-lesson12.html</a></td><td>路演组织、验收量规、分组与计时</td></tr>
+        <tr><td><strong>六个课堂案例</strong></td><td><a href="assets/vr-2026/cases/index.html">assets/vr-2026/cases/</a></td><td>对照样本：空间/叙事/手感/度量/AR/智能</td></tr>
+        <tr><td><strong>演示库 d01–d18</strong></td><td><a href="assets/vr-2026/demos/index.html">assets/vr-2026/demos/</a></td><td>单个技术点的最小演示</td></tr>
+        <tr><td><strong>交互零件库</strong></td><td><a href="assets/vr-2026/lab/index.html">assets/vr-2026/lab/</a></td><td>九个零件的独立页面</td></tr>
+        <tr><td><strong>全景漫游</strong></td><td><a href="assets/vr-2026/panorama/index.html">assets/vr-2026/panorama/</a></td><td>投影、热点、节点与边</td></tr>
+        <tr><td><strong>学生作品展示</strong></td><td><a href="assets/vr-2026/student/index.html">assets/vr-2026/student/</a></td><td>封面 + 作品页；提交格式参照这里</td></tr>
+        <tr><td><strong>大作业展示区</strong></td><td><a href="assets/vr-2026/final-works/index.html">assets/vr-2026/final-works/</a></td><td>12-02 之后你的作品会出现在这里</td></tr>
+        <tr><td><strong>作品自检</strong></td><td><a href="assets/vr-2026/check/index.html">assets/vr-2026/check/</a></td><td>按 11 条门槛逐项自查</td></tr>
+        <tr><td><strong>论文模板（docx）</strong></td><td><a href="assets/vr-2026/docs/vr-final-paper-template.docx" download>下载模板</a></td><td>12-02 前两节课交的 Word 文档格式</td></tr>
+        <tr><td><strong>第 10 次课</strong></td><td><a href="vr-2026-lesson10.html">vr-2026-lesson10.html</a></td><td>威尼斯沉浸单元与 3DGS/4DGS 的技术参照</td></tr>
+        <tr><td><strong>第 9 次课</strong></td><td><a href="vr-2026-lesson9.html">vr-2026-lesson9.html</a></td><td>三条退出路、舒适四项、可访问性</td></tr>
+        <tr><td><strong>第 8 次课</strong></td><td><a href="vr-2026-lesson8.html">vr-2026-lesson8.html</a></td><td>交互状态机与模型资产管线</td></tr>
+        <tr><td><strong>第 7 次课</strong></td><td><a href="vr-2026-lesson7.html">vr-2026-lesson7.html</a></td><td>M1 选题一页纸与九个零件</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ===== 收束 ===== -->
+<section id="end">
+  <div class="sec-head">
+    <div class="sec-num">收</div>
+    <div>
+      <h2>收束：从今天到 12-02，只剩两件事</h2>
+      <p class="sec-sub">封版之后只修错、不加功能；作品和文档是两条独立的提交线，别混</p>
+    </div>
+  </div>
+
+  <h3>一、封版的规矩</h3>
+  <p>今天之后，作品<strong>只修错、不加功能</strong>。新增模块不计分；现场验收看的是<strong>封版那一刻的状态</strong>。如果某个功能今天还跑不通，正确做法是<strong>把它藏起来或降级</strong>，而不是路演前一晚赶工——赶出来的模块，最容易在 3.5 分钟里当场崩。</p>
+
+  <h3>二、两条提交线</h3>
+  <div class="rev-two">
+    <div class="cell">
+      <h4>作品文件 · 11-25 前</h4>
+      <p>压缩包<strong>微信发给教师</strong>，由教师统一上传网站（<strong>不用 FTP</strong>）。目录里要有 <code class="inline">index.html</code>、<code class="inline">README.md</code>、<code class="inline">cover.jpg</code>（1280×720）、<code class="inline">xr-data.json</code>；依赖放同目录，<strong>不引 CDN</strong>。</p>
+    </div>
+    <div class="cell">
+      <h4>Word 文档 · 12-02 前两节课</h4>
+      <p>用已发布的<a href="assets/vr-2026/docs/vr-final-paper-template.docx" download>大作业论文模板</a>：封面、格式、课堂作业各一段、方案说明、README 段落、已知简化。后两节课集中展示作品。</p>
+    </div>
+  </div>
+
+  <h3>三、12-02 当天的样子</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th style="width:18%">时段</th><th style="width:12%">时长</th><th>发生什么</th></tr></thead>
+      <tbody>
+        <tr><td>0:00—0:10</td><td>10′</td><td>开场：验收口径、分组、计时规则、四条安全规矩</td></tr>
+        <tr><td>0:10—1:20</td><td>70′</td><td>A 轮：4 个验收点并行，每组 10 人路演 + 10 人互评</td></tr>
+        <tr><td>1:20—1:30</td><td>10′</td><td>课间 + A→B 换场</td></tr>
+        <tr><td>1:30—2:40</td><td>70′</td><td>B 轮：换手，上一轮的互评员上台</td></tr>
+        <tr><td>2:40—2:55</td><td>15′</td><td>优秀作品集中复盘（4—5 人）</td></tr>
+        <tr><td>2:55—3:00</td><td>5′</td><td>课程总结 · 展示区上线 · 达标名单</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <figure class="fig">
+    <img src="assets/vr-2026/img/diagram-3-routes.svg" alt="三条退出路：注视按钮、长握把、系统键" style="width:100%;border-radius:8px;display:block">
+    <figcaption style="color:#6b6483;font-size:13px;padding:8px 4px 2px">三条退出路：注视按钮 / 长握把 2 秒 / 系统键。现场至少走通一条，并报出用时。</figcaption>
+  </figure>
+
+  <div class="key"><strong>最后一句：</strong>这门课真正想让你带走的能力，不是“会写 Three.js”，是<strong>把一个想法收成一个别人能验收的东西</strong>：有边界、有数、有取舍，并且能在一句话里说清它为什么必须戴着头显。</div>
+
+  <div class="btn-row">
+    <a class="btn" href="assets/vr-2026/check/index.html" target="_blank" rel="noopener">开始逐条自查 →</a>
+    <a class="btn ghost" href="vr-2026-lesson12.html">看 12-02 的验收安排 →</a>
+    <a class="btn ghost" href="vr-2026.html">回课程主页 →</a>
+  </div>
+</section>
+
+</main>
+
+<button id="toTop" title="回到顶部">↑</button>
+
+<footer>
+  <div class="f-main">中华女子学院 · 2026年虚拟现实技术 · 第 11 次课 · 结课回顾</div>
+  <div>2026-11-25 · 4 学时 / 180 分钟 · 期末作品 12-02 现场路演 · 个人作品占总评 40%</div>
+  <div>学生作品著作权归作者本人，仅课程展示，未经许可不得转载 · <a href="vr-2026.html">返回课程主页</a></div>
+</footer>
+
+<script>
+(function(){
+  var navInner = document.getElementById('navInner');
+  var navLinks = {};
+  navInner.querySelectorAll('a[data-sec]').forEach(function(a){
+    navLinks[a.getAttribute('data-sec')] = a;
+  });
+  var sections = ['guide','r1','r2','r3','r4','r5','r6','n1','n2','n3','links','end'];
+  if ('IntersectionObserver' in window) {
+    var obs = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        if (en.isIntersecting) {
+          document.querySelectorAll('#nav a').forEach(function(a){ a.classList.remove('on'); });
+          var a = navLinks[en.target.id];
+          if (a) a.classList.add('on');
+        }
+      });
+    }, {rootMargin:'-15% 0px -70% 0px'});
+    sections.forEach(function(s){
+      var el = document.getElementById(s);
+      if (el) obs.observe(el);
+    });
+  }
+  var toTop = document.getElementById('toTop');
+  if (toTop) {
+    window.addEventListener('scroll', function(){
+      toTop.classList.toggle('show', window.pageYOffset > 400);
+    }, {passive:true});
+    toTop.addEventListener('click', function(){ window.scrollTo({top:0, behavior:'smooth'}); });
+  }
+})();
+</script>
+
+</body>
+</html>

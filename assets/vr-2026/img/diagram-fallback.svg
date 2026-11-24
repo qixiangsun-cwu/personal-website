@@ -1,0 +1,92 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 560" width="960" height="560" role="img" aria-label="智能交互的两条线：回答线的四种异常与兜底，动作线的白名单校验">
+  <style>
+    .t{font:700 17px "Microsoft YaHei",sans-serif;fill:#2e2a6f}
+    .s{font:12.5px "Microsoft YaHei",sans-serif;fill:#5a5670}
+    .pl{font:700 12.5px "Microsoft YaHei",sans-serif;fill:#5a52c8}
+    .trig{fill:#fdf3e3;stroke:#e8c9a0;stroke-width:1.4}
+    .q{fill:#eeeafb;stroke:#8b7fd4;stroke-width:1.8}
+    .pos{fill:#eaf5eb;stroke:#9cc9a0;stroke-width:1.6}
+    .neg{fill:#fbfafd;stroke:#ddd7f2;stroke-width:1.4}
+    .bt{font:700 13px "Microsoft YaHei",sans-serif;fill:#272436}
+    .bd{font:11px "Microsoft YaHei",sans-serif;fill:#6b6483}
+    .mono{font:10.5px Consolas,"Microsoft YaHei",monospace;fill:#3b3860}
+    .line{stroke:#8b7fd4;stroke-width:2;fill:none;marker-end:url(#a)}
+    .bus{stroke:#8b7fd4;stroke-width:2;fill:none}
+    .yes{font:700 12px "Microsoft YaHei",sans-serif;fill:#2e7d32}
+    .no{font:700 12px "Microsoft YaHei",sans-serif;fill:#b45309}
+  </style>
+  <defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#8b7fd4"/></marker></defs>
+  <rect width="960" height="560" fill="#fff"/>
+  <text class="t" x="24" y="28">智能交互不是"接一个 API"，是设计"接不上时怎么办"</text>
+  <text class="s" x="24" y="49">两条线：回答线要有兜底，动作线要有白名单。离线兜底是及格线，在线模型是加分项。</text>
+
+  <!-- 回答线 -->
+  <rect x="24" y="64" width="912" height="352" rx="12" fill="#fcfbff" stroke="#e8e3f5" stroke-width="1.2"/>
+  <text class="pl" x="44" y="88">回答线：三种异常，一个兜底</text>
+
+  <rect class="trig" x="44" y="102" width="180" height="58" rx="9"/>
+  <text class="bt" x="58" y="126">① 未配置</text>
+  <text class="bd" x="58" y="146">没有 Key / 没有地址</text>
+
+  <rect class="trig" x="252" y="102" width="180" height="58" rx="9"/>
+  <text class="bt" x="266" y="126">② 超时 · 限流 · 断网</text>
+  <text class="bd" x="266" y="146">40 人同时打在线必撞</text>
+
+  <rect class="trig" x="460" y="102" width="180" height="58" rx="9"/>
+  <text class="bt" x="474" y="126">③ 知识库未命中</text>
+  <text class="bd" x="474" y="146">它确实不知道这件事</text>
+
+  <path class="bus" d="M134,160 L134,176 L550,176 L550,160"/>
+  <line class="line" x1="342" y1="176" x2="342" y2="190"/>
+
+  <rect class="q" x="192" y="192" width="300" height="44" rx="9"/>
+  <text class="bt" x="214" y="220">在线模型此刻能用吗？</text>
+
+  <path class="line" d="M192,214 L150,214 L150,240"/>
+  <text class="yes" x="158" y="208">能</text>
+
+  <path class="line" d="M492,214 L540,214 L540,240"/>
+  <text class="no" x="498" y="208">不能</text>
+
+  <rect class="pos" x="44" y="244" width="250" height="76" rx="9"/>
+  <text class="bt" x="58" y="268">走在线：SSE 流式</text>
+  <text class="bd" x="58" y="288">回答边生成边落屏</text>
+  <text class="bd" x="58" y="306">网络一抖，要有下面那条路</text>
+
+  <rect class="neg" x="520" y="244" width="300" height="76" rx="9"/>
+  <text class="bt" x="534" y="268">localAnswer() 离线知识库</text>
+  <text class="bd" x="534" y="288">按 KB 顺序做关键词命中，取第一个</text>
+  <text class="bd" x="534" y="306">命中 → 正常回答，末尾加一句降级说明</text>
+
+  <line class="line" x1="640" y1="320" x2="640" y2="336"/>
+  <path class="line" d="M600,336 L600,348 L556,348"/>
+  <path class="line" d="M680,336 L680,348 L760,348"/>
+  <rect class="neg" x="380" y="350" width="172" height="36" rx="8"/>
+  <text class="bd" x="392" y="373">命中：答 + 「已降级」</text>
+  <rect class="neg" x="760" y="350" width="160" height="36" rx="8"/>
+  <text class="bd" x="772" y="373">未命中：给引导</text>
+  <text class="bd" x="380" y="404">兜底的两句话：「（在线模型不可用，已降级离线知识库）」/「你可以问我：钟楼在哪 / 怎么去图书馆」</text>
+
+  <!-- 动作线 -->
+  
+  <text class="pl" x="24" y="446">动作线：模型只能"申请"，白名单是唯一的执行入口</text>
+
+  <rect class="trig" x="24" y="460" width="196" height="60" rx="9"/>
+  <text class="bt" x="38" y="484">④ 动作不在白名单</text>
+  <text class="bd" x="38" y="504">模型"申请"了一个非法动作</text>
+
+  <line class="line" x1="220" y1="490" x2="242" y2="490"/>
+  <rect class="neg" x="242" y="460" width="196" height="60" rx="9"/>
+  <text class="bt" x="256" y="484">parseAction()</text>
+  <text class="bd" x="256" y="504">把 JSON 从回答里抠出来</text>
+
+  <line class="line" x1="438" y1="490" x2="460" y2="490"/>
+  <rect class="q" x="460" y="460" width="220" height="60" rx="9"/>
+  <text class="bt" x="474" y="484">ACTS 白名单校验</text>
+  <text class="mono" x="474" y="503">ACTS = {teleport, time, show}</text>
+
+  <line class="line" x1="680" y1="490" x2="702" y2="490"/>
+  <rect class="pos" x="702" y="460" width="234" height="60" rx="9"/>
+  <text class="bt" x="716" y="484">合法 → 执行 · 非法 → 丢弃</text>
+  <text class="bd" x="716" y="504">不在表里的动作，回一句"我做不到"</text>
+</svg>

@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 250" width="960" height="250" role="img" aria-label="3.5 分钟路演时间条：30 秒说做什么、90 秒走一遍、60 秒说取舍、30 秒缓冲">
+  <style>
+    .t{font:700 17px "Microsoft YaHei",sans-serif;fill:#2e2a6f}
+    .s{font:12.5px "Microsoft YaHei",sans-serif;fill:#5a5670}
+    .seg1{fill:#5a52c8}
+    .seg2{fill:#2e7d32}
+    .seg3{fill:#b8860b}
+    .seg4{fill:#b8b3cb}
+    .lab{font:700 14px "Microsoft YaHei",sans-serif;fill:#fff}
+    .sub{font:11.5px "Microsoft YaHei",sans-serif;fill:#fff;opacity:.9}
+    .tick{stroke:#c9c3dd;stroke-width:1;stroke-dasharray:3 4}
+    .tk{font:11.5px "Microsoft YaHei",sans-serif;fill:#8b879e}
+    .note{font:12px "Microsoft YaHei",sans-serif;fill:#5a5670}
+  </style>
+  <rect width="960" height="250" fill="#fff"/>
+  <text class="t" x="24" y="32">3.5 分钟 = 210 秒，分四段，不是"随便讲讲"</text>
+  <text class="s" x="24" y="53">12-02 现场：计时器到点举牌，到点即停；停后内容不计分，但退出动作必须走完</text>
+
+  <!-- 刻度 -->
+  <g>
+    <line class="tick" x1="40" y1="80" x2="40" y2="150"/>
+    <line class="tick" x1="166" y1="80" x2="166" y2="150"/>
+    <line class="tick" x1="543" y1="80" x2="543" y2="150"/>
+    <line class="tick" x1="794" y1="80" x2="794" y2="150"/>
+    <line class="tick" x1="920" y1="80" x2="920" y2="150"/>
+    <text class="tk" x="40" y="168">0″</text>
+    <text class="tk" x="150" y="168">30″</text>
+    <text class="tk" x="520" y="168">120″</text>
+    <text class="tk" x="770" y="168">180″</text>
+    <text class="tk" x="894" y="168">210″</text>
+  </g>
+
+  <rect class="seg1" x="40" y="86" width="126" height="56" rx="6"/>
+  <text class="lab" x="58" y="110">① 说做什么</text>
+  <text class="sub" x="58" y="130">30″ · 一句话</text>
+
+  <rect class="seg2" x="166" y="86" width="377" height="56" rx="6"/>
+  <text class="lab" x="186" y="110">② 走一遍主流程</text>
+  <text class="sub" x="186" y="130">90″ · 从头到尾，不要跳步</text>
+
+  <rect class="seg3" x="543" y="86" width="251" height="56" rx="6"/>
+  <text class="lab" x="563" y="110">③ 说取舍与证据</text>
+  <text class="sub" x="563" y="130">60″ · 改了哪一处、数字怎么变</text>
+
+  <rect class="seg4" x="794" y="86" width="126" height="56" rx="6"/>
+  <text class="lab" x="812" y="110">④ 缓冲</text>
+  <text class="sub" x="812" y="130">30″ · 退出 + 收尾</text>
+
+  <!-- 四问 -->
+  <g transform="translate(40,196)">
+    <rect x="0" y="0" width="880" height="40" rx="8" fill="#f6f5fb" stroke="#e3ddf1" stroke-width="1.2"/>
+    <text class="note" x="14" y="25">四个必答：① 为什么必须戴头显？ ② 哪个取舍最疼？ ③ 数字哪来的？ ④ 演示崩了你怎么办？</text>
+  </g>
+</svg>
