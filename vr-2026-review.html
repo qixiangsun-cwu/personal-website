@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>结课回顾 · 十二次课，收成一件作品 | 2026年虚拟现实技术</title>
-<meta name="description" content="《虚拟现实技术》2026 秋 · 第 11 次课（2026-11-25）结课回顾页：页首 6 分钟新技术速览（视频扩散世界模型 + 特斯拉 FSD v15 Reality View）、十二次课的主线与教材八章映射、六个课堂案例、11 条硬门槛与 7 维量规、3.5 分钟路演脚本、把体验变成证据的 A/B 对照、以及 LLM 智能交互接不上时的四级降级。附全套站内链接与配图。">
+<meta name="description" content="《虚拟现实技术》2026 秋 · 第 11 次课（2026-11-25）结课回顾页：按“先看片、再拆算法、最后收本学期”三幕展开：第一幕看特斯拉 FSD v15 的三段画面、第二幕拆六阶段与 222 ms 时间账、第三幕收十二次课的主线与教材八章映射、六个课堂案例、11 条硬门槛与 7 维量规、3.5 分钟路演脚本、把体验变成证据的 A/B 对照、以及 LLM 智能交互接不上时的四级降级。附全套站内链接与配图。">
 <link rel="stylesheet" href="assets/vr-2026/course.css">
 <style>
   .rev-pre{background:#f6f5fb;border:1px solid #e3ddf1;border-radius:10px;padding:14px 16px;overflow-x:auto;margin:14px 0;font:13px/1.7 Consolas,"Microsoft YaHei",monospace;color:#3b3860}
@@ -32,6 +32,13 @@
   .rev-nums span{font-size:12px;color:#6b6483;line-height:1.55}
   .nav-inner{flex-wrap:wrap;row-gap:4px}
   @media(max-width:760px){.nav-inner{flex-wrap:nowrap}}
+  .act{max-width:1080px;margin:38px auto 0;padding:0 20px}
+  .act-in{display:flex;gap:14px;align-items:flex-start;background:#f6f3fc;border-left:4px solid #6d5bd0;border-radius:0 10px 10px 0;padding:13px 18px}
+  .act-no{flex:none;font-weight:700;font-size:12px;letter-spacing:.1em;color:#fff;background:#6d5bd0;border-radius:6px;padding:5px 10px;margin-top:2px}
+  .act-title{font-weight:700;color:#2b2547;font-size:15px;margin-bottom:4px}
+  .act-time{font:700 12px/1 Consolas,monospace;color:#b45309;margin-left:10px}
+  .act-body p{margin:0;font-size:13px;color:#6b6483;line-height:1.7}
+  @media(max-width:760px){.act{padding:0 12px}.act-in{gap:10px;padding:12px 14px}}
 </style>
 </head>
 <body>
@@ -41,7 +48,7 @@
   <div class="hero-inner">
     <span class="kicker">虚拟现实技术 · 结课回顾 · 第 11 次课 · 2026-11-25</span>
     <h1>十二次课，收成一件作品</h1>
-    <p class="sub">第 13 教学周 · 4 学时 / 180 分钟 —— 开头 6 分钟讲两件正在发生的事：视频扩散世界模型（渲染正在变成生成），和特斯拉 FSD v15 的 Reality View（每 222 ms 把世界重画一遍）。然后按你手上那件作品讲：把十二次课排成一条线，再把三件与作品收尾直接相关的事讲清楚：3.5 分钟怎么讲、数字怎么变成证据、智能交互接不上时怎么兜底。</p>
+    <p class="sub">第 13 教学周 · 4 学时 / 180 分钟 —— 顺序按今天的讲法排：<strong>第一幕先看片子</strong>（特斯拉 FSD v15 的三段画面），<strong>第二幕再拆它怎么做到</strong>（一条数据通路、两个出口、222 ms 的时间账），<strong>第三幕才回到你们手上的作品</strong>（把十二次课排成一条线，再讲清三件与收尾直接相关的事：3.5 分钟怎么讲、数字怎么变成证据、智能交互接不上时怎么兜底）。</p>
     <div class="meta">
       <span>中华女子学院</span><span>数字媒体技术 2023 级 · 40 人</span><span>授课人：孙琪翔</span><span>2026-11-25（周三）</span><span>期末作品 12-02 现场路演</span>
     </div>
@@ -52,9 +59,9 @@
 <nav class="nav" id="nav">
   <div class="nav-inner" id="navInner">
     <a href="vr-2026.html" class="nav-back">← 课程主页</a>
-    <a href="#wm" data-sec="wm" class="on">新技术 · 视频世界模型</a>
-    <a href="#rvcase" data-sec="rvcase">现场案例 · Reality View</a>
-    <a href="#guide" data-sec="guide">本课导览</a>
+    <a href="#rvcase" data-sec="rvcase" class="on">第一幕 · 看片</a>
+    <a href="#wm" data-sec="wm">第二幕 · 算法</a>
+    <a href="#guide" data-sec="guide">第三幕 · 收学期</a>
     <a href="#r1" data-sec="r1">一、一条主线</a>
     <a href="#r2" data-sec="r2">二、十二次课</a>
     <a href="#r3" data-sec="r3">三、教材八章</a>
@@ -71,17 +78,98 @@
 
 <main>
 
-<!-- ===== 开场：新技术 ===== -->
-<section id="wm">
+<!-- ===== 第一幕：先看片子 ===== -->
+<div class="act" id="act1">
+  <div class="act-in">
+    <span class="act-no">第一幕</span>
+    <div class="act-body">
+      <div class="act-title">先看片子<span class="act-time">2′</span></div>
+      <p>先放三段画面：特斯拉官方 36 秒、车主白天实拍、博主用行车记录仪做的 3DGS 复刻。只问一句——<strong>“这是摄像头画面，还是游戏引擎？”</strong>先让全班看见现象，再往下拆它怎么做到。这一段只听声音、看画面，不记笔记。</p>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 现场案例 Reality View ===== -->
+<section id="rvcase">
   <div class="sec-head">
-    <div class="sec-num">新</div>
+    <div class="sec-num">看</div>
     <div>
-      <h2>新技术 · 视频扩散世界模型：把“渲染”变成一个生成问题</h2>
-      <p class="sec-sub">今天开头先讲 6 分钟正在发生的变化：车机和机器人不再“画”场景，而是每一帧现生成一个场景。</p>
+      <h2>三段片子：官方 36 秒、车主实拍、3DGS 复刻</h2>
+      <p class="sec-sub">2026-11-21 刚推送给车主。先看、先别解释——三段放完，只问一句“这是摄像头画面，还是游戏引擎？”</p>
     </div>
   </div>
 
-  <p>特斯拉 FSD v15 的 Reality View 把中控屏换成了“实景渲染”：不是 3D 建模、不是游戏引擎、也不是 3DGS，而是车端每 36 分之一秒<strong>生成</strong>一帧画面。它背后的模型叫<strong>视频扩散世界模型</strong>（video diffusion world model）——一个用视频训练、能按条件“预测下一段画面”的生成模型。这一节只讲三件事：它为什么能成立、怎么训练与部署、以及它和 3DGS 各自的分工。</p>
+  <p>这不是 3D 建模、不是游戏引擎、也不是 3DGS，而是在车里、在一颗只做整数运算的芯片上、每 36 分之一秒<strong>生成</strong>一帧画面，并且从<strong>一台车上根本不存在的相机</strong>（车顶正上方）看出去。官方原话只有一句：<em>“New real-time generative driving visualization that continuously streams a view from an arbitrary virtual camera situated above your vehicle.”</em> 它靠的是什么——下一节拆。</p>
+
+  <div class="rev-gifs">
+    <figure>
+      <img src="assets/vr-2026/rv/rv-official.gif" alt="特斯拉官方 FSD v15 样片：夜间城市生成画面" loading="lazy" decoding="async">
+      <figcaption><b>官方 36 秒样片</b><br>车顶正上方的虚拟相机。片中的“25x safer”是我们第七节要改写的说法。</figcaption>
+    </figure>
+    <figure>
+      <img src="assets/vr-2026/rv/rv-owner.gif" alt="车主白天实拍：中控屏生成环岛" loading="lazy" decoding="async">
+      <figcaption><b>车主白天实拍</b><br>建筑、斑马线、停放车辆都是连续画面；箭头才是叠加层。</figcaption>
+    </figure>
+    <figure>
+      <img src="assets/vr-2026/rv/rv-3dgs.gif" alt="vogeldev 用 3D 高斯泼溅复刻的飞行视角" loading="lazy" decoding="async">
+      <figcaption><b>开源复刻 · 3DGS</b><br>行车记录仪 → 深度 → 高斯泼溅。接第 2 / 5 次课的 3DGS 线。</figcaption>
+    </figure>
+  </div>
+
+  <div class="rev-nums">
+    <div><b>3B + 1B</b><span>约 3B 驾驶 + 约 1B 渲染（B 级口径，非官方参数公布）</span></div>
+    <div><b>222 ms</b><span>8 帧 ÷ 36 fps ＝ 4 个 18 Hz 周期（算术推论，非实测）</span></div>
+    <div><b>3.6 m</b><span>16 m/s 下，画面比真实世界晚 3.6 米</span></div>
+    <div><b>11.1 ms</b><span>VR 90 Hz 单帧预算——同一个“延迟”差约 20 倍</span></div>
+  </div>
+
+  <div class="key"><strong>整段只讲这一句：</strong>同一块屏上，<strong>生成画面滞后 222 ms，意图叠加层是 0 ms</strong>。画面只用来“预告车想干什么”，不参与“车怎么开”。所以 222 ms 在车机上能忍，在 VR 头显里不能忍——<strong>一个在显示回路，一个在控制回路。</strong></div>
+
+  <p>这块屏真正让人不安的，不是它画得不够真，而是它<strong>画得太真</strong>：真到你忘了它只是“车想干什么”的示意图，不是“世界是什么”的证据。它把 3DGS、帧预算、生成式幻觉、降级兜底四条线，第一次拧在了同一个产品里。</p>
+
+  <div class="note"><strong>完整拆解（课后阅读 / 专题课）：</strong>六阶段流水线、旧管线“工程车变火车”、两套技术口径（3DGS 还是扩散）、三个可证伪观察点、可操作的<strong>教学模拟器</strong>（关几何辅助 → 画面塌陷；勾幻觉注入 → 屏上出现现实没有的物体）、三个流传错误、四个讨论题、全部视频与出处——都在专页：<a href="vr-2026-reality-view.html"><strong>《Reality View：每 222 ms，把世界重画一遍》→</strong></a></div>
+
+</section>
+<!-- ===== 第二幕：拆算法 ===== -->
+<div class="act" id="act2">
+  <div class="act-in">
+    <span class="act-no">第二幕</span>
+    <div class="act-body">
+      <div class="act-title">再拆它怎么做到：算法与逻辑<span class="act-time">4′</span></div>
+      <p>课上只讲两条：<strong>一条数据通路、两个出口</strong>（0 ms 的真值 / 222 ms 的生成），以及 <strong>222 ms 这个数是怎么算出来的</strong>。六阶段流水线、三种失效、两套技术口径留课后——本页都写了，讲不完也不要紧，学生能自己翻。</p>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 第二幕：算法（原“新技术”） ===== -->
+<section id="wm">
+  <div class="sec-head">
+    <div class="sec-num">拆</div>
+    <div>
+      <h2>它怎么做到的：一条数据通路、两个出口、222 ms</h2>
+      <p class="sec-sub">刚才那三段画面的底座，是“视频扩散世界模型”＋一台车规芯片。这一节按“原理 → 流水线 → 时间账 → 会怎么错”四步拆。</p>
+    </div>
+  </div>
+
+  <p>Reality View 把中控屏换成了“实景渲染”：车端每 36 分之一秒<strong>生成</strong>一帧画面，靠的模型叫<strong>视频扩散世界模型</strong>（video diffusion world model）——一个用视频训练、能按条件“预测下一段画面”的生成模型。这一节讲四件事：它为什么能成立、怎么落到一辆车上、222 ms 这个数怎么来的、以及它和 3DGS 各自的分工与失败方式。</p>
+
+  <figure class="fig">
+    <img src="assets/vr-2026/img/diagram-rv-arch.svg" alt="Reality View 架构：8 路相机 → 共享 UVE → 3B 驾驶 / 1B 渲染 → 屏幕叠加意图层">
+    <figcaption>一条数据通路，两个出口：左边决定车怎么开（0 ms，真值），右边决定屏上画什么（222 ms，生成）。图：本页绘制。</figcaption>
+  </figure>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th style="width:16%">第二幕这 4 分钟</th><th>做什么</th></tr></thead>
+      <tbody>
+        <tr><td><strong>0:00—0:40</strong></td><td>先给架构：<strong>一条通路、两个出口</strong>——驾驶走 0 ms 真值，画面走 222 ms 生成</td></tr>
+        <tr><td><strong>0:40—1:40</strong></td><td>四个数字（3B + 1B、222 ms、3.6 m、11.1 ms），现场算 8÷36、4÷18、0.222×16</td></tr>
+        <tr><td><strong>1:40—3:20</strong></td><td>模拟器两个动作：关 3D 几何辅助 → 塌成色块；勾幻觉注入 → 屏上出现现实里没有的东西</td></tr>
+        <tr><td><strong>3:20—4:00</strong></td><td>收在 3DGS 与一句判别：“你们学过它，它现在跑在车规芯片上，每 222 ms 重建一次”</td></tr>
+      </tbody>
+    </table>
+  </div>
+
 
   <figure class="fig">
     <img src="assets/vr-2026/img/diagram-video-world-model.svg" alt="视频扩散世界模型的训练、推理与自回归生成示意">
@@ -152,14 +240,55 @@
   <h3>四、和 3DGS / NeRF 的分工</h3>
   <div class="warn"><strong>不是替代关系，是两种失败模式。</strong>3DGS/NeRF 是<strong>显式重建</strong>：先有稠密视角，才能自由视角；没拍到的地方是空洞，失败表现为拉丝、破洞。视频扩散是<strong>生成式补全</strong>：没拍到的地方它“编”一个合理的，失败表现为幻觉。前者适合“有数据、要测量”的场景，后者适合“数据不全、要好看且实时”的场景。车机选后者，是因为 8 路相机永远拍不全世界。</div>
 
-  <h3>五、为什么这门课要讲它</h3>
+  <h3>五、落到一辆车上：六阶段流水线</h3>
+  <p>把上面的原理压进车规芯片，中间要过六道工序。每一道都有自己的周期，也都有自己的坏法——<strong>讲这一段时，重点不是“它多厉害”，而是“哪一步一旦慢下来，整块屏就露馅”。</strong></p>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th style="width:12%">阶段</th><th style="width:24%">做什么</th><th style="width:20%">周期 / 预算</th><th>慢了或错了长什么样</th></tr></thead>
+      <tbody>
+        <tr><td><strong>S0 采集与对齐</strong></td><td>8 路相机 + 标定参数 + 时间戳对齐，凑成一“帧组”</td><td>与相机帧率同步</td><td>错帧、撕边；画面里出现“上一秒的车”</td></tr>
+        <tr><td><strong>S1 特征化（UVE）</strong></td><td>视觉编码器把 8 路压成一套共享特征</td><td><strong>18 Hz</strong>，每 4 个周期供一次生成</td><td>特征迟到 → 整段生成窗口往后推，滞后从 222 涨到 300+</td></tr>
+        <tr><td><strong>S2 分叉</strong></td><td>同一套特征，两路消费：驾驶决策 / 画面生成</td><td>驾驶 <strong>0 ms</strong>（真值）<br>渲染 <strong>222 ms</strong>（生成）</td><td>把两路混成一个回路 → 车开始“照着好看的画面开”</td></tr>
+        <tr><td><strong>S3 生成</strong></td><td>1B 扩散模型出 8 帧，INT8、少步去噪</td><td>8 帧 @ 36 fps</td><td>去噪步数 K 调大 → 算力条冲破预算，帧率掉、画面抖</td></tr>
+        <tr><td><strong>S4 叠加与交互</strong></td><td>车速、限速、下一转向、规划箭头叠在生成画面上</td><td>与生成帧同帧合成</td><td>叠加层也走生成 → “箭头”开始漂，越看越不敢信</td></tr>
+        <tr><td><strong>S5 显示与降级</strong></td><td>过热 / 算力不足时逐级降级，真值通道不降</td><td>L0 → L4</td><td>降级到底只剩色块，但车还能开——这正是设计意图</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p style="color:#6b6483;font-size:13px">六阶段的现场演示在专页第六节：<a href="vr-2026-reality-view.html#sim">教学模拟器 →</a>（关 3D 几何辅助、拉大 K、勾幻觉注入，三个开关对应三种坏法）。</p>
+
+  <h3>六、222 ms 是怎么算出来的</h3>
+  <p>这不是实测，是<strong>算术</strong>——而且两条互不相干的路都能算出同一个数，所以可信：</p>
+  <div class="rev-nums">
+    <div><b>8 ÷ 36</b><span>一批 8 帧，按 36 fps 播放 ＝ <strong>0.222 s</strong></span></div>
+    <div><b>4 ÷ 18</b><span>UVE 18 Hz，每 4 个周期供一次 ＝ <strong>0.222 s</strong></span></div>
+    <div><b>0.222 × 16</b><span>按 16 m/s 行驶，画面比真实世界晚 <strong>3.6 m</strong></span></div>
+    <div><b>222 ÷ 11.1</b><span>VR 90 Hz 单帧预算 11.1 ms——<strong>差约 20 倍</strong></span></div>
+  </div>
+  <div class="key"><strong>为什么车机能忍、头显不能忍：</strong>222 ms 在<strong>显示回路</strong>里只是“预告”，在<strong>控制回路</strong>里就是灾难。同一条延迟，放在不同的回路里，容忍度差两个数量级——这也是你们作品里判断“能不能降级”的同一把尺。</div>
+  <p>官方给的优化目标是再压 <strong>35%</strong>（≈143 ms），代价是画质；半颗 TRIP 的占用按 0.5 / 6 算约 <strong>8.3%</strong>——这两个都是“目标”与“估算”，不是实测值，讲的时候要说清。</p>
+
+  <h3>七、它会怎么错：三种失效，同一块屏</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th style="width:20%">课堂动作</th><th style="width:38%">屏上发生什么</th><th>这就是哪一类问题</th></tr></thead>
+      <tbody>
+        <tr><td>关掉 3D 几何辅助</td><td>轮廓消失，楼房、斑马线糊成一片色块</td><td><strong>生成失去结构约束</strong>：模型只能靠猜</td></tr>
+        <tr><td>把去噪步数 K 拉到 8</td><td>算力条冲破预算，帧率掉、画面开始抖</td><td><strong>质量与预算不可兼得</strong>：加步数就是加延迟</td></tr>
+        <tr><td>勾上“幻觉注入”</td><td>屏幕上出现一个现实里没有的物体，还画得很自然</td><td><strong>流畅的错误</strong>：越真实，越危险</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="warn"><strong>两套口径都要说：</strong>“3D 重建 + 扩散补全”是媒体描述与第三方复刻（vogeldev）的推断，<strong>官方只说了 generative + arbitrary virtual camera</strong>。课堂上把它当“假说”讲，不要当“官方架构”讲——这是这门课教信息素养最方便的一个例子。</div>
+
+  <h3>八、为什么这门课要讲它</h3>
   <ul>
     <li><strong>它是“渲染”的另一种解法。</strong>你们在 WebXR 里做的是实时渲染：几何 + 材质 + 光照。这条路走的是“每帧生成像素”。两种都在回答同一个问题——怎样让人相信眼前的世界。</li>
     <li><strong>条件就是交互。</strong>动作、位姿、文本都是条件。这和第 11 次课讲的“模型只能申请、不能执行”是同一条思路：<strong>把可控的入口收窄，系统才安全</strong>。</li>
     <li><strong>幻觉边界是产品问题。</strong>生成式画面越真实，用户越容易高估系统能力。所以它只能做显示，不能进控制回路——这条边界，比任何参数都重要。</li>
   </ul>
 
-  <h3>六、官方视频与资料（课上放两段就够）</h3>
+  <h3>九、官方视频与资料（课后翻，课上一段都不放）</h3>
   <div class="tbl-wrap">
     <table>
       <thead><tr><th style="width:26%">资料</th><th>看什么</th></tr></thead>
@@ -174,78 +303,31 @@
     </table>
   </div>
 
-  <div class="note"><strong>课堂用法（6 分钟）：</strong>30 秒说结论（渲染正在变成生成）→ 2 分钟讲三个动作（压缩 / 速度场 / 自回归）→ 2 分钟放两段视频（Cosmos 合成、GAIA-2 动作条件）→ 1 分钟收在“幻觉边界”。已从回顾里匀出 1 分钟（回顾 39′ → 38′）；若要展开到 12 分钟，再从回顾借 6 分钟，或把这一段整体挪到课后。完整推导与部署细节留作课后阅读。</div>
+  <div class="note"><strong>课堂用法（这一幕 4 分钟，只讲到“两个出口 + 222 ms”）：</strong>30 秒说结论（渲染正在变成生成，片子里的画面是算出来的）→ 2 分钟讲一条通路两个出口（S1 特征化 → 3B 驾驶 0 ms / 1B 渲染 222 ms）→ 1 分钟现场算 8÷36、4÷18、0.222×16，和 VR 的 11.1 ms 对撞 → 30 秒收在“两块屏，两种回路”。<strong>六阶段流水线、三种失效、两套技术口径不要挤进这 4 分钟</strong>：本页下面都写了，留作课后与专题课；若要展开到 12 分钟，从回顾里再借 6 分钟。</div>
 </section>
 
-<!-- ===== 现场案例 Reality View ===== -->
-<section id="rvcase">
-  <div class="sec-head">
-    <div class="sec-num">例</div>
-    <div>
-      <h2>现场案例 · FSD v15 Reality View：每 222 ms，把世界重画一遍</h2>
-      <p class="sec-sub">2026-11-21 刚推送给车主。课上只取 4 分钟：三段动图、一张架构图、一个 222 ms 对 11.1 ms 的对照。</p>
+<!-- ===== 第三幕：收本学期 ===== -->
+<div class="act" id="act3">
+  <div class="act-in">
+    <span class="act-no">第三幕</span>
+    <div class="act-body">
+      <div class="act-title">最后收本学期：一条线、一把尺、三句话<span class="act-time">164′</span></div>
+      <p>从这里开始不再讲外面的新东西，只讲你们手上的作品：十二次课排成一条线（38′）→ 智能交互怎么变成一段回答（36′）→ 体验怎么变成证据（35′）→ 3.5 分钟怎么讲（45′）→ 封版与 12-02（10′），中间 10′ 课间。</p>
     </div>
   </div>
+</div>
 
-  <p>这是刚才那个“视频世界模型”的<strong>量产落地版</strong>：不是生成一段好看的视频，而是在车里、在一颗只做整数运算的芯片上、每 36 分之一秒生成一帧，并且从<strong>一台车上根本不存在的相机</strong>（车顶正上方）看出去。官方原话只有一句：<em>“New real-time generative driving visualization that continuously streams a view from an arbitrary virtual camera situated above your vehicle.”</em></p>
 
-  <div class="rev-gifs">
-    <figure>
-      <img src="assets/vr-2026/rv/rv-official.gif" alt="特斯拉官方 FSD v15 样片：夜间城市生成画面" loading="lazy" decoding="async">
-      <figcaption><b>官方 36 秒样片</b><br>车顶正上方的虚拟相机。片中的“25x safer”是我们第七节要改写的说法。</figcaption>
-    </figure>
-    <figure>
-      <img src="assets/vr-2026/rv/rv-owner.gif" alt="车主白天实拍：中控屏生成环岛" loading="lazy" decoding="async">
-      <figcaption><b>车主白天实拍</b><br>建筑、斑马线、停放车辆都是连续画面；箭头才是叠加层。</figcaption>
-    </figure>
-    <figure>
-      <img src="assets/vr-2026/rv/rv-3dgs.gif" alt="vogeldev 用 3D 高斯泼溅复刻的飞行视角" loading="lazy" decoding="async">
-      <figcaption><b>开源复刻 · 3DGS</b><br>行车记录仪 → 深度 → 高斯泼溅。接第 2 / 5 次课的 3DGS 线。</figcaption>
-    </figure>
-  </div>
-
-  <div class="rev-nums">
-    <div><b>3B + 1B</b><span>约 3B 驾驶 + 约 1B 渲染（B 级口径，非官方参数公布）</span></div>
-    <div><b>222 ms</b><span>8 帧 ÷ 36 fps ＝ 4 个 18 Hz 周期（算术推论，非实测）</span></div>
-    <div><b>3.6 m</b><span>16 m/s 下，画面比真实世界晚 3.6 米</span></div>
-    <div><b>11.1 ms</b><span>VR 90 Hz 单帧预算——同一个“延迟”差约 20 倍</span></div>
-  </div>
-
-  <figure class="fig">
-    <img src="assets/vr-2026/img/diagram-rv-arch.svg" alt="Reality View 架构：8 路相机 → 共享 UVE → 3B 驾驶 / 1B 渲染 → 屏幕叠加意图层">
-    <figcaption>一条数据通路，两个出口：左边决定车怎么开（0 ms，真值），右边决定屏上画什么（222 ms，生成）。图：本页绘制。</figcaption>
-  </figure>
-
-  <div class="key"><strong>课上只讲这一句：</strong>同一块屏上，<strong>生成画面滞后 222 ms，意图叠加层是 0 ms</strong>。画面只用来“预告车想干什么”，不参与“车怎么开”。所以 222 ms 在车机上能忍，在 VR 头显里不能忍——<strong>一个在显示回路，一个在控制回路。</strong></div>
-
-  <p>这块屏真正让人不安的，不是它画得不够真，而是它<strong>画得太真</strong>：真到你忘了它只是“车想干什么”的示意图，不是“世界是什么”的证据。它把 3DGS、帧预算、生成式幻觉、降级兜底四条线，第一次拧在了同一个产品里。</p>
-
-  <div class="note"><strong>完整拆解（课后阅读 / 专题课）：</strong>六阶段流水线、旧管线“工程车变火车”、两套技术口径（3DGS 还是扩散）、三个可证伪观察点、可操作的<strong>教学模拟器</strong>（关几何辅助 → 画面塌陷；勾幻觉注入 → 屏上出现现实没有的物体）、三个流传错误、四个讨论题、全部视频与出处——都在专页：<a href="vr-2026-reality-view.html"><strong>《Reality View：每 222 ms，把世界重画一遍》→</strong></a></div>
-
-  <div class="tbl-wrap">
-    <table>
-      <thead><tr><th style="width:16%">课上 4 分钟</th><th>做什么</th></tr></thead>
-      <tbody>
-        <tr><td><strong>0:00—0:50</strong></td><td>放官方 36 秒，只问一句：“这是摄像头画面，还是游戏引擎？”</td></tr>
-        <tr><td><strong>0:50—2:10</strong></td><td>三个数字：3B + 1B、半颗 TRIP、222 ms；说清“两个出口”</td></tr>
-        <tr><td><strong>2:10—2:50</strong></td><td>现场算 8÷36、4÷18、0.222×16；和 VR 的 11.1 ms 对撞</td></tr>
-        <tr><td><strong>2:50—3:40</strong></td><td>模拟器只做两个动作：关 3D 几何辅助、勾幻觉注入</td></tr>
-        <tr><td><strong>3:40—4:00</strong></td><td>收在 3DGS：“你们学过它，它现在跑在车规芯片上，每 222 ms 重建一次。”</td></tr>
-      </tbody>
-    </table>
-  </div>
-</section>
-<!-- ===== 导览 ===== -->
 <section id="guide">
   <div class="sec-head">
-    <div class="sec-num">导</div>
+    <div class="sec-num">收</div>
     <div>
-      <h2>本课导览：先收拢，再补三块</h2>
-      <p class="sec-sub">十二次课铺得很散：硬件、全景、交互、性能、智能。今天要做的第一件事，是把它们收成一条能讲给别人听的线。</p>
+      <h2>本学期总结：先收拢，再补三块</h2>
+      <p class="sec-sub">十二次课铺得很散：硬件、全景、交互、性能、智能。从这里开始，把外面的新东西收起来，只讲你们手上的作品。</p>
     </div>
   </div>
 
-  <p>这门课的期末不是一张卷子，是一件<strong>你自己做的 WebXR 作品</strong>，加上一份说清楚它的文档，再加上一次<strong>3.5 分钟</strong>的现场演示。所以今天不是“再讲一章”，而是<strong>把十二次课重新排成一条线</strong>，再讲清三件与作品收尾直接相关的事。页首还加了一节<strong>新技术速览</strong>——视频扩散世界模型 + 特斯拉 FSD v15 的 Reality View，6 分钟（2 + 4），讲“渲染正在变成生成”。</p>
+  <p>这门课的期末不是一张卷子，是一件<strong>你自己做的 WebXR 作品</strong>，加上一份说清楚它的文档，再加上一次<strong>3.5 分钟</strong>的现场演示。所以第三幕不是“再讲一章”，而是<strong>把十二次课重新排成一条线</strong>，再讲清三件与作品收尾直接相关的事。前两幕（看片 + 拆算法）共用 6 分钟，只负责把“渲染正在变成生成”这件事钉在你们脑子里。</p>
 
   <div class="key"><strong>这一节收成三样东西：</strong><br>
     ① <strong>一条线</strong>——能在一分钟内说清“这门课教了什么、我的作品站在哪一步”；<br>
@@ -257,7 +339,7 @@
     <table>
       <thead><tr><th style="width:16%">时段</th><th style="width:9%">时长</th><th>内容</th></tr></thead>
       <tbody>
-        <tr><td><strong>0:00—0:06</strong></td><td>6′</td><td><strong>开场 + 新技术速览</strong>：2′ 视频扩散世界模型（结论 + 三个动作）＋ 4′ FSD v15 Reality View（官方样片 + 两个出口 + 222 ms 对 11.1 ms）· 这一节的三样东西 · 与 12-02 验收的衔接</td></tr>
+        <tr><td><strong>0:00—0:06</strong></td><td>6′</td><td><strong>第一幕 + 第二幕</strong>：2′ 看三段片子（官方 36 秒 → 车主实拍 → 3DGS 复刻，只问“这是摄像头画面还是游戏引擎”）＋ 4′ 拆算法（一条通路两个出口、222 ms 是 8÷36 与 4÷18 算出来的、和 VR 的 11.1 ms 对撞）· 与 12-02 验收的衔接</td></tr>
         <tr><td><strong>0:06—0:44</strong></td><td><strong>38′</strong></td><td><strong>回顾</strong>：一条主线（看 VR → 造空间 → 能交互 → 有目标 → 有边界 → 有度量 → 接智能）+ 十二次课时间轴 + 教材八章映射 + 六个案例</td></tr>
         <tr><td><strong>0:44—1:20</strong></td><td><strong>36′</strong></td><td><strong>新东西 · 智能</strong>：一句话怎么变成一段回答——LLM 智能交互的完整链路、动作白名单、四级降级（对应第 11 次课的主课内容）</td></tr>
         <tr><td><strong>1:20—1:30</strong></td><td>10′</td><td><strong>课间</strong>（头显摘下放桌上，不放椅子上）</td></tr>
@@ -277,7 +359,6 @@
     <a class="btn ghost" href="vr-2026-final-project.html">期末大作业任务书 →</a>
   </div>
 </section>
-
 <!-- ===== 一、一条主线 ===== -->
 <section id="r1">
   <div class="sec-head">
@@ -674,7 +755,7 @@
       <thead><tr><th style="width:26%">资源</th><th>地址</th><th style="width:30%">用来干什么</th></tr></thead>
       <tbody>
         <tr><td><strong>现场案例 · Reality View</strong></td><td><a href="vr-2026-reality-view.html">vr-2026-reality-view.html</a></td><td>技术拆解专页：架构、六阶段、222 ms 时间账、3DGS 闭环、教学模拟器、讨论题与全部视频出处</td></tr>
-        <tr><td><strong>新技术 · 视频世界模型</strong></td><td><a href="#wm">#wm</a></td><td>页首那一节：原理、流水线、6 条官方视频与资料</td></tr>
+        <tr><td><strong>新技术 · 视频世界模型</strong></td><td><a href="#wm">#wm</a></td><td>第二幕那一节：原理、六阶段、222 ms 时间账、6 条官方视频与资料</td></tr>
         <tr><td><strong>课程主页</strong></td><td><a href="vr-2026.html">vr-2026.html</a></td><td>十二次课的总入口、作业与通知</td></tr>
         <tr><td><strong>期末大作业任务书</strong></td><td><a href="vr-2026-final-project.html">vr-2026-final-project.html</a></td><td>提交物、目录规范、11 条门槛的完整原文</td></tr>
         <tr><td><strong>第 11 次课</strong></td><td><a href="vr-2026-lesson11.html">vr-2026-lesson11.html</a></td><td>智能交互完整版 + 55 分钟工作室任务</td></tr>
@@ -767,7 +848,7 @@
   navInner.querySelectorAll('a[data-sec]').forEach(function(a){
     navLinks[a.getAttribute('data-sec')] = a;
   });
-  var sections = ['wm','rvcase','guide','r1','r2','r3','r4','r5','r6','n1','n2','n3','links','end'];
+  var sections = ['rvcase','wm','guide','r1','r2','r3','r4','r5','r6','n1','n2','n3','links','end'];
   if ('IntersectionObserver' in window) {
     var obs = new IntersectionObserver(function(entries){
       entries.forEach(function(en){
