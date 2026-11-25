@@ -111,6 +111,10 @@ foreach ($feed in $feeds) {
             $source = Get-ElemText $item.source
             if (-not $source) { $source = ($feed -replace '^https?://', '') -split '/' | Select-Object -First 1 }
 
+            # infoq feed 每轮回流同批占位条目（正文只有「点击查看原文>」，无实质摘要），
+            # 摄取时直接丢弃，免得每轮审批都人工剔一遍
+            if ($source -like '*infoq.cn*' -and $summary -match '^(点击查看原文>?\s*)+$') { continue }
+
             $newItems.Add([PSCustomObject]@{
                 title    = $title.Trim()
                 title_en = $title.Trim()
