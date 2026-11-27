@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
@@ -7811,14 +7811,14 @@ one-hot 之后：一件商品一列，是它填 1、不是填 0
     <div class="sec-num">十</div>
     <div>
       <h2>配套代码与数据下载</h2>
-      <p class="sec-sub">课件完整数据 + 本页全部示例代码 + 课后作业参考答案，都能下载到本机跑</p>
+      <p class="sec-sub">课件完整数据 + 本页全部示例代码 + 课后作业参考答案 + 数据文件生成代码，都能下载到本机跑</p>
     </div>
   </div>
 
-  <p>本页所有示例代码都已经整理成<strong>可直接运行的 .py 文件</strong>，课件里的完整订单数据（310 行）也一并放出来了。建议把<strong>数据文件和代码文件下载到同一个文件夹</strong>，在命令行执行 <code class="inline">python 文件名.py</code> 就能跑；页面上的代码也可以直接点「复制代码」拷到自己的编辑器。</p>
+  <p>本页所有示例代码都已经整理成<strong>可直接运行的 .py 文件</strong>，课件里的完整订单数据（310 行）也一并放出来了。建议把<strong>数据文件和代码文件下载到同一个文件夹</strong>，在命令行执行 <code class="inline">python 文件名.py</code> 就能跑；页面上的代码也可以直接点「复制代码」拷到自己的编辑器。数据文件如果不想一个个下载，可以只下 3 个原始数据，用页面下方的<strong>数据文件生成代码</strong>把其余 9 个重新生成。</p>
 
   <div class="note">
-    <strong>使用提示</strong>：① 运行环境 <code class="inline">pip install pandas openpyxl numpy</code>（本页实测 Python 3.14 + pandas 3.0.5）；② <code class="inline">商品.csv</code>、<code class="inline">订单_part.csv</code> 是<strong>GBK 编码</strong>（与课件一致），读取时写 <code class="inline">encoding="gbk"</code>；③ pandas 3 里 <code class="inline">freq="M"</code> 已改为 <code class="inline">"ME"</code>，旧教材代码要相应修改；④ 数据文件找不到时，请确认代码与数据在同一文件夹。
+    <strong>使用提示</strong>：① 运行环境 <code class="inline">pip install pandas openpyxl numpy</code>（本页实测 Python 3.14 + pandas 3.0.5）；② <code class="inline">商品.csv</code>、<code class="inline">订单_part.csv</code> 是<strong>GBK 编码</strong>（与课件一致），读取时写 <code class="inline">encoding="gbk"</code>；③ pandas 3 里 <code class="inline">freq="M"</code> 已改为 <code class="inline">"ME"</code>，旧教材代码要相应修改；④ 数据文件找不到时，请确认代码与数据在同一文件夹；⑤ 不想逐个下载数据，可运行「四、数据文件生成代码」，只凭 3 个原始文件就能生成其余 9 个（5 个 CSV 与下载区逐字节相同）。
   </div>
 
   <h3>一、数据文件（课件完整数据 + 页面示例数据）</h3>
@@ -7953,12 +7953,28 @@ one-hot 之后：一件商品一列，是它填 1、不是填 0
     </table>
   </div>
 
-  <h3>四、一次打包下载</h3>
+  <h3>四、数据文件生成代码（不想下载？跑代码自己造）</h3>
+  <p>上面 12 个数据文件里，<code class="inline">订单.xlsx</code>、<code class="inline">订单_J1.xlsx</code>、<code class="inline">订单_J2.xlsx</code> 是课件给定的原始数据，需要下载；其余 9 个都能用下面这段代码重新生成——课堂上要现场重建数据、或者想核对下载的文件是怎么来的，都可以直接跑它。</p>
+  <div class="tbl-wrap">
+    <table class="mini-table dl-table">
+      <thead><tr><th style="width:30%">文件名（点击下载）</th><th>内容</th><th style="width:11%">大小</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><a class="dl-link" href="assets/python-bigdata-2026/lesson8/%E7%AC%AC8%E7%AB%A0_%E6%95%B0%E6%8D%AE%E6%96%87%E4%BB%B6%E7%94%9F%E6%88%90%E4%BB%A3%E7%A0%81.py" download>第8章_数据文件生成代码<span class="nb">.py</span></a></td>
+          <td>一次生成 9 个数据文件：<code class="inline">商品.csv</code>、<code class="inline">精简订单数据.csv</code>、<code class="inline">学生成绩.csv</code>、<code class="inline">月度销售_2025.csv</code>、<code class="inline">订单_clean.xlsx</code>、<code class="inline">订单_fill.xlsx</code>、<code class="inline">订单_new.xlsx</code>、<code class="inline">订单_part.csv</code>、<code class="inline">订单_Jan.xlsx</code>。运行 <code class="inline">python 第8章_数据文件生成代码.py</code>，结果默认放进「第8章数据」文件夹（<code class="inline">--out</code> 可改位置）。</td>
+          <td class="dl-size">9.3 KB</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p style="color:#5a6472;margin-top:8px;">运行说明：把 3 个原始数据与脚本放在同一个文件夹再运行；如果只放着脚本、没有原始数据，脚本会生成 4 个小 CSV，并提示去下载原始数据，不会报错退出。</p>
+
+  <h3>五、一次打包下载</h3>
   <div class="datacard">
-    <div class="dc-name">第8章_代码与数据_资料包.zip<span class="dc-tag">202.3 KB · 全部文件</span></div>
+    <div class="dc-name">第8章_代码与数据_资料包.zip<span class="dc-tag">206.9 KB · 全部文件</span></div>
     <div class="dc-body" style="padding:16px 18px;">
-      <p style="margin:0 0 10px;">把上面的数据、示例代码、作业答案和说明文档打成一个 zip，解压后直接可用。</p>
-      <p style="margin:0;"><a class="dl-zip" href="assets/python-bigdata-2026/lesson8/%E7%AC%AC8%E7%AB%A0_%E4%BB%A3%E7%A0%81%E4%B8%8E%E6%95%B0%E6%8D%AE_%E8%B5%84%E6%96%99%E5%8C%85.zip" download>⬇ 下载 第8章_代码与数据_资料包.zip（202.3 KB）</a></p>
+      <p style="margin:0 0 10px;">把上面的数据、示例代码、作业答案、生成代码和说明文档打成一个 zip（23 个文件），解压后直接可用。</p>
+      <p style="margin:0;"><a class="dl-zip" href="assets/python-bigdata-2026/lesson8/%E7%AC%AC8%E7%AB%A0_%E4%BB%A3%E7%A0%81%E4%B8%8E%E6%95%B0%E6%8D%AE_%E8%B5%84%E6%96%99%E5%8C%85.zip" download>⬇ 下载 第8章_代码与数据_资料包.zip（206.9 KB）</a></p>
     </div>
     <div class="dc-meta">解压后建议先看 <code class="inline">README_使用说明.md</code>；运行示例前确认已安装 pandas / openpyxl。</div>
   </div>
