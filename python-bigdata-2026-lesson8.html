@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
@@ -17,7 +17,7 @@
   --radius:14px;
 }
 *{margin:0;padding:0;box-sizing:border-box;}
-html{scroll-behavior:smooth;scroll-padding-top:86px;}
+html{scroll-behavior:smooth;scroll-padding-top:72px;}
 body{
   font-family:"Times New Roman","宋体",SimSun,"Songti SC","SimSun-ExtB",serif;
   font-size:16px;line-height:1.95;color:var(--ink);background:var(--paper);
@@ -46,19 +46,24 @@ body{
 }
 /* ===== 导航 ===== */
 .nav{
-  position:sticky;top:0;z-index:50;background:rgba(253,251,246,.94);
-  backdrop-filter:blur(8px);border-bottom:1px solid var(--line);
+  position:sticky;top:0;z-index:50;background:#fdfbf6;
+  border-bottom:1px solid var(--line);
 }
-.nav-inner{max-width:1060px;margin:0 auto;display:flex;align-items:center;gap:6px;overflow-x:auto;padding:10px 16px;}
+.nav-inner{
+  max-width:1060px;margin:0 auto;display:flex;align-items:center;gap:4px;
+  overflow-x:auto;padding:8px 16px;scrollbar-width:none;-ms-overflow-style:none;
+  cursor:grab;overscroll-behavior-x:contain;
+}
 .nav-inner::-webkit-scrollbar{height:0;}
+.nav-inner.dragging{cursor:grabbing;scroll-behavior:auto;user-select:none;}
 .nav a{
-  flex:0 0 auto;font-size:14px;color:var(--ink-soft);text-decoration:none;
-  padding:6px 14px;border-radius:999px;border:1px solid transparent;white-space:nowrap;
-  transition:all .18s;
+  flex:0 0 auto;font-size:13px;color:var(--ink-soft);text-decoration:none;
+  padding:5px 9px;border-radius:999px;border:1px solid transparent;white-space:nowrap;
+  transition:all .18s;-webkit-user-drag:none;user-select:none;
 }
 .nav a:hover{color:var(--blue);background:var(--blue-soft);}
 .nav a.on{color:#fff;background:var(--blue);border-color:var(--blue);}
-.nav a.nav-back{color:var(--blue-deep);font-weight:700;border-color:#cfe0f0;background:#fff;margin-right:6px;}
+.nav a.nav-back{color:var(--blue-deep);font-weight:700;border-color:#cfe0f0;background:#fff;margin-right:4px;}
 /* ===== 主区域 ===== */
 main{max-width:1060px;margin:0 auto;padding:30px 16px 60px;}
 section{margin-bottom:34px;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:30px 34px;box-shadow:0 1px 4px rgba(60,50,20,.05);}
@@ -522,18 +527,18 @@ tr.grp td{background:var(--green-soft) !important;color:#215c26;}
 <nav class="nav" id="nav">
   <div class="nav-inner" id="navInner">
     <a href="python-bigdata-2026.html" class="nav-back">← 课程主页</a>
-    <a href="#guide" data-sec="guide" class="on">本讲导览</a>
-    <a href="#c1" data-sec="c1">一、Pandas 与 Series</a>
-    <a href="#c2" data-sec="c2">二、DataFrame 创建与查看</a>
-    <a href="#c3" data-sec="c3">三、访问、修改与排序</a>
-    <a href="#c4" data-sec="c4">四、数据分析流程与导入导出</a>
-    <a href="#c5" data-sec="c5">五、数据预处理</a>
-    <a href="#c6" data-sec="c6">六、数据查询</a>
-    <a href="#c7" data-sec="c7">七、聚合统计与透视表</a>
-    <a href="#c8" data-sec="c8">八、合并连接与综合</a>
-    <a href="#lab" data-sec="lab">九、交互演示</a>
-    <a href="#download" data-sec="download">十、资料下载</a>
-    <a href="#summary" data-sec="summary">小结 · 作业</a>
+    <a href="#guide" data-sec="guide" class="on">导览</a>
+    <a href="#c1" data-sec="c1">一 Series</a>
+    <a href="#c2" data-sec="c2">二 DataFrame</a>
+    <a href="#c3" data-sec="c3">三 访问排序</a>
+    <a href="#c4" data-sec="c4">四 导入导出</a>
+    <a href="#c5" data-sec="c5">五 预处理</a>
+    <a href="#c6" data-sec="c6">六 查询</a>
+    <a href="#c7" data-sec="c7">七 聚合透视</a>
+    <a href="#c8" data-sec="c8">八 合并连接</a>
+    <a href="#lab" data-sec="lab">九 演示</a>
+    <a href="#download" data-sec="download">十 下载</a>
+    <a href="#summary" data-sec="summary">小结</a>
   </div>
 </nav>
 
@@ -567,21 +572,21 @@ tr.grp td{background:var(--green-soft) !important;color:#215c26;}
       <text x="103" y="180" text-anchor="middle" font-size="12" fill="#8c2f28">Excel / CSV / TXT</text>
 
       <g font-size="13">
-        <rect x="212" y="52" width="476" height="150" rx="12" fill="#eaf1f8" stroke="#306998" stroke-width="1.5"/>
+        <rect x="200" y="52" width="500" height="150" rx="12" fill="#eaf1f8" stroke="#306998" stroke-width="1.5"/>
         <text x="450" y="76" text-anchor="middle" font-size="14" font-weight="700" fill="#1f3864">Pandas 处理六步</text>
         <g fill="#1f3864" font-weight="700">
-          <text x="268" y="108" text-anchor="middle">① 导入</text>
-          <text x="372" y="108" text-anchor="middle">② 查看</text>
-          <text x="476" y="108" text-anchor="middle">③ 清洗</text>
-          <text x="580" y="108" text-anchor="middle">④ 查询</text>
-          <text x="684" y="108" text-anchor="middle">⑤ 聚合</text>
+          <text x="240" y="108" text-anchor="middle">① 导入</text>
+          <text x="344" y="108" text-anchor="middle">② 查看</text>
+          <text x="448" y="108" text-anchor="middle">③ 清洗</text>
+          <text x="552" y="108" text-anchor="middle">④ 查询</text>
+          <text x="656" y="108" text-anchor="middle">⑤ 聚合</text>
         </g>
-        <g fill="#306998" font-size="11.5">
-          <text x="268" y="130" text-anchor="middle">read_excel</text>
-          <text x="372" y="130" text-anchor="middle">head / info</text>
-          <text x="476" y="130" text-anchor="middle">缺失·重复·异常</text>
-          <text x="580" y="130" text-anchor="middle">loc / 布尔索引</text>
-          <text x="684" y="130" text-anchor="middle">groupby / agg</text>
+        <g fill="#306998" font-size="11">
+          <text x="240" y="130" text-anchor="middle">read_excel</text>
+          <text x="344" y="130" text-anchor="middle">head / info</text>
+          <text x="448" y="130" text-anchor="middle">缺失·重复·异常</text>
+          <text x="552" y="130" text-anchor="middle">loc / 布尔索引</text>
+          <text x="656" y="130" text-anchor="middle">groupby / agg</text>
         </g>
         <text x="450" y="162" text-anchor="middle" font-size="12.5" fill="#234a72">⑥ 透视 · 合并 · 导出（pivot_table / merge / to_excel）</text>
         <text x="450" y="184" text-anchor="middle" font-size="12" fill="#5d594c">每一步都看得见中间结果：shape 怎么变、哪些行被删、哪几行命中</text>
@@ -595,8 +600,8 @@ tr.grp td{background:var(--green-soft) !important;color:#215c26;}
       <text x="797" y="180" text-anchor="middle" font-size="12" fill="#215c26">导出 Excel / CSV</text>
 
       <g stroke="#8a8577" stroke-width="1.6" fill="none">
-        <path d="M188 127 L210 127"/><path d="M690 127 L710 127"/>
-        <path d="M206 121 L212 127 L206 133"/><path d="M704 121 L710 127 L704 133"/>
+        <path d="M188 127 L198 127"/><path d="M700 127 L709 127"/>
+        <path d="M193 121 L199 127 L193 133"/><path d="M703 121 L709 127 L703 133"/>
       </g>
 
       <rect x="18" y="222" width="864" height="96" rx="12" fill="#fbf8f1" stroke="#e4ddcc"/>
@@ -9838,23 +9843,62 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 });
 
-/* ===== 导航滚动高亮 ===== */
+/* ===== 导航滚动高亮 + 横向拖拽 ===== */
 document.addEventListener('DOMContentLoaded', function () {
   var navLinks = {};
   document.querySelectorAll('#nav a[data-sec]').forEach(function (a) { navLinks[a.getAttribute('data-sec')] = a; });
+  var navInner = document.getElementById('navInner');
   var sections = ['guide', 'c1', 'c2', 'c3', 'c4', 'c5', 'c6', 'c7', 'c8', 'lab', 'download', 'summary'];
+
+  function centerActive(a) {
+    if (!navInner || !a || navInner.scrollWidth <= navInner.clientWidth + 2) return;
+    var target = a.offsetLeft - (navInner.clientWidth - a.offsetWidth) / 2;
+    target = Math.max(0, Math.min(target, navInner.scrollWidth - navInner.clientWidth));
+    navInner.scrollTo({ left: target, behavior: 'smooth' });
+  }
+
   if ('IntersectionObserver' in window) {
     var obs = new IntersectionObserver(function (entries) {
       entries.forEach(function (en) {
         if (en.isIntersecting) {
           document.querySelectorAll('#nav a').forEach(function (a) { a.classList.remove('on'); });
           var a = navLinks[en.target.id];
-          if (a) a.classList.add('on');
+          if (a) { a.classList.add('on'); centerActive(a); }
         }
       });
     }, { rootMargin: '-15% 0px -70% 0px' });
     sections.forEach(function (s) { var el = document.getElementById(s); if (el) obs.observe(el); });
   }
+
+  /* 鼠标拖动 / 触控滑动：横向滚动导航；拖动后不触发链接跳转 */
+  if (!navInner) return;
+  var down = false, moved = false, startX = 0, startLeft = 0;
+  navInner.addEventListener('pointerdown', function (e) {
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+    down = true; moved = false; startX = e.clientX; startLeft = navInner.scrollLeft;
+    navInner.scrollTo({ left: navInner.scrollLeft, behavior: 'instant' });
+  });
+  navInner.addEventListener('pointermove', function (e) {
+    if (!down) return;
+    var dx = e.clientX - startX;
+    if (!moved && Math.abs(dx) < 5) return;
+    moved = true;
+    navInner.classList.add('dragging');
+    navInner.scrollLeft = startLeft - dx;
+    if (e.cancelable) e.preventDefault();
+  });
+  function endDrag() { down = false; navInner.classList.remove('dragging'); }
+  navInner.addEventListener('pointerup', endDrag);
+  navInner.addEventListener('pointercancel', endDrag);
+  navInner.addEventListener('pointerleave', function () { if (down) endDrag(); });
+  navInner.addEventListener('dragstart', function (e) { e.preventDefault(); });
+  navInner.addEventListener('click', function (e) {
+    if (moved) { e.preventDefault(); e.stopPropagation(); moved = false; }
+  }, true);
+  navInner.addEventListener('focusin', function (e) {
+    if (down || moved) return;
+    if (e.target.tagName === 'A' && e.target.matches(':focus-visible')) centerActive(e.target);
+  });
 });
 
 /* ===== 回到顶部 ===== */
