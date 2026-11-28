@@ -518,7 +518,7 @@ tr.grp td{background:var(--green-soft) !important;color:#215c26;}
     <h1>第 8 章　Pandas 数据处理与分析</h1>
     <p class="sub">带标签的数据结构（Series / DataFrame）· 数据导入与导出 · 数据预处理（缺失 / 重复 / 异常）· 数据查询与排序 · 分组聚合与分箱 · 数据透视表 · 合并与连接 · 订单数据全流程 · AI 渗透（8 个知识模块 + 110 段实测代码 + 22 张插图 + 17 个动态演示图 + 8 个交互面板 + 可下载的代码与数据）</p>
     <div class="meta">
-      <span>中华女子学院</span><span>12 学时（讲授 2 + 上机 10）</span><span>授课人：孙琪翔</span><span>第 12—14 周</span>
+      <span>中华女子学院</span><span>8 学时（讲授 2 + 上机 6）</span><span>授课人：孙琪翔</span><span>第 12—13 周</span>
     </div>
   </div>
 </header>
@@ -558,7 +558,7 @@ tr.grp td{background:var(--green-soft) !important;color:#215c26;}
 
   <p>这一章的主角 <strong>Pandas</strong> 就是为“表”而生的。它有两个核心对象：<code class="inline">Series</code>（带标签的一列）和 <code class="inline">DataFrame</code>（带标签的二维表）。有了标签，你写的是 <code class="inline">df['金额'].sum()</code>、<code class="inline">df[df.商品名称 == '围巾']</code>——<strong>说的是业务含义，不是第几列</strong>。Excel 能做的筛选、排序、分组、透视、合并，Pandas 都能用几行代码完成；而且步骤可复现、可批量、可自动化，数据量从 300 行涨到 300 万行也不用换方法。</p>
 
-  <p>这一章是整门课<strong>分量最重</strong>的一章（12 学时：讲授 2 + 上机 10），课件 92 页、例 8-1 到例 8-40。页面按“数据结构 → 导入导出 → 预处理 → 查询 → 聚合 → 透视 → 合并”的主线展开，最后用订单数据把全流程串一遍。<strong>示例和演示比前几章都多</strong>：每段代码都在本机真实运行、结果自动回填；每个抽象概念都配手绘插图、可单步播放的动画和可动手改参数的交互面板。</p>
+  <p>这一章是整门课<strong>分量最重</strong>的一章（8 学时：讲授 2 + 上机 6），课件 92 页、例 8-1 到例 8-40。页面按“数据结构 → 导入导出 → 预处理 → 查询 → 聚合 → 透视 → 合并”的主线展开，最后用订单数据把全流程串一遍。<strong>示例和演示比前几章都多</strong>：每段代码都在本机真实运行、结果自动回填；每个抽象概念都配手绘插图、可单步播放的动画和可动手改参数的交互面板。</p>
 
   <div class="figsvg">
     <svg viewBox="0 0 900 340" width="900" height="340" role="img" aria-label="本课主线：原始表格数据经 Pandas 六步处理得到分析结论并导出">
@@ -617,8 +617,8 @@ tr.grp td{background:var(--green-soft) !important;color:#215c26;}
     <div class="figcap">本课主线：真实数据几乎都是“表”，Pandas 把导入、清洗、查询、聚合、透视、合并串成一条可复现的流水线</div>
   </div>
 
-  <h3>十二学时怎么排</h3>
-  <div class="grid3">
+  <h3>八学时怎么排</h3>
+  <div class="grid2">
     <div class="step-card">
       <div class="sc-no">第 12 周 · 讲授 2 + 上机 2 学时</div>
       <div class="sc-title">数据结构 + 导入导出</div>
@@ -629,12 +629,9 @@ tr.grp td{background:var(--green-soft) !important;color:#215c26;}
       <div class="sc-title">数据预处理与查询</div>
       <div class="sc-desc">找缺失值 · dropna / fillna · 异常值查找与删除 · 重复值 duplicated / drop_duplicates · 类型转换与字段抽取 · 多条件查询 · isin / between / nlargest</div>
     </div>
-    <div class="step-card">
-      <div class="sc-no">第 14 周 · 上机 4 学时</div>
-      <div class="sc-title">聚合透视、合并连接与综合实战</div>
-      <div class="sc-desc">groupby + agg · pd.cut 分箱 · resample · pivot_table 数据透视表 · concat 合并 · merge 四种连接 · 连接校验 · 订单数据全流程 · AI 数据管线中的 Pandas</div>
-    </div>
   </div>
+
+  <div class="note">第 7、8 模块（聚合统计与透视表、合并连接与综合案例）安排为<strong>课后自学</strong>：先照页面示例跑一遍，第 9 次课（12-04）的 Pandas 总复习会集中串讲；这两块的示例、动画、面板和下载材料在本页全部保留。</div>
 
   <div class="note">
     <strong>学习目标</strong>：① 说清 Series 和 DataFrame 的“三部分”（index / columns / values），会用列表、字典、数组创建 Series 和 DataFrame；② 会用 <code class="inline">shape / index / columns / dtypes / info() / describe()</code> 看清一张表；③ 分得清 <code class="inline">loc</code>（按标签）和 <code class="inline">iloc</code>（按位置），会用 <code class="inline">at / iat / df[ ]</code> 和布尔索引取值；④ 会修改、增删列，会 <code class="inline">sort_index / sort_values</code> 排序；⑤ 会 <code class="inline">read_excel / read_csv / read_table</code> 导入、<code class="inline">to_excel / to_csv</code> 导出，知道 <code class="inline">index=False</code> 和编码参数的意义；⑥ 会用 <code class="inline">isnull / dropna / fillna / duplicated / drop_duplicates</code> 处理缺失、重复、异常值；⑦ 会用条件查询、<code class="inline">between / isin / nlargest</code> 和排序做数据查询；⑧ 会用 <code class="inline">groupby + agg</code>、<code class="inline">pd.cut</code>、<code class="inline">resample</code> 做统计汇总；⑨ 会用 <code class="inline">pivot_table</code> 建透视表；⑩ 会用 <code class="inline">concat / merge</code> 合并连接两张表，并能独立完成订单数据的全流程分析。
@@ -725,7 +722,7 @@ tr.grp td{background:var(--green-soft) !important;color:#215c26;}
         </div>
       </div>
     </div>
-    <div class="legend">说明：本章依据课程课件《8-Pandas 数据处理与分析新》（92 页，例 8-1—例 8-40）与教学进度表「CH8 Pandas数据处理与分析：Pandas基本数据结构（Series、DataFrame）· 数据导入与导出 · 数据预处理 · 数据查询、汇总、数据透视表 · 数据的连接与合并（讲授 2 + 上机 10 ＝ 12 学时）」整理并扩充。课件完整数据 310 行（<code class="inline">data\订单.xlsx</code>），页面为便于阅读统一使用 <b>12 行精简订单数据</b>（保留了缺失值、重复值、异常值三类问题），课后练习请用完整数据。页面每段代码都在本机真实运行后回填（Python 3.14 / pandas 3.0.5），运行结果默认隐藏，点“运行”才显示。</div>
+    <div class="legend">说明：本章依据课程课件《8-Pandas 数据处理与分析新》（92 页，例 8-1—例 8-40）与教学进度表「CH8 Pandas数据处理与分析：Pandas基本数据结构（Series、DataFrame）· 数据导入与导出 · 数据预处理 · 数据查询、汇总、数据透视表 · 数据的连接与合并（讲授 2 + 上机 6 ＝ 8 学时；第 7、8 模块课后自学、第 9 次课复习串讲）」整理并扩充。课件完整数据 310 行（<code class="inline">data\订单.xlsx</code>），页面为便于阅读统一使用 <b>12 行精简订单数据</b>（保留了缺失值、重复值、异常值三类问题），课后练习请用完整数据。页面每段代码都在本机真实运行后回填（Python 3.14 / pandas 3.0.5），运行结果默认隐藏，点“运行”才显示。</div>
   </div>
 
   <div class="warn"><strong>先记住四句话</strong>：① 一切从“带标签”开始——<code class="inline">Series</code> 是带标签的一列，<code class="inline">DataFrame</code> 是带标签的表（<code class="inline">index</code> 行标签 + <code class="inline">columns</code> 列标签）；② 取数据先想清楚“<strong>按标签还是按位置</strong>”——<code class="inline">loc</code> 看名字、<code class="inline">iloc</code> 看座号，条件筛选用布尔索引；③ 分析四板斧：<strong>筛选 → 分组（groupby）→ 汇总（agg）→ 透视（pivot_table）</strong>；④ 数据不干净、分析全白搭：缺失 / 重复 / 异常值先处理，导出时记得 <code class="inline">index=False</code>。</div>
@@ -8199,7 +8196,7 @@ one-hot 之后：一件商品一列，是它填 1、不是填 0
 
 <footer>
   <div class="f-main">中华女子学院 · Python大数据分析基础</div>
-  <div>第 8 次课 · 第 8 章 Pandas 数据处理与分析 · 12 学时（讲授 2 + 上机 10）· 授课人：孙琪翔</div>
+  <div>第 8 次课 · 第 8 章 Pandas 数据处理与分析 · 8 学时（讲授 2 + 上机 6）· 授课人：孙琪翔</div>
   <div style="margin-top:6px;font-size:12px;opacity:.7;">本页依据课程课件《8-Pandas 数据处理与分析新》（92 页，例 8-1—例 8-40）与《Python 编程与数据分析基础》（陈洁、刘姝，清华大学出版社）第 8 章整理；页面中每段示例代码都实际运行后回填结果（Python 3.14 / pandas 3.0.5），运行结果默认隐藏、点“运行”查看。页面统一使用 12 行精简订单数据（完整 310 行见课程数据文件）。</div>
   <div style="margin-top:12px;font-size:14px;">
     <a href="python-bigdata-2026.html">课程主页</a>

@@ -1,0 +1,3416 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第9次课 · Pandas总复习与两套实战练习 | Python大数据分析基础</title>
+<style>
+/* ===== 基础 ===== */
+:root{
+  --ink:#2b2820; --ink-soft:#5d594c; --ink-faint:#8a8577;
+  --paper:#f6f3ec; --card:#fffdf8; --line:#e4ddcc; --line-soft:#efe9dc;
+  --blue:#306998; --blue-deep:#1f3864; --blue-soft:#eaf1f8;
+  --gold:#b8860b; --amber:#b45309; --amber-soft:#fdf3e3;
+  --green:#2e7d32; --green-soft:#eaf5eb;
+  --red:#b3392f; --red-soft:#fbeceb;
+  --code-bg:#191b24; --code-hd:#232533; --code-txt:#e8e6de;
+  --radius:14px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;scroll-padding-top:72px;}
+body{
+  font-family:"Times New Roman","宋体",SimSun,"Songti SC","SimSun-ExtB",serif;
+  font-size:16px;line-height:1.95;color:var(--ink);background:var(--paper);
+  -webkit-font-smoothing:antialiased;
+}
+/* ===== 顶部 Hero ===== */
+.hero{
+  background:linear-gradient(120deg,#1b3157 0%,#264a7e 55%,#306998 100%);
+  color:#fff;padding:46px 20px 40px;position:relative;overflow:hidden;
+}
+.hero::after{
+  content:"";position:absolute;right:-60px;top:-60px;width:300px;height:300px;
+  border-radius:50%;background:rgba(255,212,59,.08);pointer-events:none;
+}
+.hero-inner{max-width:1060px;margin:0 auto;position:relative;z-index:1;}
+.hero .kicker{
+  display:inline-block;font-size:13px;letter-spacing:2px;color:#ffd43b;
+  border:1px solid rgba(255,212,59,.5);border-radius:999px;padding:3px 14px;margin-bottom:16px;
+}
+.hero h1{font-size:38px;font-weight:700;line-height:1.35;margin-bottom:10px;}
+.hero .sub{font-size:18px;color:#dbe6f5;margin-bottom:18px;}
+.hero .meta{display:flex;flex-wrap:wrap;gap:10px;}
+.hero .meta span{
+  font-size:13px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);
+  border-radius:999px;padding:4px 14px;color:#f2f6fb;
+}
+/* ===== 导航 ===== */
+.nav{
+  position:sticky;top:0;z-index:50;background:#fdfbf6;
+  border-bottom:1px solid var(--line);
+}
+.nav-inner{
+  max-width:1060px;margin:0 auto;display:flex;align-items:center;gap:4px;
+  overflow-x:auto;padding:8px 16px;scrollbar-width:none;-ms-overflow-style:none;
+  cursor:grab;overscroll-behavior-x:contain;
+}
+.nav-inner::-webkit-scrollbar{height:0;}
+.nav-inner.dragging{cursor:grabbing;scroll-behavior:auto;user-select:none;}
+.nav a{
+  flex:0 0 auto;font-size:13px;color:var(--ink-soft);text-decoration:none;
+  padding:5px 9px;border-radius:999px;border:1px solid transparent;white-space:nowrap;
+  transition:all .18s;-webkit-user-drag:none;user-select:none;
+}
+.nav a:hover{color:var(--blue);background:var(--blue-soft);}
+.nav a.on{color:#fff;background:var(--blue);border-color:var(--blue);}
+.nav a.nav-back{color:var(--blue-deep);font-weight:700;border-color:#cfe0f0;background:#fff;margin-right:4px;}
+/* ===== 主区域 ===== */
+main{max-width:1060px;margin:0 auto;padding:30px 16px 60px;}
+section{margin-bottom:34px;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:30px 34px;box-shadow:0 1px 4px rgba(60,50,20,.05);}
+.sec-head{display:flex;align-items:flex-start;gap:14px;margin-bottom:6px;}
+.sec-num{
+  flex:0 0 auto;min-width:46px;height:46px;border-radius:12px;background:var(--blue-deep);color:#fff;
+  display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:700;margin-top:4px;
+}
+.sec-head h2{font-size:26px;font-weight:700;line-height:1.3;}
+.sec-sub{font-size:14px;color:var(--ink-soft);margin:2px 0 18px;}
+h3{font-size:20px;font-weight:700;margin:30px 0 10px;padding-left:12px;border-left:5px solid var(--blue);line-height:1.5;}
+h4{font-size:17px;font-weight:700;margin:18px 0 8px;color:var(--blue-deep);}
+p{margin:8px 0;}
+ul,ol{margin:8px 0 8px 24px;}
+li{margin:5px 0;}
+strong{color:var(--blue-deep);}
+code.inline{
+  font-family:"Times New Roman","宋体",SimSun,serif;font-size:15px;background:var(--blue-soft);
+  color:var(--blue-deep);padding:1px 7px;border-radius:6px;border:1px solid #d5e2f0;white-space:nowrap;
+}
+/* 标签 */
+.tag{display:inline-block;font-size:12px;color:var(--blue);background:var(--blue-soft);border:1px solid #d2e2f2;border-radius:999px;padding:1px 10px;margin:2px 4px 2px 0;}
+.tag.gold{color:var(--amber);background:var(--amber-soft);border-color:#f0dcb8;}
+.tag.green{color:var(--green);background:var(--green-soft);border-color:#cfe6d1;}
+.tag.red{color:var(--red);background:var(--red-soft);border-color:#ecd0cd;}
+/* 提示框 */
+.note,.warn,.danger,.key,.ai{
+  border-radius:10px;padding:12px 16px 12px 44px;margin:14px 0;position:relative;font-size:15px;
+}
+.note{background:var(--blue-soft);border:1px solid #cfe0f0;color:#234a72;}
+.warn{background:var(--amber-soft);border:1px solid #efdcb5;color:#7a4a0a;}
+.danger{background:var(--red-soft);border:1px solid #ecd0cd;color:#8c2f28;}
+.key{background:#f4efe2;border:1px solid #e5dcc0;color:#5d5230;}
+.ai{background:#eef0fa;border:1px solid #d7dbef;color:#333a63;}
+.note::before,.warn::before,.danger::before,.key::before,.ai::before{
+  position:absolute;left:14px;top:12px;width:20px;height:20px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;
+}
+.note::before{content:"i";background:var(--blue);}
+.warn::before{content:"!";background:var(--amber);}
+.danger::before{content:"×";background:var(--red);}
+.key::before{content:"★";background:#9c8a4a;}
+.ai::before{content:"AI";font-size:10px;background:#4c5691;letter-spacing:0;}
+/* 本节小结 */
+.sumline{
+  background:var(--green-soft);border:1px solid #cfe6d1;border-left:5px solid var(--green);
+  border-radius:10px;padding:10px 16px;margin:12px 0 6px;font-size:15px;color:#215c26;
+}
+.sumline b{color:#1b4d1f;}
+.sumline code.inline{background:#fff;border-color:#cfe6d1;color:#215c26;}
+/* 配套视频 */
+.vid{
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:10px 0 4px;
+  background:#f7f4ec;border:1px solid var(--line-soft);border-left:5px solid var(--blue);
+  border-radius:10px;padding:9px 14px;font-size:14px;
+}
+.vid .vtag{font-size:12px;color:#fff;background:var(--blue);border-radius:999px;padding:1px 10px;flex:0 0 auto;}
+.vid a{color:var(--blue-deep);font-weight:700;text-decoration:none;border-bottom:1px solid #cfe0f0;}
+.vid a:hover{border-bottom-color:var(--blue);}
+.vid .vmeta{color:var(--ink-faint);font-size:12.5px;}
+/* ===== 表格 ===== */
+.tbl-wrap{overflow-x:auto;margin:14px 0;border:1px solid var(--line);border-radius:10px;}
+table{width:100%;border-collapse:collapse;font-size:15px;background:#fff;}
+th,td{padding:9px 14px;border-bottom:1px solid var(--line-soft);text-align:left;vertical-align:top;}
+th{background:var(--blue-soft);color:var(--blue-deep);font-weight:700;white-space:nowrap;}
+tbody tr:nth-child(even){background:#faf7f0;}
+tbody tr:last-child td{border-bottom:none;}
+td code.inline,th code.inline{white-space:nowrap;}
+.mini-table td{font-size:14px;}
+/* ===== 演示代码 ===== */
+.demo{border-radius:12px;overflow:hidden;border:1px solid #33364a;margin:16px 0;background:var(--code-bg);}
+.demo-head{
+  display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;
+  background:var(--code-hd);padding:8px 14px;border-bottom:1px solid #2e3142;
+}
+.demo-title{font-size:14px;color:#c8cde0;}
+.demo-actions{display:flex;gap:8px;}
+.btn{
+  font-family:inherit;font-size:13px;cursor:pointer;border-radius:8px;padding:4px 14px;
+  border:1px solid #3d4157;color:#d7dae8;background:#2b2e40;transition:all .15s;
+}
+.btn:hover{background:#383c52;}
+.btn-run{background:#1f6f43;border-color:#2b8a57;color:#fff;}
+.btn-run:hover{background:#26804f;}
+.btn.ok{background:var(--green);border-color:var(--green);color:#fff;}
+pre.code{
+  font-family:"Times New Roman","宋体",SimSun,serif;font-size:15px;line-height:1.75;
+  color:var(--code-txt);padding:14px 18px;overflow-x:auto;tab-size:4;
+}
+.demo-out{display:none;border-top:1px solid #2e3142;background:#12141c;padding:0 0 10px;}
+.demo.shown .demo-out{display:block;}
+.out-label{font-size:12px;color:#6b7288;letter-spacing:1px;padding:8px 18px 4px;border-bottom:1px solid #232634;}
+pre.out{
+  font-family:"Times New Roman","宋体",SimSun,serif;font-size:15px;line-height:1.7;
+  padding:10px 18px;color:#d6d9e4;overflow-x:auto;white-space:pre-wrap;
+}
+.demo.flash .demo-out{background:#16202c;}
+/* ===== 插图 ===== */
+.figure{margin:18px 0;text-align:center;}
+.figure img{max-width:100%;border:1px solid var(--line);border-radius:12px;background:#fff;padding:6px;}
+.figure figcaption{font-size:13px;color:var(--ink-soft);margin-top:8px;line-height:1.7;}
+.figsvg{background:#fbf8f1;border:1px solid var(--line);border-radius:12px;padding:14px 12px;margin:18px 0;}
+.figsvg svg{display:block;max-width:100%;height:auto;margin:0 auto;}
+.figsvg .figcap{font-size:13px;color:var(--ink-soft);text-align:center;margin-top:10px;line-height:1.7;}
+.figsvg svg text{font-family:"Times New Roman","宋体",SimSun,serif;}
+.grid2fig{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:16px 0;}
+@media(max-width:860px){.grid2fig{grid-template-columns:1fr;}}
+/* ===== 网格 ===== */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:16px 0;}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:16px 0;}
+.grid2 .cell,.grid3 .cell{background:#faf7f0;border:1px solid var(--line-soft);border-radius:12px;padding:16px 18px;}
+.cell h4{margin-top:0;}
+.cell ul{margin-left:20px;}
+.cell li{font-size:15px;}
+@media(max-width:860px){.grid2,.grid3{grid-template-columns:1fr;}}
+/* ===== 步骤 ===== */
+.step-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:16px 0;}
+.step-card{background:#faf7f0;border:1px solid var(--line-soft);border-radius:12px;padding:14px 16px;}
+.step-card .sc-no{font-size:12px;color:var(--blue);font-weight:700;letter-spacing:1px;}
+.step-card .sc-title{font-size:16px;font-weight:700;color:var(--blue-deep);margin:4px 0;}
+.step-card .sc-desc{font-size:14px;color:var(--ink-soft);line-height:1.7;}
+@media(max-width:860px){.step-grid{grid-template-columns:1fr 1fr;}}
+@media(max-width:560px){.step-grid{grid-template-columns:1fr;}}
+/* ===== 知识树 ===== */
+.tree{font-size:15px;line-height:1.7;border:1px solid var(--line);border-radius:12px;background:#fbf8f1;padding:16px 14px;}
+.tree .root-node{
+  display:inline-block;background:var(--blue-deep);color:#fff;font-weight:700;
+  border-radius:999px;padding:5px 22px;margin:4px 0 12px;
+}
+.tree .tn{display:flex;align-items:center;gap:6px;padding:4px 10px;border-radius:8px;cursor:pointer;color:var(--ink);transition:background .15s;}
+.tree .tn:hover{background:#f0ecdf;}
+.tree .tn .tw{flex:0 0 auto;width:14px;height:14px;display:inline-flex;align-items:center;justify-content:center;color:#9a937f;font-size:10px;transition:transform .2s;user-select:none;}
+.tree .tn.open .tw{transform:rotate(90deg);}
+.tree .tn.branch{font-weight:700;}
+.tree .tn .golink{color:#7a9cc7;font-size:11px;border:1px solid #c9d8ea;border-radius:999px;padding:0 6px;margin-left:auto;background:#fff;flex:0 0 auto;}
+.tree .tn.leaf{cursor:pointer;color:var(--ink-soft);}
+.tree .kids{border-left:2px solid #e0d9c6;margin-left:16px;padding-left:6px;display:none;}
+.tree .kids.show{display:block;}
+.tree .b-blue .tn.branch{color:var(--blue-deep);}
+.tree .b-amber .tn.branch{color:var(--amber);}
+.tree .b-green .tn.branch{color:var(--green);}
+.tree .b-purple .tn.branch{color:#6d4fa8;}
+.tree .legend{font-size:12px;color:var(--ink-faint);margin-top:10px;padding-top:8px;border-top:1px dashed var(--line);}
+/* ===== 卡片网格 ===== */
+.map-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;margin:16px 0;}
+.map-card{
+  background:#faf7f0;border:1px solid var(--line-soft);border-radius:12px;padding:16px 18px;
+  transition:all .2s;text-decoration:none;color:var(--ink);display:block;
+}
+.map-card:hover{border-color:var(--blue);box-shadow:0 4px 14px rgba(48,105,152,.12);transform:translateY(-2px);}
+.map-card .mc-num{font-size:13px;color:var(--blue);font-weight:700;}
+.map-card .mc-title{font-size:18px;font-weight:700;color:var(--blue-deep);margin:4px 0 6px;}
+.map-card .mc-desc{font-size:14px;color:var(--ink-soft);line-height:1.7;}
+/* ===== 交互演示 ===== */
+.inter{background:#faf7f0;border:1px solid var(--line-soft);border-radius:12px;padding:16px 18px;margin:16px 0;}
+.inter h4{margin-top:0;}
+.inter-row{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;margin:10px 0;}
+.inter-row label{font-size:14px;color:var(--ink-soft);display:flex;align-items:center;gap:6px;}
+.inter-row input{
+  font-family:inherit;font-size:14px;color:var(--ink);background:#fff;border:1px solid var(--line);
+  border-radius:8px;padding:5px 10px;width:150px;
+}
+.inter-row input.wide{width:260px;}
+.inter-row select{
+  font-family:inherit;font-size:14px;color:var(--ink);background:#fff;border:1px solid var(--line);
+  border-radius:8px;padding:5px 8px;
+}
+.inter-row input:focus{outline:none;border-color:var(--blue);}
+.inter-btn{
+  font-family:inherit;font-size:14px;cursor:pointer;border-radius:8px;padding:5px 16px;
+  border:1px solid var(--blue);background:var(--blue);color:#fff;
+}
+.inter-btn:hover{background:var(--blue-deep);border-color:var(--blue-deep);}
+.inter-out{
+  font-family:"Times New Roman","宋体",SimSun,serif;font-size:14.5px;line-height:1.7;
+  background:#12141c;color:#d6d9e4;border-radius:8px;padding:10px 14px;margin-top:10px;
+  white-space:pre-wrap;min-height:44px;
+}
+/* ===== 动态演示图（可播放 / 单步） ===== */
+.anim{border:1px solid var(--line);border-radius:12px;background:#fbf8f1;margin:18px 0;overflow:hidden;}
+.anim-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;background:var(--blue-deep);color:#fff;padding:8px 14px;}
+.anim-title{font-size:14px;font-weight:700;}
+.anim-actions{display:flex;gap:6px;flex-wrap:wrap;}
+.anim-actions .btn{background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.4);color:#fff;padding:3px 12px;}
+.anim-actions .btn:hover{background:rgba(255,255,255,.3);}
+.anim-actions .btn-play{background:#2e7d32;border-color:#2e7d32;font-weight:700;}
+.anim-stage{padding:16px 14px;min-height:150px;display:flex;flex-direction:column;gap:12px;align-items:center;justify-content:center;}
+.anim-status{border-top:1px dashed var(--line);padding:9px 16px;font-size:14px;color:var(--ink-soft);display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:flex-start;}
+.anim-progress{color:var(--ink-faint);font-size:12.5px;white-space:nowrap;}
+.acells{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;align-items:flex-start;}
+.acell{min-width:58px;height:50px;padding:0 6px;border-radius:9px;border:2px solid var(--line);background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:var(--ink);transition:all .3s;}
+.acell small{font-size:11px;font-weight:400;color:var(--ink-faint);margin-top:1px;}
+.acell.hi{background:var(--blue-soft);border-color:var(--blue);color:var(--blue-deep);}
+.acell.ok{background:var(--green-soft);border-color:var(--green);color:#215c26;}
+.acell.no{background:var(--red-soft);border-color:var(--red);color:#8c2f28;}
+.acell.dim{opacity:.4;}
+.acell.nested{font-size:13px;background:#fff7e6;border-color:var(--gold);color:#7a4a0a;}
+.arow{display:flex;gap:12px;align-items:center;justify-content:center;flex-wrap:wrap;}
+.alabel{font-size:13.5px;font-weight:700;color:var(--blue-deep);min-width:70px;text-align:right;}
+.abars{display:flex;gap:12px;align-items:flex-end;justify-content:center;height:158px;}
+.abar{width:48px;border-radius:8px 8px 0 0;background:linear-gradient(180deg,#4a86bd,#306998);color:#fff;font-size:13px;display:flex;align-items:flex-start;justify-content:center;padding-top:5px;transition:height .3s, background .3s;}
+.abar.hi{background:linear-gradient(180deg,#e0a63a,#b8860b);}
+.abar.done{background:linear-gradient(180deg,#57a05c,#2e7d32);}
+.abar.no{background:linear-gradient(180deg,#c96a63,#a8433b);}
+.anote{font-size:13.5px;color:#7a4a0a;background:var(--amber-soft);border:1px solid #efdcb5;border-radius:8px;padding:5px 12px;}
+.aresult{font-size:14px;color:#215c26;background:var(--green-soft);border:1px solid #cfe6d1;border-radius:8px;padding:6px 14px;font-weight:700;}
+@media(max-width:720px){.anim-stage{padding:12px 8px;}.acell{min-width:46px;height:44px;font-size:14px;}.abar{width:36px;}}
+/* ===== 小结 / 作业 ===== */
+.recap{background:#faf7f0;border:1px solid var(--line-soft);border-radius:12px;padding:16px 20px;margin:14px 0;}
+.homework{border:1px dashed var(--blue);border-radius:12px;background:var(--blue-soft);padding:16px 22px;margin:14px 0;}
+.homework h4{color:var(--blue-deep);margin-top:0;}
+.nextcard{
+  display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;
+  background:linear-gradient(120deg,#1b3157,#306998);color:#fff;border-radius:12px;padding:18px 22px;margin:16px 0;
+  text-decoration:none;
+}
+.nextcard .nc-title{font-size:18px;font-weight:700;}
+.nextcard .nc-desc{font-size:14px;color:#dbe6f5;}
+.nextcard .nc-go{font-size:14px;border:1px solid rgba(255,255,255,.5);border-radius:999px;padding:4px 16px;color:#fff;}
+.nextcard:hover .nc-go{background:#fff;color:var(--blue-deep);}
+/* 页脚 */
+footer{background:#1c2b44;color:#b9c6dc;text-align:center;padding:26px 20px;font-size:14px;}
+footer .f-main{color:#fff;font-size:16px;margin-bottom:4px;}
+footer a{color:#dfe7f4;text-decoration:none;}
+footer a:hover{text-decoration:underline;}
+/* 回到顶部 */
+#toTop{
+  position:fixed;right:22px;bottom:26px;width:44px;height:44px;border-radius:50%;border:none;
+  font-family:"Times New Roman","宋体",SimSun,serif;font-weight:700;
+  background:var(--blue-deep);color:#fff;font-size:18px;cursor:pointer;box-shadow:0 4px 14px rgba(31,56,100,.35);
+  opacity:0;pointer-events:none;transition:all .25s;z-index:60;
+}
+#toTop.show{opacity:1;pointer-events:auto;}
+#toTop:hover{background:var(--blue);}
+/* ===== 响应式 ===== */
+@media(max-width:720px){
+  body{font-size:15px;}
+  .hero h1{font-size:27px;}
+  .hero{padding:34px 16px 30px;}
+  section{padding:22px 18px;}
+  .sec-head h2{font-size:21px;}
+  .sec-num{min-width:38px;height:38px;font-size:15px;}
+  pre.code{font-size:14px;padding:12px 14px;}
+  pre.out{font-size:14px;padding:8px 14px;}
+  .demo-head{flex-direction:column;align-items:flex-start;}
+}
+</style>
+<style>
+/* ===== 第 5 次课《函数与类》补充组件 ===== */
+.cmp{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:16px 0;}
+.cmp .cmp-box{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff;}
+.cmp .cmp-h{font-size:13.5px;font-weight:700;padding:6px 12px;background:var(--blue-soft);color:var(--blue-deep);border-bottom:1px solid var(--line);}
+.cmp .cmp-h.bad{background:var(--red-soft);color:#8c2f28;}
+.cmp .cmp-h.good{background:var(--green-soft);color:#215c26;}
+.cmp pre{margin:0;font-family:"Consolas","Courier New",monospace;font-size:13px;line-height:1.7;padding:10px 14px;background:#fdfbf6;color:#2b2820;white-space:pre-wrap;overflow-x:auto;}
+.scope-box{border:2px dashed #c9c2ae;border-radius:12px;padding:12px 16px;margin:14px 0;background:#fdfbf6;}
+.scope-box .sb-title{font-size:13px;font-weight:700;color:var(--blue-deep);letter-spacing:.5px;margin-bottom:6px;}
+.scope-box .sb-inner{border:2px solid var(--blue);border-radius:10px;padding:10px 14px;background:#fff;margin-top:8px;}
+.scope-box .sb-cap{font-size:13px;color:var(--ink-soft);margin-top:8px;}
+.sv{display:inline-block;font-family:Consolas,monospace;background:#fff;border:1px solid var(--line);border-radius:6px;padding:1px 8px;margin:2px 4px 2px 0;font-size:13.5px;}
+.sv.local{background:#fff7e6;border-color:var(--gold);color:#7a4a0a;}
+.sv.global{background:var(--blue-soft);border-color:#cfe0f0;color:#234a72;}
+.chips{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;}
+.chip{font-family:Consolas,monospace;font-size:13.5px;border:1.5px solid var(--line);background:#fff;border-radius:8px;padding:5px 10px;color:var(--ink);}
+.chip.ph{background:#f4efe2;border-color:#e5dcc0;color:#5d5230;}
+.chip.va{background:var(--green-soft);border-color:var(--green);color:#215c26;font-weight:700;}
+.chip.no{background:var(--red-soft);border-color:var(--red);color:#8c2f28;}
+.callstack{display:flex;flex-direction:column;gap:6px;min-width:270px;}
+.cframe{border:1.5px solid var(--line);border-radius:9px;background:#fff;padding:6px 12px;font-size:13.5px;font-family:Consolas,monospace;display:flex;justify-content:space-between;gap:10px;transition:all .25s;}
+.cframe.act{background:var(--blue-soft);border-color:var(--blue);color:var(--blue-deep);font-weight:700;}
+.cframe.ret{background:var(--green-soft);border-color:var(--green);color:#215c26;}
+.objcard{border:1px solid var(--line);border-radius:12px;background:#fbf8f1;padding:12px 16px;text-align:center;}
+.objcard .oc-h{font-size:13px;color:var(--ink-faint);}
+.objcard .oc-b{font-size:15px;font-weight:700;color:var(--blue-deep);font-family:Consolas,monospace;margin-top:4px;}
+.rev{background:#f7f4ec;border:1px solid var(--line);border-radius:12px;padding:14px 18px;margin:16px 0;}
+.rev .rev-title{font-size:15px;font-weight:700;color:var(--blue-deep);margin-bottom:6px;}
+@media(max-width:720px){
+  .cmp{grid-template-columns:1fr;}
+}
+</style>
+<style>
+/* ===== 第 6 次课《文件与目录操作》补充组件 ===== */
+/* 文件卡片：把一个"真实存在的文件"画出来（文件名 + 内容 + 说明） */
+.filecard{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff;margin:10px 0;}
+.filecard .fc-name{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:var(--blue-deep);background:var(--blue-soft);border-bottom:1px solid var(--line);padding:5px 12px;font-family:Consolas,"Courier New",monospace;}
+.filecard .fc-name::before{content:"\1F4C4";font-family:inherit;font-size:14px;}
+.filecard .fc-name .fc-tag{margin-left:auto;font-family:"Times New Roman","宋体",SimSun,serif;font-size:11.5px;font-weight:400;color:var(--ink-faint);}
+.filecard pre{font-family:Consolas,"Courier New",monospace;font-size:13.5px;line-height:1.65;padding:9px 14px;color:var(--ink);background:#fdfbf6;white-space:pre-wrap;overflow-x:auto;margin:0;}
+.filecard .fc-meta{font-size:12px;color:var(--ink-faint);padding:5px 12px;border-top:1px dashed var(--line);line-height:1.6;}
+
+/* 字节格子：显示"字符编码成字节"之后的序列 */
+.bytes{display:flex;gap:5px;flex-wrap:wrap;justify-content:center;align-items:center;}
+.bt{font-family:Consolas,"Courier New",monospace;font-size:13px;min-width:42px;text-align:center;border:1.5px solid var(--line);border-radius:7px;background:#fff;padding:4px 7px;color:var(--ink-soft);transition:all .3s;}
+.bt.hi{background:var(--blue-soft);border-color:var(--blue);color:var(--blue-deep);font-weight:700;}
+.bt.ok{background:var(--green-soft);border-color:var(--green);color:#215c26;font-weight:700;}
+.bt.no{background:var(--red-soft);border-color:var(--red);color:#8c2f28;font-weight:700;}
+.bt.dim{opacity:.35;}
+.bt.plus{min-width:24px;border-style:dashed;color:var(--ink-faint);}
+
+/* 目录树 */
+.ftree{font-family:Consolas,"Courier New",monospace;font-size:14px;line-height:1.95;background:#fdfbf6;border:1px solid var(--line);border-radius:10px;padding:12px 18px;margin:10px 0;overflow-x:auto;white-space:pre;}
+.ftree .t-dir{font-weight:700;color:var(--blue-deep);}
+.ftree .t-file{color:var(--ink-soft);}
+.ftree .t-hi{background:#fff7e6;border-radius:5px;color:#7a4a0a;}
+.ftree .t-ok{background:var(--green-soft);border-radius:5px;color:#215c26;}
+.ftree .t-no{background:var(--red-soft);border-radius:5px;color:#8c2f28;}
+
+/* 流水线（遍历 → 判断 → 处理 → 输出） */
+.pipe{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center;margin:12px 0;}
+.pipe .pstep{background:#fff;border:1.5px solid var(--line);border-radius:9px;padding:6px 13px;font-size:13.5px;color:var(--ink-soft);transition:all .3s;}
+.pipe .pstep.on{background:var(--blue-soft);border-color:var(--blue);color:var(--blue-deep);font-weight:700;}
+.pipe .pstep.done{background:var(--green-soft);border-color:var(--green);color:#215c26;}
+.pipe .parrow{color:var(--ink-faint);font-size:15px;}
+
+/* 文件里存的 / 程序里看到的 —— 两栏对照用的行内高亮 */
+.raw-txt{font-family:Consolas,"Courier New",monospace;background:#f4efe2;color:#5d5230;padding:1px 6px;border-radius:5px;font-size:13.5px;white-space:nowrap;}
+.comma{color:var(--red);font-weight:700;font-family:Consolas,monospace;}
+.nl{color:var(--blue);font-weight:700;font-family:Consolas,monospace;}
+
+/* 交互面板里的多行文本输入（CSV 文本 / 成绩文本） */
+.inter textarea{
+  width:100%;min-width:280px;min-height:112px;display:block;
+  padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:#fff;
+  font-family:Consolas,"Courier New",monospace;font-size:13.5px;line-height:1.7;color:var(--ink);
+  resize:vertical;
+}
+.inter textarea:focus{outline:none;border-color:var(--blue);}
+.inter-row:has(textarea){align-items:stretch;}
+.inter-row:has(textarea) > label{flex:1 1 100%;flex-direction:column;align-items:stretch;gap:6px;}
+
+@media(max-width:720px){
+  .filecard pre{font-size:12.5px;}
+  .ftree{font-size:12.5px;}
+}
+
+</style>
+<style>
+/* ===== 第 7 次课《NumPy 数值计算》补充组件 ===== */
+/* 矩阵/数组显示：把 ndarray 的二维内容画成带行列号的表格 */
+.mat{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff;display:inline-block;margin:6px auto;}
+.mat table{border-collapse:collapse;font-family:Consolas,"Courier New",monospace;font-size:13.5px;}
+.mat td,.mat th{border:1px solid var(--line-soft);padding:4px 11px;text-align:center;color:var(--ink);}
+.mat th{background:var(--blue-soft);color:var(--blue-deep);font-weight:700;font-size:12px;}
+.mat td.rh{background:var(--blue-soft);color:var(--blue-deep);font-weight:700;font-size:12px;}
+.mat td.hi{background:#fff7e6;color:#7a4a0a;font-weight:700;}
+.mat td.ok{background:var(--green-soft);color:#215c26;font-weight:700;}
+.mat td.no{background:var(--red-soft);color:#8c2f28;font-weight:700;}
+.mat-wrap{text-align:center;margin:8px 0;}
+
+/* 数组形状示意（方块 + 维度标注） */
+.shapes{display:flex;gap:18px;flex-wrap:wrap;justify-content:center;align-items:flex-end;margin:12px 0;}
+.shapes .sh{text-align:center;}
+.shapes .sh .sh-box{display:inline-flex;gap:3px;padding:6px;border:1.5px dashed #c9c2ae;border-radius:9px;background:#fdfbf6;}
+.shapes .sh .sh-cell{width:22px;height:22px;border-radius:4px;background:var(--blue-soft);border:1.5px solid var(--blue);}
+.shapes .sh .sh-cap{font-size:12.5px;color:var(--ink-soft);margin-top:6px;font-family:Consolas,monospace;}
+
+/* 轴向示意：给矩阵加箭头的容器 */
+.axwrap{position:relative;display:inline-block;}
+.axnote{font-size:12.5px;color:var(--ink-faint);margin-top:6px;text-align:center;}
+
+/* 代码与结果的左右并排（NumPy 交互反馈用） */
+.side{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0;}
+.side .sc-box{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff;}
+.side .sc-h{font-size:13px;font-weight:700;padding:5px 12px;background:var(--blue-soft);color:var(--blue-deep);border-bottom:1px solid var(--line);}
+.side pre{margin:0;font-family:Consolas,"Courier New",monospace;font-size:13px;line-height:1.7;padding:9px 13px;background:#fdfbf6;white-space:pre-wrap;overflow-x:auto;color:#2b2820;}
+@media(max-width:860px){.side{grid-template-columns:1fr;}}
+
+/* 数组元素格（动画里用） */
+.acells.mat-like .acell{min-width:52px;height:44px;font-size:14px;}
+.chip.num{font-size:13px;}
+
+</style>
+<style>
+/* ===== 第 8 次课《Pandas 数据处理与分析》补充组件 ===== */
+
+/* DataFrame / Series 显示（复用 .mat 结构，补 Pandas 专用状态） */
+.mat th.ch{background:#fff7e6;color:#7a4a0a;border-bottom:2px solid var(--gold);}
+.mat td.ch{background:#fff7e6;color:#7a4a0a;font-weight:700;}
+.mat td.na{background:#f4efe2;color:#8a8577;font-style:italic;}
+.mat td.na-hi{background:var(--red-soft);color:#8c2f28;font-style:italic;font-weight:700;}
+.mat-wrap .mat-cap{font-size:12.5px;color:var(--ink-faint);margin-top:6px;}
+
+/* 数据集卡片：文件名 + 内容预览（Excel / CSV 实拍感） */
+.datacard{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff;margin:12px 0;}
+.datacard .dc-name{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:var(--blue-deep);background:var(--blue-soft);border-bottom:1px solid var(--line);padding:5px 12px;font-family:Consolas,"Courier New",monospace;}
+.datacard .dc-name::before{content:"\1F4CA";font-size:14px;}
+.datacard .dc-name .dc-tag{margin-left:auto;font-family:"Times New Roman","宋体",SimSun,serif;font-size:11.5px;font-weight:400;color:var(--ink-faint);}
+.datacard .dc-body{overflow-x:auto;padding:8px 12px;background:#fdfbf6;}
+.datacard .dc-meta{font-size:12px;color:var(--ink-faint);padding:5px 12px;border-top:1px dashed var(--line);line-height:1.6;}
+
+/* 竖向处理流程（数据预处理 / 分析流水线） */
+.flowv{display:flex;flex-direction:column;gap:8px;margin:14px 0;}
+.flowv .fv-step{display:flex;gap:12px;align-items:flex-start;background:#faf7f0;border:1px solid var(--line-soft);border-left:5px solid var(--blue);border-radius:10px;padding:9px 14px;}
+.flowv .fv-step.done{border-left-color:var(--green);background:var(--green-soft);}
+.flowv .fv-step.warnstep{border-left-color:var(--amber);background:var(--amber-soft);}
+.flowv .fv-step.badstep{border-left-color:var(--red);background:var(--red-soft);}
+.flowv .fv-no{flex:0 0 auto;width:24px;height:24px;border-radius:50%;background:var(--blue);color:#fff;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;}
+.flowv .fv-step.done .fv-no{background:var(--green);}
+.flowv .fv-step.warnstep .fv-no{background:var(--amber);}
+.flowv .fv-step.badstep .fv-no{background:var(--red);}
+.flowv .fv-body{font-size:15px;line-height:1.7;}
+.flowv .fv-body b{color:var(--blue-deep);}
+.flowv .fv-body .fv-code{display:block;font-family:Consolas,"Courier New",monospace;font-size:13px;background:#fff;border:1px solid var(--line-soft);border-radius:7px;padding:4px 10px;margin-top:4px;color:#2b2820;}
+
+/* 统计数字卡（describe / 分组结果概览） */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:14px 0;}
+.kpi{background:#faf7f0;border:1px solid var(--line-soft);border-radius:12px;padding:12px 16px;text-align:center;}
+.kpi .kpi-v{font-size:24px;font-weight:700;color:var(--blue-deep);font-family:Consolas,"Courier New",monospace;line-height:1.3;}
+.kpi .kpi-k{font-size:12.5px;color:var(--ink-soft);margin-top:2px;}
+.kpi.green{background:var(--green-soft);border-color:#cfe6d1;}
+.kpi.green .kpi-v{color:#215c26;}
+.kpi.amber{background:var(--amber-soft);border-color:#efdcb5;}
+.kpi.amber .kpi-v{color:#7a4a0a;}
+.kpi.red{background:var(--red-soft);border-color:#ecd0cd;}
+.kpi.red .kpi-v{color:#8c2f28;}
+
+/* 行高亮 / 命中行 / 删除行（表格里标记处理结果） */
+tr.hl td{background:#fff7e6 !important;font-weight:700;color:#7a4a0a;}
+tr.drop td{background:var(--red-soft) !important;color:#8c2f28;text-decoration:line-through;}
+tr.grp td{background:var(--green-soft) !important;color:#215c26;}
+
+/* 配套资料下载区 */
+.dl-table td{font-size:14px;}
+.dl-link{color:var(--blue-deep);font-weight:700;text-decoration:none;border-bottom:1px dashed #cfe0f0;word-break:break-all;}
+.dl-link:hover{color:var(--blue);border-bottom-style:solid;}
+.dl-link .nb{white-space:nowrap;}
+.dl-size{color:var(--ink-faint);font-size:13px;white-space:nowrap;}
+.dl-zip{display:inline-block;background:var(--blue-deep);color:#fff;text-decoration:none;font-weight:700;font-size:15px;border-radius:10px;padding:9px 22px;}
+.dl-zip:hover{background:var(--blue);}
+
+/* 网格子项允许收缩，避免长内容把 1fr 列撑宽（移动端/窄屏防溢出） */
+.grid2>.cell,.grid3>.cell{min-width:0;}
+.cell code.inline{white-space:normal;overflow-wrap:anywhere;}
+
+/* 手机端（≤720px）：长行内代码允许换行、宽表格/动画舞台内部滚动，避免整页横向溢出 */
+@media(max-width:720px){
+  code.inline{white-space:normal;overflow-wrap:anywhere;}
+  .mat-wrap{overflow-x:auto;}
+  .anim-stage{overflow-x:auto;}
+  .inter-row label{max-width:100%;min-width:0;}
+  .inter-row select,.inter-row input{max-width:100%;}
+  .kpi-grid{grid-template-columns:1fr 1fr;}
+}
+</style>
+
+<style>
+/* ===== 第 9 次课补充样式 ===== */
+.exq{margin:16px 0 6px;padding-left:14px;border-left:4px solid var(--gold);font-weight:700;color:var(--blue-deep);font-size:16.5px;}
+.exq .exno{display:inline-block;min-width:34px;color:var(--gold);}
+.ans{background:var(--green-soft);border:1px solid #cfe6d1;border-left:5px solid var(--green);border-radius:10px;padding:8px 14px;margin:8px 0 14px;font-size:14.5px;color:#215c26;line-height:1.8;}
+.ans b{color:#1b4d1f;}
+.ans code.inline{background:#fff;border-color:#cfe6d1;color:#215c26;}
+.demo.static .demo-head{border-bottom:1px solid #2e3142;}
+.demo.static pre.code{border-top:none;}
+.tbl-wrap .mini td,.tbl-wrap .mini th{padding:7px 10px;font-size:14px;}
+.tbl-wrap .mini td:first-child{white-space:nowrap;color:var(--gold);font-weight:700;}
+.figure img{max-width:100%;}
+.grid2fig figure{margin:0;}
+details.qa{background:#faf7f0;border:1px solid var(--line-soft);border-radius:10px;padding:8px 14px;margin:8px 0;}
+details.qa summary{cursor:pointer;font-weight:700;color:var(--blue-deep);font-size:15px;}
+details.qa p{margin:8px 0 2px;font-size:15px;}
+.pipe-tip{font-size:13px;color:var(--ink-faint);margin:-6px 0 10px;}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="hero-inner">
+    <span class="kicker">Python 大数据分析基础 · 第 9 次课</span>
+    <h1>第 9 次课 · Pandas 总复习 与 两套实战练习</h1>
+    <p class="sub">先用「总分总」把第 8 章串成一条流水线，再拿两套订单数据动手做练习；第 9 章数据可视化从 12-11 开始。</p>
+    <div class="meta">
+      <span>中华女子学院</span>
+      <span>2026-12-04、12-11、12-18 · 第 14—16 周 · 10 学时</span>
+      <span>授课人：孙琪翔</span>
+      <span>本次课：复习 + 练习（4 学时）</span>
+    </div>
+  </div>
+</header>
+<nav class="nav" id="nav">
+  <div class="nav-inner" id="navInner">
+    <a class="nav-back" href="python-bigdata-2026.html">← 课程主页</a>
+    <a href="#guide" data-sec="guide" class="on">导览</a>
+    <a href="#c1" data-sec="c1">一 知识总复习</a>
+    <a href="#c2" data-sec="c2">二 练习一</a>
+    <a href="#c3" data-sec="c3">三 练习二</a>
+    <a href="#download" data-sec="download">四 资料下载</a>
+    <a href="#summary" data-sec="summary">小结 · 作业</a>
+  </div>
+</nav>
+<main>
+<section id="guide">
+  <div class="sec-head">
+    <div class="sec-num">导</div>
+    <div><h2>本讲导览</h2><p class="sec-sub">第 14 周 · 4 学时（上机）· 一次复习 + 两套练习：把第 8 章从「学过」变成「能自己写」</p></div>
+  </div>
+
+<p>今天是第 9 次课的第一次课（12-04），<strong>不上新章节</strong>：先把第 8 章的 Pandas 用「总分总」串一遍，再给你两套练习当场上手。第 9 章《数据可视化》从下次课（12-11）开始。</p>
+
+<div class="grid3">
+  <div class="cell"><h4>第 1 次课 · 12-04（今天，4 学时）</h4>
+    <p>Pandas 总复习（总分总）＋ 练习一（教材例题改编，21 小问）＋ 练习二（订单 lx2，10 小问）</p></div>
+  <div class="cell"><h4>第 2 次课 · 12-11（第 15 周，4 学时）</h4>
+    <p>第 9 章 数据可视化：9.1 图表类型与构成、9.2 Matplotlib（折线 / 直条 / 饼 / 散点 / 直方 / 箱线）、9.3 Pandas 绘图</p></div>
+  <div class="cell"><h4>第 3 次课 · 12-18（第 16 周，2 学时）</h4>
+    <p>9.4 可视化应用案例（订单数据全流程）＋ 期末复习安排</p></div>
+</div>
+
+<h3 id="g-map">本课地图</h3>
+<div class="map-grid">
+  <div class="map-card"><h4>一、Pandas 总复习</h4><p>一条流水线 6 步、8 个动作、8 个高频坑、一张对比表 + 5 题快问快答。后半段配 10 个可单步播放的动画，把容易混的地方再走一遍。</p></div>
+  <div class="map-card"><h4>二、练习一</h4><p>教材例题改编，订单.xlsx（310 行）。四段 21 小问：导入查看 → 预处理 → 查询 → 汇总与透视，最后画两张图并导出 Excel。</p></div>
+  <div class="map-card"><h4>三、练习二</h4><p>换一套数据（订单_lx2.xlsx，24 行）限时重做：查询、统计、分档、透视、柱状图、导出。检验「换数据还会不会」。</p></div>
+  <div class="map-card"><h4>四、数据与代码下载</h4><p>两套练习的数据、参考答案脚本、页面精简数据、说明文档和一次性 zip，全部可下载，跑通只要一条命令。</p></div>
+</div>
+
+<h3 id="g-goal">学习目标</h3>
+<ul>
+  <li>能默写出 Pandas 数据处理流水线的 6 步与 8 个动作，说出每步的一个代表 API。</li>
+  <li>能识别并改正 8 个高频坑：<code class="inline">df[0]</code>、多条件不加括号、链式赋值、<code class="inline">inplace=True</code> 返回值、透视表默认均值、<code class="inline">margins</code> 多出的 All、<code class="inline">pd.cut</code> 边界、merge 行数膨胀。</li>
+  <li>独立完成练习一（21 小问）与练习二（10 小问），答案数字与本页实测一致。</li>
+  <li>能用一张对比表向别人解释 9 组易混概念的区别。</li>
+  <li>为 12-11 的数据可视化做准备：知道「先有数据、再选图、最后调样式」的顺序。</li>
+</ul>
+
+<h3 id="g-plan">课堂节奏（4 × 45 分钟）</h3>
+<div class="tbl-wrap"><table class="mini"><thead><tr><th>时间</th><th>环节</th><th>做什么</th><th>产出</th></tr></thead><tbody><tr><td>0—10 min</td><td>开场</td><td>今天路线 + 两套练习的目标与评分点</td><td>知道要交什么</td></tr><tr><td>10—50 min</td><td>复习·总</td><td>流水线图 + 8 个动作表</td><td>能说出 6 步</td></tr><tr><td>50—95 min</td><td>复习·分</td><td>8 个高频坑逐个对照（错误写法 → 正确写法 → 记忆句），穿插动画</td><td>能改 8 类错</td></tr><tr><td>95—105 min</td><td>复习·总</td><td>对比总表 + 5 题快问快答 + 两个交互面板</td><td>能讲清 9 组区别</td></tr><tr><td>105—150 min</td><td>练习一</td><td>按四段推进，每段先讲 1 题再放手做</td><td>完成 21 小问</td></tr><tr><td>150—180 min</td><td>练习二</td><td>限时 20 分钟独立做，10 分钟讲评</td><td>完成 10 小问</td></tr><tr><td>180 min</td><td>收尾</td><td>易错清单 + 作业 + 12-11 预告</td><td>带着问题下课</td></tr></tbody></table></div>
+<p class="pipe-tip">上机课按「你写、我巡、当场讲」的节奏：每段练习先给 3—5 分钟读题，再动手；卡住先看页面上的「错误写法 → 正确写法」对照。</p>
+</section>
+<section id="c1">
+  <div class="sec-head">
+    <div class="sec-num">一</div>
+    <div><h2>Pandas 总复习</h2><p class="sec-sub">一条流水线 · 八个动作 · 八个高频坑 · 一张对比表 + 5 题快问快答 · 10 个可复用动画</p></div>
+  </div>
+<div class="figsvg">
+  <svg viewBox="0 0 900 340" width="900" height="340" role="img" aria-label="Pandas 复习主线：原始数据经六步处理得到结论并导出">
+    <text x="450" y="26" text-anchor="middle" font-size="17" font-weight="700" fill="#1f3864">Pandas 复习主线：一张表进去，一份结论出来</text>
+
+    <rect x="18" y="52" width="170" height="150" rx="12" fill="#fbeceb" stroke="#b3392f" stroke-width="1.5"/>
+    <text x="103" y="78" text-anchor="middle" font-size="14" font-weight="700" fill="#8c2f28">原始数据</text>
+    <text x="36" y="104" font-size="12.5" fill="#2b2820">订单.xlsx（310 行）</text>
+    <text x="36" y="126" font-size="12.5" fill="#2b2820">商品.csv</text>
+    <text x="36" y="148" font-size="12.5" fill="#2b2820">订单_J1 / J2.xlsx</text>
+    <text x="103" y="180" text-anchor="middle" font-size="12" fill="#8c2f28">Excel / CSV / TXT</text>
+
+    <g>
+      <rect x="200" y="52" width="500" height="150" rx="12" fill="#eaf1f8" stroke="#306998" stroke-width="1.5"/>
+      <text x="450" y="76" text-anchor="middle" font-size="14" font-weight="700" fill="#1f3864">Pandas 处理六步</text>
+      <g font-size="13" font-weight="700" fill="#1f3864">
+        <text x="240" y="108" text-anchor="middle">① 导入</text>
+        <text x="344" y="108" text-anchor="middle">② 查看</text>
+        <text x="448" y="108" text-anchor="middle">③ 清洗</text>
+        <text x="552" y="108" text-anchor="middle">④ 查询</text>
+        <text x="656" y="108" text-anchor="middle">⑤ 聚合</text>
+      </g>
+      <g font-size="11" fill="#3c5f80">
+        <text x="240" y="130" text-anchor="middle">read_excel</text>
+        <text x="344" y="130" text-anchor="middle">head / info / describe</text>
+        <text x="448" y="130" text-anchor="middle">缺失 · 重复 · 异常</text>
+        <text x="552" y="130" text-anchor="middle">loc / 布尔索引</text>
+        <text x="656" y="130" text-anchor="middle">groupby / agg</text>
+      </g>
+      <text x="450" y="162" text-anchor="middle" font-size="12.5" fill="#1f3864">⑥ 透视 · 合并 · 导出（pivot_table / merge / to_excel）</text>
+      <text x="450" y="184" text-anchor="middle" font-size="11.5" fill="#5d594c">每一步都看得见中间结果：shape 怎么变、哪些行被删、哪几行命中</text>
+    </g>
+
+    <rect x="712" y="52" width="170" height="150" rx="12" fill="#eaf5eb" stroke="#2e7d32" stroke-width="1.5"/>
+    <text x="797" y="78" text-anchor="middle" font-size="14" font-weight="700" fill="#215c26">分析结论</text>
+    <text x="730" y="104" font-size="12.5" fill="#2b2820">每周各商品销售额</text>
+    <text x="730" y="126" font-size="12.5" fill="#2b2820">哪种商品最畅销</text>
+    <text x="730" y="148" font-size="12.5" fill="#2b2820">哪类订单异常</text>
+    <text x="797" y="180" text-anchor="middle" font-size="12" fill="#215c26">导出 Excel / CSV</text>
+
+    <path d="M188 127 L198 127" stroke="#8a8577" stroke-width="2" fill="none"/>
+    <path d="M193 121 L199 127 L193 133" stroke="#8a8577" stroke-width="2" fill="none"/>
+    <path d="M700 127 L709 127" stroke="#8a8577" stroke-width="2" fill="none"/>
+    <path d="M703 121 L709 127 L703 133" stroke="#8a8577" stroke-width="2" fill="none"/>
+
+    <rect x="18" y="222" width="864" height="96" rx="10" fill="#fbf8f1" stroke="#e4ddcc"/>
+    <text x="450" y="248" text-anchor="middle" font-size="14" font-weight="700" fill="#5d5230">复习时先记「六步」，再记每一步的两个 API 和一个坑</text>
+    <text x="450" y="274" text-anchor="middle" font-size="12.5" fill="#5d594c">① 导入 read_excel / read_csv　② 查看 shape / info　③ 清洗 isnull / dropna</text>
+    <text x="450" y="298" text-anchor="middle" font-size="12.5" fill="#5d594c">④ 查询 loc / 布尔索引　⑤ 聚合 groupby+agg　⑥ 透视合并 pivot_table / merge</text>
+  </svg>
+  <div class="figcap">图 9-1　Pandas 数据处理主线：导入 → 查看 → 清洗 → 查询 → 聚合 → 透视/合并 → 导出</div>
+</div>
+<h3 id="c1-flow">1.1 总：八个动作，一条流水线</h3>
+<p>第 8 章八个知识模块，其实就是这张表里的八个动作。复习时不要按章节背，按<strong>数据从进来到出去</strong>的顺序记：</p>
+<div class="tbl-wrap"><table class="mini"><thead><tr><th>动作</th><th>代表 API</th><th>一句话</th><th>最常踩的坑</th></tr></thead><tbody><tr><td>建</td><td><code class='inline'>Series(...)</code> · <code class='inline'>DataFrame(...)</code></td><td>带标签的一维 / 二维表</td><td>把 Series 当成普通列表</td></tr><tr><td>看</td><td><code class='inline'>shape</code> · <code class='inline'>info()</code> · <code class='inline'>describe()</code> · <code class='inline'>head()</code></td><td>先看形状和类型，再谈计算</td><td>只看 head 不看 dtype</td></tr><tr><td>取</td><td><code class='inline'>df[]</code> · <code class='inline'>loc</code> · <code class='inline'>iloc</code> · <code class='inline'>at</code> · <code class='inline'>iat</code></td><td>名字用 loc，位置用 iloc</td><td><code class='inline'>df[0]</code> 想取第一行</td></tr><tr><td>改</td><td>直接赋值 · <code class='inline'>loc[行,列]</code> · <code class='inline'>drop</code> · <code class='inline'>sort_values</code></td><td>一步定位再赋值</td><td>链式赋值改不动</td></tr><tr><td>洗</td><td><code class='inline'>isnull</code> · <code class='inline'>dropna</code> · <code class='inline'>fillna</code> · <code class='inline'>duplicated</code> · <code class='inline'>drop_duplicates</code></td><td>先体检，再动刀</td><td><code class='inline'>inplace=True</code> 返回值是 None</td></tr><tr><td>查</td><td>布尔索引 · <code class='inline'>&amp; | ~</code> · <code class='inline'>between</code> · <code class='inline'>isin</code> · <code class='inline'>nlargest</code></td><td>条件是布尔数组</td><td>多条件不加括号 / 用 and 连接</td></tr><tr><td>聚</td><td><code class='inline'>groupby + agg</code> · <code class='inline'>pd.cut</code> · <code class='inline'>pivot_table</code></td><td>分组 → 聚合 → 透视</td><td>透视表默认均值 / margins 多 All</td></tr><tr><td>合</td><td><code class='inline'>concat</code> · <code class='inline'>merge(how=...)</code></td><td>上下拼用 concat，按键配用 merge</td><td>merge 后行数膨胀</td></tr></tbody></table></div>
+<div class="key"><strong>一句话记住</strong>：第 8 章所有题目都能落到这八个动作之一；先判断「这道题是哪个动作」，再去想 API，比背代码有用。</div>
+
+<h3 id="c1-q">1.2 分：八个高频坑，逐个对照</h3>
+<p>下面八个坑来自第 8 章的课堂练习与作业。每个坑给三样东西：<strong>学生真实写法 → 正确写法 → 一句话记忆</strong>。左边红框是会出错的写法，右边绿框是正确写法，别混。</p>
+<h4>坑 1：Series 与 DataFrame 的结构</h4>
+<p>Series 只有两部分：<code class="inline">index</code>（标签）+ <code class="inline">values</code>（值）；DataFrame 是三部分：行标签 <code class="inline">index</code> + 列标签 <code class="inline">columns</code> + 值矩阵 <code class="inline">values</code>。很多题出错不是 API 写错，而是把「标签」当成了「位置」。</p>
+<div class="anim" data-anim="serstru">
+    <div class="anim-head">
+      <span class="anim-title">🎬 动态演示：Series 的 index 与 values</span>
+      <div class="anim-actions">
+        <button class="btn" type="button" data-act="reset">↺ 重置</button>
+        <button class="btn" type="button" data-act="prev">⏮ 上一步</button>
+        <button class="btn btn-play" type="button" data-act="play">▶ 播放</button>
+        <button class="btn" type="button" data-act="next">下一步 ⏭</button>
+      </div>
+    </div>
+    <div class="anim-stage"></div>
+    <div class="anim-status"><span class="anim-text"></span><span class="anim-progress"></span></div>
+  </div>
+<div class="cmp">
+  <div class="cmp-box"><div class="cmp-h bad">错：把 Series 当列表</div><pre>s = pd.Series([93, 89, 80, 92])
+print(s[1])      # 90 分的那个人？不，是「标签 1」</pre></div>
+  <div class="cmp-box"><div class="cmp-h good">对：标签与位置分开</div><pre>s = pd.Series([93, 89, 80, 92], index=['语文','数学','英语','Python'])
+print(s['数学'])     # 89
+print(s.iloc[1])    # 89（第 2 个位置）</pre></div>
+</div>
+<div class="key"><strong>一句话记住</strong>：Series = index + values；不写 index 时自动补 0..n-1，一旦自定义标签，<code class="inline">s[数字]</code> 就变成「按标签找」。</div><h4>坑 2：<code class="inline">df[]</code>、<code class="inline">loc</code>、<code class="inline">iloc</code> 三个入口</h4>
+<p>取列用 <code class="inline">df['列名']</code>，按名字取行用 <code class="inline">loc</code>，按位置取行用 <code class="inline">iloc</code>。最典型的错误是 <code class="inline">df[0]</code> 想取第一行——它会去找列名 0，直接 KeyError。</p>
+<div class="anim" data-anim="locvsiloc">
+    <div class="anim-head">
+      <span class="anim-title">🎬 动态演示：loc 按名字、iloc 按位置</span>
+      <div class="anim-actions">
+        <button class="btn" type="button" data-act="reset">↺ 重置</button>
+        <button class="btn" type="button" data-act="prev">⏮ 上一步</button>
+        <button class="btn btn-play" type="button" data-act="play">▶ 播放</button>
+        <button class="btn" type="button" data-act="next">下一步 ⏭</button>
+      </div>
+    </div>
+    <div class="anim-stage"></div>
+    <div class="anim-status"><span class="anim-text"></span><span class="anim-progress"></span></div>
+  </div>
+<div class="demo" data-demo="rv-entry">
+    <div class="demo-head">
+      <span class="demo-title">三个入口各取一次，看清楚拿到的到底是什么</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">import pandas as pd
+from io import StringIO
+
+csv = """订单编号,订单日期,用户ID,商品名称,单价,数量,金额
+302001,2021-02-01,137401,围巾,21.6,12,259.2
+302002,2021-02-01,177562,运动服,210.0,7,1470.0
+302003,2021-02-01,133422,T恤,55.93,24,1342.32
+302004,2021-02-05,138462,运动服,178.5,24,4284.0
+302005,2021-02-05,158949,T恤,65.8,14,921.2
+302006,2021-02-08,120957,卫衣,126.5,15,1897.5
+302006,2021-02-08,120957,卫衣,126.5,15,1897.5
+302008,2021-02-12,186059,T恤,65.8,5,329.0
+302009,2021-02-15,199357,,,,540.0
+302010,2021-02-20,149590,休闲鞋,162.0,30,4860.0
+302011,2021-02-25,149590,运动服,178.5,0,0.0
+302012,2021-02-28,137401,围巾,21.6,25,540.0"""
+df = pd.read_csv(StringIO(csv), parse_dates=['订单日期'])
+
+print('df[\'商品名称\'] 是一列：')
+print(df['商品名称'].head(3))
+print('类型：', type(df['商品名称']).__name__, '，长度', len(df['商品名称']))
+
+print('\ndf.loc[2] 是第 2 号标签这一行：')
+print(df.loc[2])
+
+print('\n df.iloc[2] 是第 3 个位置这一行（本表默认索引时与 loc[2] 相同）：')
+print(df.iloc[2].to_dict())
+
+print('\n df[0] 会怎样：')
+try:
+    df[0]
+except Exception as e:
+    print(type(e).__name__, ':', e)
+</pre>
+    <div class="demo-out"><div class="out-label">运行结果</div><pre class="out">
+df['商品名称'] 是一列：
+0     围巾
+1    运动服
+2     T恤
+Name: 商品名称, dtype: str
+类型： Series ，长度 12
+
+df.loc[2] 是第 2 号标签这一行：
+订单编号                 302003
+订单日期    2021-02-01 00:00:00
+用户ID                 133422
+商品名称                     T恤
+单价                    55.93
+数量                     24.0
+金额                  1342.32
+Name: 2, dtype: object
+
+ df.iloc[2] 是第 3 个位置这一行（本表默认索引时与 loc[2] 相同）：
+{'订单编号': 302003, '订单日期': Timestamp('2021-02-01 00:00:00'), '用户ID': 133422, '商品名称': 'T恤', '单价': 55.93, '数量': 24.0, '金额': 1342.32}
+
+ df[0] 会怎样：
+KeyError : 0
+</pre></div>
+  </div>
+<div class="cmp">
+  <div class="cmp-box"><div class="cmp-h bad">错：df[0] 想取第一行</div><pre>print(df[0])        # KeyError: 0</pre></div>
+  <div class="cmp-box"><div class="cmp-h good">对：先决定按标签还是按位置</div><pre>df.loc[0]    # 标签 0 这一行
+df.iloc[0]   # 第 1 个位置这一行
+df[0]        # 只有在列名恰好是 0 时才是取列</pre></div>
+</div>
+<div class="key"><strong>一句话记住</strong>：<code class="inline">df[ ]</code> 优先找列；要行就用 <code class="inline">loc</code> / <code class="inline">iloc</code>。行索引是 0..n-1 时两者结果一样，但不是一回事。</div><h4>坑 3：多条件查询一定要加括号</h4>
+<p>比较运算返回的是布尔数组，<code class="inline">&amp;</code> 的优先级比比较运算符高，所以 <code class="inline">df.a &gt; 1 &amp; df.b &lt; 2</code> 会先算 <code class="inline">1 &amp; df.b</code>，报 <code class="inline">TypeError</code>。每个条件都要用括号包起来。</p>
+<div class="anim" data-anim="boolmask">
+    <div class="anim-head">
+      <span class="anim-title">🎬 动态演示：布尔掩码</span>
+      <div class="anim-actions">
+        <button class="btn" type="button" data-act="reset">↺ 重置</button>
+        <button class="btn" type="button" data-act="prev">⏮ 上一步</button>
+        <button class="btn btn-play" type="button" data-act="play">▶ 播放</button>
+        <button class="btn" type="button" data-act="next">下一步 ⏭</button>
+      </div>
+    </div>
+    <div class="anim-stage"></div>
+    <div class="anim-status"><span class="anim-text"></span><span class="anim-progress"></span></div>
+  </div>
+<div class="demo" data-demo="rv-bool">
+    <div class="demo-head">
+      <span class="demo-title">正确写法：每个条件加括号</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">import pandas as pd
+from io import StringIO
+
+csv = """订单编号,订单日期,用户ID,商品名称,单价,数量,金额
+302001,2021-02-01,137401,围巾,21.6,12,259.2
+302002,2021-02-01,177562,运动服,210.0,7,1470.0
+302003,2021-02-01,133422,T恤,55.93,24,1342.32
+302004,2021-02-05,138462,运动服,178.5,24,4284.0
+302005,2021-02-05,158949,T恤,65.8,14,921.2
+302006,2021-02-08,120957,卫衣,126.5,15,1897.5
+302006,2021-02-08,120957,卫衣,126.5,15,1897.5
+302008,2021-02-12,186059,T恤,65.8,5,329.0
+302009,2021-02-15,199357,,,,540.0
+302010,2021-02-20,149590,休闲鞋,162.0,30,4860.0
+302011,2021-02-25,149590,运动服,178.5,0,0.0
+302012,2021-02-28,137401,围巾,21.6,25,540.0"""
+df = pd.read_csv(StringIO(csv), parse_dates=['订单日期'])
+
+mask = (df['单价'] &gt; 150) &amp; (df['数量'] &gt;= 10)
+print('命中行数：', mask.sum())
+print(df[mask][['订单编号', '商品名称', '单价', '数量']])
+
+print('\n等价写法（between / isin 也是同一个布尔数组）：')
+print(df[(df['数量'] &gt;= 10) &amp; (df['数量'] &lt;= 30)]['订单编号'].tolist())
+print(df[df['商品名称'].isin(['围巾', '运动服'])]['订单编号'].tolist())
+</pre>
+    <div class="demo-out"><div class="out-label">运行结果</div><pre class="out">
+命中行数： 2
+     订单编号 商品名称     单价    数量
+3  302004  运动服  178.5  24.0
+9  302010  休闲鞋  162.0  30.0
+
+等价写法（between / isin 也是同一个布尔数组）：
+[302001, 302003, 302004, 302005, 302006, 302006, 302010, 302012]
+[302001, 302002, 302004, 302011, 302012]
+</pre></div>
+  </div><div class="demo" data-demo="rv-bool-err" data-expect-error="1">
+    <div class="demo-head">
+      <span class="demo-title">故意不加括号：TypeError（页面里标了「故意报错」）</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">import pandas as pd
+from io import StringIO
+
+csv = """订单编号,订单日期,用户ID,商品名称,单价,数量,金额
+302001,2021-02-01,137401,围巾,21.6,12,259.2
+302002,2021-02-01,177562,运动服,210.0,7,1470.0
+302003,2021-02-01,133422,T恤,55.93,24,1342.32
+302004,2021-02-05,138462,运动服,178.5,24,4284.0
+302005,2021-02-05,158949,T恤,65.8,14,921.2
+302006,2021-02-08,120957,卫衣,126.5,15,1897.5
+302006,2021-02-08,120957,卫衣,126.5,15,1897.5
+302008,2021-02-12,186059,T恤,65.8,5,329.0
+302009,2021-02-15,199357,,,,540.0
+302010,2021-02-20,149590,休闲鞋,162.0,30,4860.0
+302011,2021-02-25,149590,运动服,178.5,0,0.0
+302012,2021-02-28,137401,围巾,21.6,25,540.0"""
+df = pd.read_csv(StringIO(csv), parse_dates=['订单日期'])
+
+print(df['单价'] &gt; 150 &amp; df['数量'] &gt;= 10)
+</pre>
+    <div class="demo-out"><div class="out-label">运行结果</div><pre class="out">
+Traceback (most recent call last):
+  File "C:\Users\Legion\AppData\Local\Programs\Python\Python314\Lib\site-packages\pandas\core\ops\array_ops.py", line 374, in na_logical_op
+    result = op(x, y)
+  File "C:\Users\Legion\AppData\Local\Programs\Python\Python314\Lib\site-packages\pandas\core\roperator.py", line 55, in rand_
+    return operator.and_(right, left)
+TypeError: ufunc 'bitwise_and' not supported for the input types, and the inputs could not be safely coerced to any supported types according to the casting rule ''safe''
+During handling of the above exception, another exception occurred:
+Traceback (most recent call last):
+  File "C:\Users\Legion\AppData\Local\Programs\Python\Python314\Lib\site-packages\pandas\core\ops\array_ops.py", line 388, in na_logical_op
+    result = libops.scalar_binop(x, y, op)
+  File "pandas/_libs/ops.pyx", line 178, in pandas._libs.ops.scalar_binop
+ValueError: Buffer dtype mismatch, expected 'Python object' but got 'double'
+The above exception was the direct cause of the following exception:
+Traceback (most recent call last):
+  File "&lt;pyshell&gt;", line 19, in &lt;module&gt;
+    print(df['单价'] &gt; 150 &amp; df['数量'] &gt;= 10)
+  File "C:\Users\Legion\AppData\Local\Programs\Python\Python314\Lib\site-packages\pandas\core\ops\common.py", line 85, in new_method
+    return method(self, other)
+  File "C:\Users\Legion\AppData\Local\Programs\Python\Python314\Lib\site-packages\pandas\core\arraylike.py", line 76, in __rand__
+    return self._logical_method(other, roperator.rand_)
+  File "C:\Users\Legion\AppData\Local\Programs\Python\Python314\Lib\site-packages\pandas\core\series.py", line 6746, in _logical_method
+    res_values = ops.logical_op(lvalues, rvalues, op)
+  File "C:\Users\Legion\AppData\Local\Programs\Python\Python314\Lib\site-packages\pandas\core\ops\array_ops.py", line 464, in logical_op
+    res_values = na_logical_op(lvalues, rvalues, op)
+  File "C:\Users\Legion\AppData\Local\Programs\Python\Python314\Lib\site-packages\pandas\core\ops\array_ops.py", line 397, in na_logical_op
+    raise TypeError(
+    ...&lt;2 lines&gt;...
+    ) from err
+TypeError: Cannot perform 'rand_' with a dtyped [float64] array and scalar of type [bool]
+</pre></div>
+  </div>
+<div class="key"><strong>一句话记住</strong>：与或非写成 <code class="inline">&amp;</code> <code class="inline">|</code> <code class="inline">~</code>，每个条件各加一对括号，<b>不要</b>用 <code class="inline">and / or / not</code>。</div><h4>坑 4：改值要「一步定位」，链式赋值改不动</h4>
+<p>pandas 3 默认写时复制（Copy-on-Write），<code class="inline">df[df.x &gt; 1]['y'] = 0</code> 改的是临时副本，原表不会变；正确写法是把行列条件放进同一个 <code class="inline">.loc[行, 列]</code>。</p>
+<div class="demo" data-demo="rv-cow">
+    <div class="demo-head">
+      <span class="demo-title">链式赋值 vs 一步定位（pandas 3 的 Copy-on-Write）</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">import pandas as pd
+from io import StringIO
+
+csv = """订单编号,订单日期,用户ID,商品名称,单价,数量,金额
+302001,2021-02-01,137401,围巾,21.6,12,259.2
+302002,2021-02-01,177562,运动服,210.0,7,1470.0
+302003,2021-02-01,133422,T恤,55.93,24,1342.32
+302004,2021-02-05,138462,运动服,178.5,24,4284.0
+302005,2021-02-05,158949,T恤,65.8,14,921.2
+302006,2021-02-08,120957,卫衣,126.5,15,1897.5
+302006,2021-02-08,120957,卫衣,126.5,15,1897.5
+302008,2021-02-12,186059,T恤,65.8,5,329.0
+302009,2021-02-15,199357,,,,540.0
+302010,2021-02-20,149590,休闲鞋,162.0,30,4860.0
+302011,2021-02-25,149590,运动服,178.5,0,0.0
+302012,2021-02-28,137401,围巾,21.6,25,540.0"""
+df = pd.read_csv(StringIO(csv), parse_dates=['订单日期'])
+
+df['标记'] = '普通'
+df[df['金额'] &gt; 4000]['标记'] = '大单'
+print('链式赋值后，大单有几行：', (df['标记'] == '大单').sum())
+
+df['标记'] = '普通'
+df.loc[df['金额'] &gt; 4000, '标记'] = '大单'
+print('loc 一步定位后，大单有几行：', (df['标记'] == '大单').sum())
+print(df.loc[df['金额'] &gt; 4000, ['订单编号', '金额', '标记']])
+</pre>
+    <div class="demo-out"><div class="out-label">运行结果</div><pre class="out">
+链式赋值后，大单有几行： 0
+loc 一步定位后，大单有几行： 2
+     订单编号      金额  标记
+3  302004  4284.0  大单
+9  302010  4860.0  大单
+</pre></div>
+  </div>
+<div class="cmp">
+  <div class="cmp-box"><div class="cmp-h bad">错：链式赋值</div><pre>df[df['金额'] &gt; 4000]['标记'] = '大单'</pre></div>
+  <div class="cmp-box"><div class="cmp-h good">对：一步定位</div><pre>df.loc[df['金额'] &gt; 4000, '标记'] = '大单'</pre></div>
+</div>
+<div class="key"><strong>一句话记住</strong>：改值永远写 <code class="inline">df.loc[行条件, 列名] = 新值</code>，中间不要再套一层 <code class="inline">[ ]</code>。</div><h4>坑 5：缺失值三件事 + <code class="inline">inplace</code> 的返回值</h4>
+<p>先用 <code class="inline">isnull().any()</code> 看哪列缺，再决定删还是填：<code class="inline">dropna()</code> 默认删「任一列有缺失」的整行，<code class="inline">fillna()</code> 按策略填。最要命的是把 <code class="inline">inplace=True</code> 的返回值又赋给了变量。</p>
+<div class="anim" data-anim="missmap">
+    <div class="anim-head">
+      <span class="anim-title">🎬 动态演示：定位缺失值与 dropna</span>
+      <div class="anim-actions">
+        <button class="btn" type="button" data-act="reset">↺ 重置</button>
+        <button class="btn" type="button" data-act="prev">⏮ 上一步</button>
+        <button class="btn btn-play" type="button" data-act="play">▶ 播放</button>
+        <button class="btn" type="button" data-act="next">下一步 ⏭</button>
+      </div>
+    </div>
+    <div class="anim-stage"></div>
+    <div class="anim-status"><span class="anim-text"></span><span class="anim-progress"></span></div>
+  </div><div class="anim" data-anim="fillna">
+    <div class="anim-head">
+      <span class="anim-title">🎬 动态演示：fillna 三种策略</span>
+      <div class="anim-actions">
+        <button class="btn" type="button" data-act="reset">↺ 重置</button>
+        <button class="btn" type="button" data-act="prev">⏮ 上一步</button>
+        <button class="btn btn-play" type="button" data-act="play">▶ 播放</button>
+        <button class="btn" type="button" data-act="next">下一步 ⏭</button>
+      </div>
+    </div>
+    <div class="anim-stage"></div>
+    <div class="anim-status"><span class="anim-text"></span><span class="anim-progress"></span></div>
+  </div>
+<div class="demo" data-demo="rv-dropna">
+    <div class="demo-head">
+      <span class="demo-title">inplace=True 的返回值是 None —— 别接它</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">import pandas as pd
+from io import StringIO
+
+csv = """订单编号,订单日期,用户ID,商品名称,单价,数量,金额
+302001,2021-02-01,137401,围巾,21.6,12,259.2
+302002,2021-02-01,177562,运动服,210.0,7,1470.0
+302003,2021-02-01,133422,T恤,55.93,24,1342.32
+302004,2021-02-05,138462,运动服,178.5,24,4284.0
+302005,2021-02-05,158949,T恤,65.8,14,921.2
+302006,2021-02-08,120957,卫衣,126.5,15,1897.5
+302006,2021-02-08,120957,卫衣,126.5,15,1897.5
+302008,2021-02-12,186059,T恤,65.8,5,329.0
+302009,2021-02-15,199357,,,,540.0
+302010,2021-02-20,149590,休闲鞋,162.0,30,4860.0
+302011,2021-02-25,149590,运动服,178.5,0,0.0
+302012,2021-02-28,137401,围巾,21.6,25,540.0"""
+df = pd.read_csv(StringIO(csv), parse_dates=['订单日期'])
+
+df1 = df.copy()
+result = df1.dropna(inplace=True)
+print('inplace 的返回值：', result, '（类型', type(result).__name__, '）')
+print('但 df1 已经被原地修改，行数：', len(df1))
+
+df2 = df.copy()
+df2 = df2.dropna()
+print('另一种正确写法，df2 行数：', len(df2))
+</pre>
+    <div class="demo-out"><div class="out-label">运行结果</div><pre class="out">
+inplace 的返回值： None （类型 NoneType ）
+但 df1 已经被原地修改，行数： 11
+另一种正确写法，df2 行数： 11
+</pre></div>
+  </div><div class="demo" data-demo="rv-fillna">
+    <div class="demo-head">
+      <span class="demo-title">fillna：固定值 / 均值 / 前向填充</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">import pandas as pd
+from io import StringIO
+
+csv = """订单编号,订单日期,用户ID,商品名称,单价,数量,金额
+302001,2021-02-01,137401,围巾,21.6,12,259.2
+302002,2021-02-01,177562,运动服,210.0,7,1470.0
+302003,2021-02-01,133422,T恤,55.93,24,1342.32
+302004,2021-02-05,138462,运动服,178.5,24,4284.0
+302005,2021-02-05,158949,T恤,65.8,14,921.2
+302006,2021-02-08,120957,卫衣,126.5,15,1897.5
+302006,2021-02-08,120957,卫衣,126.5,15,1897.5
+302008,2021-02-12,186059,T恤,65.8,5,329.0
+302009,2021-02-15,199357,,,,540.0
+302010,2021-02-20,149590,休闲鞋,162.0,30,4860.0
+302011,2021-02-25,149590,运动服,178.5,0,0.0
+302012,2021-02-28,137401,围巾,21.6,25,540.0"""
+df = pd.read_csv(StringIO(csv), parse_dates=['订单日期'])
+
+d = df.copy()
+print('缺失所在行：')
+print(d[d['商品名称'].isnull()][['订单编号', '商品名称', '单价', '数量']])
+
+d1 = d.copy()
+d1['商品名称'] = d1['商品名称'].fillna('未知商品')
+d1['单价'] = d1['单价'].fillna(0)
+d1['数量'] = d1['数量'].fillna(0)
+print('\n固定值填充后仍有缺失的格子：', d1.isnull().sum().sum())
+
+d2 = d.copy()
+mean_qty = d2['数量'].mean()
+d2['数量'] = d2['数量'].fillna(mean_qty)
+print('数量列均值：', round(mean_qty, 2), '；填完仍有缺失的格子：', d2.isnull().sum().sum())
+
+d3 = d.copy()
+d3['商品名称'] = d3['商品名称'].ffill()
+print('ffill 之后第 7—9 行商品名：', d3.loc[7:9, '商品名称'].tolist())
+</pre>
+    <div class="demo-out"><div class="out-label">运行结果</div><pre class="out">
+缺失所在行：
+     订单编号 商品名称  单价  数量
+8  302009  NaN NaN NaN
+
+固定值填充后仍有缺失的格子： 0
+数量列均值： 15.55 ；填完仍有缺失的格子： 2
+ffill 之后第 7—9 行商品名： ['T恤', 'T恤', '休闲鞋']
+</pre></div>
+  </div>
+<div class="danger"><b>最贵的错误</b>：<code class="inline">df = df.dropna(inplace=True)</code> —— 这一句执行完 <code class="inline">df</code> 变成 <code class="inline">None</code>，后面全部报 AttributeError。要么写 <code class="inline">df.dropna(inplace=True)</code>（不接返回值），要么写 <code class="inline">df = df.dropna()</code>。</div>
+<div class="key"><strong>一句话记住</strong>：缺失少且随机 → 删；有业务默认值 → 填。用 inplace 就不要接返回值。</div><h4>坑 6：重复值要先看「重复对」，再决定留谁</h4>
+<p><code class="inline">duplicated()</code> 默认 <code class="inline">keep='first'</code>，只把后面出现的标成重复；想一次看全用 <code class="inline">keep=False</code>。删除时同理，<code class="inline">drop_duplicates(keep='first')</code> 留第一条。</p>
+<div class="anim" data-anim="dupkeep">
+    <div class="anim-head">
+      <span class="anim-title">🎬 动态演示：keep 三种取值的区别</span>
+      <div class="anim-actions">
+        <button class="btn" type="button" data-act="reset">↺ 重置</button>
+        <button class="btn" type="button" data-act="prev">⏮ 上一步</button>
+        <button class="btn btn-play" type="button" data-act="play">▶ 播放</button>
+        <button class="btn" type="button" data-act="next">下一步 ⏭</button>
+      </div>
+    </div>
+    <div class="anim-stage"></div>
+    <div class="anim-status"><span class="anim-text"></span><span class="anim-progress"></span></div>
+  </div>
+<div class="demo" data-demo="rv-dup">
+    <div class="demo-head">
+      <span class="demo-title">12 行订单里找出那对重复行</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">import pandas as pd
+from io import StringIO
+
+csv = """订单编号,订单日期,用户ID,商品名称,单价,数量,金额
+302001,2021-02-01,137401,围巾,21.6,12,259.2
+302002,2021-02-01,177562,运动服,210.0,7,1470.0
+302003,2021-02-01,133422,T恤,55.93,24,1342.32
+302004,2021-02-05,138462,运动服,178.5,24,4284.0
+302005,2021-02-05,158949,T恤,65.8,14,921.2
+302006,2021-02-08,120957,卫衣,126.5,15,1897.5
+302006,2021-02-08,120957,卫衣,126.5,15,1897.5
+302008,2021-02-12,186059,T恤,65.8,5,329.0
+302009,2021-02-15,199357,,,,540.0
+302010,2021-02-20,149590,休闲鞋,162.0,30,4860.0
+302011,2021-02-25,149590,运动服,178.5,0,0.0
+302012,2021-02-28,137401,围巾,21.6,25,540.0"""
+df = pd.read_csv(StringIO(csv), parse_dates=['订单日期'])
+
+print('keep=\'first\' 标记：', df.duplicated().sum(), '行')
+print('keep=\'last\' 标记：', df.duplicated(keep='last').sum(), '行')
+print('keep=False 标记：', df.duplicated(keep=False).sum(), '行')
+print('\n重复的那一组：')
+print(df[df.duplicated(keep=False)][['订单编号', '商品名称', '数量', '金额']])
+print('\n去重后：', len(df.drop_duplicates()), '行（keep=False 会删掉整组：', len(df.drop_duplicates(keep=False)), '行）')
+</pre>
+    <div class="demo-out"><div class="out-label">运行结果</div><pre class="out">
+keep='first' 标记： 1 行
+keep='last' 标记： 1 行
+keep=False 标记： 2 行
+
+重复的那一组：
+     订单编号 商品名称    数量      金额
+5  302006   卫衣  15.0  1897.5
+6  302006   卫衣  15.0  1897.5
+
+去重后： 11 行（keep=False 会删掉整组： 10 行）
+</pre></div>
+  </div>
+<div class="key"><strong>一句话记住</strong>：先 <code class="inline">duplicated(keep=False)</code> 看全，再 <code class="inline">drop_duplicates()</code> 去重；判重只看某几列就加 <code class="inline">subset=</code>。</div><h4>坑 7：透视表默认是「均值」，margins 还会多出 All</h4>
+<p><code class="inline">pivot_table</code> 不写 <code class="inline">aggfunc</code> 默认算平均；做金额汇总时必须写 <code class="inline">aggfunc='sum'</code>。加 <code class="inline">margins=True</code> 会多一行/列 <code class="inline">All</code>，画图前要 <code class="inline">drop('All')</code>。</p>
+<div class="anim" data-anim="groupsplit">
+    <div class="anim-head">
+      <span class="anim-title">🎬 动态演示：分组：拆分 → 计算 → 合并</span>
+      <div class="anim-actions">
+        <button class="btn" type="button" data-act="reset">↺ 重置</button>
+        <button class="btn" type="button" data-act="prev">⏮ 上一步</button>
+        <button class="btn btn-play" type="button" data-act="play">▶ 播放</button>
+        <button class="btn" type="button" data-act="next">下一步 ⏭</button>
+      </div>
+    </div>
+    <div class="anim-stage"></div>
+    <div class="anim-status"><span class="anim-text"></span><span class="anim-progress"></span></div>
+  </div><div class="anim" data-anim="pivotbuild">
+    <div class="anim-head">
+      <span class="anim-title">🎬 动态演示：透视表的三块拼装</span>
+      <div class="anim-actions">
+        <button class="btn" type="button" data-act="reset">↺ 重置</button>
+        <button class="btn" type="button" data-act="prev">⏮ 上一步</button>
+        <button class="btn btn-play" type="button" data-act="play">▶ 播放</button>
+        <button class="btn" type="button" data-act="next">下一步 ⏭</button>
+      </div>
+    </div>
+    <div class="anim-stage"></div>
+    <div class="anim-status"><span class="anim-text"></span><span class="anim-progress"></span></div>
+  </div>
+<div class="demo" data-demo="rv-pivot">
+    <div class="demo-head">
+      <span class="demo-title">groupby 与 pivot_table：默认均值 vs 指定求和</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">import pandas as pd
+from io import StringIO
+
+csv = """订单编号,订单日期,用户ID,商品名称,单价,数量,金额
+302001,2021-02-01,137401,围巾,21.6,12,259.2
+302002,2021-02-01,177562,运动服,210.0,7,1470.0
+302003,2021-02-01,133422,T恤,55.93,24,1342.32
+302004,2021-02-05,138462,运动服,178.5,24,4284.0
+302005,2021-02-05,158949,T恤,65.8,14,921.2
+302006,2021-02-08,120957,卫衣,126.5,15,1897.5
+302006,2021-02-08,120957,卫衣,126.5,15,1897.5
+302008,2021-02-12,186059,T恤,65.8,5,329.0
+302009,2021-02-15,199357,,,,540.0
+302010,2021-02-20,149590,休闲鞋,162.0,30,4860.0
+302011,2021-02-25,149590,运动服,178.5,0,0.0
+302012,2021-02-28,137401,围巾,21.6,25,540.0"""
+df = pd.read_csv(StringIO(csv), parse_dates=['订单日期'])
+
+df['金额'] = df['金额'].astype(float)
+print('groupby 分商品金额：')
+print(df.groupby('商品名称').agg({'金额': 'sum'}).sort_values('金额', ascending=False))
+
+print('\npivot_table 不写 aggfunc（默认 mean）：')
+p0 = df.pivot_table(values='金额', index='商品名称', aggfunc='mean')
+print(p0)
+
+print('\npivot_table 指定 sum + margins：')
+p1 = df.pivot_table(values='金额', index='商品名称', columns='订单日期', aggfunc='sum', margins=True)
+print(p1)
+
+print('\n画图前先 drop All：')
+print(p1.drop(index='All').drop(columns='All').sum())
+</pre>
+    <div class="demo-out"><div class="out-label">运行结果</div><pre class="out">
+groupby 分商品金额：
+           金额
+商品名称         
+运动服   5754.00
+休闲鞋   4860.00
+卫衣    3795.00
+T恤    2592.52
+围巾     799.20
+
+pivot_table 不写 aggfunc（默认 mean）：
+               金额
+商品名称             
+T恤     864.173333
+休闲鞋   4860.000000
+卫衣    1897.500000
+围巾     399.600000
+运动服   1918.000000
+
+pivot_table 指定 sum + margins：
+订单日期  2021-02-01 00:00:00  2021-02-05 00:00:00  ...  2021-02-28 00:00:00       All
+商品名称                                            ...                               
+T恤                1342.32                921.2  ...                  NaN   2592.52
+休闲鞋                   NaN                  NaN  ...                  NaN   4860.00
+卫衣                    NaN                  NaN  ...                  NaN   3795.00
+围巾                 259.20                  NaN  ...                540.0    799.20
+运动服               1470.00               4284.0  ...                  NaN   5754.00
+All               3071.52               5205.2  ...                540.0  17800.72
+
+[6 rows x 8 columns]
+
+画图前先 drop All：
+订单日期
+2021-02-01 00:00:00    3071.52
+2021-02-05 00:00:00    5205.20
+2021-02-08 00:00:00    3795.00
+2021-02-12 00:00:00     329.00
+2021-02-20 00:00:00    4860.00
+2021-02-25 00:00:00       0.00
+2021-02-28 00:00:00     540.00
+dtype: float64
+</pre></div>
+  </div>
+<div class="key"><strong>一句话记住</strong>：透视表默认均值，求和要写 <code class="inline">aggfunc='sum'</code>；margins 多出的 <code class="inline">All</code> 行/列画图前先 drop。</div><h4>坑 8：合并前先查键，merge 行数膨胀要能解释</h4>
+<p><code class="inline">concat</code> 只拼接、不按键匹配；<code class="inline">merge</code> 按键匹配，右表键重复时行数会变多。合并前先 <code class="inline">df['键'].duplicated().any()</code> 查一下唯一性。</p>
+<div class="anim" data-anim="concatdir">
+    <div class="anim-head">
+      <span class="anim-title">🎬 动态演示：concat 的两个方向</span>
+      <div class="anim-actions">
+        <button class="btn" type="button" data-act="reset">↺ 重置</button>
+        <button class="btn" type="button" data-act="prev">⏮ 上一步</button>
+        <button class="btn btn-play" type="button" data-act="play">▶ 播放</button>
+        <button class="btn" type="button" data-act="next">下一步 ⏭</button>
+      </div>
+    </div>
+    <div class="anim-stage"></div>
+    <div class="anim-status"><span class="anim-text"></span><span class="anim-progress"></span></div>
+  </div><div class="anim" data-anim="mergehow">
+    <div class="anim-head">
+      <span class="anim-title">🎬 动态演示：merge 的四种连接</span>
+      <div class="anim-actions">
+        <button class="btn" type="button" data-act="reset">↺ 重置</button>
+        <button class="btn" type="button" data-act="prev">⏮ 上一步</button>
+        <button class="btn btn-play" type="button" data-act="play">▶ 播放</button>
+        <button class="btn" type="button" data-act="next">下一步 ⏭</button>
+      </div>
+    </div>
+    <div class="anim-stage"></div>
+    <div class="anim-status"><span class="anim-text"></span><span class="anim-progress"></span></div>
+  </div>
+<div class="demo" data-demo="rv-merge">
+    <div class="demo-head">
+      <span class="demo-title">concat 与 merge 的四种 how，各保留哪些行</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">
+import pandas as pd
+
+orders = pd.DataFrame({
+    '商品名称': ['围巾', 'T恤', '运动服', '卫衣'],
+    '金额': [259.2, 1342.32, 4284.0, 1897.5],
+})
+goods = pd.DataFrame({
+    '商品名称': ['围巾', 'T恤', '运动服', '休闲鞋', '太阳帽'],
+    '进价': [18.0, 45.0, 150.0, 120.0, 15.0],
+})
+for how in ['inner', 'left', 'right', 'outer']:
+    m = pd.merge(orders, goods, on='商品名称', how=how)
+    print(how, '-&gt;', len(m), '行；', m['商品名称'].tolist())
+
+print('\n上下拼接 concat：')
+print(pd.concat([orders, orders], ignore_index=True).shape)
+</pre>
+    <div class="demo-out"><div class="out-label">运行结果</div><pre class="out">
+inner -&gt; 3 行； ['围巾', 'T恤', '运动服']
+left -&gt; 4 行； ['围巾', 'T恤', '运动服', '卫衣']
+right -&gt; 5 行； ['围巾', 'T恤', '运动服', '休闲鞋', '太阳帽']
+outer -&gt; 6 行； ['T恤', '休闲鞋', '卫衣', '围巾', '太阳帽', '运动服']
+
+上下拼接 concat：
+(8, 2)
+</pre></div>
+  </div>
+<div class="key"><strong>一句话记住</strong>：上下/左右拼用 <code class="inline">concat</code>；按键配用 <code class="inline">merge</code>，先查键唯一性，再选 <code class="inline">how</code>。</div>
+<h3 id="c1-table">1.3 总：九组易混概念，一张表收尾</h3>
+<div class="tbl-wrap"><table class="mini"><thead><tr><th>易混组</th><th>甲</th><th>乙</th><th>怎么选</th></tr></thead><tbody><tr><td>一维 / 二维</td><td><code class='inline'>Series</code></td><td><code class='inline'>DataFrame</code></td><td>单列数据用 Series，整表用 DataFrame</td></tr><tr><td>取列 / 取行</td><td><code class='inline'>df['列']</code></td><td><code class='inline'>df.loc[行]</code> / <code class='inline'>df.iloc[行]</code></td><td>整列用前者，按行切片用后者</td></tr><tr><td>标签 / 位置</td><td><code class='inline'>loc</code></td><td><code class='inline'>iloc</code></td><td>有名字用 loc，讲第几行用 iloc</td></tr><tr><td>删 / 填</td><td><code class='inline'>dropna</code></td><td><code class='inline'>fillna</code></td><td>缺失少且随机就删；有业务默认值就填</td></tr><tr><td>相等 / 集合 / 区间</td><td><code class='inline'>==</code></td><td><code class='inline'>isin([...])</code> / <code class='inline'>between(a,b)</code></td><td>单值用 ==，多值用 isin，区间用 between</td></tr><tr><td>排序 / 取前 N</td><td><code class='inline'>sort_values</code></td><td><code class='inline'>nlargest</code></td><td>要完整顺序用前者，只要前几名用后者</td></tr><tr><td>分组 / 透视</td><td><code class='inline'>groupby().agg()</code></td><td><code class='inline'>pivot_table</code></td><td>一维汇总用 groupby，二维交叉用透视表</td></tr><tr><td>拼 / 配</td><td><code class='inline'>concat</code></td><td><code class='inline'>merge</code></td><td>上下左右拼接用 concat，按键关联用 merge</td></tr><tr><td>原地 / 返回</td><td><code class='inline'>inplace=True</code></td><td>重新赋值</td><td>教学中统一用「重新赋值」，避免拿到 None</td></tr></tbody></table></div>
+<h3 id="c1-quiz">1.4 五题快问快答（先自己答，再点开）</h3>
+<details class="qa"><summary>1. <code class="inline">df.shape</code> 返回什么？</summary><p>（行数, 列数）的元组，例如 310 行 7 列就是 <code class="inline">(310, 7)</code>。</p></details>
+<details class="qa"><summary>2. <code class="inline">loc</code> 和 <code class="inline">iloc</code> 什么时候结果一样？</summary><p>行索引恰好是 0、1、2…n-1 时（没有自定义索引、也没有删过行），此时「标签 2」和「第 3 个位置」重合；一旦删行或自定义索引，两者就分开了。</p></details>
+<details class="qa"><summary>3. <code class="inline">dropna()</code> 默认删什么？</summary><p>默认 <code class="inline">how='any'</code>：只要一行里<strong>任意一列</strong>有缺失，就删整行；<code class="inline">how='all'</code> 才是「整行全空才删」。</p></details>
+<details class="qa"><summary>4. <code class="inline">groupby</code> 之后不加 <code class="inline">agg</code> 能直接算吗？</summary><p>要先选列再聚合，例如 <code class="inline">df.groupby('商品名称')['金额'].sum()</code>；直接打印 groupby 对象只会得到一个描述，不是结果。</p></details>
+<details class="qa"><summary>5. <code class="inline">merge</code> 之后行数变多说明什么？</summary><p>右表的键有重复（一对多）。合并前先 <code class="inline">df['键'].duplicated().any()</code> 检查；要么先对右表去重/聚合，要么明确接受一对多的结果。</p></details>
+
+<h3 id="c1-inter">1.5 两个小工具：动手试试</h3>
+<div class="inter">
+  <h4>演示一：八动作流水线选择器</h4>
+  <p>点一下「我要做什么」，看看这个动作该用哪个 API、最容易错在哪。课堂上可以让学生先猜再点。</p>
+  <div class="inter-row">
+    <label>我要…：<select id="pipe-step">
+      <option value="0" selected>建：把数据变成 Series / DataFrame</option>
+      <option value="1">看：先了解形状、类型</option>
+      <option value="2">取：取列 / 取行</option>
+      <option value="3">改：改值、增删列、排序</option>
+      <option value="4">洗：查缺失、重复、异常</option>
+      <option value="5">查：按条件筛行</option>
+      <option value="6">聚：分组、分箱、透视</option>
+      <option value="7">合：拼接、按键合并</option>
+    </select></label>
+    <button class="inter-btn" id="pipe-btn">查看写法</button>
+  </div>
+  <pre class="inter-out" id="pipe-out">选一个动作，点「查看写法」。</pre>
+</div>
+
+<div class="inter">
+  <h4>演示二：<code class="inline">pd.cut</code> 分箱模拟器</h4>
+  <p>输入分箱边界和一组数值，看看每个数落在哪个区间、有没有落出范围的（变 NaN）。注意 <code class="inline">pd.cut</code> 默认<strong>左开右闭</strong>：10 落在 (0, 10] 里算「差」那一档。</p>
+  <div class="inter-row">
+    <label>边界：<input type="text" id="cut-bins" class="wide" value="0, 10, 20, 30"></label>
+    <label>数值：<input type="text" id="cut-vals" class="wide" value="5, 10, 15, 20, 25, 30, 35"></label>
+    <button class="inter-btn" id="cut-btn">分箱</button>
+  </div>
+  <pre class="inter-out" id="cut-out">点「分箱」。</pre>
+</div>
+
+<div class="sumline">这一节的用法：<strong>先背六步和八个动作</strong>，再用八个坑检查自己的写法，最后用对比表和快问快答自查；有把握了就进练习。</div>
+</section>
+<section id="c2">
+  <div class="sec-head">
+    <div class="sec-num">二</div>
+    <div><h2>练习一：Pandas 数据处理全流程（21 小问）</h2><p class="sec-sub">教材例题改编 · 订单.xlsx（310 行 × 7 列）· 课堂 45 分钟 + 课后重做 · 答案为本机 pandas 3.0.5 实测</p></div>
+  </div>
+
+<div class="note"><b>数据</b>：<code class="inline">订单.xlsx</code>（310 行 × 7 列：订单编号 / 订单日期 / 用户ID / 商品名称 / 单价 / 数量 / 金额），下载区可取。题目顺序按「导入 → 预处理 → 查询 → 汇总 → 透视」，<b>每段重新读数据</b>的就重新读，别怕重复导入。</div>
+
+<h3 id="c2-1">2.1 导入与查看（第 1—4 题）</h3>
+<div class="tbl-wrap"><table class="mini"><thead><tr><th>题</th><th>要求</th><th>本机实测</th></tr></thead><tbody><tr><td>1</td><td>导入 Pandas，读取 xlsx，创建 DataFrame</td><td>310 行 × 7 列；订单日期为 datetime64[us]</td></tr><tr><td>2</td><td>查看基本 info</td><td>订单编号 int64；商品名称 str；单价/数量/金额 float64</td></tr><tr><td>3</td><td>describe() + shape</td><td>(310, 7)；单价、数量、金额有 3 个数（均值/最值等）</td></tr><tr><td>4</td><td>head(3) 与 tail(5)</td><td>首行 302001 围巾 259.2；末行 302310 休闲鞋 1134.0</td></tr></tbody></table></div><div class="demo static">
+    <div class="demo-head"><span class="demo-title">第 1—4 题参考代码</span></div>
+    <pre class="code">import pandas as pd
+
+df = pd.read_excel(r'D:\订单.xlsx')     # 1
+print(df.head())                         # 看一眼
+df.info()                                # 2
+print(df.describe())                     # 3
+print('shape =', df.shape)
+print(df.head(3))                        # 4
+print(df.tail(5))</pre>
+  </div>
+<div class="note"><b>提示</b>：<code class="inline">read_excel</code> 需要 openpyxl，缺了就 <code class="inline">pip install openpyxl</code>。题目里写的 D 盘根目录只是示例，实际放哪都行，改路径即可。</div>
+
+<h3 id="c2-2">2.2 数据预处理（第 5—9 题）</h3>
+<div class="tbl-wrap"><table class="mini"><thead><tr><th>题</th><th>要求</th><th>本机实测</th></tr></thead><tbody><tr><td>5</td><td>查找缺失值与包含空值的记录</td><td>商品名称 / 单价 / 数量 三列各有 5 个缺失；含空行 5 行</td></tr><tr><td>6</td><td>删除空值记录（原地删除）</td><td>310 → 305 行</td></tr><tr><td>7</td><td>重新读取后，删除金额为 0 的记录</td><td>0 金额 5 行：302024 / 302068 / 302140 / 302241 / 302286；305 行</td></tr><tr><td>8</td><td>单价 &gt; 150 且数量 &gt; 25 视为异常，查找并删除</td><td>异常 5 行：302009 / 302113 / 302245 / 302270 / 302283；300 行</td></tr><tr><td>9</td><td>只导入 订单日期/用户ID/商品名称/数量，查重复</td><td>(310, 4)；重复 2 对：02-05 用户 120957 卫衣 15；02-08 用户 186059 T恤 5</td></tr></tbody></table></div><div class="demo static">
+    <div class="demo-head"><span class="demo-title">第 5—9 题参考代码</span></div>
+    <pre class="code">import pandas as pd
+
+# 5 查缺失
+df = pd.read_excel(r'D:\订单.xlsx')
+print(df.isnull().any())
+print(df.isnull().sum())
+print(df[df.isnull().any(axis=1)])
+
+# 6 原地删缺失
+df.dropna(inplace=True)
+print(len(df))          # 305
+
+# 7 重新读取，删金额为 0
+df = pd.read_excel(r'D:\订单.xlsx')
+zero = df[df['金额'] == 0]
+print(zero[['订单编号', '商品名称', '金额']])
+df.drop(index=zero.index, inplace=True)
+print(len(df))          # 305
+
+# 8 异常值：单价 &gt; 150 且数量 &gt; 25
+bad = df[(df['单价'] &gt; 150) &amp; (df['数量'] &gt; 25)]
+print(bad[['订单编号', '商品名称', '单价', '数量']])
+df.drop(index=bad.index, inplace=True)
+print(len(df))          # 300
+
+# 9 只读四列查重复
+part = pd.read_excel(r'D:\订单.xlsx', usecols=[1, 2, 3, 5])
+print(part.shape, list(part.columns))
+print(part.duplicated().sum())
+print(part[part.duplicated(keep=False)].sort_values(list(part.columns)))</pre>
+  </div>
+<div class="danger"><b>连锁坑（一定要讲）</b>：第 7 题找到的 5 行 0 金额，就是第 5、6 题里那 5 行缺失——所以题目要求「重新读取」。先 <code class="inline">dropna()</code> 再找 <code class="inline">金额 == 0</code>，会<strong>一行都找不到</strong>。</div>
+<div class="warn"><b>第二处连锁</b>：第 8 题删掉的异常行 302283（运动服，178.5 × 30 = 5355 元），恰好是原始数据里<strong>唯一一笔金额 ≥ 5000</strong> 的订单。所以第 10 题会得到空表——这不是写错了，是前面的步骤把它删了。</div>
+<div class="demo" data-demo="rv-dropna2">
+    <div class="demo-head">
+      <span class="demo-title">现场验证：inplace 之后表还在不在</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">import pandas as pd
+from io import StringIO
+
+csv = """订单编号,订单日期,用户ID,商品名称,单价,数量,金额
+302001,2021-02-01,137401,围巾,21.6,12,259.2
+302002,2021-02-01,177562,运动服,210.0,7,1470.0
+302003,2021-02-01,133422,T恤,55.93,24,1342.32
+302004,2021-02-05,138462,运动服,178.5,24,4284.0
+302005,2021-02-05,158949,T恤,65.8,14,921.2
+302006,2021-02-08,120957,卫衣,126.5,15,1897.5
+302006,2021-02-08,120957,卫衣,126.5,15,1897.5
+302008,2021-02-12,186059,T恤,65.8,5,329.0
+302009,2021-02-15,199357,,,,540.0
+302010,2021-02-20,149590,休闲鞋,162.0,30,4860.0
+302011,2021-02-25,149590,运动服,178.5,0,0.0
+302012,2021-02-28,137401,围巾,21.6,25,540.0"""
+df = pd.read_csv(StringIO(csv), parse_dates=['订单日期'])
+
+df1 = df.copy()
+print('原始行数：', len(df1))
+df1.dropna(inplace=True)
+print('原地删除后行数：', len(df1))
+
+df2 = df.copy()
+x = df2.dropna(inplace=True)
+print('把 inplace 的返回值接住：', x)
+</pre>
+    <div class="demo-out"><div class="out-label">运行结果</div><pre class="out">
+原始行数： 12
+原地删除后行数： 11
+把 inplace 的返回值接住： None
+</pre></div>
+  </div>
+<h3 id="c2-3">2.3 数据查询（第 10—13 题）</h3>
+<div class="tbl-wrap"><table class="mini"><thead><tr><th>题</th><th>要求</th><th>本机实测</th></tr></thead><tbody><tr><td>10</td><td>查询金额 ≥ 5000 的商品名称与金额</td><td><b>空表</b>（唯一一笔 5355 元已在前一步被删；原始数据里为 302283）</td></tr><tr><td>11</td><td>运动服订单，看最后 5 条</td><td>302244 / 302267 / 302268 / 302306 / 302308</td></tr><tr><td>12</td><td>数量 ≥ 25 的卫衣</td><td>11 行：302044、302050、302075、302078、302079、302121、302125、302126、302134、302149、302167</td></tr><tr><td>13</td><td>金额 ≥ 2000，按金额降序</td><td>前几：4462.5（302007、302268）；4284.0（302096、302004、302161）……；≥ 4000 共 10 行</td></tr></tbody></table></div><div class="demo static">
+    <div class="demo-head"><span class="demo-title">第 10—13 题参考代码</span></div>
+    <pre class="code"># 10
+print(df[df['金额'] &gt;= 5000][['商品名称', '金额']])
+print('空表也算结果：清洗后最大金额是', df['金额'].max())
+
+# 11
+print(df[df['商品名称'] == '运动服'].tail(5))
+
+# 12
+hit = df[(df['商品名称'] == '卫衣') &amp; (df['数量'] &gt;= 25)]
+print(hit)
+print('共', len(hit), '条')
+
+# 13
+print(df[df['金额'] &gt;= 2000].sort_values('金额', ascending=False))</pre>
+  </div>
+<div class="key"><strong>讲法</strong>：第 10 题不要急着说「这题错了」，先问「为什么是空表」——把第 8 题的删除和第 10 题连起来，学生才真正理解数据清洗的连锁影响。</div>
+
+<h3 id="c2-4">2.4 数据汇总（第 14—18 题）</h3>
+<div class="tbl-wrap"><table class="mini"><thead><tr><th>题</th><th>要求</th><th>本机实测</th></tr></thead><tbody><tr><td>14</td><td>统计订购总金额</td><td>393 204.13</td></tr><tr><td>15</td><td>统计休闲鞋订购总数量</td><td>598.0</td></tr><tr><td>16</td><td>每种商品的订购总金额，降序</td><td>卫衣 101 164.46 &gt; 运动服 94 846.50 &gt; 休闲鞋 89 780.40 &gt; T恤 87 569.93 &gt; 围巾 19 842.84</td></tr><tr><td>17</td><td>按每日金额分档，统计各档数量（间隔 3000, 8000, 15000, 23000, 30000, 35000）</td><td>28 天全落档：L1 6、L2 11、L3 7、L4 2、L5 2；无 NaN</td></tr><tr><td>18</td><td>读 订单_new.xlsx，透视表 df1：每周各商品金额（sum + margins）</td><td>305 行 × 9 列；All 合计 418 372.63；第 8 周 T恤为 NaN</td></tr></tbody></table></div><div class="demo static">
+    <div class="demo-head"><span class="demo-title">第 14—18 题参考代码</span></div>
+    <pre class="code"># 14
+print('总金额 =', round(df['金额'].sum(), 2))
+
+# 15
+print('休闲鞋总数量 =', df[df['商品名称'] == '休闲鞋']['数量'].sum())
+
+# 16
+amount = df.groupby('商品名称').agg({'金额': 'sum'}).sort_values('金额', ascending=False)
+print(amount)
+
+# 17
+daily = df.groupby('订单日期').agg({'金额': 'sum'})
+daily['等级'] = pd.cut(daily['金额'], bins=[3000, 8000, 15000, 23000, 30000, 35000],
+                       labels=['L1', 'L2', 'L3', 'L4', 'L5'])
+print(daily['等级'].value_counts().sort_index())
+
+# 18
+df_new = pd.read_excel(r'D:\订单_new.xlsx')
+df1 = df_new.pivot_table(values='金额', index='周次', columns='商品名称',
+                         aggfunc='sum', margins=True)
+print(df1)</pre>
+  </div><div class="demo" data-demo="rv-cut2">
+    <div class="demo-head">
+      <span class="demo-title">pd.cut 的边界：左开右闭、超出范围变 NaN</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">
+import pandas as pd
+
+amounts = [3000, 8000, 12000, 23000, 30000, 35000, 4000, 26000]
+bins = [3000, 8000, 15000, 23000, 30000, 35000]
+labels = ['L1', 'L2', 'L3', 'L4', 'L5']
+level = pd.cut(amounts, bins=bins, labels=labels)
+print(level)
+print('各档数量：')
+print(level.value_counts().sort_index())
+print('超出区间变 NaN：', level.isna().sum(), '个')
+print('恰为 3000 分在哪一档：', level[0], '（左开右闭，3000 落在 (3000,8000] 之外 → NaN）')
+</pre>
+    <div class="demo-out"><div class="out-label">运行结果</div><pre class="out">
+[NaN, 'L1', 'L2', 'L3', 'L4', 'L5', 'L1', 'L4']
+Categories (5, str): ['L1' &lt; 'L2' &lt; 'L3' &lt; 'L4' &lt; 'L5']
+各档数量：
+L1    2
+L2    1
+L3    1
+L4    2
+L5    1
+Name: count, dtype: int64
+超出区间变 NaN： 1 个
+恰为 3000 分在哪一档： nan （左开右闭，3000 落在 (3000,8000] 之外 → NaN）
+</pre></div>
+  </div><div class="demo" data-demo="rv-pivot2">
+    <div class="demo-head">
+      <span class="demo-title">透视表 margins 的 All 行/列怎么处理</span>
+      <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
+    </div>
+    <pre class="code">
+import pandas as pd
+
+df = pd.DataFrame({
+    '周次': [5, 5, 6, 6, 7],
+    '商品名称': ['T恤', '围巾', 'T恤', '卫衣', 'T恤'],
+    '金额': [16963.24, 3429.00, 45534.91, 379.50, 126.50],
+})
+p = df.pivot_table(values='金额', index='周次', columns='商品名称',
+                   aggfunc='sum', margins=True)
+print(p)
+print('\nAll 行是各周合计，All 列是各商品合计：', p.loc['All', 'All'])
+print('画图前去掉 All：')
+print(p.drop(index='All').drop(columns='All'))
+</pre>
+    <div class="demo-out"><div class="out-label">运行结果</div><pre class="out">
+商品名称        T恤     卫衣      围巾       All
+周次                                     
+5     16963.24    NaN  3429.0  20392.24
+6     45534.91  379.5     NaN  45914.41
+7       126.50    NaN     NaN    126.50
+All   62624.65  379.5  3429.0  66433.15
+
+All 行是各周合计，All 列是各商品合计： 66433.15000000001
+画图前去掉 All：
+商品名称        T恤     卫衣      围巾
+周次                           
+5     16963.24    NaN  3429.0
+6     45534.91  379.5     NaN
+7       126.50    NaN     NaN
+</pre></div>
+  </div>
+<h3 id="c2-5">2.5 透视表结果画图与导出（第 19—21 题）</h3>
+<div class="tbl-wrap"><table class="mini"><thead><tr><th>题</th><th>要求</th><th>本机实测</th></tr></thead><tbody><tr><td>19</td><td>用 df1 画第 5 周各商品金额柱状图</td><td>T恤 16 963.24 / 休闲鞋 7 435.80 / 卫衣 55 123.55 / 围巾 3 429.00 / 运动服 38 850.00（合计 121 801.59）</td></tr><tr><td>20</td><td>画卫衣各周金额柱状图</td><td>第 5 周 55 123.55；第 6 周 45 534.91；第 7 周 379.50；第 8 周 126.50</td></tr><tr><td>21</td><td>导出「订单结果.xlsx」</td><td>成功后文件同目录，行数 300（第 8 题清洗后的表）</td></tr></tbody></table></div><div class="demo static">
+    <div class="demo-head"><span class="demo-title">第 19—21 题参考代码</span></div>
+    <pre class="code">import matplotlib.pyplot as plt
+plt.rcParams['font.sans-serif'] = ['SimHei']
+plt.rcParams['axes.unicode_minus'] = False
+
+# 19 第 5 周各商品金额
+week5 = df1.loc[5].drop('All').sort_values(ascending=False)
+week5.plot.bar(figsize=(8, 4), color='#306998', title='第 5 周各商品订购总金额')
+plt.tight_layout()
+plt.savefig('第5周各商品总金额.png', dpi=150)
+
+# 20 卫衣各周金额
+df1['卫衣'].drop('All').plot.bar(figsize=(8, 4), color='#b8860b', title='卫衣各周订购总金额')
+plt.tight_layout()
+plt.savefig('卫衣各周总金额.png', dpi=150)
+
+# 21 导出
+df.to_excel('订单结果.xlsx', index=False)</pre>
+  </div>
+<div class="grid2fig">
+<figure class="figure"><img src="assets/python-bigdata-2026/lesson9/figs/fig_ex1_week5.png" alt="图 9-2　第 19 题：第 5 周各商品订购总金额（本机 matplotlib 3.11.2 生成）" loading="lazy"><figcaption>图 9-2　第 19 题：第 5 周各商品订购总金额（本机 matplotlib 3.11.2 生成）</figcaption></figure>
+<figure class="figure"><img src="assets/python-bigdata-2026/lesson9/figs/fig_ex1_weiyi_week.png" alt="图 9-3　第 20 题：卫衣各周订购总金额" loading="lazy"><figcaption>图 9-3　第 20 题：卫衣各周订购总金额</figcaption></figure>
+</div>
+
+<h3 id="c2-6">2.6 讲评要点（7 条）</h3>
+<ol>
+  <li><code class="inline">isnull().any()</code> 里「金额」是 False——金额不缺失，只是为 0；<b>缺失和 0 是两回事</b>。</li>
+  <li>第 7 题那 5 行 0 金额与第 5、6 题的缺失行是同一批；题目让「重新读取」就是这个原因。</li>
+  <li>第 8 题的异常行 302283 同时是唯一 ≥ 5000 的订单，所以第 10 题空表；这条因果链要讲透。</li>
+  <li><code class="inline">df = df.dropna(inplace=True)</code> 会把表变成 None（第 8 章原题）。</li>
+  <li><code class="inline">usecols</code> 下标从 0 开始，[1,2,3,5] 是 订单日期/用户ID/商品名称/数量，不含金额。</li>
+  <li>第 18、19 题透视表带 <code class="inline">margins=True</code> 多出 All，画图前 <code class="inline">drop('All')</code>。</li>
+  <li>第 17 题 <code class="inline">pd.cut</code> 默认左开右闭，边界值要单独讲（本数据 28 天恰好全落档）。</li>
+</ol>
+
+</section>
+<section id="c3">
+  <div class="sec-head">
+    <div class="sec-num">三</div>
+    <div><h2>练习二：换一套数据再来一遍（10 小问）</h2><p class="sec-sub">订单_lx2.xlsx（24 行 × 6 列）· 限时 20 分钟 · 独立完成，检验「换数据还会不会」</p></div>
+  </div>
+
+<div class="note"><b>数据</b>：<code class="inline">订单_lx2.xlsx</code> 只有 24 行、6 列（订单编号 / 订购日期 / 用户ID / 商品名称 / 单价 / 数量），4 种商品（围巾、大衣、T恤、运动鞋），3 天（2021-02-01—03）。<b>先自己做</b>，再对照下面的参考代码与实测答案。</div>
+
+<h3 id="c3-1">3.1 题目与实测答案</h3>
+<div class="tbl-wrap"><table class="mini"><thead><tr><th>题</th><th>要求</th><th>本机实测</th></tr></thead><tbody><tr><td>1</td><td>读入数据，创建 DataFrame</td><td>24 行 × 6 列</td></tr><tr><td>2</td><td>shape + 前 5 条</td><td>(24, 6)</td></tr><tr><td>3</td><td>数量 &gt; 10 的大衣，按数量降序</td><td>3 行：28、25、24（都在 02-01）</td></tr><tr><td>4</td><td>围巾最高销售数量</td><td>30</td></tr><tr><td>5</td><td>每种商品总数量，降序</td><td>围巾 110 &gt; 大衣 91 &gt; 运动鞋 81 &gt; T恤 69</td></tr><tr><td>6</td><td>围巾订单存入 df2</td><td>7 行</td></tr><tr><td>7</td><td>df2 按数量分档 [0,10,20,30] → 差/中/好，统计各档数量</td><td>差 2、中 2、好 3；无 NaN（最大 30 落在「好」）</td></tr><tr><td>8</td><td>透视表：每天每种商品总数量（sum + margins）</td><td>3 天 × 4 商品；All 合计 351</td></tr><tr><td>9</td><td>柱状图展示围巾每日订购数量</td><td>3 根柱；记得 drop('All')</td></tr><tr><td>10</td><td>导出「订单结果.xlsx」</td><td>成功，24 行</td></tr></tbody></table></div><div class="demo static">
+    <div class="demo-head"><span class="demo-title">练习二参考代码</span></div>
+    <pre class="code">import pandas as pd
+import matplotlib.pyplot as plt
+
+plt.rcParams['font.sans-serif'] = ['SimHei']
+plt.rcParams['axes.unicode_minus'] = False
+
+df = pd.read_excel(r'D:\订单_lx2.xlsx')        # 1
+print(df.shape, df.head(5))                    # 2
+
+coat = df[(df['商品名称'] == '大衣') &amp; (df['数量'] &gt; 10)]
+print(coat[['订购日期', '商品名称', '数量']].sort_values('数量', ascending=False))   # 3
+
+print(df[df['商品名称'] == '围巾']['数量'].max())                                  # 4
+
+print(df.groupby('商品名称').agg({'数量': 'sum'}).sort_values('数量', ascending=False))  # 5
+
+df2 = df[df['商品名称'] == '围巾'].copy()        # 6
+df2['等级'] = pd.cut(df2['数量'], bins=[0, 10, 20, 30], labels=['差', '中', '好'])   # 7
+print(df2['等级'].value_counts().sort_index())
+
+df1 = df.pivot_table(values='数量', index='订购日期', columns='商品名称',
+                     aggfunc='sum', margins=True)                                 # 8
+print(df1)
+
+df1['围巾'].drop('All').plot.bar(figsize=(8, 4), color='#2e7d32',
+                                 title='围巾每日订购数量')                        # 9
+plt.tight_layout()
+plt.savefig('围巾每日订购数量.png', dpi=150)
+
+df.to_excel('订单结果.xlsx', index=False)                                          # 10</pre>
+  </div>
+<figure class="figure"><img src="assets/python-bigdata-2026/lesson9/figs/fig_ex2_scarf_daily.png" alt="图 9-4　第 9 题：围巾每日订购数量（本机 matplotlib 3.11.2 生成）" loading="lazy"><figcaption>图 9-4　第 9 题：围巾每日订购数量（本机 matplotlib 3.11.2 生成）</figcaption></figure>
+
+<h3 id="c3-2">3.2 讲评要点（4 条）</h3>
+<ul>
+  <li><b>第 7 题</b>：<code class="inline">pd.cut</code> 的 bins 上限是 30，本题最大正好 30，落在「好」；若数据出现 31 会变 NaN——bins 要按数据范围取。</li>
+  <li><b>第 8、9 题</b>：<code class="inline">margins=True</code> 后 <code class="inline">df1['围巾']</code> 里含 All 行，画图前必须 <code class="inline">drop('All')</code>，否则图上多一根「All」柱。</li>
+  <li><b>第 3 题</b>：条件是两个——<code class="inline">商品名称 == '大衣'</code> 与 <code class="inline">数量 &gt; 10</code>，别漏括号。</li>
+  <li><b>原答案文档有两处笔误</b>：<code class="inline">df1..to_excel</code>（两个点）、<code class="inline">aggfunc='sum'，margins=True</code>（全角逗号）。课堂版已修正——顺便告诉学生「答案也会错，跑一遍才算数」。</li>
+</ul>
+
+</section>
+<section id="download">
+  <div class="sec-head">
+    <div class="sec-num">四</div>
+    <div><h2>数据与代码下载</h2><p class="sec-sub">两套练习的数据 + 参考答案脚本 + 页面精简数据 + 说明文档 + 一次打包</p></div>
+  </div>
+
+<p>下面这些文件就是今天两套练习用到的全部材料。数据来自课件配套文件，参考答案脚本在本机（Python 3.14.7 + pandas 3.0.5）跑通，下载后直接 <code class="inline">python 文件名.py</code> 即可复现。</p>
+
+<h3 id="dl-1">一、数据文件</h3>
+<div class="tbl-wrap"><table class="dl-table">
+  <thead><tr><th style="width:34%">文件名（点击下载）</th><th>内容</th><th style="width:12%">大小</th></tr></thead>
+  <tbody>
+    <tr><td><a class="dl-link" href="assets/python-bigdata-2026/lesson9/%E8%AE%A2%E5%8D%95.xlsx">订单.xlsx</a></td><td>练习一原始数据：310 行 × 7 列，含缺失值、0 金额、异常值（对应第 1—21 题）</td><td class="dl-size">90.0 KB</td></tr>
+    <tr><td><a class="dl-link" href="assets/python-bigdata-2026/lesson9/%E8%AE%A2%E5%8D%95_new.xlsx">订单_new.xlsx</a></td><td>练习一第 18—20 题：305 行 × 9 列，多出「地区编码」「周次」两列</td><td class="dl-size">18.3 KB</td></tr>
+    <tr><td><a class="dl-link" href="assets/python-bigdata-2026/lesson9/%E8%AE%A2%E5%8D%95_lx2.xlsx">订单_lx2.xlsx</a></td><td>练习二数据：24 行 × 6 列，4 种商品、3 天订单</td><td class="dl-size">10.1 KB</td></tr>
+    <tr><td><a class="dl-link" href="assets/python-bigdata-2026/lesson9/%E7%B2%BE%E7%AE%80%E8%AE%A2%E5%8D%95%E6%95%B0%E6%8D%AE.csv">精简订单数据.csv</a></td><td>页面示例统一使用的 12 行精简订单（UTF-8），便于对照页面代码</td><td class="dl-size">624 B</td></tr>
+  </tbody>
+</table></div>
+
+<h3 id="dl-2">二、参考答案与说明</h3>
+<div class="tbl-wrap"><table class="dl-table">
+  <thead><tr><th style="width:34%">文件名（点击下载）</th><th>内容</th><th style="width:12%">大小</th></tr></thead>
+  <tbody>
+    <tr><td><a class="dl-link" href="assets/python-bigdata-2026/lesson9/%E7%BB%83%E4%B9%A01_%E5%8F%82%E8%80%83%E7%AD%94%E6%A1%88.py">练习1_参考答案.py</a></td><td>练习一 21 小问完整答案：每题打印题干、代码与结果，最后生成两张图和订单结果.xlsx</td><td class="dl-size">5.6 KB</td></tr>
+    <tr><td><a class="dl-link" href="assets/python-bigdata-2026/lesson9/%E7%BB%83%E4%B9%A02_%E5%8F%82%E8%80%83%E7%AD%94%E6%A1%88.py">练习2_参考答案.py</a></td><td>练习二 10 小问完整答案：查询、统计、分档、透视、柱状图、导出</td><td class="dl-size">2.7 KB</td></tr>
+    <tr><td><a class="dl-link" href="assets/python-bigdata-2026/lesson9/README_%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E.md">README_使用说明.md</a></td><td>文件清单、运行方法、环境要求与两个注意点（pandas 3 的 cut / margins）</td><td class="dl-size">2.2 KB</td></tr>
+  </tbody>
+</table></div>
+
+<h3 id="dl-3">三、一次打包下载</h3>
+<div class="datacard">
+  <div class="dc-name">第9次课_复习与练习_资料包.zip<span class="dc-tag">106.3 KB · 全部文件</span></div>
+  <div class="dc-body">
+    <p>把上面 7 个文件打成一个 zip（4 个数据 + 2 个答案脚本 + 说明），解压后即可使用。</p>
+    <p><a class="dl-link" href="assets/python-bigdata-2026/lesson9/%E7%AC%AC9%E6%AC%A1%E8%AF%BE_%E5%A4%8D%E4%B9%A0%E4%B8%8E%E7%BB%83%E4%B9%A0_%E8%B5%84%E6%96%99%E5%8C%85.zip"><span class="nb">⬇ 下载第9次课_复习与练习_资料包.zip（106.3 KB）</span></a></p>
+  </div>
+  <div class="dc-meta">解压后建议先看 README_使用说明.md；运行示例前确认已安装 pandas / openpyxl / matplotlib。</div>
+</div>
+
+<div class="warn"><b>运行环境</b>：Python 3.11+；<code class="inline">pip install pandas openpyxl matplotlib</code>（本机实测 pandas 3.0.5 + matplotlib 3.11.2）。答案脚本按文件名找数据，所以数据文件要和脚本放在同一个文件夹。</div>
+
+</section>
+<section id="summary">
+  <div class="sec-head">
+    <div class="sec-num">结</div>
+    <div><h2>小结 · 易错清单 · 作业</h2><p class="sec-sub">复习用：能自己把每一条讲出来，这一节才算过</p></div>
+  </div>
+
+<h3 id="s-1">一、三句话带走</h3>
+<ol>
+  <li><b>一条流水线</b>：导入 → 查看 → 清洗 → 查询 → 聚合 → 透视/合并 → 导出，六步八动作。</li>
+  <li><b>八个坑有固定写法</b>：<code class="inline">loc</code> 一步定位、括号包住每个条件、<code class="inline">inplace</code> 不接返回值、透视写 <code class="inline">aggfunc='sum'</code>、画图前 drop All、merge 先查键。</li>
+  <li><b>换数据重做一遍才算会</b>：练习一 310 行、练习二 24 行，同一套动作做两遍。</li>
+</ol>
+
+<h3 id="s-2">二、易错清单（10 条）</h3>
+<ul>
+  <li><code class="inline">df[0]</code> 不是第一行（KeyError: 0），按行要用 <code class="inline">loc</code> / <code class="inline">iloc</code>。</li>
+  <li>多条件不加括号 / 用 <code class="inline">and or</code>：<code class="inline">TypeError</code> 或 <code class="inline">ValueError</code>；用 <code class="inline">&amp; | ~</code> 且每个条件加括号。</li>
+  <li><code class="inline">df[df.x &gt; 1]['y'] = 0</code> 链式赋值改不动（pandas 3 写时复制）。</li>
+  <li><code class="inline">df = df.dropna(inplace=True)</code> 会让 <code class="inline">df</code> 变成 None。</li>
+  <li>缺失和 0 是两回事：<code class="inline">金额 == 0</code> 不等于 <code class="inline">isnull()</code>。</li>
+  <li><code class="inline">pivot_table</code> 不写 <code class="inline">aggfunc</code> 默认算均值。</li>
+  <li><code class="inline">margins=True</code> 的 All 行/列，画图前要 <code class="inline">drop('All')</code>。</li>
+  <li><code class="inline">pd.cut</code> 默认左开右闭，bins 覆盖不到的值变 NaN。</li>
+  <li><code class="inline">merge</code> 右表键重复会让行数变多；先查唯一性。</li>
+  <li>读 Excel 缺 openpyxl；读 GBK 的 CSV 要写 <code class="inline">encoding='gbk'</code>。</li>
+</ul>
+
+<h3 id="s-3">三、课后作业</h3>
+<ol>
+  <li>两套练习<b>独立重做</b>一遍（不看答案），提交：<code class="inline">订单结果.xlsx</code>、第 5 周柱状图、卫衣各周柱状图、围巾每日柱状图。</li>
+  <li>用一句自己的话写清「第 10 题为什么是空表」（不超过 100 字）。</li>
+  <li>预习 12-11 内容：看一眼课件 9.1（六类图表与图表构成），想一想「如果让你把本周作业的三张柱状图改得更好看，你会改什么」。</li>
+</ol>
+
+<h3 id="s-4">四、下讲预告</h3>
+<p><b>12-11（第 15 周）：第 9 章 数据可视化</b> —— 9.1 图表类型与图表构成、9.2 Matplotlib 折线 / 直条 / 饼 / 散点 / 直方 / 箱线、9.3 Pandas 的 <code class="inline">plot(kind=...)</code>；课后还有 9.4 应用案例。今天的两张柱状图就是下一节的起点：数据准备好了，下一步是「选对图、调好样式、把结论画出来」。</p>
+
+</section>
+</main>
+<footer>
+  <div class="f-main">中华女子学院 · Python大数据分析基础</div>
+  <div>第 9 次课 · Pandas 总复习与两套练习 · 2026-12-04（第 14 周，4 学时）· 授课人：孙琪翔</div>
+  <div style="margin-top:6px;font-size:12px;opacity:.7;">本页依据课程课件《8-Pandas 数据处理与分析新》与教材第 8 章、练习 1 / 练习 2 整理；页面代码示例统一使用 12 行精简订单数据，结果由本机实跑回填（Python 3.14 / pandas 3.0.5）。练习答案数字均由本机重跑得到。</div>
+  <div style="margin-top:12px;font-size:14px;">
+    <a href="python-bigdata-2026.html">课程主页</a><span style="opacity:.45;margin:0 8px;">|</span>
+    <a href="python-bigdata-2026-lesson1.html">第1次课</a><span style="opacity:.45;margin:0 8px;">|</span><a href="python-bigdata-2026-lesson2.html">第2次课</a><span style="opacity:.45;margin:0 8px;">|</span><a href="python-bigdata-2026-lesson3.html">第3次课</a><span style="opacity:.45;margin:0 8px;">|</span><a href="python-bigdata-2026-lesson4.html">第4次课</a><span style="opacity:.45;margin:0 8px;">|</span><a href="python-bigdata-2026-lesson5.html">第5次课</a><span style="opacity:.45;margin:0 8px;">|</span><a href="python-bigdata-2026-lesson6.html">第6次课</a><span style="opacity:.45;margin:0 8px;">|</span><a href="python-bigdata-2026-lesson7.html">第7次课</a><span style="opacity:.45;margin:0 8px;">|</span><a href="python-bigdata-2026-lesson8.html">第8次课</a><span style="opacity:.45;margin:0 8px;">|</span><a href="python-bigdata-2026-lesson9.html">第9次课（本页）</a>
+  </div>
+</footer>
+
+<button id="toTop" title="回到顶部" aria-label="回到顶部">↑</button>
+
+<script>
+/* ===== 复制代码 / 运行（结果默认隐藏，点了才显示） ===== */
+document.addEventListener('DOMContentLoaded', function () {
+  document.querySelectorAll('.btn-copy').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var box = btn.closest('.demo');
+      var pre = box ? box.querySelector('pre.code') : null;
+      if (!pre) return;
+      var text = pre.textContent;
+      var done = function () {
+        var old = btn.textContent;
+        btn.textContent = '已复制 ✓';
+        btn.classList.add('ok');
+        setTimeout(function () { btn.textContent = old; btn.classList.remove('ok'); }, 1500);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done, function () { fallback(text, done); });
+      } else { fallback(text, done); }
+    });
+  });
+  function fallback(text, done) {
+    var ta = document.createElement('textarea');
+    ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); done(); } catch (e) {}
+    document.body.removeChild(ta);
+  }
+  document.querySelectorAll('.btn-run').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var box = btn.closest('.demo');
+      if (!box) return;
+      var out = box.querySelector('pre.out');
+      if (!out) return;
+      var full = out.getAttribute('data-full') || out.textContent;
+      out.setAttribute('data-full', full);
+      box.classList.add('shown');
+      btn.textContent = '▶ 重新运行';
+      var lines = full.replace(/\n$/, '').split('\n');
+      out.textContent = '';
+      box.classList.add('flash');
+      var i = 0;
+      (function step() {
+        if (i >= lines.length) { box.classList.remove('flash'); return; }
+        out.textContent += lines[i++] + '\n';
+        setTimeout(step, 70);
+      })();
+    });
+  });
+});
+
+/* ===== 动态演示图定义（ANIMS） ===== */
+var ANIMS = {
+  serstru: {
+    frames: function () {
+      return [
+        { cap: '第 1 帧 · Series 是“一列值 + 一列标签”：s = df[\'zhao\'] 里，大格是成绩（values），小字是课程名（index）。', s: { step: 1 } },
+        { cap: '第 2 帧 · 两个属性分家：s.values 只存 4 个成绩，s.index 只存 4 个课程名，位置一一对应。', s: { step: 2 } },
+        { cap: '第 3 帧 · 不写 index 时 pandas 自动补 0、1、2、3（RangeIndex）：它们长得像位置，其实是标签。', s: { step: 3 } },
+        { cap: '第 4 帧 · 按标签取：s[\'数学\'] 得到 89——方括号里写名字，像查字典。', s: { step: 4 } },
+        { cap: '第 5 帧 · 按位置取要写 iloc：s.iloc[1] 才是 89；直接写 s[1] 在 pandas 3 会报 KeyError。', s: { step: 5 } },
+        { cap: '第 6 帧 · 默认索引时 s2[1] 居然也能用，因为标签里正好有 1；换掉标签，s[1] 立刻失效。', s: { step: 6 } },
+        { cap: '第 7 帧 · 结论：s[...] 认标签、s.iloc[...] 认位置；.index 和 .values 是 Series 的两部分。', s: { step: 7 } }
+      ];
+    },
+    render: function (s) {
+      function chip(t, c) { return '<span class=\'chip' + (c ? ' ' + c : '') + '\'>' + t + '</span>'; }
+      function row(label, inner) { return '<div class=\'arow\'><span class=\'alabel\'>' + label + '</span>' + inner + '</div>'; }
+      function acells(items) {
+        var x = '<div class=\'acells\'>';
+        items.forEach(function (it) {
+          var small = it.length > 2 ? '<small>' + it[2] + '</small>' : '';
+          x += '<div class=\'acell' + (it[1] ? ' ' + it[1] : '') + '\'>' + it[0] + small + '</div>';
+        });
+        return x + '</div>';
+      }
+      var st = s.step;
+      var h = '';
+      if (st === 1) {
+        h += acells([['93', '', '语文'], ['89', '', '数学'], ['80', '', '英语'], ['92', '', 'Python']]);
+        h += row('代码', '<div class=\'chips\'>' + chip('s = df[\'zhao\']', 'ph') + '</div>');
+        h += '<div class=\'anote\'>每一格是一个位置：上面是值（成绩），小字是标签（课程名）；标签和值一一对应，谁也离不开谁。</div>';
+      }
+      if (st === 2) {
+        h += row('s.values', '<div class=\'chips\'>' + chip('93', 'va') + chip('89', 'va') + chip('80', 'va') + chip('92', 'va') + '</div>');
+        h += row('s.index', '<div class=\'chips\'>' + chip('语文', 'ph') + chip('数学', 'ph') + chip('英语', 'ph') + chip('Python', 'ph') + '</div>');
+        h += '<div class=\'anote\'>.values 是 ndarray，只存数；.index 是 Index 对象，只存标签。两个属性各管一列，位置一一对应。</div>';
+      }
+      if (st === 3) {
+        h += acells([['93', '', '0'], ['89', '', '1'], ['80', '', '2'], ['92', '', '3']]);
+        h += row('默认索引', '<div class=\'chips\'>' + chip('0', 'ph') + chip('1', 'ph') + chip('2', 'ph') + chip('3', 'ph') + '</div>');
+        h += '<div class=\'anote\'>不写 index= 时，pandas 自动补 0、1、2、3（RangeIndex）：它们是标签，只是长得像位置。</div>';
+      }
+      if (st === 4) {
+        h += acells([['93', '', '语文'], ['89', 'hi', '数学'], ['80', '', '英语'], ['92', '', 'Python']]);
+        h += row('写法', '<div class=\'chips\'>' + chip('s[\'数学\']', 'ph') + chip('= 89', 'va') + '</div>');
+        h += '<div class=\'anote\'>方括号里写标签，就像查字典：给名字“数学”，取回它对应的 89。</div>';
+      }
+      if (st === 5) {
+        h += row('这样写', '<div class=\'chips\'>' + chip('s[1]', 'no') + chip('KeyError: 1', 'no') + '</div>');
+        h += row('按位置', '<div class=\'chips\'>' + chip('s.iloc[1]', 'va') + chip('= 89', 'va') + '</div>');
+        h += '<div class=\'anote\'>pandas 3 里 s[数字] 不再退回按位置取：1 被当成标签去找，而这列标签只有课程名，于是直接报错。要按位置只能用 iloc。</div>';
+      }
+      if (st === 6) {
+        h += acells([['93', '', '0'], ['89', 'va', '1'], ['80', '', '2'], ['92', '', '3']]);
+        h += row('s2 默认索引', '<div class=\'chips\'>' + chip('s2[1] = 89', 'va') + chip('s2.iloc[1] = 89', 'va') + '</div>');
+        h += row('s 文字标签', '<div class=\'chips\'>' + chip('s[1] 报 KeyError', 'no') + '</div>');
+        h += '<div class=\'anote\'>s2[1] 能用只是巧合：标签里正好有 1；它取的仍是被标为 1 的那一格，不是“第 1 个位置”。</div>';
+      }
+      if (st === 7) {
+        h += row('两部分', '<div class=\'chips\'>' + chip('s.index：一列标签', 'ph') + chip('s.values：一列数值', 'ph') + '</div>');
+        h += row('s[标签]', '<div class=\'chips\'>' + chip('按名字找，像查字典', 'va') + '</div>');
+        h += row('s.iloc[位置]', '<div class=\'chips\'>' + chip('按座号找，从 0 开始', 'va') + '</div>');
+        h += '<div class=\'aresult\'>Series = index（标签）+ values（值）；s[...] 认标签、s.iloc[...] 认位置；默认索引 0—n 也只是标签，不是位置</div>';
+      }
+      return h;
+    }
+  },
+  daterange: {
+    frames: function () {
+      return [
+        { cap: '第 1 帧 · date_range 有 start / end / periods / freq 四个参数：前三个里给两个，freq 定间隔。', s: { step: 1 } },
+        { cap: '第 2 帧 · start + end：从 2022-01-01 到 2022-01-05，默认 freq=\'D\'，得到 5 天。', s: { step: 2 } },
+        { cap: '第 3 帧 · start + periods=5：不写 end，用 periods 说“要 5 个”，就从起点往后数。', s: { step: 3 } },
+        { cap: '第 4 帧 · end + periods=3：不写 start，就从终点往前数 3 个，最后一个点一定是 01-05。', s: { step: 4 } },
+        { cap: '第 5 帧 · freq=\'W\'：每个星期日打一个点，从 1 月 2 日到 1 月 30 日共 5 个。', s: { step: 5 } },
+        { cap: '第 6 帧 · freq=\'ME\'：每月最后一天；pandas 3 里旧的 \'M\' 已移除，写 \'M\' 直接 ValueError。', s: { step: 6 } },
+        { cap: '第 7 帧 · 结论：start / end / periods 三选二，freq 定间隔；D 逐日、W 每周、ME 每月末。', s: { step: 7 } }
+      ];
+    },
+    render: function (s) {
+      function chip(t, c) { return '<span class=\'chip' + (c ? ' ' + c : '') + '\'>' + t + '</span>'; }
+      function row(label, inner) { return '<div class=\'arow\'><span class=\'alabel\'>' + label + '</span>' + inner + '</div>'; }
+      function side(code, out) {
+        return '<div class=\'side\'><div class=\'sc-box\'><div class=\'sc-h\'>代码</div><pre>' + code + '</pre></div><div class=\'sc-box\'><div class=\'sc-h\'>结果</div><pre>' + out + '</pre></div></div>';
+      }
+      function pipe(items) {
+        var x = '<div class=\'pipe\'>';
+        items.forEach(function (it, i) {
+          if (i) x += '<span class=\'parrow\'>→</span>';
+          x += '<span class=\'pstep' + (it[1] ? ' ' + it[1] : '') + '\'>' + it[0] + '</span>';
+        });
+        return x + '</div>';
+      }
+      var st = s.step;
+      var h = '';
+      if (st === 1) {
+        h += pipe([['start / end / periods（给两个）', 'on'], ['freq（定间隔）', ''], ['DatetimeIndex', 'done']]);
+        h += row('规则', '<div class=\'chips\'>' + chip('三选二，另一个由 pandas 算', 'va') + chip('freq 默认 D', 'ph') + '</div>');
+        h += '<div class=\'anote\'>start + end 是“从头到尾”；start + periods 是“从起点数 N 个”；end + periods 是“从终点往前数 N 个”。</div>';
+      }
+      if (st === 2) {
+        h += side('pd.date_range(start=\'2022-01-01\',&#10;              end=\'2022-01-05\')', '2022-01-01  2022-01-02  2022-01-03&#10;2022-01-04  2022-01-05&#10;&#10;共 5 个时间点（freq 默认 D）');
+        h += '<div class=\'anote\'>两端都含：从 01-01 数到 01-05，一天一个点，正好 5 个。</div>';
+      }
+      if (st === 3) {
+        h += side('pd.date_range(start=\'2022-01-01\',&#10;              periods=5)', '2022-01-01  2022-01-02  2022-01-03&#10;2022-01-04  2022-01-05');
+        h += '<div class=\'anote\'>不写 end，用 periods 说“要 5 个”：从起点往后数 5 个（含起点），终点由 pandas 算出来。</div>';
+      }
+      if (st === 4) {
+        h += side('pd.date_range(end=\'2022-01-05\',&#10;              periods=3)', '2022-01-03  2022-01-04  2022-01-05');
+        h += '<div class=\'anote\'>不写 start，periods 就变成从终点往前数 3 个：最后一个点一定是 01-05。</div>';
+      }
+      if (st === 5) {
+        h += side('pd.date_range(start=\'2022-01-01\',&#10;              end=\'2022-02-01\',&#10;              freq=\'W\')', '2022-01-02  2022-01-09  2022-01-16&#10;2022-01-23  2022-01-30');
+        h += '<div class=\'anote\'>\'W\' 默认按周日打点：01-01 是周六、不是周日，所以第一个点是 01-02。</div>';
+      }
+      if (st === 6) {
+        h += side('pd.date_range(start=\'20220101\',&#10;              freq=\'ME\',&#10;              periods=12)', '2022-01-31  2022-02-28  2022-03-31  …&#10;2022-12-31（12 个月末，正好做月度 Series 的索引）');
+        h += '<div class=\'anote\'>\'ME\' = month end，每月最后一天；pandas 3 把旧的 \'M\' 移除了，写 freq=\'M\' 会报 ValueError，要改写 \'ME\'。每月 1 日则用 \'MS\'。</div>';
+      }
+      if (st === 7) {
+        h += row('D', '<div class=\'chips\'>' + chip('逐日（默认值）', 'ph') + '</div>');
+        h += row('W', '<div class=\'chips\'>' + chip('每周一次，默认周日', 'ph') + '</div>');
+        h += row('ME', '<div class=\'chips\'>' + chip('每月最后一天（pandas 3 用 ME，不用 M）', 'va') + '</div>');
+        h += row('MS', '<div class=\'chips\'>' + chip('每月第一天', 'ph') + '</div>');
+        h += '<div class=\'aresult\'>start / end / periods 三选二，freq 决定间隔：D 逐日、W 每周、ME 每月末；pandas 3 里月末写 \'ME\'，旧的 \'M\' 已移除</div>';
+      }
+      return h;
+    }
+  },
+  dfanatomy: {
+    frames: function () {
+      return [
+        { cap: '第 1 帧 · 一张表三块：最左一列是行索引，最上一行是列索引，中间 4×2 个数是值矩阵。', s: { step: 1 } },
+        { cap: '第 2 帧 · 行索引 df.index：语文、数学、英语、Python，一行就是一条记录。', s: { step: 2 } },
+        { cap: '第 3 帧 · 列索引 df.columns：zhao、wang，一列就是一个字段。', s: { step: 3 } },
+        { cap: '第 4 帧 · 值矩阵 df.values：4 行 2 列的 ndarray，只剩数，行列都没有名字。', s: { step: 4 } },
+        { cap: '第 5 帧 · df.shape = (4, 2)：4 是 index 的长度，2 是 columns 的长度。', s: { step: 5 } },
+        { cap: '第 6 帧 · 取一列 df[\'zhao\'] 得到 Series：值来自这一列，标签沿用行索引。', s: { step: 6 } },
+        { cap: '第 7 帧 · 结论：DataFrame = 行索引 + 列索引 + 值矩阵，shape 就是两者长度。', s: { step: 7 } }
+      ];
+    },
+    render: function (s) {
+      function chip(t, c) { return '<span class=\'chip' + (c ? ' ' + c : '') + '\'>' + t + '</span>'; }
+      function row(label, inner) { return '<div class=\'arow\'><span class=\'alabel\'>' + label + '</span>' + inner + '</div>'; }
+      function mat(head, rows, hl, cap) {
+        var x = '<div class=\'mat-wrap\'><div class=\'mat\'><table><tr><th></th>';
+        head.forEach(function (t) { x += '<th>' + t + '</th>'; });
+        x += '</tr>';
+        rows.forEach(function (r, ri) {
+          x += '<tr><td class=\'rh\'>' + r[0] + '</td>';
+          for (var ci = 1; ci < r.length; ci++) {
+            var k = ri + ',' + (ci - 1);
+            x += '<td class=\'' + (hl && hl[k] ? hl[k] : '') + '\'>' + r[ci] + '</td>';
+          }
+          x += '</tr>';
+        });
+        x += '</table></div>';
+        if (cap) x += '<div class=\'mat-cap\'>' + cap + '</div>';
+        return x + '</div>';
+      }
+      var st = s.step;
+      var rows = [['语文', 93, 90], ['数学', 89, 80], ['英语', 80, 70], ['Python', 92, 75]];
+      var h = '';
+      if (st === 1) {
+        h += mat(['zhao', 'wang'], rows, {}, 'df');
+        h += '<div class=\'anote\'>一眼看三块：最左一列是行索引，最上一行是列索引，中间 4 行 2 列的数就是值矩阵。</div>';
+      }
+      if (st === 2) {
+        h += row('df.index', '<div class=\'chips\'>' + chip('语文', 'ph') + chip('数学', 'ph') + chip('英语', 'ph') + chip('Python', 'ph') + '</div>');
+        h += row('行数', '<div class=\'chips\'>' + chip('4 行 = 4 条记录', 'va') + '</div>');
+        h += '<div class=\'anote\'>index 是行标签：这 4 行是 4 门课，每行一条记录；改 index 就是换行名，不是加减行。</div>';
+      }
+      if (st === 3) {
+        h += row('df.columns', '<div class=\'chips\'>' + chip('zhao', 'ph') + chip('wang', 'ph') + '</div>');
+        h += row('列数', '<div class=\'chips\'>' + chip('2 列 = 2 个字段', 'va') + '</div>');
+        h += '<div class=\'anote\'>columns 是列标签：zhao、wang 两列是两个字段；每一列抽出来都是一个 Series。</div>';
+      }
+      if (st === 4) {
+        h += mat(['0', '1'], [['0', 93, 90], ['1', 89, 80], ['2', 80, 70], ['3', 92, 75]], {}, 'df.values');
+        h += row('类型', '<div class=\'chips\'>' + chip('type(df.values) → ndarray', 'va') + '</div>');
+        h += '<div class=\'anote\'>values 只剩数值：行列标签都没有了，打印出来只能靠 0、1、2 的位置编号，名字都在 index / columns 里。</div>';
+      }
+      if (st === 5) {
+        h += row('df.shape', '<div class=\'chips\'>' + chip('(4, 2)', 'va') + '</div>');
+        h += row('4 从哪来', '<div class=\'chips\'>' + chip('index 的长度 = 4', 'ph') + '</div>');
+        h += row('2 从哪来', '<div class=\'chips\'>' + chip('columns 的长度 = 2', 'ph') + '</div>');
+        h += '<div class=\'anote\'>shape 的顺序永远固定：先（行数, 列数），也就是（index 长度, columns 长度）。</div>';
+      }
+      if (st === 6) {
+        h += mat(['zhao', 'wang'], rows, { '0,0': 'ch', '1,0': 'ch', '2,0': 'ch', '3,0': 'ch' }, 'df[\'zhao\'] → Series');
+        h += row('结果', '<div class=\'chips\'>' + chip('值是 93 89 80 92', 'va') + chip('标签仍是 语文 … Python', 'ph') + '</div>');
+        h += '<div class=\'anote\'>取一列得到一维 Series：值来自这一列，index 沿用原表的行索引——DataFrame 的每一列就是一个 Series。</div>';
+      }
+      if (st === 7) {
+        h += row('index', '<div class=\'chips\'>' + chip('行标签：一行一条记录', 'ph') + '</div>');
+        h += row('columns', '<div class=\'chips\'>' + chip('列标签：一列一个字段', 'ph') + '</div>');
+        h += row('values', '<div class=\'chips\'>' + chip('值矩阵：shape =（行数, 列数）', 'ph') + '</div>');
+        h += '<div class=\'aresult\'>DataFrame 由行索引 + 列索引 + 值矩阵三部分组成；shape =（index 长度, columns 长度）；取一列得到共享行索引的 Series</div>';
+      }
+      return h;
+    }
+  },
+  makeframe: {
+    frames: function () {
+      return [
+        { cap: '第 1 帧 · 只给嵌套列表：pd.DataFrame([[93, 90], [89, 80], …]) 得到 4 行 2 列，行列名都从 0 起。', s: { step: 1 } },
+        { cap: '第 2 帧 · 列名 0、1 从哪来：没写 columns，pandas 就拿位置编号当列名。', s: { step: 2 } },
+        { cap: '第 3 帧 · 加 columns=[\'zhao\', \'wang\']：列名换上了，行索引还是 0—3。', s: { step: 3 } },
+        { cap: '第 4 帧 · 再加 index=[\'语文\', \'数学\', \'英语\', \'Python\']：行标签也换上，个数必须等于行数。', s: { step: 4 } },
+        { cap: '第 5 帧 · 字典建表：pd.DataFrame({\'zhao\': [...], \'wang\': [...]})，键直接变列名。', s: { step: 5 } },
+        { cap: '第 6 帧 · 数量必须对得上：每个列表一样长、index 标签数等于行数，否则 ValueError。', s: { step: 6 } },
+        { cap: '第 7 帧 · 结论：列表建表只给值、列名从 0 起；字典建表的键就是列名，最常用。', s: { step: 7 } }
+      ];
+    },
+    render: function (s) {
+      function chip(t, c) { return '<span class=\'chip' + (c ? ' ' + c : '') + '\'>' + t + '</span>'; }
+      function row(label, inner) { return '<div class=\'arow\'><span class=\'alabel\'>' + label + '</span>' + inner + '</div>'; }
+      function mat(head, rows, hl, cap) {
+        var x = '<div class=\'mat-wrap\'><div class=\'mat\'><table><tr><th></th>';
+        head.forEach(function (t) { x += '<th>' + t + '</th>'; });
+        x += '</tr>';
+        rows.forEach(function (r, ri) {
+          x += '<tr><td class=\'rh\'>' + r[0] + '</td>';
+          for (var ci = 1; ci < r.length; ci++) {
+            var k = ri + ',' + (ci - 1);
+            x += '<td class=\'' + (hl && hl[k] ? hl[k] : '') + '\'>' + r[ci] + '</td>';
+          }
+          x += '</tr>';
+        });
+        x += '</table></div>';
+        if (cap) x += '<div class=\'mat-cap\'>' + cap + '</div>';
+        return x + '</div>';
+      }
+      var st = s.step;
+      var h = '';
+      if (st === 1) {
+        h += mat(['0', '1'], [['0', 93, 90], ['1', 89, 80], ['2', 80, 70], ['3', 92, 75]], {}, 'df');
+        h += row('代码', '<div class=\'chips\'>' + chip('pd.DataFrame([[93, 90], [89, 80], [80, 70], [92, 75]])', 'ph') + '</div>');
+        h += '<div class=\'anote\'>外层列表的每个元素是一行，内层列表的每个元素是一列：4 行 2 列，pandas 按这个规则摆好。</div>';
+      }
+      if (st === 2) {
+        h += row('列名', '<div class=\'chips\'>' + chip('0', 'ph') + chip('1', 'ph') + '</div>');
+        h += row('行索引', '<div class=\'chips\'>' + chip('0', 'ph') + chip('1', 'ph') + chip('2', 'ph') + chip('3', 'ph') + '</div>');
+        h += '<div class=\'anote\'>没给 columns 和 index，pandas 就用 0、1、2… 这些位置编号当名字——它们不是你数据里的内容，所以读起来别扭。</div>';
+      }
+      if (st === 3) {
+        h += mat(['zhao', 'wang'], [['0', 93, 90], ['1', 89, 80], ['2', 80, 70], ['3', 92, 75]], {}, 'df');
+        h += row('参数', '<div class=\'chips\'>' + chip('columns=[\'zhao\', \'wang\']', 'ph') + '</div>');
+        h += '<div class=\'anote\'>columns= 只换了列名，行索引还是 0—3；列名个数必须等于列数（2 个）。</div>';
+      }
+      if (st === 4) {
+        h += mat(['zhao', 'wang'], [['语文', 93, 90], ['数学', 89, 80], ['英语', 80, 70], ['Python', 92, 75]], {}, 'df');
+        h += row('参数', '<div class=\'chips\'>' + chip('index=[\'语文\', \'数学\', \'英语\', \'Python\']', 'ph') + '</div>');
+        h += '<div class=\'anote\'>index= 换行标签：4 个标签对 4 行，少一个多一个都会报长度不匹配。</div>';
+      }
+      if (st === 5) {
+        h += mat(['zhao', 'wang'], [['0', 93, 90], ['1', 89, 80], ['2', 80, 70], ['3', 92, 75]], {}, 'df');
+        h += row('代码', '<div class=\'chips\'>' + chip('pd.DataFrame({\'zhao\': [93, 89, 80, 92], \'wang\': [90, 80, 70, 75]})', 'ph') + '</div>');
+        h += '<div class=\'anote\'>字典的键直接变列名，值列表就是一列的数：不用再写 columns=，列名和数一次给齐。</div>';
+      }
+      if (st === 6) {
+        h += row('每个列表', '<div class=\'chips\'>' + chip('4 个值', 'va') + '</div>');
+        h += row('index', '<div class=\'chips\'>' + chip('4 个标签', 'va') + '</div>');
+        h += row('对不上', '<div class=\'chips\'>' + chip('ValueError: All arrays must be of the same length', 'no') + '</div>');
+        h += '<div class=\'anote\'>字典里每个列表长度必须一致；给了 index 时标签个数必须等于行数，否则列长短不齐，建表直接失败。</div>';
+      }
+      if (st === 7) {
+        h += row('嵌套列表', '<div class=\'chips\'>' + chip('只给值，列名从 0 起，要自己补 columns / index', 'ph') + '</div>');
+        h += row('字典', '<div class=\'chips\'>' + chip('键就是列名，最常用', 'va') + '</div>');
+        h += '<div class=\'aresult\'>列表建表只给值、列名从 0 起；字典建表的键直接变列名；index= 换行标签、columns= 换列标签，个数必须对得上</div>';
+      }
+      return h;
+    }
+  },
+  locvsiloc: {
+    frames: function () {
+      return [
+        { cap: '第 1 帧 · 同一张表两套坐标：行标签是语文/数学/英语/Python，行位置是 0/1/2/3。', s: { step: 1 } },
+        { cap: '第 2 帧 · loc 用标签：df.loc[\'数学\', \'wang\'] 取到 80。', s: { step: 2 } },
+        { cap: '第 3 帧 · iloc 用位置：df.iloc[1, 1] 也取到 80——第 2 行第 2 列（从 0 数）。', s: { step: 3 } },
+        { cap: '第 4 帧 · 把行序打乱：df2 的标签没变，位置全换了，数学从第 2 位跑到第 3 位。', s: { step: 4 } },
+        { cap: '第 5 帧 · loc 认标签：df2.loc[\'数学\', \'wang\'] 还是 80。', s: { step: 5 } },
+        { cap: '第 6 帧 · iloc 只认座号：df2.iloc[1, 1] 变成 90（位置 1 现在是语文行）。', s: { step: 6 } },
+        { cap: '第 7 帧 · 切片也不同：loc 的切片含右端点（3 行），iloc 的切片不含（2 行）。', s: { step: 7 } },
+        { cap: '第 8 帧 · 结论：loc 看名字、iloc 看座号；行序一乱结果就分家，切片开闭也不同。', s: { step: 8 } }
+      ];
+    },
+    render: function (s) {
+      function chip(t, c) { return '<span class=\'chip' + (c ? ' ' + c : '') + '\'>' + t + '</span>'; }
+      function row(label, inner) { return '<div class=\'arow\'><span class=\'alabel\'>' + label + '</span>' + inner + '</div>'; }
+      function mat(head, rows, hl, cap) {
+        var x = '<div class=\'mat-wrap\'><div class=\'mat\'><table><tr><th></th>';
+        head.forEach(function (t) { x += '<th>' + t + '</th>'; });
+        x += '</tr>';
+        rows.forEach(function (r, ri) {
+          x += '<tr><td class=\'rh\'>' + r[0] + '</td>';
+          for (var ci = 1; ci < r.length; ci++) {
+            var k = ri + ',' + (ci - 1);
+            x += '<td class=\'' + (hl && hl[k] ? hl[k] : '') + '\'>' + r[ci] + '</td>';
+          }
+          x += '</tr>';
+        });
+        x += '</table></div>';
+        if (cap) x += '<div class=\'mat-cap\'>' + cap + '</div>';
+        return x + '</div>';
+      }
+      var st = s.step;
+      var rows = [['语文', 93, 90], ['数学', 89, 80], ['英语', 80, 70], ['Python', 92, 75]];
+      var rows2 = [['Python', '0', 92, 75], ['语文', '1', 93, 90], ['数学', '2', 89, 80], ['英语', '3', 80, 70]];
+      var h = '';
+      if (st === 1) {
+        h += mat(['zhao', 'wang'], rows, {}, 'df');
+        h += row('行位置', '<div class=\'chips\'>' + chip('0', 'ph') + chip('1', 'ph') + chip('2', 'ph') + chip('3', 'ph') + '</div>');
+        h += '<div class=\'anote\'>同一张表有两套坐标：标签（语文/数学/英语/Python）和位置（0/1/2/3）。loc 用标签，iloc 用位置。</div>';
+      }
+      if (st === 2) {
+        h += mat(['zhao', 'wang'], rows, { '1,1': 'hi' }, 'df');
+        h += row('loc', '<div class=\'chips\'>' + chip('df.loc[\'数学\', \'wang\']', 'ph') + chip('= 80', 'va') + '</div>');
+        h += '<div class=\'anote\'>loc[行标签, 列标签]：先按名字找到“数学”这一行，再取 wang 这一列，交叉点就是 80。</div>';
+      }
+      if (st === 3) {
+        h += mat(['zhao', 'wang'], rows, { '1,1': 'ok' }, 'df');
+        h += row('iloc', '<div class=\'chips\'>' + chip('df.iloc[1, 1]', 'ph') + chip('= 80', 'va') + '</div>');
+        h += '<div class=\'anote\'>iloc[行位置, 列位置]：行位置 1 是第 2 行，列位置 1 是第 2 列，交叉点也是 80——结果一样，规则完全不同。</div>';
+      }
+      if (st === 4) {
+        h += mat(['位置', 'zhao', 'wang'], rows2, {}, 'df2');
+        h += row('操作', '<div class=\'chips\'>' + chip('df2 = df.loc[[\'Python\', \'语文\', \'数学\', \'英语\']]', 'ph') + '</div>');
+        h += '<div class=\'anote\'>把行序打乱：标签一个没变，位置全换了，数学从位置 1 挪到了位置 2（第 3 位）。</div>';
+      }
+      if (st === 5) {
+        h += mat(['位置', 'zhao', 'wang'], rows2, { '2,2': 'hi' }, 'df2');
+        h += row('loc', '<div class=\'chips\'>' + chip('df2.loc[\'数学\', \'wang\']', 'ph') + chip('= 80', 'va') + '</div>');
+        h += '<div class=\'anote\'>loc 认标签：数学这一行跑到哪儿，都能按名字找到，结果还是 80。</div>';
+      }
+      if (st === 6) {
+        h += mat(['位置', 'zhao', 'wang'], rows2, { '1,2': 'ok' }, 'df2');
+        h += row('iloc', '<div class=\'chips\'>' + chip('df2.iloc[1, 1]', 'ph') + chip('= 90', 'no') + '</div>');
+        h += '<div class=\'anote\'>位置 1 现在是“语文”行，iloc 只管座号，于是取到 90——这就是两种写法会分家的地方。</div>';
+      }
+      if (st === 7) {
+        h += row('loc 切片', '<div class=\'chips\'>' + chip('df.loc[\'语文\':\'英语\'] 含右端 → 3 行', 'va') + '</div>');
+        h += row('iloc 切片', '<div class=\'chips\'>' + chip('df.iloc[0:2] 不含右端 → 2 行', 'no') + '</div>');
+        h += '<div class=\'anote\'>切片也不一样：loc 的切片两端都含（语文、数学、英语）；iloc 的切片和 Python 一样含头不含尾（只有前两行）。</div>';
+      }
+      if (st === 8) {
+        h += row('loc', '<div class=\'chips\'>' + chip('看名字（标签）', 'va') + '</div>');
+        h += row('iloc', '<div class=\'chips\'>' + chip('看座号（位置，从 0 起）', 'va') + '</div>');
+        h += row('切片', '<div class=\'chips\'>' + chip('loc 含右端，iloc 不含右端', 'ph') + '</div>');
+        h += '<div class=\'aresult\'>口诀：loc 看名字、iloc 看座位号；行序一打乱两种写法结果就分家；loc 切片含右端点，iloc 切片不含</div>';
+      }
+      return h;
+    }
+  },
+  boolmask: {
+    frames: function () {
+      return [
+        { cap: '第 1 帧 · 目标：从 4 行里挑出 wang 成绩 ≥ 80 的行。', s: { step: 1 } },
+        { cap: '第 2 帧 · df.wang >= 80：逐行比较，得到一个 True/False 列，长度和行数一样。', s: { step: 2 } },
+        { cap: '第 3 帧 · 掩码和行一一对应：两个 True 正对着语文、数学两行。', s: { step: 3 } },
+        { cap: '第 4 帧 · df[掩码]：True 的行留下、False 的行丢掉，shape 从 (4, 2) 变成 (2, 2)。', s: { step: 4 } },
+        { cap: '第 5 帧 · 多条件：(df.zhao >= 90) & (df.wang >= 80) 逐行取“与”，只剩语文一行。', s: { step: 5 } },
+        { cap: '第 6 帧 · df.loc[掩码, \'zhao\']：行按掩码挑、列按标签挑，得到只有 1 个值的 Series。', s: { step: 6 } },
+        { cap: '第 7 帧 · 结论：先造掩码再挑行；掩码长度等于行数；多条件用 & 并给每个条件加括号。', s: { step: 7 } }
+      ];
+    },
+    render: function (s) {
+      function chip(t, c) { return '<span class=\'chip' + (c ? ' ' + c : '') + '\'>' + t + '</span>'; }
+      function row(label, inner) { return '<div class=\'arow\'><span class=\'alabel\'>' + label + '</span>' + inner + '</div>'; }
+      function mat(head, rows, hl, cap) {
+        var x = '<div class=\'mat-wrap\'><div class=\'mat\'><table><tr><th></th>';
+        head.forEach(function (t) { x += '<th>' + t + '</th>'; });
+        x += '</tr>';
+        rows.forEach(function (r, ri) {
+          x += '<tr><td class=\'rh\'>' + r[0] + '</td>';
+          for (var ci = 1; ci < r.length; ci++) {
+            var k = ri + ',' + (ci - 1);
+            x += '<td class=\'' + (hl && hl[k] ? hl[k] : '') + '\'>' + r[ci] + '</td>';
+          }
+          x += '</tr>';
+        });
+        x += '</table></div>';
+        if (cap) x += '<div class=\'mat-cap\'>' + cap + '</div>';
+        return x + '</div>';
+      }
+      var st = s.step;
+      var h = '';
+      if (st === 1) {
+        h += mat(['zhao', 'wang'], [['语文', 93, 90], ['数学', 89, 80], ['英语', 80, 70], ['Python', 92, 75]], {}, 'df');
+        h += row('目标', '<div class=\'chips\'>' + chip('挑出 wang ≥ 80 的行', 'ph') + '</div>');
+        h += '<div class=\'anote\'>原表 4 行 2 列；要回答的是“哪些行的 wang 到 80 分”，而不是把整张表打印一遍。</div>';
+      }
+      if (st === 2) {
+        h += mat(['wang', '掩码'], [['语文', 90, 'True'], ['数学', 80, 'True'], ['英语', 70, 'False'], ['Python', 75, 'False']], { '0,1': 'ok', '1,1': 'ok', '2,1': 'no', '3,1': 'no' });
+        h += row('代码', '<div class=\'chips\'>' + chip('df.wang >= 80', 'ph') + '</div>');
+        h += '<div class=\'anote\'>比较是逐行做的：每一行的 wang 和 80 比一次，得到一列 True/False，个数正好等于行数 4。</div>';
+      }
+      if (st === 3) {
+        h += mat(['zhao', 'wang'], [['语文', 93, 90], ['数学', 89, 80], ['英语', 80, 70], ['Python', 92, 75]], { '0,0': 'ok', '0,1': 'ok', '1,0': 'ok', '1,1': 'ok' }, 'df');
+        h += row('掩码', '<div class=\'chips\'>' + chip('True', 'va') + chip('True', 'va') + chip('False', 'no') + chip('False', 'no') + '</div>');
+        h += '<div class=\'anote\'>掩码是“按行贴标签”：True 贴在语文、数学两行上，False 贴在英语、Python 上。</div>';
+      }
+      if (st === 4) {
+        h += mat(['zhao', 'wang'], [['语文', 93, 90], ['数学', 89, 80]], { '0,0': 'ok', '0,1': 'ok', '1,0': 'ok', '1,1': 'ok' }, 'df[df.wang >= 80]');
+        h += row('shape', '<div class=\'chips\'>' + chip('(4, 2) → (2, 2)', 'va') + '</div>');
+        h += '<div class=\'anote\'>把布尔列当筛子：True 的行留下、False 的行丢掉；列一个不少，行标签也原样带过来。</div>';
+      }
+      if (st === 5) {
+        var hl5 = { '0,0': 'ok', '0,1': 'ok', '0,2': 'ok', '1,0': 'no', '1,1': 'ok', '1,2': 'no', '2,0': 'no', '2,1': 'no', '2,2': 'no', '3,0': 'ok', '3,1': 'no', '3,2': 'no' };
+        h += mat(['zhao>=90', 'wang>=80', '两者 &'], [['语文', 'True', 'True', 'True'], ['数学', 'False', 'True', 'False'], ['英语', 'False', 'False', 'False'], ['Python', 'True', 'False', 'False']], hl5);
+        h += row('代码', '<div class=\'chips\'>' + chip('df[(df.zhao >= 90) & (df.wang >= 80)]', 'ph') + '</div>');
+        h += '<div class=\'anote\'>两个条件各生成一列掩码，& 逐行做“与”：只有两列都是 True 的行（语文）留下。每个条件都要加括号。</div>';
+      }
+      if (st === 6) {
+        h += row('掩码', '<div class=\'chips\'>' + chip('True', 'va') + chip('False', 'no') + chip('False', 'no') + chip('False', 'no') + '</div>');
+        h += row('再取一列', '<div class=\'chips\'>' + chip('df.loc[掩码, \'zhao\']', 'ph') + chip('语文 → 93', 'va') + '</div>');
+        h += '<div class=\'anote\'>行按掩码挑、列按标签挑：结果是一个只有 1 个值的 Series（index 是语文，值是 93），不是整张表。</div>';
+      }
+      if (st === 7) {
+        h += row('第一步', '<div class=\'chips\'>' + chip('先算出 True/False 掩码', 'ph') + '</div>');
+        h += row('第二步', '<div class=\'chips\'>' + chip('df[掩码] 只留 True 的行', 'va') + '</div>');
+        h += row('多条件', '<div class=\'chips\'>' + chip('& 与、| 或、~ 非，每个条件加括号', 'ph') + '</div>');
+        h += '<div class=\'aresult\'>布尔索引两步走：先造一列 True/False（长度 = 行数），再用 df[掩码] 挑行；多条件用 & 并给每个条件加括号</div>';
+      }
+      return h;
+    }
+  },
+  sortvals: {
+    frames: function () {
+      return [
+        { cap: '第 1 帧 · 原表 zhao 列是 93、89、80、92，顺序是乱的，要排序用 sort_values。', s: { step: 1 } },
+        { cap: '第 2 帧 · df.sort_values(\'zhao\')：从小到大，英语 80 排第一，语文 93 排最后。', s: { step: 2 } },
+        { cap: '第 3 帧 · ascending=False：从大到小，语文 93、Python 92、数学 89、英语 80。', s: { step: 3 } },
+        { cap: '第 4 帧 · 换一张有并列分数的表：80 分两人、90 分两人，用来看多列排序和稳定性。', s: { step: 4 } },
+        { cap: '第 5 帧 · 多列排序：先按分数降序，分数相同再看班级升序。', s: { step: 5 } },
+        { cap: '第 6 帧 · 稳定排序：只按分数排时，同分的行保持原表先后，不会被随意打乱。', s: { step: 6 } },
+        { cap: '第 7 帧 · 常用参数：by 指定列、ascending 定方向、na_position 管 NaN 放哪。', s: { step: 7 } },
+        { cap: '第 8 帧 · 结论：sort_values 按列排序，多列时前面的列优先；结果是新表，原表不动。', s: { step: 8 } }
+      ];
+    },
+    render: function (s) {
+      function chip(t, c) { return '<span class=\'chip' + (c ? ' ' + c : '') + '\'>' + t + '</span>'; }
+      function row(label, inner) { return '<div class=\'arow\'><span class=\'alabel\'>' + label + '</span>' + inner + '</div>'; }
+      function mat(head, rows, hl, cap) {
+        var x = '<div class=\'mat-wrap\'><div class=\'mat\'><table><tr><th></th>';
+        head.forEach(function (t) { x += '<th>' + t + '</th>'; });
+        x += '</tr>';
+        rows.forEach(function (r, ri) {
+          x += '<tr><td class=\'rh\'>' + r[0] + '</td>';
+          for (var ci = 1; ci < r.length; ci++) {
+            var k = ri + ',' + (ci - 1);
+            x += '<td class=\'' + (hl && hl[k] ? hl[k] : '') + '\'>' + r[ci] + '</td>';
+          }
+          x += '</tr>';
+        });
+        x += '</table></div>';
+        if (cap) x += '<div class=\'mat-cap\'>' + cap + '</div>';
+        return x + '</div>';
+      }
+      var st = s.step;
+      var h = '';
+      if (st === 1) {
+        h += mat(['zhao', 'wang'], [['语文', 93, 90], ['数学', 89, 80], ['英语', 80, 70], ['Python', 92, 75]], {}, 'df');
+        h += row('现状', '<div class=\'chips\'>' + chip('zhao 顺序：93、89、80、92（乱）', 'ph') + '</div>');
+        h += '<div class=\'anote\'>直接看表，zhao 这一列不是从小到大，也不是从大到小；排序不是重算，只是把整行按某一列重新排队。</div>';
+      }
+      if (st === 2) {
+        h += mat(['zhao', 'wang'], [['英语', 80, 70], ['数学', 89, 80], ['Python', 92, 75], ['语文', 93, 90]], {}, 'df.sort_values(\'zhao\')');
+        h += row('结果', '<div class=\'chips\'>' + chip('80 英语', 'va') + chip('89 数学', 'va') + chip('92 Python', 'va') + chip('93 语文', 'va') + '</div>');
+        h += '<div class=\'anote\'>默认 ascending=True，从小到大；行标签跟着整行走，不会把一行拆散，也不会把标签重编成 0—3。</div>';
+      }
+      if (st === 3) {
+        h += mat(['zhao', 'wang'], [['语文', 93, 90], ['Python', 92, 75], ['数学', 89, 80], ['英语', 80, 70]], {}, 'df.sort_values(\'zhao\', ascending=False)');
+        h += row('参数', '<div class=\'chips\'>' + chip('ascending=False 从大到小', 'ph') + '</div>');
+        h += '<div class=\'anote\'>一个参数换方向：语文 93、Python 92、数学 89、英语 80；wang 列不参与比较。</div>';
+      }
+      if (st === 4) {
+        h += mat(['分数', '班级'], [['甲', 80, '1班'], ['乙', 90, '2班'], ['丙', 80, '2班'], ['丁', 90, '1班']], {}, 'df2');
+        h += row('数据', '<div class=\'chips\'>' + chip('80 分 2 人', 'ph') + chip('90 分 2 人', 'ph') + '</div>');
+        h += '<div class=\'anote\'>换一张有并列分数的表：两对同分，正好用来看“第二列”和“同分行怎么排”。</div>';
+      }
+      if (st === 5) {
+        h += mat(['分数', '班级'], [['丁', 90, '1班'], ['乙', 90, '2班'], ['甲', 80, '1班'], ['丙', 80, '2班']], {}, 'df2.sort_values([\'分数\', \'班级\'], ascending=[False, True])');
+        h += row('代码', '<div class=\'chips\'>' + chip('df2.sort_values([\'分数\', \'班级\'], ascending=[False, True])', 'ph') + '</div>');
+        h += '<div class=\'anote\'>先按分数从高到低；分数相同的，再按班级从小到大：90 分那组 1 班在 2 班前，80 分那组同理。</div>';
+      }
+      if (st === 6) {
+        h += mat(['分数', '班级'], [['甲', 80, '1班'], ['丙', 80, '2班'], ['乙', 90, '2班'], ['丁', 90, '1班']], {}, 'df2.sort_values(\'分数\')');
+        h += row('代码', '<div class=\'chips\'>' + chip('df2.sort_values(\'分数\')', 'ph') + '</div>');
+        h += '<div class=\'anote\'>稳定排序：分数相同的行保持原表里的先后——80 分里甲在丙前、90 分里乙在丁前；只有多列排序的第二列才会改这个顺序。</div>';
+      }
+      if (st === 7) {
+        h += row('by', '<div class=\'chips\'>' + chip('按哪一列排，多列写成列表', 'ph') + '</div>');
+        h += row('ascending', '<div class=\'chips\'>' + chip('True 升序（默认）、False 降序', 'ph') + '</div>');
+        h += row('na_position', '<div class=\'chips\'>' + chip('NaN 放最前 first 还是最后 last', 'ph') + '</div>');
+        h += row('返回值', '<div class=\'chips\'>' + chip('排序结果是一张新表，原表不动', 'va') + '</div>');
+        h += '<div class=\'anote\'>要留下排序结果就写 df_sorted = df.sort_values(...)，别指望原表被改；多列时 ascending 可以写成 [False, True]。</div>';
+      }
+      if (st === 8) {
+        h += row('by', '<div class=\'chips\'>' + chip('指定列；多列用列表，前面的列优先', 'va') + '</div>');
+        h += row('ascending', '<div class=\'chips\'>' + chip('True 升序、False 降序，多列写 [False, True]', 'va') + '</div>');
+        h += row('稳定', '<div class=\'chips\'>' + chip('同值行保持原来的先后顺序', 'ph') + '</div>');
+        h += '<div class=\'aresult\'>sort_values(by, ascending) 按列排序；多列时前一列优先；稳定排序让同值行保持原顺序；默认返回新表，原表不动</div>';
+      }
+      return h;
+    }
+  },
+  readflow: {
+    frames: function () {
+      return [
+        { cap: '第 1 帧 · 先按文件格式选函数：.xlsx → read_excel，.csv → read_csv，.txt → read_table。', s: { step: 1 } },
+        { cap: '第 2 帧 · read_csv 的常用参数：文件、分隔符、表头行、列名、行索引、取哪些列、编码。', s: { step: 2 } },
+        { cap: '第 3 帧 · header=None 的坑：第一行数据被当数据，列名退化成 0、1、2…，要用 names 补。', s: { step: 3 } },
+        { cap: '第 4 帧 · usecols 只读需要的列、index_col 把某列设为行索引，表更窄更省事。', s: { step: 4 } },
+        { cap: '第 5 帧 · 读进来先检查：shape、head(3)、dtypes，确认行数、表头、类型都对。', s: { step: 5 } },
+        { cap: '第 6 帧 · 导出时 index=False：不写行索引，否则文件里会多出一列 0—11。', s: { step: 6 } },
+        { cap: '第 7 帧 · 五个常见坑：路径、编码、Excel 引擎、空值 NaN、表头行错位。', s: { step: 7 } },
+        { cap: '第 8 帧 · 结论：文件 → read_*（选对函数和参数）→ DataFrame（先检查）→ to_*（index=False）。', s: { step: 8 } }
+      ];
+    },
+    render: function (s) {
+      function chip(t, c) { return '<span class=\'chip' + (c ? ' ' + c : '') + '\'>' + t + '</span>'; }
+      function row(label, inner) { return '<div class=\'arow\'><span class=\'alabel\'>' + label + '</span>' + inner + '</div>'; }
+      function mat(head, rows, hl, cap) {
+        var x = '<div class=\'mat-wrap\'><div class=\'mat\'><table><tr><th></th>';
+        head.forEach(function (t) { x += '<th>' + t + '</th>'; });
+        x += '</tr>';
+        rows.forEach(function (r, ri) {
+          x += '<tr><td class=\'rh\'>' + r[0] + '</td>';
+          for (var ci = 1; ci < r.length; ci++) {
+            var k = ri + ',' + (ci - 1);
+            x += '<td class=\'' + (hl && hl[k] ? hl[k] : '') + '\'>' + r[ci] + '</td>';
+          }
+          x += '</tr>';
+        });
+        x += '</table></div>';
+        if (cap) x += '<div class=\'mat-cap\'>' + cap + '</div>';
+        return x + '</div>';
+      }
+      function side(code, out) {
+        return '<div class=\'side\'><div class=\'sc-box\'><div class=\'sc-h\'>代码</div><pre>' + code + '</pre></div><div class=\'sc-box\'><div class=\'sc-h\'>结果</div><pre>' + out + '</pre></div></div>';
+      }
+      function pipe(items) {
+        var x = '<div class=\'pipe\'>';
+        items.forEach(function (it, i) {
+          if (i) x += '<span class=\'parrow\'>→</span>';
+          x += '<span class=\'pstep' + (it[1] ? ' ' + it[1] : '') + '\'>' + it[0] + '</span>';
+        });
+        return x + '</div>';
+      }
+      var st = s.step;
+      var h = '';
+      if (st === 1) {
+        h += pipe([['.xlsx', ''], ['read_excel', 'on'], ['DataFrame', 'done']]);
+        h += pipe([['.csv', ''], ['read_csv', 'on'], ['DataFrame', 'done']]);
+        h += pipe([['.txt（Tab 分隔）', ''], ['read_table', 'on'], ['DataFrame', 'done']]);
+        h += '<div class=\'anote\'>先看文件后缀再选函数：Excel 用 read_excel（底层要 openpyxl 引擎），CSV 用 read_csv，纯文本表格用 read_table（默认 Tab 分隔）。</div>';
+      }
+      if (st === 2) {
+        h += row('读哪个文件', '<div class=\'chips\'>' + chip('filepath_or_buffer', 'ph') + '</div>');
+        h += row('怎么切列', '<div class=\'chips\'>' + chip('sep 分隔符', 'ph') + chip('header 表头行', 'ph') + '</div>');
+        h += row('列名与索引', '<div class=\'chips\'>' + chip('names 自定义列名', 'ph') + chip('index_col 哪列做行索引', 'ph') + '</div>');
+        h += row('取列与编码', '<div class=\'chips\'>' + chip('usecols 只读哪些列', 'ph') + chip('encoding 编码', 'ph') + '</div>');
+        h += '<div class=\'anote\'>七个常用参数各管一件事：读哪个文件、用什么分隔、哪一行是表头、列名和行索引叫什么、要哪些列、用什么编码。</div>';
+      }
+      if (st === 3) {
+        h += mat(['0', '1', '2'], [['0', '订单编号', '订单日期', '用户ID'], ['1', '302001', '2021-02-01', '137401'], ['2', '302002', '2021-02-01', '177562']], { '0,0': 'no', '0,1': 'no', '0,2': 'no' }, 'header=None 时读出来的 df');
+        h += row('补救', '<div class=\'chips\'>' + chip('names=[\'订单编号\', \'订单日期\', \'用户ID\']', 'ph') + '</div>');
+        h += '<div class=\'anote\'>header=None 表示文件里没有表头行：真正的表头会被当成第一行数据，列名退化成 0、1、2…；用 names= 补上列名才正常。</div>';
+      }
+      if (st === 4) {
+        h += row('只读三列', '<div class=\'chips\'>' + chip('usecols=[\'订单编号\', \'商品名称\', \'金额\']', 'ph') + '</div>');
+        h += side('df = pd.read_csv(path,&#10;    usecols=[\'订单编号\', \'商品名称\', \'金额\'],&#10;    index_col=\'订单编号\')', 'shape = (12, 2)&#10;index 是订单编号，剩下两列数据');
+        h += '<div class=\'anote\'>usecols 只读需要的列，表更窄更快；index_col 把某一列设为行索引，读取后它不再作为普通数据列出现。</div>';
+      }
+      if (st === 5) {
+        h += row('df.shape', '<div class=\'chips\'>' + chip('(12, 7)　12 行 7 列', 'va') + '</div>');
+        h += row('df.head(3)', '<div class=\'chips\'>' + chip('先看前 3 行，表头像不像', 'ph') + '</div>');
+        h += row('df.dtypes', '<div class=\'chips\'>' + chip('订单日期 → datetime64[us]', 'ph') + chip('商品名称 → str', 'ph') + '</div>');
+        h += '<div class=\'anote\'>读进来先检查三件事：行数列数对不对、表头有没有错位、类型对不对（日期列用 parse_dates= 转成时间类型）。pandas 3 里文本列 dtype 显示为 str。</div>';
+      }
+      if (st === 6) {
+        h += row('默认写法', '<div class=\'chips\'>' + chip('to_csv(path) 会把 0—11 的行索引也写成一列', 'no') + '</div>');
+        h += row('推荐写法', '<div class=\'chips\'>' + chip('to_csv(path, index=False) 不写行索引', 'va') + '</div>');
+        h += side('df.to_excel(path,&#10;    sheet_name=\'清洗后\',&#10;    index=False)', '文件里第一列直接是数据列，&#10;没有多余的 0、1、2…');
+        h += '<div class=\'anote\'>index=False 是最常忘的参数：不写它，文件多一列行索引，下次 read_* 读回来又多一列，列名还会变成 Unnamed: 0。</div>';
+      }
+      if (st === 7) {
+        h += row('路径', '<div class=\'chips\'>' + chip('文件不存在 → FileNotFoundError', 'no') + '</div>');
+        h += row('编码', '<div class=\'chips\'>' + chip('中文乱码 → encoding=\'gbk\'', 'no') + '</div>');
+        h += row('Excel', '<div class=\'chips\'>' + chip('read_excel 需要 openpyxl 引擎', 'no') + '</div>');
+        h += row('空值', '<div class=\'chips\'>' + chip('空格 / 空单元格 → NaN', 'no') + '</div>');
+        h += row('表头', '<div class=\'chips\'>' + chip('表头不在第 1 行 → header=1', 'no') + '</div>');
+        h += '<div class=\'anote\'>这五个坑占了导入导出问题的大多数，报错时先按这张清单排查。</div>';
+      }
+      if (st === 8) {
+        h += pipe([['文件', ''], ['read_*', 'on'], ['DataFrame', 'done'], ['to_*', 'done']]);
+        h += row('读', '<div class=\'chips\'>' + chip('read_excel / read_csv / read_table，参数决定怎么认表', 'ph') + '</div>');
+        h += row('查', '<div class=\'chips\'>' + chip('head / info / dtypes / shape 先确认', 'ph') + '</div>');
+        h += row('写', '<div class=\'chips\'>' + chip('to_excel / to_csv，记得 index=False', 'va') + '</div>');
+        h += '<div class=\'aresult\'>文件 → read_*（选对函数、给对参数）→ DataFrame（先用 head / dtypes 检查）→ to_*（index=False 别多写行索引）</div>';
+      }
+      return h;
+    }
+  },
+  missmap: {
+    frames: function () {
+      return [
+        { cap: '第 1 帧 · 12 行精简订单表，先看 5 列。空着的格子就是缺失值，pandas 里记作 NaN。', s: { step: 1 } },
+        { cap: '第 2 帧 · df.isnull()：逐格判空，空的 True、不空的 False，结果和原表一样大。', s: { step: 2 } },
+        { cap: '第 3 帧 · isnull().any() 按列压缩看哪些列有缺失；isnull().sum() 数出每列几处。', s: { step: 3 } },
+        { cap: '第 4 帧 · df[df[商品名称].isnull()]：用缺失当条件，把整行捞出来，只有 302009 这一行。', s: { step: 4 } },
+        { cap: '第 5 帧 · dropna() 默认 how=any：一行里任意一格空就删整行，12 行变 11 行。', s: { step: 5 } },
+        { cap: '第 6 帧 · dropna(how=all)：一行里所有格子都空才删，302009 还有 4 格有值，所以不删。', s: { step: 6 } },
+        { cap: '第 7 帧 · dropna(subset=[商品名称])：只按这一列判空，结果仍是 11 行。', s: { step: 7 } },
+        { cap: '第 8 帧 · 结论：先定位再处理——isnull / any / sum 定位，dropna 的 how、subset、axis 三个开关决定删谁。', s: { step: 8 } }
+      ];
+    },
+    render: function (s) {
+      function chip(t, c) { return '<span class=\'chip' + (c ? ' ' + c : '') + '\'>' + t + '</span>'; }
+      function chips(list, c) { var x = '<div class=\'chips\'>'; for (var i = 0; i < list.length; i++) x += chip(list[i], c); return x + '</div>'; }
+      function row(l, i) { return '<div class=\'arow\'><span class=\'alabel\'>' + l + '</span>' + i + '</div>'; }
+      function note(t) { return '<div class=\'anote\'>' + t + '</div>'; }
+      function mat(head, rows, o) {
+        o = o || {}; var hl = o.hl || {}, tr = o.tr || {};
+        var x = '<div class=\'mat-wrap\'><div class=\'mat\'><table><tr><th></th>';
+        for (var i = 0; i < head.length; i++) x += '<th>' + head[i] + '</th>';
+        x += '</tr>';
+        for (var ri = 0; ri < rows.length; ri++) {
+          var r = rows[ri];
+          x += '<tr' + (tr[ri] ? ' class=\'' + tr[ri] + '\'' : '') + '><td class=\'rh\'>' + (r[0] === '' ? ri : r[0]) + '</td>';
+          for (var ci = 1; ci < r.length; ci++) {
+            x += '<td class=\'' + (hl[ri + ',' + (ci - 1)] || '') + '\'>' + r[ci] + '</td>';
+          }
+          x += '</tr>';
+        }
+        return x + '</table></div></div>';
+      }
+      var data = [
+        ['0', '302001', '围巾', '21.6', '12', '259.2'],
+        ['1', '302002', '运动服', '210.0', '7', '1470.0'],
+        ['2', '302003', 'T恤', '55.93', '24', '1342.32'],
+        ['3', '302004', '运动服', '178.5', '24', '4284.0'],
+        ['4', '302005', 'T恤', '65.8', '14', '921.2'],
+        ['5', '302006', '卫衣', '126.5', '15', '1897.5'],
+        ['6', '302006', '卫衣', '126.5', '15', '1897.5'],
+        ['7', '302008', 'T恤', '65.8', '5', '329.0'],
+        ['8', '302009', 'NaN', 'NaN', 'NaN', '540.0'],
+        ['9', '302010', '休闲鞋', '162.0', '30', '4860.0'],
+        ['10', '302011', '运动服', '178.5', '0', '0.0'],
+        ['11', '302012', '围巾', '21.6', '25', '540.0']
+      ];
+      var st = s.step;
+      var h = '';
+      if (st === 1) {
+        h += mat(['订单编号', '商品名称', '单价', '数量', '金额'], data, { hl: { '8,0': 'na', '8,1': 'na', '8,2': 'na' } });
+        h += note('第 9 行（索引 8）302009 的商品名称、单价、数量三格是空的，金额 540.0 却有值——这就是一条“缺了几块”的记录。');
+      }
+      if (st === 2) {
+        var rows = [], hl = {};
+        for (var i = 0; i < 12; i++) {
+          rows.push([String(i), i === 8 ? 'True' : 'False', i === 8 ? 'True' : 'False', i === 8 ? 'True' : 'False', 'False']);
+        }
+        for (var j = 0; j < 3; j++) hl['8,' + j] = 'no';
+        h += mat(['商品名称', '单价', '数量', '金额'], rows, { hl: hl });
+        h += note('这里只画了 4 列：12 行 × 4 列 = 48 个 True / False（7 列全画是 84 格），只有 3 个 True，全部落在第 9 行；金额列全是 False，说明金额没有缺失。');
+      }
+      if (st === 3) {
+        h += row('any()', chips(['订单编号 False', '订单日期 False', '用户ID False', '商品名称 True', '单价 True', '数量 True', '金额 False'], 'ph'));
+        h += row('sum()', chips(['0', '0', '0', '1', '1', '1', '0'], 'va'));
+        h += note('any() 只回答“有没有”（True / False），sum() 回答“有几处”（各 1 处）；两者合起来告诉你缺失集中在 商品名称、单价、数量 三列。');
+      }
+      if (st === 4) {
+        h += mat(['订单编号', '商品名称', '单价', '数量', '金额'], [['8', '302009', 'NaN', 'NaN', 'NaN', '540.0']], { hl: { '0,0': 'na', '0,1': 'na', '0,2': 'na' }, tr: { 0: 'hl' } });
+        h += row('代码', chips(['df[df[&#39;商品名称&#39;].isnull()]'], 'ph'));
+        h += note('定位到具体行才知道缺的只是 3 个字段，金额 540.0 是完整的；删还是填，要看这条记录后面怎么用。');
+      }
+      if (st === 5) {
+        h += row('df.shape', chips(['(12, 7)', '➜', '(11, 7)'], 'va'));
+        h += row('被删的行', chips(['索引 8 · 302009'], 'no'));
+        h += note('默认 how=any：一行里只要有一格是 NaN 就删掉这整行，302009 的金额 540.0 也跟着一起没了。');
+      }
+      if (st === 6) {
+        h += row('df.shape', chips(['(12, 7)', '➜', '(12, 7)'], 'va'));
+        h += row('302009 的 7 格', chips(['4 格有值：订单编号 / 订单日期 / 用户ID / 金额'], 'ph'));
+        h += note('how=all：必须整行 7 格全空才删。302009 还有 4 格有值，所以它被完整保留下来，一行没少。');
+      }
+      if (st === 7) {
+        h += row('参数', chips(['subset=[&#39;商品名称&#39;]'], 'ph'));
+        h += row('df.shape', chips(['(12, 7)', '➜', '(11, 7)'], 'va'));
+        h += note('subset 只拿指定的列判空，这一列空就删整行；本例结果和默认 how=any 一样，换一份数据就可能不同。');
+      }
+      if (st === 8) {
+        h += row('定位', chips(['isnull() 逐格判空', 'any() 看哪些列有', 'sum() 数几处'], 'ph'));
+        h += row('删除', chips(['how=any → 11 行', 'how=all → 12 行', 'subset 只按指定列'], 'va'));
+        h += '<div class=\'aresult\'>缺失值先定位再处理：isnull() 逐格判空、any() 看哪些列有、sum() 数几处；dropna 默认 how=any（12 行删成 11 行），how=all 一行不删，subset 只按指定的列判空。</div>';
+      }
+      return h;
+    }
+  },
+  fillna: {
+    frames: function () {
+      return [
+        { cap: '第 1 帧 · 数量列有 1 个 NaN（302009），先看原表，再比较三种填充策略。', s: { step: 1 } },
+        { cap: '第 2 帧 · 策略一 固定值：数量填 0；但整表 df.fillna(0) 会把商品名称也污染成 0。', s: { step: 2 } },
+        { cap: '第 3 帧 · 策略二 均值：用这一列非空值的平均数 171 ÷ 11 ≈ 15.55 来填。', s: { step: 3 } },
+        { cap: '第 4 帧 · 策略三 前向填充：ffill 用上一行的值来补，商品名称补成 T恤、数量补成 5.0。', s: { step: 4 } },
+        { cap: '第 5 帧 · 同一行（302009）三种策略的结果对照：填什么取决于业务含义，不是挑代码短的。', s: { step: 5 } },
+        { cap: '第 6 帧 · 四个坑：默认返回新表、整表 fillna(0)、inplace 的返回值、填充后列变浮点。', s: { step: 6 } },
+        { cap: '第 7 帧 · 结论：固定值最直接、均值保住列平均、ffill 适合有顺序的数据；填之前先想清楚这个缺失代表什么。', s: { step: 7 } }
+      ];
+    },
+    render: function (s) {
+      function chip(t, c) { return '<span class=\'chip' + (c ? ' ' + c : '') + '\'>' + t + '</span>'; }
+      function chips(list, c) { var x = '<div class=\'chips\'>'; for (var i = 0; i < list.length; i++) x += chip(list[i], c); return x + '</div>'; }
+      function row(l, i) { return '<div class=\'arow\'><span class=\'alabel\'>' + l + '</span>' + i + '</div>'; }
+      function note(t) { return '<div class=\'anote\'>' + t + '</div>'; }
+      function mat(head, rows, o) {
+        o = o || {}; var hl = o.hl || {}, tr = o.tr || {};
+        var x = '<div class=\'mat-wrap\'><div class=\'mat\'><table><tr><th></th>';
+        for (var i = 0; i < head.length; i++) x += '<th>' + head[i] + '</th>';
+        x += '</tr>';
+        for (var ri = 0; ri < rows.length; ri++) {
+          var r = rows[ri];
+          x += '<tr' + (tr[ri] ? ' class=\'' + tr[ri] + '\'' : '') + '><td class=\'rh\'>' + (r[0] === '' ? ri : r[0]) + '</td>';
+          for (var ci = 1; ci < r.length; ci++) {
+            x += '<td class=\'' + (hl[ri + ',' + (ci - 1)] || '') + '\'>' + r[ci] + '</td>';
+          }
+          x += '</tr>';
+        }
+        return x + '</table></div></div>';
+      }
+      var data = [
+        ['0', '302001', '围巾', '12'],
+        ['1', '302002', '运动服', '7'],
+        ['2', '302003', 'T恤', '24'],
+        ['3', '302004', '运动服', '24'],
+        ['4', '302005', 'T恤', '14'],
+        ['5', '302006', '卫衣', '15'],
+        ['6', '302006', '卫衣', '15'],
+        ['7', '302008', 'T恤', '5'],
+        ['8', '302009', 'NaN', 'NaN'],
+        ['9', '302010', '休闲鞋', '30'],
+        ['10', '302011', '运动服', '0'],
+        ['11', '302012', '围巾', '25']
+      ];
+      var st = s.step;
+      var h = '';
+      if (st === 1) {
+        h += mat(['订单编号', '商品名称', '数量'], data, { hl: { '8,0': 'na', '8,1': 'na' } });
+        h += note('数量列 11 个非空值加起来是 171，缺 1 个，所以均值 171 ÷ 11 = 15.5454…；不填的话求和、求平均都会带着 NaN。');
+      }
+      if (st === 2) {
+        h += row('代码', chips(['df[&#39;数量&#39;].fillna(0)'], 'ph'));
+        h += row('302009', chips(['商品名称 NaN（没指定就不填）', '数量 0.0'], 'va'));
+        h += note('固定值适合“缺失就是没有”，比如数量记 0；但整表 df.fillna(0) 会把商品名称也填成 0，字符串列被数字污染。');
+      }
+      if (st === 3) {
+        h += row('算式', chips(['12+7+24+24+14+15+15+5+30+0+25 = 171', '171 ÷ 11 = 15.5454…'], 'ph'));
+        h += row('代码', chips(['df[&#39;数量&#39;].fillna(df[&#39;数量&#39;].mean())'], 'ph'));
+        h += row('302009 数量', chips(['15.55（显示时保留两位）'], 'va'));
+        h += note('均值填充让整列平均值保持不变；缺点是会被极端值带偏——数量里有 0 也有 30，必要时改用中位数 15.0。');
+      }
+      if (st === 4) {
+        h += row('代码', chips(['df[&#39;商品名称&#39;].ffill()'], 'ph'));
+        h += row('302009', chips(['商品名称 T恤（沿用上一行 302008）', '数量 5.0'], 'va'));
+        h += note('ffill 拿上一行的值来补，适合日期、状态这类有先后顺序的列；本例商品名称补成 T恤 只是演示，真实业务更该填“未知”。');
+      }
+      if (st === 5) {
+        h += mat(['数量', '商品名称'], [
+          ['原始', 'NaN', 'NaN'],
+          ['固定值 0', '0.0', 'NaN'],
+          ['均值', '15.55', 'NaN'],
+          ['ffill', '5.0', 'T恤']
+        ], { hl: { '0,0': 'na', '0,1': 'na', '1,1': 'na', '2,1': 'na' } });
+        h += note('前两种策略只填了 数量 列，商品名称 还是 NaN；ffill 顺手把商品名称也补上了。三种填法三个答案，要结合字段含义选。');
+      }
+      if (st === 6) {
+        h += row('返回值', chips(['不写 inplace 时返回新表，原表不动'], 'ph'));
+        h += row('inplace', chips(['inplace=True 直接改原表：dropna / sort / drop 返回 None，fillna / replace 在 pandas 3 返回对象本身；别写 df = df.fillna(..., inplace=True)'], 'no'));
+        h += row('整表', chips(['df.fillna(0) 会把所有列都填 0，通常不是你想要的'], 'no'));
+        h += row('dtype', chips(['填充后数量列是 float64：原来有 NaN 的列本来就是浮点'], 'ph'));
+        h += note('要原地生效就重新赋值：df[&#39;数量&#39;] = df[&#39;数量&#39;].fillna(0)；均值受异常值影响时改用中位数。');
+      }
+      if (st === 7) {
+        h += row('固定值', chips(['最直接，适合“没有就是 0 / 未知”'], 'va'));
+        h += row('均值 / 中位数', chips(['保住列平均；有极端值用中位数'], 'va'));
+        h += row('ffill / bfill', chips(['按顺序补，适合时间、状态列'], 'va'));
+        h += '<div class=\'aresult\'>fillna 三种策略各有适用场景：固定值适合“缺失就是没有”，均值（或中位数）保住列平均，ffill 适合有顺序的数据；fillna 默认返回新表，想原地改要重新赋值。</div>';
+      }
+      return h;
+    }
+  },
+  dupkeep: {
+    frames: function () {
+      return [
+        { cap: '第 1 帧 · 索引 5、6 两行完全一样（订单编号都是 302006），这是重复录入。', s: { step: 1 } },
+        { cap: '第 2 帧 · df.duplicated()：第一次出现记 False，再出现记 True；只有索引 6 是 True。', s: { step: 2 } },
+        { cap: '第 3 帧 · keep=first（默认）：保留第一次出现的索引 5，删掉索引 6 → 11 行。', s: { step: 3 } },
+        { cap: '第 4 帧 · keep=last：保留最后一次出现的索引 6，删掉索引 5 → 也是 11 行，但留下的是另一条。', s: { step: 4 } },
+        { cap: '第 5 帧 · keep=False：两条都标 True，两条都删 → 只剩 10 行。', s: { step: 5 } },
+        { cap: '第 6 帧 · subset：按哪几列判重；只看商品名称会判出 6 条“重复”，明显不是我们要的。', s: { step: 6 } },
+        { cap: '第 7 帧 · 结论：keep 决定留哪一条，subset 决定拿哪几列比，删除前先看 duplicated() 的结果。', s: { step: 7 } }
+      ];
+    },
+    render: function (s) {
+      function chip(t, c) { return '<span class=\'chip' + (c ? ' ' + c : '') + '\'>' + t + '</span>'; }
+      function chips(list, c) { var x = '<div class=\'chips\'>'; for (var i = 0; i < list.length; i++) x += chip(list[i], c); return x + '</div>'; }
+      function row(l, i) { return '<div class=\'arow\'><span class=\'alabel\'>' + l + '</span>' + i + '</div>'; }
+      function note(t) { return '<div class=\'anote\'>' + t + '</div>'; }
+      function mat(head, rows, o) {
+        o = o || {}; var hl = o.hl || {}, tr = o.tr || {};
+        var x = '<div class=\'mat-wrap\'><div class=\'mat\'><table><tr><th></th>';
+        for (var i = 0; i < head.length; i++) x += '<th>' + head[i] + '</th>';
+        x += '</tr>';
+        for (var ri = 0; ri < rows.length; ri++) {
+          var r = rows[ri];
+          x += '<tr' + (tr[ri] ? ' class=\'' + tr[ri] + '\'' : '') + '><td class=\'rh\'>' + (r[0] === '' ? ri : r[0]) + '</td>';
+          for (var ci = 1; ci < r.length; ci++) {
+            x += '<td class=\'' + (hl[ri + ',' + (ci - 1)] || '') + '\'>' + r[ci] + '</td>';
+          }
+          x += '</tr>';
+        }
+        return x + '</table></div></div>';
+      }
+      var data = [
+        ['0', '302001', '围巾', '12', '259.2'],
+        ['1', '302002', '运动服', '7', '1470.0'],
+        ['2', '302003', 'T恤', '24', '1342.32'],
+        ['3', '302004', '运动服', '24', '4284.0'],
+        ['4', '302005', 'T恤', '14', '921.2'],
+        ['5', '302006', '卫衣', '15', '1897.5'],
+        ['6', '302006', '卫衣', '15', '1897.5'],
+        ['7', '302008', 'T恤', '5', '329.0'],
+        ['8', '302009', 'NaN', 'NaN', '540.0'],
+        ['9', '302010', '休闲鞋', '30', '4860.0'],
+        ['10', '302011', '运动服', '0', '0.0'],
+        ['11', '302012', '围巾', '25', '540.0']
+      ];
+      var pair = [data[5], data[6]];
+      var st = s.step;
+      var h = '';
+      if (st === 1) {
+        h += mat(['订单编号', '商品名称', '数量', '金额'], data, { hl: { '8,1': 'na', '8,2': 'na' }, tr: { 5: 'hl', 6: 'hl' } });
+        h += note('整行 7 个字段（订单编号、订单日期、用户ID、商品名称、单价、数量、金额）全部相同，连订单编号都重复——典型的重复录入，不是两笔真订单。');
+      }
+      if (st === 2) {
+        var rows = [], hl = {};
+        for (var i = 0; i < 12; i++) {
+          rows.push([String(i), data[i][1], data[i][2], data[i][3], data[i][4], i === 6 ? 'True' : 'False']);
+        }
+        hl['5,4'] = 'hi'; hl['6,4'] = 'no';
+        for (var j = 0; j < 3; j++) hl['8,' + j] = 'na';
+        h += mat(['订单编号', '商品名称', '数量', '金额', 'duplicated'], rows, { hl: hl });
+        h += row('df.duplicated().sum()', chips(['1（多出来 1 条）'], 'va'));
+        h += note('第 6 行（索引 6）和前面的索引 5 完全一样，所以记 True；第一次出现的索引 5 记 False。');
+      }
+      if (st === 3) {
+        h += mat(['订单编号', '商品名称', '数量', '金额'], pair, { tr: { 0: 'hl', 1: 'drop' } });
+        h += row('keep=first', chips(['保留索引 5，删除索引 6'], 'va'));
+        h += row('df.shape', chips(['(12, 7)', '➜', '(11, 7)'], 'ph'));
+        h += note('drop_duplicates() 不写 keep 就是 keep=first：同一个值第一次出现的那条留下，后面重复的都删。');
+      }
+      if (st === 4) {
+        h += mat(['订单编号', '商品名称', '数量', '金额'], pair, { tr: { 0: 'drop', 1: 'hl' } });
+        h += row('keep=last', chips(['保留索引 6，删除索引 5'], 'va'));
+        h += row('df.shape', chips(['(12, 7)', '➜', '(11, 7)'], 'ph'));
+        h += note('keep=last 反过来：留最后一次出现的那条。行数一样是 11，但留下来的记录不同，要看业务需要哪一条。');
+      }
+      if (st === 5) {
+        h += mat(['订单编号', '商品名称', '数量', '金额'], pair, { tr: { 0: 'drop', 1: 'drop' } });
+        h += row('keep=False', chips(['两条都判 True，两条都删'], 'va'));
+        h += row('df.shape', chips(['(12, 7)', '➜', '(10, 7)'], 'ph'));
+        h += note('keep=False 表示“凡是重复的都算”，duplicated(keep=False).sum() = 2；适合“重复数据整对扔掉、一条都不要”的场景。');
+      }
+      if (st === 6) {
+        h += row('全列判重', chips(['1 条'], 'va'));
+        h += row('subset=[&#39;订单编号&#39;]', chips(['1 条（本例和全列一样）'], 'ph'));
+        h += row('subset=[&#39;商品名称&#39;]', chips(['6 条：运动服 2 条、T恤 2 条、卫衣 1 条、围巾 1 条被判成“重复”'], 'no'));
+        h += note('subset 决定拿哪几列当判重依据：按整行判重才是“重复录入”，只按某一列判重通常没有意义。');
+      }
+      if (st === 7) {
+        h += row('keep=first', chips(['留第一次出现，默认'], 'va'));
+        h += row('keep=last', chips(['留最后一次出现'], 'va'));
+        h += row('keep=False', chips(['重复的全部删掉'], 'no'));
+        h += row('subset', chips(['判重只看指定列'], 'ph'));
+        h += '<div class=\'aresult\'>duplicated() 先标记（第一次 False、再出现 True），drop_duplicates() 再删除；keep 取 first / last / False 分别决定留第一条、留最后一条、还是重复的全删，subset 决定判重看哪几列。</div>';
+      }
+      return h;
+    }
+  },
+  querylogic: {
+    frames: function () {
+      return [
+        { cap: '第 1 帧 · 目标：找出“金额 ≥ 1000 且 商品名称是运动服”的订单；先看原表 12 行。', s: { step: 1 } },
+        { cap: '第 2 帧 · 条件 A：df[金额] >= 1000，逐行比较得到一列 True / False，6 行命中。', s: { step: 2 } },
+        { cap: '第 3 帧 · 条件 B：df[商品名称] == 运动服，逐行比较，3 行命中。', s: { step: 3 } },
+        { cap: '第 4 帧 · A & B 逐行“与”：同一行两个都是 True 才算命中 → 只剩 2 行。', s: { step: 4 } },
+        { cap: '第 5 帧 · df[A & B]：把合成后的掩码当筛子，挑出 302002、302004 两行。', s: { step: 5 } },
+        { cap: '第 6 帧 · 优先级坑：不加括号会先算 &，1000 & df[商品名称] 直接 TypeError。', s: { step: 6 } },
+        { cap: '第 7 帧 · | 是逐行“或”、~ 是逐行取反；同样每个条件都要括号。', s: { step: 7 } },
+        { cap: '第 8 帧 · 结论：每个条件先算出一列掩码，再用 & | ~ 合成，最后 df[掩码] 挑行。', s: { step: 8 } }
+      ];
+    },
+    render: function (s) {
+      function chip(t, c) { return '<span class=\'chip' + (c ? ' ' + c : '') + '\'>' + t + '</span>'; }
+      function chips(list, c) { var x = '<div class=\'chips\'>'; for (var i = 0; i < list.length; i++) x += chip(list[i], c); return x + '</div>'; }
+      function row(l, i) { return '<div class=\'arow\'><span class=\'alabel\'>' + l + '</span>' + i + '</div>'; }
+      function note(t) { return '<div class=\'anote\'>' + t + '</div>'; }
+      function mat(head, rows, o) {
+        o = o || {}; var hl = o.hl || {}, tr = o.tr || {};
+        var x = '<div class=\'mat-wrap\'><div class=\'mat\'><table><tr><th></th>';
+        for (var i = 0; i < head.length; i++) x += '<th>' + head[i] + '</th>';
+        x += '</tr>';
+        for (var ri = 0; ri < rows.length; ri++) {
+          var r = rows[ri];
+          x += '<tr' + (tr[ri] ? ' class=\'' + tr[ri] + '\'' : '') + '><td class=\'rh\'>' + (r[0] === '' ? ri : r[0]) + '</td>';
+          for (var ci = 1; ci < r.length; ci++) {
+            x += '<td class=\'' + (hl[ri + ',' + (ci - 1)] || '') + '\'>' + r[ci] + '</td>';
+          }
+          x += '</tr>';
+        }
+        return x + '</table></div></div>';
+      }
+      var ords = ['302001', '302002', '302003', '302004', '302005', '302006', '302006', '302008', '302009', '302010', '302011', '302012'];
+      var names = ['围巾', '运动服', 'T恤', '运动服', 'T恤', '卫衣', '卫衣', 'T恤', 'NaN', '休闲鞋', '运动服', '围巾'];
+      var amts = ['259.2', '1470.0', '1342.32', '4284.0', '921.2', '1897.5', '1897.5', '329.0', '540.0', '4860.0', '0.0', '540.0'];
+      var A = [false, true, true, true, false, true, true, false, false, true, false, false];
+      var B = [false, true, false, true, false, false, false, false, false, false, true, false];
+      function qtable(level) {
+        var head = ['订单编号', '商品名称', '金额'];
+        if (level >= 1) head.push('条件A：金额 &gt;= 1000');
+        if (level >= 2) head.push('条件B：商品名称 == 运动服');
+        if (level >= 3) head.push('A &amp; B');
+        var rows = [], hl = {};
+        for (var i = 0; i < 12; i++) {
+          var r = [String(i), ords[i], names[i], amts[i]], ci = 3;
+          if (names[i] === 'NaN') hl[i + ',1'] = 'na';
+          if (level >= 1) { if (A[i]) hl[i + ',' + ci] = 'ok'; r.push(A[i] ? 'True' : 'False'); ci++; }
+          if (level >= 2) { if (B[i]) hl[i + ',' + ci] = 'ok'; r.push(B[i] ? 'True' : 'False'); ci++; }
+          if (level >= 3) { if (A[i] && B[i]) hl[i + ',' + ci] = 'hi'; r.push((A[i] && B[i]) ? 'True' : 'False'); ci++; }
+          rows.push(r);
+        }
+        return mat(head, rows, { hl: hl });
+      }
+      var st = s.step;
+      var h = '';
+      if (st === 1) {
+        h += qtable(0);
+        h += note('两个条件分别落在两个不同的列上：一个看金额大小、一个看商品名称是否相等，所以要用 &amp; 合起来。');
+      }
+      if (st === 2) {
+        h += qtable(1);
+        h += row('条件A 命中', chips(['6 行：302002 / 302003 / 302004 / 302006 / 302006 / 302010'], 'va'));
+        h += note('比较运算是逐行做的：12 行就得到 12 个 True / False，这一列就是“掩码”。');
+      }
+      if (st === 3) {
+        h += qtable(2);
+        h += row('条件B 命中', chips(['3 行：302002 / 302004 / 302011'], 'va'));
+        h += note('两个掩码长度都是 12，行行对应，才能逐行做与 / 或运算。');
+      }
+      if (st === 4) {
+        h += qtable(3);
+        h += row('A &amp; B', chips(['2 行：索引 1、3'], 'va'));
+        h += note('&amp; 是逐行的“与”：同一行 A 与 B 都是 True 才为 True。302011 虽然商品名称是运动服，但金额 0.0 不满足条件A，被排除。');
+      }
+      if (st === 5) {
+        h += mat(['订单编号', '商品名称', '金额'], [['1', '302002', '运动服', '1470.0'], ['3', '302004', '运动服', '4284.0']], { tr: { 0: 'hl', 1: 'hl' } });
+        h += row('结果', chips(['2 行，金额合计 1470.0 + 4284.0 = 5754.0'], 'va'));
+        h += note('df[掩码] 只保留掩码为 True 的行，原来的行索引（1 和 3）也一起保留。');
+      }
+      if (st === 6) {
+        h += '<div class=\'side\'><div class=\'sc-box\'><div class=\'sc-h\'>不加括号（错）</div><pre>df[df[&#39;金额&#39;] &gt;= 1000 &amp; df[&#39;商品名称&#39;] == &#39;运动服&#39;]</pre></div><div class=\'sc-box\'><div class=\'sc-h\'>运行结果</div><pre>TypeError: unsupported operand type(s) for &amp;: &#39;int&#39; and &#39;StringArray&#39;</pre></div></div>';
+        h += note('&amp; 的优先级比比较运算符高：Python 先算 1000 &amp; df[商品名称]，类型不对就报错。两个条件各自加括号再连接才对。');
+      }
+      if (st === 7) {
+        h += row('A | B', chips(['7 行（并集）：302002 302003 302004 302006 302006 302010 302011'], 'va'));
+        h += row('~B', chips(['9 行（商品名称不是运动服的）'], 'va'));
+        h += row('写法', chips(['df[(df[&#39;金额&#39;] &gt;= 1000) &amp; (df[&#39;商品名称&#39;] == &#39;运动服&#39;)]'], 'ph'));
+        h += note('竖线 | 是逐行“或”（并集），&amp; 是“与”（交集），~ 是“非”（取反）；不能用 and / or / not，因为它们是给单个 True / False 用的。');
+      }
+      if (st === 8) {
+        h += row('第一步', chips(['每个条件单独算一列 True / False 掩码'], 'ph'));
+        h += row('第二步', chips(['用 &amp; | ~ 把掩码逐行合成一个新掩码'], 'va'));
+        h += row('第三步', chips(['df[新掩码] 只留 True 的行'], 'va'));
+        h += '<div class=\'aresult\'>多条件查询 = 每个条件先算一列布尔掩码，再用 &amp;（与）/ |（或）/ ~（非）逐行合成，最后 df[掩码] 挑行；每个条件都必须加括号，否则优先级会先算 &amp; 而报错。</div>';
+      }
+      return h;
+    }
+  },
+  groupsplit: {
+    frames: function () {
+      return [
+        { cap: '第 1 帧 · 12 行订单，按 商品名称 这一列分组：值相同的行进同一组。', s: { step: 1 } },
+        { cap: '第 2 帧 · 拆组：5 种商品名拆成 5 组，商品名称是 NaN 的 302009 不成组、被默认丢掉。', s: { step: 2 } },
+        { cap: '第 3 帧 · 算：每组内部各自对 金额 求和。', s: { step: 3 } },
+        { cap: '第 4 帧 · groupby(...).sum() 返回一个 Series：索引是分组键，值是聚合结果。', s: { step: 4 } },
+        { cap: '第 5 帧 · 拼：加 reset_index() 把结果变回一张 DataFrame。', s: { step: 5 } },
+        { cap: '第 6 帧 · 关键坑：NaN 组被丢，5 组合计 17800.72 比全表 18340.72 少了 540.0。', s: { step: 6 } },
+        { cap: '第 7 帧 · agg：同一张结果表里给不同列指定不同函数（金额 sum、数量 max）。', s: { step: 7 } },
+        { cap: '第 8 帧 · 结论：groupby 就是“拆 → 算 → 拼”，NaN 分组默认丢弃要先处理。', s: { step: 8 } }
+      ];
+    },
+    render: function (s) {
+      function chip(t, c) { return '<span class=\'chip' + (c ? ' ' + c : '') + '\'>' + t + '</span>'; }
+      function chips(list, c) { var x = '<div class=\'chips\'>'; for (var i = 0; i < list.length; i++) x += chip(list[i], c); return x + '</div>'; }
+      function row(l, i) { return '<div class=\'arow\'><span class=\'alabel\'>' + l + '</span>' + i + '</div>'; }
+      function note(t) { return '<div class=\'anote\'>' + t + '</div>'; }
+      function mat(head, rows, o) {
+        o = o || {}; var hl = o.hl || {}, tr = o.tr || {};
+        var x = '<div class=\'mat-wrap\'><div class=\'mat\'><table><tr><th></th>';
+        for (var i = 0; i < head.length; i++) x += '<th>' + head[i] + '</th>';
+        x += '</tr>';
+        for (var ri = 0; ri < rows.length; ri++) {
+          var r = rows[ri];
+          x += '<tr' + (tr[ri] ? ' class=\'' + tr[ri] + '\'' : '') + '><td class=\'rh\'>' + (r[0] === '' ? ri : r[0]) + '</td>';
+          for (var ci = 1; ci < r.length; ci++) {
+            x += '<td class=\'' + (hl[ri + ',' + (ci - 1)] || '') + '\'>' + r[ci] + '</td>';
+          }
+          x += '</tr>';
+        }
+        return x + '</table></div></div>';
+      }
+      var data = [
+        ['0', '302001', '围巾', '259.2'],
+        ['1', '302002', '运动服', '1470.0'],
+        ['2', '302003', 'T恤', '1342.32'],
+        ['3', '302004', '运动服', '4284.0'],
+        ['4', '302005', 'T恤', '921.2'],
+        ['5', '302006', '卫衣', '1897.5'],
+        ['6', '302006', '卫衣', '1897.5'],
+        ['7', '302008', 'T恤', '329.0'],
+        ['8', '302009', 'NaN', '540.0'],
+        ['9', '302010', '休闲鞋', '4860.0'],
+        ['10', '302011', '运动服', '0.0'],
+        ['11', '302012', '围巾', '540.0']
+      ];
+      var st = s.step;
+      var h = '';
+      if (st === 1) {
+        h += mat(['订单编号', '商品名称', '金额'], data, { hl: { '8,1': 'na' } });
+        h += note('分组键是 商品名称：围巾、运动服、T恤、卫衣、休闲鞋 各成一组；302009 的商品名称是 NaN。');
+      }
+      if (st === 2) {
+        h += row('围巾 · 2 行', chips(['302001', '302012'], 'va'));
+        h += row('运动服 · 3 行', chips(['302002', '302004', '302011'], 'va'));
+        h += row('T恤 · 3 行', chips(['302003', '302005', '302008'], 'va'));
+        h += row('卫衣 · 2 行', chips(['302006', '302006'], 'va'));
+        h += row('休闲鞋 · 1 行', chips(['302010'], 'va'));
+        h += row('NaN · 不成组', chips(['302009 被 groupby 丢掉'], 'no'));
+        h += note('“拆”这一步不改变数据，只是把行按分组键的值分堆；NaN 不是任何一组，默认被静默丢弃。');
+      }
+      if (st === 3) {
+        h += row('围巾', chips(['259.2 + 540.0 = 799.2'], 'va'));
+        h += row('运动服', chips(['1470.0 + 4284.0 + 0.0 = 5754.0'], 'va'));
+        h += row('T恤', chips(['1342.32 + 921.2 + 329.0 = 2592.52'], 'va'));
+        h += row('卫衣', chips(['1897.5 + 1897.5 = 3795.0'], 'va'));
+        h += row('休闲鞋', chips(['4860.0'], 'va'));
+        h += note('“算”是在每一组内部各算各的，组的边界由 商品名称 划分，互不干扰。');
+      }
+      if (st === 4) {
+        h += mat(['金额'], [['T恤', '2592.52'], ['休闲鞋', '4860.00'], ['卫衣', '3795.00'], ['围巾', '799.20'], ['运动服', '5754.00']]);
+        h += row('代码', chips(['df.groupby(&#39;商品名称&#39;)[&#39;金额&#39;].sum()'], 'ph'));
+        h += note('结果是一个 Series：索引是 5 个分组键，值是对应金额合计；groupby 默认按键排序，T恤 以字母 T 开头排最前。');
+      }
+      if (st === 5) {
+        h += mat(['商品名称', '金额'], [
+          ['0', 'T恤', '2592.52'],
+          ['1', '休闲鞋', '4860.00'],
+          ['2', '卫衣', '3795.00'],
+          ['3', '围巾', '799.20'],
+          ['4', '运动服', '5754.00']
+        ]);
+        h += row('代码', chips(['...GroupBy.sum().reset_index()', '等价：groupby(..., as_index=False)'], 'ph'));
+        h += note('“拼”：reset_index() 把原来的索引变成普通列，得到 5 行 2 列的 DataFrame，才好继续筛选、排序、导出。');
+      }
+      if (st === 6) {
+        h += row('5 组合计', chips(['17800.72'], 'va'));
+        h += row('df[金额].sum()', chips(['18340.72'], 'ph'));
+        h += row('差额', chips(['540.0 = 302009 的金额（商品名称 NaN，没进任何组）'], 'no'));
+        h += row('组内行数', chips(['2 + 3 + 3 + 2 + 1 = 11 行，12 行里少了 302009'], 'ph'));
+        h += note('这是 groupby 最容易被忽略的坑：合计比全表少 540.0；要保留这一组，先 df[&#39;商品名称&#39;].fillna(&#39;未知&#39;) 再分组。');
+      }
+      if (st === 7) {
+        h += mat(['金额', '数量'], [
+          ['T恤', '2592.52', '24'],
+          ['休闲鞋', '4860.00', '30'],
+          ['卫衣', '3795.00', '15'],
+          ['围巾', '799.20', '25'],
+          ['运动服', '5754.00', '24']
+        ]);
+        h += row('代码', chips(['df.groupby(&#39;商品名称&#39;).agg({&#39;金额&#39;: &#39;sum&#39;, &#39;数量&#39;: &#39;max&#39;})'], 'ph'));
+        h += note('agg 用字典给不同列指定不同函数：金额求和、数量取最大；一个 groupby 就能出多列结果。');
+      }
+      if (st === 8) {
+        h += row('拆', chips(['按分组键把行分到各组（NaN 丢弃）'], 'ph'));
+        h += row('算', chips(['组内 sum / mean / max / count'], 'va'));
+        h += row('拼', chips(['reset_index() 拼回一张表'], 'va'));
+        h += '<div class=\'aresult\'>groupby 三步：按分组键拆组 → 组内各自聚合 → 拼回一张表（reset_index）；5 组合计 17800.72，比全表 18340.72 少 540.0，因为 NaN 分组默认被丢弃。</div>';
+      }
+      return h;
+    }
+  },
+  pivotbuild: {
+    frames: function () {
+      return [
+        { cap: '第 1 帧 · 透视表三要素：index 放行、columns 放列、values 放格子里的数，aggfunc 决定怎么合。', s: { step: 1 } },
+        { cap: '第 2 帧 · 先看长表：12 行订单，每行有 周次 和 商品名称，正适合摆成矩阵。', s: { step: 2 } },
+        { cap: '第 3 帧 · 摆骨架：行是周次 5—8，列是 5 个商品名称，格子先空着。', s: { step: 3 } },
+        { cap: '第 4 帧 · 填格子：第 5 周 T恤 = 1342.32 + 921.2 = 2263.52，运动服 = 1470.0 + 4284.0 = 5754.0。', s: { step: 4 } },
+        { cap: '第 5 帧 · 全表：没有这个组合的格子是 NaN，不是 0。', s: { step: 5 } },
+        { cap: '第 6 帧 · margins=True：多出 All 行和 All 列，行列合计一目了然。', s: { step: 6 } },
+        { cap: '第 7 帧 · 校验：All / All = 17800.72，比 df[金额].sum() 少 540.0——NaN 分组又被丢了。', s: { step: 7 } },
+        { cap: '第 8 帧 · 结论：pivot_table = 把长表按“行键 × 列键”重排，格子里放 values 的聚合结果。', s: { step: 8 } }
+      ];
+    },
+    render: function (s) {
+      function chip(t, c) { return '<span class=\'chip' + (c ? ' ' + c : '') + '\'>' + t + '</span>'; }
+      function chips(list, c) { var x = '<div class=\'chips\'>'; for (var i = 0; i < list.length; i++) x += chip(list[i], c); return x + '</div>'; }
+      function row(l, i) { return '<div class=\'arow\'><span class=\'alabel\'>' + l + '</span>' + i + '</div>'; }
+      function note(t) { return '<div class=\'anote\'>' + t + '</div>'; }
+      function mat(head, rows, o) {
+        o = o || {}; var hl = o.hl || {}, tr = o.tr || {};
+        var x = '<div class=\'mat-wrap\'><div class=\'mat\'><table><tr><th></th>';
+        for (var i = 0; i < head.length; i++) x += '<th>' + head[i] + '</th>';
+        x += '</tr>';
+        for (var ri = 0; ri < rows.length; ri++) {
+          var r = rows[ri];
+          x += '<tr' + (tr[ri] ? ' class=\'' + tr[ri] + '\'' : '') + '><td class=\'rh\'>' + (r[0] === '' ? ri : r[0]) + '</td>';
+          for (var ci = 1; ci < r.length; ci++) {
+            x += '<td class=\'' + (hl[ri + ',' + (ci - 1)] || '') + '\'>' + r[ci] + '</td>';
+          }
+          x += '</tr>';
+        }
+        return x + '</table></div></div>';
+      }
+      var st = s.step;
+      var h = '';
+      if (st === 1) {
+        h += row('index（行）', chips(['周次 → 每行一个周次'], 'ph'));
+        h += row('columns（列）', chips(['商品名称 → 每列一个商品'], 'ph'));
+        h += row('values（值）', chips(['金额 → 格子里的数'], 'ph'));
+        h += row('aggfunc', chips(['sum：同一格命中多条时求和'], 'ph'));
+        h += note('透视表不是新数据，只是把长表重新摆放：行键 × 列键 决定一个格子，格子里放 values 的聚合结果。');
+      }
+      if (st === 2) {
+        h += mat(['订单编号', '周次', '商品名称', '金额'], [
+          ['0', '302001', '5', '围巾', '259.2'],
+          ['1', '302002', '5', '运动服', '1470.0'],
+          ['2', '302003', '5', 'T恤', '1342.32'],
+          ['3', '302004', '5', '运动服', '4284.0'],
+          ['4', '302005', '5', 'T恤', '921.2'],
+          ['5', '302006', '6', '卫衣', '1897.5'],
+          ['6', '302006', '6', '卫衣', '1897.5'],
+          ['7', '302008', '6', 'T恤', '329.0'],
+          ['8', '302009', '7', 'NaN', '540.0'],
+          ['9', '302010', '7', '休闲鞋', '4860.0'],
+          ['10', '302011', '8', '运动服', '0.0'],
+          ['11', '302012', '8', '围巾', '540.0']
+        ], { hl: { '8,2': 'na' } });
+        h += note('长表里同一格（同一周次 + 同一商品）可能出现多条记录，比如第 5 周的 T恤 有 2 条，需要 aggfunc 合并。');
+      }
+      if (st === 3) {
+        h += mat(['T恤', '休闲鞋', '卫衣', '围巾', '运动服'], [
+          ['5', '', '', '', '', ''],
+          ['6', '', '', '', '', ''],
+          ['7', '', '', '', '', ''],
+          ['8', '', '', '', '', '']
+        ]);
+        h += row('代码', chips(['df.pivot_table(index=&#39;周次&#39;, columns=&#39;商品名称&#39;, values=&#39;金额&#39;, aggfunc=&#39;sum&#39;)'], 'ph'));
+        h += note('四个参数各就各位：index 变行号、columns 变列名、values 填格子、aggfunc 决定多条记录怎么合并。');
+      }
+      if (st === 4) {
+        h += mat(['T恤', '休闲鞋', '卫衣', '围巾', '运动服'], [
+          ['5', '2263.52', '', '', '259.2', '5754.0'],
+          ['6', '', '', '', '', ''],
+          ['7', '', '', '', '', ''],
+          ['8', '', '', '', '', '']
+        ], { hl: { '0,0': 'hi', '0,3': 'hi', '0,4': 'hi' } });
+        h += row('第 5 周', chips(['T恤 = 1342.32 + 921.2 = 2263.52', '运动服 = 1470.0 + 4284.0 = 5754.0', '围巾 = 259.2（只有一条）'], 'va'));
+        h += note('同一格命中多条就用 aggfunc 合并（这里是 sum）；只有一条时结果就是它本身。');
+      }
+      if (st === 5) {
+        h += mat(['T恤', '休闲鞋', '卫衣', '围巾', '运动服'], [
+          ['5', '2263.52', 'NaN', 'NaN', '259.2', '5754.0'],
+          ['6', '329.00', 'NaN', '3795.0', 'NaN', 'NaN'],
+          ['7', 'NaN', '4860.0', 'NaN', 'NaN', 'NaN'],
+          ['8', 'NaN', 'NaN', 'NaN', '540.0', '0.0']
+        ], { hl: { '0,1': 'na', '0,2': 'na', '1,1': 'na', '1,3': 'na', '1,4': 'na', '2,0': 'na', '2,2': 'na', '2,3': 'na', '2,4': 'na', '3,0': 'na', '3,1': 'na', '3,2': 'na' } });
+        h += row('空位', chips(['没有这个组合 → NaN，不是 0'], 'no'));
+        h += note('NaN 表示“这一周没卖过这个商品”；想显示 0 要用 fill_value=0，但那样就分不清“没卖”和“卖了 0 元”了。');
+      }
+      if (st === 6) {
+        h += mat(['T恤', '休闲鞋', '卫衣', '围巾', '运动服', 'All'], [
+          ['5', '2263.52', 'NaN', 'NaN', '259.2', '5754.0', '8276.72'],
+          ['6', '329.00', 'NaN', '3795.0', 'NaN', 'NaN', '4124.00'],
+          ['7', 'NaN', '4860.0', 'NaN', 'NaN', 'NaN', '4860.00'],
+          ['8', 'NaN', 'NaN', 'NaN', '540.0', '0.0', '540.00'],
+          ['All', '2592.52', '4860.0', '3795.0', '799.2', '5754.0', '17800.72']
+        ], { hl: { '4,5': 'hi', '4,0': 'hi', '4,1': 'hi', '4,2': 'hi', '4,3': 'hi', '4,4': 'hi' } });
+        h += row('代码', chips(['pivot_table(..., margins=True, margins_name=&#39;All&#39;)'], 'ph'));
+        h += note('margins=True 会自动加一行 All（每列合计）和一列 All（每行合计）；右下角的 All / All 就是总和。');
+      }
+      if (st === 7) {
+        h += row('All / All', chips(['17800.72'], 'va'));
+        h += row('df[金额].sum()', chips(['18340.72'], 'ph'));
+        h += row('周次 7 的 All', chips(['4860.0，而不是 5400.0'], 'no'));
+        h += note('302009 的商品名称是 NaN，pivot_table 默认把它丢掉（和 groupby 一致），所以总数少了 540.0；要保留就先填成“未知”再透视。');
+      }
+      if (st === 8) {
+        h += row('行', chips(['index=周次 → 4 行'], 'ph'));
+        h += row('列', chips(['columns=商品名称 → 5 列'], 'ph'));
+        h += row('值', chips(['values=金额，aggfunc=sum'], 'va'));
+        h += row('合计', chips(['margins=True → All 行 / All 列'], 'va'));
+        h += '<div class=\'aresult\'>pivot_table 把长表按“行键 × 列键”重排：index 决定行、columns 决定列、values 填格子、aggfunc 合并多条；margins=True 加 All 行列，NaN 分组默认丢弃（合计少 540.0）。</div>';
+      }
+      return h;
+    }
+  },
+  cutbins: {
+    frames: function () {
+      return [
+        { cap: '第 1 帧 · 12 笔订单金额，从 0.0 到 4860.0，逐个看没有意义。', s: { step: 1 } },
+        { cap: '第 2 帧 · bins=[0, 1000, 3000, 5000]：4 个边界点围出 3 个区间，right=False 左闭右开。', s: { step: 2 } },
+        { cap: '第 3 帧 · 逐行归箱：259.2 进第一箱、1470.0 进第二箱、4284.0 进第三箱。', s: { step: 3 } },
+        { cap: '第 4 帧 · value_counts() 统计每箱笔数：6 + 4 + 2 = 12，一笔不落。', s: { step: 4 } },
+        { cap: '第 5 帧 · 坑：默认 right=True 时区间是 (0, 1000]，金额 0.0 不在任何箱里，直接变 NaN。', s: { step: 5 } },
+        { cap: '第 6 帧 · labels=[低, 中, 高]：只把区间名换成人话，边界一个都没动。', s: { step: 6 } },
+        { cap: '第 7 帧 · 结论：cut 按边界把连续值分箱，right 参数决定边界属于哪一侧，统计连续值之前先想清楚。', s: { step: 7 } }
+      ];
+    },
+    render: function (s) {
+      function chip(t, c) { return '<span class=\'chip' + (c ? ' ' + c : '') + '\'>' + t + '</span>'; }
+      function chips(list, c) { var x = '<div class=\'chips\'>'; for (var i = 0; i < list.length; i++) x += chip(list[i], c); return x + '</div>'; }
+      function row(l, i) { return '<div class=\'arow\'><span class=\'alabel\'>' + l + '</span>' + i + '</div>'; }
+      function note(t) { return '<div class=\'anote\'>' + t + '</div>'; }
+      function cells(list, c) { var x = '<div class=\'acells\'>'; for (var i = 0; i < list.length; i++) x += '<div class=\'acell' + (c ? ' ' + c : '') + '\'>' + list[i] + '</div>'; return x + '</div>'; }
+      function mat(head, rows, o) {
+        o = o || {}; var hl = o.hl || {}, tr = o.tr || {};
+        var x = '<div class=\'mat-wrap\'><div class=\'mat\'><table><tr><th></th>';
+        for (var i = 0; i < head.length; i++) x += '<th>' + head[i] + '</th>';
+        x += '</tr>';
+        for (var ri = 0; ri < rows.length; ri++) {
+          var r = rows[ri];
+          x += '<tr' + (tr[ri] ? ' class=\'' + tr[ri] + '\'' : '') + '><td class=\'rh\'>' + (r[0] === '' ? ri : r[0]) + '</td>';
+          for (var ci = 1; ci < r.length; ci++) {
+            x += '<td class=\'' + (hl[ri + ',' + (ci - 1)] || '') + '\'>' + r[ci] + '</td>';
+          }
+          x += '</tr>';
+        }
+        return x + '</table></div></div>';
+      }
+      var st = s.step;
+      var h = '';
+      if (st === 1) {
+        h += row('金额', cells(['259.2', '1470.0', '1342.32', '4284.0', '921.2', '1897.5', '1897.5', '329.0', '540.0', '4860.0', '0.0', '540.0']));
+        h += note('金额是连续值，最小值 0.0、最大值 4860.0；想统计“低 / 中 / 高”各多少笔，就要先分箱。');
+      }
+      if (st === 2) {
+        h += row('边界 bins', chips(['0', '1000', '3000', '5000'], 'ph'));
+        h += row('3 个箱', chips(['[0, 1000)', '[1000, 3000)', '[3000, 5000)'], 'va'));
+        h += row('代码', chips(['pd.cut(df[&#39;金额&#39;], bins=[0, 1000, 3000, 5000], right=False)'], 'ph'));
+        h += note('bins 给的是边界点：4 个点围出 3 段区间；right=False 表示左闭右开——左边含、右边不含。');
+      }
+      if (st === 3) {
+        h += mat(['订单编号', '金额', '分箱'], [
+          ['0', '302001', '259.2', '[0, 1000)'],
+          ['1', '302002', '1470.0', '[1000, 3000)'],
+          ['2', '302003', '1342.32', '[1000, 3000)'],
+          ['3', '302004', '4284.0', '[3000, 5000)'],
+          ['4', '302005', '921.2', '[0, 1000)'],
+          ['5', '302006', '1897.5', '[1000, 3000)'],
+          ['6', '302006', '1897.5', '[1000, 3000)'],
+          ['7', '302008', '329.0', '[0, 1000)'],
+          ['8', '302009', '540.0', '[0, 1000)'],
+          ['9', '302010', '4860.0', '[3000, 5000)'],
+          ['10', '302011', '0.0', '[0, 1000)'],
+          ['11', '302012', '540.0', '[0, 1000)']
+        ]);
+        h += note('0.0 落进 [0, 1000)：左边是闭区间，0 被收进来了；4860.0 落进 [3000, 5000)：右边开区间，5000 本身不会出现在这一箱。');
+      }
+      if (st === 4) {
+        h += row('[0, 1000)', chips(['6 笔'], 'va'));
+        h += row('[1000, 3000)', chips(['4 笔'], 'va'));
+        h += row('[3000, 5000)', chips(['2 笔'], 'va'));
+        h += row('合计', chips(['6 + 4 + 2 = 12 笔，一笔不落'], 'ph'));
+        h += note('代码：pd.cut(df[&#39;金额&#39;], bins=[0,1000,3000,5000], right=False).value_counts().sort_index()；sort_index() 让结果按区间顺序排列。');
+      }
+      if (st === 5) {
+        h += row('默认 right=True', chips(['区间是 (0, 1000]：0.0 既不大于 0，也不属于任何箱 → NaN'], 'no'));
+        h += row('right=True 计数', chips(['5 + 4 + 2 = 11 笔（1 笔变 NaN 被丢掉）'], 'ph'));
+        h += row('right=False 计数', chips(['6 + 4 + 2 = 12 笔（0.0 收进第一箱）'], 'va'));
+        h += note('默认右闭时 0.0 会掉出第一箱，所以本例统一写 right=False；边界值到底归哪一箱，一定要先看 right。');
+      }
+      if (st === 6) {
+        h += row('代码', chips(['pd.cut(..., right=False, labels=[&#39;低&#39;, &#39;中&#39;, &#39;高&#39;])'], 'ph'));
+        h += mat(['笔数'], [['低', '6'], ['中', '4'], ['高', '2']]);
+        h += note('labels 只是把区间名换成人话（低 / 中 / 高），边界还是 0 / 1000 / 3000 / 5000，一个数都没挪。');
+      }
+      if (st === 7) {
+        h += row('分箱', chips(['bins 给边界 → 连续值变区间'], 'ph'));
+        h += row('开闭', chips(['right=False 左闭右开，0.0 才进第一箱'], 'va'));
+        h += row('统计', chips(['value_counts().sort_index() 按区间顺序数笔数'], 'va'));
+        h += '<div class=\'aresult\'>pd.cut 按 bins 的边界把连续值分箱：4 个边界点分 3 箱，right=False 左闭右开；本例 6 / 4 / 2 笔共 12 笔，默认 right=True 会让 0.0 掉出区间变成 NaN。</div>';
+      }
+      return h;
+    }
+  },
+  mergehow: {
+    frames: function () {
+      return [
+        { cap: '第 1 帧 · 两张表靠 商品名称 这个键匹配：左表订单 12 行，右表商品 7 行。', s: { step: 1 } },
+        { cap: '第 2 帧 · 先看键集合：两边都有的 5 个，只有左表有的 1 个（NaN），只有右表有的 2 个。', s: { step: 2 } },
+        { cap: '第 3 帧 · how=inner：只留两边都有的键 → 11 行，302009 匹配不上被丢。', s: { step: 3 } },
+        { cap: '第 4 帧 · how=left：以左表为准 → 12 行，302009 的右表字段补 NaN。', s: { step: 4 } },
+        { cap: '第 5 帧 · how=right：以右表为准 → 13 行，运动鞋、太阳帽 补 NaN，匹配上的行会跟着膨胀。', s: { step: 5 } },
+        { cap: '第 6 帧 · how=outer：两边都留 → 12 + 2 = 14 行。', s: { step: 6 } },
+        { cap: '第 7 帧 · 行数对照表 + indicator：both 11、left_only 1、right_only 2。', s: { step: 7 } },
+        { cap: '第 8 帧 · 结论：how 决定保留哪边的键；连接前数行数、连接后用 indicator 核对。', s: { step: 8 } }
+      ];
+    },
+    render: function (s) {
+      function chip(t, c) { return '<span class=\'chip' + (c ? ' ' + c : '') + '\'>' + t + '</span>'; }
+      function chips(list, c) { var x = '<div class=\'chips\'>'; for (var i = 0; i < list.length; i++) x += chip(list[i], c); return x + '</div>'; }
+      function row(l, i) { return '<div class=\'arow\'><span class=\'alabel\'>' + l + '</span>' + i + '</div>'; }
+      function note(t) { return '<div class=\'anote\'>' + t + '</div>'; }
+      function mat(head, rows, o) {
+        o = o || {}; var hl = o.hl || {}, tr = o.tr || {};
+        var x = '<div class=\'mat-wrap\'><div class=\'mat\'><table><tr><th></th>';
+        for (var i = 0; i < head.length; i++) x += '<th>' + head[i] + '</th>';
+        x += '</tr>';
+        for (var ri = 0; ri < rows.length; ri++) {
+          var r = rows[ri];
+          x += '<tr' + (tr[ri] ? ' class=\'' + tr[ri] + '\'' : '') + '><td class=\'rh\'>' + (r[0] === '' ? ri : r[0]) + '</td>';
+          for (var ci = 1; ci < r.length; ci++) {
+            x += '<td class=\'' + (hl[ri + ',' + (ci - 1)] || '') + '\'>' + r[ci] + '</td>';
+          }
+          x += '</tr>';
+        }
+        return x + '</table></div></div>';
+      }
+      var st = s.step;
+      var h = '';
+      if (st === 1) {
+        h += row('左表：订单', chips(['12 行 × 7 列，键 = 商品名称'], 'ph'));
+        h += row('左表键分布', chips(['围巾×2', '运动服×3', 'T恤×3', '卫衣×2', '休闲鞋×1', 'NaN×1'], 'va'));
+        h += row('右表：商品', chips(['7 行 × 5 列，键 = 商品名称'], 'ph'));
+        h += row('右表键', chips(['围巾', '运动服', 'T恤', '卫衣', '休闲鞋', '运动鞋', '太阳帽'], 'va'));
+        h += note('merge 按“键相等”匹配：左表每一行去右表找同名商品，找到了就把右边的列接过来。');
+      }
+      if (st === 2) {
+        h += row('两边都有（交集）', chips(['围巾', '运动服', 'T恤', '卫衣', '休闲鞋'], 'va'));
+        h += row('只有左表', chips(['NaN：302009 的商品名称是空的，匹配不到任何商品'], 'no'));
+        h += row('只有右表', chips(['运动鞋', '太阳帽'], 'no'));
+        h += note('inner 用交集；left 保全左表；right 保全右表；outer 两边都保——四种 how 的行数差别就来自这三个集合。');
+      }
+      if (st === 3) {
+        h += row('how=inner', chips(['11 行 × 11 列'], 'va'));
+        h += row('丢掉的', chips(['302009：商品名称是 NaN，匹配不上任何商品'], 'no'));
+        h += note('inner 只保留两边键都有的行；12 行里 302009 匹配不上，所以剩 11 行。');
+      }
+      if (st === 4) {
+        h += row('how=left', chips(['12 行'], 'va'));
+        h += row('302009 的右表字段', chips(['进价 / 产地 / 库存 / 销售价 全部补 NaN'], 'no'));
+        h += note('left 以左表为准：订单一行不少，匹配不到的商品信息留空，行数还是 12。');
+      }
+      if (st === 5) {
+        h += row('how=right', chips(['13 行'], 'va'));
+        h += row('匹配上的行', chips(['围巾 2 + 运动服 3 + T恤 3 + 卫衣 2 + 休闲鞋 1 = 11 行'], 'ph'));
+        h += row('右表独有的行', chips(['运动鞋 1 + 太阳帽 1 = 2 行（左表字段补 NaN）'], 'ph'));
+        h += note('right 以右表为准：商品 7 个键一个不落，行数是 11 + 2 = 13，而不是 12；右连接不是“右表的行数”。');
+      }
+      if (st === 6) {
+        h += row('how=outer', chips(['14 行'], 'va'));
+        h += row('算法', chips(['左表 12 行 + 右表独有的 2 行 = 14 行'], 'ph'));
+        h += note('outer 是并集：左右两边没匹配上的都留下来；左表 302009 这 1 行、右表运动鞋和太阳帽这 2 行都在。');
+      }
+      if (st === 7) {
+        h += mat(['保留哪些键', '行数', '_merge 分布'], [
+          ['inner', '两边都有', '11', 'both 11'],
+          ['left', '左表全留', '12', 'both 11 + left_only 1'],
+          ['right', '右表全留', '13', 'both 11 + right_only 2'],
+          ['outer', '两边都留', '14', 'both 11 + left_only 1 + right_only 2']
+        ]);
+        h += note('加 indicator=True 会多一列 _merge，标出每行是 both / left_only / right_only；连接前看键、连接后看行数和 _merge，是标准自查动作。');
+      }
+      if (st === 8) {
+        h += row('inner', chips(['11 行：只要两边都匹配上的'], 'ph'));
+        h += row('left', chips(['12 行：左表全留 + 右表补 NaN'], 'va'));
+        h += row('right', chips(['13 行：右表全留 + 左表补 NaN'], 'va'));
+        h += row('outer', chips(['14 行：两边都留'], 'va'));
+        h += '<div class=\'aresult\'>merge 的 how 决定保留哪边的键：inner 只留两边都有的（11 行）、left 保住左表（12 行）、right 保住右表（13 行）、outer 两边都留（14 行）；连接前先数行数、连接后用 indicator 核对。</div>';
+      }
+      return h;
+    }
+  },
+  concatdir: {
+    frames: function () {
+      return [
+        { cap: '第 1 帧 · 两份各 3 行的小表（索引都从 0 开始），列名一样，适合上下摞。', s: { step: 1 } },
+        { cap: '第 2 帧 · pd.concat([A, B]) 默认 axis=0：上下摞成 6 行，索引出现 0、1、2、0、1、2。', s: { step: 2 } },
+        { cap: '第 3 帧 · ignore_index=True：只重建行索引 0—5，数据和列名一个没动。', s: { step: 3 } },
+        { cap: '第 4 帧 · axis=1：把同一批订单拆成两半再横着拼回来，按行索引对齐 → 3 行 4 列。', s: { step: 4 } },
+        { cap: '第 5 帧 · 坑：axis=1 时行索引对不上，会取并集并补 NaN → 3 行变 6 行。', s: { step: 5 } },
+        { cap: '第 6 帧 · 对照：axis=0 行数相加、列不变；axis=1 列数相加、行按索引对齐。', s: { step: 6 } },
+        { cap: '第 7 帧 · 结论：concat 只按轴拼接、不做键匹配；纵向用 ignore_index，横向先对齐索引。', s: { step: 7 } }
+      ];
+    },
+    render: function (s) {
+      function chip(t, c) { return '<span class=\'chip' + (c ? ' ' + c : '') + '\'>' + t + '</span>'; }
+      function chips(list, c) { var x = '<div class=\'chips\'>'; for (var i = 0; i < list.length; i++) x += chip(list[i], c); return x + '</div>'; }
+      function row(l, i) { return '<div class=\'arow\'><span class=\'alabel\'>' + l + '</span>' + i + '</div>'; }
+      function note(t) { return '<div class=\'anote\'>' + t + '</div>'; }
+      function mat(head, rows, o) {
+        o = o || {}; var hl = o.hl || {}, tr = o.tr || {};
+        var x = '<div class=\'mat-wrap\'><div class=\'mat\'><table><tr><th></th>';
+        for (var i = 0; i < head.length; i++) x += '<th>' + head[i] + '</th>';
+        x += '</tr>';
+        for (var ri = 0; ri < rows.length; ri++) {
+          var r = rows[ri];
+          x += '<tr' + (tr[ri] ? ' class=\'' + tr[ri] + '\'' : '') + '><td class=\'rh\'>' + (r[0] === '' ? ri : r[0]) + '</td>';
+          for (var ci = 1; ci < r.length; ci++) {
+            x += '<td class=\'' + (hl[ri + ',' + (ci - 1)] || '') + '\'>' + r[ci] + '</td>';
+          }
+          x += '</tr>';
+        }
+        return x + '</table></div></div>';
+      }
+      var st = s.step;
+      var h = '';
+      if (st === 1) {
+        h += row('表 A', chips(['前 3 行，索引 0—2，3 行 × 3 列'], 'ph'));
+        h += mat(['订单编号', '商品名称', '金额'], [
+          ['0', '302001', '围巾', '259.2'],
+          ['1', '302002', '运动服', '1470.0'],
+          ['2', '302003', 'T恤', '1342.32']
+        ]);
+        h += row('表 B', chips(['后 3 行，也是 3 行 × 3 列、索引 0—2'], 'ph'));
+        h += mat(['订单编号', '商品名称', '金额'], [
+          ['0', '302004', '运动服', '4284.0'],
+          ['1', '302005', 'T恤', '921.2'],
+          ['2', '302006', '卫衣', '1897.5']
+        ]);
+        h += note('两份数据各自从 0 开始编号（就像两次各自 read_csv）；要接在一起，先看轴。');
+      }
+      if (st === 2) {
+        h += row('代码', chips(['pd.concat([A, B])　默认 axis=0'], 'ph'));
+        h += mat(['订单编号', '商品名称', '金额'], [
+          ['0', '302001', '围巾', '259.2'],
+          ['1', '302002', '运动服', '1470.0'],
+          ['2', '302003', 'T恤', '1342.32'],
+          ['0', '302004', '运动服', '4284.0'],
+          ['1', '302005', 'T恤', '921.2'],
+          ['2', '302006', '卫衣', '1897.5']
+        ], { tr: { 3: 'hl', 4: 'hl', 5: 'hl' } });
+        h += note('axis=0 是“上下摞”：6 行 × 3 列；行索引原样搬过来，于是出现了两个 0、两个 1、两个 2。');
+      }
+      if (st === 3) {
+        h += row('代码', chips(['pd.concat([A, B], ignore_index=True)'], 'ph'));
+        h += mat(['订单编号', '商品名称', '金额'], [
+          ['0', '302001', '围巾', '259.2'],
+          ['1', '302002', '运动服', '1470.0'],
+          ['2', '302003', 'T恤', '1342.32'],
+          ['3', '302004', '运动服', '4284.0'],
+          ['4', '302005', 'T恤', '921.2'],
+          ['5', '302006', '卫衣', '1897.5']
+        ]);
+        h += note('ignore_index=True 只重建行索引 0—5，数据、列名、顺序都不变；纵向拼接几乎都该带上它。');
+      }
+      if (st === 4) {
+        h += row('左半', chips(['df.iloc[:3][[订单编号, 金额]]：3 行 2 列'], 'ph'));
+        h += row('右半', chips(['df.iloc[:3][[商品名称, 数量]]：3 行 2 列'], 'ph'));
+        h += row('pd.concat([左半, 右半], axis=1)', chips(['横向拼 → 3 行 4 列'], 'va'));
+        h += mat(['订单编号', '金额', '商品名称', '数量'], [
+          ['0', '302001', '259.2', '围巾', '12'],
+          ['1', '302002', '1470.0', '运动服', '7'],
+          ['2', '302003', '1342.32', 'T恤', '24']
+        ]);
+        h += note('axis=1 是“左右拼”：按行索引对齐，索引 0 的 订单编号 / 金额 与索引 0 的 商品名称 / 数量 并到同一行。');
+      }
+      if (st === 5) {
+        h += row('拼接前', chips(['左半索引 0—2', '右半索引 3—5（没对齐）'], 'ph'));
+        h += mat(['订单编号', '金额', '商品名称', '数量'], [
+          ['0', '302001', '259.2', 'NaN', 'NaN'],
+          ['1', '302002', '1470.0', 'NaN', 'NaN'],
+          ['2', '302003', '1342.32', 'NaN', 'NaN'],
+          ['3', 'NaN', 'NaN', '运动服', '24'],
+          ['4', 'NaN', 'NaN', 'T恤', '14'],
+          ['5', 'NaN', 'NaN', '卫衣', '15']
+        ], { hl: { '0,2': 'na', '0,3': 'na', '1,2': 'na', '1,3': 'na', '2,2': 'na', '2,3': 'na', '3,0': 'na', '3,1': 'na', '4,0': 'na', '4,1': 'na', '5,0': 'na', '5,1': 'na' } });
+        h += note('axis=1 不是按位置硬贴，而是按行索引对齐：索引不一样就取并集，缺的地方补 NaN（3 行 + 3 行变成 6 行）。');
+      }
+      if (st === 6) {
+        h += mat(['方向', '行数', '列数', '索引处理'], [
+          ['axis=0', '上下摞', '3 + 3 = 6', '3（不变）', '重复 0,1,2；ignore_index=True 重建 0—5'],
+          ['axis=1', '左右拼', '按行索引对齐', '2 + 2 = 4', '取索引并集，对不上补 NaN']
+        ]);
+        h += note('记法：axis 是“拼接方向”的轴；axis=0 往下接（行变多），axis=1 往右接（列变多）。');
+      }
+      if (st === 7) {
+        h += row('axis=0', chips(['纵向摞行，行数相加；ignore_index 重建索引'], 'va'));
+        h += row('axis=1', chips(['横向拼列，列数相加；按行索引对齐'], 'va'));
+        h += row('区别', chips(['concat 只拼接、不按键匹配；按键匹配要用 merge'], 'ph'));
+        h += '<div class=\'aresult\'>concat 沿轴拼接：axis=0 上下摞行（行数相加，用 ignore_index=True 重建索引），axis=1 左右拼列（按行索引对齐，对不上补 NaN）；它只拼接、不做键匹配，键匹配要用 merge。</div>';
+      }
+      return h;
+    }
+  },
+};
+
+(function () {
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  document.querySelectorAll('.anim[data-anim]').forEach(function (box) {
+    var def = ANIMS[box.getAttribute('data-anim')];
+    if (!def) return;
+    var frames = def.frames();
+    var stage = box.querySelector('.anim-stage');
+    var text = box.querySelector('.anim-text');
+    var prog = box.querySelector('.anim-progress');
+    var btnPlay = box.querySelector('[data-act="play"]');
+    var idx = 0, timer = null;
+    function draw() {
+      var fr = frames[idx];
+      stage.innerHTML = def.render(fr.s, fr);
+      text.textContent = fr.cap;
+      prog.textContent = (idx + 1) + ' / ' + frames.length;
+    }
+    function stop() {
+      if (timer) { clearInterval(timer); timer = null; btnPlay.textContent = '▶ 播放'; }
+    }
+    box.querySelectorAll('[data-act]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var act = b.getAttribute('data-act');
+        if (act === 'next') { stop(); idx = Math.min(idx + 1, frames.length - 1); draw(); }
+        else if (act === 'prev') { stop(); idx = Math.max(idx - 1, 0); draw(); }
+        else if (act === 'reset') { stop(); idx = 0; draw(); }
+        else if (act === 'play') {
+          if (timer) { stop(); return; }
+          if (idx >= frames.length - 1) idx = 0;
+          btnPlay.textContent = '⏸ 暂停';
+          timer = setInterval(function () {
+            if (idx >= frames.length - 1) { stop(); return; }
+            idx++; draw();
+          }, reduce ? 1700 : 1100);
+          draw();
+        }
+      });
+    });
+    draw();
+  });
+})();
+
+
+/* ===== 导航滚动高亮 ===== */
+document.addEventListener('DOMContentLoaded', function () {
+  var navLinks = {};
+  document.querySelectorAll('#nav a[data-sec]').forEach(function (a) { navLinks[a.getAttribute('data-sec')] = a; });
+  var sections = ['guide', 'c1', 'c2', 'c3', 'download', 'summary'];
+  if ('IntersectionObserver' in window) {
+    var obs = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        if (en.isIntersecting) {
+          document.querySelectorAll('#nav a').forEach(function (a) { a.classList.remove('on'); });
+          var a = navLinks[en.target.id];
+          if (a) a.classList.add('on');
+        }
+      });
+    }, { rootMargin: '-15% 0px -70% 0px' });
+    sections.forEach(function (s) { var el = document.getElementById(s); if (el) obs.observe(el); });
+  }
+});
+
+/* ===== 回到顶部 ===== */
+document.addEventListener('DOMContentLoaded', function () {
+  var toTop = document.getElementById('toTop');
+  window.addEventListener('scroll', function () {
+    if (window.scrollY > 600) toTop.classList.add('show');
+    else toTop.classList.remove('show');
+  });
+  toTop.addEventListener('click', function () { window.scrollTo({ top: 0, behavior: 'smooth' }); });
+});
+
+/* ===== 交互面板 ===== */
+document.addEventListener('DOMContentLoaded', function () {
+  var PIPE = [
+    { api: 'pd.Series(data, index=...); pd.DataFrame(data, index=..., columns=...)',
+      txt: '最常用：由列表/字典/ndarray 构造。DataFrame 可以用「嵌套列表 + columns」或「字典（键变成列）」。',
+      trap: '嵌套列表每一行长度必须一致；字典建表时每个键下个数必须一样。' },
+    { api: 'df.shape; df.index; df.columns; df.dtypes; df.info(); df.describe(); df.head()/tail()',
+      txt: '先看形状和类型，再做计算；info() 看非空数量与 dtype，describe() 看数值列的统计量。',
+      trap: '只 head() 不看 dtype：整数列里混了小数点或缺失，会整列变成 float64。' },
+    { api: "df['列']; df.loc[行标签, 列标签]; df.iloc[行位置, 列位置]; df.at[...] / df.iat[...]",
+      txt: '整列用 df[]；按名字取行/单元格用 loc；按位置用 iloc；at / iat 只取一个值更快。',
+      trap: "df[0] 会去找列名 0，报 KeyError: 0；行索引删过之后 loc[2] 不一定存在。" },
+    { api: 'df[列] = 值; df.loc[行条件, 列] = 值; df.drop(columns=[...]); df.sort_values(by=...)',
+      txt: '增删列直接赋值/ drop；改值用 loc 一步定位；排序最常用 sort_values(by=, ascending=)。',
+      trap: "df[df.x > 1]['y'] = 0 链式赋值改不动原表（pandas 3 写时复制）。" },
+    { api: "df.isnull().any(); df.dropna(how='any'/'all', subset=[...]); df.fillna(...); df.duplicated(keep='first'/'last'/False); df.drop_duplicates(...)",
+      txt: '先查缺失/重复，再删或填；dropna 默认 how="any"；duplicated 默认 keep="first"。',
+      trap: "df = df.dropna(inplace=True) 会让 df 变 None；inplace=True 时不要再接返回值。" },
+    { api: "df[df['列'] > 值]; df[(A) & (B)]; df['列'].between(a, b); df['列'].isin([...]); df.nlargest(n, '列')",
+      txt: '比较运算造布尔数组，多条件用 & | ~ 并各自加括号；between 含两端，isin 用于多值匹配。',
+      trap: '不加括号或用 and / or：TypeError；空结果也可能是正确答案。' },
+    { api: "df.groupby('列').agg({'列': 'sum'}); pd.cut(序列, bins=[...], labels=[...]); df.pivot_table(values=, index=, columns=, aggfunc='sum', margins=True)",
+      txt: '分组 → 聚合；分箱注意左开右闭；透视表默认 aggfunc="mean"，做金额汇总要写 sum。',
+      trap: "不写 aggfunc 会得均值；margins=True 多出 All 行/列，画图前 drop('All')。" },
+    { api: "pd.concat([df1, df2], axis=0/1, ignore_index=True); pd.merge(left, right, on='键', how='inner'/'left'/'right'/'outer')",
+      txt: '上下/左右拼接用 concat；按键匹配用 merge，四种 how 决定保留哪些行。',
+      trap: 'merge 前置右表键有重复时行数膨胀；outer 会多出匹配不上的行并填 NaN。' }
+  ];
+  var sel = document.getElementById('pipe-step');
+  var btn = document.getElementById('pipe-btn');
+  var out = document.getElementById('pipe-out');
+  if (btn && sel && out) {
+    btn.addEventListener('click', function () {
+      var p = PIPE[parseInt(sel.value, 10)];
+      out.textContent = '写法：' + p.api + '\n\n说明：' + p.txt + '\n\n最容易错：' + p.trap;
+    });
+  }
+
+  function parseNums(s) {
+    return s.split(/[,，\s]+/).filter(function (x) { return x !== ''; }).map(Number);
+  }
+  var cutBtn = document.getElementById('cut-btn');
+  var cutBins = document.getElementById('cut-bins');
+  var cutVals = document.getElementById('cut-vals');
+  var cutOut = document.getElementById('cut-out');
+  if (cutBtn && cutBins && cutVals && cutOut) {
+    cutBtn.addEventListener('click', function () {
+      var bins = parseNums(cutBins.value);
+      var vals = parseNums(cutVals.value);
+      if (bins.length < 2) { cutOut.textContent = '边界至少写两个数。'; return; }
+      for (var i = 1; i < bins.length; i++) {
+        if (!(bins[i] > bins[i - 1])) { cutOut.textContent = '边界必须严格递增。'; return; }
+      }
+      var names = [];
+      for (var j = 0; j < bins.length - 1; j++) names.push('(' + bins[j] + ', ' + bins[j + 1] + ']');
+      var lines = [];
+      var counts = names.map(function () { return 0; });
+      var nan = 0;
+      for (var k = 0; k < vals.length; k++) {
+        var v = vals[k], hit = -1;
+        if (!isNaN(v)) {
+          for (var m = 0; m < names.length; m++) {
+            if (v > bins[m] && v <= bins[m + 1]) { hit = m; break; }
+          }
+        }
+        if (hit >= 0) { counts[hit]++; lines.push(v + ' → ' + names[hit]); }
+        else { nan++; lines.push(v + ' → NaN（落在区间外）'); }
+      }
+      var res = ['区间（左开右闭）：' + names.join('  ')];
+      for (var n = 0; n < names.length; n++) res.push('  ' + names[n] + '：' + counts[n] + ' 个');
+      res.push('区间外（NaN）：' + nan + ' 个');
+      res.push('');
+      res = res.concat(lines);
+      cutOut.textContent = res.join('\n');
+    });
+  }
+});
+
+</script>
+</body>
+</html>
