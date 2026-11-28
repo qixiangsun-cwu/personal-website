@@ -526,6 +526,10 @@ details.qa{background:#faf7f0;border:1px solid var(--line-soft);border-radius:10
 details.qa summary{cursor:pointer;font-weight:700;color:var(--blue-deep);font-size:15px;}
 details.qa p{margin:8px 0 2px;font-size:15px;}
 .pipe-tip{font-size:13px;color:var(--ink-faint);margin:-6px 0 10px;}
+.demo-out.fig-out{background:#fff;border-top:1px solid #e7e2d4;padding:14px 16px 6px;}
+.demo-out.fig-out .out-label{color:#5a6472;}
+.demo-out.fig-out .figure{margin:4px 0 8px;}
+.demo-out.fig-out .figure img{display:block;margin:0 auto;}
 </style>
 </head>
 <body>
@@ -1709,7 +1713,7 @@ shape: (4, 3)
     <div class="sec-num">五</div>
     <div><h2>Matplotlib 基础（9.2）</h2><p class="sec-sub">六类图一个个写：中文字体、plot / bar / barh / pie / scatter / hist、标题图例网格与数据标签</p></div>
   </div>
-<p>Matplotlib 是 Python 最主流的绘图库，<code class="inline">pyplot</code> 提供了接近 MATLAB 的快捷接口。课件 9.2 用 6 个例子把最常用的六类图讲完；这里每个例子都给出<strong>可抄的代码 + 本机实图</strong>。</p><h3 id="c5-1">9.2.1 先解决中文：字体与负号</h3><div class="demo static">
+<p>Matplotlib 是 Python 最主流的绘图库，<code class="inline">pyplot</code> 提供了接近 MATLAB 的快捷接口。课件 9.2 用 6 个例子把最常用的六类图讲完；这里每个例子都是<strong>可抄的代码 + 本机实图</strong>。图的默认收起：先读代码，点右上角「▶ 运行看结果」再展开本机实测图，课堂上让学生先猜会画成什么样。</p><h3 id="c5-1">9.2.1 先解决中文：字体与负号</h3><div class="demo static">
     <div class="demo-head"><span class="demo-title">导入与全局设置（每个绘图脚本都建议加上）</span></div>
     <pre class="code">import matplotlib.pyplot as plt
 
@@ -1739,8 +1743,7 @@ print('中文标题示例:', '产量（万吨）')
 中文标题示例: 产量（万吨）
 </pre></div>
   </div><div class="note">如果图上中文变成方框：Windows 装 SimHei / 微软雅黑并在 <code class="inline">font.sans-serif</code> 里写对名字；负号变方块就把 <code class="inline">axes.unicode_minus</code> 设为 False。</div><h3 id="c5-2">9.2.2 折线图：plot</h3><p><b>例 9-1</b> 单系列：B 组四个季度的产量。x 用索引（季度），y 用一列数据。</p><div class="demo static">
-    <div class="demo-head"><span class="demo-title">例 9-1　单系列折线图</span></div>
-    <pre class="code">import pandas as pd
+    <div class="demo-head"><span class="demo-title">例 9-1　单系列折线图</span><div class="demo-actions"><button class="btn btn-run btn-fig" type="button">▶ 运行看结果</button><button class="btn btn-copy" type="button">复制代码</button></div></div><pre class="code">import pandas as pd
 import matplotlib.pyplot as plt
 
 plt.rcParams['font.sans-serif'] = ['SimHei']
@@ -1756,10 +1759,8 @@ plt.title('B组各季度产量')
 plt.ylabel('产量（万吨）')
 plt.xlabel('季度')
 plt.grid(alpha=0.3)
-plt.show()</pre>
-  </div><figure class="figure"><img src="assets/python-bigdata-2026/lesson9/figs/fig_vis_line_b.png" alt="图 9-6　例 9-1 实跑结果：B 组各季度产量折线图" loading="lazy"><figcaption>图 9-6　例 9-1 实跑结果：B 组各季度产量折线图</figcaption></figure><p><b>例 9-2</b> 多系列：三组一起画，用列名做图例。</p><div class="demo static">
-    <div class="demo-head"><span class="demo-title">例 9-2　多系列折线图 + 图例</span></div>
-    <pre class="code">import pandas as pd
+plt.show()</pre><div class="demo-out fig-out"><div class="out-label">运行结果（本机实测图）</div><figure class="figure"><img src="assets/python-bigdata-2026/lesson9/figs/fig_vis_line_b.png" alt="图 9-6　例 9-1 实跑结果：B 组各季度产量折线图" loading="lazy"><figcaption>图 9-6　例 9-1 实跑结果：B 组各季度产量折线图</figcaption></figure></div></div><p><b>例 9-2</b> 多系列：三组一起画，用列名做图例。</p><div class="demo static">
+    <div class="demo-head"><span class="demo-title">例 9-2　多系列折线图 + 图例</span><div class="demo-actions"><button class="btn btn-run btn-fig" type="button">▶ 运行看结果</button><button class="btn btn-copy" type="button">复制代码</button></div></div><pre class="code">import pandas as pd
 import matplotlib.pyplot as plt
 
 plt.rcParams['font.sans-serif'] = ['SimHei']
@@ -1772,8 +1773,7 @@ plt.legend()                          # 显示图例
 plt.title('三个组各季度产量比较图')
 plt.ylabel('产量（万吨）')
 plt.grid(alpha=0.3)
-plt.show()</pre>
-  </div><figure class="figure"><img src="assets/python-bigdata-2026/lesson9/figs/fig_vis_line3.png" alt="图 9-7　例 9-2 实跑结果：三组产量对比折线图（带图例）" loading="lazy"><figcaption>图 9-7　例 9-2 实跑结果：三组产量对比折线图（带图例）</figcaption></figure><div class="demo" data-demo="v9-line-data">
+plt.show()</pre><div class="demo-out fig-out"><div class="out-label">运行结果（本机实测图）</div><figure class="figure"><img src="assets/python-bigdata-2026/lesson9/figs/fig_vis_line3.png" alt="图 9-7　例 9-2 实跑结果：三组产量对比折线图（带图例）" loading="lazy"><figcaption>图 9-7　例 9-2 实跑结果：三组产量对比折线图（带图例）</figcaption></figure></div></div><div class="demo" data-demo="v9-line-data">
     <div class="demo-head">
       <span class="demo-title">先算清楚要画的值：B 组最高/最低在哪</span>
       <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
@@ -1800,8 +1800,7 @@ B组各季度: [60, 70, 62, 75]
 最低: 60 → 一季度
 </pre></div>
   </div><h3 id="c5-3">9.2.3 柱形图与条形图：bar / barh</h3><div class="demo static">
-    <div class="demo-head"><span class="demo-title">例 9-3　柱形图 + 条形图（双子图，带数据标签）</span></div>
-    <pre class="code">import pandas as pd
+    <div class="demo-head"><span class="demo-title">例 9-3　柱形图 + 条形图（双子图，带数据标签）</span><div class="demo-actions"><button class="btn btn-run btn-fig" type="button">▶ 运行看结果</button><button class="btn btn-copy" type="button">复制代码</button></div></div><pre class="code">import pandas as pd
 import matplotlib.pyplot as plt
 
 plt.rcParams['font.sans-serif'] = ['SimHei']
@@ -1822,8 +1821,7 @@ ax2.set_title('条形图：B组各季度产量')
 ax2.set_xlabel('产量（万吨）')
 for y, w in zip(data.index, data.values):
     ax2.text(w, y, w, va='center')
-plt.show()</pre>
-  </div><figure class="figure"><img src="assets/python-bigdata-2026/lesson9/figs/fig_vis_bar.png" alt="图 9-8　例 9-3 实跑结果：同一组数据的柱形图（左）与条形图（右）" loading="lazy"><figcaption>图 9-8　例 9-3 实跑结果：同一组数据的柱形图（左）与条形图（右）</figcaption></figure><div class="demo" data-demo="v9-bar-data">
+plt.show()</pre><div class="demo-out fig-out"><div class="out-label">运行结果（本机实测图）</div><figure class="figure"><img src="assets/python-bigdata-2026/lesson9/figs/fig_vis_bar.png" alt="图 9-8　例 9-3 实跑结果：同一组数据的柱形图（左）与条形图（右）" loading="lazy"><figcaption>图 9-8　例 9-3 实跑结果：同一组数据的柱形图（左）与条形图（右）</figcaption></figure></div></div><div class="demo" data-demo="v9-bar-data">
     <div class="demo-head">
       <span class="demo-title">画柱形前先准备：每根柱的高度与合计</span>
       <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
@@ -1849,8 +1847,7 @@ print('合计:', df['B组'].sum())
 合计: 267
 </pre></div>
   </div><h3 id="c5-4">9.2.4 饼图：pie</h3><div class="demo static">
-    <div class="demo-head"><span class="demo-title">例 9-4　各组总产量占比（explode 突出第三块）</span></div>
-    <pre class="code">import pandas as pd
+    <div class="demo-head"><span class="demo-title">例 9-4　各组总产量占比（explode 突出第三块）</span><div class="demo-actions"><button class="btn btn-run btn-fig" type="button">▶ 运行看结果</button><button class="btn btn-copy" type="button">复制代码</button></div></div><pre class="code">import pandas as pd
 import matplotlib.pyplot as plt
 
 plt.rcParams['font.sans-serif'] = ['SimHei']
@@ -1860,8 +1857,7 @@ data = df.sum(axis=0)                 # 每组四个季度合计
 plt.figure()
 plt.pie(data, explode=(0, 0, 0.075), labels=data.index, autopct='%0.0f%%')
 plt.title('各组总产量比例图', fontdict={'fontsize': 16, 'color': 'red'})
-plt.show()</pre>
-  </div><figure class="figure"><img src="assets/python-bigdata-2026/lesson9/figs/fig_vis_pie.png" alt="图 9-9　例 9-4 实跑结果：三组总产量占比饼图" loading="lazy"><figcaption>图 9-9　例 9-4 实跑结果：三组总产量占比饼图</figcaption></figure><div class="demo" data-demo="v9-pie-data">
+plt.show()</pre><div class="demo-out fig-out"><div class="out-label">运行结果（本机实测图）</div><figure class="figure"><img src="assets/python-bigdata-2026/lesson9/figs/fig_vis_pie.png" alt="图 9-9　例 9-4 实跑结果：三组总产量占比饼图" loading="lazy"><figcaption>图 9-9　例 9-4 实跑结果：三组总产量占比饼图</figcaption></figure></div></div><div class="demo" data-demo="v9-pie-data">
     <div class="demo-head">
       <span class="demo-title">饼图前先把「合计」和「百分比」算清楚</span>
       <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
@@ -1889,8 +1885,7 @@ B组 : 267 ( 31.7 %)
 C组 : 305 ( 36.2 %)
 </pre></div>
   </div><div class="note">饼图只适合「部分占整体」且类别 ≤6；各类别必须互斥、合计为整体，数值不能为负。<b>别用饼图比趋势</b>。</div><h3 id="c5-5">9.2.5 散点图：scatter</h3><div class="demo static">
-    <div class="demo-head"><span class="demo-title">例 9-5　学生成绩散点图（网格 + 定制刻度 + 最小值标注）</span></div>
-    <pre class="code">import numpy as np
+    <div class="demo-head"><span class="demo-title">例 9-5　学生成绩散点图（网格 + 定制刻度 + 最小值标注）</span><div class="demo-actions"><button class="btn btn-run btn-fig" type="button">▶ 运行看结果</button><button class="btn btn-copy" type="button">复制代码</button></div></div><pre class="code">import numpy as np
 import matplotlib.pyplot as plt
 
 plt.rcParams['font.sans-serif'] = ['SimHei']
@@ -1907,8 +1902,7 @@ plt.xticks(range(1, data.size + 1))
 min_y = np.min(data)
 pos_x = np.argmin(data)
 plt.text(pos_x + 1, min_y, str(min_y) + '（最低）', color='red')
-plt.show()</pre>
-  </div><figure class="figure"><img src="assets/python-bigdata-2026/lesson9/figs/fig_vis_scatter.png" alt="图 9-10　例 9-5 实跑结果：学生成绩散点图（红字标出最低分）" loading="lazy"><figcaption>图 9-10　例 9-5 实跑结果：学生成绩散点图（红字标出最低分）</figcaption></figure><div class="demo" data-demo="v9-scatter-data">
+plt.show()</pre><div class="demo-out fig-out"><div class="out-label">运行结果（本机实测图）</div><figure class="figure"><img src="assets/python-bigdata-2026/lesson9/figs/fig_vis_scatter.png" alt="图 9-10　例 9-5 实跑结果：学生成绩散点图（红字标出最低分）" loading="lazy"><figcaption>图 9-10　例 9-5 实跑结果：学生成绩散点图（红字标出最低分）</figcaption></figure></div></div><div class="demo" data-demo="v9-scatter-data">
     <div class="demo-head">
       <span class="demo-title">画散点前先看：最低分、最高分、平均分</span>
       <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
@@ -1929,8 +1923,7 @@ print('平均:', round(float(data.mean()), 2))
 平均: 77.9
 </pre></div>
   </div><h3 id="c5-6">9.2.6 直方图：hist</h3><div class="demo static">
-    <div class="demo-head"><span class="demo-title">例 9-6　各分数段人数直方图（组距 bins + 人数标签）</span></div>
-    <pre class="code">import numpy as np
+    <div class="demo-head"><span class="demo-title">例 9-6　各分数段人数直方图（组距 bins + 人数标签）</span><div class="demo-actions"><button class="btn btn-run btn-fig" type="button">▶ 运行看结果</button><button class="btn btn-copy" type="button">复制代码</button></div></div><pre class="code">import numpy as np
 import matplotlib.pyplot as plt
 
 plt.rcParams['font.sans-serif'] = ['SimHei']
@@ -1944,8 +1937,7 @@ plt.title('各分数段的人数统计图')
 plt.ylabel('人数')
 for i, n in enumerate(nums):
     plt.text(bins[i], n, int(n))
-plt.show()</pre>
-  </div><figure class="figure"><img src="assets/python-bigdata-2026/lesson9/figs/fig_vis_hist.png" alt="图 9-11　例 9-6 实跑结果：成绩直方图（每段人数标在柱顶）" loading="lazy"><figcaption>图 9-11　例 9-6 实跑结果：成绩直方图（每段人数标在柱顶）</figcaption></figure><div class="demo" data-demo="v9-hist-data">
+plt.show()</pre><div class="demo-out fig-out"><div class="out-label">运行结果（本机实测图）</div><figure class="figure"><img src="assets/python-bigdata-2026/lesson9/figs/fig_vis_hist.png" alt="图 9-11　例 9-6 实跑结果：成绩直方图（每段人数标在柱顶）" loading="lazy"><figcaption>图 9-11　例 9-6 实跑结果：成绩直方图（每段人数标在柱顶）</figcaption></figure></div></div><div class="demo" data-demo="v9-hist-data">
     <div class="demo-head">
       <span class="demo-title">先算每个分数段有几个人（直方图的数）</span>
       <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
@@ -2002,8 +1994,7 @@ print('df.plot() 会画', df.shape[1], '条线')
 df.plot() 会画 3 条线
 </pre></div>
   </div><h3 id="c6-2">9.3.2 折线与柱状：plot / plot.bar</h3><div class="demo static">
-    <div class="demo-head"><span class="demo-title">例 9-7　单列折线（df['B组'].plot()）</span></div>
-    <pre class="code">import pandas as pd
+    <div class="demo-head"><span class="demo-title">例 9-7　单列折线（df['B组'].plot()）</span><div class="demo-actions"><button class="btn btn-run btn-fig" type="button">▶ 运行看结果</button><button class="btn btn-copy" type="button">复制代码</button></div></div><pre class="code">import pandas as pd
 import matplotlib.pyplot as plt
 
 plt.rcParams['font.sans-serif'] = ['SimHei']
@@ -2012,10 +2003,8 @@ df = pd.read_csv('产量.csv', index_col=0, encoding='gbk')
 df['B组'].plot()
 plt.title('B组各季度产量')
 plt.ylabel('产量（万吨）')
-plt.show()</pre>
-  </div><figure class="figure"><img src="assets/python-bigdata-2026/lesson9/figs/fig_vis_pandas_line.png" alt="图 9-12　例 9-7 实跑结果：一行 plot 得到的折线图" loading="lazy"><figcaption>图 9-12　例 9-7 实跑结果：一行 plot 得到的折线图</figcaption></figure><div class="demo static">
-    <div class="demo-head"><span class="demo-title">例 9-8　多列柱状（df.plot.bar()）</span></div>
-    <pre class="code">import pandas as pd
+plt.show()</pre><div class="demo-out fig-out"><div class="out-label">运行结果（本机实测图）</div><figure class="figure"><img src="assets/python-bigdata-2026/lesson9/figs/fig_vis_pandas_line.png" alt="图 9-12　例 9-7 实跑结果：一行 plot 得到的折线图" loading="lazy"><figcaption>图 9-12　例 9-7 实跑结果：一行 plot 得到的折线图</figcaption></figure></div></div><div class="demo static">
+    <div class="demo-head"><span class="demo-title">例 9-8　多列柱状（df.plot.bar()）</span><div class="demo-actions"><button class="btn btn-run btn-fig" type="button">▶ 运行看结果</button><button class="btn btn-copy" type="button">复制代码</button></div></div><pre class="code">import pandas as pd
 import matplotlib.pyplot as plt
 
 plt.rcParams['font.sans-serif'] = ['SimHei']
@@ -2025,10 +2014,8 @@ df.plot.bar()
 plt.title('三个组各季度产量比较图')
 plt.ylabel('产量（万吨）')
 plt.xticks(rotation=20)
-plt.show()</pre>
-  </div><figure class="figure"><img src="assets/python-bigdata-2026/lesson9/figs/fig_vis_pandas_bar.png" alt="图 9-13　例 9-8 实跑结果：三组 × 四季度的分组柱状图" loading="lazy"><figcaption>图 9-13　例 9-8 实跑结果：三组 × 四季度的分组柱状图</figcaption></figure><h3 id="c6-3">9.3.3 条形图与饼图：先聚合，再画</h3><div class="demo static">
-    <div class="demo-head"><span class="demo-title">例 9-10　各商品订购总数量（groupby + sort + barh）</span></div>
-    <pre class="code">import pandas as pd
+plt.show()</pre><div class="demo-out fig-out"><div class="out-label">运行结果（本机实测图）</div><figure class="figure"><img src="assets/python-bigdata-2026/lesson9/figs/fig_vis_pandas_bar.png" alt="图 9-13　例 9-8 实跑结果：三组 × 四季度的分组柱状图" loading="lazy"><figcaption>图 9-13　例 9-8 实跑结果：三组 × 四季度的分组柱状图</figcaption></figure></div></div><h3 id="c6-3">9.3.3 条形图与饼图：先聚合，再画</h3><div class="demo static">
+    <div class="demo-head"><span class="demo-title">例 9-10　各商品订购总数量（groupby + sort + barh）</span><div class="demo-actions"><button class="btn btn-run btn-fig" type="button">▶ 运行看结果</button><button class="btn btn-copy" type="button">复制代码</button></div></div><pre class="code">import pandas as pd
 import matplotlib.pyplot as plt
 
 plt.rcParams['font.sans-serif'] = ['SimHei']
@@ -2038,10 +2025,8 @@ df2 = df2.sort_values(by='数量')          # 条形图按大小排序更好读
 
 df2['数量'].plot(kind='barh')
 plt.title('商品订购总数量比较图')
-plt.show()</pre>
-  </div><figure class="figure"><img src="assets/python-bigdata-2026/lesson9/figs/fig_vis_barh_goods.png" alt="图 9-14　例 9-10 实跑结果：商品订购总数量条形图" loading="lazy"><figcaption>图 9-14　例 9-10 实跑结果：商品订购总数量条形图</figcaption></figure><div class="demo static">
-    <div class="demo-head"><span class="demo-title">例 9-13　各商品订购总数量占比（plot.pie）</span></div>
-    <pre class="code">import pandas as pd
+plt.show()</pre><div class="demo-out fig-out"><div class="out-label">运行结果（本机实测图）</div><figure class="figure"><img src="assets/python-bigdata-2026/lesson9/figs/fig_vis_barh_goods.png" alt="图 9-14　例 9-10 实跑结果：商品订购总数量条形图" loading="lazy"><figcaption>图 9-14　例 9-10 实跑结果：商品订购总数量条形图</figcaption></figure></div></div><div class="demo static">
+    <div class="demo-head"><span class="demo-title">例 9-13　各商品订购总数量占比（plot.pie）</span><div class="demo-actions"><button class="btn btn-run btn-fig" type="button">▶ 运行看结果</button><button class="btn btn-copy" type="button">复制代码</button></div></div><pre class="code">import pandas as pd
 import matplotlib.pyplot as plt
 
 plt.rcParams['font.sans-serif'] = ['SimHei']
@@ -2052,8 +2037,7 @@ df2 = df2.sort_values(by='数量', ascending=False)
 df2['数量'].plot.pie(autopct='%0.0f%%')
 plt.title('各商品的订购总数量比例图')
 plt.ylabel('')
-plt.show()</pre>
-  </div><figure class="figure"><img src="assets/python-bigdata-2026/lesson9/figs/fig_vis_pie_goods.png" alt="图 9-15　例 9-13 实跑结果：商品订购总数量占比饼图" loading="lazy"><figcaption>图 9-15　例 9-13 实跑结果：商品订购总数量占比饼图</figcaption></figure><div class="demo" data-demo="v9-goods-total">
+plt.show()</pre><div class="demo-out fig-out"><div class="out-label">运行结果（本机实测图）</div><figure class="figure"><img src="assets/python-bigdata-2026/lesson9/figs/fig_vis_pie_goods.png" alt="图 9-15　例 9-13 实跑结果：商品订购总数量占比饼图" loading="lazy"><figcaption>图 9-15　例 9-13 实跑结果：商品订购总数量占比饼图</figcaption></figure></div></div><div class="demo" data-demo="v9-goods-total">
     <div class="demo-head">
       <span class="demo-title">12 行精简订单：先 groupby 再画图的那张表</span>
       <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
@@ -2091,8 +2075,7 @@ T恤    43.0  2592.52
 数量合计: 171.0
 </pre></div>
   </div><h3 id="c6-4">9.3.4 直方图与箱线图：看分布</h3><div class="demo static">
-    <div class="demo-head"><span class="demo-title">例 9-12　围巾每日订购数量直方图（plot.hist）</span></div>
-    <pre class="code">import pandas as pd
+    <div class="demo-head"><span class="demo-title">例 9-12　围巾每日订购数量直方图（plot.hist）</span><div class="demo-actions"><button class="btn btn-run btn-fig" type="button">▶ 运行看结果</button><button class="btn btn-copy" type="button">复制代码</button></div></div><pre class="code">import pandas as pd
 import matplotlib.pyplot as plt
 
 plt.rcParams['font.sans-serif'] = ['SimHei']
@@ -2103,10 +2086,8 @@ bins = [0, 20, 40, 60, 80, 100]
 df2['数量'].plot.hist(bins=bins)
 plt.title('围巾每日订购数量的直方图')
 plt.ylabel('频数')
-plt.show()</pre>
-  </div><figure class="figure"><img src="assets/python-bigdata-2026/lesson9/figs/fig_vis_hist_scarf.png" alt="图 9-16　例 9-12 实跑结果：围巾每日数量直方图" loading="lazy"><figcaption>图 9-16　例 9-12 实跑结果：围巾每日数量直方图</figcaption></figure><div class="demo static">
-    <div class="demo-head"><span class="demo-title">例 9-9　单列箱线图（df['B组'].plot.box()）</span></div>
-    <pre class="code">import pandas as pd
+plt.show()</pre><div class="demo-out fig-out"><div class="out-label">运行结果（本机实测图）</div><figure class="figure"><img src="assets/python-bigdata-2026/lesson9/figs/fig_vis_hist_scarf.png" alt="图 9-16　例 9-12 实跑结果：围巾每日数量直方图" loading="lazy"><figcaption>图 9-16　例 9-12 实跑结果：围巾每日数量直方图</figcaption></figure></div></div><div class="demo static">
+    <div class="demo-head"><span class="demo-title">例 9-9　单列箱线图（df['B组'].plot.box()）</span><div class="demo-actions"><button class="btn btn-run btn-fig" type="button">▶ 运行看结果</button><button class="btn btn-copy" type="button">复制代码</button></div></div><pre class="code">import pandas as pd
 import matplotlib.pyplot as plt
 
 plt.rcParams['font.sans-serif'] = ['SimHei']
@@ -2114,8 +2095,7 @@ df = pd.read_csv('产量.csv', index_col=0, encoding='gbk')
 
 df['B组'].plot.box()
 plt.title('B组各季度产量箱线图')
-plt.show()</pre>
-  </div><figure class="figure"><img src="assets/python-bigdata-2026/lesson9/figs/fig_vis_pandas_box.png" alt="图 9-17　例 9-9 实跑结果：B 组产量箱线图" loading="lazy"><figcaption>图 9-17　例 9-9 实跑结果：B 组产量箱线图</figcaption></figure><div class="demo" data-demo="v9-scarf-counts">
+plt.show()</pre><div class="demo-out fig-out"><div class="out-label">运行结果（本机实测图）</div><figure class="figure"><img src="assets/python-bigdata-2026/lesson9/figs/fig_vis_pandas_box.png" alt="图 9-17　例 9-9 实跑结果：B 组产量箱线图" loading="lazy"><figcaption>图 9-17　例 9-9 实跑结果：B 组产量箱线图</figcaption></figure></div></div><div class="demo" data-demo="v9-scarf-counts">
     <div class="demo-head">
       <span class="demo-title">围巾 21 个有订单的日期：先描述统计，再直方图分箱</span>
       <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
@@ -2141,8 +2121,7 @@ for i, n in enumerate(nums):
 (80, 100]: 2 天
 </pre></div>
   </div><h3 id="c6-5">9.3.5 多系列柱状 + 图例：周次 × 商品</h3><div class="demo static">
-    <div class="demo-head"><span class="demo-title">例 9-11　透视后再画分组柱状（legend 两列）</span></div>
-    <pre class="code">import pandas as pd
+    <div class="demo-head"><span class="demo-title">例 9-11　透视后再画分组柱状（legend 两列）</span><div class="demo-actions"><button class="btn btn-run btn-fig" type="button">▶ 运行看结果</button><button class="btn btn-copy" type="button">复制代码</button></div></div><pre class="code">import pandas as pd
 import matplotlib.pyplot as plt
 
 plt.rcParams['font.sans-serif'] = ['SimHei']
@@ -2152,8 +2131,7 @@ df2 = df.pivot_table(values='数量', index='周次', columns='商品名称', ag
 df2.plot(kind='bar')
 plt.title('每周各种商品的订购总数量比较图')
 plt.legend(ncol=2)
-plt.show()</pre>
-  </div><figure class="figure"><img src="assets/python-bigdata-2026/lesson9/figs/fig_vis_bar_week_goods.png" alt="图 9-18　例 9-11 实跑结果：周次 × 商品的分组柱状图" loading="lazy"><figcaption>图 9-18　例 9-11 实跑结果：周次 × 商品的分组柱状图</figcaption></figure><div class="key"><strong>一句话记住</strong>：Pandas 绘图口诀：<b>先 groupby/pivot 得到「行是类别、列是系列」的表，再一行 plot(kind=…)</b>；饼图前记得 drop 掉 margins 的 All。</div><div class="sumline">✅ <b>本节小结</b>：Pandas 绘图省掉大量 Matplotlib 细节，但前提是数据表结构对：<b>索引 = x，列 = 系列</b>；聚合/透视后的结果直接 plot 就是想要的图。</div>
+plt.show()</pre><div class="demo-out fig-out"><div class="out-label">运行结果（本机实测图）</div><figure class="figure"><img src="assets/python-bigdata-2026/lesson9/figs/fig_vis_bar_week_goods.png" alt="图 9-18　例 9-11 实跑结果：周次 × 商品的分组柱状图" loading="lazy"><figcaption>图 9-18　例 9-11 实跑结果：周次 × 商品的分组柱状图</figcaption></figure></div></div><div class="key"><strong>一句话记住</strong>：Pandas 绘图口诀：<b>先 groupby/pivot 得到「行是类别、列是系列」的表，再一行 plot(kind=…)</b>；饼图前记得 drop 掉 margins 的 All。</div><div class="sumline">✅ <b>本节小结</b>：Pandas 绘图省掉大量 Matplotlib 细节，但前提是数据表结构对：<b>索引 = x，列 = 系列</b>；聚合/透视后的结果直接 plot 就是想要的图。</div>
 </section>
 <section id="c7">
   <div class="sec-head">
@@ -2161,8 +2139,7 @@ plt.show()</pre>
     <div><h2>可视化应用案例（9.4）</h2><p class="sec-sub">用订单数据走完「数据准备 → 选图 → 画图 → 解读」：折线极值、散点看关系、气泡看三重信息、箱线看分布</p></div>
   </div>
 <p>课件 9.4 是整章的收口：数据还是那份订单，问题换成业务问题，依次用折线、散点、气泡、箱线来回答。顺序永远是 <b>先算清数据 → 再选图 → 最后调样式和结论</b>。</p><h3 id="c7-1">9.4.1 每日订购金额折线 + 极值标注（例 9-14）</h3><div class="demo static">
-    <div class="demo-head"><span class="demo-title">例 9-14　groupby 每日金额，折线图上标出最低/最高</span></div>
-    <pre class="code">import pandas as pd
+    <div class="demo-head"><span class="demo-title">例 9-14　groupby 每日金额，折线图上标出最低/最高</span><div class="demo-actions"><button class="btn btn-run btn-fig" type="button">▶ 运行看结果</button><button class="btn btn-copy" type="button">复制代码</button></div></div><pre class="code">import pandas as pd
 import matplotlib.pyplot as plt
 
 plt.rcParams['font.sans-serif'] = ['SimHei']
@@ -2174,8 +2151,7 @@ plt.title('2月份每日订购金额变化图')
 vals = df2['金额']
 plt.text(vals.idxmin(), vals.min(), str(round(vals.min(), 2)), color='m')
 plt.text(vals.idxmax(), vals.max(), str(round(vals.max(), 2)), color='r')
-plt.show()</pre>
-  </div><figure class="figure"><img src="assets/python-bigdata-2026/lesson9/figs/fig_vis_line_daily.png" alt="图 9-19　例 9-14 实跑结果：2 月每日订购金额折线（标出最低/最高）" loading="lazy"><figcaption>图 9-19　例 9-14 实跑结果：2 月每日订购金额折线（标出最低/最高）</figcaption></figure><div class="demo" data-demo="v9-daily-amount">
+plt.show()</pre><div class="demo-out fig-out"><div class="out-label">运行结果（本机实测图）</div><figure class="figure"><img src="assets/python-bigdata-2026/lesson9/figs/fig_vis_line_daily.png" alt="图 9-19　例 9-14 实跑结果：2 月每日订购金额折线（标出最低/最高）" loading="lazy"><figcaption>图 9-19　例 9-14 实跑结果：2 月每日订购金额折线（标出最低/最高）</figcaption></figure></div></div><div class="demo" data-demo="v9-daily-amount">
     <div class="demo-head">
       <span class="demo-title">先算：2 月每日金额的合计、最高、最低、平均</span>
       <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
@@ -2201,8 +2177,7 @@ print('平均:', round(float(a.mean()), 2))
 平均: 14941.88
 </pre></div>
   </div><h3 id="c7-2">9.4.2 时间 × 数量的散点：运动服每日订购（例 9-15）</h3><div class="demo static">
-    <div class="demo-head"><span class="demo-title">例 9-15　pivot_table(fill_value=0) 后散点看每日变化</span></div>
-    <pre class="code">import pandas as pd
+    <div class="demo-head"><span class="demo-title">例 9-15　pivot_table(fill_value=0) 后散点看每日变化</span><div class="demo-actions"><button class="btn btn-run btn-fig" type="button">▶ 运行看结果</button><button class="btn btn-copy" type="button">复制代码</button></div></div><pre class="code">import pandas as pd
 import matplotlib.pyplot as plt
 
 plt.rcParams['font.sans-serif'] = ['SimHei']
@@ -2213,10 +2188,8 @@ df2 = df.pivot_table(values='数量', index='订单日期', columns='商品名�
 df2.plot.scatter(x='订单日期', y='运动服')
 plt.xticks(rotation=45, fontsize=8)
 plt.title('运动服的每日订购数量变化图')
-plt.show()</pre>
-  </div><figure class="figure"><img src="assets/python-bigdata-2026/lesson9/figs/fig_vis_scatter_daily.png" alt="图 9-20　例 9-15 实跑结果：运动服每日订购数量散点" loading="lazy"><figcaption>图 9-20　例 9-15 实跑结果：运动服每日订购数量散点</figcaption></figure><div class="note">时间做 x 轴时<b>用散点而不是折线</b>：同一天可能有多笔（聚合后一天一个点），散点能看清分布，没订单的日子是 0 而不是断线。</div><h3 id="c7-3">9.4.3 两个商品数量的关系：T恤 × 运动服（例 9-16）</h3><div class="demo static">
-    <div class="demo-head"><span class="demo-title">例 9-16　两列散点看相关关系</span></div>
-    <pre class="code">import pandas as pd
+plt.show()</pre><div class="demo-out fig-out"><div class="out-label">运行结果（本机实测图）</div><figure class="figure"><img src="assets/python-bigdata-2026/lesson9/figs/fig_vis_scatter_daily.png" alt="图 9-20　例 9-15 实跑结果：运动服每日订购数量散点" loading="lazy"><figcaption>图 9-20　例 9-15 实跑结果：运动服每日订购数量散点</figcaption></figure></div></div><div class="note">时间做 x 轴时<b>用散点而不是折线</b>：同一天可能有多笔（聚合后一天一个点），散点能看清分布，没订单的日子是 0 而不是断线。</div><h3 id="c7-3">9.4.3 两个商品数量的关系：T恤 × 运动服（例 9-16）</h3><div class="demo static">
+    <div class="demo-head"><span class="demo-title">例 9-16　两列散点看相关关系</span><div class="demo-actions"><button class="btn btn-run btn-fig" type="button">▶ 运行看结果</button><button class="btn btn-copy" type="button">复制代码</button></div></div><pre class="code">import pandas as pd
 import matplotlib.pyplot as plt
 
 plt.rcParams['font.sans-serif'] = ['SimHei']
@@ -2226,8 +2199,7 @@ df2 = df.pivot_table(values='数量', index='订单日期', columns='商品名�
 
 df2.plot.scatter(x='T恤', y='运动服')
 plt.title('T恤和运动服的每日订购数量关系图')
-plt.show()</pre>
-  </div><figure class="figure"><img src="assets/python-bigdata-2026/lesson9/figs/fig_vis_scatter_t_scarf.png" alt="图 9-21　例 9-16 实跑结果：T恤与运动服每日数量散点" loading="lazy"><figcaption>图 9-21　例 9-16 实跑结果：T恤与运动服每日数量散点</figcaption></figure><div class="demo" data-demo="v9-corr">
+plt.show()</pre><div class="demo-out fig-out"><div class="out-label">运行结果（本机实测图）</div><figure class="figure"><img src="assets/python-bigdata-2026/lesson9/figs/fig_vis_scatter_t_scarf.png" alt="图 9-21　例 9-16 实跑结果：T恤与运动服每日数量散点" loading="lazy"><figcaption>图 9-21　例 9-16 实跑结果：T恤与运动服每日数量散点</figcaption></figure></div></div><div class="demo" data-demo="v9-corr">
     <div class="demo-head">
       <span class="demo-title">散点之外再算一个相关系数（辅助判断）</span>
       <div class="demo-actions"><button class="btn btn-run" type="button">▶ 运行</button><button class="btn btn-copy" type="button">复制代码</button></div>
@@ -2246,8 +2218,7 @@ print('（&gt;0 正相关，&lt;0 负相关，接近 0 说明线性关系弱）'
 （&gt;0 正相关，&lt;0 负相关，接近 0 说明线性关系弱）
 </pre></div>
   </div><h3 id="c7-4">9.4.4 气泡图：金额 + 数量 + 日期三个信息（例 9-17）</h3><div class="demo static">
-    <div class="demo-head"><span class="demo-title">例 9-17　散点的 s 参数 = 第三维（气泡大小）</span></div>
-    <pre class="code">import pandas as pd
+    <div class="demo-head"><span class="demo-title">例 9-17　散点的 s 参数 = 第三维（气泡大小）</span><div class="demo-actions"><button class="btn btn-run btn-fig" type="button">▶ 运行看结果</button><button class="btn btn-copy" type="button">复制代码</button></div></div><pre class="code">import pandas as pd
 import matplotlib.pyplot as plt
 
 plt.rcParams['font.sans-serif'] = ['SimHei']
@@ -2256,10 +2227,8 @@ df2 = df.groupby('订单日期').agg({'金额': 'sum', '数量': 'sum'}).reset_i
 
 df2.plot.scatter(x='订单日期', y='金额', s=df2['数量'] * 2, c='g', alpha=0.5)
 plt.title('每日订购金额和订购数量变化图')
-plt.show()</pre>
-  </div><figure class="figure"><img src="assets/python-bigdata-2026/lesson9/figs/fig_vis_bubble.png" alt="图 9-22　例 9-17 实跑结果：气泡大小表示当日订购数量" loading="lazy"><figcaption>图 9-22　例 9-17 实跑结果：气泡大小表示当日订购数量</figcaption></figure><div class="note">气泡图的 <code class="inline">s</code> 是面积不是半径，数值差一个数量级时可以乘系数调整；气泡别太密，必要时加 <code class="inline">alpha</code>。</div><h3 id="c7-5">9.4.5 箱线图：各商品订单金额分布（例 9-18）</h3><div class="demo static">
-    <div class="demo-head"><span class="demo-title">例 9-18　boxplot 按商品分组看金额分布（已修正课件注释 bug）</span></div>
-    <pre class="code">import pandas as pd
+plt.show()</pre><div class="demo-out fig-out"><div class="out-label">运行结果（本机实测图）</div><figure class="figure"><img src="assets/python-bigdata-2026/lesson9/figs/fig_vis_bubble.png" alt="图 9-22　例 9-17 实跑结果：气泡大小表示当日订购数量" loading="lazy"><figcaption>图 9-22　例 9-17 实跑结果：气泡大小表示当日订购数量</figcaption></figure></div></div><div class="note">气泡图的 <code class="inline">s</code> 是面积不是半径，数值差一个数量级时可以乘系数调整；气泡别太密，必要时加 <code class="inline">alpha</code>。</div><h3 id="c7-5">9.4.5 箱线图：各商品订单金额分布（例 9-18）</h3><div class="demo static">
+    <div class="demo-head"><span class="demo-title">例 9-18　boxplot 按商品分组看金额分布（已修正课件注释 bug）</span><div class="demo-actions"><button class="btn btn-run btn-fig" type="button">▶ 运行看结果</button><button class="btn btn-copy" type="button">复制代码</button></div></div><pre class="code">import pandas as pd
 import matplotlib.pyplot as plt
 
 plt.rcParams['font.sans-serif'] = ['SimHei']
@@ -2269,8 +2238,7 @@ df.boxplot(column='金额', by='商品名称')
 fig = plt.gcf()
 fig.suptitle('')                       # 去掉 pandas 自动加的副标题
 plt.title('商品订单金额分布图')          # 课件原注释把这行吞掉了，这里修正
-plt.show()</pre>
-  </div><figure class="figure"><img src="assets/python-bigdata-2026/lesson9/figs/fig_vis_box_amount.png" alt="图 9-23　例 9-18 实跑结果：各商品订单金额箱线图" loading="lazy"><figcaption>图 9-23　例 9-18 实跑结果：各商品订单金额箱线图</figcaption></figure><div class="note">箱线图读法：箱体上下边是 Q3/Q1，中间线是中位数，须线外是离群点。<b>运动服金额分布最宽、围巾最集中</b>——这类结论要靠图 + 数据一起讲。</div><h3 id="c7-6">9.4.6 收口：从图到结论的三句话</h3><div class="grid2"><div class="cell"><h4>图要回答问题</h4><p>每张图先写一句话结论（谁最高、哪天最低、有没有关系），再想「这张图能不能支撑这句话」。</p></div><div class="cell"><h4>看分布再下结论</h4><p>均值相同不代表分布相同：箱线图/直方图能看出偏态与离群点，别只报平均数。</p></div></div><div class="sumline">✅ <b>本节小结</b>：应用案例的套路：<b>业务问题 → groupby/pivot 得到表 → 选图 → 标注关键点 → 用一两句话解读</b>；图表是为结论服务的，不是为炫技。</div>
+plt.show()</pre><div class="demo-out fig-out"><div class="out-label">运行结果（本机实测图）</div><figure class="figure"><img src="assets/python-bigdata-2026/lesson9/figs/fig_vis_box_amount.png" alt="图 9-23　例 9-18 实跑结果：各商品订单金额箱线图" loading="lazy"><figcaption>图 9-23　例 9-18 实跑结果：各商品订单金额箱线图</figcaption></figure></div></div><div class="note">箱线图读法：箱体上下边是 Q3/Q1，中间线是中位数，须线外是离群点。<b>运动服金额分布最宽、围巾最集中</b>——这类结论要靠图 + 数据一起讲。</div><h3 id="c7-6">9.4.6 收口：从图到结论的三句话</h3><div class="grid2"><div class="cell"><h4>图要回答问题</h4><p>每张图先写一句话结论（谁最高、哪天最低、有没有关系），再想「这张图能不能支撑这句话」。</p></div><div class="cell"><h4>看分布再下结论</h4><p>均值相同不代表分布相同：箱线图/直方图能看出偏态与离群点，别只报平均数。</p></div></div><div class="sumline">✅ <b>本节小结</b>：应用案例的套路：<b>业务问题 → groupby/pivot 得到表 → 选图 → 标注关键点 → 用一两句话解读</b>；图表是为结论服务的，不是为炫技。</div>
 </section>
 <section id="download">
   <div class="sec-head">
@@ -4114,6 +4082,23 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 });
 
+
+/* ===== 绘图示例：点「运行看结果」再展开实测图 ===== */
+document.addEventListener('DOMContentLoaded', function () {
+  document.querySelectorAll('.btn-fig').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var box = btn.closest('.demo');
+      if (!box) return;
+      box.classList.add('shown');
+      btn.textContent = '✓ 已显示运行结果';
+      var img = box.querySelector('.fig-out img');
+      if (img) {
+        img.loading = 'eager';
+        if (img.decode) { img.decode().catch(function () {}); }
+      }
+    });
+  });
+});
 </script>
 </body>
 </html>
